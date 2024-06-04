@@ -17,7 +17,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
         view_name='core-api:datasource-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='core:datasource-detail'
+        view_name='core:datasource'
     )
     type = ChoiceField(
         choices=get_data_backend_choices()
@@ -44,7 +44,7 @@ class DataFileSerializer(NetBoxModelSerializer):
         view_name='core-api:datafile-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='core:datafile-detail'
+        view_name='core:datafile'
     )
     source = DataSourceSerializer(
         nested=True,

@@ -22,7 +22,7 @@ __all__ = (
 
 class CableSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable')
     a_terminations = GenericObjectSerializer(many=True, required=False)
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
@@ -44,7 +44,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
     Used only while tracing a cable path.
     """
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable')
 
     class Meta:
         model = Cable
@@ -55,7 +55,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
 
 class CableTerminationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cabletermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cabletermination-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cabletermination')
     termination_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )

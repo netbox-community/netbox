@@ -15,7 +15,7 @@ __all__ = (
 
 class RIRSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:rir-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:rir')
 
     # Related object counts
     aggregate_count = RelatedObjectCountField('aggregates')
@@ -31,7 +31,7 @@ class RIRSerializer(NetBoxModelSerializer):
 
 class ASNRangeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asnrange-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asnrange')
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     asn_count = serializers.IntegerField(read_only=True)
@@ -47,7 +47,7 @@ class ASNRangeSerializer(NetBoxModelSerializer):
 
 class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asn-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asn')
     rir = RIRSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 

@@ -15,7 +15,7 @@ __all__ = (
 
 class ScriptSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:script-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:script')
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
     result = JobSerializer(nested=True, read_only=True)

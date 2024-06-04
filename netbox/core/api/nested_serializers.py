@@ -15,7 +15,7 @@ __all__ = (
 
 class NestedDataSourceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='core-api:datasource-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='core:datasource-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='core:datasource')
 
     class Meta:
         model = DataSource
@@ -24,7 +24,7 @@ class NestedDataSourceSerializer(WritableNestedSerializer):
 
 class NestedDataFileSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='core-api:datafile-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='core:datafile-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='core:datafile')
 
     class Meta:
         model = DataFile
@@ -33,7 +33,7 @@ class NestedDataFileSerializer(WritableNestedSerializer):
 
 class NestedJobSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='core-api:job-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='core:job-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='core:job')
     status = ChoiceField(choices=JobStatusChoices)
     user = UserSerializer(
         nested=True,

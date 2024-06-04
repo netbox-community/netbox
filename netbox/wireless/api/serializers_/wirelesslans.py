@@ -16,7 +16,7 @@ __all__ = (
 
 class WirelessLANGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslangroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslangroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslangroup')
     parent = NestedWirelessLANGroupSerializer(required=False, allow_null=True, default=None)
     wirelesslan_count = serializers.IntegerField(read_only=True, default=0)
 
@@ -31,7 +31,7 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
 
 class WirelessLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslan-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslan')
     group = WirelessLANGroupSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=WirelessLANStatusChoices, required=False, allow_blank=True)
     vlan = VLANSerializer(nested=True, required=False, allow_null=True)

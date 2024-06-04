@@ -16,7 +16,7 @@ __all__ = (
 
 class ServiceTemplateSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:servicetemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:servicetemplate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:servicetemplate')
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
 
     class Meta:
@@ -30,7 +30,7 @@ class ServiceTemplateSerializer(NetBoxModelSerializer):
 
 class ServiceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:service-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:service')
     device = DeviceSerializer(nested=True, required=False, allow_null=True)
     virtual_machine = VirtualMachineSerializer(nested=True, required=False, allow_null=True)
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)

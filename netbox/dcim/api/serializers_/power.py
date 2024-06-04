@@ -18,7 +18,7 @@ __all__ = (
 
 class PowerPanelSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:powerpanel-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:powerpanel')
     site = SiteSerializer(nested=True)
     location = LocationSerializer(
         nested=True,
@@ -41,7 +41,7 @@ class PowerPanelSerializer(NetBoxModelSerializer):
 
 class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerfeed-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:powerfeed-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:powerfeed')
     power_panel = PowerPanelSerializer(nested=True)
     rack = RackSerializer(
         nested=True,

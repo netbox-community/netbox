@@ -13,7 +13,7 @@ __all__ = (
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:exporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:exporttemplate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:exporttemplate')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         many=True

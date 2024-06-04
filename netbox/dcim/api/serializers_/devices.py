@@ -30,7 +30,7 @@ __all__ = (
 
 class DeviceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:device-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:device')
     device_type = DeviceTypeSerializer(nested=True)
     role = DeviceRoleSerializer(nested=True)
     tenant = TenantSerializer(
@@ -122,7 +122,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:virtualdevicecontext-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:virtualdevicecontext')
     device = DeviceSerializer(nested=True)
     identifier = serializers.IntegerField(allow_null=True, max_value=32767, min_value=0, required=False, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -146,7 +146,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
 
 class ModuleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:module-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:module')
     device = DeviceSerializer(nested=True)
     module_bay = NestedModuleBaySerializer()
     module_type = ModuleTypeSerializer(nested=True)

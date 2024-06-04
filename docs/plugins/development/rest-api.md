@@ -40,7 +40,7 @@ class MyModelSerializer(NetBoxModelSerializer):
         view_name='plugins-api:myplugin-api:mymodel-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='plugins:myplugin:mymodel-detail'
+        view_name='plugins:myplugin:mymodel'
     )
 
     class Meta:
@@ -70,7 +70,7 @@ class NestedMyModelSerializer(WritableNestedSerializer):
         view_name='plugins-api:myplugin-api:mymodel-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='plugins:myplugin:mymodel-detail'
+        view_name='plugins:myplugin:mymodel'
     )
 
     class Meta:

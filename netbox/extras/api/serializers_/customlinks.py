@@ -12,7 +12,7 @@ __all__ = (
 
 class CustomLinkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customlink-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customlink')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_links'),
         many=True

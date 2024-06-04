@@ -24,7 +24,7 @@ __all__ = (
 )
 class NestedTunnelGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:tunnelgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:tunnelgroup')
     tunnel_count = RelatedObjectCountField('tunnels')
 
     class Meta:
@@ -37,7 +37,7 @@ class NestedTunnelSerializer(WritableNestedSerializer):
         view_name='vpn-api:tunnel-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:tunnel-detail'
+        view_name='vpn:tunnel'
     )
 
     class Meta:
@@ -50,7 +50,7 @@ class NestedTunnelTerminationSerializer(WritableNestedSerializer):
         view_name='vpn-api:tunneltermination-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:tunneltermination-detail'
+        view_name='vpn:tunneltermination'
     )
 
     class Meta:
@@ -63,7 +63,7 @@ class NestedIKEProposalSerializer(WritableNestedSerializer):
         view_name='vpn-api:ikeproposal-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikeproposal-detail'
+        view_name='vpn:ikeproposal'
     )
 
     class Meta:
@@ -76,7 +76,7 @@ class NestedIKEPolicySerializer(WritableNestedSerializer):
         view_name='vpn-api:ikepolicy-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikepolicy-detail'
+        view_name='vpn:ikepolicy'
     )
 
     class Meta:
@@ -89,7 +89,7 @@ class NestedIPSecProposalSerializer(WritableNestedSerializer):
         view_name='vpn-api:ipsecproposal-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecproposal-detail'
+        view_name='vpn:ipsecproposal'
     )
 
     class Meta:
@@ -102,7 +102,7 @@ class NestedIPSecPolicySerializer(WritableNestedSerializer):
         view_name='vpn-api:ipsecpolicy-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecpolicy-detail'
+        view_name='vpn:ipsecpolicy'
     )
 
     class Meta:
@@ -115,7 +115,7 @@ class NestedIPSecProfileSerializer(WritableNestedSerializer):
         view_name='vpn-api:ipsecprofile-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecprofile-detail'
+        view_name='vpn:ipsecprofile'
     )
 
     class Meta:
@@ -129,7 +129,7 @@ class NestedIPSecProfileSerializer(WritableNestedSerializer):
 
 class NestedL2VPNSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpn-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpn-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpn')
 
     class Meta:
         model = models.L2VPN
@@ -140,7 +140,7 @@ class NestedL2VPNSerializer(WritableNestedSerializer):
 
 class NestedL2VPNTerminationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpntermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpntermination-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpntermination')
     l2vpn = NestedL2VPNSerializer()
 
     class Meta:

@@ -12,7 +12,7 @@ __all__ = (
 
 class SavedFilterSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:savedfilter-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:savedfilter')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True

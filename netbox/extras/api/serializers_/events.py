@@ -22,7 +22,7 @@ __all__ = (
 
 class EventRuleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:eventrule-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:eventrule')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
@@ -60,7 +60,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
 
 class WebhookSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:webhook-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:webhook')
 
     class Meta:
         model = Webhook

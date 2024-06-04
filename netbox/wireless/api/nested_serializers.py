@@ -16,7 +16,7 @@ __all__ = (
 )
 class NestedWirelessLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslangroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslangroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslangroup')
     wirelesslan_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
@@ -27,7 +27,7 @@ class NestedWirelessLANGroupSerializer(WritableNestedSerializer):
 
 class NestedWirelessLANSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslan-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslan')
 
     class Meta:
         model = WirelessLAN
@@ -36,7 +36,7 @@ class NestedWirelessLANSerializer(WritableNestedSerializer):
 
 class NestedWirelessLinkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslink-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslink-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslink')
 
     class Meta:
         model = WirelessLink

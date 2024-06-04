@@ -11,7 +11,7 @@ __all__ = (
 
 class RoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:role-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:role')
 
     # Related object counts
     prefix_count = RelatedObjectCountField('prefixes')

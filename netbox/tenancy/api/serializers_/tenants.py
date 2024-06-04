@@ -13,7 +13,7 @@ __all__ = (
 
 class TenantGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenantgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenantgroup')
     parent = NestedTenantGroupSerializer(required=False, allow_null=True)
     tenant_count = serializers.IntegerField(read_only=True, default=0)
 
@@ -28,7 +28,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
 
 class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenant-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenant')
     group = TenantGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts

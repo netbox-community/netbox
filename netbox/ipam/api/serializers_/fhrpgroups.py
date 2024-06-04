@@ -16,7 +16,7 @@ __all__ = (
 
 class FHRPGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup')
     ip_addresses = IPAddressSerializer(nested=True, many=True, read_only=True)
 
     class Meta:
@@ -30,7 +30,7 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
 
 class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroupassignment-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroupassignment')
     group = FHRPGroupSerializer(nested=True)
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()

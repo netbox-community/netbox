@@ -13,7 +13,7 @@ __all__ = (
 
 class DeviceRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:devicerole-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:devicerole')
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts
@@ -31,7 +31,7 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
 
 class InventoryItemRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:inventoryitemrole-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:inventoryitemrole')
 
     # Related object counts
     inventoryitem_count = RelatedObjectCountField('inventory_items')

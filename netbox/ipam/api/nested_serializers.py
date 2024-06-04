@@ -32,7 +32,7 @@ __all__ = [
 
 class NestedASNRangeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asnrange-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asnrange')
 
     class Meta:
         model = models.ASNRange
@@ -45,7 +45,7 @@ class NestedASNRangeSerializer(WritableNestedSerializer):
 
 class NestedASNSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asn-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:asn')
 
     class Meta:
         model = models.ASN
@@ -61,7 +61,7 @@ class NestedASNSerializer(WritableNestedSerializer):
 )
 class NestedVRFSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vrf-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vrf')
     prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
@@ -75,7 +75,7 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
 class NestedRouteTargetSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:routetarget-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:routetarget')
 
     class Meta:
         model = models.RouteTarget
@@ -91,7 +91,7 @@ class NestedRouteTargetSerializer(WritableNestedSerializer):
 )
 class NestedRIRSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:rir-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:rir')
     aggregate_count = RelatedObjectCountField('aggregates')
 
     class Meta:
@@ -101,7 +101,7 @@ class NestedRIRSerializer(WritableNestedSerializer):
 
 class NestedAggregateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:aggregate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:aggregate')
     family = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -115,7 +115,7 @@ class NestedAggregateSerializer(WritableNestedSerializer):
 
 class NestedFHRPGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup')
 
     class Meta:
         model = models.FHRPGroup
@@ -124,7 +124,7 @@ class NestedFHRPGroupSerializer(WritableNestedSerializer):
 
 class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup')
     group = NestedFHRPGroupSerializer()
 
     class Meta:
@@ -141,7 +141,7 @@ class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
 )
 class NestedRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:role-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:role')
     prefix_count = RelatedObjectCountField('prefixes')
     vlan_count = RelatedObjectCountField('vlans')
 
@@ -155,7 +155,7 @@ class NestedRoleSerializer(WritableNestedSerializer):
 )
 class NestedVLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlangroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlangroup')
     vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
@@ -165,7 +165,7 @@ class NestedVLANGroupSerializer(WritableNestedSerializer):
 
 class NestedVLANSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlan-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlan')
 
     class Meta:
         model = models.VLAN
@@ -178,7 +178,7 @@ class NestedVLANSerializer(WritableNestedSerializer):
 
 class NestedPrefixSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:prefix-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:prefix')
     family = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
 
@@ -193,7 +193,7 @@ class NestedPrefixSerializer(WritableNestedSerializer):
 
 class NestedIPRangeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:iprange-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:iprange')
     family = serializers.IntegerField(read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -209,7 +209,7 @@ class NestedIPRangeSerializer(WritableNestedSerializer):
 
 class NestedIPAddressSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:ipaddress-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:ipaddress')
     family = serializers.IntegerField(read_only=True)
     address = IPAddressField()
 
@@ -224,7 +224,7 @@ class NestedIPAddressSerializer(WritableNestedSerializer):
 
 class NestedServiceTemplateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:servicetemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:servicetemplate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:servicetemplate')
 
     class Meta:
         model = models.ServiceTemplate
@@ -233,7 +233,7 @@ class NestedServiceTemplateSerializer(WritableNestedSerializer):
 
 class NestedServiceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:service-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:service')
 
     class Meta:
         model = models.Service

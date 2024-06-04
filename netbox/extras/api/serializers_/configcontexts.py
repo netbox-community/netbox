@@ -21,7 +21,7 @@ __all__ = (
 
 class ConfigContextSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:configcontext-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configcontext-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configcontext')
     regions = SerializedPKRelatedField(
         queryset=Region.objects.all(),
         serializer=RegionSerializer,

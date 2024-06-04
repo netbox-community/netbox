@@ -16,7 +16,7 @@ __all__ = (
 
 class TokenSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:token-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='users:token')
     key = serializers.CharField(
         min_length=40,
         max_length=40,

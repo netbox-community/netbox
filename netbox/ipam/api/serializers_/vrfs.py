@@ -13,7 +13,7 @@ __all__ = (
 
 class RouteTargetSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:routetarget-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:routetarget')
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
@@ -27,7 +27,7 @@ class RouteTargetSerializer(NetBoxModelSerializer):
 
 class VRFSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vrf-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vrf')
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),

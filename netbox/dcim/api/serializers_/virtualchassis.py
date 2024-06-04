@@ -11,7 +11,7 @@ __all__ = (
 
 class VirtualChassisSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:virtualchassis-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:virtualchassis')
     master = NestedDeviceSerializer(required=False, allow_null=True, default=None)
     members = NestedDeviceSerializer(many=True, read_only=True)
 

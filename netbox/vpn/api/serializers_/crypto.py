@@ -19,7 +19,7 @@ class IKEProposalSerializer(NetBoxModelSerializer):
         view_name='vpn-api:ikeproposal-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikeproposal-detail'
+        view_name='vpn:ikeproposal'
     )
     authentication_method = ChoiceField(
         choices=AuthenticationMethodChoices
@@ -49,7 +49,7 @@ class IKEPolicySerializer(NetBoxModelSerializer):
         view_name='vpn-api:ikepolicy-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikepolicy-detail'
+        view_name='vpn:ikepolicy'
     )
     version = ChoiceField(
         choices=IKEVersionChoices
@@ -79,7 +79,7 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
         view_name='vpn-api:ipsecproposal-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecproposal-detail'
+        view_name='vpn:ipsecproposal'
     )
     encryption_algorithm = ChoiceField(
         choices=EncryptionAlgorithmChoices
@@ -102,7 +102,7 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
         view_name='vpn-api:ipsecpolicy-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecpolicy-detail'
+        view_name='vpn:ipsecpolicy'
     )
     proposals = SerializedPKRelatedField(
         queryset=IPSecProposal.objects.all(),
@@ -130,7 +130,7 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
         view_name='vpn-api:ipsecprofile-detail'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecprofile-detail'
+        view_name='vpn:ipsecprofile'
     )
     mode = ChoiceField(
         choices=IPSecModeChoices

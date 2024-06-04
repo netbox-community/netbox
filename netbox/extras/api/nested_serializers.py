@@ -23,7 +23,7 @@ __all__ = [
 
 class NestedEventRuleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:eventrule-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:eventrule')
 
     class Meta:
         model = models.EventRule
@@ -32,7 +32,7 @@ class NestedEventRuleSerializer(WritableNestedSerializer):
 
 class NestedWebhookSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:webhook-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:webhook')
 
     class Meta:
         model = models.Webhook
@@ -41,7 +41,7 @@ class NestedWebhookSerializer(WritableNestedSerializer):
 
 class NestedCustomFieldSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfield-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfield')
 
     class Meta:
         model = models.CustomField
@@ -50,7 +50,7 @@ class NestedCustomFieldSerializer(WritableNestedSerializer):
 
 class NestedCustomFieldChoiceSetSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfieldchoiceset-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfieldchoiceset')
 
     class Meta:
         model = models.CustomFieldChoiceSet
@@ -59,7 +59,7 @@ class NestedCustomFieldChoiceSetSerializer(WritableNestedSerializer):
 
 class NestedCustomLinkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customlink-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customlink')
 
     class Meta:
         model = models.CustomLink
@@ -68,7 +68,7 @@ class NestedCustomLinkSerializer(WritableNestedSerializer):
 
 class NestedConfigContextSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:configcontext-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configcontext-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configcontext')
 
     class Meta:
         model = models.ConfigContext
@@ -77,7 +77,7 @@ class NestedConfigContextSerializer(WritableNestedSerializer):
 
 class NestedConfigTemplateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configtemplate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configtemplate')
 
     class Meta:
         model = models.ConfigTemplate
@@ -86,7 +86,7 @@ class NestedConfigTemplateSerializer(WritableNestedSerializer):
 
 class NestedExportTemplateSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:exporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:exporttemplate-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:exporttemplate')
 
     class Meta:
         model = models.ExportTemplate
@@ -95,7 +95,7 @@ class NestedExportTemplateSerializer(WritableNestedSerializer):
 
 class NestedSavedFilterSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:savedfilter-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:savedfilter')
 
     class Meta:
         model = models.SavedFilter
@@ -104,7 +104,7 @@ class NestedSavedFilterSerializer(WritableNestedSerializer):
 
 class NestedBookmarkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:bookmark-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:bookmark')
 
     class Meta:
         model = models.Bookmark
@@ -113,7 +113,7 @@ class NestedBookmarkSerializer(WritableNestedSerializer):
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:imageattachment-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:imageattachment')
 
     class Meta:
         model = models.ImageAttachment
@@ -122,7 +122,7 @@ class NestedImageAttachmentSerializer(WritableNestedSerializer):
 
 class NestedJournalEntrySerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:journalentry-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:journalentry')
 
     class Meta:
         model = models.JournalEntry
@@ -136,7 +136,7 @@ class NestedScriptSerializer(WritableNestedSerializer):
         lookup_url_kwarg='pk'
     )
     display_url = serializers.HyperlinkedIdentityField(
-        view_name='extras:script-detail',
+        view_name='extras:script',
         lookup_field='full_name',
         lookup_url_kwarg='pk'
     )

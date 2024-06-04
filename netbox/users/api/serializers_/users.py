@@ -16,7 +16,7 @@ __all__ = (
 
 class GroupSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:group-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='users:group')
     user_count = serializers.IntegerField(read_only=True)
     permissions = SerializedPKRelatedField(
         source='object_permissions',
@@ -35,7 +35,7 @@ class GroupSerializer(ValidatedModelSerializer):
 
 class UserSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:user-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='users:user')
     groups = SerializedPKRelatedField(
         queryset=Group.objects.all(),
         serializer=GroupSerializer,

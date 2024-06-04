@@ -13,7 +13,7 @@ __all__ = (
 
 class PlatformSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:platform-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:platform')
     manufacturer = ManufacturerSerializer(nested=True, required=False, allow_null=True)
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
 

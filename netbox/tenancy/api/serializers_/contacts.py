@@ -20,7 +20,7 @@ __all__ = (
 
 class ContactGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactgroup')
     parent = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
     contact_count = serializers.IntegerField(read_only=True, default=0)
 
@@ -35,7 +35,7 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
 
 class ContactRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactrole-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactrole')
 
     class Meta:
         model = ContactRole
@@ -48,7 +48,7 @@ class ContactRoleSerializer(NetBoxModelSerializer):
 
 class ContactSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contact-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contact')
     group = ContactGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
@@ -62,7 +62,7 @@ class ContactSerializer(NetBoxModelSerializer):
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactassignment-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactassignment')
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )

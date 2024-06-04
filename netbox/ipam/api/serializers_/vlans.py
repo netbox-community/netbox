@@ -23,7 +23,7 @@ __all__ = (
 
 class VLANGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlangroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlangroup')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
@@ -59,7 +59,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
 
 class VLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlan-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:vlan')
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     group = VLANGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
