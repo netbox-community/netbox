@@ -253,7 +253,8 @@ class VirtualMachineFilterSet(
             Q(description__icontains=value) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value)
+            Q(primary_ip6__address__startswith=value) |
+            Q(serial_number__icontains=value)
         )
 
     def _has_primary_ip(self, queryset, name, value):
