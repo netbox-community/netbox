@@ -117,10 +117,12 @@ class BookmarkOrderingChoices(ChoiceSet):
 
     ORDERING_NEWEST = '-created'
     ORDERING_OLDEST = 'created'
+    ORDERING_NAME_AZ = 'name'
 
     CHOICES = (
         (ORDERING_NEWEST, _('Newest')),
         (ORDERING_OLDEST, _('Oldest')),
+        (ORDERING_NAME_AZ, _('Name (A-Z)')),
     )
 
 #

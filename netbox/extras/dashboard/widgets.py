@@ -381,7 +381,12 @@ class BookmarksWidget(DashboardWidget):
         if request.user.is_anonymous:
             bookmarks = list()
         else:
-            bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
+            if self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_AZ:
+                bookmarks = sorted(Bookmark.objects.filter(user=request.user),
+                                   key=lambda bookmark: bookmark.__str__().lower()
+                                   )
+            else:
+                bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
             if object_types := self.config.get('object_types'):
                 models = get_models_from_content_types(object_types)
                 conent_types = ObjectType.objects.get_for_models(*models).values()
