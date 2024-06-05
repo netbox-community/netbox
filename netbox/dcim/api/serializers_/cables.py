@@ -55,7 +55,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
 
 class CableTerminationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cabletermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cabletermination')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     termination_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )

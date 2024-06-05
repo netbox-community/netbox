@@ -33,7 +33,7 @@ __all__ = (
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:consoleporttemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -63,7 +63,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:consoleserverporttemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -93,7 +93,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:powerporttemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -124,7 +124,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlettemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:poweroutlettemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -166,7 +166,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interfacetemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:interfacetemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -214,7 +214,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:rearporttemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -240,7 +240,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontporttemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:frontporttemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -267,7 +267,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
 
 class ModuleBayTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebaytemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:modulebaytemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -283,7 +283,7 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebaytemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:devicebaytemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -299,7 +299,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 
 class InventoryItemTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemtemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:inventoryitemtemplate')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )

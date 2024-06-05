@@ -30,7 +30,7 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
 
 class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroupassignment')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     group = FHRPGroupSerializer(nested=True)
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()

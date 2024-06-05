@@ -79,7 +79,7 @@ class NestedContactSerializer(WritableNestedSerializer):
 
 class NestedContactAssignmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactassignment')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     contact = NestedContactSerializer()
     role = NestedContactRoleSerializer
 

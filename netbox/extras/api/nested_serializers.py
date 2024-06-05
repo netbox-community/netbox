@@ -104,7 +104,7 @@ class NestedSavedFilterSerializer(WritableNestedSerializer):
 
 class NestedBookmarkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:bookmark')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
 
     class Meta:
         model = models.Bookmark
@@ -113,7 +113,7 @@ class NestedBookmarkSerializer(WritableNestedSerializer):
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:imageattachment')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
 
     class Meta:
         model = models.ImageAttachment

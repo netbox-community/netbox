@@ -62,7 +62,7 @@ class ContactSerializer(NetBoxModelSerializer):
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactassignment')
+    display_url = serializers.CharField(allow_null=True, read_only=True)
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
