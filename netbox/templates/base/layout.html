@@ -188,12 +188,9 @@ Blocks:
 
             {# Footer text #}
             <ul class="list-inline list-inline-dots fs-5 mb-0" id="footer-stamp" hx-swap-oob="true">
-              <li class="list-inline-item">
-                {% now 'Y-m-d H:i:s T' %}
-              </li>
-              <li class="list-inline-item">
-                {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
-              </li>
+              <li class="list-inline-item">{% now 'Y-m-d H:i:s T' %}</li>
+              <li class="list-inline-item">{{ settings.HOSTNAME }}</li>
+              <li class="list-inline-item">{{ settings.RELEASE.name }}</li>
             </ul>
             {# /Footer text #}
 

@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
+from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
 
@@ -25,7 +26,8 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.6-dev'
+RELEASE = load_release_data()
+VERSION = RELEASE.full_version  # Retained for backward compatibility
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
