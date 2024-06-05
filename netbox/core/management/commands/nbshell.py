@@ -18,7 +18,7 @@ BANNER_TEXT = """### NetBox interactive shell ({node})
     node=platform.node(),
     python=platform.python_version(),
     django=get_version(),
-    netbox=settings.VERSION
+    netbox=settings.RELEASE.name
 )
 
 

@@ -535,7 +535,7 @@ if SENTRY_ENABLED:
     # Initialize the SDK
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        release=VERSION,
+        release=RELEASE.full_version,
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,
@@ -555,7 +555,7 @@ if SENTRY_ENABLED:
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.dev/api/v1/'
 CENSUS_PARAMS = {
-    'version': VERSION,
+    'version': RELEASE.full_version,
     'python_version': sys.version.split()[0],
     'deployment_id': DEPLOYMENT_ID,
 }
@@ -613,7 +613,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 # Django REST framework (API)
 #
 
-REST_FRAMEWORK_VERSION = '.'.join(VERSION.split('-')[0].split('.')[:2])  # Use major.minor as API version
+REST_FRAMEWORK_VERSION = '.'.join(RELEASE.version.split('-')[0].split('.')[:2])  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'COERCE_DECIMAL_TO_STRING': False,
@@ -658,7 +658,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'NetBox REST API',
     'LICENSE': {'name': 'Apache v2 License'},
-    'VERSION': VERSION,
+    'VERSION': RELEASE.full_version,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
     'SERVERS': [{
@@ -804,7 +804,7 @@ for plugin_name in PLUGINS:
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
         PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name], VERSION)
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
 
     # Add middleware
     plugin_middleware = plugin_config.middleware
