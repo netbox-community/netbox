@@ -1,14 +1,9 @@
-import datetime
 import json
 from typing import Dict, Any
 from urllib.parse import quote
 
 from django import template
-from django.conf import settings
-from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
-from django.utils import timezone
-from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
@@ -92,30 +87,22 @@ def humanize_speed(speed):
 @register.filter()
 def humanize_megabytes(mb):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes or terabytes).
-    It considers the mb value as megabytes and converts it to the most suitable unit.
+    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
     """
-
-    # Factors in bytes
-    factors = {
-        "mega": 1000 ** 2,
-        "giga": 1000 ** 3,
-        "tera": 1000 ** 4,
-    }
-
     if not mb:
         return ""
 
-    bytes = int(mb * 1000**2)
+    PB_SIZE = 1000000000
+    TB_SIZE = 1000000
+    GB_SIZE = 1000
 
-    if bytes >= factors["tera"]:
-        return f"{bytes / factors['tera']:.2f} TB"
-
-    if bytes >= factors["giga"]:
-        return f"{bytes / factors['giga']:.2f} GB"
-
-    if bytes >= factors["mega"]:
-        return f"{bytes / factors['mega']:.2f} MB"
+    if mb >= PB_SIZE:
+        return f"{mb / PB_SIZE:.2f} PB"
+    if mb >= TB_SIZE:
+        return f"{mb / TB_SIZE:.2f} TB"
+    if mb >= GB_SIZE:
+        return f"{mb / GB_SIZE:.2f} GB"
+    return f"{mb} MB"
 
 
 @register.filter()

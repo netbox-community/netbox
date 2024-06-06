@@ -125,7 +125,7 @@
                     <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
                     <td>
                         {% if object.memory %}
-                          <span title={{ object.memory }}> {{ object.memory|humanize_megabytes }}</span>
+                            <span title={{ object.memory }}>{{ object.memory|humanize_megabytes }}</span>
                         {% else %}
                             {{ ''|placeholder }}
                         {% endif %}
