@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.utils.translation import gettext_lazy as _
 
 from dcim.tables.devices import BaseInterfaceTable
@@ -117,6 +118,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
+
+    def render_disk(self, value):
+        return intcomma(value)
 
 
 #

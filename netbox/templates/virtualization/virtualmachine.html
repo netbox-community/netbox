@@ -137,7 +137,7 @@
                   </th>
                   <td>
                     {% if object.disk %}
-                      {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                      {{ object.disk|humanize_megabytes }}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}
