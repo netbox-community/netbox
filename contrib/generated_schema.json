@@ -323,6 +323,7 @@
                         "100base-tx",
                         "100base-t1",
                         "1000base-t",
+                        "1000base-tx",
                         "2.5gbase-t",
                         "5gbase-t",
                         "10gbase-t",

@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.4-dev'
+VERSION = '4.0.6-dev'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -368,6 +368,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
+if not DEBUG:
+    INSTALLED_APPS.remove('debug_toolbar')
 if not DJANGO_ADMIN_ENABLED:
     INSTALLED_APPS.remove('django.contrib.admin')
 

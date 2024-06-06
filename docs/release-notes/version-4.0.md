@@ -1,18 +1,34 @@
 # NetBox v4.0
 
-## v4.0.4 (FUTURE)
+## v4.0.6 (FUTURE)
+
+---
+
+## v4.0.5 (2024-06-06)
 
 ### Enhancements
 
 * [#14810](https://github.com/netbox-community/netbox/issues/14810) - Enable contact assignment for services
 * [#15489](https://github.com/netbox-community/netbox/issues/15489) - Add 1000Base-TX interface type
+* [#15873](https://github.com/netbox-community/netbox/issues/15873) - Improve readability of allocates resource numbers for clusters
 * [#16290](https://github.com/netbox-community/netbox/issues/16290) - Capture entire object in changelog data (but continue to display only non-internal attributes)
+* [#16353](https://github.com/netbox-community/netbox/issues/16353) - Enable plugins to extend object change view with custom content
 
 ### Bug Fixes
 
 * [#13422](https://github.com/netbox-community/netbox/issues/13422) - Rebuild MPTT trees for applicable models after merging staged changes
+* [#14567](https://github.com/netbox-community/netbox/issues/14567) - Apply active quicksearch value when exporting "current view" from object list
+* [#15194](https://github.com/netbox-community/netbox/issues/15194) - Avoid enqueuing duplicate event triggers for a modified object
+* [#16039](https://github.com/netbox-community/netbox/issues/16039) - Fix row highlighting for front & rear port connections under device view
+* [#16050](https://github.com/netbox-community/netbox/issues/16050) - Fix display of names & descriptions defined for custom scripts
+* [#16083](https://github.com/netbox-community/netbox/issues/16083) - Disable font ligatures to avoid peculiarities in rendered text
 * [#16202](https://github.com/netbox-community/netbox/issues/16202) - Fix site map button URL for certain localizations
+* [#16261](https://github.com/netbox-community/netbox/issues/16261) - Fix GraphQL filtering for certain multi-value filters
 * [#16286](https://github.com/netbox-community/netbox/issues/16286) - Fix global search support for provider accounts
+* [#16312](https://github.com/netbox-community/netbox/issues/16312) - Fix object list navigation for dashboard widgets
+* [#16315](https://github.com/netbox-community/netbox/issues/16315) - Fix filtering change log & journal entries by object type in UI
+* [#16376](https://github.com/netbox-community/netbox/issues/16376) - Update change log for the terminating object (e.g. interface) when attaching a cable
+* [#16400](https://github.com/netbox-community/netbox/issues/16400) - Fix AttributeError when attempting to restore a previous configuration revision after deleting the current one
 
 ---
 
