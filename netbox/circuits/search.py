@@ -48,6 +48,7 @@ class ProviderIndex(SearchIndex):
     display_attrs = ('description',)
 
 
+@register_search
 class ProviderAccountIndex(SearchIndex):
     model = models.ProviderAccount
     fields = (

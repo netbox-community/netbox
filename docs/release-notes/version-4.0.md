@@ -1,5 +1,21 @@
 # NetBox v4.0
 
+## v4.0.4 (FUTURE)
+
+### Enhancements
+
+* [#14810](https://github.com/netbox-community/netbox/issues/14810) - Enable contact assignment for services
+* [#15489](https://github.com/netbox-community/netbox/issues/15489) - Add 1000Base-TX interface type
+* [#16290](https://github.com/netbox-community/netbox/issues/16290) - Capture entire object in changelog data (but continue to display only non-internal attributes)
+
+### Bug Fixes
+
+* [#13422](https://github.com/netbox-community/netbox/issues/13422) - Rebuild MPTT trees for applicable models after merging staged changes
+* [#16202](https://github.com/netbox-community/netbox/issues/16202) - Fix site map button URL for certain localizations
+* [#16286](https://github.com/netbox-community/netbox/issues/16286) - Fix global search support for provider accounts
+
+---
+
 ## v4.0.3 (2024-05-22)
 
 ### Enhancements
