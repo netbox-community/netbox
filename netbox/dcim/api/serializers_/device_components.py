@@ -169,7 +169,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
 
 class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-    device = DeviceSerializer(nested=True)
+    device = DeviceSerializer(nested=False)
     vdcs = SerializedPKRelatedField(
         queryset=VirtualDeviceContext.objects.all(),
         serializer=VirtualDeviceContextSerializer,
