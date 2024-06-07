@@ -14,6 +14,7 @@ from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
 from dcim.models import Device, DeviceRole, Platform
+from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -1189,20 +1190,36 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         tests = None
         table = None
         index = 0
+
+        LOG_LEVEL_RANK = {
+            LogLevelChoices.LOG_DEFAULT: 0,
+            LogLevelChoices.LOG_DEBUG: 1,
+            LogLevelChoices.LOG_SUCCESS: 2,
+            LogLevelChoices.LOG_INFO: 3,
+            LogLevelChoices.LOG_WARNING: 4,
+            LogLevelChoices.LOG_FAILURE: 5,
+        }
+
+        log_level = 0
+        if 'log_level' in request.GET:
+            log_level = LOG_LEVEL_RANK.get(request.GET["log_level"], LogLevelChoices.LOG_DEFAULT)
+
         if job.data:
             if 'log' in job.data:
                 if 'tests' in job.data:
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    index += 1
-                    result = {
-                        'index': index,
-                        'time': log.get('time'),
-                        'status': log.get('status'),
-                        'message': log.get('message'),
-                    }
-                    data.append(result)
+                    check_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    if check_level >= log_level:
+                        index += 1
+                        result = {
+                            'index': index,
+                            'time': log.get('time'),
+                            'status': log.get('status'),
+                            'message': log.get('message'),
+                        }
+                        data.append(result)
 
                 table = ScriptResultsTable(data, user=request.user)
                 table.configure(request)
