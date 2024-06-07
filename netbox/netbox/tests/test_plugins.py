@@ -166,11 +166,11 @@ class PluginTest(TestCase):
             required_settings = ['foo']
 
         # Validation should pass when all required settings are present
-        DummyConfigWithRequiredSettings.validate({'foo': True}, settings.VERSION)
+        DummyConfigWithRequiredSettings.validate({'foo': True}, settings.RELEASE.version)
 
         # Validation should fail when a required setting is missing
         with self.assertRaises(ImproperlyConfigured):
-            DummyConfigWithRequiredSettings.validate({}, settings.VERSION)
+            DummyConfigWithRequiredSettings.validate({}, settings.RELEASE.version)
 
     def test_default_settings(self):
         """
@@ -183,12 +183,12 @@ class PluginTest(TestCase):
 
         # Populate the default value if setting has not been specified
         user_config = {}
-        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.RELEASE.version)
         self.assertEqual(user_config['bar'], 123)
 
         # Don't overwrite specified values
         user_config = {'bar': 456}
-        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.RELEASE.version)
         self.assertEqual(user_config['bar'], 456)
 
     def test_graphql(self):

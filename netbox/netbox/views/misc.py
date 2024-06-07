@@ -50,7 +50,7 @@ class HomeView(View):
             latest_release = cache.get('latest_release')
             if latest_release:
                 release_version, release_url = latest_release
-                if release_version > version.parse(settings.VERSION):
+                if release_version > version.parse(settings.RELEASE.version):
                     new_release = {
                         'version': str(release_version),
                         'url': release_url,

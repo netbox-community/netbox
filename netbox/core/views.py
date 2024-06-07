@@ -539,7 +539,7 @@ class SystemView(UserPassesTestMixin, View):
         except (ProgrammingError, IndexError):
             pass
         stats = {
-            'netbox_version': settings.VERSION,
+            'netbox_release': settings.RELEASE,
             'django_version': DJANGO_VERSION,
             'python_version': platform.python_version(),
             'postgresql_version': psql_version,
