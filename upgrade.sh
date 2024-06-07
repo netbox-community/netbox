@@ -8,7 +8,7 @@
 
 cd "$(dirname "$0")"
 
-NETBOX_VERSION="$(grep ^VERSION netbox/netbox/settings.py | cut -d\' -f2)"
+NETBOX_VERSION="$(grep ^version netbox/release.yaml | cut -d \" -f2)"
 echo "You are installing (or upgrading to) NetBox version ${NETBOX_VERSION}"
 
 VIRTUALENV="$(pwd -P)/venv"
