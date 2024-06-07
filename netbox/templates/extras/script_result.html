@@ -58,13 +58,12 @@
       {# Object table controls #}
       <div class="row mb-3">
 
-
         <div class="col-2 d-print-none">
           <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-              {% trans "Log Level" %}
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownLogLevelButton" data-bs-toggle="dropdown" aria-expanded="false">
+              {% trans "Show Log Level" %}
             </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <ul class="dropdown-menu" aria-labelledby="dropdownLogLevelButton">
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=debug">{% trans "Debug" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=info">{% trans "Info" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=warning">{% trans "Warning" %}</a></li>
