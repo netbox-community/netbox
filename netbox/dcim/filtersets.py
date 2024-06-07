@@ -698,9 +698,6 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
         label=_('Device type (ID)'),
     )
 
-    # TODO: Remove in v4.1
-    devicetype_id = device_type_id
-
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
@@ -716,9 +713,6 @@ class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
         field_name='module_type_id',
         label=_('Module type (ID)'),
     )
-
-    # TODO: Remove in v4.1
-    moduletype_id = module_type_id
 
 
 class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
