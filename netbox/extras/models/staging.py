@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
+from mptt.models import MPTTModel
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
@@ -124,6 +125,11 @@ class StagedChange(CustomValidationMixin, EventRulesMixin, models.Model):
             instance = self.model.objects.get(pk=self.object_id)
             logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()
+
+        # Rebuild the MPTT tree where applicable
+        if issubclass(self.model, MPTTModel):
+            self.model.objects.rebuild()
+
     apply.alters_data = True
 
     def get_action_color(self):

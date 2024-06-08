@@ -1280,3 +1280,8 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
+
+
+@register_model_view(Service, 'contacts')
+class ServiceContactsView(ObjectContactsView):
+    queryset = Service.objects.all()
