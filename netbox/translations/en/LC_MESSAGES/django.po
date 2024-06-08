@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-07 05:01+0000\n"
+"POT-Creation-Date: 2024-06-08 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6674,14 +6674,12 @@ msgstr ""
 msgid "Ruleset must be a dictionary, not {ruleset}."
 msgstr ""
 
-#: netbox/extras/conditions.py:139
-#, python-brace-format
-msgid "Ruleset must have exactly one logical operator (found {ruleset})"
+#: netbox/extras/conditions.py:142
+msgid "Invalid logic type: must be 'AND' or 'OR'. Please check documentation."
 msgstr ""
 
-#: netbox/extras/conditions.py:145
-#, python-brace-format
-msgid "Invalid logic type: {logic} (must be '{op_and}' or '{op_or}')"
+#: netbox/extras/conditions.py:154
+msgid "Incorrect key(s) informed. Please check documentation."
 msgstr ""
 
 #: netbox/extras/dashboard/forms.py:38
