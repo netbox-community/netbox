@@ -9,6 +9,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -391,6 +392,11 @@ class AggregateBulkDeleteView(generic.BulkDeleteView):
     table = tables.AggregateTable
 
 
+@register_model_view(Aggregate, 'contacts')
+class AggregateContactsView(ObjectContactsView):
+    queryset = Aggregate.objects.all()
+
+
 #
 # Prefix/VLAN roles
 #
@@ -623,6 +629,11 @@ class PrefixBulkDeleteView(generic.BulkDeleteView):
     table = tables.PrefixTable
 
 
+@register_model_view(Prefix, 'contacts')
+class PrefixContactsView(ObjectContactsView):
+    queryset = Prefix.objects.all()
+
+
 #
 # IP Ranges
 #
@@ -704,6 +715,11 @@ class IPRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = IPRange.objects.all()
     filterset = filtersets.IPRangeFilterSet
     table = tables.IPRangeTable
+
+
+@register_model_view(IPRange, 'contacts')
+class IPRangeContactsView(ObjectContactsView):
+    queryset = IPRange.objects.all()
 
 
 #
@@ -871,6 +887,11 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_related_ips().restrict(request.user, 'view')
+
+
+@register_model_view(IPAddress, 'contacts')
+class IPAddressContactsView(ObjectContactsView):
+    queryset = IPAddress.objects.all()
 
 
 #
@@ -1235,3 +1256,8 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
+
+
+@register_model_view(Service, 'contacts')
+class ServiceContactsView(ObjectContactsView):
+    queryset = Service.objects.all()
