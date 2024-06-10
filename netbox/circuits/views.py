@@ -155,8 +155,7 @@ class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 instance,
-                [CircuitTermination],
-                (
+                extra=(
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
                         'provider_network_id',

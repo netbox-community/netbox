@@ -48,7 +48,7 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
         )
 
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(request, instance, omit=[Interface, VMInterface]),
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }
