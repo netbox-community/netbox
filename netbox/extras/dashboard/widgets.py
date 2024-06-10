@@ -381,12 +381,13 @@ class BookmarksWidget(DashboardWidget):
         if request.user.is_anonymous:
             bookmarks = list()
         else:
-            if self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_AZ:
-                bookmarks = sorted(Bookmark.objects.filter(user=request.user),
-                                   key=lambda bookmark: bookmark.__str__().lower()
-                                   )
+            user_bookmarks = Bookmark.objects.filter(user=request.user)
+            if self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_ALPHABETICAL_AZ:
+                bookmarks = sorted(user_bookmarks, key=lambda bookmark: bookmark.__str__().lower())
+            elif self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_ALPHABETICAL_ZA:
+                bookmarks = sorted(user_bookmarks, key=lambda bookmark: bookmark.__str__().lower(), reverse=True)
             else:
-                bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
+                bookmarks = user_bookmarks.order_by(self.config['order_by'])
             if object_types := self.config.get('object_types'):
                 models = get_models_from_content_types(object_types)
                 conent_types = ObjectType.objects.get_for_models(*models).values()
