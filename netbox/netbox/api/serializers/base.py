@@ -57,12 +57,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
             self._requested_fields = getattr(self.Meta, 'brief_fields', None)
 
         # don't override the field if the class already defines these so can set lookup_field
-        if (
-                "url" in self.fields and not isinstance(self.fields["url"], serializers.HyperlinkedIdentityField) and
+        if ("url" in self.fields and not isinstance(self.fields["url"], serializers.HyperlinkedIdentityField) and
                 isinstance(self.fields["url"], serializers.RelatedField)):
             self.fields["url"] = NetBoxApiHyperlinkedIdentityField(self.Meta.model)
-        if (
-                "display_url" in self.fields and not
+        if ("display_url" in self.fields and not
                 isinstance(self.fields["display_url"], serializers.HyperlinkedIdentityField) and
                 isinstance(self.fields["display_url"], serializers.RelatedField)):
             self.fields["display_url"] = NetBoxUrlHyperlinkedIdentityField(self.Meta.model)
