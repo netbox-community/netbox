@@ -1200,9 +1200,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             LogLevelChoices.LOG_FAILURE: 5,
         }
 
-        log_level = 0
-        if 'log_level' in request.GET:
-            log_level = LOG_LEVEL_RANK.get(request.GET["log_level"], LogLevelChoices.LOG_DEFAULT)
+        log_level = LOG_LEVEL_RANK.get(request.GET.get('log_level', LogLevelChoices.LOG_DEFAULT))
 
         if job.data:
             if 'log' in job.data:
