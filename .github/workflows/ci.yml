@@ -5,10 +5,12 @@ on:
     paths-ignore:
       - 'contrib/**'
       - 'docs/**'
+      - 'netbox/translations/**'
   pull_request:
     paths-ignore:
       - 'contrib/**'
       - 'docs/**'
+      - 'netbox/translations/**'
 
 permissions:
   contents: read
