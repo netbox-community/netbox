@@ -15,12 +15,6 @@ __all__ = (
 
 
 class IKEProposalSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ikeproposal-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikeproposal'
-    )
     authentication_method = ChoiceField(
         choices=AuthenticationMethodChoices
     )
@@ -45,12 +39,6 @@ class IKEProposalSerializer(NetBoxModelSerializer):
 
 
 class IKEPolicySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ikepolicy-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ikepolicy'
-    )
     version = ChoiceField(
         choices=IKEVersionChoices
     )
@@ -75,12 +63,6 @@ class IKEPolicySerializer(NetBoxModelSerializer):
 
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecproposal-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecproposal'
-    )
     encryption_algorithm = ChoiceField(
         choices=EncryptionAlgorithmChoices
     )
@@ -98,12 +80,6 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
 
 
 class IPSecPolicySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecpolicy-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecpolicy'
-    )
     proposals = SerializedPKRelatedField(
         queryset=IPSecProposal.objects.all(),
         serializer=IPSecProposalSerializer,
@@ -126,12 +102,6 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
 
 
 class IPSecProfileSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecprofile-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:ipsecprofile'
-    )
     mode = ChoiceField(
         choices=IPSecModeChoices
     )

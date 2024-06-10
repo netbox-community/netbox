@@ -15,8 +15,6 @@ __all__ = (
 
 
 class ProviderSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:provider')
     accounts = SerializedPKRelatedField(
         queryset=ProviderAccount.objects.all(),
         serializer=NestedProviderAccountSerializer,
@@ -44,8 +42,6 @@ class ProviderSerializer(NetBoxModelSerializer):
 
 
 class ProviderAccountSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:provideraccount')
     provider = ProviderSerializer(nested=True)
     name = serializers.CharField(allow_blank=True, max_length=100, required=False, default='')
 
@@ -59,8 +55,6 @@ class ProviderAccountSerializer(NetBoxModelSerializer):
 
 
 class ProviderNetworkSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:providernetwork')
     provider = ProviderSerializer(nested=True)
 
     class Meta:

@@ -11,8 +11,6 @@ __all__ = (
 
 
 class TagSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:tag')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('tags'),
         many=True,

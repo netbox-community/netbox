@@ -12,8 +12,6 @@ __all__ = (
 
 
 class ObjectPermissionSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:objectpermission')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True

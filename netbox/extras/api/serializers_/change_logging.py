@@ -15,8 +15,6 @@ __all__ = (
 
 
 class ObjectChangeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:objectchange-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:objectchange')
     user = UserSerializer(
         nested=True,
         read_only=True

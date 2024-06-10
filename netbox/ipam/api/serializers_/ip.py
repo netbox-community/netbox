@@ -29,8 +29,6 @@ __all__ = (
 
 
 class AggregateSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:aggregate')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -46,8 +44,6 @@ class AggregateSerializer(NetBoxModelSerializer):
 
 
 class PrefixSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:prefix')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
@@ -121,8 +117,6 @@ class AvailablePrefixSerializer(serializers.Serializer):
 #
 
 class IPRangeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:iprange')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -146,8 +140,6 @@ class IPRangeSerializer(NetBoxModelSerializer):
 #
 
 class IPAddressSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:ipaddress')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)

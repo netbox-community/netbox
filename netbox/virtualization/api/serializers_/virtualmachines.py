@@ -29,8 +29,6 @@ __all__ = (
 
 
 class VirtualMachineSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:virtualmachine')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -79,8 +77,6 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 #
 
 class VMInterfaceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:vminterface')
     virtual_machine = VirtualMachineSerializer(nested=True)
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
@@ -131,8 +127,6 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
 #
 
 class VirtualDiskSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualdisk-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:virtualdisk')
     virtual_machine = VirtualMachineSerializer(nested=True)
 
     class Meta:

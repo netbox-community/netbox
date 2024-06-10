@@ -13,7 +13,27 @@ __all__ = (
 )
 
 
+class NetBoxApiHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+
+    def __init__(self, model, **kwargs):
+        model_name = model._meta.model_name
+        app_name = model._meta.app_label
+        view_name = f'{app_name}-api:{model_name}-detail'
+        super().__init__(view_name, **kwargs)
+
+
+class NetBoxUrlHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+
+    def __init__(self, model, **kwargs):
+        model_name = model._meta.model_name
+        app_name = model._meta.app_label
+        view_name = f'{app_name}:{model_name}'
+        super().__init__(view_name, **kwargs)
+
+
 class BaseModelSerializer(serializers.ModelSerializer):
+    url = serializers.RelatedField(read_only=True)
+    display_url = serializers.RelatedField(read_only=True)
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):
@@ -35,6 +55,17 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # default to using Meta.brief_fields (if set)
         if self.nested and not fields:
             self._requested_fields = getattr(self.Meta, 'brief_fields', None)
+
+        # don't override the field if the class already defines these so can set lookup_field
+        if (
+                "url" in self.fields and not isinstance(self.fields["url"], serializers.HyperlinkedIdentityField) and
+                isinstance(self.fields["url"], serializers.RelatedField)):
+            self.fields["url"] = NetBoxApiHyperlinkedIdentityField(self.Meta.model)
+        if (
+                "display_url" in self.fields and not
+                isinstance(self.fields["display_url"], serializers.HyperlinkedIdentityField) and
+                isinstance(self.fields["display_url"], serializers.RelatedField)):
+            self.fields["display_url"] = NetBoxUrlHyperlinkedIdentityField(self.Meta.model)
 
         super().__init__(*args, **kwargs)
 

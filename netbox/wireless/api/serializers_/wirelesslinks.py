@@ -14,8 +14,6 @@ __all__ = (
 
 
 class WirelessLinkSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslink-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='wireless:wirelesslink')
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     interface_a = InterfaceSerializer(nested=True)
     interface_b = InterfaceSerializer(nested=True)

@@ -20,8 +20,6 @@ __all__ = (
 
 
 class RackRoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:rackrole')
 
     # Related object counts
     rack_count = RelatedObjectCountField('racks')
@@ -36,8 +34,6 @@ class RackRoleSerializer(NetBoxModelSerializer):
 
 
 class RackSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:rack')
     site = SiteSerializer(nested=True)
     location = LocationSerializer(nested=True, required=False, allow_null=True, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -66,8 +62,6 @@ class RackSerializer(NetBoxModelSerializer):
 
 
 class RackReservationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackreservation-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:rackreservation')
     rack = RackSerializer(nested=True)
     user = UserSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)

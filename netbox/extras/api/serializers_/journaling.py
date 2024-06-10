@@ -16,8 +16,6 @@ __all__ = (
 
 
 class JournalEntrySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:journalentry')
     assigned_object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )

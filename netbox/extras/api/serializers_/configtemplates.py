@@ -11,8 +11,6 @@ __all__ = (
 
 
 class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:configtemplate')
     data_source = DataSourceSerializer(
         nested=True,
         required=False

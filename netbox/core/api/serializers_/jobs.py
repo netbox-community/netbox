@@ -12,8 +12,6 @@ __all__ = (
 
 
 class JobSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='core-api:job-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='core:job')
     user = UserSerializer(
         nested=True,
         read_only=True

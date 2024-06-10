@@ -16,8 +16,6 @@ __all__ = (
 
 
 class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfieldchoiceset')
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
@@ -39,8 +37,6 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
 
 
 class CustomFieldSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfield')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True

@@ -13,12 +13,6 @@ __all__ = (
 
 
 class DataSourceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='core-api:datasource-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='core:datasource'
-    )
     type = ChoiceField(
         choices=get_data_backend_choices()
     )
@@ -40,12 +34,6 @@ class DataSourceSerializer(NetBoxModelSerializer):
 
 
 class DataFileSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='core-api:datafile-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='core:datafile'
-    )
     source = DataSourceSerializer(
         nested=True,
         read_only=True

@@ -23,8 +23,6 @@ __all__ = [
     exclude_fields=('cluster_count',),
 )
 class NestedClusterTypeSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:clustertype')
     cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
@@ -36,8 +34,6 @@ class NestedClusterTypeSerializer(WritableNestedSerializer):
     exclude_fields=('cluster_count',),
 )
 class NestedClusterGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:clustergroup')
     cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
@@ -49,8 +45,6 @@ class NestedClusterGroupSerializer(WritableNestedSerializer):
     exclude_fields=('virtualmachine_count',),
 )
 class NestedClusterSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:cluster')
     virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
@@ -63,8 +57,6 @@ class NestedClusterSerializer(WritableNestedSerializer):
 #
 
 class NestedVirtualMachineSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:virtualmachine')
 
     class Meta:
         model = VirtualMachine
@@ -72,8 +64,6 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
 
 
 class NestedVMInterfaceSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:vminterface')
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta:
@@ -82,8 +72,6 @@ class NestedVMInterfaceSerializer(WritableNestedSerializer):
 
 
 class NestedVirtualDiskSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualdisk-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='virtualization:virtualdisk')
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta:

@@ -14,7 +14,6 @@ __all__ = (
 
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
     display_url = serializers.CharField(allow_null=True, read_only=True)
     object_type = ContentTypeField(
         queryset=ObjectType.objects.all()

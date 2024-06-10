@@ -17,8 +17,6 @@ __all__ = (
 
 
 class DeviceTypeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:devicetype')
     manufacturer = ManufacturerSerializer(nested=True)
     default_platform = PlatformSerializer(nested=True, required=False, allow_null=True)
     u_height = serializers.DecimalField(
@@ -64,8 +62,6 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
 
 
 class ModuleTypeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:moduletype-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:moduletype')
     manufacturer = ManufacturerSerializer(nested=True)
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
 

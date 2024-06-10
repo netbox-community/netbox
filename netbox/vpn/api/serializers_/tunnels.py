@@ -23,8 +23,6 @@ __all__ = (
 #
 
 class TunnelGroupSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:tunnelgroup')
 
     # Related object counts
     tunnel_count = RelatedObjectCountField('tunnels')
@@ -39,12 +37,6 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
 
 
 class TunnelSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:tunnel-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:tunnel'
-    )
     status = ChoiceField(
         choices=TunnelStatusChoices
     )
@@ -82,12 +74,6 @@ class TunnelSerializer(NetBoxModelSerializer):
 
 
 class TunnelTerminationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:tunneltermination-detail'
-    )
-    display_url = serializers.HyperlinkedIdentityField(
-        view_name='vpn:tunneltermination'
-    )
     tunnel = TunnelSerializer(
         nested=True
     )

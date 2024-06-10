@@ -18,8 +18,6 @@ __all__ = (
 
 
 class CircuitTypeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuittype')
 
     # Related object counts
     circuit_count = RelatedObjectCountField('circuits')
@@ -34,8 +32,6 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
 
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuittermination')
     site = SiteSerializer(nested=True, allow_null=True)
     provider_network = ProviderNetworkSerializer(nested=True, allow_null=True)
 
@@ -48,8 +44,6 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 
 
 class CircuitSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuit')
     provider = ProviderSerializer(nested=True)
     provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
@@ -69,8 +63,6 @@ class CircuitSerializer(NetBoxModelSerializer):
 
 
 class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuittermination')
     circuit = CircuitSerializer(nested=True)
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     provider_network = ProviderNetworkSerializer(nested=True, required=False, allow_null=True)

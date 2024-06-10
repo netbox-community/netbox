@@ -19,8 +19,6 @@ __all__ = (
 
 
 class RegionSerializer(NestedGroupModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:region')
     parent = NestedRegionSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True, default=0)
 
@@ -34,8 +32,6 @@ class RegionSerializer(NestedGroupModelSerializer):
 
 
 class SiteGroupSerializer(NestedGroupModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:sitegroup')
     parent = NestedSiteGroupSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True, default=0)
 
@@ -49,8 +45,6 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
 
 
 class SiteSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:site-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:site')
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
@@ -84,8 +78,6 @@ class SiteSerializer(NetBoxModelSerializer):
 
 
 class LocationSerializer(NestedGroupModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:location')
     site = SiteSerializer(nested=True)
     parent = NestedLocationSerializer(required=False, allow_null=True, default=None)
     status = ChoiceField(choices=LocationStatusChoices, required=False)

@@ -18,8 +18,6 @@ __all__ = (
 
 
 class L2VPNSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpn-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpn')
     type = ChoiceField(choices=L2VPNTypeChoices, required=False)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
@@ -47,8 +45,6 @@ class L2VPNSerializer(NetBoxModelSerializer):
 
 
 class L2VPNTerminationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpntermination-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:l2vpntermination')
     l2vpn = L2VPNSerializer(
         nested=True
     )

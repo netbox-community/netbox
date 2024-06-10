@@ -17,8 +17,6 @@ __all__ = [
 
 
 class NestedGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:group')
 
     class Meta:
         model = Group
@@ -26,8 +24,6 @@ class NestedGroupSerializer(WritableNestedSerializer):
 
 
 class NestedUserSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:user')
 
     class Meta:
         model = get_user_model()
@@ -41,8 +37,6 @@ class NestedUserSerializer(WritableNestedSerializer):
 
 
 class NestedTokenSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:token')
 
     class Meta:
         model = Token
@@ -50,8 +44,6 @@ class NestedTokenSerializer(WritableNestedSerializer):
 
 
 class NestedObjectPermissionSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='users:objectpermission')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True
