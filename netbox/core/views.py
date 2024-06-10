@@ -224,7 +224,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         for param in PARAMS:
             params.append((
                 param.name,
-                current_config.data.get(param.name, None),
+                current_config.data.get(param.name, None) if current_config else None,
                 candidate_config.data.get(param.name, None)
             ))
 

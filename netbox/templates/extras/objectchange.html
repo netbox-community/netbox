@@ -1,5 +1,6 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
+{% load plugins %}
 {% load i18n %}
 
 {% block title %}{{ object }}{% endblock %}
@@ -22,7 +23,7 @@
 {% block subtitle %}{% endblock %}
 
 {% block content %}
-<div class="row mb-3">
+<div class="row">
     <div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">{% trans "Change" %}</h5>
@@ -104,7 +105,7 @@
         </div>
     </div>
 </div>
-<div class="row mb-3">
+<div class="row">
     <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
@@ -144,7 +145,15 @@
         </div>
     </div>
 </div>
-<div class="row mb-3">
+<div class="row">
+  <div class="col col-md-6">
+    {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% plugin_right_page object %}
+  </div>
+</div>
+<div class="row">
     <div class="col col-md-12">
         {% include 'inc/panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
         {% if related_changes_count > related_changes_table.rows|length %}
@@ -157,5 +166,10 @@
             </div>
         {% endif %}
     </div>
+</div>
+<div class="row">
+  <div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

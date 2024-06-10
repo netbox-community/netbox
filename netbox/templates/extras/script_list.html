@@ -56,15 +56,15 @@
                 <tr>
                   <td>
                     {% if script.is_executable %}
-                      <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                      <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.python_class.name }}</a>
                     {% else %}
-                      <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                      <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.python_class.name }}</a>
                       <span class="text-danger">
                         <i class="mdi mdi-alert" title="{% trans "Script is no longer present in the source file" %}"></i>
                       </span>
                     {% endif %}
                   </td>
-                  <td>{{ script.description|markdown|placeholder }}</td>
+                  <td>{{ script.python_class.Meta.description|markdown|placeholder }}</td>
                   {% if last_job %}
                     <td>
                       <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|isodatetime }}</a>
