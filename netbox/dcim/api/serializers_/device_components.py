@@ -32,6 +32,7 @@ __all__ = (
     'DeviceBaySerializer',
     'FrontPortSerializer',
     'InterfaceSerializer',
+    'GetInterfaceSerializer',
     'InventoryItemSerializer',
     'ModuleBaySerializer',
     'PowerOutletSerializer',
@@ -169,7 +170,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
 
 class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-    device = DeviceSerializer(nested=False)
+    device = DeviceSerializer(nested=True)
     vdcs = SerializedPKRelatedField(
         queryset=VirtualDeviceContext.objects.all(),
         serializer=VirtualDeviceContextSerializer,
@@ -247,6 +248,10 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
                     })
 
         return super().validate(data)
+
+
+class GetInterfaceSerializer(InterfaceSerializer):
+    device = DeviceSerializer(nested=False)
 
 
 class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
