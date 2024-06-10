@@ -896,7 +896,7 @@ class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance, [
+            'related_models': self.get_related_models(request, instance, omit=[
                 ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate,
                 InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate,
                 RearPortTemplate,
@@ -1135,7 +1135,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance, [
+            'related_models': self.get_related_models(request, instance, omit=[
                 ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate,
                 InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate,
                 RearPortTemplate,
