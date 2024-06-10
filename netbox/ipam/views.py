@@ -269,7 +269,14 @@ class ASNView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, [instance]),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (Site.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+                    (Provider.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+                ),
+            ),
         }
 
 

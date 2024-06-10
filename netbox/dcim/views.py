@@ -17,7 +17,7 @@ from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import IPAddress, VLANGroup
+from ipam.models import ASN, IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
@@ -400,7 +400,9 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                         scope_type=ContentType.objects.get_for_model(Site),
                         scope_id=instance.pk
                     ), 'site'),
-                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
+                    (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
+                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
+                     'site_id'),
                 ),
             ),
         }
