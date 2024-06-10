@@ -54,6 +54,15 @@ self.log_failure(
 )
 ```
 
+### Logging Success Note
+If you want to increase the success counter without generating a log message, choose one of the following options:
+
+```python
+log_success(None, None)
+log_success("", None)
+log_sucess()
+```
+
 ### Other Notes
 
 Existing reports will be converted to scripts automatically upon upgrading to NetBox v4.0, and previous job history will be retained. However, users are advised to convert legacy reports into custom scripts at the earliest opportunity, as support for legacy reports will be removed in a future release.

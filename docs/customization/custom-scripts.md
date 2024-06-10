@@ -139,7 +139,7 @@ These two methods will load data in YAML or JSON format, respectively, from file
 The Script object provides a set of convenient functions for recording messages at different severity levels:
 
 * `log_debug(message, object=None)`
-* `log_success(message, object=None)`
+* `log_success(message=None, object=None)`
 * `log_info(message, object=None)`
 * `log_warning(message, object=None)`
 * `log_failure(message, object=None)`
