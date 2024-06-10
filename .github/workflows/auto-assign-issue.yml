@@ -12,10 +12,10 @@ jobs:
   auto-assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: pozil/auto-assign-issue@v1
+      - uses: pozil/auto-assign-issue@v2
         if: "contains(github.event.issue.labels.*.name, 'status: needs triage')"
         with:
           # Weighted assignments
-          assignees: arthanson:3, jeffgdotorg:3, jeremystretch:3, abhi1693, DanSheps
+          assignees: arthanson:3, jeffgdotorg:3, jeremystretch:3, DanSheps
           numOfAssignee: 1
           abortIfPreviousAssignees: true

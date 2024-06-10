@@ -723,15 +723,15 @@ class ObjectChangeView(generic.ObjectView):
 
         if not instance.prechange_data and instance.action in ['update', 'delete'] and prev_change:
             non_atomic_change = True
-            prechange_data = prev_change.postchange_data
+            prechange_data = prev_change.postchange_data_clean
         else:
             non_atomic_change = False
-            prechange_data = instance.prechange_data
+            prechange_data = instance.prechange_data_clean
 
         if prechange_data and instance.postchange_data:
             diff_added = shallow_compare_dict(
                 prechange_data or dict(),
-                instance.postchange_data or dict(),
+                instance.postchange_data_clean or dict(),
                 exclude=['last_updated'],
             )
             diff_removed = {

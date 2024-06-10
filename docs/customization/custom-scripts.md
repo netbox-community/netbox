@@ -65,12 +65,6 @@ class AnotherCustomScript(Script):
 script_order = (MyCustomScript, AnotherCustomScript)
 ```
 
-## Module Attributes
-
-### `name`
-
-You can define `name` within a script module (the Python file which contains one or more scripts) to set the module name. If `name` is not defined, the module's file name will be used.
-
 ## Script Attributes
 
 Script attributes are defined under a class named `Meta` within the script. These are optional, but encouraged.

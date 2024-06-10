@@ -21,6 +21,7 @@ local_settings.py
 !upgrade.sh
 fabfile.py
 gunicorn.py
+uwsgi.ini
 netbox.log
 netbox.pid
 .DS_Store

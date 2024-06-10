@@ -828,6 +828,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
     TYPE_1GE_FIXED = '1000base-t'
+    TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
     TYPE_2GE_FIXED = '2.5gbase-t'
@@ -892,6 +893,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_GSM = 'gsm'
     TYPE_CDMA = 'cdma'
     TYPE_LTE = 'lte'
+    TYPE_4G = '4g'
+    TYPE_5G = '5g'
 
     # SONET
     TYPE_SONET_OC3 = 'sonet-oc3'
@@ -939,12 +942,15 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_DOCSIS = 'docsis'
 
     # PON
+    TYPE_BPON = 'bpon'
+    TYPE_EPON = 'epon'
+    TYPE_10G_EPON = '10g-epon'
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
     TYPE_XGS_PON = 'xgs-pon'
     TYPE_NG_PON2 = 'ng-pon2'
-    TYPE_EPON = 'epon'
-    TYPE_10G_EPON = '10g-epon'
+    TYPE_25G_PON = '25g-pon'
+    TYPE_50G_PON = '50g-pon'
 
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
@@ -982,6 +988,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
                 (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
                 (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
@@ -1060,6 +1067,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_GSM, 'GSM'),
                 (TYPE_CDMA, 'CDMA'),
                 (TYPE_LTE, 'LTE'),
+                (TYPE_4G, '4G'),
+                (TYPE_5G, '5G'),
             )
         ),
         (
@@ -1128,12 +1137,15 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'PON',
             (
-                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
+                (TYPE_BPON, 'BPON (622 Mbps / 155 Mbps)'),
+                (TYPE_EPON, 'EPON (1 Gbps)'),
+                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gbps)'),
                 (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
                 (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
                 (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
-                (TYPE_EPON, 'EPON (1 Gbps)'),
-                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_25G_PON, '25G-PON (25 Gbps)'),
+                (TYPE_50G_PON, '50G-PON (50 Gbps)'),
             )
         ),
         (
