@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+from utilities.templatetags.helpers import humanize_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
@@ -106,6 +107,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         verbose_name=_('Config Template'),
         linkify=True
     )
+    disk = tables.Column(
+        verbose_name=_('Disk'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
@@ -117,6 +121,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
+
+    def render_disk(self, value):
+        return humanize_megabytes(value)
 
 
 #

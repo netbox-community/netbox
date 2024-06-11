@@ -125,7 +125,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('disk (GB)')
+        verbose_name=_('disk (MB)')
     )
 
     # Counter fields
