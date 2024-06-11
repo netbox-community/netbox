@@ -40,11 +40,11 @@ class VirtualMachineIndex(SearchIndex):
     model = models.VirtualMachine
     fields = (
         ('name', 100),
-        ('serial_number', 300),
+        ('serial', 300),
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('site', 'cluster', 'device', 'tenant', 'platform', 'status', 'serial_number', 'role', 'description')
+    display_attrs = ('site', 'cluster', 'device', 'tenant', 'platform', 'status', 'serial', 'role', 'description')
 
 
 @register_search

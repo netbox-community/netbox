@@ -127,7 +127,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         null=True,
         verbose_name=_('disk (GB)')
     )
-    serial_number = models.CharField(
+    serial = models.CharField(
         verbose_name=_('serial number'),
         blank=True,
         max_length=50

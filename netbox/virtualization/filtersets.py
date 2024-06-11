@@ -242,7 +242,7 @@ class VirtualMachineFilterSet(
         model = VirtualMachine
         fields = (
             'id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count',
-            'serial_number'
+            'serial'
         )
 
     def search(self, queryset, name, value):
@@ -254,7 +254,7 @@ class VirtualMachineFilterSet(
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
             Q(primary_ip6__address__startswith=value) |
-            Q(serial_number__icontains=value)
+            Q(serial__icontains=value)
         )
 
     def _has_primary_ip(self, queryset, name, value):

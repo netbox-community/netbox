@@ -328,7 +328,7 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
                 disk=1,
                 description='foobar1',
                 local_context_data={"foo": 123},
-                serial_number='111-aaa'
+                serial='111-aaa'
             ),
             VirtualMachine(
                 name='Virtual Machine 2',
@@ -343,7 +343,7 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
                 memory=2,
                 disk=2,
                 description='foobar2',
-                serial_number='222-bbb'
+                serial='222-bbb'
             ),
             VirtualMachine(
                 name='Virtual Machine 3',
@@ -521,7 +521,7 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_serial_number(self):
-        params = {'serial_number': ['111-aaa', '222-bbb']}
+        params = {'serial': ['111-aaa', '222-bbb']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

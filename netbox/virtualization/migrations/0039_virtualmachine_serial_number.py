@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='virtualmachine',
-            name='serial_number',
+            name='serial',
             field=models.CharField(blank=True, max_length=50),
         ),
     ]
