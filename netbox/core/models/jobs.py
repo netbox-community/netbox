@@ -198,7 +198,7 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
+    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None,rq_queue_name=None, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
@@ -211,7 +211,8 @@ class Job(models.Model):
             interval: Recurrence interval (in minutes)
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
-        rq_queue_name = get_queue_for_model(object_type.model)
+        if rq_queue_name == None:
+            rq_queue_name = get_queue_for_model(object_type.model)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
