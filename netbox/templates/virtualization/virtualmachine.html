@@ -125,7 +125,7 @@
                     <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
                     <td>
                         {% if object.memory %}
-                            {{ object.memory|humanize_megabytes }}
+                            <span title={{ object.memory }}>{{ object.memory|humanize_megabytes }}</span>
                         {% else %}
                             {{ ''|placeholder }}
                         {% endif %}
@@ -137,7 +137,7 @@
                   </th>
                   <td>
                     {% if object.disk %}
-                      {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                      {{ object.disk|humanize_megabytes }}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}

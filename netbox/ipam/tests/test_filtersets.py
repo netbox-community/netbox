@@ -1525,8 +1525,8 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'region': Region.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_sitegroup(self):
-        params = {'sitegroup': SiteGroup.objects.first().pk}
+    def test_site_group(self):
+        params = {'site_group': SiteGroup.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_site(self):
@@ -1541,8 +1541,8 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rack': Rack.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_clustergroup(self):
-        params = {'clustergroup': ClusterGroup.objects.first().pk}
+    def test_cluster_group(self):
+        params = {'cluster_group': ClusterGroup.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_cluster(self):

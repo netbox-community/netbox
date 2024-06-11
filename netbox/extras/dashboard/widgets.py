@@ -329,7 +329,7 @@ class RSSFeedWidget(DashboardWidget):
         try:
             response = requests.get(
                 url=self.config['feed_url'],
-                headers={'User-Agent': f'NetBox/{settings.VERSION}'},
+                headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
                 proxies=settings.HTTP_PROXIES,
                 timeout=3
             )

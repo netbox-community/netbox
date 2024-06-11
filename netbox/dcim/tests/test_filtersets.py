@@ -50,9 +50,9 @@ class DeviceComponentTemplateFilterSetTests:
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_devicetype_id(self):
+    def test_device_type_id(self):
         device_types = DeviceType.objects.all()[:2]
-        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1753,9 +1753,9 @@ class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_devicetype_id(self):
+    def test_device_type_id(self):
         device_types = DeviceType.objects.all()[:2]
-        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_label(self):

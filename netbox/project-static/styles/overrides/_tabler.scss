@@ -39,3 +39,8 @@ table a {
   // Adjust table anchor link contrast as not enough contrast in dark mode
   filter: brightness(110%);
 }
+
+// Override background color alpha value
+[data-bs-theme=dark] ::selection {
+  background-color: rgba(var(--tblr-primary-rgb),.48)
+}
