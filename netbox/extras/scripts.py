@@ -373,6 +373,10 @@ class BaseScript:
     def scheduling_enabled(self):
         return getattr(self.Meta, 'scheduling_enabled', True)
 
+    @classproperty
+    def rq_queue_name(self):
+        return getattr(self.Meta, 'rq_queue_name', None)
+
     @property
     def filename(self):
         return inspect.getfile(self.__class__)
@@ -713,6 +717,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             schedule_at=new_scheduled_time,
             interval=job.interval,
             job_timeout=script.job_timeout,
+            rq_queue_name=script.rq_queue_name,
             data=data,
             request=request,
             commit=commit
