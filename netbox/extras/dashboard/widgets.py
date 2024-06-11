@@ -382,16 +382,16 @@ class BookmarksWidget(DashboardWidget):
             bookmarks = list()
         else:
             user_bookmarks = Bookmark.objects.filter(user=request.user)
-            if self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_ALPHABETICAL_AZ:
+            if self.config['order_by'] == BookmarkOrderingChoices.ORDERING_ALPHABETICAL_AZ:
                 bookmarks = sorted(user_bookmarks, key=lambda bookmark: bookmark.__str__().lower())
-            elif self.config['order_by'] == BookmarkOrderingChoices.ORDERING_NAME_ALPHABETICAL_ZA:
+            elif self.config['order_by'] == BookmarkOrderingChoices.ORDERING_ALPHABETICAL_ZA:
                 bookmarks = sorted(user_bookmarks, key=lambda bookmark: bookmark.__str__().lower(), reverse=True)
             else:
                 bookmarks = user_bookmarks.order_by(self.config['order_by'])
             if object_types := self.config.get('object_types'):
                 models = get_models_from_content_types(object_types)
-                conent_types = ObjectType.objects.get_for_models(*models).values()
-                bookmarks = bookmarks.filter(object_type__in=conent_types)
+                content_types = ObjectType.objects.get_for_models(*models).values()
+                bookmarks = bookmarks.filter(object_type__in=content_types)
             if max_items := self.config.get('max_items'):
                 bookmarks = bookmarks[:max_items]
 
