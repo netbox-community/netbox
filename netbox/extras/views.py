@@ -32,6 +32,7 @@ from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
+from .constants import LOG_LEVEL_RANK
 from .models import *
 from .scripts import run_script
 from .tables import ReportResultsTable, ScriptResultsTable
@@ -1190,15 +1191,6 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         tests = None
         table = None
         index = 0
-
-        LOG_LEVEL_RANK = {
-            LogLevelChoices.LOG_DEFAULT: 0,
-            LogLevelChoices.LOG_DEBUG: 1,
-            LogLevelChoices.LOG_SUCCESS: 2,
-            LogLevelChoices.LOG_INFO: 3,
-            LogLevelChoices.LOG_WARNING: 4,
-            LogLevelChoices.LOG_FAILURE: 5,
-        }
 
         log_level = LOG_LEVEL_RANK.get(request.GET.get('log_level', LogLevelChoices.LOG_DEFAULT))
 

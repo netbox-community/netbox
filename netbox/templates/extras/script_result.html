@@ -41,20 +41,6 @@
     {# Object list tab #}
     <div class="tab-pane show active" id="results" role="tabpanel" aria-labelledby="results-tab">
 
-  <p>
-    {% if job.started %}
-      {% trans "Started" %}: <strong>{{ job.started|isodatetime }}</strong>
-    {% elif job.scheduled %}
-      {% trans "Scheduled for" %}: <strong>{{ job.scheduled|isodatetime }}</strong>
-    {% else %}
-      {% trans "Created" %}: <strong>{{ job.created|isodatetime }}</strong>
-    {% endif %}
-    {% if job.completed %}
-      {% trans "Duration" %}: <strong>{{ job.duration }}</strong>
-    {% endif %}
-    <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
-  </p>
-
       {# Object table controls #}
       <div class="row mb-3">
 
