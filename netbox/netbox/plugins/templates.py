@@ -14,7 +14,8 @@ class PluginTemplateExtension:
     The `model` attribute on the class defines the which model detail page this class renders content for. It
     should be set as a string in the form '<app_label>.<model_name>'. render() provides the following context data:
 
-    * object - The object being viewed
+    * object - The object being viewed (object views only)
+    * model - The type of object being viewed (list views only)
     * request - The current request
     * settings - Global NetBox settings
     * config - Plugin-specific configuration parameters
@@ -35,6 +36,13 @@ class PluginTemplateExtension:
             raise TypeError(_("extra_context must be a dictionary"))
 
         return get_template(template_name).render({**self.context, **extra_context})
+
+    def navbar(self):
+        """
+        Content that will be rendered inside the top navigation menu. Content should be returned as an HTML
+        string. Note that content does not need to be marked as safe because this is automatically handled.
+        """
+        raise NotImplementedError
 
     def left_page(self):
         """

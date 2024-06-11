@@ -54,7 +54,7 @@ def handler_500(request, template_name=ERROR_500_TEMPLATE_NAME):
     return HttpResponseServerError(template.render({
         'error': error,
         'exception': str(type_),
-        'netbox_version': settings.VERSION,
+        'netbox_version': settings.RELEASE.full_version,
         'python_version': platform.python_version(),
         'plugins': get_installed_plugins(),
     }))

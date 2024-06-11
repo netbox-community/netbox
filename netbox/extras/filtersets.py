@@ -589,10 +589,6 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         label=_('Data file (ID)'),
     )
 
-    # TODO: Remove in v4.1
-    role = device_role
-    role_id = device_role_id
-
     class Meta:
         model = ConfigContext
         fields = ('id', 'name', 'is_active', 'description', 'weight', 'auto_sync_enabled', 'data_synced')
