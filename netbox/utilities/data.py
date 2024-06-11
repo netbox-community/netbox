@@ -1,4 +1,5 @@
 import decimal
+import difflib
 from itertools import count, groupby
 
 __all__ = (
@@ -161,6 +162,24 @@ def make_diff(old: str, new: str):
     new_lines = new.splitlines(False)
     old_list: list[tuple[str, bool]] = []
     new_list: list[tuple[str, bool]] = []
+    if True:
+        old_lines = old.splitlines(True)
+        new_lines = new.splitlines(True)
+        differ = difflib.Differ()
+        x = list(differ.compare(old_lines, new_lines))
+        for val in x:
+            op = val[0]
+            raw = val[2:].replace("\n", "").replace("\r", "")
+            if op == ' ':
+                old_list.append((raw, False))
+                new_list.append((raw, False))
+            elif op == '+':
+                old_list.append(('', True))
+                new_list.append((raw, True))
+            elif op == '-':
+                old_list.append((raw, True))
+                new_list.append(('', True))
+        return old_list, new_list
     old_idx = 0
     new_idx = 0
     while True:
