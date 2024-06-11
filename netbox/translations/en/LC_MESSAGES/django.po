@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-05 05:02+0000\n"
+"POT-Creation-Date: 2024-06-08 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6674,14 +6674,12 @@ msgstr ""
 msgid "Ruleset must be a dictionary, not {ruleset}."
 msgstr ""
 
-#: netbox/extras/conditions.py:139
-#, python-brace-format
-msgid "Ruleset must have exactly one logical operator (found {ruleset})"
+#: netbox/extras/conditions.py:142
+msgid "Invalid logic type: must be 'AND' or 'OR'. Please check documentation."
 msgstr ""
 
-#: netbox/extras/conditions.py:145
-#, python-brace-format
-msgid "Invalid logic type: {logic} (must be '{op_and}' or '{op_or}')"
+#: netbox/extras/conditions.py:154
+msgid "Incorrect key(s) informed. Please check documentation."
 msgstr ""
 
 #: netbox/extras/dashboard/forms.py:38
@@ -10452,43 +10450,43 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:722
+#: netbox/netbox/settings.py:724
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:723
+#: netbox/netbox/settings.py:725
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:724
+#: netbox/netbox/settings.py:726
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:725
+#: netbox/netbox/settings.py:727
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:726
+#: netbox/netbox/settings.py:728
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:727
+#: netbox/netbox/settings.py:729
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:728
+#: netbox/netbox/settings.py:730
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:729
+#: netbox/netbox/settings.py:731
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:730
+#: netbox/netbox/settings.py:732
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:731
+#: netbox/netbox/settings.py:733
 msgid "Chinese"
 msgstr ""
 
