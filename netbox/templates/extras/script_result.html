@@ -50,6 +50,7 @@
               {% trans "Show Log Level" %}
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownLogLevelButton">
+              <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}">{% trans "All" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=debug">{% trans "Debug" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=info">{% trans "Info" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=warning">{% trans "Warning" %}</a></li>
