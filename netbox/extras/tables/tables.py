@@ -562,7 +562,7 @@ class ScriptResultsTable(BaseTable):
             'index', 'time', 'status', 'object', 'url', 'message',
         )
         default_columns = (
-            'index', 'time', 'status', 'message',
+            'index', 'time', 'status', 'object', 'message',
         )
 
     def render_object(self, value, record):
