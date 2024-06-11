@@ -198,7 +198,7 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None,rq_queue_name=None, **kwargs):
+    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, rq_queue_name=None, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
