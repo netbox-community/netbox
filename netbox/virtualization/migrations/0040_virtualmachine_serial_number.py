@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('virtualization', '0038_virtualdisk'),
+        ('virtualization', '0039_convert_disk_size'),
     ]
 
     operations = [
