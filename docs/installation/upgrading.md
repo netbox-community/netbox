@@ -97,7 +97,9 @@ sudo git pull origin master
 !!! info "Checking out an older release"
     If you need to upgrade to an older version rather than the current stable release, you can check out any valid [git tag](https://github.com/netbox-community/netbox/tags), each of which represents a release. For example, to checkout the code for NetBox v2.11.11, do:
 
-        sudo git checkout v2.11.11
+```no-highlight
+sudo git checkout v2.11.11
+```
 
 ## 4. Run the Upgrade Script
 
@@ -110,9 +112,9 @@ sudo ./upgrade.sh
 !!! warning
     If the default version of Python is not at least 3.10, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
 
-    ```no-highlight
-    sudo PYTHON=/usr/bin/python3.10 ./upgrade.sh
-    ```
+```no-highlight
+sudo PYTHON=/usr/bin/python3.10 ./upgrade.sh
+```
 
 This script performs the following actions:
 
