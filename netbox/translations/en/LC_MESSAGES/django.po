@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-08 05:02+0000\n"
+"POT-Creation-Date: 2024-06-12 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgid "Write Enabled"
 msgstr ""
 
 #: netbox/account/tables.py:35 netbox/core/tables/jobs.py:29
-#: netbox/core/tables/tasks.py:79 netbox/extras/choices.py:138
+#: netbox/core/tables/tasks.py:79 netbox/extras/choices.py:142
 #: netbox/extras/tables/tables.py:499 netbox/templates/account/token.html:43
 #: netbox/templates/core/configrevision.html:26
 #: netbox/templates/core/configrevision_restore.html:12
@@ -1400,7 +1400,7 @@ msgid "Syncing"
 msgstr ""
 
 #: netbox/core/choices.py:21 netbox/core/choices.py:57
-#: netbox/core/tables/jobs.py:41 netbox/extras/choices.py:224
+#: netbox/core/tables/jobs.py:41 netbox/extras/choices.py:228
 #: netbox/templates/core/job.html:68
 msgid "Completed"
 msgstr ""
@@ -1408,7 +1408,7 @@ msgstr ""
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:20 netbox/core/tables/tasks.py:34
 #: netbox/dcim/choices.py:176 netbox/dcim/choices.py:222
-#: netbox/dcim/choices.py:1536 netbox/extras/choices.py:226
+#: netbox/dcim/choices.py:1536 netbox/extras/choices.py:230
 #: netbox/virtualization/choices.py:47
 msgid "Failed"
 msgstr ""
@@ -1426,21 +1426,21 @@ msgstr ""
 msgid "Reports"
 msgstr ""
 
-#: netbox/core/choices.py:54 netbox/extras/choices.py:221
+#: netbox/core/choices.py:54 netbox/extras/choices.py:225
 msgid "Pending"
 msgstr ""
 
 #: netbox/core/choices.py:55 netbox/core/constants.py:23
 #: netbox/core/tables/jobs.py:32 netbox/core/tables/tasks.py:38
-#: netbox/extras/choices.py:222 netbox/templates/core/job.html:55
+#: netbox/extras/choices.py:226 netbox/templates/core/job.html:55
 msgid "Scheduled"
 msgstr ""
 
-#: netbox/core/choices.py:56 netbox/extras/choices.py:223
+#: netbox/core/choices.py:56 netbox/extras/choices.py:227
 msgid "Running"
 msgstr ""
 
-#: netbox/core/choices.py:58 netbox/extras/choices.py:225
+#: netbox/core/choices.py:58 netbox/extras/choices.py:229
 msgid "Errored"
 msgstr ""
 
@@ -6483,71 +6483,79 @@ msgstr ""
 msgid "Link"
 msgstr ""
 
-#: netbox/extras/choices.py:122
+#: netbox/extras/choices.py:124
 msgid "Newest"
 msgstr ""
 
-#: netbox/extras/choices.py:123
+#: netbox/extras/choices.py:125
 msgid "Oldest"
 msgstr ""
 
-#: netbox/extras/choices.py:139 netbox/templates/generic/object.html:61
+#: netbox/extras/choices.py:126
+msgid "Alphabetical (A-Z)"
+msgstr ""
+
+#: netbox/extras/choices.py:127
+msgid "Alphabetical (Z-A)"
+msgstr ""
+
+#: netbox/extras/choices.py:143 netbox/templates/generic/object.html:61
 msgid "Updated"
 msgstr ""
 
-#: netbox/extras/choices.py:140
+#: netbox/extras/choices.py:144
 msgid "Deleted"
 msgstr ""
 
-#: netbox/extras/choices.py:157 netbox/extras/choices.py:181
+#: netbox/extras/choices.py:161 netbox/extras/choices.py:185
 msgid "Info"
 msgstr ""
 
-#: netbox/extras/choices.py:158 netbox/extras/choices.py:180
+#: netbox/extras/choices.py:162 netbox/extras/choices.py:184
 msgid "Success"
 msgstr ""
 
-#: netbox/extras/choices.py:159 netbox/extras/choices.py:182
+#: netbox/extras/choices.py:163 netbox/extras/choices.py:186
 msgid "Warning"
 msgstr ""
 
-#: netbox/extras/choices.py:160
+#: netbox/extras/choices.py:164
 msgid "Danger"
 msgstr ""
 
-#: netbox/extras/choices.py:178
+#: netbox/extras/choices.py:182
 msgid "Debug"
 msgstr ""
 
-#: netbox/extras/choices.py:179 netbox/netbox/choices.py:104
+#: netbox/extras/choices.py:183 netbox/netbox/choices.py:104
 msgid "Default"
 msgstr ""
 
-#: netbox/extras/choices.py:183
+#: netbox/extras/choices.py:187
 msgid "Failure"
 msgstr ""
 
-#: netbox/extras/choices.py:199
+#: netbox/extras/choices.py:203
 msgid "Hourly"
 msgstr ""
 
-#: netbox/extras/choices.py:200
+#: netbox/extras/choices.py:204
 msgid "12 hours"
 msgstr ""
 
-#: netbox/extras/choices.py:201
+#: netbox/extras/choices.py:205
 msgid "Daily"
 msgstr ""
 
-#: netbox/extras/choices.py:202
+#: netbox/extras/choices.py:206
 msgid "Weekly"
 msgstr ""
 
-#: netbox/extras/choices.py:203
+#: netbox/extras/choices.py:207
 msgid "30 days"
 msgstr ""
 
-#: netbox/extras/choices.py:268 netbox/extras/tables/tables.py:296
+#: netbox/extras/choices.py:272 netbox/extras/tables/tables.py:296
 #: netbox/templates/dcim/virtualchassis_edit.html:107
 #: netbox/templates/extras/eventrule.html:40
 #: netbox/templates/generic/bulk_add_component.html:68
@@ -6557,12 +6565,12 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: netbox/extras/choices.py:269 netbox/extras/tables/tables.py:299
+#: netbox/extras/choices.py:273 netbox/extras/tables/tables.py:299
 #: netbox/templates/extras/eventrule.html:44
 msgid "Update"
 msgstr ""
 
-#: netbox/extras/choices.py:270 netbox/extras/tables/tables.py:302
+#: netbox/extras/choices.py:274 netbox/extras/tables/tables.py:302
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/moduletype/component_templates.html:23
@@ -6579,77 +6587,77 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: netbox/extras/choices.py:294 netbox/netbox/choices.py:57
+#: netbox/extras/choices.py:298 netbox/netbox/choices.py:57
 #: netbox/netbox/choices.py:105
 msgid "Blue"
 msgstr ""
 
-#: netbox/extras/choices.py:295 netbox/netbox/choices.py:56
+#: netbox/extras/choices.py:299 netbox/netbox/choices.py:56
 #: netbox/netbox/choices.py:106
 msgid "Indigo"
 msgstr ""
 
-#: netbox/extras/choices.py:296 netbox/netbox/choices.py:54
+#: netbox/extras/choices.py:300 netbox/netbox/choices.py:54
 #: netbox/netbox/choices.py:107
 msgid "Purple"
 msgstr ""
 
-#: netbox/extras/choices.py:297 netbox/netbox/choices.py:51
+#: netbox/extras/choices.py:301 netbox/netbox/choices.py:51
 #: netbox/netbox/choices.py:108
 msgid "Pink"
 msgstr ""
 
-#: netbox/extras/choices.py:298 netbox/netbox/choices.py:50
+#: netbox/extras/choices.py:302 netbox/netbox/choices.py:50
 #: netbox/netbox/choices.py:109
 msgid "Red"
 msgstr ""
 
-#: netbox/extras/choices.py:299 netbox/netbox/choices.py:68
+#: netbox/extras/choices.py:303 netbox/netbox/choices.py:68
 #: netbox/netbox/choices.py:110
 msgid "Orange"
 msgstr ""
 
-#: netbox/extras/choices.py:300 netbox/netbox/choices.py:66
+#: netbox/extras/choices.py:304 netbox/netbox/choices.py:66
 #: netbox/netbox/choices.py:111
 msgid "Yellow"
 msgstr ""
 
-#: netbox/extras/choices.py:301 netbox/netbox/choices.py:63
+#: netbox/extras/choices.py:305 netbox/netbox/choices.py:63
 #: netbox/netbox/choices.py:112
 msgid "Green"
 msgstr ""
 
-#: netbox/extras/choices.py:302 netbox/netbox/choices.py:60
+#: netbox/extras/choices.py:306 netbox/netbox/choices.py:60
 #: netbox/netbox/choices.py:113
 msgid "Teal"
 msgstr ""
 
-#: netbox/extras/choices.py:303 netbox/netbox/choices.py:59
+#: netbox/extras/choices.py:307 netbox/netbox/choices.py:59
 #: netbox/netbox/choices.py:114
 msgid "Cyan"
 msgstr ""
 
-#: netbox/extras/choices.py:304 netbox/netbox/choices.py:115
+#: netbox/extras/choices.py:308 netbox/netbox/choices.py:115
 msgid "Gray"
 msgstr ""
 
-#: netbox/extras/choices.py:305 netbox/netbox/choices.py:74
+#: netbox/extras/choices.py:309 netbox/netbox/choices.py:74
 #: netbox/netbox/choices.py:116
 msgid "Black"
 msgstr ""
 
-#: netbox/extras/choices.py:306 netbox/netbox/choices.py:75
+#: netbox/extras/choices.py:310 netbox/netbox/choices.py:75
 #: netbox/netbox/choices.py:117
 msgid "White"
 msgstr ""
 
-#: netbox/extras/choices.py:320 netbox/extras/forms/model_forms.py:242
+#: netbox/extras/choices.py:324 netbox/extras/forms/model_forms.py:242
 #: netbox/extras/forms/model_forms.py:324
 #: netbox/templates/extras/webhook.html:10
 msgid "Webhook"
 msgstr ""
 
-#: netbox/extras/choices.py:321 netbox/extras/forms/model_forms.py:312
+#: netbox/extras/choices.py:325 netbox/extras/forms/model_forms.py:312
 #: netbox/templates/extras/script/base.html:29
 msgid "Script"
 msgstr ""
