@@ -440,11 +440,6 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return serializers.GetInterfaceSerializer
-        return self.serializer_class
-
     def get_bulk_destroy_queryset(self):
         # Ensure child interfaces are deleted prior to their parents
         return self.get_queryset().order_by('device', 'parent', CollateAsChar('_name'))

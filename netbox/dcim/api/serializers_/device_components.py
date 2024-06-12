@@ -32,7 +32,6 @@ __all__ = (
     'DeviceBaySerializer',
     'FrontPortSerializer',
     'InterfaceSerializer',
-    'GetInterfaceSerializer',
     'InventoryItemSerializer',
     'ModuleBaySerializer',
     'PowerOutletSerializer',
@@ -248,10 +247,6 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
                     })
 
         return super().validate(data)
-
-
-class GetInterfaceSerializer(InterfaceSerializer):
-    device = DeviceSerializer(nested=False)
 
 
 class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
