@@ -34,6 +34,16 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Length" %}</th>
+            <td>
+              {% if object.length is not None %}
+                {{ object.length|floatformat }} {{ object.get_length_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
