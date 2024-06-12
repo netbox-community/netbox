@@ -177,6 +177,9 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         queryset=Cluster.objects.all(),
         required=False,
         selector=True,
+        query_params={
+            'site_id': ['$site', 'null']
+        },
     )
     device = DynamicModelChoiceField(
         label=_('Device'),
