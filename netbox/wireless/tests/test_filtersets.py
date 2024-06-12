@@ -260,6 +260,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO,
             auth_psk='PSK1',
             tenant=tenants[0],
+            length=10,
+            length_unit=WirelessLinkLengthUnitChoices.UNIT_FOOT,
             description='foobar1'
         ).save()
         WirelessLink(
@@ -271,6 +273,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
             auth_psk='PSK2',
             tenant=tenants[1],
+            length=20,
+            length_unit=WirelessLinkLengthUnitChoices.UNIT_METER,
             description='foobar2'
         ).save()
         WirelessLink(
@@ -281,6 +285,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_type=WirelessAuthTypeChoices.TYPE_WPA_PERSONAL,
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
             auth_psk='PSK3',
+            length=30,
+            length_unit=WirelessLinkLengthUnitChoices.UNIT_METER,
             tenant=tenants[2],
         ).save()
         WirelessLink(
@@ -312,6 +318,14 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_auth_psk(self):
         params = {'auth_psk': ['PSK1', 'PSK2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_length(self):
+        params = {'length': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_length_unit(self):
+        params = {'length_unit': WirelessLinkLengthUnitChoices.UNIT_FOOT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
