@@ -12,7 +12,7 @@ from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
-from utilities.views import ViewTab, register_model_view
+from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
 from . import filtersets, forms, tables
@@ -34,15 +34,10 @@ class VRFListView(generic.ObjectListView):
 
 
 @register_model_view(VRF)
-class VRFView(generic.ObjectView):
+class VRFView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VRF.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Prefix.objects.restrict(request.user, 'view').filter(vrf=instance), 'vrf_id'),
-            (IPAddress.objects.restrict(request.user, 'view').filter(vrf=instance), 'vrf_id'),
-        )
-
         import_targets_table = tables.RouteTargetTable(
             instance.import_targets.all(),
             orderable=False
@@ -53,7 +48,7 @@ class VRFView(generic.ObjectView):
         )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance, omit=[Interface, VMInterface]),
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }
@@ -147,16 +142,12 @@ class RIRListView(generic.ObjectListView):
 
 
 @register_model_view(RIR)
-class RIRView(generic.ObjectView):
+class RIRView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = RIR.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Aggregate.objects.restrict(request.user, 'view').filter(rir=instance), 'rir_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -273,17 +264,19 @@ class ASNListView(generic.ObjectListView):
 
 
 @register_model_view(ASN)
-class ASNView(generic.ObjectView):
+class ASNView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ASN.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Site.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
-            (Provider.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (Site.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+                    (Provider.objects.restrict(request.user, 'view').filter(asns__in=[instance]), 'asn_id'),
+                ),
+            ),
         }
 
 
@@ -427,18 +420,12 @@ class RoleListView(generic.ObjectListView):
 
 
 @register_model_view(Role)
-class RoleView(generic.ObjectView):
+class RoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Role.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Prefix.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-            (IPRange.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-            (VLAN.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -926,16 +913,12 @@ class VLANGroupListView(generic.ObjectListView):
 
 
 @register_model_view(VLANGroup)
-class VLANGroupView(generic.ObjectView):
+class VLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (VLAN.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
