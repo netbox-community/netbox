@@ -234,6 +234,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'vcpus': 4,
             'memory': 32768,
             'disk': 4000,
+            'serial': 'aaa-111',
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
             'local_context_data': None,
