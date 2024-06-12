@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-08 05:02+0000\n"
+"POT-Creation-Date: 2024-06-12 05:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10732,8 +10732,8 @@ msgstr ""
 #: netbox/templates/extras/configcontext.html:70
 #: netbox/templates/extras/eventrule.html:72
 #: netbox/templates/extras/htmx/script_result.html:56
-#: netbox/templates/extras/objectchange.html:124
-#: netbox/templates/extras/objectchange.html:142
+#: netbox/templates/extras/objectchange.html:119
+#: netbox/templates/extras/objectchange.html:132
 #: netbox/templates/extras/webhook.html:67
 #: netbox/templates/extras/webhook.html:79
 #: netbox/templates/inc/panel_table.html:13
@@ -12339,15 +12339,15 @@ msgstr ""
 msgid "Pre-Change Data"
 msgstr ""
 
-#: netbox/templates/extras/objectchange.html:122
+#: netbox/templates/extras/objectchange.html:117
 msgid "Warning: Comparing non-atomic change to previous change record"
 msgstr ""
 
-#: netbox/templates/extras/objectchange.html:131
+#: netbox/templates/extras/objectchange.html:126
 msgid "Post-Change Data"
 msgstr ""
 
-#: netbox/templates/extras/objectchange.html:162
+#: netbox/templates/extras/objectchange.html:152
 #, python-format
 msgid "See All %(count)s Changes"
 msgstr ""
