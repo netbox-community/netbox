@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from netbox.models import NestedGroupModel, PrimaryModel
+from utilities.conversion import to_meters
 from .choices import *
 from .constants import *
 
@@ -160,6 +161,26 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
     )
+    length = models.DecimalField(
+        verbose_name=_('length'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+    length_unit = models.CharField(
+        verbose_name=_('length unit'),
+        max_length=50,
+        choices=WirelessLinkLengthUnitChoices,
+        blank=True,
+    )
+    # Stores the normalized length (in meters) for database ordering
+    _abs_length = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -224,6 +245,15 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
             })
 
     def save(self, *args, **kwargs):
+        # Store the given length (if any) in meters for use in database ordering
+        if self.length is not None and self.length_unit:
+            self._abs_length = to_meters(self.length, self.length_unit)
+        else:
+            self._abs_length = None
+
+        # Clear length_unit if no length is defined
+        if self.length is None:
+            self.length_unit = ''
 
         # Store the parent Device for the A and B interfaces
         self._interface_a_device = self.interface_a.device

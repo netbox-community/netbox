@@ -105,7 +105,7 @@ class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = WirelessLink
-        fields = ('id', 'ssid', 'auth_psk', 'description')
+        fields = ('id', 'ssid', 'auth_psk', 'length', 'length_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

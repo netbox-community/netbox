@@ -159,7 +159,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     fieldsets = (
         FieldSet('site_a', 'location_a', 'device_a', 'interface_a', name=_('Side A')),
         FieldSet('site_b', 'location_b', 'device_b', 'interface_b', name=_('Side B')),
-        FieldSet('status', 'ssid', 'description', 'tags', name=_('Link')),
+        FieldSet('status', 'ssid', 'length', 'length_unit', 'description', 'tags', name=_('Link')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -168,8 +168,8 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         model = WirelessLink
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
-            'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments', 'tags',
+            'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
+            'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(
@@ -180,4 +180,9 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         labels = {
             'auth_type': 'Type',
             'auth_cipher': 'Cipher',
+        }
+        error_messages = {
+            'length': {
+                'max_value': _('Maximum length is 32767 (any unit)')
+            }
         }

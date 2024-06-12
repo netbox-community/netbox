@@ -125,6 +125,17 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Pre-shared key')
     )
+    length = forms.DecimalField(
+        label=_('Length'),
+        min_value=0,
+        required=False
+    )
+    length_unit = forms.ChoiceField(
+        label=_('Length unit'),
+        choices=add_blank_choice(WirelessLinkLengthUnitChoices),
+        required=False,
+        initial=''
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -135,8 +146,9 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     model = WirelessLink
     fieldsets = (
         FieldSet('ssid', 'status', 'tenant', 'description'),
-        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication'))
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
+        FieldSet('length', 'length_unit', name=_('Attributes')),
     )
     nullable_fields = (
-        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
+        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'length', 'comments',
     )
