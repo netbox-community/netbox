@@ -39,8 +39,8 @@ class ClusterTypeIndex(SearchIndex):
 class VirtualMachineIndex(SearchIndex):
     model = models.VirtualMachine
     fields = (
+        ('serial', 60),
         ('name', 100),
-        ('serial', 300),
         ('description', 500),
         ('comments', 5000),
     )
