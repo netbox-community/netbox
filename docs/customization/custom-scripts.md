@@ -108,6 +108,14 @@ commit_default = False
 
 By default, a script can be scheduled for execution at a later time. Setting `scheduling_enabled` to False disables this ability: Only immediate execution will be possible. (This also disables the ability to set a recurring execution interval.)
 
+### `rq_queue_name`
+
+This will override the standard `QUEUE_MAPPINGS` setting for the be process by the worker.  If a worker is not set to monitor any custom mapping the job will never run.
+
+### `rq_queue_name`
+
+This will override the standard `QUEUE_MAPPINGS` setting for scripts the be process by the worker.  If a worker is not set to monitor any custom mapping the job will never run.
+
 ### `job_timeout`
 
 Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
