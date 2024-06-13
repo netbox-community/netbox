@@ -1,6 +1,7 @@
 import uuid
 
 import django_rq
+from rq.exceptions import NoSuchJobError
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -152,10 +153,14 @@ class Job(models.Model):
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(str(self.job_id))
+        job = None
+        for check_queue in get_config().QUEUE_MAPPINGS:
+            queue = django_rq.get_queue(check_queue)
+            try:
+                job = queue.fetch_job(str(self.job_id))
+                break
+            except NoSuchJobError:
+                pass
 
         if job:
             job.cancel()

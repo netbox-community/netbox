@@ -1110,6 +1110,7 @@ class ScriptView(BaseScriptView):
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
                 job_timeout=script.python_class.job_timeout,
+                rq_queue_name=script.python_class.rq_queue_name,
                 commit=form.cleaned_data.pop('_commit')
             )
 

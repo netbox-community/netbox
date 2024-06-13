@@ -261,6 +261,7 @@ class ScriptViewSet(ModelViewSet):
                 request=copy_safe_request(request),
                 commit=input_serializer.data['commit'],
                 job_timeout=script.python_class.job_timeout,
+                rq_queue_name=script.python_class.rq_queue_name,
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
                 interval=input_serializer.validated_data.get('interval')
             )
