@@ -2,7 +2,7 @@ from ipam.tables import RouteTargetTable
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.query import count_related
-from utilities.views import register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -21,16 +21,12 @@ class TunnelGroupListView(generic.ObjectListView):
 
 
 @register_model_view(TunnelGroup)
-class TunnelGroupView(generic.ObjectView):
+class TunnelGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = TunnelGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Tunnel.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
