@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.forms import IntegerRangeField, SimpleArrayField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -632,10 +633,15 @@ class VLANGroupForm(NetBoxModelForm):
         }
     )
     slug = SlugField()
+    # vlan_id_ranges = SimpleArrayField(
+    #     IntegerRangeField(),
+    #     delimiter="|"
+    # )
+    vlan_id_ranges = IntegerRangeField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
-        FieldSet('min_vid', 'max_vid', name=_('Child VLANs')),
+        FieldSet('min_vid', 'max_vid', 'vlan_id_ranges', name=_('Child VLANs')),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
             name=_('Scope')
@@ -646,7 +652,7 @@ class VLANGroupForm(NetBoxModelForm):
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
+            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'vlan_id_ranges', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

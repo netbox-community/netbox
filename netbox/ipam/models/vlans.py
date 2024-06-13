@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField, BigIntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -62,6 +63,13 @@ class VLANGroup(OrganizationalModel):
             MaxValueValidator(VLAN_VID_MAX)
         ),
         help_text=_('Highest permissible ID of a child VLAN')
+    )
+    vlan_id_ranges = ArrayField(
+        BigIntegerRangeField(),
+        verbose_name=_('min/max VLAN IDs'),
+        help_text=_('Ranges of Minimum, maximum VLAN IDs'),
+        blank=True,
+        null=True
     )
 
     objects = VLANGroupQuerySet.as_manager()
