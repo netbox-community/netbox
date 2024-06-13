@@ -213,12 +213,21 @@ class Job(models.Model):
             name: Name for the job (optional)
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
+            rq_queue_name: Queue name to route the job to for processing
             interval: Recurrence interval (in minutes)
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
         if rq_queue_name is None:
             rq_queue_name = get_queue_for_model(object_type.model)
-        queue = django_rq.get_queue(rq_queue_name)
+            queue = django_rq.get_queue(rq_queue_name)
+        else:
+            try:
+                queue = django_rq.get_queue(rq_queue_name)
+            except KeyError:
+                # User defined queue does not exist - return to default logic
+                rq_queue_name = get_queue_for_model(object_type.model)
+                queue = django_rq.get_queue(rq_queue_name)
+
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
             object_type=object_type,

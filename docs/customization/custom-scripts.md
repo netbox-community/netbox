@@ -110,11 +110,7 @@ By default, a script can be scheduled for execution at a later time. Setting `sc
 
 ### `rq_queue_name`
 
-This will override the standard `QUEUE_MAPPINGS` setting for the be process by the worker.  If a worker is not set to monitor any custom mapping the job will never run.
-
-### `rq_queue_name`
-
-This will override the standard `QUEUE_MAPPINGS` setting for scripts the be process by the worker.  If a worker is not set to monitor any custom mapping the job will never run.
+This will override the standard `QUEUE_MAPPINGS` setting for the be process by the worker.  If the queue is not found then the default logic found in the settings file will be used.
 
 ### `job_timeout`
 
