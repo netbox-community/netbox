@@ -21,11 +21,11 @@ from extras.models import ScriptModule, Script as ScriptModel
 from extras.signals import clear_events
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
+from netbox.context_managers import event_tracking
 from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DatePicker, DateTimePicker
-from .context_managers import event_tracking
 from .forms import ScriptForm
 from .utils import is_report
 

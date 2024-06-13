@@ -1,28 +1,25 @@
 import inspect
 import json
-import strawberry_django
 
+import strawberry_django
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.test import override_settings
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+from strawberry.lazy_type import LazyType
+from strawberry.type import StrawberryList, StrawberryOptional
+from strawberry.union import StrawberryUnion
 
-from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
+from ipam.graphql.types import IPAddressFamilyType
 from users.models import ObjectPermission, Token
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
 from .utils import disable_warnings
-
-from ipam.graphql.types import IPAddressFamilyType
-from strawberry.field import StrawberryField
-from strawberry.lazy_type import LazyType
-from strawberry.type import StrawberryList, StrawberryOptional
-from strawberry.union import StrawberryUnion
 
 __all__ = (
     'APITestCase',

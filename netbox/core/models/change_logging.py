@@ -8,11 +8,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel
 
-from core.models import ObjectType
-from extras.choices import *
+from core.choices import ObjectChangeActionChoices
+from core.querysets import ObjectChangeQuerySet
 from netbox.models.features import ChangeLoggingMixin
 from utilities.data import shallow_compare_dict
-from ..querysets import ObjectChangeQuerySet
+from .contenttypes import ObjectType
 
 __all__ = (
     'ObjectChange',
@@ -136,7 +136,7 @@ class ObjectChange(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('extras:objectchange', args=[self.pk])
+        return reverse('core:objectchange', args=[self.pk])
 
     def get_action_color(self):
         return ObjectChangeActionChoices.colors.get(self.action)

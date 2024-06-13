@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
 from netbox.context import current_request, events_queue
-from .events import flush_events
+from extras.events import flush_events
 
 
 @contextmanager

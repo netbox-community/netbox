@@ -1,4 +1,4 @@
-import logging
+import urllib.parse
 import uuid
 from datetime import datetime
 
@@ -10,8 +10,11 @@ from django_rq.workers import get_worker
 from rq.job import Job as RQ_Job, JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
 
+from core.choices import ObjectChangeActionChoices
+from core.models import *
+from dcim.models import Site
+from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags
-from ..models import *
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -97,6 +100,43 @@ class DataFileTestCase(
             ),
         )
         DataFile.objects.bulk_create(data_files)
+
+
+# TODO: Convert to StandardTestCases.Views
+class ObjectChangeTestCase(TestCase):
+    user_permissions = (
+        'core.view_objectchange',
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        # Create three ObjectChanges
+        user = User.objects.create_user(username='testuser2')
+        for i in range(1, 4):
+            oc = site.to_objectchange(action=ObjectChangeActionChoices.ACTION_UPDATE)
+            oc.user = user
+            oc.request_id = uuid.uuid4()
+            oc.save()
+
+    def test_objectchange_list(self):
+
+        url = reverse('core:objectchange_list')
+        params = {
+            "user": User.objects.first().pk,
+        }
+
+        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
+        self.assertHttpStatus(response, 200)
+
+    def test_objectchange(self):
+
+        objectchange = ObjectChange.objects.first()
+        response = self.client.get(objectchange.get_absolute_url())
+        self.assertHttpStatus(response, 200)
 
 
 class BackgroundTaskTestCase(TestCase):

@@ -6,6 +6,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
+from core.choices import ObjectChangeActionChoices
 from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT

@@ -1,4 +1,3 @@
-from .change_logging import *
 from .configs import *
 from .customfields import *
 from .dashboard import *

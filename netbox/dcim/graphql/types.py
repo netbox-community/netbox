@@ -3,14 +3,10 @@ from typing import Annotated, List, Union
 import strawberry
 import strawberry_django
 
+from core.graphql.mixins import ChangelogMixin
 from dcim import models
 from extras.graphql.mixins import (
-    ChangelogMixin,
-    ConfigContextMixin,
-    ContactsMixin,
-    CustomFieldsMixin,
-    ImageAttachmentsMixin,
-    TagsMixin,
+    ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
