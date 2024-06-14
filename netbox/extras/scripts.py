@@ -507,9 +507,7 @@ class BaseScript:
             # Record to the system log
             if obj:
                 message = f"{obj}: {message}"
-                self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], f"{obj}: {message}")
-            else:
-                self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
+            self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
 
     def log_debug(self, message, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)

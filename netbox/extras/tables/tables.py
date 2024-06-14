@@ -549,9 +549,6 @@ class ScriptResultsTable(BaseTable):
     object = tables.Column(
         verbose_name=_('Object')
     )
-    url = tables.Column(
-        verbose_name=_('URL')
-    )
     message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
@@ -559,7 +556,7 @@ class ScriptResultsTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
-            'index', 'time', 'status', 'object', 'url', 'message',
+            'index', 'time', 'status', 'object', 'message',
         )
         default_columns = (
             'index', 'time', 'status', 'object', 'message',
