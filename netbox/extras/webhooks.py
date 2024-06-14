@@ -80,11 +80,6 @@ def send_webhook(event_rule, model_name, event, data, timestamp, username, reque
         logger.error(f"Error forming HTTP request: {e}")
         raise e
 
-    print('--- data ---')
-    print(json.dumps(data, indent=4))
-    print('--- snapshots ---')
-    print(json.dumps(snapshots, indent=4))
-    print("")
     # If a secret key is defined, sign the request with a hash of the key and its content
     if webhook.secret != '':
         prepared_request.headers['X-Hook-Signature'] = generate_signature(prepared_request.body, webhook.secret)
