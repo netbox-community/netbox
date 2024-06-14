@@ -13,27 +13,49 @@ __all__ = (
 )
 
 
-class NetBoxAPIHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+class BaseNetBoxHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+    """
+    Overrides HyperlinkedIdentityField to use standard NetBox view naming
+    instead of passing in the view_name.  Initialize with a blank view_name
+    and it will get replaced in the get_url call.  Derived classes must
+    define a get_view_name.
+    """
+    def get_url(self, obj, view_name, request, format):
+        """
+        Given an object, return the URL that hyperlinks to the object.
 
-    def __init__(self, model, **kwargs):
-        model_name = model._meta.model_name
-        app_name = model._meta.app_label
-        view_name = f'{app_name}-api:{model_name}-detail'
-        super().__init__(view_name, **kwargs)
+        May raise a `NoReverseMatch` if the `view_name` and `lookup_field`
+        attributes are not configured to correctly match the URL conf.
+        """
+        # Unsaved objects will not yet have a valid URL.
+        if hasattr(obj, 'pk') and obj.pk in (None, ''):
+            return None
+
+        lookup_value = getattr(obj, self.lookup_field)
+        kwargs = {self.lookup_url_kwarg: lookup_value}
+
+        model_name = self.parent.Meta.model._meta.model_name
+        app_name = self.parent.Meta.model._meta.app_label
+        view_name = self.get_view_name(app_name, model_name)
+        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
 
 
-class NetBoxURLHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+class NetBoxAPIHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
 
-    def __init__(self, model, **kwargs):
-        model_name = model._meta.model_name
-        app_name = model._meta.app_label
-        view_name = f'{app_name}:{model_name}'
-        super().__init__(view_name, **kwargs)
+    def get_view_name(self, app_name, model_name):
+        return f'{app_name}-api:{model_name}-detail'
+
+
+
+class NetBoxURLHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
+
+    def get_view_name(self, app_name, model_name):
+        return f'{app_name}:{model_name}'
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
-    url = serializers.RelatedField(read_only=True)
-    display_url = serializers.RelatedField(read_only=True)
+    url = NetBoxAPIHyperlinkedIdentityField(view_name="")
+    display_url = NetBoxURLHyperlinkedIdentityField(view_name="")
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):
@@ -55,15 +77,6 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # default to using Meta.brief_fields (if set)
         if self.nested and not fields:
             self._requested_fields = getattr(self.Meta, 'brief_fields', None)
-
-        # don't override the field if the class already defines these so can set lookup_field
-        if ("url" in self.fields and not isinstance(self.fields["url"], serializers.HyperlinkedIdentityField) and
-                isinstance(self.fields["url"], serializers.RelatedField)):
-            self.fields["url"] = NetBoxAPIHyperlinkedIdentityField(self.Meta.model)
-        if ("display_url" in self.fields and not
-                isinstance(self.fields["display_url"], serializers.HyperlinkedIdentityField) and
-                isinstance(self.fields["display_url"], serializers.RelatedField)):
-            self.fields["display_url"] = NetBoxURLHyperlinkedIdentityField(self.Meta.model)
 
         super().__init__(*args, **kwargs)
 
