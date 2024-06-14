@@ -150,5 +150,5 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('distance', 'distance_unit', name=_('Attributes')),
     )
     nullable_fields = (
-        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'length', 'comments',
+        'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'distance', 'comments',
     )

@@ -113,7 +113,7 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
         help_text=_('Authentication cipher')
     )
     distance_unit = CSVChoiceField(
-        label=_('Length unit'),
+        label=_('Distance unit'),
         choices=WirelessLinkDistanceUnitChoices,
         required=False,
         help_text=_('Distance unit')

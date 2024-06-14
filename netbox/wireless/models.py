@@ -174,7 +174,7 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         choices=WirelessLinkDistanceUnitChoices,
         blank=True,
     )
-    # Stores the normalized length (in meters) for database ordering
+    # Stores the normalized distance (in meters) for database ordering
     _abs_distance = models.DecimalField(
         max_digits=10,
         decimal_places=4,
