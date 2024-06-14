@@ -217,7 +217,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'role', 'status', 'description', 'tags', name=_('Virtual Machine')),
+        FieldSet('name', 'role', 'status', 'description', 'serial', 'tags', name=_('Virtual Machine')),
         FieldSet('site', 'cluster', 'device', name=_('Site/Cluster')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('platform', 'primary_ip4', 'primary_ip6', 'config_template', name=_('Management')),
@@ -229,8 +229,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments', 'tags', 'local_context_data',
-            'config_template',
+            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'comments', 'tags',
+            'local_context_data', 'config_template',
         ]
 
     def __init__(self, *args, **kwargs):

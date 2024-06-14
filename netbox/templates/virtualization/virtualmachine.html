@@ -32,6 +32,10 @@
                   <td>{{ object.description|placeholder }}</td>
                 </tr>
                 <tr>
+                  <th scope="row">{% trans "Serial Number" %}</th>
+                  <td>{{ object.serial|placeholder }}</td>
+                </tr>
+                <tr>
                     <th scope="row">{% trans "Tenant" %}</th>
                     <td>
                         {% if object.tenant.group %}
