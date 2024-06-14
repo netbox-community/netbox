@@ -32,7 +32,6 @@ __all__ = (
 
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -54,14 +53,13 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -83,14 +81,13 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -113,14 +110,13 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'maximum_draw', 'allocated_draw', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -154,14 +150,13 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'power_port', 'feed_leg', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -201,14 +196,13 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
             'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -226,14 +220,13 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
             'positions', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -252,14 +245,13 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
             'rear_port', 'rear_port_position', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ModuleBayTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -267,14 +259,13 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'name', 'label', 'position', 'description',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'position', 'description',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -282,14 +273,13 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'name', 'label', 'description',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'description',
             'created', 'last_updated'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InventoryItemTemplateSerializer(ValidatedModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -316,7 +306,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InventoryItemTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer',
+            'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer',
             'part_id', 'description', 'component_type', 'component_id', 'component', 'created', 'last_updated',
             '_depth',
         ]

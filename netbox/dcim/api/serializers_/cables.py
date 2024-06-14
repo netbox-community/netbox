@@ -52,7 +52,6 @@ class TracedCableSerializer(serializers.ModelSerializer):
 
 
 class CableTerminationSerializer(NetBoxModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     termination_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )
@@ -61,7 +60,7 @@ class CableTerminationSerializer(NetBoxModelSerializer):
     class Meta:
         model = CableTermination
         fields = [
-            'id', 'url', 'display_url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
+            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
             'termination', 'created', 'last_updated',
         ]
 
