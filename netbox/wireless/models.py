@@ -250,15 +250,15 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
             })
 
     def save(self, *args, **kwargs):
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length is not None and self.length_unit:
-            self._abs_distance = to_meters(self.length, self.length_unit)
+        # Store the given distance (if any) in meters for use in database ordering
+        if self.distance is not None and self.distance_unit:
+            self._abs_distance = to_meters(self.distance, self.distance_unit)
         else:
             self._abs_distance = None
 
-        # Clear length_unit if no length is defined
-        if self.length is None:
-            self.length_unit = ''
+        # Clear distance_unit if no distance is defined
+        if self.distance is None:
+            self.distance_unit = ''
 
         # Store the parent Device for the A and B interfaces
         self._interface_a_device = self.interface_a.device
