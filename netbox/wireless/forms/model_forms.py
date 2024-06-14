@@ -159,7 +159,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     fieldsets = (
         FieldSet('site_a', 'location_a', 'device_a', 'interface_a', name=_('Side A')),
         FieldSet('site_b', 'location_b', 'device_b', 'interface_b', name=_('Side B')),
-        FieldSet('status', 'ssid', 'length', 'length_unit', 'description', 'tags', name=_('Link')),
+        FieldSet('status', 'ssid', 'distance', 'distance_unit', 'description', 'tags', name=_('Link')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
