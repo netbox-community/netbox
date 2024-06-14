@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class NetBoxApiHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+class NetBoxAPIHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
 
     def __init__(self, model, **kwargs):
         model_name = model._meta.model_name
@@ -22,7 +22,7 @@ class NetBoxApiHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         super().__init__(view_name, **kwargs)
 
 
-class NetBoxUrlHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
+class NetBoxURLHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
 
     def __init__(self, model, **kwargs):
         model_name = model._meta.model_name
@@ -59,11 +59,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # don't override the field if the class already defines these so can set lookup_field
         if ("url" in self.fields and not isinstance(self.fields["url"], serializers.HyperlinkedIdentityField) and
                 isinstance(self.fields["url"], serializers.RelatedField)):
-            self.fields["url"] = NetBoxApiHyperlinkedIdentityField(self.Meta.model)
+            self.fields["url"] = NetBoxAPIHyperlinkedIdentityField(self.Meta.model)
         if ("display_url" in self.fields and not
                 isinstance(self.fields["display_url"], serializers.HyperlinkedIdentityField) and
                 isinstance(self.fields["display_url"], serializers.RelatedField)):
-            self.fields["display_url"] = NetBoxUrlHyperlinkedIdentityField(self.Meta.model)
+            self.fields["display_url"] = NetBoxURLHyperlinkedIdentityField(self.Meta.model)
 
         super().__init__(*args, **kwargs)
 
