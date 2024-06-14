@@ -2,6 +2,18 @@
 
 ## v4.0.6 (FUTURE)
 
+### Enhancements
+
+* [#15794](https://github.com/netbox-community/netbox/issues/15794) - Dynamically populate related objects in UI views
+* [#16256](https://github.com/netbox-community/netbox/issues/16256) - Enable alphabetical ordering of bookmarks on dashboard
+
+### Bug Fixes
+
+* [#13925](https://github.com/netbox-community/netbox/issues/13925) - Fix support for "zulu" (UTC) timestamps for custom fields
+* [#14829](https://github.com/netbox-community/netbox/issues/14829) - Fix support for simple conditions (without AND/OR) in event rules
+* [#16143](https://github.com/netbox-community/netbox/issues/16143) - Display timestamps in tables in the configured timezone
+* [#16454](https://github.com/netbox-community/netbox/issues/16454) - Address DNS lookup bug in `django-debug-toolbar
+
 ---
 
 ## v4.0.5 (2024-06-06)
