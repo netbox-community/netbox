@@ -39,7 +39,7 @@ class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
     )
     distance = columns.TemplateColumn(
         template_code=WIRELESS_LINK_DISTANCE,
-        order_by=('_abs_distance', 'distance_unit')
+        order_by=('_abs_distance')
     )
     tags = columns.TagColumn(
         url_name='wireless:wirelesslink_list'
