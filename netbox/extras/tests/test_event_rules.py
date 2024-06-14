@@ -3,17 +3,20 @@ import uuid
 from unittest.mock import patch
 
 import django_rq
+from django.http import HttpResponse
+from django.test import RequestFactory
+from django.urls import reverse
+from requests import Session
+from rest_framework import status
+
+from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
-from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
-from django.urls import reverse
 from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
+from extras.context_managers import event_tracking
 from extras.events import enqueue_object, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
-from requests import Session
-from rest_framework import status
 from utilities.testing import APITestCase
 
 
@@ -29,7 +32,7 @@ class EventRuleTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         DUMMY_URL = 'http://localhost:9000/'
         DUMMY_SECRET = 'LOOKATMEIMASECRETSTRING'
 
@@ -39,32 +42,32 @@ class EventRuleTest(APITestCase):
             Webhook(name='Webhook 3', payload_url=DUMMY_URL, secret=DUMMY_SECRET),
         ))
 
-        ct = ContentType.objects.get(app_label='extras', model='webhook')
+        webhook_type = ObjectType.objects.get(app_label='extras', model='webhook')
         event_rules = EventRule.objects.bulk_create((
             EventRule(
                 name='Webhook Event 1',
                 type_create=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
                 name='Webhook Event 2',
                 type_update=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
                 name='Webhook Event 3',
                 type_delete=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
         ))
         for event_rule in event_rules:
-            event_rule.content_types.set([site_ct])
+            event_rule.object_types.set([site_type])
 
         Tag.objects.bulk_create((
             Tag(name='Foo', slug='foo'),
@@ -359,7 +362,7 @@ class EventRuleTest(APITestCase):
             return HttpResponse()
 
         # Enqueue a webhook for processing
-        webhooks_queue = []
+        webhooks_queue = {}
         site = Site.objects.create(name='Site 1', slug='site-1')
         enqueue_object(
             webhooks_queue,
@@ -368,7 +371,7 @@ class EventRuleTest(APITestCase):
             request_id=request_id,
             action=ObjectChangeActionChoices.ACTION_CREATE
         )
-        flush_events(webhooks_queue)
+        flush_events(list(webhooks_queue.values()))
 
         # Retrieve the job from queue
         job = self.queue.jobs[0]
@@ -376,3 +379,24 @@ class EventRuleTest(APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send) as mock_send:
             send_webhook(**job.kwargs)
+
+    def test_duplicate_triggers(self):
+        """
+        Test for erroneous duplicate event triggers resulting from saving an object multiple times
+        within the span of a single request.
+        """
+        url = reverse('dcim:site_add')
+        request = RequestFactory().get(url)
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        self.assertEqual(self.queue.count, 0, msg="Unexpected jobs found in queue")
+
+        with event_tracking(request):
+            site = Site(name='Site 1', slug='site-1')
+            site.save()
+
+            # Save the site a second time
+            site.save()
+
+        self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")

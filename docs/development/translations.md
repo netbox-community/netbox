@@ -6,17 +6,38 @@ All language translations in NetBox are generated from the source file found at 
 
 Reviewers log into Transifex and navigate to their designated language(s) to translate strings. The initial translation for most strings will be machine-generated via the AWS Translate service. Human reviewers are responsible for reviewing these translations and making corrections where necessary.
 
-Immediately prior to each NetBox release, the translation maps for all completed languages will be downloaded from Transifex, compiled, and checked into the NetBox code base by a maintainer.
-
 ## Updating Translation Sources
 
-To update the English `.po` file from which all translations are derived, use the `makemessages` management command:
+To update the English `.po` file from which all translations are derived, use the `makemessages` management command (ignoring the `project-static/` directory):
 
 ```nohighlight
-./manage.py makemessages -l en
+./manage.py makemessages -l en -i "project-static/*"
 ```
 
-Then, commit the change and push to the `develop` branch on GitHub. After some time, any new strings will appear for translation on Transifex automatically.
+Then, commit the change and push to the `develop` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
+
+## Updating Translated Strings
+
+Typically, translated strings need to be updated only as part of the NetBox [release process](./release-checklist.md).
+
+To update translated strings, start by initiating a sync from Transifex. From the Transifex dashboard, navigate to Settings > Integrations > GitHub > Manage, and click the **Manual Sync** button at top right.
+
+![Transifex manual sync](../media/development/transifex_sync.png)
+
+Enter a threshold percentage of 1 (to ensure all translations are captured) and select the `develop` branch, then click **Sync**. This will initiate a pull request to GitHub to update any newly modified translation (`.po`) files.
+
+!!! tip
+    The new PR should appear within a few minutes. If it does not, check that there are in fact new translations to be added.
+
+![Transifex pull request](../media/development/transifex_pull_request.png)
+
+Once the PR has been merged, the updated strings need to be compiled into new `.mo` files so they can be used by the application. Update the `develop` branch locally to pull in the changes from the Transifex PR, then run Django's [`compilemessages`](https://docs.djangoproject.com/en/stable/ref/django-admin/#django-admin-compilemessages) management command:
+
+```nohighlight
+./manage.py compilemessages
+```
+
+Once any new `.mo` files have been generated, they need to be committed and pushed back up to GitHub. (Again, this is typically done as part of publishing a new NetBox release.)
 
 ## Proposing New Languages
 

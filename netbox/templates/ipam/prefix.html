@@ -10,149 +10,147 @@
   <div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Prefix" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Family" %}</th>
-            <td>IPv{{ object.family }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "VRF" %}</th>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Family" %}</th>
+          <td>IPv{{ object.family }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VRF" %}</th>
+          <td>
+            {% if object.vrf %}
+              <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
+            {% else %}
+              <span>{% trans "Global" %}</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Tenant" %}</th>
             <td>
-              {% if object.vrf %}
-                <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
-              {% else %}
-                <span>{% trans "Global" %}</span>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
               {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Aggregate" %}</th>
+          <td>
+            {% if aggregate %}
+              <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        </tr>
+        {% if object.site.region %}
+          <tr>
+            <th scope="row">{% trans "Region" %}</th>
+            <td>
+              {% nested_tree object.site.region %}
             </td>
           </tr>
-          <tr>
-            <th scope="row">{% trans "Tenant" %}</th>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Aggregate" %}</th>
-            <td>
-              {% if aggregate %}
-                <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
-              {% else %}
-                {{ ''|placeholder }}
+        {% endif %}
+        <tr>
+          <th scope="row">{% trans "Site" %}</th>
+          <td>{{ object.site|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VLAN" %}</th>
+          <td>
+            {% if object.vlan %}
+              {% if object.vlan.group %}
+                {{ object.vlan.group|linkify }} /
               {% endif %}
-            </td>
-          </tr>
-          {% if object.site.region %}
-            <tr>
-              <th scope="row">{% trans "Region" %}</th>
-              <td>
-                {% nested_tree object.site.region %}
-              </td>
-            </tr>
-          {% endif %}
-          <tr>
-            <th scope="row">{% trans "Site" %}</th>
-            <td>{{ object.site|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "VLAN" %}</th>
-            <td>
-              {% if object.vlan %}
-                {% if object.vlan.group %}
-                  {{ object.vlan.group|linkify }} /
-                {% endif %}
-                {{ object.vlan|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Status" %}</th>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Role" %}</th>
-            <td>{{ object.role|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Is a pool" %}</th>
-            <td>{% checkmark object.is_pool %}</td>
-          </tr>
-        </table>
-      </div>
+              {{ object.vlan|linkify }}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Status" %}</th>
+          <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Role" %}</th>
+          <td>{{ object.role|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Is a pool" %}</th>
+          <td>{% checkmark object.is_pool %}</td>
+        </tr>
+      </table>
     </div>
-      {% plugin_left_page object %}
+    {% plugin_left_page object %}
   </div>
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Addressing" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Utilization" %}</th>
-            <td>
-              {% if object.mark_utilized %}
-                {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                <small>({% trans "Marked fully utilized" %})</small>
-              {% else %}
-                {% utilization_graph object.get_utilization %}
-              {% endif %}
-            </td>
-          </tr>
-          {% with child_ip_count=object.get_child_ips.count %}
-            <tr>
-              <th scope="row">{% trans "Child IPs" %}</th>
-              <td>
-                <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
-              </td>
-            </tr>
-          {% endwith %}
-          {% with available_count=object.get_available_ips.size %}
-            <tr>
-              <th scope="row">{% trans "Available IPs" %}</th>
-              <td>
-                {# Use human-friendly words for counts greater than one million #}
-                {% if available_count > 1000000 %}
-                  {{ available_count|intword }}
-                {% else %}
-                  {{ available_count|intcomma }}
-                {% endif %}
-              </td>
-            </tr>
-          {% endwith %}
-          <tr>
-            <td>{% trans "First available IP" %}</td>
-            <td>
-              {% with first_available_ip=object.get_first_available_ip %}
-                {% if first_available_ip %}
-                  {% if perms.ipam.add_ipaddress %}
-                    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
-                  {% else %}
-                    {{ first_available_ip }}
-                  {% endif %}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              {% endwith %}
-            </td>
-          </tr>
-        </table>
+      <h5 class="card-header">
+        {% trans "Addressing" %}
         {% if object.prefix.version == 4 %}
-          <div class="float-end">
-            <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
+          <div class="card-actions">
+            <a class="btn btn-ghost-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
               <i class="mdi mdi-information-outline" aria-hidden="true"></i> {% trans "Addressing Details" %}
             </a>
           </div>
         {% endif %}
-      </div>
+      </h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Utilization" %}</th>
+          <td>
+            {% if object.mark_utilized %}
+              {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
+              <small>({% trans "Marked fully utilized" %})</small>
+            {% else %}
+              {% utilization_graph object.get_utilization %}
+            {% endif %}
+          </td>
+        </tr>
+        {% with child_ip_count=object.get_child_ips.count %}
+          <tr>
+            <th scope="row">{% trans "Child IPs" %}</th>
+            <td>
+              <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
+            </td>
+          </tr>
+        {% endwith %}
+        {% with available_count=object.get_available_ips.size %}
+          <tr>
+            <th scope="row">{% trans "Available IPs" %}</th>
+            <td>
+              {# Use human-friendly words for counts greater than one million #}
+              {% if available_count > 1000000 %}
+                {{ available_count|intword }}
+              {% else %}
+                {{ available_count|intcomma }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endwith %}
+        <tr>
+            <th scope="row">{% trans "First available IP" %}</th>
+          <td>
+            {% with first_available_ip=object.get_first_available_ip %}
+              {% if first_available_ip %}
+                {% if perms.ipam.add_ipaddress %}
+                  <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
+                {% else %}
+                  {{ first_available_ip }}
+                {% endif %}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            {% endwith %}
+          </td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/tags.html' %}
@@ -181,22 +179,22 @@
             <h5 class="modal-title">{% trans "Prefix Details" %}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <table class="table table-hover attr-table">
+          <div class="modal-body p-0">
+            <table class="table table-hover attr-table m-0">
               <tr>
-                <td>{% trans "Network Address" %}</td>
+                <th scope="row">{% trans "Network Address" %}</th>
                 <td>{{ object.prefix.network }}</td>
               </tr>
               <tr>
-                <td>{% trans "Network Mask" %}</td>
+                <th scope="row">{% trans "Network Mask" %}</th>
                 <td>{{ object.prefix.netmask }}</td>
               </tr>
               <tr>
-                <td>{% trans "Wildcard Mask" %}</td>
+                <th scope="row">{% trans "Wildcard Mask" %}</th>
                 <td>{{ object.prefix.hostmask }}</td>
               </tr>
               <tr>
-                <td>{% trans "Broadcast Address" %}</td>
+                <th scope="row">{% trans "Broadcast Address" %}</th>
                 <td>{{ object.prefix.broadcast }}</td>
               </tr>
             </table>

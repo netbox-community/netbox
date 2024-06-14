@@ -9,32 +9,30 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    <div class="card-header text-center text-{{ widget.fg_color }} bg-{{ widget.color|default:"secondary" }} p-1">
-      <div class="float-start ps-1">
-        <a href="#"
-          hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
-          hx-target="#htmx-modal-content"
-          data-bs-toggle="modal"
-          data-bs-target="#htmx-modal"
-        >
-          <i class="mdi mdi-cog text-{{ widget.fg_color }}"></i>
-        </a>
+    <div class="card-header text-{{ widget.fg_color }} bg-{{ widget.color|default:"secondary" }} px-2 py-1 d-flex flex-row">
+      <a href="#"
+        hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
+        hx-target="#htmx-modal-content"
+        data-bs-toggle="modal"
+        data-bs-target="#htmx-modal"
+      >
+        <i class="mdi mdi-cog text-{{ widget.fg_color }}"></i>
+      </a>
+      <div class="card-title flex-fill text-center">
+        {% if widget.title %}
+          <span class="fs-4 fw-bold">{{ widget.title }}</span>
+        {% endif %}
       </div>
-      <div class="float-end pe-1">
-        <a href="#"
-          hx-get="{% url 'extras:dashboardwidget_delete' id=widget.id %}"
-          hx-target="#htmx-modal-content"
-          data-bs-toggle="modal"
-          data-bs-target="#htmx-modal"
-        >
-          <i class="mdi mdi-close text-{{ widget.fg_color }}"></i>
-        </a>
-      </div>
-      {% if widget.title %}
-        <strong>{{ widget.title }}</strong>
-      {% endif %}
+      <a href="#"
+        hx-get="{% url 'extras:dashboardwidget_delete' id=widget.id %}"
+        hx-target="#htmx-modal-content"
+        data-bs-toggle="modal"
+        data-bs-target="#htmx-modal"
+      >
+        <i class="mdi mdi-close text-{{ widget.fg_color }}"></i>
+      </a>
     </div>
-    <div class="card-body p-2 overflow-auto">
+    <div class="card-body p-2 pt-1 overflow-auto">
       {% render_widget widget %}
     </div>
   </div>

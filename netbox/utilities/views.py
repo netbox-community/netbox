@@ -1,17 +1,23 @@
+from typing import Iterable
+
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 
+from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from utilities.relations import get_related_models
 from .permissions import resolve_permission
 
 __all__ = (
     'ContentTypePermissionRequiredMixin',
+    'GetRelatedModelsMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
     'ViewTab',
+    'get_viewname',
     'register_model_view',
 )
 
@@ -140,6 +146,46 @@ class GetReturnURLMixin:
         return reverse('home')
 
 
+class GetRelatedModelsMixin:
+    """
+    Provides logic for collecting all related models for the currently viewed model.
+    """
+
+    def get_related_models(self, request, instance, omit=[], extra=[]):
+        """
+        Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
+
+        Args:
+            request: Current request being processed.
+            instance: The instance related models should be looked up for. A list of instances can be passed to match
+                related objects in this list (e.g. to find sites of a region including child regions).
+            omit: Remove relationships to these models from the result. Needs to be passed, if related models don't
+                provide a `_list` view.
+            extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
+                relationships.
+        """
+        model = self.queryset.model
+        related = filter(
+            lambda m: m[0] is not model and m[0] not in omit,
+            get_related_models(model, False)
+        )
+
+        related_models = [
+            (
+                model.objects.restrict(request.user, 'view').filter(**(
+                    {f'{field}__in': instance}
+                    if isinstance(instance, Iterable)
+                    else {field: instance}
+                )),
+                f'{field}_id'
+            )
+            for model, field in related
+        ]
+        related_models.extend(extra)
+
+        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
+
+
 class ViewTab:
     """
     ViewTabs are used for navigation among multiple object-specific views, such as the changelog or journal for
@@ -178,6 +224,39 @@ class ViewTab:
         if callable(self.badge):
             return self.badge(instance)
         return self.badge
+
+
+#
+# Utility functions
+#
+
+def get_viewname(model, action=None, rest_api=False):
+    """
+    Return the view name for the given model and action, if valid.
+
+    :param model: The model or instance to which the view applies
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API view
+    """
+    is_plugin = isinstance(model._meta.app_config, PluginConfig)
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    if rest_api:
+        viewname = f'{app_label}-api:{model_name}'
+        if is_plugin:
+            viewname = f'plugins-api:{viewname}'
+        if action:
+            viewname = f'{viewname}-{action}'
+
+    else:
+        viewname = f'{app_label}:{model_name}'
+        if is_plugin:
+            viewname = f'plugins:{viewname}'
+        if action:
+            viewname = f'{viewname}_{action}'
+
+    return viewname
 
 
 def register_model_view(model, name='', path=None, kwargs=None):

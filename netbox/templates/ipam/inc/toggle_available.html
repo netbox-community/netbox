@@ -3,13 +3,13 @@
 
 {% if show_assigned or show_available is not None %}
   <div class="btn-group" role="group">
-    <a href="{{ request.path }}{% querystring request show_assigned='true' show_available='false' %}" class="btn btn-sm {% if show_assigned and not show_available %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
+    <a href="{{ request.path }}{% querystring request show_assigned='true' show_available='false' %}" class="btn {% if show_assigned and not show_available %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
       {% trans "Show Assigned" %}
     </a>
-    <a href="{{ request.path }}{% querystring request show_assigned='false' show_available='true' %}" class="btn btn-sm {% if show_available and not show_assigned %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
+    <a href="{{ request.path }}{% querystring request show_assigned='false' show_available='true' %}" class="btn {% if show_available and not show_assigned %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
       {% trans "Show Available" %}
     </a>
-    <a href="{{ request.path }}{% querystring request show_assigned='true' show_available='true' %}" class="btn btn-sm {% if show_available and show_assigned %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
+    <a href="{{ request.path }}{% querystring request show_assigned='true' show_available='true' %}" class="btn {% if show_available and show_assigned %}btn-secondary active{% else %}btn-outline-secondary{% endif %}">
       {% trans "Show All" %}
     </a>
   </div>

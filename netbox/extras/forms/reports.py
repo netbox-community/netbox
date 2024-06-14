@@ -2,16 +2,15 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import DurationChoices
-from utilities.forms import BootstrapMixin
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
-from utilities.utils import local_now
+from utilities.datetime import local_now
 
 __all__ = (
     'ReportForm',
 )
 
 
-class ReportForm(BootstrapMixin, forms.Form):
+class ReportForm(forms.Form):
     schedule_at = forms.DateTimeField(
         required=False,
         widget=DateTimePicker(),

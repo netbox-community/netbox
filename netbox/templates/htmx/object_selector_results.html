@@ -1,12 +1,10 @@
 <div class="list-group">
   {% for object in results %}
-    <a href="#" class="list-group-item list-group-item-action" data-label="{{ object }}" data-value="{{ object.pk }}" data-bs-dismiss="modal">
-      <h6 class="mb-1">
-        {{ object }}
-        {% if object.status %}{% badge object.get_status_display bg_color=object.get_status_color %}{% endif %}
-      </h6>
+    <a href="#" class="list-group-item list-group-item-action p-2" data-label="{{ object }}" data-value="{{ object.pk }}" data-bs-dismiss="modal">
+      {{ object }}
+      {% if object.status %}{% badge object.get_status_display bg_color=object.get_status_color %}{% endif %}
       {% if object.description %}
-        <small>{{ object.description }}</small>
+        <small class="d-block text-muted">{{ object.description }}</small>
       {% endif %}
     </a>
   {% endfor %}

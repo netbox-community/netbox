@@ -59,7 +59,7 @@ Notify the [`netbox-docker`](https://github.com/netbox-community/netbox-docker) 
 * Increases in minimum versions for service dependencies (PostgreSQL, Redis, etc.)
 * Any changes to the reference installation
 
-### Update Requirements
+### Update Python Dependencies
 
 Before each release, update each of NetBox's Python dependencies to its most recent stable version. These are defined in `requirements.txt`, which is updated from `base_requirements.txt` using `pip`. To do this:
 
@@ -69,6 +69,10 @@ Before each release, update each of NetBox's Python dependencies to its most rec
 4. Update the package versions in `requirements.txt` as appropriate.
 
 In cases where upgrading a dependency to its most recent release is breaking, it should be constrained to its current minor version in `base_requirements.txt` with an explanatory comment and revisited for the next major NetBox release (see the [Address Constrained Dependencies](#address-constrained-dependencies) section above).
+
+### Update UI Dependencies
+
+Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
 
 ### Rebuild the Device Type Definition Schema
 
@@ -82,15 +86,7 @@ This will automatically update the schema file at `contrib/generated_schema.json
 
 ### Update & Compile Translations
 
-Log into [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) to download the updated string maps. Download the resource (portable object, or `.po`) file for each language and save them to `netbox/translations/$lang/LC_MESSAGES/django.po`, overwriting the current files. (Be sure to click the **Download for use** link.)
-
-![Transifex download](../media/development/transifex_download.png)
-
-Once the resource files for all languages have been updated, compile the machine object (`.mo`) files using the `compilemessages` management command:
-
-```nohighlight
-./manage.py compilemessages
-```
+Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. Follow the documented process for [updating translated strings](./translations.md#updating-translated-strings) to do this.
 
 ### Update Version and Changelog
 
@@ -130,3 +126,13 @@ VERSION = 'v3.3.2-dev'
 ```
 
 Commit this change with the comment "PRVB" (for _post-release version bump_) and push the commit upstream.
+
+### Update the Public Documentation
+
+After a release has been published, the public NetBox documentation needs to be updated. This is accomplished by running two actions on the [netboxlabs-docs](https://github.com/netboxlabs/netboxlabs-docs) repository.
+
+First, run the `build-site` action, by navigating to Actions > build-site > Run workflow. This process compiles the documentation along with an overlay for integration with the documentation portal at <https://netboxlabs.com/docs>. The job should take about two minutes.
+
+Once the documentation files have been compiled, they must be published by running the `deploy-kinsta` action. Select the desired deployment environment (staging or production) and specify `latest` as the deploy tag.
+
+Finally, verify that the documentation at <https://netboxlabs.com/docs/netbox/en/stable/> has been updated.

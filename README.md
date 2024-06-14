@@ -5,7 +5,7 @@
   <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
   <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" /></a>
   <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
-  <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-7-blue" alt="Languages supported" /></a>
+  <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-10-blue" alt="Languages supported" /></a>
   <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" /></a>
   <p></p>
 </div>
@@ -94,16 +94,6 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 * Already a power user? You can [suggest a feature](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+feature&template=feature_request.yaml) or [report a bug](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+bug&template=bug_report.yaml) on GitHub.
 * Contributions from the community are encouraged and appreciated! Check out our [contributing guide](CONTRIBUTING.md) to get started.
 * [Share your idea](https://plugin-ideas.netbox.dev/) for a new plugin, or [learn how to build one](https://github.com/netbox-community/netbox-plugin-tutorial) yourself!
-
-## Project Stats
-
-<p align="center">
-  <a href="https://github.com/netbox-community/netbox/commits"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/whQtEr_TGD9PhW1BPlhlEQ5jnrgQ0KJpm-LlGtpoGO0/3Kx_iWUSBRJ5-AI4QwJEJWrUDEz3KrX2lvh8aYE0WXY_timeline.svg" alt="Timeline graph"></a>
-  <a href="https://github.com/netbox-community/netbox/issues"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/whQtEr_TGD9PhW1BPlhlEQ5jnrgQ0KJpm-LlGtpoGO0/3Kx_iWUSBRJ5-AI4QwJEJWrUDEz3KrX2lvh8aYE0WXY_issues.svg" alt="Issues graph"></a>
-  <a href="https://github.com/netbox-community/netbox/pulls"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/whQtEr_TGD9PhW1BPlhlEQ5jnrgQ0KJpm-LlGtpoGO0/3Kx_iWUSBRJ5-AI4QwJEJWrUDEz3KrX2lvh8aYE0WXY_prs.svg" alt="Pull requests graph"></a>
-  <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://images.repography.com/29023055/netbox-community/netbox/recent-activity/whQtEr_TGD9PhW1BPlhlEQ5jnrgQ0KJpm-LlGtpoGO0/3Kx_iWUSBRJ5-AI4QwJEJWrUDEz3KrX2lvh8aYE0WXY_users.svg" alt="Top contributors"></a>
-  <br />Stats via <a href="https://repography.com">Repography</a>
-</p>
 
 ## Screenshots
 

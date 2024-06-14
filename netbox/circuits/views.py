@@ -6,8 +6,8 @@ from dcim.views import PathTraceView
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
-from utilities.utils import count_related
-from utilities.views import register_model_view
+from utilities.query import count_related
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -26,17 +26,12 @@ class ProviderListView(generic.ObjectListView):
 
 
 @register_model_view(Provider)
-class ProviderView(generic.ObjectView):
+class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Provider.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
-            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -92,16 +87,12 @@ class ProviderAccountListView(generic.ObjectListView):
 
 
 @register_model_view(ProviderAccount)
-class ProviderAccountView(generic.ObjectView):
+class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderAccount.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Circuit.objects.restrict(request.user, 'view').filter(provider_account=instance), 'provider_account_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -156,19 +147,21 @@ class ProviderNetworkListView(generic.ObjectListView):
 
 
 @register_model_view(ProviderNetwork)
-class ProviderNetworkView(generic.ObjectView):
+class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (
-                Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
-                'provider_network_id',
-            ),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
+                        'provider_network_id',
+                    ),
+                ),
+            ),
         }
 
 
@@ -215,16 +208,12 @@ class CircuitTypeListView(generic.ObjectListView):
 
 
 @register_model_view(CircuitType)
-class CircuitTypeView(generic.ObjectView):
+class CircuitTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CircuitType.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Circuit.objects.restrict(request.user, 'view').filter(type=instance), 'type_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -298,7 +287,7 @@ class CircuitBulkImportView(generic.BulkImportView):
         'circuits.add_circuittermination',
     ]
     related_object_forms = {
-        'terminations': forms.CircuitTerminationImportForm,
+        'terminations': forms.CircuitTerminationImportRelatedForm,
     }
 
     def prep_related_object_data(self, parent, data):
@@ -408,16 +397,45 @@ class CircuitContactsView(ObjectContactsView):
 # Circuit terminations
 #
 
+class CircuitTerminationListView(generic.ObjectListView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    filterset_form = forms.CircuitTerminationFilterForm
+    table = tables.CircuitTerminationTable
+
+
+@register_model_view(CircuitTermination)
+class CircuitTerminationView(generic.ObjectView):
+    queryset = CircuitTermination.objects.all()
+
+
 @register_model_view(CircuitTermination, 'edit')
 class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
     form = forms.CircuitTerminationForm
-    template_name = 'circuits/circuittermination_edit.html'
 
 
 @register_model_view(CircuitTermination, 'delete')
 class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()
+
+
+class CircuitTerminationBulkImportView(generic.BulkImportView):
+    queryset = CircuitTermination.objects.all()
+    model_form = forms.CircuitTerminationImportForm
+
+
+class CircuitTerminationBulkEditView(generic.BulkEditView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    table = tables.CircuitTerminationTable
+    form = forms.CircuitTerminationBulkEditForm
+
+
+class CircuitTerminationBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    table = tables.CircuitTerminationTable
 
 
 # Trace view

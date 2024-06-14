@@ -17,10 +17,10 @@ from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
-from utilities.htmx import is_htmx
+from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
-from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
-from utilities.views import GetReturnURLMixin
+from utilities.querydict import normalize_querydict, prepare_cloned_fields
+from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -93,6 +93,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     child_model = None
     table = None
     filterset = None
+    template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
         """
@@ -139,7 +140,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table = self.get_table(table_data, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
+        if htmx_partial(request):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
@@ -167,6 +168,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     """
     template_name = 'generic/object_edit.html'
     form = None
+    htmx_template_name = 'htmx/form.html'
 
     def dispatch(self, request, *args, **kwargs):
         # Determine required permission based on whether we are editing an existing object
@@ -227,8 +229,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         restrict_form_fields(form, request.user)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if is_htmx(request):
-            return render(request, 'htmx/form.html', {
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
                 'form': form,
             })
 
@@ -339,10 +341,14 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         # Compile a mapping of models to instances
         dependent_objects = defaultdict(list)
-        for model, instance in collector.instances_with_model():
+        for model, instances in collector.instances_with_model():
+            # Ignore relations to auto-created models (e.g. many-to-many mappings)
+            if model._meta.auto_created:
+                continue
             # Omit the root object
-            if instance != obj:
-                dependent_objects[model].append(instance)
+            if instances == obj:
+                continue
+            dependent_objects[model].append(instances)
 
         return dict(dependent_objects)
 
@@ -352,7 +358,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         handle_protectederror(protected_objects, request, exc)
 
-        if is_htmx(request):
+        if request.htmx:
             return HttpResponse(headers={
                 'HX-Redirect': obj.get_absolute_url(),
             })
@@ -381,7 +387,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             return self._handle_protected_objects(obj, e.restricted_objects, request, e)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
-        if is_htmx(request):
+        if htmx_partial(request):
             viewname = get_viewname(self.queryset.model, action='delete')
             form_url = reverse(viewname, kwargs={'pk': obj.pk})
             return render(request, 'htmx/delete_form.html', {
@@ -483,7 +489,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         instance = self.alter_object(self.queryset.model(), request)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if is_htmx(request):
+        if htmx_partial(request):
             return render(request, 'htmx/form.html', {
                 'form': form,
             })

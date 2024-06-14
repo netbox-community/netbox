@@ -20,6 +20,10 @@ class PluginTest(TestCase):
 
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
+    def test_model_registration(self):
+        self.assertIn('dummy_plugin', registry['models'])
+        self.assertIn('dummymodel', registry['models']['dummy_plugin'])
+
     def test_models(self):
         from netbox.tests.dummy_plugin.models import DummyModel
 
@@ -38,10 +42,11 @@ class PluginTest(TestCase):
         url = reverse('admin:dummy_plugin_dummymodel_add')
         self.assertEqual(url, '/admin/dummy_plugin/dummymodel/add/')
 
+    @override_settings(LOGIN_REQUIRED=False)
     def test_views(self):
 
         # Test URL resolution
-        url = reverse('plugins:dummy_plugin:dummy_models')
+        url = reverse('plugins:dummy_plugin:dummy_model_list')
         self.assertEqual(url, '/plugins/dummy-plugin/models/')
 
         # Test GET request
@@ -49,7 +54,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
     def test_api_views(self):
 
         # Test URL resolution
@@ -61,6 +66,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(LOGIN_REQUIRED=False)
     def test_registered_views(self):
 
         # Test URL resolution

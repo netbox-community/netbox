@@ -3,6 +3,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import *
@@ -23,14 +24,14 @@ class ChangeLogViewTest(ModelViewTestCase):
         )
 
         # Create a custom field on the Site model
-        ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         cf = CustomField(
             type=CustomFieldTypeChoices.TYPE_TEXT,
             name='cf1',
             required=False
         )
         cf.save()
-        cf.content_types.set([ct])
+        cf.object_types.set([site_type])
 
         # Create a select custom field on the Site model
         cf_select = CustomField(
@@ -40,7 +41,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             choice_set=choice_set
         )
         cf_select.save()
-        cf_select.content_types.set([ct])
+        cf_select.object_types.set([site_type])
 
     def test_create_object(self):
         tags = create_tags('Tag 1', 'Tag 2')
@@ -73,6 +74,10 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.postchange_data['custom_fields']['cf1'], form_data['cf_cf1'])
         self.assertEqual(oc.postchange_data['custom_fields']['cf2'], form_data['cf_cf2'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
+
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
 
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
@@ -111,6 +116,12 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.postchange_data['custom_fields']['cf2'], form_data['cf_cf2'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_delete_object(self):
         site = Site(
             name='Site 1',
@@ -140,6 +151,10 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.prechange_data['custom_fields']['cf2'], 'Bar')
         self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
         self.assertEqual(oc.postchange_data, None)
+
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
 
     def test_bulk_update_objects(self):
         sites = (
@@ -275,14 +290,14 @@ class ChangeLogAPITest(APITestCase):
     def setUpTestData(cls):
 
         # Create a custom field on the Site model
-        ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         cf = CustomField(
             type=CustomFieldTypeChoices.TYPE_TEXT,
             name='cf1',
             required=False
         )
         cf.save()
-        cf.content_types.set([ct])
+        cf.object_types.set([site_type])
 
         # Create a select custom field on the Site model
         choice_set = CustomFieldChoiceSet.objects.create(
@@ -296,7 +311,7 @@ class ChangeLogAPITest(APITestCase):
             choice_set=choice_set
         )
         cf_select.save()
-        cf_select.content_types.set([ct])
+        cf_select.object_types.set([site_type])
 
         # Create some tags
         tags = (
@@ -337,6 +352,10 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -369,6 +388,12 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_delete_object(self):
         site = Site(
             name='Site 1',
@@ -396,6 +421,10 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.prechange_data['custom_fields']['cf2'], 'Bar')
         self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
         self.assertEqual(oc.postchange_data, None)
+
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
 
     def test_bulk_create_objects(self):
         data = (

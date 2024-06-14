@@ -5,6 +5,7 @@ from core.models import *
 from netbox.forms import NetBoxModelBulkEditForm
 from netbox.utils import get_data_backend_choices
 from utilities.forms.fields import CommentField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
@@ -41,7 +42,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DataSource
     fieldsets = (
-        (None, ('type', 'enabled', 'description', 'comments', 'parameters', 'ignore_rules')),
+        FieldSet('type', 'enabled', 'description', 'comments', 'parameters', 'ignore_rules'),
     )
     nullable_fields = (
         'description', 'description', 'parameters', 'comments', 'parameters', 'ignore_rules',

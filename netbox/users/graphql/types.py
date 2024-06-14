@@ -1,9 +1,11 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-from graphene_django import DjangoObjectType
+from typing import List
 
-from users import filtersets
-from utilities.querysets import RestrictedQuerySet
+import strawberry_django
+from django.contrib.auth import get_user_model
+
+from netbox.graphql.types import BaseObjectType
+from users.models import Group
+from .filters import *
 
 __all__ = (
     'GroupType',
@@ -11,28 +13,21 @@ __all__ = (
 )
 
 
-class GroupType(DjangoObjectType):
-
-    class Meta:
-        model = Group
-        fields = ('id', 'name')
-        filterset_class = filtersets.GroupFilterSet
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=Group).restrict(info.context.user, 'view')
+@strawberry_django.type(
+    Group,
+    fields=['id', 'name'],
+    filters=GroupFilter
+)
+class GroupType(BaseObjectType):
+    pass
 
 
-class UserType(DjangoObjectType):
-
-    class Meta:
-        model = get_user_model()
-        fields = (
-            'id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
-            'groups',
-        )
-        filterset_class = filtersets.UserFilterSet
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=get_user_model()).restrict(info.context.user, 'view')
+@strawberry_django.type(
+    get_user_model(),
+    fields=[
+        'id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined', 'groups',
+    ],
+    filters=UserFilter
+)
+class UserType(BaseObjectType):
+    groups: List[GroupType]

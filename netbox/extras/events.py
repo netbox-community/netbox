@@ -1,9 +1,6 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
@@ -15,9 +12,9 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
-from utilities.utils import serialize_object
+from utilities.serialization import serialize_object
 from .choices import *
-from .models import EventRule, ScriptModule
+from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
 
@@ -61,15 +58,21 @@ def enqueue_object(queue, instance, user, request_id, action):
     if model_name not in registry['model_features']['event_rules'].get(app_label, []):
         return
 
-    queue.append({
-        'content_type': ContentType.objects.get_for_model(instance),
-        'object_id': instance.pk,
-        'event': action,
-        'data': serialize_for_event(instance),
-        'snapshots': get_snapshots(instance, action),
-        'username': user.username,
-        'request_id': request_id
-    })
+    assert instance.pk is not None
+    key = f'{app_label}.{model_name}:{instance.pk}'
+    if key in queue:
+        queue[key]['data'] = serialize_for_event(instance)
+        queue[key]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+    else:
+        queue[key] = {
+            'content_type': ContentType.objects.get_for_model(instance),
+            'object_id': instance.pk,
+            'event': action,
+            'data': serialize_for_event(instance),
+            'snapshots': get_snapshots(instance, action),
+            'username': user.username,
+            'request_id': request_id
+        }
 
 
 def process_event_rules(event_rules, model_name, event, data, username=None, snapshots=None, request_id=None):
@@ -116,15 +119,13 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
         # Scripts
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             # Resolve the script from action parameters
-            script_module = event_rule.action_object
-            script_name = event_rule.action_parameters['script_name']
-            script = script_module.scripts[script_name]()
+            script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
             Job.enqueue(
                 "extras.scripts.run_script",
-                instance=script_module,
-                name=script.class_name,
+                instance=event_rule.action_object,
+                name=script.name,
                 user=user,
                 data=data
             )
@@ -157,7 +158,7 @@ def process_event_queue(events):
         if content_type not in events_cache[action_flag]:
             events_cache[action_flag][content_type] = EventRule.objects.filter(
                 **{action_flag: True},
-                content_types=content_type,
+                object_types=content_type,
                 enabled=True
             )
         event_rules = events_cache[action_flag][content_type]
@@ -168,14 +169,14 @@ def process_event_queue(events):
         )
 
 
-def flush_events(queue):
+def flush_events(events):
     """
-    Flush a list of object representation to RQ for webhook processing.
+    Flush a list of object representations to RQ for event processing.
     """
-    if queue:
+    if events:
         for name in settings.EVENTS_PIPELINE:
             try:
                 func = import_string(name)
-                func(queue)
+                func(events)
             except Exception as e:
                 logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

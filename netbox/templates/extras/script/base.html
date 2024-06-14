@@ -4,7 +4,7 @@
 {% load log_levels %}
 {% load i18n %}
 
-{% block title %}{{ script }}{% endblock %}
+{% block title %}{{ script.python_class.name }}{% endblock %}
 
 {% block object_identifier %}
   {{ script.full_name }}
@@ -12,27 +12,27 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module{{ module.pk }}">{{ module|bettertitle }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module{{ script.module.pk }}">{{ script.module|bettertitle }}</a></li>
 {% endblock breadcrumbs %}
 
 {% block subtitle %}
-  <div class="object-subtitle">
-    <div class="text-muted">{{ script.Meta.description|markdown }}</div>
+  <div class="text-secondary fs-5">
+    {{ script.python_class.Meta.description|markdown }}
   </div>
 {% endblock subtitle %}
 
 {% block controls %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:script' module=script.module name=script.class_name %}">{% trans "Script" %}</a>
+      <a class="nav-link{% if not tab %} active{% endif %}{% if not script.is_executable %} disabled{% endif %}" href="{{ script.get_absolute_url }}">{% trans "Script" %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:script_source' module=script.module name=script.class_name %}">{% trans "Source" %}</a>
+      <a class="nav-link{% if tab == 'source' %} active{% endif %}{% if not script.is_executable %} disabled{% endif %}" href="{% url 'extras:script_source' script.id %}">{% trans "Source" %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:script_jobs' module=script.module name=script.class_name %}">
+      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:script_jobs' script.id %}">
         {% trans "Jobs" %} {% badge job_count %}
       </a>
     </li>

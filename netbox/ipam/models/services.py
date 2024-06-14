@@ -8,8 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from ipam.choices import *
 from ipam.constants import *
 from netbox.models import PrimaryModel
-from utilities.utils import array_to_string
-
+from netbox.models.features import ContactsMixin
+from utilities.data import array_to_string
 
 __all__ = (
     'Service',
@@ -63,7 +63,7 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         return reverse('ipam:servicetemplate', args=[self.pk])
 
 
-class Service(ServiceBase, PrimaryModel):
+class Service(ContactsMixin, ServiceBase, PrimaryModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.

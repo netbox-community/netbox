@@ -1,4 +1,5 @@
 import logging
+from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
@@ -9,6 +10,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from . import mixins
 
@@ -32,6 +34,8 @@ class BaseViewSet(GenericViewSet):
     """
     Base class for all API ViewSets. This is responsible for the enforcement of object-based permissions.
     """
+    brief = False
+
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
@@ -40,9 +44,48 @@ class BaseViewSet(GenericViewSet):
             if action := HTTP_ACTIONS[request.method]:
                 self.queryset = self.queryset.restrict(request.user, action)
 
+    def initialize_request(self, request, *args, **kwargs):
+
+        # Annotate whether brief mode is active
+        self.brief = request.method == 'GET' and request.GET.get('brief')
+
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        serializer_class = self.get_serializer_class()
+
+        # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
+        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+            qs = qs.prefetch_related(*prefetch)
+
+        # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
+        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+            qs = qs.annotate(**annotations)
+
+        return qs
+
+    def get_serializer(self, *args, **kwargs):
+
+        # If specific fields have been requested, pass them to the serializer
+        if self.requested_fields:
+            kwargs['fields'] = self.requested_fields
+
+        return super().get_serializer(*args, **kwargs)
+
+    @cached_property
+    def requested_fields(self):
+        # An explicit list of fields was requested
+        if requested_fields := self.request.query_params.get('fields'):
+            return requested_fields.split(',')
+        # Brief mode has been enabled for this request
+        elif self.brief:
+            serializer_class = self.get_serializer_class()
+            return getattr(serializer_class.Meta, 'brief_fields', None)
+        return None
+
 
 class NetBoxReadOnlyModelViewSet(
-    mixins.BriefModeMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
     drf_mixins.RetrieveModelMixin,
@@ -56,7 +99,6 @@ class NetBoxModelViewSet(
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
-    mixins.BriefModeMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
     drf_mixins.CreateModelMixin,

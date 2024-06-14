@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from netaddr import IPNetwork
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -11,6 +11,7 @@ __all__ = (
     'ChoiceField',
     'ContentTypeField',
     'IPNetworkSerializer',
+    'RelatedObjectCountField',
     'SerializedPKRelatedField',
 )
 
@@ -63,7 +64,9 @@ class ChoiceField(serializers.Field):
 
         # Provide an explicit error message if the request is trying to write a dict or list
         if isinstance(data, (dict, list)):
-            raise ValidationError(_('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.'))
+            raise ValidationError(
+                _('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.')
+            )
 
         # Check for string representations of boolean/integer values
         if hasattr(data, 'lower'):
@@ -129,10 +132,25 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
     Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related
     objects in a ManyToManyField while still allowing a set of primary keys to be written.
     """
-    def __init__(self, serializer, **kwargs):
+    def __init__(self, serializer, nested=False, **kwargs):
         self.serializer = serializer
+        self.nested = nested
         self.pk_field = kwargs.pop('pk_field', None)
+
         super().__init__(**kwargs)
 
     def to_representation(self, value):
-        return self.serializer(value, context={'request': self.context['request']}).data
+        return self.serializer(value, nested=self.nested, context={'request': self.context['request']}).data
+
+
+@extend_schema_field(OpenApiTypes.INT64)
+class RelatedObjectCountField(serializers.ReadOnlyField):
+    """
+    Represents a read-only integer count of related objects (e.g. the number of racks assigned to a site). This field
+    is detected by get_annotations_for_serializer() when determining the annotations to be added to a queryset
+    depending on the serializer fields selected for inclusion in the response.
+    """
+    def __init__(self, relation, **kwargs):
+        self.relation = relation
+
+        super().__init__(**kwargs)

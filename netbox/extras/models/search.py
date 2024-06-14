@@ -4,9 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.search.utils import get_indexer
-from netbox.registry import registry
 from utilities.fields import RestrictedGenericForeignKey
-from utilities.utils import content_type_identifier
 from ..fields import CachedValueField
 
 __all__ = (

@@ -5,7 +5,7 @@ import { Toast } from 'bootstrap';
  */
 export function initMessages(): void {
   const elements = document.querySelectorAll<HTMLDivElement>(
-    'body > div#django-messages > div.django-message.toast',
+    'body > div#django-messages > div.toast',
   );
   for (const element of elements) {
     if (element !== null) {

@@ -1,10 +1,10 @@
 {% load i18n %}
 <div class="dropdown">
-  <button type="button" class="btn btn-sm btn-purple dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="mdi mdi-download"></i>&nbsp;{% trans "Export" %}
+  <button type="button" class="btn btn-purple dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="mdi mdi-download"></i> {% trans "Export" %}
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table">{% trans "Current View" %}</a></li>
+    <li><a id="export_current_view" class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table">{% trans "Current View" %}</a></li>
     <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export">{% trans "All Data" %} ({{ data_format }})</a></li>
     {% if export_templates %}
       <li>
@@ -25,7 +25,7 @@
         <hr class="dropdown-divider">
       </li>
       <li>
-        <a class="dropdown-item" href="{% url 'extras:exporttemplate_add' %}?content_types={{ content_type.pk }}">{% trans "Add export template" %}...</a>
+        <a class="dropdown-item" href="{% url 'extras:exporttemplate_add' %}?object_types={{ object_type.pk }}">{% trans "Add export template" %}...</a>
       </li>
     {% endif %}
   </ul>
