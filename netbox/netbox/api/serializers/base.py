@@ -46,7 +46,6 @@ class NetBoxAPIHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
         return f'{app_name}-api:{model_name}-detail'
 
 
-
 class NetBoxURLHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
 
     def get_view_name(self, app_name, model_name):
