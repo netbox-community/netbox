@@ -660,6 +660,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
                 if type(value) is not datetime:
+                    # Work around UTC issue for Python < 3.11; see
+                    # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
+                    if type(value) is str and value.endswith('Z'):
+                        value = f'{value[:-1]}+00:00'
                     try:
                         datetime.fromisoformat(value)
                     except ValueError:
