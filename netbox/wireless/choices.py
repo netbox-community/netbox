@@ -483,7 +483,7 @@ class WirelessAuthCipherChoices(ChoiceSet):
     )
 
 
-class WirelessLinkLengthUnitChoices(ChoiceSet):
+class WirelessLinkDistanceUnitChoices(ChoiceSet):
 
     # Metric
     UNIT_KILOMETER = 'km'

@@ -160,8 +160,8 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'interface_a': interfaces[6].pk,
             'interface_b': interfaces[7].pk,
             'status': LinkStatusChoices.STATUS_PLANNED,
-            'length': 100,
-            'length_unit': WirelessLinkLengthUnitChoices.UNIT_FOOT,
+            'distance': 100,
+            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_FOOT,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
@@ -182,6 +182,6 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'status': LinkStatusChoices.STATUS_PLANNED,
-            'length': 50,
-            'length_unit': WirelessLinkLengthUnitChoices.UNIT_METER,
+            'distance': 50,
+            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_METER,
         }

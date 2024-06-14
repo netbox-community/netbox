@@ -260,8 +260,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO,
             auth_psk='PSK1',
             tenant=tenants[0],
-            length=10,
-            length_unit=WirelessLinkLengthUnitChoices.UNIT_FOOT,
+            distance=10,
+            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_FOOT,
             description='foobar1'
         ).save()
         WirelessLink(
@@ -273,8 +273,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
             auth_psk='PSK2',
             tenant=tenants[1],
-            length=20,
-            length_unit=WirelessLinkLengthUnitChoices.UNIT_METER,
+            distance=20,
+            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_METER,
             description='foobar2'
         ).save()
         WirelessLink(
@@ -285,8 +285,8 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_type=WirelessAuthTypeChoices.TYPE_WPA_PERSONAL,
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
             auth_psk='PSK3',
-            length=30,
-            length_unit=WirelessLinkLengthUnitChoices.UNIT_METER,
+            distance=30,
+            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_METER,
             tenant=tenants[2],
         ).save()
         WirelessLink(
@@ -319,12 +319,12 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'auth_psk': ['PSK1', 'PSK2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_length(self):
-        params = {'length': [10, 20]}
+    def test_distance(self):
+        params = {'distance': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_length_unit(self):
-        params = {'length_unit': WirelessLinkLengthUnitChoices.UNIT_FOOT}
+    def test_distance_unit(self):
+        params = {'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_FOOT}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

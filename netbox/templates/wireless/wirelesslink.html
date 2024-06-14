@@ -37,8 +37,8 @@
           <tr>
             <th scope="row">{% trans "Length" %}</th>
             <td>
-              {% if object.length is not None %}
-                {{ object.length|floatformat }} {{ object.get_length_unit_display }}
+              {% if object.distance is not None %}
+                {{ object.distance|floatformat }} {{ object.get_distance_unit_display }}
               {% else %}
                 {{ ''|placeholder }}
               {% endif %}

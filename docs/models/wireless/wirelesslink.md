@@ -41,6 +41,6 @@ The security cipher used to apply wireless authentication. Options include:
 
 The security key configured on each client to grant access to the secured wireless LAN. This applies only to certain authentication types.
 
-### Length
+### Distance
 
-The numeric length of the link, including a unit designation (e.g. 100 meters or 25 feet).
+The numeric distance of the link, including a unit designation (e.g. 100 meters or 25 feet).

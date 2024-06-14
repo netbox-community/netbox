@@ -1,4 +1,4 @@
-WIRELESS_LINK_LENGTH = """
+WIRELESS_LINK_DISTANCE = """
 {% load helpers %}
-{% if record.length %}{{ record.length|floatformat:"-2" }} {{ record.length_unit }}{% endif %}
+{% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
 """

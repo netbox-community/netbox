@@ -393,8 +393,8 @@ class CableTraceSVG:
                         labels = [f"{cable}"] if len(links) > 2 else [f"Wireless {cable}", cable.get_status_display()]
                         if cable.ssid:
                             description.append(f"{cable.ssid}")
-                        if cable.length and cable.length_unit:
-                            description.append(f"{cable.length} {cable.get_length_unit_display()}")
+                        if cable.distance and cable.distance_unit:
+                            description.append(f"{cable.distance} {cable.get_distance_unit_display()}")
                         near = [term for term in near_terminations if term.object == cable.interface_a]
                         far = [term for term in far_terminations if term.object == cable.interface_b]
                         if not (near and far):

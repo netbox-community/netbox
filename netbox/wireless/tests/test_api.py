@@ -113,8 +113,8 @@ class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'ssid', 'url']
     bulk_update_data = {
         'status': 'planned',
-        'length': 100,
-        'length_unit': 'm',
+        'distance': 100,
+        'distance_unit': 'm',
     }
 
     @classmethod

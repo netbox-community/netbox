@@ -125,14 +125,14 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Pre-shared key')
     )
-    length = forms.DecimalField(
-        label=_('Length'),
+    distance = forms.DecimalField(
+        label=_('Distance'),
         min_value=0,
         required=False
     )
-    length_unit = forms.ChoiceField(
-        label=_('Length unit'),
-        choices=add_blank_choice(WirelessLinkLengthUnitChoices),
+    distance_unit = forms.ChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(WirelessLinkDistanceUnitChoices),
         required=False,
         initial=''
     )
@@ -147,7 +147,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('ssid', 'status', 'tenant', 'description'),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
-        FieldSet('length', 'length_unit', name=_('Attributes')),
+        FieldSet('distance', 'distance_unit', name=_('Attributes')),
     )
     nullable_fields = (
         'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'length', 'comments',

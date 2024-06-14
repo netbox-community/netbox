@@ -98,13 +98,13 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Pre-shared key'),
         required=False
     )
-    length = forms.DecimalField(
-        label=_('Length'),
+    distance = forms.DecimalField(
+        label=_('Distance'),
         required=False,
     )
-    length_unit = forms.ChoiceField(
-        label=_('Length unit'),
-        choices=add_blank_choice(WirelessLinkLengthUnitChoices),
+    distance_unit = forms.ChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(WirelessLinkDistanceUnitChoices),
         required=False
     )
     tag = TagFilterField(model)

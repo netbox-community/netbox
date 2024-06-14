@@ -169,7 +169,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
             'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'length', 'length_unit', 'description', 'comments', 'tags',
+            'distance', 'distance_unit', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(
@@ -180,9 +180,4 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         labels = {
             'auth_type': 'Type',
             'auth_cipher': 'Cipher',
-        }
-        error_messages = {
-            'length': {
-                'max_value': _('Maximum length is 32767 (any unit)')
-            }
         }
