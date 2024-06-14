@@ -1,7 +1,6 @@
 import hashlib
 import hmac
 import logging
-import json
 
 import requests
 from django.conf import settings
