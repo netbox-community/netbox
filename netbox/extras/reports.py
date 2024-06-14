@@ -17,18 +17,18 @@ class Report(BaseScript):
     def log(self, message):
         self._log(message, None, level=LogLevelChoices.LOG_DEFAULT)
 
-    def log_success(self, obj=None, message=None):
-        super().log_success(message, obj)
+    def log_success(self, message=None, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_SUCCESS)
 
-    def log_info(self, obj=None, message=None):
-        super().log_info(message, obj)
+    def log_info(self, message=None, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_INFO)
 
-    def log_warning(self, obj=None, message=None):
-        super().log_warning(message, obj)
+    def log_warning(self, message=None, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_WARNING)
 
-    def log_failure(self, obj=None, message=None):
-        super().log_failure(message, obj)
+    def log_failure(self, message=None, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
 
     # Added in v4.0 to avoid confusion with the log_debug() method provided by BaseScript
-    def log_debug(self, obj=None, message=None):
-        super().log_debug(message, obj)
+    def log_debug(self, message=None, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)

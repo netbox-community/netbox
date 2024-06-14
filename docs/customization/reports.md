@@ -58,7 +58,9 @@ self.log_failure(
 If you want to increase the success counter without generating a log message, choose one of the following options:
 
 ```python
-log_success(None, None)
+log_success(message="Success message", obj=obj)
+log_success("Success message", None)
+log_success(None, obj)
 log_success("", None)
 log_sucess()
 ```

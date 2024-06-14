@@ -510,7 +510,7 @@ class BaseScript:
     def log_debug(self, message, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)
 
-    def log_success(self, message=None, obj=None):
+    def log_success(self, message, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_SUCCESS)
 
     def log_info(self, message, obj=None):
