@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-13 05:02+0000\n"
+"POT-Creation-Date: 2024-06-15 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7686,56 +7686,56 @@ msgstr ""
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:667
+#: netbox/extras/models/customfields.py:671
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:674
+#: netbox/extras/models/customfields.py:678
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:684
+#: netbox/extras/models/customfields.py:688
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:693
+#: netbox/extras/models/customfields.py:697
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:699
+#: netbox/extras/models/customfields.py:703
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:703
+#: netbox/extras/models/customfields.py:707
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:706
+#: netbox/extras/models/customfields.py:710
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:725
+#: netbox/extras/models/customfields.py:729
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:737
+#: netbox/extras/models/customfields.py:741
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:744
+#: netbox/extras/models/customfields.py:748
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:745
+#: netbox/extras/models/customfields.py:749
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:781
+#: netbox/extras/models/customfields.py:785
 msgid "Must define base or extra choices."
 msgstr ""
 
