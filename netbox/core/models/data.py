@@ -12,7 +12,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
@@ -162,8 +161,8 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        return Job.enqueue(
-            import_string('core.jobs.sync_datasource'),
+        from ..jobs import SyncDataSourceJob
+        return SyncDataSourceJob.enqueue(
             instance=self,
             user=request.user
         )
