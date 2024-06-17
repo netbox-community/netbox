@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -6,6 +8,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
+from core.choices import ObjectChangeActionChoices
 from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
@@ -13,7 +16,7 @@ from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
-from .choices import *
+from .choices import EventRuleActionChoices
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')

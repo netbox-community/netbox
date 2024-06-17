@@ -10,8 +10,8 @@ from django.db import connection, ProgrammingError
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
-from extras.context_managers import event_tracking
 from netbox.config import clear_config, get_config
+from netbox.context_managers import event_tracking
 from netbox.views import handler_500
 from utilities.api import is_api_request
 from utilities.error_handlers import handle_rest_api_exception

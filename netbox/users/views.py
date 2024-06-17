@@ -1,7 +1,7 @@
 from django.db.models import Count
 
-from extras.models import ObjectChange
-from extras.tables import ObjectChangeTable
+from core.models import ObjectChange
+from core.tables import ObjectChangeTable
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables

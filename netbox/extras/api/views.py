@@ -272,20 +272,6 @@ class ScriptViewSet(ModelViewSet):
 
 
 #
-# Change logging
-#
-
-class ObjectChangeViewSet(ReadOnlyModelViewSet):
-    """
-    Retrieve a list of recent changes.
-    """
-    metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.valid_models()
-    serializer_class = serializers.ObjectChangeSerializer
-    filterset_class = filtersets.ObjectChangeFilterSet
-
-
-#
 # Object types
 #
 

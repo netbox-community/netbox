@@ -18,7 +18,6 @@ __all__ = (
     'ExportTemplateType',
     'ImageAttachmentType',
     'JournalEntryType',
-    'ObjectChangeType',
     'SavedFilterType',
     'TagType',
     'WebhookType',
@@ -121,15 +120,6 @@ class ImageAttachmentType(BaseObjectType):
 class JournalEntryType(CustomFieldsMixin, TagsMixin, ObjectType):
     assigned_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     created_by: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
-
-
-@strawberry_django.type(
-    models.ObjectChange,
-    fields='__all__',
-    filters=ObjectChangeFilter
-)
-class ObjectChangeType(BaseObjectType):
-    pass
 
 
 @strawberry_django.type(

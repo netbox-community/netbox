@@ -10,9 +10,9 @@ from django.db import transaction
 
 from core.choices import JobStatusChoices
 from core.models import Job
-from extras.context_managers import event_tracking
 from extras.scripts import get_module_and_script
 from extras.signals import clear_events
+from netbox.context_managers import event_tracking
 from utilities.exceptions import AbortTransaction
 from utilities.request import NetBoxFakeRequest
 
