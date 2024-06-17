@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
-from core.choices import JobStatusChoices
+from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
 from extras.utils import is_taggable
@@ -90,7 +90,8 @@ class ChangeLoggingMixin(models.Model):
         Return a new ObjectChange representing a change made to this object. This will typically be called automatically
         by ChangeLoggingMiddleware.
         """
-        from extras.models import ObjectChange
+        # TODO: Fix circular import
+        from core.models import ObjectChange
 
         exclude = []
         if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:

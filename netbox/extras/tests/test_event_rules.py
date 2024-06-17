@@ -9,14 +9,15 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
+from core.choices import ObjectChangeActionChoices
 from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
-from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
-from extras.context_managers import event_tracking
+from extras.choices import EventRuleActionChoices
 from extras.events import enqueue_object, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
+from netbox.context_managers import event_tracking
 from utilities.testing import APITestCase
 
 

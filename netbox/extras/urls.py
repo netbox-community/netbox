@@ -106,10 +106,6 @@ urlpatterns = [
     path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
-    # Change logging
-    path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
-    path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
-
     # User dashboard
     path('dashboard/reset/', views.DashboardResetView.as_view(), name='dashboard_reset'),
     path('dashboard/widgets/add/', views.DashboardWidgetAddView.as_view(), name='dashboardwidget_add'),

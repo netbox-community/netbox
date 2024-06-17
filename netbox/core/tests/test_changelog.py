@@ -3,11 +3,12 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import *
-from extras.models import CustomField, CustomFieldChoiceSet, ObjectChange, Tag
+from extras.models import CustomField, CustomFieldChoiceSet, Tag
 from utilities.testing import APITestCase
 from utilities.testing.utils import create_tags, post_data
 from utilities.testing.views import ModelViewTestCase

@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from extras.choices import *
-from extras.models import ObjectChange
+from core.choices import *
+from core.models import ObjectChange
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer
@@ -15,7 +15,7 @@ __all__ = (
 
 
 class ObjectChangeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:objectchange-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='core-api:objectchange-detail')
     user = UserSerializer(
         nested=True,
         read_only=True

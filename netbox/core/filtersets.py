@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -5,6 +7,7 @@ import django_filters
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from netbox.utils import get_data_backend_choices
+from utilities.filters import ContentTypeFilter
 from .choices import *
 from .models import *
 
@@ -13,6 +16,7 @@ __all__ = (
     'DataFileFilterSet',
     'DataSourceFilterSet',
     'JobFilterSet',
+    'ObjectChangeFilterSet',
 )
 
 
@@ -123,6 +127,43 @@ class JobFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user__username__icontains=value) |
             Q(name__icontains=value)
+        )
+
+
+class ObjectChangeFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    time = django_filters.DateTimeFromToRangeFilter()
+    changed_object_type = ContentTypeFilter()
+    changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all()
+    )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=get_user_model().objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=get_user_model().objects.all(),
+        to_field_name='username',
+        label=_('User name'),
+    )
+
+    class Meta:
+        model = ObjectChange
+        fields = (
+            'id', 'user', 'user_name', 'request_id', 'action', 'changed_object_type_id', 'changed_object_id',
+            'related_object_type', 'related_object_id', 'object_repr',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(user_name__icontains=value) |
+            Q(object_repr__icontains=value)
         )
 
 

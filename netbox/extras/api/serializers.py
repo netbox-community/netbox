@@ -1,7 +1,6 @@
 from .serializers_.objecttypes import *
 from .serializers_.attachments import *
 from .serializers_.bookmarks import *
-from .serializers_.change_logging import *
 from .serializers_.customfields import *
 from .serializers_.customlinks import *
 from .serializers_.dashboard import *
