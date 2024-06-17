@@ -28,7 +28,7 @@
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Rack" %}</th>
-                        <td class="d-flex justify-content-between">
+                        <td class="d-flex justify-content-between align-items-start">
                             {% if object.rack %}
                                 {{ object.rack|linkify }}
                                 <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm d-print-none" title="{% trans "Highlight device in rack" %}">
