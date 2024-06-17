@@ -17,7 +17,7 @@ def update_dashboard_widgets(apps, schema_editor):
 
     for dashboard in Dashboard.objects.all():
         for key, widget in dashboard.config.items():
-            if getattr(widget['config'], 'model') == 'extras.objectchange':
+            if widget['config'].get('model') == 'extras.objectchange':
                 widget['config']['model'] = 'core.objectchange'
             elif models := widget['config'].get('models'):
                 models = list(map(lambda x: x.replace('extras.objectchange', 'core.objectchange'), models))
