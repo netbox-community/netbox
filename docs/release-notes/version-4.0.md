@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#15348](https://github.com/netbox-community/netbox/issues/15348) - Show saved filters alongside quick search on object list views
 * [#15794](https://github.com/netbox-community/netbox/issues/15794) - Dynamically populate related objects in UI views
 * [#16256](https://github.com/netbox-community/netbox/issues/16256) - Enable alphabetical ordering of bookmarks on dashboard
 
@@ -12,7 +13,14 @@
 * [#13925](https://github.com/netbox-community/netbox/issues/13925) - Fix support for "zulu" (UTC) timestamps for custom fields
 * [#14829](https://github.com/netbox-community/netbox/issues/14829) - Fix support for simple conditions (without AND/OR) in event rules
 * [#16143](https://github.com/netbox-community/netbox/issues/16143) - Display timestamps in tables in the configured timezone
+* [#16416](https://github.com/netbox-community/netbox/issues/16416) - Retain dark/light mode toggle on mobile view
+* [#16444](https://github.com/netbox-community/netbox/issues/16444) - Disable ordering circuits list by A/Z termination
+* [#16450](https://github.com/netbox-community/netbox/issues/16450) - Searching for rack unit in form dropdown should be case-insensitive
+* [#16452](https://github.com/netbox-community/netbox/issues/16452) - Fix sizing of buttons within object attribute panels
 * [#16454](https://github.com/netbox-community/netbox/issues/16454) - Address DNS lookup bug in `django-debug-toolbar
+* [#16460](https://github.com/netbox-community/netbox/issues/16460) - Omit spaces from telephone number URLs
+* [#16512](https://github.com/netbox-community/netbox/issues/16512) - Restore a user's preferred language (if any) on login
+* [#16542](https://github.com/netbox-community/netbox/issues/16542) - Fix bulk form operations when HTMX is enabled
 
 ---
 
