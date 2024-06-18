@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-15 05:02+0000\n"
+"POT-Creation-Date: 2024-06-18 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,7 +158,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:207
 #: netbox/circuits/forms/model_forms.py:136
 #: netbox/circuits/forms/model_forms.py:152
-#: netbox/circuits/tables/circuits.py:105 netbox/dcim/forms/bulk_edit.py:167
+#: netbox/circuits/tables/circuits.py:107 netbox/dcim/forms/bulk_edit.py:167
 #: netbox/dcim/forms/bulk_edit.py:239 netbox/dcim/forms/bulk_edit.py:575
 #: netbox/dcim/forms/bulk_edit.py:771 netbox/dcim/forms/bulk_import.py:130
 #: netbox/dcim/forms/bulk_import.py:184 netbox/dcim/forms/bulk_import.py:257
@@ -308,7 +308,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:212
 #: netbox/circuits/forms/model_forms.py:109
 #: netbox/circuits/forms/model_forms.py:131
-#: netbox/circuits/tables/circuits.py:96 netbox/dcim/forms/connections.py:71
+#: netbox/circuits/tables/circuits.py:98 netbox/dcim/forms/connections.py:71
 #: netbox/templates/circuits/circuit.html:15
 #: netbox/templates/circuits/circuittermination.html:19
 #: netbox/templates/dcim/inc/cable_termination.html:55
@@ -469,7 +469,7 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:45
 #: netbox/circuits/forms/model_forms.py:59
 #: netbox/circuits/forms/model_forms.py:91
-#: netbox/circuits/tables/circuits.py:56 netbox/circuits/tables/circuits.py:100
+#: netbox/circuits/tables/circuits.py:56 netbox/circuits/tables/circuits.py:102
 #: netbox/circuits/tables/providers.py:72
 #: netbox/circuits/tables/providers.py:103
 #: netbox/templates/circuits/circuit.html:18
@@ -748,7 +748,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_edit.py:191
 #: netbox/circuits/forms/bulk_edit.py:215
 #: netbox/circuits/forms/model_forms.py:153
-#: netbox/circuits/tables/circuits.py:109
+#: netbox/circuits/tables/circuits.py:111
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:62
 #: netbox/templates/circuits/providernetwork.html:17
 msgid "Provider Network"
@@ -1328,21 +1328,21 @@ msgstr ""
 msgid "Circuit ID"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:66
+#: netbox/circuits/tables/circuits.py:67
 #: netbox/wireless/forms/model_forms.py:160
 msgid "Side A"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:70
+#: netbox/circuits/tables/circuits.py:72
 msgid "Side Z"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:73
+#: netbox/circuits/tables/circuits.py:75
 #: netbox/templates/circuits/circuit.html:55
 msgid "Commit Rate"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:76 netbox/circuits/tables/providers.py:48
+#: netbox/circuits/tables/circuits.py:78 netbox/circuits/tables/providers.py:48
 #: netbox/circuits/tables/providers.py:82
 #: netbox/circuits/tables/providers.py:107 netbox/dcim/tables/devices.py:1001
 #: netbox/dcim/tables/devicetypes.py:92 netbox/dcim/tables/modules.py:29
