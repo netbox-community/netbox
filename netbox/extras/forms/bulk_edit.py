@@ -64,6 +64,11 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    validation_unique = forms.NullBooleanField(
+        label=_('Must be unique'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
     comments = CommentField()
 
     nullable_fields = ('group_name', 'description', 'choice_set')

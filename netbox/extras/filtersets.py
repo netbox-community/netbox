@@ -154,7 +154,7 @@ class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
         fields = (
             'id', 'name', 'label', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible',
             'ui_editable', 'weight', 'is_cloneable', 'description', 'validation_minimum', 'validation_maximum',
-            'validation_regex',
+            'validation_regex', 'validation_unique',
         )
 
     def search(self, queryset, name, value):
