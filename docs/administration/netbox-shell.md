@@ -1,6 +1,6 @@
 # The NetBox Python Shell
 
-NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
+NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command with the appropriate Python virtual environment activated:
 
 ```
 ./manage.py nbshell
@@ -105,6 +105,8 @@ This approach can span multiple levels of relations. For example, the following 
 >>> IPAddress.objects.filter(interface__device__site__region__slug="north-america")
 ```
 
+The `get()` method can be used in place of the `filter()` method if we expect this query to return only one object. This method will yield the actual object resulting from the query, instead of a QuerySet. If the query returns more than one result, it will raise an exception.
+
 !!! note
     While the above query is functional, it's not very efficient. There are ways to optimize such requests, however they are out of scope for this document. For more information, see the [Django queryset method reference](https://docs.djangoproject.com/en/stable/ref/models/querysets/) documentation.
 
@@ -142,6 +144,8 @@ To return the inverse of a filtered queryset, use `exclude()` instead of `filter
 >>> Device.objects.exclude(status="active").count()
 346
 ```
+
+Queries can all also be executed from a particular object instead of from the model itself. For instance, to get all circuits that are assigned to one site, it is easier to filter from the site itself, instead of using the "Circuit" model and building the query from there. This is particularly useful for configuration templates and export templates, since it allows to query other database objects that are related to the object that we're rendering the template for. The same methods (all, filter, exclude, get...) can be used in this kind of queries.
 
 !!! info
     The examples above are intended only to provide a cursory introduction to queryset filtering. For an exhaustive list of the available filters, please consult the [Django queryset API documentation](https://docs.djangoproject.com/en/stable/ref/models/querysets/).

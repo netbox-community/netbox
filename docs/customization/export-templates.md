@@ -32,6 +32,9 @@ If you need to use the config context data in an export template, you'll should 
 {% endfor %}
 ```
 
+!!! info
+    To see all the attributes of a given object, you can use the [NetBox Shell](../administration/netbox-shell.md). It supports autocompletion and allows one to see all of the methods and attributes a given object type has. All of them can be called from within a Jinja template.
+
 The `as_attachment` attribute of an export template controls its behavior when rendered. If true, the rendered content will be returned to the user as a downloadable file. If false, it will be displayed within the browser. (This may be handy e.g. for generating HTML content.)
 
 A MIME type and file extension can optionally be defined for each export template. The default MIME type is `text/plain`.
