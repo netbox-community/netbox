@@ -6,6 +6,7 @@ from extras.models import *
 from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import BulkEditForm, add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
@@ -64,6 +65,18 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    validation_minimum = forms.IntegerField(
+        label=_('Minimum value'),
+        required=False,
+    )
+    validation_maximum = forms.IntegerField(
+        label=_('Maximum value'),
+        required=False,
+    )
+    validation_regex = forms.CharField(
+        label=_('Validation regex'),
+        required=False
+    )
     validation_unique = forms.NullBooleanField(
         label=_('Must be unique'),
         required=False,
@@ -71,6 +84,13 @@ class CustomFieldBulkEditForm(BulkEditForm):
     )
     comments = CommentField()
 
+    fieldsets = (
+        FieldSet('group_name', 'description', 'weight', 'choice_set', name=_('Attributes')),
+        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
+        FieldSet(
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
+        ),
+    )
     nullable_fields = ('group_name', 'description', 'choice_set')
 
 
