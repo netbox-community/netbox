@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-18 05:02+0000\n"
+"POT-Creation-Date: 2024-06-19 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,7 +58,7 @@ msgstr ""
 msgid "Allowed IPs"
 msgstr ""
 
-#: netbox/account/views.py:197
+#: netbox/account/views.py:204
 msgid "Your preferences have been updated."
 msgstr ""
 
@@ -10790,36 +10790,28 @@ msgstr ""
 msgid "NetBox Logo"
 msgstr ""
 
-#: netbox/templates/base/layout.html:56
-msgid "Enable dark mode"
-msgstr ""
-
-#: netbox/templates/base/layout.html:59
-msgid "Enable light mode"
-msgstr ""
-
-#: netbox/templates/base/layout.html:145
+#: netbox/templates/base/layout.html:139
 msgid "Docs"
 msgstr ""
 
-#: netbox/templates/base/layout.html:151
+#: netbox/templates/base/layout.html:145
 #: netbox/templates/rest_framework/api.html:10
 msgid "REST API"
 msgstr ""
 
-#: netbox/templates/base/layout.html:157
+#: netbox/templates/base/layout.html:151
 msgid "REST API documentation"
 msgstr ""
 
-#: netbox/templates/base/layout.html:164
+#: netbox/templates/base/layout.html:158
 msgid "GraphQL API"
 msgstr ""
 
-#: netbox/templates/base/layout.html:171
+#: netbox/templates/base/layout.html:165
 msgid "Source Code"
 msgstr ""
 
-#: netbox/templates/base/layout.html:177
+#: netbox/templates/base/layout.html:171
 msgid "Community"
 msgstr ""
 
@@ -11112,8 +11104,8 @@ msgstr ""
 #: netbox/templates/core/rq_worker_list.html:45
 #: netbox/templates/extras/script_result.html:49
 #: netbox/templates/extras/script_result.html:51
-#: netbox/templates/inc/table_controls_htmx.html:18
-#: netbox/templates/inc/table_controls_htmx.html:20
+#: netbox/templates/inc/table_controls_htmx.html:28
+#: netbox/templates/inc/table_controls_htmx.html:31
 msgid "Configure Table"
 msgstr ""
 
@@ -12689,6 +12681,14 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
+#: netbox/templates/inc/light_toggle.html:4
+msgid "Enable dark mode"
+msgstr ""
+
+#: netbox/templates/inc/light_toggle.html:7
+msgid "Enable light mode"
+msgstr ""
+
 #: netbox/templates/inc/missing_prerequisites.html:8
 #, python-format
 msgid ""
@@ -12727,6 +12727,14 @@ msgstr ""
 
 #: netbox/templates/inc/sync_warning.html:10
 msgid "Data is out of sync with upstream file"
+msgstr ""
+
+#: netbox/templates/inc/table_controls_htmx.html:7
+msgid "Quick search"
+msgstr ""
+
+#: netbox/templates/inc/table_controls_htmx.html:19
+msgid "Saved filter"
 msgstr ""
 
 #: netbox/templates/inc/user_menu.html:23
