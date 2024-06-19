@@ -1198,7 +1198,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
 # Markdown
 #
 
-class RenderMarkdownView(View):
+class RenderMarkdownView(LoginRequiredMixin, View):
 
     def post(self, request):
         form = forms.RenderMarkdownForm(request.POST)

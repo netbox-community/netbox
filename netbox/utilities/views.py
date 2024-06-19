@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -9,6 +10,7 @@ from netbox.registry import registry
 from .permissions import resolve_permission
 
 __all__ = (
+    'ConditionalLoginRequiredMixin',
     'ContentTypePermissionRequiredMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
@@ -22,7 +24,17 @@ __all__ = (
 # View Mixins
 #
 
-class ContentTypePermissionRequiredMixin(AccessMixin):
+class ConditionalLoginRequiredMixin(AccessMixin):
+    """
+    Requires a user to be authenticated if LOGIN_REQUIRED is True.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ContentTypePermissionRequiredMixin(ConditionalLoginRequiredMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
     This is related to ObjectPermissionRequiredMixin, except that is does not enforce object-level permissions,
@@ -58,7 +70,7 @@ class ContentTypePermissionRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ObjectPermissionRequiredMixin(AccessMixin):
+class ObjectPermissionRequiredMixin(ConditionalLoginRequiredMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level
     permission assignments. If the user has only object-level permissions assigned, the view's queryset is filtered
