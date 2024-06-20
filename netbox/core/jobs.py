@@ -1,6 +1,10 @@
 import logging
 
+from netbox.search.backends import search_backend
 from utilities.jobs import BackgroundJob
+from .choices import DataSourceStatusChoices
+from .exceptions import SyncError
+from .models import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -12,11 +16,6 @@ class SyncDataSourceJob(BackgroundJob):
 
     @classmethod
     def run(cls, job, *args, **kwargs):
-        from netbox.search.backends import search_backend
-        from .choices import DataSourceStatusChoices
-        from .exceptions import SyncError
-        from .models import DataSource
-
         datasource = DataSource.objects.get(pk=job.object_id)
 
         try:
