@@ -3,6 +3,15 @@
 import django.contrib.postgres.fields
 import django.contrib.postgres.fields.ranges
 from django.db import migrations
+from django.db.backends.postgresql.psycopg_any import NumericRange
+
+
+def move_min_max(apps, schema_editor):
+    VLANGroup = apps.get_model('ipam', 'VLANGroup')
+    for group in VLANGroup.objects.all():
+        if group.min_vid or group.max_vid:
+            group.vlan_id_ranges = [NumericRange(group.min_vid, group.max_vid)]
+            group.save()
 
 
 class Migration(migrations.Migration):
@@ -16,5 +25,17 @@ class Migration(migrations.Migration):
             model_name='vlangroup',
             name='vlan_id_ranges',
             field=django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(), blank=True, null=True, size=None),
+        ),
+        migrations.RunPython(
+            code=move_min_max,
+            reverse_code=migrations.RunPython.noop
+        ),
+        migrations.RemoveField(
+            model_name='vlangroup',
+            name='max_vid',
+        ),
+        migrations.RemoveField(
+            model_name='vlangroup',
+            name='min_vid',
         ),
     ]

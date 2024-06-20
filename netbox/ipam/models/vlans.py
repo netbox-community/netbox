@@ -46,24 +46,6 @@ class VLANGroup(OrganizationalModel):
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    min_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('minimum VLAN ID'),
-        default=VLAN_VID_MIN,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Lowest permissible ID of a child VLAN')
-    )
-    max_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('maximum VLAN ID'),
-        default=VLAN_VID_MAX,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Highest permissible ID of a child VLAN')
-    )
     vlan_id_ranges = ArrayField(
         BigIntegerRangeField(),
         verbose_name=_('min/max VLAN IDs'),
@@ -71,7 +53,6 @@ class VLANGroup(OrganizationalModel):
         blank=True,
         null=True
     )
-    # vlan_id_ranges = BigIntegerRangeField(null=True, blank=True)
 
     objects = VLANGroupQuerySet.as_manager()
 

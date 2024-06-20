@@ -486,7 +486,8 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VLANGroup
     fieldsets = (
-        FieldSet('site', 'min_vid', 'max_vid', 'description'),
+        # FieldSet('site', 'min_vid', 'max_vid', 'description'),
+        FieldSet('site', 'description'),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster', name=_('Scope')
         ),

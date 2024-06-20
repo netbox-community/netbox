@@ -413,7 +413,7 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region', 'sitegroup', 'site', 'location', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
-        FieldSet('min_vid', 'max_vid', name=_('VLAN ID')),
+        # FieldSet('min_vid', 'max_vid', name=_('VLAN ID')),
     )
     model = VLANGroup
     region = DynamicModelMultipleChoiceField(
@@ -441,18 +441,18 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Rack')
     )
-    min_vid = forms.IntegerField(
-        required=False,
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        label=_('Minimum VID')
-    )
-    max_vid = forms.IntegerField(
-        required=False,
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        label=_('Maximum VID')
-    )
+    # min_vid = forms.IntegerField(
+    #     required=False,
+    #     min_value=VLAN_VID_MIN,
+    #     max_value=VLAN_VID_MAX,
+    #     label=_('Minimum VID')
+    # )
+    # max_vid = forms.IntegerField(
+    #     required=False,
+    #     min_value=VLAN_VID_MIN,
+    #     max_value=VLAN_VID_MAX,
+    #     label=_('Maximum VID')
+    # )
     cluster = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,

@@ -633,15 +633,11 @@ class VLANGroupForm(NetBoxModelForm):
         }
     )
     slug = SlugField()
-    # vlan_id_ranges = SimpleArrayField(
-    #     IntegerRangeField(),
-    #     delimiter="|"
-    # )
     vlan_id_ranges = NumericRangeArrayField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
-        FieldSet('min_vid', 'max_vid', 'vlan_id_ranges', name=_('Child VLANs')),
+        FieldSet('vlan_id_ranges', name=_('Child VLANs')),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
             name=_('Scope')
@@ -652,7 +648,7 @@ class VLANGroupForm(NetBoxModelForm):
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'vlan_id_ranges', 'tags',
+            'clustergroup', 'cluster', 'vlan_id_ranges', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
