@@ -8,7 +8,6 @@ from django.db import models
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -23,9 +22,9 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.html import clean_html
+from utilities.jinja2 import render_jinja2
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
-from utilities.jinja2 import render_jinja2
 
 __all__ = (
     'Bookmark',

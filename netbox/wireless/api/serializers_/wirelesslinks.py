@@ -21,11 +21,13 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
+    distance_unit = ChoiceField(choices=WirelessLinkDistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = WirelessLink
         fields = [
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'tenant', 'auth_type',
-            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'auth_cipher', 'auth_psk', 'distance', 'distance_unit', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')

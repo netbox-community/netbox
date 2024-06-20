@@ -128,7 +128,7 @@ DEFAULT_DASHBOARD = [
         'title': 'Change Log',
         'color': 'blue',
         'config': {
-            'model': 'extras.objectchange',
+            'model': 'core.objectchange',
             'page_size': 25,
         }
     },

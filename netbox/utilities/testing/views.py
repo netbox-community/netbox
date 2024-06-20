@@ -8,9 +8,8 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission

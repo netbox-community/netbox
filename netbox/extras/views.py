@@ -19,7 +19,6 @@ from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
-from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -681,75 +680,6 @@ class ConfigTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
-
-
-#
-# Change logging
-#
-
-class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.valid_models()
-    filterset = filtersets.ObjectChangeFilterSet
-    filterset_form = forms.ObjectChangeFilterForm
-    table = tables.ObjectChangeTable
-    template_name = 'extras/objectchange_list.html'
-    actions = {
-        'export': {'view'},
-    }
-
-
-@register_model_view(ObjectChange)
-class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.valid_models()
-
-    def get_extra_context(self, request, instance):
-        related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
-            request_id=instance.request_id
-        ).exclude(
-            pk=instance.pk
-        )
-        related_changes_table = tables.ObjectChangeTable(
-            data=related_changes[:50],
-            orderable=False
-        )
-
-        objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
-            changed_object_type=instance.changed_object_type,
-            changed_object_id=instance.changed_object_id,
-        )
-
-        next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
-        prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
-
-        if not instance.prechange_data and instance.action in ['update', 'delete'] and prev_change:
-            non_atomic_change = True
-            prechange_data = prev_change.postchange_data_clean
-        else:
-            non_atomic_change = False
-            prechange_data = instance.prechange_data_clean
-
-        if prechange_data and instance.postchange_data:
-            diff_added = shallow_compare_dict(
-                prechange_data or dict(),
-                instance.postchange_data_clean or dict(),
-                exclude=['last_updated'],
-            )
-            diff_removed = {
-                x: prechange_data.get(x) for x in diff_added
-            } if prechange_data else {}
-        else:
-            diff_added = None
-            diff_removed = None
-
-        return {
-            'diff_added': diff_added,
-            'diff_removed': diff_removed,
-            'next_change': next_change,
-            'prev_change': prev_change,
-            'related_changes_table': related_changes_table,
-            'related_changes_count': related_changes.count(),
-            'non_atomic_change': non_atomic_change
-        }
 
 
 #

@@ -14,7 +14,7 @@ from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import APISelectMultiple, DateTimePicker
+from utilities.forms.widgets import DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
@@ -28,7 +28,6 @@ __all__ = (
     'ImageAttachmentFilterForm',
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
-    'ObjectChangeFilterForm',
     'SavedFilterFilterForm',
     'TagFilterForm',
     'WebhookFilterForm',
@@ -475,37 +474,3 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     tag = TagFilterField(model)
-
-
-class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
-    model = ObjectChange
-    fieldsets = (
-        FieldSet('q', 'filter_id'),
-        FieldSet('time_before', 'time_after', name=_('Time')),
-        FieldSet('action', 'user_id', 'changed_object_type_id', name=_('Attributes')),
-    )
-    time_after = forms.DateTimeField(
-        required=False,
-        label=_('After'),
-        widget=DateTimePicker()
-    )
-    time_before = forms.DateTimeField(
-        required=False,
-        label=_('Before'),
-        widget=DateTimePicker()
-    )
-    action = forms.ChoiceField(
-        label=_('Action'),
-        choices=add_blank_choice(ObjectChangeActionChoices),
-        required=False
-    )
-    user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
-        required=False,
-        label=_('User')
-    )
-    changed_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ObjectType.objects.with_feature('change_logging'),
-        required=False,
-        label=_('Object Type'),
-    )

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from core.models import DataSource
-from extras.choices import ObjectChangeActionChoices
+from core.choices import ObjectChangeActionChoices
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 
 

@@ -13,7 +13,6 @@ __all__ = (
     'ExportTemplateFilter',
     'ImageAttachmentFilter',
     'JournalEntryFilter',
-    'ObjectChangeFilter',
     'SavedFilterFilter',
     'TagFilter',
     'WebhookFilter',
@@ -65,12 +64,6 @@ class ImageAttachmentFilter(BaseFilterMixin):
 @strawberry_django.filter(models.JournalEntry, lookups=True)
 @autotype_decorator(filtersets.JournalEntryFilterSet)
 class JournalEntryFilter(BaseFilterMixin):
-    pass
-
-
-@strawberry_django.filter(models.ObjectChange, lookups=True)
-@autotype_decorator(filtersets.ObjectChangeFilterSet)
-class ObjectChangeFilter(BaseFilterMixin):
     pass
 
 
