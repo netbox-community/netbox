@@ -15,8 +15,8 @@ __all__ = (
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
-    url = NetBoxAPIHyperlinkedIdentityField(view_name="")
-    display_url = NetBoxURLHyperlinkedIdentityField(view_name="")
+    url = NetBoxAPIHyperlinkedIdentityField()
+    display_url = NetBoxURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):
