@@ -105,7 +105,8 @@ class VLANGroup(OrganizationalModel):
         """
         Return the first available VLAN ID (1-4094) in the group.
         """
-        available_vids = self.get_available_vids()
+        available_vids = []
+        # available_vids = self.get_available_vids()
         if available_vids:
             return available_vids[0]
         return None

@@ -42,10 +42,12 @@
           <th scope="row">{% trans "Permitted VIDs" %}</th>
           <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
         </tr>
+        {% comment %}
         <tr>
           <th scope="row">Utilization</th>
           <td>{% utilization_graph object.utilization %}</td>
         </tr>
+        {% endcomment %}
       </table>
     </div>
     {% include 'inc/panels/tags.html' %}

@@ -94,7 +94,8 @@ class VLANGroupTable(NetBoxTable):
             'pk', 'id', 'name', 'scope_type', 'scope', 'vlan_id_ranges', 'vlan_count', 'slug', 'description',
             'tags', 'created', 'last_updated', 'actions', 'utilization',
         )
-        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
+        # default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description')
 
 
 #
