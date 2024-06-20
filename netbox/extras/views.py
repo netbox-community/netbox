@@ -1193,8 +1193,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         log_level = LOG_LEVEL_RANK.get(request.GET.get('log_level', LogLevelChoices.LOG_DEFAULT))
-
         if job.data:
+
             if 'log' in job.data:
                 if 'tests' in job.data:
                     tests = job.data['tests']
@@ -1221,17 +1221,19 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        index += 1
-                        result = {
-                            'index': index,
-                            'method': method,
-                            'time': time,
-                            'status': status,
-                            'object': obj,
-                            'url': url,
-                            'message': message,
-                        }
-                        data.append(result)
+                        check_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        if check_level >= log_level:
+                            index += 1
+                            result = {
+                                'index': index,
+                                'method': method,
+                                'time': time,
+                                'status': status,
+                                'object': obj,
+                                'url': url,
+                                'message': message,
+                            }
+                            data.append(result)
 
             table = ReportResultsTable(data, user=request.user)
             table.configure(request)
@@ -1249,6 +1251,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             'script': job.object,
             'job': job,
             'table': table,
+            'log_level': request.GET.get('log_level', None)
         }
 
         if job.data and 'log' in job.data:

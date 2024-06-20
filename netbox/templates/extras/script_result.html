@@ -45,6 +45,13 @@
       <div class="row mb-3">
 
         <div class="col-2 d-print-none">
+          {% if log_level %}
+            <div class="mb-3">
+              <a href="{% url 'extras:script_result' job_pk=job.pk %}" class="badge rounded-pill text-bg-primary text-decoration-none me-1">
+                <i class="mdi mdi-close"></i> {{ log_level }}
+              </a>
+            </div>
+          {% endif %}
           <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownLogLevelButton" data-bs-toggle="dropdown" aria-expanded="false">
               {% trans "Show Log Level" %}
@@ -52,6 +59,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownLogLevelButton">
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}">{% trans "All" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=debug">{% trans "Debug" %}</a></li>
+              <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=success">{% trans "Success" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=info">{% trans "Info" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=warning">{% trans "Warning" %}</a></li>
               <li><a class="dropdown-item" href="{% url 'extras:script_result' job_pk=job.pk %}?log_level=failure">{% trans "Failure" %}</a></li>
