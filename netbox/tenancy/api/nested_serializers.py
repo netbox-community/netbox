@@ -68,10 +68,9 @@ class NestedContactSerializer(WritableNestedSerializer):
 
 
 class NestedContactAssignmentSerializer(WritableNestedSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     contact = NestedContactSerializer()
     role = NestedContactRoleSerializer
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'url', 'display_url', 'display', 'contact', 'role', 'priority']
+        fields = ['id', 'url', 'display', 'contact', 'role', 'priority']

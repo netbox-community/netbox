@@ -7,7 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import GenericObjectSerializer, NetBoxModelSerializer
+from netbox.api.serializers import BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
@@ -37,12 +37,10 @@ class CableSerializer(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'label', 'description')
 
 
-class TracedCableSerializer(serializers.ModelSerializer):
+class TracedCableSerializer(BaseModelSerializer):
     """
     Used only while tracing a cable path.
     """
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
-    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable')
 
     class Meta:
         model = Cable

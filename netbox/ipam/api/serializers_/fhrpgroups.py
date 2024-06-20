@@ -27,7 +27,6 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
 
 
 class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     group = FHRPGroupSerializer(nested=True)
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()
@@ -37,7 +36,7 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     class Meta:
         model = FHRPGroupAssignment
         fields = [
-            'id', 'url', 'display_url', 'display', 'group', 'interface_type', 'interface_id', 'interface',
+            'id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'interface',
             'priority', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'priority')

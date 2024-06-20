@@ -85,19 +85,17 @@ class NestedSavedFilterSerializer(WritableNestedSerializer):
 
 
 class NestedBookmarkSerializer(WritableNestedSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
 
     class Meta:
         model = models.Bookmark
-        fields = ['id', 'url', 'display_url', 'display', 'object_id', 'object_type']
+        fields = ['id', 'url', 'display', 'object_id', 'object_type']
 
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
 
     class Meta:
         model = models.ImageAttachment
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'image']
+        fields = ['id', 'url', 'display', 'name', 'image']
 
 
 class NestedJournalEntrySerializer(WritableNestedSerializer):

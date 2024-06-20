@@ -55,7 +55,6 @@ class ContactSerializer(NetBoxModelSerializer):
 
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):
-    display_url = serializers.CharField(allow_null=True, read_only=True)
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
@@ -67,7 +66,7 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
     class Meta:
         model = ContactAssignment
         fields = [
-            'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'object', 'contact', 'role', 'priority',
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'contact', 'role', 'priority',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'contact', 'role', 'priority')
