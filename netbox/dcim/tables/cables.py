@@ -109,7 +109,7 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn()
     length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
-        order_by=('_abs_length', 'length_unit')
+        order_by=('_abs_length')
     )
     color = columns.ColorColumn()
     comments = columns.MarkdownColumn()
