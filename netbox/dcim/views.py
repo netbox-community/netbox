@@ -651,7 +651,6 @@ class RackElevationListView(generic.ObjectListView):
             'rack_face': rack_face,
             'filter_form': forms.RackElevationFilterForm(request.GET),
             'model': self.queryset.model,
-            'table': {'page': page},  # hack to show count in Result tab
         })
 
 
