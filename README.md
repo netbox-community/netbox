@@ -17,7 +17,6 @@ NetBox exists to empower network engineers. Since its release in 2016, it has be
   <a href="#why-netbox">Why NetBox?</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="#get-involved">Get Involved</a> |
-  <a href="#project-stats">Project Stats</a> |
   <a href="#screenshots">Screenshots</a>
 </p>
 
