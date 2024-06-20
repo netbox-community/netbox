@@ -198,7 +198,7 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
+    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, run_now=False, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
@@ -209,6 +209,8 @@ class Job(models.Model):
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
+            run_now: Run the job immediately without scheduling it in the background. Should be used for interactive
+                management commands only.
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
         rq_queue_name = get_queue_for_model(object_type.model)
@@ -225,6 +227,12 @@ class Job(models.Model):
             job_id=uuid.uuid4()
         )
 
+        # Optionally, the job can be run immediately without being scheduled to run in the background.
+        if run_now:
+            func(job_id=str(job.job_id), job=job, **kwargs)
+            return job
+
+        # Schedule the job to run asynchronously in the background.
         if schedule_at:
             queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
         else:

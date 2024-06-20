@@ -34,13 +34,12 @@ class Command(BaseCommand):
         for i, datasource in enumerate(datasources, start=1):
             self.stdout.write(f"[{i}] Syncing {datasource}... ", ending='')
             self.stdout.flush()
-            try:
-                datasource.sync()
-                self.stdout.write(datasource.get_status_display())
-                self.stdout.flush()
-            except Exception as e:
-                DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
-                raise e
+
+            datasource.enqueue_sync_job()
+            datasource.refresh_from_db()
+
+            self.stdout.write(datasource.get_status_display())
+            self.stdout.flush()
 
         if len(options['name']) > 1:
             self.stdout.write(f"Finished.")
