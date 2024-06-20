@@ -217,17 +217,16 @@ class Job(models.Model):
             interval: Recurrence interval (in minutes)
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
-        if rq_queue_name is None:
-            rq_queue_name = get_queue_for_model(object_type.model)
-            queue = django_rq.get_queue(rq_queue_name)
-        else:
+        queue = None
+        if rq_queue_name:
             try:
                 queue = django_rq.get_queue(rq_queue_name)
-            except KeyError:
-                # User defined queue does not exist - return to default logic
-                rq_queue_name = get_queue_for_model(object_type.model)
-                queue = django_rq.get_queue(rq_queue_name)
-
+            except:
+                # User defined queue casued an error - return to default logic
+                pass
+        if not queue:
+            rq_queue_name = get_queue_for_model(object_type.model)
+            queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
             object_type=object_type,
