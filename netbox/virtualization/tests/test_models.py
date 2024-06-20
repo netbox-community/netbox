@@ -63,6 +63,9 @@ class VirtualMachineTestCase(TestCase):
         # VM with site only should pass
         VirtualMachine(name='vm1', site=sites[0]).full_clean()
 
+        # VM with site, cluster non-site should pass
+        VirtualMachine(name='vm1', site=sites[0], cluster=clusters[2]).full_clean()
+
         # VM with non-site cluster only should pass
         VirtualMachine(name='vm1', cluster=clusters[2]).full_clean()
 
