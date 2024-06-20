@@ -1,7 +1,23 @@
 {% load helpers %}
+{% load i18n %}
 {% load navigation %}
 
 <ul class="navbar-nav pt-lg-2" {% htmx_boost %}>
+  <li class="nav-item d-block d-lg-none">
+    <form action="{% url 'search' %}" method="get" autocomplete="off" novalidate>
+      <div class="input-group mb-1 mt-2">
+        <div class="input-group-prepend">
+          <span class="input-group-text">
+            <i class="mdi mdi-magnify"></i>
+          </span>
+        </div>
+        <input type="text" name="q" value="" class="form-control" placeholder="{% trans "Search…" %}" aria-label="{% trans "Search NetBox" %}">
+        <div class="input-group-append">
+          <button type="submit" class="form-control">{% trans "Search" %}</button>
+        </div>
+      </div>
+    </form>
+  </li>
   {% for menu, groups in nav_items %}
     <li class="nav-item dropdown">
 
