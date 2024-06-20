@@ -15,7 +15,7 @@ from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    SlugField,
+    SlugField, NumericRangeArrayField
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
@@ -637,7 +637,7 @@ class VLANGroupForm(NetBoxModelForm):
     #     IntegerRangeField(),
     #     delimiter="|"
     # )
-    vlan_id_ranges = IntegerRangeField()
+    vlan_id_ranges = NumericRangeArrayField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),

@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext_lazy as _
 
 from utilities.forms.constants import *
@@ -9,6 +10,7 @@ from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_
 __all__ = (
     'ExpandableIPAddressField',
     'ExpandableNameField',
+    'NumericRangeArrayField',
 )
 
 
@@ -53,3 +55,27 @@ class ExpandableIPAddressField(forms.CharField):
         elif ':' in value and re.search(IP6_EXPANSION_PATTERN, value):
             return list(expand_ipaddress_pattern(value, 6))
         return [value]
+
+
+class NumericRangeArrayField(forms.CharField):
+    """
+    A field which allows for array of numeric ranges:
+      Example: 1-5,7-20,30-50
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = _(
+                "Specify one or more numeric ranges separated by commas "
+                "Example: <code>1-5,20-30</code>"
+            )
+
+    def to_python(self, value):
+        if not value:
+            return ''
+        ranges = split(value, ",")
+        numeric_ranges = []
+        for range in ranges:
+            numeric_ranges.append(NumericRange(range[0], range[1]))
+        return [numeric_ranges]

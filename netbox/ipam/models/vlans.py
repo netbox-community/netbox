@@ -71,6 +71,7 @@ class VLANGroup(OrganizationalModel):
         blank=True,
         null=True
     )
+    # vlan_id_ranges = BigIntegerRangeField(null=True, blank=True)
 
     objects = VLANGroupQuerySet.as_manager()
 
