@@ -10407,7 +10407,7 @@ msgstr "Componentes de Dispositivos"
 #: netbox/netbox/navigation/menu.py:91
 #: netbox/templates/dcim/inventoryitemrole.html:8
 msgid "Inventory Item Roles"
-msgstr "Funções do Item de Inventário"
+msgstr "Funções dos Itens de Inventário"
 
 #: netbox/netbox/navigation/menu.py:98 netbox/netbox/navigation/menu.py:102
 msgid "Connections"
