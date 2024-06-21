@@ -8338,7 +8338,8 @@ msgstr "anexos de imagens"
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr ""
-"Os anexos de imagem não podem ser associados a este tipo de objeto ({type})."
+"Os anexos de imagens não podem ser associados a este tipo de objeto "
+"({type})."
 
 #: netbox/extras/models/models.py:716
 msgid "kind"
