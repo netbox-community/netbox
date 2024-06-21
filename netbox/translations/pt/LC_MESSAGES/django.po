@@ -5348,7 +5348,7 @@ msgstr "função do item de inventário"
 
 #: netbox/dcim/models/device_components.py:1173
 msgid "inventory item roles"
-msgstr "funções do item de inventário"
+msgstr "funções dos itens de inventário"
 
 #: netbox/dcim/models/device_components.py:1230
 #: netbox/dcim/models/devices.py:597 netbox/dcim/models/devices.py:1163
