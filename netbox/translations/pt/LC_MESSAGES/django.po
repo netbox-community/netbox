@@ -10534,7 +10534,7 @@ msgstr "Grupos de Clusters"
 
 #: netbox/netbox/navigation/menu.py:260
 msgid "Circuit Types"
-msgstr "Tipos de Circuito"
+msgstr "Tipos de Circuitos"
 
 #: netbox/netbox/navigation/menu.py:261
 msgid "Circuit Terminations"
