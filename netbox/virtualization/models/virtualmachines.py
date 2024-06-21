@@ -180,7 +180,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
             })
 
         # Validate site for cluster & device
-        if self.cluster and self.site and self.cluster.site != self.site:
+        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': _(
                     'The selected cluster ({cluster}) is not assigned to this site ({site}).'
