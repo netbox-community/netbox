@@ -8,7 +8,9 @@ __all__ = (
     'deepmerge',
     'drange',
     'flatten_dict',
+    'ranges_to_string',
     'shallow_compare_dict',
+    'string_to_range_array',
 )
 
 
@@ -129,3 +131,31 @@ def check_ranges_overlap(ranges):
             return True
 
     return False
+
+
+def ranges_to_string(ranges):
+    """
+    Generate a human-friendly string from a set of ranges. Intended for use with ArrayField.
+    For example:
+        [1-100, 200-300] => "1-100, 200-300"
+    """
+    return ', '.join([f"{val.lower}-{val.upper}" for val in value])
+
+
+def string_to_range_array(value):
+    """
+    Given a string in the format "1-100, 200-300" create an array of ranges. Intended for use with ArrayField.
+    For example:
+        "1-100, 200-300" => [1-100, 200-300]
+    """
+    if not value:
+        return None
+    ranges = value.split(",")
+    values = []
+    for dash_range in value.split(','):
+        if '-' not in dash_range:
+            return None
+
+        lower, upper = dash_range.split('-')
+        values.append(NumericRange(int(lower), int(upper)))
+    return values

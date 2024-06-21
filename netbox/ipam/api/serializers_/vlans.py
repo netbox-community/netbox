@@ -10,6 +10,7 @@ from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountF
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
+from utilities.data import ranges_to_string, string_to_range_array
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .roles import RoleSerializer
 
@@ -19,6 +20,14 @@ __all__ = (
     'VLANGroupSerializer',
     'VLANSerializer',
 )
+
+
+class NumericRangeArraySerializer(serializers.BaseSerializer):
+    def to_internal_value(self, data):
+        return string_to_range_array(data)
+
+    def to_representation(self, instance):
+        return ranges_to_string(data)
 
 
 class VLANGroupSerializer(NetBoxModelSerializer):
@@ -37,11 +46,12 @@ class VLANGroupSerializer(NetBoxModelSerializer):
 
     # Related object counts
     vlan_count = RelatedObjectCountField('vlans')
+    vlan_id_ranges = NumericRangeArraySerializer()
 
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vlan_id_ranges',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')

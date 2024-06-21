@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext_lazy as _
+from utilities.data import ranges_to_string, string_to_range_array
 
 from ..utils import parse_numeric_range
 
@@ -42,17 +43,17 @@ class NumericRangeArrayField(forms.CharField):
                 "Example: <code>1-5,20-30</code>"
             )
 
+    def clean(self, value):
+        if value and not self.to_python(value):
+            raise forms.ValidationError(
+                _("Invalid ranges ({value}). Must be range of number '100-200' and ranges must be in ascending order.").format(value=value)
+            )
+        return super().clean(value)
+
     def prepare_value(self, value):
         if isinstance(value, str):
             return value
-        return ','.join([f"{val.lower}-{val.upper}" for val in value])
+        return ranges_to_string(value)
 
     def to_python(self, value):
-        if not value:
-            return None
-        ranges = value.split(",")
-        values = []
-        for dash_range in value.split(','):
-            lower, upper = dash_range.split('-')
-            values.append(NumericRange(int(lower), int(upper)))
-        return values
+        return string_to_range_array(value)

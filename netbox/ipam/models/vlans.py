@@ -11,7 +11,7 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
-from utilities.data import check_ranges_overlap
+from utilities.data import check_ranges_overlap, ranges_to_string
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -129,7 +129,7 @@ class VLANGroup(OrganizationalModel):
 
     @property
     def vlan_ranges(self):
-        return ','.join([f"{vlan_range.lower}-{vlan_range.upper}" for vlan_range in self.vlan_id_ranges])
+        return ranges_to_string(self.vlan_id_ranges)
 
 
 class VLAN(PrimaryModel):
