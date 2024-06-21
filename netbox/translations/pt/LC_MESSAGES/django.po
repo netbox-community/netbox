@@ -6309,7 +6309,7 @@ msgstr "Cor do Cabo"
 
 #: netbox/dcim/tables/devices.py:328
 msgid "Link Peers"
-msgstr "Vincular Pares"
+msgstr "Pares Vinculados"
 
 #: netbox/dcim/tables/devices.py:331
 msgid "Mark Connected"
