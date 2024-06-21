@@ -13488,7 +13488,7 @@ msgstr "Adicionar Grupo de Contato"
 #: netbox/tenancy/filtersets.py:153 netbox/tenancy/forms/forms.py:61
 #: netbox/tenancy/forms/model_forms.py:87
 msgid "Contact Role"
-msgstr "Função do Contato"
+msgstr "Função dos Contatos"
 
 #: netbox/templates/tenancy/object_contacts.html:9
 msgid "Add a contact"
