@@ -10385,7 +10385,7 @@ msgstr "Funções dos Contatos"
 
 #: netbox/netbox/navigation/menu.py:49
 msgid "Contact Assignments"
-msgstr "Atribuições do Contato"
+msgstr "Atribuições dos Contatos"
 
 #: netbox/netbox/navigation/menu.py:63
 msgid "Modules"
