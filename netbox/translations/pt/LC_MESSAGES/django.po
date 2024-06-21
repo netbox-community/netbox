@@ -10604,7 +10604,7 @@ msgstr "Filtros Salvos"
 
 #: netbox/netbox/navigation/menu.py:316
 msgid "Image Attachments"
-msgstr "Imagens Anexadas"
+msgstr "Anexos de Imagens"
 
 #: netbox/netbox/navigation/menu.py:334
 msgid "Operations"
