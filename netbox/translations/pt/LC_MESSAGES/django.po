@@ -13035,7 +13035,7 @@ msgstr "Excluir Selecionado"
 #: netbox/templates/generic/object_edit.html:24
 #, python-format
 msgid "Add a new %(object_type)s"
-msgstr "Adicionar novo %(object_type)s"
+msgstr "Adicionar %(object_type)s"
 
 #: netbox/templates/generic/object_edit.html:35
 msgid "View model documentation"
