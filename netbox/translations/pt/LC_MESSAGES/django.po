@@ -12935,7 +12935,7 @@ msgstr "Enviar"
 
 #: netbox/templates/generic/bulk_import.html:113
 msgid "Field Options"
-msgstr "Opções de Campo"
+msgstr "Opções de Campos"
 
 #: netbox/templates/generic/bulk_import.html:119
 msgid "Accessor"
