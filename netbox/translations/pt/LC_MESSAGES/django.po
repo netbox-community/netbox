@@ -5810,7 +5810,7 @@ msgstr "painel de alimentação"
 
 #: netbox/dcim/models/power.py:56
 msgid "power panels"
-msgstr "painéis de alimentação"
+msgstr "quadros de alimentação"
 
 #: netbox/dcim/models/power.py:70
 #, python-brace-format
