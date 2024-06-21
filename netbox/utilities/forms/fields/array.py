@@ -43,11 +43,13 @@ class NumericRangeArrayField(forms.CharField):
             )
 
     def prepare_value(self, value):
+        if isinstance(value, str):
+            return value
         return ','.join([f"{val.lower}-{val.upper}" for val in value])
 
     def to_python(self, value):
         if not value:
-            return ''
+            return None
         ranges = value.split(",")
         values = []
         for dash_range in value.split(','):

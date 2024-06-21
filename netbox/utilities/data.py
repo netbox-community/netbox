@@ -125,7 +125,7 @@ def check_ranges_overlap(ranges):
     ranges.sort(key=lambda x: x.lower)
 
     for i in range(1, len(ranges)):
-        if (ranges[i - 1].upper > ranges[i].lower):
+        if (ranges[i - 1].upper >= ranges[i].lower):
             return True
 
     return False
