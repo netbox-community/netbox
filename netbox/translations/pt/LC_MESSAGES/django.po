@@ -11202,7 +11202,7 @@ msgstr "Data de Desativação"
 
 #: netbox/templates/circuits/circuit_terminations_swap.html:4
 msgid "Swap Circuit Terminations"
-msgstr "Troca das Terminações do Circuito"
+msgstr "Troca das Terminações dos Circuitos"
 
 #: netbox/templates/circuits/circuit_terminations_swap.html:8
 #, python-format
