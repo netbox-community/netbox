@@ -4092,7 +4092,7 @@ msgstr " Terminação {side_upper} não encontrada: {device} {name}"
 #: netbox/templates/dcim/virtualchassis.html:27
 #: netbox/templates/dcim/virtualchassis.html:67
 msgid "Master"
-msgstr "Principal"
+msgstr "Mestre"
 
 #: netbox/dcim/forms/bulk_import.py:1248
 msgid "Master device"
