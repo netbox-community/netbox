@@ -5870,7 +5870,7 @@ msgstr "A tensão não pode ser negativa para alimentação do tipo CA"
 
 #: netbox/dcim/models/racks.py:50
 msgid "rack role"
-msgstr "papel do rack"
+msgstr "função do rack"
 
 #: netbox/dcim/models/racks.py:51
 msgid "rack roles"
