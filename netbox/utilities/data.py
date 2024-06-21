@@ -4,6 +4,7 @@ from itertools import count, groupby
 __all__ = (
     'array_to_ranges',
     'array_to_string',
+    'check_ranges_overlap',
     'deepmerge',
     'drange',
     'flatten_dict',
@@ -113,3 +114,18 @@ def drange(start, end, step=decimal.Decimal(1)):
         while start > end:
             yield start
             start += step
+
+
+def check_ranges_overlap(ranges):
+    """
+    Check if array of ranges overlap
+    """
+
+    # sort the ranges in increasing order
+    ranges.sort(key=lambda x: x.lower)
+
+    for i in range(1, len(ranges)):
+        if (ranges[i - 1].upper > ranges[i].lower):
+            return True
+
+    return False

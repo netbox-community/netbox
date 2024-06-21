@@ -11,6 +11,7 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
+from utilities.data import check_ranges_overlap
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -89,10 +90,14 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
+        # Validate vlan ranges
+        if check_ranges_overlap(self.vlan_id_ranges):
+            raise ValidationError(_("Ranges cannot overlap."))
+
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
         for vlan_range in self.vlan_id_ranges:
-            self._total_vlan_ids += int(vlan_range.upper) - int(vlan_range.lower) + 1
+            self._total_vlan_ids += vlan_range.upper - vlan_range.lower + 1
 
         super().save(*args, **kwargs)
 

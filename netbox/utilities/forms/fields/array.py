@@ -52,5 +52,5 @@ class NumericRangeArrayField(forms.CharField):
         values = []
         for dash_range in value.split(','):
             lower, upper = dash_range.split('-')
-            values.append(NumericRange(lower, upper))
+            values.append(NumericRange(int(lower), int(upper)))
         return values
