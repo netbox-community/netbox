@@ -1225,7 +1225,7 @@ msgstr "rede do provedor"
 
 #: netbox/circuits/models/providers.py:127
 msgid "provider networks"
-msgstr "redes do provedores"
+msgstr "redes dos provedores"
 
 #: netbox/circuits/tables/circuits.py:30
 #: netbox/circuits/tables/providers.py:18
