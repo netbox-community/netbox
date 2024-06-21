@@ -5521,11 +5521,11 @@ msgstr "Máquinas virtuais podem ser atribuídas a esta função"
 
 #: netbox/dcim/models/devices.py:487
 msgid "device role"
-msgstr "função do dispositivo"
+msgstr "função de dispositivo"
 
 #: netbox/dcim/models/devices.py:488
 msgid "device roles"
-msgstr "funções de dispositivo"
+msgstr "funções de dispositivos"
 
 #: netbox/dcim/models/devices.py:505
 msgid "Optionally limit this platform to devices of a certain manufacturer"
