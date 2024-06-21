@@ -61,7 +61,7 @@ class VLANGroup(OrganizationalModel):
         null=True
     )
     _total_vlan_ids = models.PositiveBigIntegerField(
-        default=0
+        default=VLAN_VID_MAX - VLAN_VID_MIN + 1
     )
 
     objects = VLANGroupQuerySet.as_manager()

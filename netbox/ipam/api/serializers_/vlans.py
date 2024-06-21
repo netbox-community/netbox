@@ -22,7 +22,7 @@ __all__ = (
 )
 
 
-class NumericRangeArraySerializer(serializers.BaseSerializer):
+class NumericRangeArraySerializer(serializers.CharField):
     def to_internal_value(self, data):
         return string_to_range_array(data)
 

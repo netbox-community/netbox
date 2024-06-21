@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vlangroup',
             name='_total_vlan_ids',
-            field=models.PositiveBigIntegerField(default=0),
+            field=models.PositiveBigIntegerField(default=4094),
         ),
         migrations.RunPython(
             code=move_min_max,
