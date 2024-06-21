@@ -8332,7 +8332,7 @@ msgstr "anexo de imagem"
 
 #: netbox/extras/models/models.py:639
 msgid "image attachments"
-msgstr "anexos de imagem"
+msgstr "anexos de imagens"
 
 #: netbox/extras/models/models.py:653
 #, python-brace-format
