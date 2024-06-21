@@ -138,11 +138,11 @@ These two methods will load data in YAML or JSON format, respectively, from file
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
 
-* `log_debug(message, object=None)`
-* `log_success(message, object=None)`
-* `log_info(message, object=None)`
-* `log_warning(message, object=None)`
-* `log_failure(message, object=None)`
+* `log_debug(message, obj=None)`
+* `log_success(message, obj=None)`
+* `log_info(message, obj=None)`
+* `log_warning(message, obj=None)`
+* `log_failure(message, obj=None)`
 
 Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages. A message may optionally be associated with a particular object by passing it as the second argument to the logging method.
 

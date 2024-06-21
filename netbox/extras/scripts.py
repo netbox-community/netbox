@@ -500,6 +500,8 @@ class BaseScript:
                 'time': timezone.now().isoformat(),
                 'status': level,
                 'message': str(message),
+                'obj': str(obj) if obj else None,
+                'url': obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
             })
 
             # Record to the system log
