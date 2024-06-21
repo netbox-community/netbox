@@ -140,6 +140,9 @@ def ranges_to_string(ranges):
     For example:
         [1-100, 200-300] => "1-100, 200-300"
     """
+    if not ranges:
+        return ""
+
     return ', '.join([f"{val.lower}-{val.upper}" for val in ranges])
 
 

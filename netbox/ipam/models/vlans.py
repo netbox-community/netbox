@@ -98,7 +98,13 @@ class VLANGroup(OrganizationalModel):
 
         # Validate vlan ranges
         if check_ranges_overlap(self.vlan_id_ranges):
-            raise ValidationError(_("Ranges cannot overlap."))
+            raise ValidationError({'vlan_id_ranges': _("Ranges cannot overlap.")})
+
+        for ranges in self.vlan_id_ranges:
+            if ranges.lower >= ranges.upper:
+                raise ValidationError({
+                    'vlan_id_ranges': _("Maximum child VID must be greater than or equal to minimum child VID Invalid range ({value})").format(value=ranges)
+                })
 
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
