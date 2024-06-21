@@ -1410,7 +1410,7 @@ msgstr "Quantidade de contas"
 
 #: netbox/circuits/tables/providers.py:39 netbox/dcim/tables/sites.py:100
 msgid "ASN Count"
-msgstr "Quantidade de ASN"
+msgstr "Quantidade de ASNs"
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -12543,7 +12543,7 @@ msgstr "Valor Padrão"
 
 #: netbox/templates/extras/customfield.html:61
 msgid "Search Weight"
-msgstr "Peso em Pesquisa"
+msgstr "Peso na Pesquisa"
 
 #: netbox/templates/extras/customfield.html:71
 msgid "Filter Logic"
@@ -13012,7 +13012,7 @@ msgstr "Novo Nome"
 #: netbox/templates/generic/bulk_rename.html:64
 #: netbox/utilities/templates/widgets/markdown_input.html:11
 msgid "Preview"
-msgstr "Prévia"
+msgstr "Pré-visualização"
 
 #: netbox/templates/generic/confirmation_form.html:16
 msgid "Are you sure"
@@ -13478,7 +13478,7 @@ msgstr "Atribuições"
 #: netbox/templates/tenancy/contactgroup.html:18
 #: netbox/tenancy/forms/forms.py:66 netbox/tenancy/forms/model_forms.py:75
 msgid "Contact Group"
-msgstr "Grupo de Contato"
+msgstr "Grupo de Contatos"
 
 #: netbox/templates/tenancy/contactgroup.html:50
 msgid "Add Contact Group"
@@ -14580,7 +14580,7 @@ msgstr "Nenhum atribuído"
 
 #: netbox/utilities/templates/widgets/markdown_input.html:6
 msgid "Write"
-msgstr "Grava"
+msgstr "Escrita"
 
 #: netbox/utilities/testing/views.py:633
 msgid "The test must define csv_update_data."
