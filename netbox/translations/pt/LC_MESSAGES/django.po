@@ -80,7 +80,7 @@ msgstr "Planejado"
 
 #: netbox/circuits/choices.py:22 netbox/netbox/navigation/menu.py:290
 msgid "Provisioning"
-msgstr "Em Provisionamento"
+msgstr "Provisionamento"
 
 #: netbox/circuits/choices.py:23 netbox/core/tables/tasks.py:22
 #: netbox/dcim/choices.py:22 netbox/dcim/choices.py:103
