@@ -43,8 +43,7 @@ class NumericRangeArrayField(forms.CharField):
             )
 
     def prepare_value(self, value):
-        range_str = ','.join([f"{val.lower}-{val.upper}" for val in value])
-        return range_str
+        return ','.join([f"{val.lower}-{val.upper}" for val in value])
 
     def to_python(self, value):
         if not value:

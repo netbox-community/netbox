@@ -89,16 +89,10 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
-        # Validate min/max child VID limits
-        if self.max_vid < self.min_vid:
-            raise ValidationError({
-                'max_vid': _("Maximum child VID must be greater than or equal to minimum child VID")
-            })
-
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
-        for range in vland_id_ranges:
-            self._total_vlan_ids += range.upper - range.lower + 1
+        for vlan_range in vland_id_ranges:
+            self._total_vlan_ids += vlan_range.upper - vlan_range.lower + 1
 
         super().save(*args, **kwargs)
 
@@ -106,7 +100,9 @@ class VLANGroup(OrganizationalModel):
         """
         Return all available VLANs within this group.
         """
-        available_vlans = {vid for vid in range(self.min_vid, self.max_vid + 1)}
+        available_vlans = {}
+        for vlan_range in self.vlan_id_ranges:
+            available_vlans = {vid for vid in range(vlan_range.lower, vlan_range.upper + 1)}
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
@@ -115,8 +111,7 @@ class VLANGroup(OrganizationalModel):
         """
         Return the first available VLAN ID (1-4094) in the group.
         """
-        available_vids = []
-        # available_vids = self.get_available_vids()
+        available_vids = self.get_available_vids()
         if available_vids:
             return available_vids[0]
         return None
@@ -126,6 +121,10 @@ class VLANGroup(OrganizationalModel):
         Return all VLANs within this group.
         """
         return VLAN.objects.filter(group=self).order_by('vid')
+
+    @property
+    def vlan_ranges(self):
+        return ','.join([f"{self.vlan_id_ranges.lower}-{self.vlan_id_ranges.upper}" for val in value])
 
 
 class VLAN(PrimaryModel):

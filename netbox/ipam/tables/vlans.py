@@ -72,6 +72,10 @@ class VLANGroupTable(NetBoxTable):
         linkify=True,
         orderable=False
     )
+    vlan_ranges = tables.Column(
+        verbose_name=_('VLAN Ranges'),
+        orderable=False
+    )
     vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'group_id': 'pk'},
@@ -91,11 +95,10 @@ class VLANGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLANGroup
         fields = (
-            'pk', 'id', 'name', 'scope_type', 'scope', 'vlan_id_ranges', 'vlan_count', 'slug', 'description',
+            'pk', 'id', 'name', 'scope_type', 'scope', 'vlan_ranges', 'vlan_count', 'slug', 'description',
             'tags', 'created', 'last_updated', 'actions', 'utilization',
         )
-        # default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
-        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
 
 
 #
