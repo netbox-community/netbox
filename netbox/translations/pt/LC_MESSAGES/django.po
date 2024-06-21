@@ -4096,7 +4096,7 @@ msgstr "Mestre"
 
 #: netbox/dcim/forms/bulk_import.py:1248
 msgid "Master device"
-msgstr "Dispositivo principal"
+msgstr "Dispositivo mestre"
 
 #: netbox/dcim/forms/bulk_import.py:1265
 msgid "Name of parent site"
