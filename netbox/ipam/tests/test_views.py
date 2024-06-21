@@ -765,7 +765,7 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
-            'vlan_range_ids': string_to_range_array('100-4094'),
+            'vlan_id_ranges': string_to_range_array('100-4094'),
             'description': 'A new VLAN group',
             'tags': [t.pk for t in tags],
         }

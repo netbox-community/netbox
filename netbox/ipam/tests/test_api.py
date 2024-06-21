@@ -883,7 +883,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group X',
             slug='vlan-group-x',
-            vlan_range_ids=string_to_range_array(f"{MIN_VID}-{MAX_VID}")
+            vlan_id_ranges=string_to_range_array(f"{MIN_VID}-{MAX_VID}")
         )
 
         # Create a set of VLANs within the group
