@@ -8562,7 +8562,7 @@ msgstr "Fim de Tarefa"
 #: netbox/extras/tables/tables.py:425 netbox/netbox/navigation/menu.py:64
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
-msgstr "Funções do Dispositivo"
+msgstr "Funções de Dispositivo"
 
 #: netbox/extras/tables/tables.py:466 netbox/templates/account/profile.html:19
 #: netbox/templates/users/user.html:21
