@@ -408,18 +408,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    min_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Minimum child VLAN VID')
-    )
-    max_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Maximum child VLAN VID')
-    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -486,7 +474,6 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VLANGroup
     fieldsets = (
-        # FieldSet('site', 'min_vid', 'max_vid', 'description'),
         FieldSet('site', 'description'),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster', name=_('Scope')

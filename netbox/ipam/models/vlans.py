@@ -91,8 +91,8 @@ class VLANGroup(OrganizationalModel):
 
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
-        for vlan_range in vland_id_ranges:
-            self._total_vlan_ids += vlan_range.upper - vlan_range.lower + 1
+        for vlan_range in self.vlan_id_ranges:
+            self._total_vlan_ids += int(vlan_range.upper) - int(vlan_range.lower) + 1
 
         super().save(*args, **kwargs)
 
@@ -124,7 +124,7 @@ class VLANGroup(OrganizationalModel):
 
     @property
     def vlan_ranges(self):
-        return ','.join([f"{self.vlan_id_ranges.lower}-{self.vlan_id_ranges.upper}" for val in value])
+        return ','.join([f"{vlan_range.lower}-{vlan_range.upper}" for vlan_range in self.vlan_id_ranges])
 
 
 class VLAN(PrimaryModel):

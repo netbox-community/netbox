@@ -41,7 +41,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
+            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')

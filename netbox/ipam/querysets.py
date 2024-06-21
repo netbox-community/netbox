@@ -63,7 +63,7 @@ class VLANGroupQuerySet(RestrictedQuerySet):
 
         return self.annotate(
             vlan_count=count_related(VLAN, 'group'),
-            utilization=Round(F('vlan_count') / F('_total_vlan_ids') * 100, 2)
+            utilization=Round(F('vlan_count') * 100 / F('_total_vlan_ids'), 2)
         )
 
 
