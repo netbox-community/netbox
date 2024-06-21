@@ -5853,7 +5853,7 @@ msgstr "alimentação de energia"
 
 #: netbox/dcim/models/power.py:165
 msgid "power feeds"
-msgstr "alimentações de energia"
+msgstr "alimentação de energia"
 
 #: netbox/dcim/models/power.py:179
 #, python-brace-format
