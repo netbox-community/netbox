@@ -27,7 +27,7 @@ class NumericRangeArraySerializer(serializers.BaseSerializer):
         return string_to_range_array(data)
 
     def to_representation(self, instance):
-        return ranges_to_string(data)
+        return ranges_to_string(instance)
 
 
 class VLANGroupSerializer(NetBoxModelSerializer):
@@ -46,7 +46,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
 
     # Related object counts
     vlan_count = RelatedObjectCountField('vlans')
-    vlan_id_ranges = NumericRangeArraySerializer()
+    vlan_id_ranges = NumericRangeArraySerializer(required=False)
 
     class Meta:
         model = VLANGroup

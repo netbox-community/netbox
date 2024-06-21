@@ -140,7 +140,7 @@ def ranges_to_string(ranges):
     For example:
         [1-100, 200-300] => "1-100, 200-300"
     """
-    return ', '.join([f"{val.lower}-{val.upper}" for val in value])
+    return ', '.join([f"{val.lower}-{val.upper}" for val in ranges])
 
 
 def string_to_range_array(value):
