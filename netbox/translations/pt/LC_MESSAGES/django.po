@@ -10551,7 +10551,7 @@ msgstr "Contas de Provedores"
 
 #: netbox/netbox/navigation/menu.py:269
 msgid "Provider Networks"
-msgstr "Redes de Provedores"
+msgstr "Redes dos Provedores"
 
 #: netbox/netbox/navigation/menu.py:283
 msgid "Power Panels"
