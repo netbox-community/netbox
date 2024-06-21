@@ -8104,7 +8104,7 @@ msgstr "regra de evento"
 
 #: netbox/extras/models/models.py:137
 msgid "event rules"
-msgstr "regras de eventos"
+msgstr "regras dos eventos"
 
 #: netbox/extras/models/models.py:153
 msgid ""
