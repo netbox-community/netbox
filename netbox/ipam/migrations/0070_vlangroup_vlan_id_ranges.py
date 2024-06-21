@@ -11,6 +11,11 @@ def move_min_max(apps, schema_editor):
     for group in VLANGroup.objects.all():
         if group.min_vid or group.max_vid:
             group.vlan_id_ranges = [NumericRange(group.min_vid, group.max_vid)]
+
+            group._total_vlan_ids = 0
+            for vlan_range in group.vlan_id_ranges:
+                group._total_vlan_ids += int(vlan_range.upper) - int(vlan_range.lower) + 1
+
             group.save()
 
 
