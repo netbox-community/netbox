@@ -10620,7 +10620,7 @@ msgstr "Fontes de dados"
 
 #: netbox/netbox/navigation/menu.py:341
 msgid "Event Rules"
-msgstr "Regras do evento"
+msgstr "Regras dos eventos"
 
 #: netbox/netbox/navigation/menu.py:342
 msgid "Webhooks"
