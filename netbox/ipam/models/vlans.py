@@ -53,6 +53,9 @@ class VLANGroup(OrganizationalModel):
         blank=True,
         null=True
     )
+    _total_vlan_ids = models.PositiveBigIntegerField(
+        default=0
+    )
 
     objects = VLANGroupQuerySet.as_manager()
 
@@ -91,6 +94,13 @@ class VLANGroup(OrganizationalModel):
             raise ValidationError({
                 'max_vid': _("Maximum child VID must be greater than or equal to minimum child VID")
             })
+
+    def save(self, *args, **kwargs):
+        self._total_vlan_ids = 0
+        for range in vland_id_ranges:
+            self._total_vlan_ids += range.upper - range.lower + 1
+
+        super().save(*args, **kwargs)
 
     def get_available_vids(self):
         """

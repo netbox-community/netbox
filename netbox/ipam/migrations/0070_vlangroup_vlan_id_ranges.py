@@ -2,7 +2,7 @@
 
 import django.contrib.postgres.fields
 import django.contrib.postgres.fields.ranges
-from django.db import migrations
+from django.db import migrations, models
 from django.db.backends.postgresql.psycopg_any import NumericRange
 
 
@@ -25,6 +25,11 @@ class Migration(migrations.Migration):
             model_name='vlangroup',
             name='vlan_id_ranges',
             field=django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(), blank=True, null=True, size=None),
+        ),
+        migrations.AddField(
+            model_name='vlangroup',
+            name='_total_vlan_ids',
+            field=models.PositiveBigIntegerField(default=0),
         ),
         migrations.RunPython(
             code=move_min_max,
