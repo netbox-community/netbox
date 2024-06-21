@@ -10402,7 +10402,7 @@ msgstr "Fabricantes"
 
 #: netbox/netbox/navigation/menu.py:79
 msgid "Device Components"
-msgstr "Componentes de Dispositivo"
+msgstr "Componentes de Dispositivos"
 
 #: netbox/netbox/navigation/menu.py:91
 #: netbox/templates/dcim/inventoryitemrole.html:8
