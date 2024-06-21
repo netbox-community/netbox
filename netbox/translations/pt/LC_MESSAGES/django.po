@@ -10538,7 +10538,7 @@ msgstr "Tipos de Circuitos"
 
 #: netbox/netbox/navigation/menu.py:261
 msgid "Circuit Terminations"
-msgstr "Terminações de Circuito"
+msgstr "Terminações de Circuitos"
 
 #: netbox/netbox/navigation/menu.py:265 netbox/netbox/navigation/menu.py:267
 msgid "Providers"
