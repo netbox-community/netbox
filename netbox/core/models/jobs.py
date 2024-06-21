@@ -221,7 +221,7 @@ class Job(models.Model):
         if rq_queue_name:
             try:
                 queue = django_rq.get_queue(rq_queue_name)
-            except:
+            except Exception:
                 # User defined queue casued an error - return to default logic
                 pass
         if not queue:
