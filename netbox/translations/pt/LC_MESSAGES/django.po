@@ -10563,7 +10563,7 @@ msgstr "Configurações"
 
 #: netbox/netbox/navigation/menu.py:296
 msgid "Config Contexts"
-msgstr "Contextos de Configuração"
+msgstr "Contexto de Configuração"
 
 #: netbox/netbox/navigation/menu.py:297
 msgid "Config Templates"
