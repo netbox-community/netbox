@@ -5525,7 +5525,7 @@ msgstr "função do dispositivo"
 
 #: netbox/dcim/models/devices.py:488
 msgid "device roles"
-msgstr "funções do dispositivo"
+msgstr "funções de dispositivo"
 
 #: netbox/dcim/models/devices.py:505
 msgid "Optionally limit this platform to devices of a certain manufacturer"
@@ -5874,7 +5874,7 @@ msgstr "função do rack"
 
 #: netbox/dcim/models/racks.py:51
 msgid "rack roles"
-msgstr "funções do rack"
+msgstr "funções de rack"
 
 #: netbox/dcim/models/racks.py:75
 msgid "facility ID"
