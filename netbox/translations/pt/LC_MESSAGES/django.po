@@ -10381,7 +10381,7 @@ msgstr "Grupos de Contatos"
 #: netbox/netbox/navigation/menu.py:48
 #: netbox/templates/tenancy/contactrole.html:8
 msgid "Contact Roles"
-msgstr "Funções do Contato"
+msgstr "Funções dos Contatos"
 
 #: netbox/netbox/navigation/menu.py:49
 msgid "Contact Assignments"
