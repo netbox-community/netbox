@@ -5849,7 +5849,7 @@ msgstr "potência disponível"
 
 #: netbox/dcim/models/power.py:164
 msgid "power feed"
-msgstr "alimentação de energia"
+msgstr "fonte de alimentação"
 
 #: netbox/dcim/models/power.py:165
 msgid "power feeds"
