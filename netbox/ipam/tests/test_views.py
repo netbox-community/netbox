@@ -9,6 +9,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Inte
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
+from utilities.data import string_to_range_array
 from utilities.testing import ViewTestCases, create_tags
 
 
@@ -764,8 +765,7 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.form_data = {
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
-            'min_vid': 1,
-            'max_vid': 4094,
+            'vlan_range_ids': string_to_range_array('100-4094'),
             'description': 'A new VLAN group',
             'tags': [t.pk for t in tags],
         }

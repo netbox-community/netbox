@@ -413,7 +413,6 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region', 'sitegroup', 'site', 'location', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
-        # FieldSet('min_vid', 'max_vid', name=_('VLAN ID')),
     )
     model = VLANGroup
     region = DynamicModelMultipleChoiceField(

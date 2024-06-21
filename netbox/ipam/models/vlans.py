@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField, BigIntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -18,6 +19,10 @@ __all__ = (
     'VLAN',
     'VLANGroup',
 )
+
+
+def get_default_vlan_ids():
+    return [NumericRange(VLAN_VID_MIN, VLAN_VID_MAX)]
 
 
 class VLANGroup(OrganizationalModel):
@@ -50,6 +55,7 @@ class VLANGroup(OrganizationalModel):
     vlan_id_ranges = ArrayField(
         BigIntegerRangeField(),
         verbose_name=_('min/max VLAN IDs'),
+        default=get_default_vlan_ids,
         help_text=_('Ranges of Minimum, maximum VLAN IDs'),
         blank=True,
         null=True
@@ -237,12 +243,18 @@ class VLAN(PrimaryModel):
             )
 
         # Validate group min/max VIDs
-        if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
-            raise ValidationError({
-                'vid': _(
-                    "VID must be between {minimum} and {maximum} for VLANs in group {group}"
-                ).format(minimum=self.group.min_vid, maximum=self.group.max_vid, group=self.group)
-            })
+        if self.group and self.group.vlan_id_ranges:
+            in_bounds = False
+            for ranges in self.group.vlan_id_ranges:
+                if ranges.lower <= self.vid <= ranges.upper:
+                    in_bounds = True
+
+            if not in_bounds:
+                raise ValidationError({
+                    'vid': _(
+                        "VID must be in ranges {ranges} for VLANs in group {group}"
+                    ).format(ranges=ranges_to_string(self.group.vlan_id_ranges), group=self.group)
+                })
 
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)

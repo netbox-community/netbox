@@ -412,7 +412,9 @@ class VLANGroupImportForm(NetBoxModelImportForm):
         required=False,
         label=_('Scope type (app & model)')
     )
-    vlan_id_ranges = NumericRangeArrayField()
+    vlan_id_ranges = NumericRangeArrayField(
+        required=False,
+    )
 
     class Meta:
         model = VLANGroup

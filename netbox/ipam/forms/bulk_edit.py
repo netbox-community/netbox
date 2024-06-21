@@ -472,7 +472,9 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
             'group_id': '$clustergroup',
         }
     )
-    vlan_id_ranges = NumericRangeArrayField()
+    vlan_id_ranges = NumericRangeArrayField(
+        required=False,
+    )
 
     model = VLANGroup
     fieldsets = (

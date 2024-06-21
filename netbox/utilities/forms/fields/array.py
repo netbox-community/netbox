@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
-from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext_lazy as _
 from utilities.data import ranges_to_string, string_to_range_array
 

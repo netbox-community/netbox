@@ -1,4 +1,5 @@
 import decimal
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from itertools import count, groupby
 
 __all__ = (

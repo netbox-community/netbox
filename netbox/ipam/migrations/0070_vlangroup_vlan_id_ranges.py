@@ -4,6 +4,8 @@ import django.contrib.postgres.fields
 import django.contrib.postgres.fields.ranges
 from django.db import migrations, models
 from django.db.backends.postgresql.psycopg_any import NumericRange
+from ipam.constants import VLAN_VID_MIN, VLAN_VID_MAX
+import ipam.models.vlans
 
 
 def move_min_max(apps, schema_editor):
@@ -29,7 +31,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vlangroup',
             name='vlan_id_ranges',
-            field=django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(), blank=True, null=True, size=None),
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(),
+                blank=True, null=True, size=None,
+                default=ipam.models.vlans.get_default_vlan_ids,
+            ),
         ),
         migrations.AddField(
             model_name='vlangroup',
