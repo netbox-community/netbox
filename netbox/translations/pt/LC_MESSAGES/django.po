@@ -12176,7 +12176,7 @@ msgstr "Adicionar Tipo de Módulo"
 
 #: netbox/templates/dcim/powerfeed.html:53
 msgid "Connected Device"
-msgstr "Dispositivo Donectado"
+msgstr "Dispositivo Conectado"
 
 #: netbox/templates/dcim/powerfeed.html:63
 msgid "Utilization (Allocated"
