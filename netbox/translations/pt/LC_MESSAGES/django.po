@@ -4165,7 +4165,7 @@ msgstr "Quadro de Alimentação"
 #: netbox/templates/dcim/powerfeed.html:21
 #: netbox/templates/dcim/powerport.html:80
 msgid "Power Feed"
-msgstr "Alimentação de Energia"
+msgstr "Fontes de Alimentação"
 
 #: netbox/dcim/forms/connections.py:79
 msgid "Side"
