@@ -7671,7 +7671,7 @@ msgstr "contexto de configuração"
 
 #: netbox/extras/models/configs.py:131
 msgid "config contexts"
-msgstr "contextos de configuração"
+msgstr "contexto de configuração"
 
 #: netbox/extras/models/configs.py:149 netbox/extras/models/configs.py:205
 msgid "JSON data must be in object form. Example:"
