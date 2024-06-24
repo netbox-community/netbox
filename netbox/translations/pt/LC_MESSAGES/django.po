@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 05:01+0000\n"
+"POT-Creation-Date: 2024-06-22 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Fabricio Maciel, 2024\n"
 "Language-Team: Portuguese (https://app.transifex.com/netbox-community/teams/178115/pt/)\n"
@@ -36,7 +36,7 @@ msgstr "Permissão de Escrita"
 
 #: netbox/account/tables.py:35 netbox/core/tables/jobs.py:29
 #: netbox/core/tables/tasks.py:79 netbox/extras/choices.py:142
-#: netbox/extras/tables/tables.py:499 netbox/templates/account/token.html:43
+#: netbox/extras/tables/tables.py:500 netbox/templates/account/token.html:43
 #: netbox/templates/core/configrevision.html:26
 #: netbox/templates/core/configrevision_restore.html:12
 #: netbox/templates/core/job.html:51 netbox/templates/core/rq_task.html:16
@@ -86,7 +86,7 @@ msgstr "Provisionamento"
 #: netbox/dcim/choices.py:22 netbox/dcim/choices.py:103
 #: netbox/dcim/choices.py:173 netbox/dcim/choices.py:219
 #: netbox/dcim/choices.py:1534 netbox/dcim/choices.py:1584
-#: netbox/extras/tables/tables.py:385 netbox/ipam/choices.py:31
+#: netbox/extras/tables/tables.py:386 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
 #: netbox/ipam/choices.py:154 netbox/templates/extras/configcontext.html:25
 #: netbox/templates/users/user.html:37 netbox/users/forms/bulk_edit.py:38
@@ -362,7 +362,7 @@ msgstr "ASNs"
 #: netbox/extras/forms/bulk_edit.py:36 netbox/extras/forms/bulk_edit.py:124
 #: netbox/extras/forms/bulk_edit.py:153 netbox/extras/forms/bulk_edit.py:183
 #: netbox/extras/forms/bulk_edit.py:264 netbox/extras/forms/bulk_edit.py:288
-#: netbox/extras/forms/bulk_edit.py:302 netbox/extras/tables/tables.py:58
+#: netbox/extras/forms/bulk_edit.py:302 netbox/extras/tables/tables.py:59
 #: netbox/ipam/forms/bulk_edit.py:51 netbox/ipam/forms/bulk_edit.py:71
 #: netbox/ipam/forms/bulk_edit.py:91 netbox/ipam/forms/bulk_edit.py:115
 #: netbox/ipam/forms/bulk_edit.py:144 netbox/ipam/forms/bulk_edit.py:173
@@ -509,7 +509,7 @@ msgstr "ID do serviço"
 #: netbox/dcim/tables/devices.py:687 netbox/dcim/tables/devices.py:744
 #: netbox/dcim/tables/devices.py:968 netbox/dcim/tables/devicetypes.py:245
 #: netbox/dcim/tables/devicetypes.py:260 netbox/dcim/tables/racks.py:32
-#: netbox/extras/forms/bulk_edit.py:260 netbox/extras/tables/tables.py:333
+#: netbox/extras/forms/bulk_edit.py:260 netbox/extras/tables/tables.py:334
 #: netbox/templates/circuits/circuittype.html:30
 #: netbox/templates/dcim/cable.html:40
 #: netbox/templates/dcim/devicerole.html:34
@@ -545,8 +545,8 @@ msgstr "Cor"
 #: netbox/dcim/forms/object_import.py:113
 #: netbox/dcim/forms/object_import.py:145 netbox/dcim/tables/devices.py:175
 #: netbox/dcim/tables/devices.py:797 netbox/dcim/tables/power.py:77
-#: netbox/extras/forms/bulk_import.py:39 netbox/extras/tables/tables.py:283
-#: netbox/extras/tables/tables.py:355 netbox/extras/tables/tables.py:473
+#: netbox/extras/forms/bulk_import.py:39 netbox/extras/tables/tables.py:284
+#: netbox/extras/tables/tables.py:356 netbox/extras/tables/tables.py:474
 #: netbox/netbox/tables/tables.py:239
 #: netbox/templates/circuits/circuit.html:30
 #: netbox/templates/core/datasource.html:38
@@ -1247,11 +1247,11 @@ msgstr "redes dos provedores"
 #: netbox/dcim/tables/racks.py:53 netbox/dcim/tables/sites.py:24
 #: netbox/dcim/tables/sites.py:51 netbox/dcim/tables/sites.py:78
 #: netbox/dcim/tables/sites.py:125 netbox/extras/forms/filtersets.py:191
-#: netbox/extras/tables/tables.py:42 netbox/extras/tables/tables.py:88
-#: netbox/extras/tables/tables.py:120 netbox/extras/tables/tables.py:144
-#: netbox/extras/tables/tables.py:209 netbox/extras/tables/tables.py:256
-#: netbox/extras/tables/tables.py:279 netbox/extras/tables/tables.py:329
-#: netbox/extras/tables/tables.py:381 netbox/extras/tables/tables.py:404
+#: netbox/extras/tables/tables.py:43 netbox/extras/tables/tables.py:89
+#: netbox/extras/tables/tables.py:121 netbox/extras/tables/tables.py:145
+#: netbox/extras/tables/tables.py:210 netbox/extras/tables/tables.py:257
+#: netbox/extras/tables/tables.py:280 netbox/extras/tables/tables.py:330
+#: netbox/extras/tables/tables.py:382 netbox/extras/tables/tables.py:405
 #: netbox/ipam/forms/bulk_edit.py:391 netbox/ipam/forms/filtersets.py:386
 #: netbox/ipam/tables/asn.py:16 netbox/ipam/tables/ip.py:85
 #: netbox/ipam/tables/ip.py:159 netbox/ipam/tables/services.py:15
@@ -1379,7 +1379,7 @@ msgstr "Taxa Garantida"
 #: netbox/dcim/tables/modules.py:72 netbox/dcim/tables/power.py:39
 #: netbox/dcim/tables/power.py:96 netbox/dcim/tables/racks.py:76
 #: netbox/dcim/tables/racks.py:156 netbox/dcim/tables/sites.py:103
-#: netbox/extras/tables/tables.py:515 netbox/ipam/tables/asn.py:69
+#: netbox/extras/tables/tables.py:516 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:135
 #: netbox/ipam/tables/ip.py:272 netbox/ipam/tables/ip.py:325
 #: netbox/ipam/tables/ip.py:392 netbox/ipam/tables/services.py:24
@@ -1500,7 +1500,7 @@ msgstr "Cancelado"
 msgid "Local"
 msgstr "Local"
 
-#: netbox/core/data_backends.py:47 netbox/extras/tables/tables.py:461
+#: netbox/core/data_backends.py:47 netbox/extras/tables/tables.py:462
 #: netbox/templates/account/profile.html:15
 #: netbox/templates/users/user.html:17 netbox/users/tables.py:31
 msgid "Username"
@@ -1549,8 +1549,8 @@ msgstr "Origem de dados (nome)"
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/bulk_edit.py:162
 #: netbox/extras/forms/bulk_edit.py:221 netbox/extras/forms/filtersets.py:120
 #: netbox/extras/forms/filtersets.py:207 netbox/extras/forms/filtersets.py:268
-#: netbox/extras/tables/tables.py:127 netbox/extras/tables/tables.py:216
-#: netbox/extras/tables/tables.py:293 netbox/netbox/preferences.py:22
+#: netbox/extras/tables/tables.py:128 netbox/extras/tables/tables.py:217
+#: netbox/extras/tables/tables.py:294 netbox/netbox/preferences.py:22
 #: netbox/templates/core/datasource.html:42
 #: netbox/templates/dcim/interface.html:61
 #: netbox/templates/extras/customlink.html:17
@@ -1581,8 +1581,8 @@ msgstr "Ignorar regras"
 #: netbox/core/forms/filtersets.py:27 netbox/core/forms/model_forms.py:97
 #: netbox/extras/forms/model_forms.py:174
 #: netbox/extras/forms/model_forms.py:454
-#: netbox/extras/forms/model_forms.py:508 netbox/extras/tables/tables.py:154
-#: netbox/extras/tables/tables.py:373 netbox/extras/tables/tables.py:408
+#: netbox/extras/forms/model_forms.py:508 netbox/extras/tables/tables.py:155
+#: netbox/extras/tables/tables.py:374 netbox/extras/tables/tables.py:409
 #: netbox/templates/core/datasource.html:31
 #: netbox/templates/dcim/device/render_config.html:18
 #: netbox/templates/extras/configcontext.html:29
@@ -1607,8 +1607,8 @@ msgid "Creation"
 msgstr "Criação"
 
 #: netbox/core/forms/filtersets.py:71 netbox/extras/forms/filtersets.py:470
-#: netbox/extras/forms/filtersets.py:510 netbox/extras/tables/tables.py:183
-#: netbox/extras/tables/tables.py:504 netbox/templates/core/job.html:20
+#: netbox/extras/forms/filtersets.py:510 netbox/extras/tables/tables.py:184
+#: netbox/extras/tables/tables.py:505 netbox/templates/core/job.html:20
 #: netbox/templates/extras/objectchange.html:52
 #: netbox/tenancy/tables/contacts.py:90 netbox/vpn/tables/l2vpn.py:59
 msgid "Object Type"
@@ -1814,7 +1814,7 @@ msgid "type"
 msgstr "tipo"
 
 #: netbox/core/models/data.py:52 netbox/extras/choices.py:37
-#: netbox/extras/models/models.py:192 netbox/extras/tables/tables.py:577
+#: netbox/extras/models/models.py:192 netbox/extras/tables/tables.py:590
 #: netbox/templates/core/datasource.html:58
 msgid "URL"
 msgstr "URL"
@@ -2003,8 +2003,8 @@ msgid "Last updated"
 msgstr "Última atualização"
 
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
-#: netbox/dcim/tables/devicetypes.py:161 netbox/extras/tables/tables.py:179
-#: netbox/extras/tables/tables.py:350 netbox/netbox/tables/tables.py:188
+#: netbox/dcim/tables/devicetypes.py:161 netbox/extras/tables/tables.py:180
+#: netbox/extras/tables/tables.py:351 netbox/netbox/tables/tables.py:188
 #: netbox/templates/dcim/virtualchassis_edit.html:52
 #: netbox/utilities/forms/forms.py:73
 #: netbox/wireless/tables/wirelesslink.py:16
@@ -2012,10 +2012,10 @@ msgid "ID"
 msgstr "ID"
 
 #: netbox/core/tables/jobs.py:21 netbox/extras/choices.py:41
-#: netbox/extras/tables/tables.py:241 netbox/extras/tables/tables.py:287
-#: netbox/extras/tables/tables.py:360 netbox/extras/tables/tables.py:478
-#: netbox/extras/tables/tables.py:509 netbox/extras/tables/tables.py:574
-#: netbox/netbox/tables/tables.py:243
+#: netbox/extras/tables/tables.py:242 netbox/extras/tables/tables.py:288
+#: netbox/extras/tables/tables.py:361 netbox/extras/tables/tables.py:479
+#: netbox/extras/tables/tables.py:510 netbox/extras/tables/tables.py:550
+#: netbox/extras/tables/tables.py:587 netbox/netbox/tables/tables.py:243
 #: netbox/templates/extras/eventrule.html:84
 #: netbox/templates/extras/journalentry.html:18
 #: netbox/templates/extras/objectchange.html:58
@@ -2206,7 +2206,7 @@ msgstr "Polegadas"
 #: netbox/dcim/forms/model_forms.py:169 netbox/dcim/forms/model_forms.py:1010
 #: netbox/dcim/forms/model_forms.py:1449
 #: netbox/dcim/forms/object_import.py:176 netbox/dcim/tables/devices.py:640
-#: netbox/dcim/tables/devices.py:919 netbox/extras/tables/tables.py:186
+#: netbox/dcim/tables/devices.py:919 netbox/extras/tables/tables.py:187
 #: netbox/ipam/tables/fhrp.py:59 netbox/ipam/tables/ip.py:374
 #: netbox/ipam/tables/services.py:44 netbox/templates/dcim/interface.html:102
 #: netbox/templates/dcim/interface.html:309
@@ -4242,7 +4242,7 @@ msgstr "Conexão"
 #: netbox/dcim/forms/filtersets.py:1254 netbox/extras/forms/bulk_edit.py:316
 #: netbox/extras/forms/bulk_import.py:242
 #: netbox/extras/forms/filtersets.py:473
-#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:512
+#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:513
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr "Tipo"
@@ -6169,7 +6169,7 @@ msgstr "Acessível"
 
 #: netbox/dcim/tables/devices.py:58 netbox/dcim/tables/devices.py:103
 #: netbox/dcim/tables/racks.py:81 netbox/dcim/tables/sites.py:143
-#: netbox/extras/tables/tables.py:435 netbox/netbox/navigation/menu.py:56
+#: netbox/extras/tables/tables.py:436 netbox/netbox/navigation/menu.py:56
 #: netbox/netbox/navigation/menu.py:60 netbox/netbox/navigation/menu.py:62
 #: netbox/virtualization/forms/model_forms.py:122
 #: netbox/virtualization/tables/clusters.py:83
@@ -6395,7 +6395,7 @@ msgid "Module Types"
 msgstr "Tipos de Módulos"
 
 #: netbox/dcim/tables/devicetypes.py:53 netbox/extras/forms/filtersets.py:380
-#: netbox/extras/forms/model_forms.py:413 netbox/extras/tables/tables.py:430
+#: netbox/extras/forms/model_forms.py:413 netbox/extras/tables/tables.py:431
 #: netbox/netbox/navigation/menu.py:65
 msgid "Platforms"
 msgstr "Plataformas"
@@ -6575,7 +6575,7 @@ msgstr "Contexto de Configuração"
 msgid "Render Config"
 msgstr "Renderização de Configuração"
 
-#: netbox/dcim/views.py:2066 netbox/extras/tables/tables.py:440
+#: netbox/dcim/views.py:2066 netbox/extras/tables/tables.py:441
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
 #: netbox/virtualization/views.py:177
 msgid "Virtual Machines"
@@ -6755,7 +6755,7 @@ msgstr "Semanalmente"
 msgid "30 days"
 msgstr "30 dias"
 
-#: netbox/extras/choices.py:272 netbox/extras/tables/tables.py:296
+#: netbox/extras/choices.py:272 netbox/extras/tables/tables.py:297
 #: netbox/templates/dcim/virtualchassis_edit.html:107
 #: netbox/templates/extras/eventrule.html:40
 #: netbox/templates/generic/bulk_add_component.html:68
@@ -6765,12 +6765,12 @@ msgstr "30 dias"
 msgid "Create"
 msgstr "Criar"
 
-#: netbox/extras/choices.py:273 netbox/extras/tables/tables.py:299
+#: netbox/extras/choices.py:273 netbox/extras/tables/tables.py:300
 #: netbox/templates/extras/eventrule.html:44
 msgid "Update"
 msgstr "Atualizar"
 
-#: netbox/extras/choices.py:274 netbox/extras/tables/tables.py:302
+#: netbox/extras/choices.py:274 netbox/extras/tables/tables.py:303
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/moduletype/component_templates.html:23
@@ -7058,7 +7058,7 @@ msgid "Group name"
 msgstr "Nome do grupo"
 
 #: netbox/extras/forms/bulk_edit.py:40 netbox/extras/forms/filtersets.py:65
-#: netbox/extras/tables/tables.py:49
+#: netbox/extras/tables/tables.py:50
 #: netbox/templates/extras/customfield.html:38
 #: netbox/templates/generic/bulk_import.html:118
 msgid "Required"
@@ -7102,7 +7102,7 @@ msgid "As attachment"
 msgstr "Como anexo"
 
 #: netbox/extras/forms/bulk_edit.py:167 netbox/extras/forms/filtersets.py:214
-#: netbox/extras/tables/tables.py:219
+#: netbox/extras/tables/tables.py:220
 #: netbox/templates/extras/savedfilter.html:29
 msgid "Shared"
 msgstr "Compartilhado"
@@ -7267,7 +7267,7 @@ msgstr "Tipo de objeto relacionado"
 msgid "Field type"
 msgstr "Tipo de campo"
 
-#: netbox/extras/forms/filtersets.py:98 netbox/extras/tables/tables.py:70
+#: netbox/extras/forms/filtersets.py:98 netbox/extras/tables/tables.py:71
 #: netbox/templates/generic/bulk_import.html:154
 msgid "Choices"
 msgstr "Escolhas"
@@ -7390,14 +7390,14 @@ msgstr "Depois"
 msgid "Before"
 msgstr "Antes"
 
-#: netbox/extras/forms/filtersets.py:484 netbox/extras/tables/tables.py:456
-#: netbox/extras/tables/tables.py:542 netbox/extras/tables/tables.py:567
+#: netbox/extras/forms/filtersets.py:484 netbox/extras/tables/tables.py:457
+#: netbox/extras/tables/tables.py:543 netbox/extras/tables/tables.py:580
 #: netbox/templates/extras/objectchange.html:32
 msgid "Time"
 msgstr "Tempo"
 
 #: netbox/extras/forms/filtersets.py:498
-#: netbox/extras/forms/model_forms.py:282 netbox/extras/tables/tables.py:470
+#: netbox/extras/forms/model_forms.py:282 netbox/extras/tables/tables.py:471
 #: netbox/templates/extras/eventrule.html:77
 #: netbox/templates/extras/objectchange.html:46
 msgid "Action"
@@ -8455,19 +8455,19 @@ msgstr "Dados do Script"
 msgid "Script Execution Parameters"
 msgstr "Parâmetros de Execução do Script"
 
-#: netbox/extras/scripts.py:662
+#: netbox/extras/scripts.py:664
 msgid "Database changes have been reverted automatically."
 msgstr "As alterações no banco de dados foram revertidas automaticamente."
 
-#: netbox/extras/scripts.py:675
+#: netbox/extras/scripts.py:677
 msgid "Script aborted with error: "
 msgstr "Script abortado com erro: "
 
-#: netbox/extras/scripts.py:685
+#: netbox/extras/scripts.py:687
 msgid "An exception occurred: "
 msgstr "Ocorreu uma exceção: "
 
-#: netbox/extras/scripts.py:688
+#: netbox/extras/scripts.py:690
 msgid "Database changes have been reverted due to error."
 msgstr "As alterações do banco de dados foram revertidas devido a um erro."
 
@@ -8476,56 +8476,56 @@ msgstr "As alterações do banco de dados foram revertidas devido a um erro."
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr "A exclusão é impedida por uma regra de proteção: {message}"
 
-#: netbox/extras/tables/tables.py:46 netbox/extras/tables/tables.py:124
-#: netbox/extras/tables/tables.py:148 netbox/extras/tables/tables.py:213
-#: netbox/extras/tables/tables.py:238 netbox/extras/tables/tables.py:290
-#: netbox/extras/tables/tables.py:336
+#: netbox/extras/tables/tables.py:47 netbox/extras/tables/tables.py:125
+#: netbox/extras/tables/tables.py:149 netbox/extras/tables/tables.py:214
+#: netbox/extras/tables/tables.py:239 netbox/extras/tables/tables.py:291
+#: netbox/extras/tables/tables.py:337
 #: netbox/templates/extras/customfield.html:93
 #: netbox/templates/extras/eventrule.html:27
 #: netbox/templates/users/objectpermission.html:64 netbox/users/tables.py:80
 msgid "Object Types"
 msgstr "Tipos de Objetos"
 
-#: netbox/extras/tables/tables.py:52
+#: netbox/extras/tables/tables.py:53
 msgid "Visible"
 msgstr "Visível"
 
-#: netbox/extras/tables/tables.py:55
+#: netbox/extras/tables/tables.py:56
 msgid "Editable"
 msgstr "Editável"
 
-#: netbox/extras/tables/tables.py:61
+#: netbox/extras/tables/tables.py:62
 msgid "Related Object Type"
 msgstr "Tipo de Objeto Relacionado"
 
-#: netbox/extras/tables/tables.py:65
+#: netbox/extras/tables/tables.py:66
 #: netbox/templates/extras/customfield.html:47
 msgid "Choice Set"
 msgstr "Conjunto de Opções"
 
-#: netbox/extras/tables/tables.py:73
+#: netbox/extras/tables/tables.py:74
 msgid "Is Cloneable"
 msgstr "É Clonável"
 
-#: netbox/extras/tables/tables.py:103
+#: netbox/extras/tables/tables.py:104
 msgid "Count"
 msgstr "Contar"
 
-#: netbox/extras/tables/tables.py:106
+#: netbox/extras/tables/tables.py:107
 msgid "Order Alphabetically"
 msgstr "Ordenar Alfabeticamente"
 
-#: netbox/extras/tables/tables.py:130
+#: netbox/extras/tables/tables.py:131
 #: netbox/templates/extras/customlink.html:33
 msgid "New Window"
 msgstr "Nova Janela"
 
-#: netbox/extras/tables/tables.py:151
+#: netbox/extras/tables/tables.py:152
 msgid "As Attachment"
 msgstr "Como Anexo"
 
-#: netbox/extras/tables/tables.py:158 netbox/extras/tables/tables.py:377
-#: netbox/extras/tables/tables.py:412 netbox/templates/core/datafile.html:24
+#: netbox/extras/tables/tables.py:159 netbox/extras/tables/tables.py:378
+#: netbox/extras/tables/tables.py:413 netbox/templates/core/datafile.html:24
 #: netbox/templates/dcim/device/render_config.html:22
 #: netbox/templates/extras/configcontext.html:39
 #: netbox/templates/extras/configtemplate.html:31
@@ -8535,63 +8535,63 @@ msgstr "Como Anexo"
 msgid "Data File"
 msgstr "Arquivo de Dados"
 
-#: netbox/extras/tables/tables.py:163 netbox/extras/tables/tables.py:389
-#: netbox/extras/tables/tables.py:417
+#: netbox/extras/tables/tables.py:164 netbox/extras/tables/tables.py:390
+#: netbox/extras/tables/tables.py:418
 msgid "Synced"
 msgstr "Sincronizado"
 
-#: netbox/extras/tables/tables.py:190
+#: netbox/extras/tables/tables.py:191
 msgid "Image"
 msgstr "Imagem"
 
-#: netbox/extras/tables/tables.py:195
+#: netbox/extras/tables/tables.py:196
 msgid "Size (Bytes)"
 msgstr "Tamanho (Bytes)"
 
-#: netbox/extras/tables/tables.py:260
+#: netbox/extras/tables/tables.py:261
 msgid "SSL Validation"
 msgstr "Validação SSL"
 
-#: netbox/extras/tables/tables.py:305
+#: netbox/extras/tables/tables.py:306
 msgid "Job Start"
 msgstr "Início de Tarefa"
 
-#: netbox/extras/tables/tables.py:308
+#: netbox/extras/tables/tables.py:309
 msgid "Job End"
 msgstr "Fim de Tarefa"
 
-#: netbox/extras/tables/tables.py:425 netbox/netbox/navigation/menu.py:64
+#: netbox/extras/tables/tables.py:426 netbox/netbox/navigation/menu.py:64
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
 msgstr "Funções de Dispositivos"
 
-#: netbox/extras/tables/tables.py:466 netbox/templates/account/profile.html:19
+#: netbox/extras/tables/tables.py:467 netbox/templates/account/profile.html:19
 #: netbox/templates/users/user.html:21
 msgid "Full Name"
 msgstr "Nome Completo"
 
-#: netbox/extras/tables/tables.py:483
+#: netbox/extras/tables/tables.py:484
 #: netbox/templates/extras/objectchange.html:68
 msgid "Request ID"
 msgstr "ID da Solicitação"
 
-#: netbox/extras/tables/tables.py:520
+#: netbox/extras/tables/tables.py:521
 msgid "Comments (Short)"
 msgstr "Comentários (curto)"
 
-#: netbox/extras/tables/tables.py:539 netbox/extras/tables/tables.py:561
+#: netbox/extras/tables/tables.py:540 netbox/extras/tables/tables.py:574
 msgid "Line"
 msgstr "Linha"
 
-#: netbox/extras/tables/tables.py:546 netbox/extras/tables/tables.py:571
+#: netbox/extras/tables/tables.py:547 netbox/extras/tables/tables.py:584
 msgid "Level"
 msgstr "Nível"
 
-#: netbox/extras/tables/tables.py:549 netbox/extras/tables/tables.py:580
+#: netbox/extras/tables/tables.py:553 netbox/extras/tables/tables.py:593
 msgid "Message"
 msgstr "Mensagem"
 
-#: netbox/extras/tables/tables.py:564
+#: netbox/extras/tables/tables.py:577
 msgid "Method"
 msgstr "Método"
 
