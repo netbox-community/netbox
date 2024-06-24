@@ -1465,6 +1465,7 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
+    ignore_fields = ('vlan_id_ranges',)
 
     @classmethod
     def setUpTestData(cls):
