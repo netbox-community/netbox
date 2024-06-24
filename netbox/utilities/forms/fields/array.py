@@ -7,7 +7,6 @@ from ..utils import parse_numeric_range
 
 __all__ = (
     'NumericArrayField',
-    'NumericRangeArrayField',
 )
 
 
@@ -26,33 +25,3 @@ class NumericArrayField(SimpleArrayField):
         if isinstance(value, str):
             value = ','.join([str(n) for n in parse_numeric_range(value)])
         return super().to_python(value)
-
-
-class NumericRangeArrayField(forms.CharField):
-    """
-    A field which allows for array of numeric ranges:
-      Example: 1-5,7-20,30-50
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.help_text:
-            self.help_text = _(
-                "Specify one or more numeric ranges separated by commas "
-                "Example: <code>1-5,20-30</code>"
-            )
-
-    def clean(self, value):
-        if value and not self.to_python(value):
-            raise forms.ValidationError(
-                _("Invalid ranges ({value}). Must be range of number '100-200' and ranges must be in ascending order.").format(value=value)
-            )
-        return super().clean(value)
-
-    def prepare_value(self, value):
-        if isinstance(value, str):
-            return value
-        return ranges_to_string(value)
-
-    def to_python(self, value):
-        return string_to_range_array(value)

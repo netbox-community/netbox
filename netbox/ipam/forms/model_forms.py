@@ -15,7 +15,7 @@ from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    SlugField, NumericRangeArrayField
+    SlugField
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
@@ -633,13 +633,16 @@ class VLANGroupForm(NetBoxModelForm):
         }
     )
     slug = SlugField()
-    vlan_id_ranges = NumericRangeArrayField(
-        required=False
+    allowed_vids = NumericArrayField(
+        required=False,
+        label=_('min/max VLAN IDs'),
+        base_field=forms.IntegerField(),
+        help_text=_('Comma-separated list of numeric VLAN IDs. A range may be specified using a hyphen.'),
     )
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
-        FieldSet('vlan_id_ranges', name=_('Child VLANs')),
+        FieldSet('allowed_vids', name=_('Child VLANs')),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
             name=_('Scope')
@@ -650,7 +653,7 @@ class VLANGroupForm(NetBoxModelForm):
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'vlan_id_ranges', 'tags',
+            'clustergroup', 'cluster', 'allowed_vids', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

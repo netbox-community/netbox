@@ -1,9 +1,8 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.postgres.fields import ArrayField, BigIntegerRangeField
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -21,8 +20,8 @@ __all__ = (
 )
 
 
-def get_default_vlan_ids():
-    return [NumericRange(VLAN_VID_MIN, VLAN_VID_MAX)]
+def get_default_allowed_vids():
+    return list(range(VLAN_VID_MIN, VLAN_VID_MAX + 1))
 
 
 class VLANGroup(OrganizationalModel):
@@ -52,16 +51,11 @@ class VLANGroup(OrganizationalModel):
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    vlan_id_ranges = ArrayField(
-        BigIntegerRangeField(),
+    allowed_vids = ArrayField(
         verbose_name=_('min/max VLAN IDs'),
-        default=get_default_vlan_ids,
-        help_text=_('Ranges of Minimum, maximum VLAN IDs'),
-        blank=True,
-        null=True
-    )
-    _total_vlan_ids = models.PositiveBigIntegerField(
-        default=VLAN_VID_MAX - VLAN_VID_MIN + 1
+        base_field=models.PositiveSmallIntegerField(),
+        default=get_default_allowed_vids,
+        help_text=_('Ranges of Minimum-maximum child VLAN VID'),
     )
 
     objects = VLANGroupQuerySet.as_manager()

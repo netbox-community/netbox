@@ -251,7 +251,7 @@ class VLANType(NetBoxObjectType):
 class VLANGroupType(OrganizationalObjectType):
 
     vlans: List[VLANType]
-    vlan_id_ranges: List[str]
+    allowed_vids: str
 
     @strawberry_django.field
     def scope(self) -> Annotated[Union[

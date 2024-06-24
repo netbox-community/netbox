@@ -30,17 +30,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='vlangroup',
-            name='vlan_id_ranges',
+            name='allowed_vids',
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(),
-                blank=True, null=True, size=None,
-                default=ipam.models.vlans.get_default_vlan_ids,
+                base_field=models.PositiveSmallIntegerField(),
+                default=ipam.models.vlans.get_default_allowed_vids,
+                size=None,
             ),
-        ),
-        migrations.AddField(
-            model_name='vlangroup',
-            name='_total_vlan_ids',
-            field=models.PositiveBigIntegerField(default=4094),
         ),
         migrations.RunPython(
             code=move_min_max,

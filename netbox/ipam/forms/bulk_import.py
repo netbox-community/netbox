@@ -10,7 +10,7 @@ from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField,
-    NumericRangeArrayField,
+    NumericArrayField,
 )
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -412,13 +412,16 @@ class VLANGroupImportForm(NetBoxModelImportForm):
         required=False,
         label=_('Scope type (app & model)')
     )
-    vlan_id_ranges = NumericRangeArrayField(
+    allowed_vids = NumericArrayField(
         required=False,
+        label=_('min/max VLAN IDs'),
+        base_field=forms.IntegerField(),
+        help_text=_('Comma-separated list of numeric VLAN IDs. A range may be specified using a hyphen.'),
     )
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'vlan_id_ranges', 'description', 'tags')
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'allowed_vids', 'description', 'tags')
         labels = {
             'scope_id': 'Scope ID',
         }

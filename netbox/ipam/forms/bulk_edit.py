@@ -12,7 +12,6 @@ from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
@@ -472,13 +471,16 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
             'group_id': '$clustergroup',
         }
     )
-    vlan_id_ranges = NumericRangeArrayField(
+    allowed_vids = NumericArrayField(
         required=False,
+        label=_('min/max VLAN IDs'),
+        base_field=forms.IntegerField(),
+        help_text=_('Comma-separated list of numeric VLAN IDs. A range may be specified using a hyphen.'),
     )
 
     model = VLANGroup
     fieldsets = (
-        FieldSet('site', 'vlan_id_ranges', 'description'),
+        FieldSet('site', 'allowed_vids', 'description'),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster', name=_('Scope')
         ),
