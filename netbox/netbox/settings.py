@@ -551,7 +551,7 @@ if SENTRY_ENABLED:
 
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
-CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
 CENSUS_PARAMS = {
     'version': VERSION,
     'python_version': sys.version.split()[0],
