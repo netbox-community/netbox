@@ -39,7 +39,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'
 
-    @extend_schema_field(serializers.CharField())
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_description(self, obj):
         if obj.python_class:
             return obj.python_class().description
