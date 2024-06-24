@@ -138,11 +138,11 @@ These two methods will load data in YAML or JSON format, respectively, from file
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
 
-* `log_debug(message, obj=None)`
-* `log_success(message, obj=None)`
-* `log_info(message, obj=None)`
-* `log_warning(message, obj=None)`
-* `log_failure(message, obj=None)`
+* `log_debug(message=None, obj=None)`
+* `log_success(message=None, obj=None)`
+* `log_info(message=None, obj=None)`
+* `log_warning(message=None, obj=None)`
+* `log_failure(message=None, obj=None)`
 
 Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages. A message may optionally be associated with a particular object by passing it as the second argument to the logging method.
 
@@ -151,6 +151,8 @@ Log messages are returned to the user upon execution of the script. Markdown ren
 A script can define one or more test methods to report on certain conditions. All test methods must have a name beginning with `test_` and accept no arguments beyond `self`.
 
 These methods are detected and run automatically when the script is executed, unless its `run()` method has been overridden. (When overriding `run()`, `run_tests()` can be called to run all test methods present in the script.)
+
+Calling any of these logging methods without a message will increment the relevant counter, but will not generate an output line in the script's log.
 
 !!! info
     This functionality was ported from [legacy reports](./reports.md) in NetBox v4.0.
