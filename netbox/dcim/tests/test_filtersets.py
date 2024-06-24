@@ -9,7 +9,7 @@ from ipam.models import ASN, IPAddress, RIR, VRF
 from netbox.choices import ColorChoices
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
-from virtualization.models import Cluster, ClusterType
+from virtualization.models import Cluster, ClusterType, ClusterGroup
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
 User = get_user_model()
@@ -1959,10 +1959,12 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster_group_1 = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
+        cluster_group_2 = ClusterGroup.objects.create(name='Cluster Group 2', slug='cluster-group-2')
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type),
-            Cluster(name='Cluster 2', type=cluster_type),
-            Cluster(name='Cluster 3', type=cluster_type),
+            Cluster(name='Cluster 1', type=cluster_type, group=cluster_group_1),
+            Cluster(name='Cluster 2', type=cluster_type, group=cluster_group_1),
+            Cluster(name='Cluster 3', type=cluster_type, group=cluster_group_2),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -2212,6 +2214,16 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster_group_1(self):
+        cluster_group = ClusterGroup.objects.all()
+        params = {'cluster_group': [cluster_group[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster_group_2(self):
+        cluster_group = ClusterGroup.objects.all()
+        params = {'cluster_group': [cluster_group[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_model(self):
         params = {'model': ['model-1', 'model-2']}
