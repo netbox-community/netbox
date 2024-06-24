@@ -433,7 +433,7 @@ class LinkedCountColumn(tables.Column):
                     f'{k}={getattr(record, v) or settings.FILTERS_NULL_CHOICE_VALUE}'
                     for k, v in self.url_params.items()
                 ])
-            return mark_safe(f'<a href="{url}">{value}</a>')
+            return mark_safe(f'<a href="{url}">{escape(value)}</a>')
         return value
 
     def value(self, value):

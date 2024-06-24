@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -520,7 +521,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     RegexValidator(
                         regex=self.validation_regex,
                         message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
-                            regex=self.validation_regex
+                            regex=escape(self.validation_regex)
                         ))
                     )
                 ]
