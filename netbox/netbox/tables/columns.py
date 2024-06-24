@@ -1,3 +1,4 @@
+import zoneinfo
 from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import quote
@@ -83,6 +84,8 @@ class DateTimeColumn(tables.Column):
 
     def render(self, value):
         if value:
+            current_tz = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+            value = value.astimezone(current_tz)
             return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
 
     def value(self, value):
@@ -430,7 +433,7 @@ class LinkedCountColumn(tables.Column):
                     f'{k}={getattr(record, v) or settings.FILTERS_NULL_CHOICE_VALUE}'
                     for k, v in self.url_params.items()
                 ])
-            return mark_safe(f'<a href="{url}">{value}</a>')
+            return mark_safe(f'<a href="{url}">{escape(value)}</a>')
         return value
 
     def value(self, value):

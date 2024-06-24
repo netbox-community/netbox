@@ -63,10 +63,12 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn()
     termination_a = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
+        orderable=False,
         verbose_name=_('Side A')
     )
     termination_z = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
+        orderable=False,
         verbose_name=_('Side Z')
     )
     commit_rate = CommitRateColumn(

@@ -73,7 +73,7 @@
         </tr>
         <tr>
           <th scope="row">{% trans "Physical Address" %}</th>
-          <td class="d-flex justify-content-between">
+          <td class="d-flex justify-content-between align-items-start">
             {% if object.physical_address %}
               <span>{{ object.physical_address|linebreaksbr }}</span>
               {% if config.MAPS_URL %}
