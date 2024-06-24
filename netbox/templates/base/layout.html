@@ -36,6 +36,7 @@ Blocks:
 
         {# User menu (mobile view) #}
         <div class="navbar-nav flex-row d-lg-none">
+          {% include 'inc/light_toggle.html' %}
           {% include 'inc/user_menu.html' %}
         </div>
 
@@ -57,14 +58,7 @@ Blocks:
           {% plugin_navbar %}
 
           {# Dark/light mode toggle #}
-          <div class="d-none d-md-flex ms-2">
-            <button class="btn color-mode-toggle hide-theme-dark" title="{% trans "Enable dark mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
-              <i class="mdi mdi-lightbulb"></i>
-            </button>
-            <button class="btn color-mode-toggle hide-theme-light" title="{% trans "Enable light mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
-              <i class="mdi mdi-lightbulb-on"></i>
-            </button>
-          </div>
+          {% include 'inc/light_toggle.html' %}
 
           {# User menu #}
           {% include 'inc/user_menu.html' %}

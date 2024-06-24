@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -520,7 +521,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     RegexValidator(
                         regex=self.validation_regex,
                         message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
-                            regex=self.validation_regex
+                            regex=escape(self.validation_regex)
                         ))
                     )
                 ]
@@ -660,6 +661,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
                 if type(value) is not datetime:
+                    # Work around UTC issue for Python < 3.11; see
+                    # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
+                    if type(value) is str and value.endswith('Z'):
+                        value = f'{value[:-1]}+00:00'
                     try:
                         datetime.fromisoformat(value)
                     except ValueError:

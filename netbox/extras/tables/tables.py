@@ -1,6 +1,7 @@
 import json
 
 import django_tables2 as tables
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
@@ -501,6 +502,9 @@ class ScriptResultsTable(BaseTable):
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
+    object = tables.Column(
+        verbose_name=_('Object')
+    )
     message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
@@ -508,8 +512,17 @@ class ScriptResultsTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
-            'index', 'time', 'status', 'message',
+            'index', 'time', 'status', 'object', 'message',
         )
+        default_columns = (
+            'index', 'time', 'status', 'object', 'message',
+        )
+
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)
 
 
 class ReportResultsTable(BaseTable):
@@ -541,3 +554,9 @@ class ReportResultsTable(BaseTable):
         fields = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )
+
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)
