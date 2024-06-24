@@ -3410,8 +3410,9 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             if membership_form.is_valid():
 
                 membership_form.save()
-                msg = f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
-                messages.success(request, mark_safe(msg))
+                messages.success(request, mark_safe(
+                    f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
+                ))
 
                 if '_addanother' in request.POST:
                     return redirect(request.get_full_path())
