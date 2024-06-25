@@ -370,7 +370,7 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,width,u_height,weight,max_weight,weight_unit",
-            ",Rack 4,19,42,100,2000,kg",
+            "Rack 4,19,42,100,2000,kg",
             "Rack 5,19,42,100,2000,kg",
             "Rack 6,19,42,100,2000,kg",
         )

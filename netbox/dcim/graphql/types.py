@@ -50,6 +50,7 @@ __all__ = (
     'RackType',
     'RackReservationType',
     'RackRoleType',
+    'RackTypeType',
     'RearPortType',
     'RearPortTemplateType',
     'RegionType',
@@ -604,6 +605,15 @@ class PowerPortTemplateType(ModularComponentTemplateType):
     _name: str
 
     poweroutlet_templates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
+    models.RackType,
+    fields='__all__',
+    filters=RackTypeFilter
+)
+class RackTypeType(ImageAttachmentsMixin, NetBoxObjectType):
+    _name: str
 
 
 @strawberry_django.type(

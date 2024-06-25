@@ -129,8 +129,8 @@ class RackType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     class Meta:
         ordering = ('_name', 'pk')  # (site, location, name) may be non-unique
-        verbose_name = _('racktype')
-        verbose_name_plural = _('racktypes')
+        verbose_name = _('rack type')
+        verbose_name_plural = _('rack types')
 
     def __str__(self):
         return self.name
