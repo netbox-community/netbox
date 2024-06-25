@@ -8,7 +8,9 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-django-debug-toolbar
+# Pinned for DNS looukp bug; see https://github.com/netbox-community/netbox/issues/16454
+# and https://github.com/jazzband/django-debug-toolbar/issues/1927
+django-debug-toolbar==4.3.0
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
@@ -108,7 +110,7 @@ Pillow
 
 # PostgreSQL database adapter for Python
 # https://github.com/psycopg/psycopg/blob/master/docs/news.rst
-psycopg[binary,pool]
+psycopg[c,pool]
 
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES

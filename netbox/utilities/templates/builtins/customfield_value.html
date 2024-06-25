@@ -11,7 +11,7 @@
 {% elif customfield.type == 'date' and value %}
   {{ value|isodate }}
 {% elif customfield.type == 'datetime' and value %}
-  {{ value|isodate }} {{ value|isodatetime }}
+  {{ value|isodatetime }}
 {% elif customfield.type == 'url' and value %}
   <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
 {% elif customfield.type == 'json' and value %}

@@ -48,7 +48,7 @@ Context:
     <li class="nav-item" role="presentation">
       <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         {% trans "Results" %}
-        <span class="badge text-bg-secondary total-object-count">{{ table.page.paginator.count }}</span>
+        <span class="badge text-bg-secondary total-object-count">{% if table.page.paginator.count %}{{ table.page.paginator.count }}{% else %}{{ total_count }}{% endif %}</span>
       </a>
     </li>
     {% if filter_form %}

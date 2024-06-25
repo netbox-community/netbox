@@ -5,6 +5,8 @@ EVENT_DELETE = 'delete'
 EVENT_JOB_START = 'job_start'
 EVENT_JOB_END = 'job_end'
 
+# Custom fields
+CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 
 # Webhooks
 HTTP_CONTENT_TYPE_JSON = 'application/json'

@@ -28,3 +28,4 @@ netbox.pid
 .idea
 .coverage
 .vscode
+.python-version
