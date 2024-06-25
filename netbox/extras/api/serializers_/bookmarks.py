@@ -14,7 +14,6 @@ __all__ = (
 
 
 class BookmarkSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
     object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('bookmarks'),
     )

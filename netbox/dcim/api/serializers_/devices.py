@@ -29,7 +29,6 @@ __all__ = (
 
 
 class DeviceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device_type = DeviceTypeSerializer(nested=True)
     role = DeviceRoleSerializer(nested=True)
     tenant = TenantSerializer(
@@ -78,13 +77,13 @@ class DeviceSerializer(NetBoxModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag', 'site',
-            'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields',
-            'created', 'last_updated', 'console_port_count', 'console_server_port_count', 'power_port_count',
-            'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
-            'module_bay_count', 'inventory_item_count',
+            'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
+            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
+            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags',
+            'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
+            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
+            'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -105,13 +104,13 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
     class Meta(DeviceSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag', 'site',
-            'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'comments', 'config_template', 'config_context', 'local_context_data', 'tags',
-            'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
-            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
-            'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
+            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
+            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'config_context',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
+            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
+            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -120,7 +119,6 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
     device = DeviceSerializer(nested=True)
     identifier = serializers.IntegerField(allow_null=True, max_value=32767, min_value=0, required=False, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -135,15 +133,14 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualDeviceContext
         fields = [
-            'id', 'url', 'display', 'name', 'device', 'identifier', 'tenant', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'status', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'interface_count',
+            'id', 'url', 'display_url', 'display', 'name', 'device', 'identifier', 'tenant', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'status', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'interface_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'identifier', 'device', 'description')
 
 
 class ModuleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
     device = DeviceSerializer(nested=True)
     module_bay = NestedModuleBaySerializer()
     module_type = ModuleTypeSerializer(nested=True)
@@ -152,7 +149,7 @@ class ModuleSerializer(NetBoxModelSerializer):
     class Meta:
         model = Module
         fields = [
-            'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial',
+            'asset_tag', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')

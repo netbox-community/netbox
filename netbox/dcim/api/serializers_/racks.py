@@ -20,7 +20,6 @@ __all__ = (
 
 
 class RackRoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
 
     # Related object counts
     rack_count = RelatedObjectCountField('racks')
@@ -28,14 +27,13 @@ class RackRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated', 'rack_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'rack_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
 
 
 class RackSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
     site = SiteSerializer(nested=True)
     location = LocationSerializer(nested=True, required=False, allow_null=True, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -55,16 +53,15 @@ class RackSerializer(NetBoxModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight', 'weight_unit',
-            'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status',
+            'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight',
+            'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
 
 
 class RackReservationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackreservation-detail')
     rack = RackSerializer(nested=True)
     user = UserSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -72,8 +69,8 @@ class RackReservationSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackReservation
         fields = [
-            'id', 'url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant', 'description',
-            'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant',
+            'description', 'comments', 'tags', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'user', 'description', 'units')
 

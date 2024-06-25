@@ -15,20 +15,18 @@ __all__ = (
 
 
 class ServiceTemplateSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:servicetemplate-detail')
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
 
     class Meta:
         model = ServiceTemplate
         fields = [
-            'id', 'url', 'display', 'name', 'protocol', 'ports', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')
 
 
 class ServiceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
     device = DeviceSerializer(nested=True, required=False, allow_null=True)
     virtual_machine = VirtualMachineSerializer(nested=True, required=False, allow_null=True)
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
@@ -43,7 +41,7 @@ class ServiceSerializer(NetBoxModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'device', 'virtual_machine', 'name', 'protocol', 'ports',
+            'ipaddresses', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')
