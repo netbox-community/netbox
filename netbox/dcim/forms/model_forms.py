@@ -203,15 +203,10 @@ class RackRoleForm(NetBoxModelForm):
 
 
 class RackTypeForm(NetBoxModelForm):
-    role = DynamicModelChoiceField(
-        label=_('Role'),
-        queryset=RackRole.objects.all(),
-        required=False
-    )
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'status', 'role', 'description', 'tags', name=_('Rack')),
+        FieldSet('name', 'description', 'tags', name=_('Rack')),
         FieldSet(
             'type', 'width', 'starting_unit', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -221,9 +216,9 @@ class RackTypeForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = Rack
+        model = RackType
         fields = [
-            'name', 'role',
+            'name',
             'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
             'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]

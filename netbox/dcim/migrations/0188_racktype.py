@@ -64,16 +64,6 @@ class Migration(migrations.Migration):
                 ('max_weight', models.PositiveIntegerField(blank=True, null=True)),
                 ('_abs_max_weight', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('mounting_depth', models.PositiveSmallIntegerField(blank=True, null=True)),
-                (
-                    'role',
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name='racktypes',
-                        to='dcim.rackrole',
-                    ),
-                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={

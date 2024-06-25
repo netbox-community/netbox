@@ -51,14 +51,6 @@ class RackType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         max_length=100,
         blank=True
     )
-    role = models.ForeignKey(
-        to='dcim.RackRole',
-        on_delete=models.PROTECT,
-        related_name='racktypes',
-        blank=True,
-        null=True,
-        help_text=_('Functional role')
-    )
     type = models.CharField(
         choices=RackTypeChoices,
         max_length=50,

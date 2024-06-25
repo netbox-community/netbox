@@ -181,13 +181,6 @@ class RackRoleImportForm(NetBoxModelImportForm):
 
 
 class RackTypeImportForm(NetBoxModelImportForm):
-    role = CSVModelChoiceField(
-        label=_('Role'),
-        queryset=RackRole.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_('Name of assigned role')
-    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=RackTypeChoices,
@@ -215,7 +208,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackType
         fields = (
-            'name', 'role', 'type',
+            'name', 'type',
             'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
             'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )

@@ -55,9 +55,6 @@ class RackTypeTable(NetBoxTable):
         order_by=('_name',),
         linkify=True
     )
-    role = columns.ColoredLabelColumn(
-        verbose_name=_('Role'),
-    )
     u_height = tables.TemplateColumn(
         template_code="{{ value }}U",
         verbose_name=_('Height')
@@ -90,13 +87,13 @@ class RackTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackType
         fields = (
-            'pk', 'id', 'name', 'role',
+            'pk', 'id', 'name',
             'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
             'weight', 'max_weight', 'comments',
             'description', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'role', 'u_height',
+            'pk', 'name', 'u_height',
         )
 
 
