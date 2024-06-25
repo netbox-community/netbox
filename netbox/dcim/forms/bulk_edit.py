@@ -282,7 +282,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
     comments = CommentField()
 
-    model = Rack
+    model = RackType
     fieldsets = (
         FieldSet('description', name=_('Rack')),
         FieldSet(
@@ -292,7 +292,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (
-        'role', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
+        'outer_width', 'outer_depth', 'outer_unit', 'weight',
         'max_weight', 'weight_unit', 'description', 'comments',
     )
 

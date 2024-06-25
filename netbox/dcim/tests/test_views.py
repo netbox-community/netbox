@@ -343,16 +343,16 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         racks = (
-            Rack(name='Rack 1'),
-            Rack(name='Rack 2'),
-            Rack(name='Rack 3'),
+            Rack(name='RackType 1'),
+            Rack(name='RackType 2'),
+            Rack(name='RackType 3'),
         )
         RackType.objects.bulk_create(racks)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'name': 'Rack X',
+            'name': 'RackType X',
             'type': RackTypeChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
             'u_height': 48,
@@ -370,16 +370,16 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,width,u_height,weight,max_weight,weight_unit",
-            "Rack 4,19,42,100,2000,kg",
-            "Rack 5,19,42,100,2000,kg",
-            "Rack 6,19,42,100,2000,kg",
+            "RackType 4,19,42,100,2000,kg",
+            "RackType 5,19,42,100,2000,kg",
+            "RackType 6,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
             "id,name",
-            f"{racks[0].pk},Rack 7",
-            f"{racks[1].pk},Rack 8",
-            f"{racks[2].pk},Rack 9",
+            f"{racks[0].pk},RackType 7",
+            f"{racks[1].pk},RackType 8",
+            f"{racks[2].pk},RackType 9",
         )
 
         cls.bulk_edit_data = {
