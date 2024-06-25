@@ -241,11 +241,10 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
 
 
 class RackTypeFilterForm(NetBoxModelFilterSetForm):
-    model = Rack
+    model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('role_id', name=_('Function')),
-        FieldSet('type', 'width', 'serial', name=_('Hardware')),
+        FieldSet('type', 'width', name=_('Hardware')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     selector_fields = ('filter_id', 'q',)
@@ -257,16 +256,6 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
     width = forms.MultipleChoiceField(
         label=_('Width'),
         choices=RackWidthChoices,
-        required=False
-    )
-    role_id = DynamicModelMultipleChoiceField(
-        queryset=RackRole.objects.all(),
-        required=False,
-        null_option='None',
-        label=_('Role')
-    )
-    serial = forms.CharField(
-        label=_('Serial'),
         required=False
     )
     tag = TagFilterField(model)

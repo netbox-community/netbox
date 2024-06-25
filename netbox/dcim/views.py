@@ -592,7 +592,7 @@ class RackTypeListView(generic.ObjectListView):
 
 @register_model_view(RackType)
 class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
-    queryset = Rack.objects.prefetch_related('role')
+    queryset = RackType.objects.all()
 
 
 @register_model_view(RackType, 'edit')

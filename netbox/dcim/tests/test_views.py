@@ -336,6 +336,67 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RackType
+
+    @classmethod
+    def setUpTestData(cls):
+
+        racks = (
+            Rack(name='Rack 1'),
+            Rack(name='Rack 2'),
+            Rack(name='Rack 3'),
+        )
+        RackType.objects.bulk_create(racks)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Rack X',
+            'type': RackTypeChoices.TYPE_CABINET,
+            'width': RackWidthChoices.WIDTH_19IN,
+            'u_height': 48,
+            'desc_units': False,
+            'outer_width': 500,
+            'outer_depth': 500,
+            'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
+            'weight': 100,
+            'max_weight': 2000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,width,u_height,weight,max_weight,weight_unit",
+            ",Rack 4,19,42,100,2000,kg",
+            "Rack 5,19,42,100,2000,kg",
+            "Rack 6,19,42,100,2000,kg",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{racks[0].pk},Rack 7",
+            f"{racks[1].pk},Rack 8",
+            f"{racks[2].pk},Rack 9",
+        )
+
+        cls.bulk_edit_data = {
+            'type': RackTypeChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'weight': 200,
+            'max_weight': 4000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'New comments',
+        }
+
+
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Rack
 

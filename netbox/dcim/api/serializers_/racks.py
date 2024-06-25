@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import Rack, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import ConfigItem
@@ -41,7 +41,7 @@ class RackTypeSerializer(NetBoxModelSerializer):
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
-        model = Rack
+        model = RackType
         fields = [
             'id', 'url', 'display_url', 'display', 'name',
             'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight',

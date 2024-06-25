@@ -297,19 +297,9 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     width = django_filters.MultipleChoiceFilter(
         choices=RackWidthChoices
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=RackRole.objects.all(),
-        label=_('Role (ID)'),
-    )
-    role = django_filters.ModelMultipleChoiceFilter(
-        field_name='role__slug',
-        queryset=RackRole.objects.all(),
-        to_field_name='slug',
-        label=_('Role (slug)'),
-    )
 
     class Meta:
-        model = Rack
+        model = RackType
         fields = (
             'id', 'name', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',

@@ -120,7 +120,7 @@ class RackType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+        'type', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -172,21 +172,6 @@ class RackType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             return drange(decimal.Decimal(self.starting_unit), self.u_height + self.starting_unit, 0.5)
         return drange(self.u_height + decimal.Decimal(0.5) + self.starting_unit - 1, 0.5 + self.starting_unit - 1, -0.5)
 
-    @cached_property
-    def total_weight(self):
-        total_weight = sum(
-            device.device_type._abs_weight
-            for device in self.devices.exclude(device_type___abs_weight__isnull=True).prefetch_related('device_type')
-        )
-        total_weight += sum(
-            module.module_type._abs_weight
-            for module in Module.objects.filter(device__rack=self)
-            .exclude(module_type___abs_weight__isnull=True)
-            .prefetch_related('module_type')
-        )
-        if self._abs_weight:
-            total_weight += self._abs_weight
-        return round(total_weight / 1000, 2)
 
 #
 # Racks

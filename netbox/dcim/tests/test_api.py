@@ -274,6 +274,36 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
 
+class RackTypeTest(APIViewTestCases.APIViewTestCase):
+    model = RackType
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'new description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        racks = (
+            RackType(name='Rack 1'),
+            RackType(name='Rack 2'),
+            RackType(name='Rack 3'),
+        )
+        RackType.objects.bulk_create(racks)
+
+        cls.create_data = [
+            {
+                'name': 'Test Rack 4',
+            },
+            {
+                'name': 'Test Rack 5',
+            },
+            {
+                'name': 'Test Rack 6',
+            },
+        ]
+
+
 class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
     brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'url']

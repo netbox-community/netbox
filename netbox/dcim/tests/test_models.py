@@ -74,6 +74,17 @@ class LocationTestCase(TestCase):
         self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
+class RackTypeTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+
+        RackType.objects.create(
+            name='Rack 1',
+            u_height=42
+        )
+
+
 class RackTestCase(TestCase):
 
     @classmethod
