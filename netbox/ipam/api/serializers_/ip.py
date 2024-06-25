@@ -29,7 +29,6 @@ __all__ = (
 
 
 class AggregateSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -38,14 +37,13 @@ class AggregateSerializer(NetBoxModelSerializer):
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description')
 
 
 class PrefixSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
@@ -60,9 +58,9 @@ class PrefixSerializer(NetBoxModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool',
-            'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
-            '_depth',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status',
+            'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
 
@@ -119,7 +117,6 @@ class AvailablePrefixSerializer(serializers.Serializer):
 #
 
 class IPRangeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:iprange-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -131,8 +128,8 @@ class IPRangeSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPRange
         fields = [
-            'id', 'url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant', 'status', 'role',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant',
+            'status', 'role', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address', 'description')
@@ -143,7 +140,6 @@ class IPRangeSerializer(NetBoxModelSerializer):
 #
 
 class IPAddressSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
@@ -162,9 +158,9 @@ class IPAddressSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'assigned_object_type',
-            'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role',
+            'assigned_object_type', 'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside',
+            'dns_name', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
 

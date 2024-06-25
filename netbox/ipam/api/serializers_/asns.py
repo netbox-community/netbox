@@ -14,7 +14,6 @@ __all__ = (
 
 
 class RIRSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
 
     # Related object counts
     aggregate_count = RelatedObjectCountField('aggregates')
@@ -22,14 +21,13 @@ class RIRSerializer(NetBoxModelSerializer):
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated', 'aggregate_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'is_private', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'aggregate_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'aggregate_count')
 
 
 class ASNRangeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     asn_count = serializers.IntegerField(read_only=True)
@@ -37,14 +35,13 @@ class ASNRangeSerializer(NetBoxModelSerializer):
     class Meta:
         model = ASNRange
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'asn_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description',
+            'tags', 'custom_fields', 'created', 'last_updated', 'asn_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ASNSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
     rir = RIRSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
@@ -55,8 +52,8 @@ class ASNSerializer(NetBoxModelSerializer):
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'provider_count',
+            'id', 'url', 'display_url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count',
         ]
         brief_fields = ('id', 'url', 'display', 'asn', 'description')
 

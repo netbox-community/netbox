@@ -10,7 +10,6 @@ __all__ = (
 
 
 class RoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
 
     # Related object counts
     prefix_count = RelatedObjectCountField('prefixes')
@@ -19,7 +18,7 @@ class RoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = Role
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated', 'prefix_count', 'vlan_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'prefix_count', 'vlan_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'prefix_count', 'vlan_count')

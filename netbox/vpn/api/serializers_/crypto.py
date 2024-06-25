@@ -15,9 +15,6 @@ __all__ = (
 
 
 class IKEProposalSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ikeproposal-detail'
-    )
     authentication_method = ChoiceField(
         choices=AuthenticationMethodChoices
     )
@@ -34,17 +31,14 @@ class IKEProposalSerializer(NetBoxModelSerializer):
     class Meta:
         model = IKEProposal
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'authentication_method', 'encryption_algorithm',
-            'authentication_algorithm', 'group', 'sa_lifetime', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'authentication_method',
+            'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IKEPolicySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ikepolicy-detail'
-    )
     version = ChoiceField(
         choices=IKEVersionChoices
     )
@@ -62,16 +56,13 @@ class IKEPolicySerializer(NetBoxModelSerializer):
     class Meta:
         model = IKEPolicy
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'version', 'mode', 'proposals',
+            'preshared_key', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecproposal-detail'
-    )
     encryption_algorithm = ChoiceField(
         choices=EncryptionAlgorithmChoices
     )
@@ -82,16 +73,13 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPSecProposal
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'encryption_algorithm', 'authentication_algorithm',
-            'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'encryption_algorithm',
+            'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecPolicySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecpolicy-detail'
-    )
     proposals = SerializedPKRelatedField(
         queryset=IPSecProposal.objects.all(),
         serializer=IPSecProposalSerializer,
@@ -107,16 +95,13 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
     class Meta:
         model = IPSecPolicy
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecProfileSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='vpn-api:ipsecprofile-detail'
-    )
     mode = ChoiceField(
         choices=IPSecModeChoices
     )
@@ -130,7 +115,7 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPSecProfile
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'mode', 'ike_policy', 'ipsec_policy',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')

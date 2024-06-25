@@ -12,20 +12,18 @@ __all__ = (
 
 
 class RouteTargetSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:routetarget-detail')
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = RouteTarget
         fields = [
-            'id', 'url', 'display', 'name', 'tenant', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'tenant', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class VRFSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
@@ -47,7 +45,7 @@ class VRFSerializer(NetBoxModelSerializer):
     class Meta:
         model = VRF
         fields = [
-            'id', 'url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments',
+            'id', 'url', 'display_url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments',
             'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
             'prefix_count',
         ]

@@ -1140,6 +1140,29 @@ class CustomFieldAPITest(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_uniqueness_validation(self):
+        # Create a unique custom field
+        cf_text = CustomField.objects.get(name='text_field')
+        cf_text.validation_unique = True
+        cf_text.save()
+
+        # Set a value on site 1
+        site1 = Site.objects.get(name='Site 1')
+        site1.custom_field_data['text_field'] = 'ABC123'
+        site1.save()
+
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        data = {'custom_fields': {'text_field': 'ABC123'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'text_field': 'DEF456'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
 
 class CustomFieldImportTest(TestCase):
     user_permissions = (

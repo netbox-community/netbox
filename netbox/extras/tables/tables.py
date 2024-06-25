@@ -1,12 +1,12 @@
 import json
 
 import django_tables2 as tables
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.tables import BaseTable, NetBoxTable, columns
-from .template_code import *
 
 __all__ = (
     'BookmarkTable',
@@ -71,13 +71,26 @@ class CustomFieldTable(NetBoxTable):
     is_cloneable = columns.BooleanColumn(
         verbose_name=_('Is Cloneable'),
     )
+    validation_minimum = tables.Column(
+        verbose_name=_('Minimum Value'),
+    )
+    validation_maximum = tables.Column(
+        verbose_name=_('Maximum Value'),
+    )
+    validation_regex = tables.Column(
+        verbose_name=_('Validation Regex'),
+    )
+    validation_unique = columns.BooleanColumn(
+        verbose_name=_('Validate Uniqueness'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'weight', 'choice_set', 'choices', 'comments', 'created', 'last_updated',
+            'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'validation_unique', 'comments', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
 
@@ -501,6 +514,9 @@ class ScriptResultsTable(BaseTable):
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
+    object = tables.Column(
+        verbose_name=_('Object')
+    )
     message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
@@ -508,8 +524,17 @@ class ScriptResultsTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
-            'index', 'time', 'status', 'message',
+            'index', 'time', 'status', 'object', 'message',
         )
+        default_columns = (
+            'index', 'time', 'status', 'object', 'message',
+        )
+
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)
 
 
 class ReportResultsTable(BaseTable):
@@ -541,3 +566,9 @@ class ReportResultsTable(BaseTable):
         fields = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )
+
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)

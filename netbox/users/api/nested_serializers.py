@@ -17,19 +17,17 @@ __all__ = [
 
 
 class NestedGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
 
     class Meta:
         model = Group
-        fields = ['id', 'url', 'display', 'name']
+        fields = ['id', 'url', 'display_url', 'display', 'name']
 
 
 class NestedUserSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'url', 'display', 'username']
+        fields = ['id', 'url', 'display_url', 'display', 'username']
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
@@ -39,15 +37,13 @@ class NestedUserSerializer(WritableNestedSerializer):
 
 
 class NestedTokenSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
 
     class Meta:
         model = Token
-        fields = ['id', 'url', 'display', 'key', 'write_enabled']
+        fields = ['id', 'url', 'display_url', 'display', 'key', 'write_enabled']
 
 
 class NestedObjectPermissionSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True
@@ -57,7 +53,9 @@ class NestedObjectPermissionSerializer(WritableNestedSerializer):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions']
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions'
+        ]
 
     @extend_schema_field(serializers.ListField)
     def get_groups(self, obj):
