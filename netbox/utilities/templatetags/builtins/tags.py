@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
@@ -124,5 +125,5 @@ def formaction(context):
     if HTMX navigation is enabled (per the user's preferences).
     """
     if context.get('htmx_navigation', False):
-        return 'hx-push-url="true" hx-post'
+        return mark_safe('hx-push-url="true" hx-post')
     return 'formaction'

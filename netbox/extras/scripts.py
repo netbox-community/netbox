@@ -480,18 +480,20 @@ class BaseScript:
         # A test method is currently active, so log the message using legacy Report logging
         if self._current_test:
 
-            # TODO: Use a dataclass for test method logs
-            self.tests[self._current_test]['log'].append((
-                timezone.now().isoformat(),
-                level,
-                str(obj) if obj else None,
-                obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
-                str(message),
-            ))
-
             # Increment the event counter for this level
             if level in self.tests[self._current_test]:
                 self.tests[self._current_test][level] += 1
+
+            # Record message (if any) to the report log
+            if message:
+                # TODO: Use a dataclass for test method logs
+                self.tests[self._current_test]['log'].append((
+                    timezone.now().isoformat(),
+                    level,
+                    str(obj) if obj else None,
+                    obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
+                    str(message),
+                ))
 
         elif message:
 
@@ -500,6 +502,8 @@ class BaseScript:
                 'time': timezone.now().isoformat(),
                 'status': level,
                 'message': str(message),
+                'obj': str(obj) if obj else None,
+                'url': obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
             })
 
             # Record to the system log
@@ -507,19 +511,19 @@ class BaseScript:
                 message = f"{obj}: {message}"
             self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
 
-    def log_debug(self, message, obj=None):
+    def log_debug(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)
 
-    def log_success(self, message, obj=None):
+    def log_success(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_SUCCESS)
 
-    def log_info(self, message, obj=None):
+    def log_info(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_INFO)
 
-    def log_warning(self, message, obj=None):
+    def log_warning(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_WARNING)
 
-    def log_failure(self, message, obj=None):
+    def log_failure(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
         self.failed = True
 

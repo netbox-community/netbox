@@ -281,6 +281,10 @@ def applied_filters(context, model, form, query_params):
         if filter_name not in querydict:
             continue
 
+        # Skip saved filters, as they're displayed alongside the quick search widget
+        if filter_name == 'filter_id':
+            continue
+
         bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
         querydict.pop(filter_name)
         display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])

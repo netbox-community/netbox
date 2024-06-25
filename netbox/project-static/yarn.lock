@@ -1754,10 +1754,10 @@ graphql@16.8.1:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.8.1.tgz#1930a965bef1170603702acdb68aedd3f3cf6f07"
   integrity sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==
 
-gridstack@10.2.0:
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-10.2.0.tgz#4ba9c7ee69a730851721a9f5cb33dc55026ded1f"
-  integrity sha512-svKAOq/dfinpvhe/nnxdyZOOEd9qynXiOPHvL96PALE0yWChWp/6lechnqKwud0tL/rRyAfMJ6Hh/z2fS13pBA==
+gridstack@10.2.1:
+  version "10.2.1"
+  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-10.2.1.tgz#3ce6119ae86cfb0a533c5f0d15b03777a55384ca"
+  integrity sha512-UAPKnIvd9sIqPDFMtKMqj0G5GDj8MUFPcelRJq7FzQFSxSYBblKts/Gd52iEJg0EvTFP51t6ZuMWGx0pSSFBdw==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
@@ -2482,10 +2482,10 @@ safe-regex-test@^1.0.3:
     es-errors "^1.3.0"
     is-regex "^1.1.4"
 
-sass@1.77.4:
-  version "1.77.4"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.77.4.tgz#92059c7bfc56b827c56eb116778d157ec017a5cd"
-  integrity sha512-vcF3Ckow6g939GMA4PeU7b2K/9FALXk2KF9J87txdHzXbUF9XRQRwSxcAs/fGaTnJeBFd7UoV22j3lzMLdM0Pw==
+sass@1.77.6:
+  version "1.77.6"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.77.6.tgz#898845c1348078c2e6d1b64f9ee06b3f8bd489e4"
+  integrity sha512-ByXE1oLD79GVq9Ht1PeHWCPMPB8XHpBuz1r85oByKHjZY6qV6rWnQovQzXJXuQ/XyE1Oj3iPk3lo28uzaRA2/Q==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
