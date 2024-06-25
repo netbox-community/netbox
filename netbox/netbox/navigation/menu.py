@@ -34,6 +34,12 @@ ORGANIZATION_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label=_('Rack Types'),
+            items=(
+                get_model_item('dcim', 'racktype', _('Rack Types')),
+            ),
+        ),
+        MenuGroup(
             label=_('Tenancy'),
             items=(
                 get_model_item('tenancy', 'tenant', _('Tenants')),
