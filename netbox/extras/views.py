@@ -1122,7 +1122,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         table = None
         index = 0
 
-        log_level = LOG_LEVEL_RANK.get(request.GET.get('log_level', LogLevelChoices.LOG_DEFAULT))
+        log_threshold = LOG_LEVEL_RANK.get(request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT))
         if job.data:
 
             if 'log' in job.data:
@@ -1130,8 +1130,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    check_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
-                    if check_level >= log_level:
+                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    if log_level >= log_threshold:
                         index += 1
                         result = {
                             'index': index,
@@ -1153,8 +1153,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        check_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
-                        if check_level >= log_level:
+                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        if log_level >= log_threshold:
                             index += 1
                             result = {
                                 'index': index,
@@ -1183,7 +1183,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             'script': job.object,
             'job': job,
             'table': table,
-            'log_level': request.GET.get('log_level', None)
+            'log_levels': dict(LogLevelChoices),
+            'log_threshold': request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)
         }
 
         if job.data and 'log' in job.data:
