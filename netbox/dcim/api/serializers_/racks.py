@@ -16,6 +16,7 @@ __all__ = (
     'RackReservationSerializer',
     'RackRoleSerializer',
     'RackSerializer',
+    'RackTypeSerializer',
 )
 
 
@@ -31,6 +32,23 @@ class RackRoleSerializer(NetBoxModelSerializer):
             'created', 'last_updated', 'rack_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
+
+
+class RackTypeSerializer(NetBoxModelSerializer):
+    type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False, allow_null=True)
+    width = ChoiceField(choices=RackWidthChoices, required=False)
+    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False, allow_null=True)
+    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
+
+    class Meta:
+        model = Rack
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name',
+            'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight',
+            'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class RackSerializer(NetBoxModelSerializer):
