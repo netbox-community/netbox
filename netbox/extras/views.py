@@ -1131,6 +1131,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                         'time': log.get('time'),
                         'status': log.get('status'),
                         'message': log.get('message'),
+                        'object': log.get('obj'),
+                        'url': log.get('url'),
                     }
                     data.append(result)
 

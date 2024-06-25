@@ -106,10 +106,16 @@ class LoginView(View):
             # Ensure the user has a UserConfig defined. (This should normally be handled by
             # create_userconfig() on user creation.)
             if not hasattr(request.user, 'config'):
-                config = get_config()
-                UserConfig(user=request.user, data=config.DEFAULT_USER_PREFERENCES).save()
+                request.user.config = get_config()
+                UserConfig(user=request.user, data=request.user.config.DEFAULT_USER_PREFERENCES).save()
 
-            return self.redirect_to_next(request, logger)
+            response = self.redirect_to_next(request, logger)
+
+            # Set the user's preferred language (if any)
+            if language := request.user.config.get('locale.language'):
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+
+            return response
 
         else:
             logger.debug(f"Login form validation failed for username: {form['username'].value()}")
@@ -147,9 +153,10 @@ class LogoutView(View):
         logger.info(f"User {username} has logged out")
         messages.info(request, "You have logged out.")
 
-        # Delete session key cookie (if set) upon logout
+        # Delete session key & language cookies (if set) upon logout
         response = HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
         response.delete_cookie('session_key')
+        response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 
         return response
 

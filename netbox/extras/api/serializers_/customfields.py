@@ -65,7 +65,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'object_types', 'type', 'related_object_type', 'data_type', 'name', 'label',
             'group_name', 'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
             'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'choice_set', 'comments', 'created', 'last_updated',
+            'validation_unique', 'choice_set', 'comments', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
