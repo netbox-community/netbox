@@ -10,7 +10,7 @@
   <div class="row">
 	  <div class="col col-12 col-xl-5">
         <div class="card">
-            <h5 class="card-header">{% trans "Rack" %}</h5>
+            <h5 class="card-header">{% trans "Rack Type" %}</h5>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Description" %}</th>
@@ -100,17 +100,9 @@
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' %}
         {% include 'inc/panels/comments.html' %}
-        {% include 'inc/panels/image_attachments.html' %}
         {% plugin_left_page object %}
 	  </div>
     <div class="col col-12 col-xl-7">
-      <div class="text-end mb-4">
-        <select class="btn btn-outline-secondary no-ts rack-view">
-          <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
-          <option value="images-only">{% trans "Images only" %}</option>
-          <option value="labels-only">{% trans "Labels only" %}</option>
-        </select>
-      </div>
         {% include 'inc/panels/related_objects.html' %}
         {% plugin_right_page object %}
     </div>

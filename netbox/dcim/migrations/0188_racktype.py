@@ -72,4 +72,15 @@ class Migration(migrations.Migration):
                 'ordering': ('_name', 'pk'),
             },
         ),
+        migrations.AddField(
+            model_name='rack',
+            name='rack_type',
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='instances',
+                to='dcim.racktype',
+            ),
+        ),
     ]

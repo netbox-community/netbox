@@ -243,6 +243,11 @@ class RackForm(TenancyForm, NetBoxModelForm):
         queryset=RackRole.objects.all(),
         required=False
     )
+    rack_type = DynamicModelChoiceField(
+        label=_('Rack Type'),
+        queryset=RackType.objects.all(),
+        required=False
+    )
     comments = CommentField()
 
     fieldsets = (
@@ -250,7 +255,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
-            'type', 'width', 'starting_unit', 'u_height',
+            'rack_type', 'type', 'width', 'starting_unit', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth', 'desc_units', name=_('Dimensions')
@@ -261,7 +266,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         model = Rack
         fields = [
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+            'asset_tag', 'rack_type', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
             'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
 

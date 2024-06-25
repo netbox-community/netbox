@@ -628,6 +628,7 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RackRoleType", strawberry.lazy('dcim.graphql.types')] | None
 
+    rack_type: Annotated["RackTypeType", strawberry.lazy('dcim.graphql.types')] | None
     reservations: List[Annotated["RackReservationType", strawberry.lazy('dcim.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     powerfeeds: List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]

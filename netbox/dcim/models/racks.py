@@ -37,7 +37,7 @@ __all__ = (
 # Rack Types
 #
 
-class RackType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class RackType(PrimaryModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -201,6 +201,13 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
+    rack_type = models.ForeignKey(
+        to='dcim.RackType',
+        on_delete=models.PROTECT,
+        related_name='instances',
+        blank=True,
+        null=True,
+    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -413,6 +420,18 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                     })
 
     def save(self, *args, **kwargs):
+        if (not self.pk) and self.rack_type:
+            self.width = self.rack_type.width
+            self.u_height = self.rack_type.u_height
+            self.starting_unit = self.rack_type.starting_unit
+            self.desc_units = self.rack_type.desc_units
+            self.outer_width = self.rack_type.outer_width
+            self.outer_depth = self.rack_type.outer_depth
+            self.outer_unit = self.rack_type.outer_unit
+            self.weight = self.rack_type.weight
+            self.weight_unit = self.rack_type.weight_unit
+            self.max_weight = self.rack_type.max_weight
+            self.mounting_depth = self.rack_type.mounting_depth
 
         # Store the given max weight (if any) in grams for use in database ordering
         if self.max_weight and self.weight_unit:

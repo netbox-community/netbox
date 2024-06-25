@@ -60,6 +60,7 @@ class RackSerializer(NetBoxModelSerializer):
     type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label=_('Facility ID'),
                                         default=None)
+    rack_type = RackTypeSerializer(nested=True, required=False, allow_null=True, default=None)
     width = ChoiceField(choices=RackWidthChoices, required=False)
     outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False, allow_null=True)
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
@@ -72,9 +73,10 @@ class RackSerializer(NetBoxModelSerializer):
         model = Rack
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status',
-            'role', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight',
-            'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
+            'role', 'serial', 'asset_tag', 'rack_type', 'type', 'width', 'u_height', 'starting_unit', 'weight',
+            'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'powerfeed_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
 
