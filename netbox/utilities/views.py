@@ -31,7 +31,7 @@ __all__ = (
 
 class ConditionalLoginRequiredMixin(AccessMixin):
     """
-    Requires a user to be authenticated if LOGIN_REQUIRED is True.
+    Similar to Django's LoginRequiredMixin, but enforces authentication only if LOGIN_REQUIRED is True.
     """
     def dispatch(self, request, *args, **kwargs):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
@@ -42,7 +42,7 @@ class ConditionalLoginRequiredMixin(AccessMixin):
 class ContentTypePermissionRequiredMixin(ConditionalLoginRequiredMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
-    This is related to ObjectPermissionRequiredMixin, except that is does not enforce object-level permissions,
+    This is related to ObjectPermissionRequiredMixin, except that it does not enforce object-level permissions,
     and fits within NetBox's custom permission enforcement system.
 
     additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those

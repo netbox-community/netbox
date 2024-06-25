@@ -1,6 +1,5 @@
 import logging
 import uuid
-from urllib import parse
 
 from django.conf import settings
 from django.contrib import auth, messages
