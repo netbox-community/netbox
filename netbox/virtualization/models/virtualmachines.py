@@ -127,6 +127,11 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         null=True,
         verbose_name=_('disk (MB)')
     )
+    serial = models.CharField(
+        verbose_name=_('serial number'),
+        blank=True,
+        max_length=50
+    )
 
     # Counter fields
     interface_count = CounterCacheField(
@@ -180,7 +185,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
             })
 
         # Validate site for cluster & device
-        if self.cluster and self.site and self.cluster.site != self.site:
+        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': _(
                     'The selected cluster ({cluster}) is not assigned to this site ({site}).'

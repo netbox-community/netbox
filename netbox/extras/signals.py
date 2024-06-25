@@ -9,7 +9,8 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
@@ -19,9 +20,8 @@ from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
-from .choices import ObjectChangeActionChoices
 from .events import enqueue_object, get_snapshots, serialize_for_event
-from .models import CustomField, ObjectChange, TaggedItem
+from .models import CustomField, TaggedItem
 from .validators import CustomValidator
 
 

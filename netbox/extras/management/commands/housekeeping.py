@@ -9,8 +9,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
-from core.models import Job
-from extras.models import ObjectChange
+from core.models import Job, ObjectChange
 from netbox.config import Config
 
 

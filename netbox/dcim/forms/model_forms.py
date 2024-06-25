@@ -465,7 +465,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Cluster'),
         queryset=Cluster.objects.all(),
         required=False,
-        selector=True
+        selector=True,
+        query_params={
+            'site_id': ['$site', 'null']
+        },
     )
     comments = CommentField()
     local_context_data = JSONField(
@@ -656,11 +659,6 @@ class CableForm(TenancyForm, NetBoxModelForm):
             'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
             'length', 'length_unit', 'description', 'comments', 'tags',
         ]
-        error_messages = {
-            'length': {
-                'max_value': _('Maximum length is 32767 (any unit)')
-            }
-        }
 
 
 class PowerPanelForm(NetBoxModelForm):

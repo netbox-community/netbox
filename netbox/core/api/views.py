@@ -8,6 +8,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from core import filtersets
 from core.models import *
+from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from . import serializers
 
@@ -54,3 +55,13 @@ class JobViewSet(ReadOnlyModelViewSet):
     queryset = Job.objects.all()
     serializer_class = serializers.JobSerializer
     filterset_class = filtersets.JobFilterSet
+
+
+class ObjectChangeViewSet(ReadOnlyModelViewSet):
+    """
+    Retrieve a list of recent changes.
+    """
+    metadata_class = ContentTypeMetadata
+    queryset = ObjectChange.objects.valid_models()
+    serializer_class = serializers.ObjectChangeSerializer
+    filterset_class = filtersets.ObjectChangeFilterSet

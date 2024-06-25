@@ -68,7 +68,7 @@
         </div>
 
         <div class="col-auto ms-auto d-print-none">
-          {% if request.user.is_authenticated %}
+          {% if request.user.is_authenticated and job.completed %}
             <div class="table-configure input-group">
               <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config"
                 class="btn">

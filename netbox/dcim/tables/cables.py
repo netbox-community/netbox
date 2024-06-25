@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from dcim.models import Cable
@@ -35,7 +36,7 @@ class CableTerminationsColumn(tables.Column):
 
     def render(self, value):
         links = [
-            f'<a href="{term.get_absolute_url()}">{term}</a>' for term in self._get_terminations(value)
+            f'<a href="{term.get_absolute_url()}">{escape(term)}</a>' for term in self._get_terminations(value)
         ]
         return mark_safe('<br />'.join(links) or '&mdash;')
 
@@ -109,7 +110,7 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn()
     length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
-        order_by=('_abs_length', 'length_unit')
+        order_by=('_abs_length')
     )
     color = columns.ColorColumn()
     comments = columns.MarkdownColumn()

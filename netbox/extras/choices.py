@@ -117,27 +117,14 @@ class BookmarkOrderingChoices(ChoiceSet):
 
     ORDERING_NEWEST = '-created'
     ORDERING_OLDEST = 'created'
+    ORDERING_ALPHABETICAL_AZ = 'name'
+    ORDERING_ALPHABETICAL_ZA = '-name'
 
     CHOICES = (
         (ORDERING_NEWEST, _('Newest')),
         (ORDERING_OLDEST, _('Oldest')),
-    )
-
-#
-# ObjectChanges
-#
-
-
-class ObjectChangeActionChoices(ChoiceSet):
-
-    ACTION_CREATE = 'create'
-    ACTION_UPDATE = 'update'
-    ACTION_DELETE = 'delete'
-
-    CHOICES = (
-        (ACTION_CREATE, _('Created'), 'green'),
-        (ACTION_UPDATE, _('Updated'), 'blue'),
-        (ACTION_DELETE, _('Deleted'), 'red'),
+        (ORDERING_ALPHABETICAL_AZ, _('Alphabetical (A-Z)')),
+        (ORDERING_ALPHABETICAL_ZA, _('Alphabetical (Z-A)')),
     )
 
 

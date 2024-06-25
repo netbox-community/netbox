@@ -14,7 +14,7 @@ from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import APISelectMultiple, DateTimePicker
+from utilities.forms.widgets import DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
@@ -28,7 +28,6 @@ __all__ = (
     'ImageAttachmentFilterForm',
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
-    'ObjectChangeFilterForm',
     'SavedFilterFilterForm',
     'TagFilterForm',
     'WebhookFilterForm',
@@ -41,6 +40,9 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet(
             'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible',
             'ui_editable', 'is_cloneable', name=_('Attributes')
+        ),
+        FieldSet(
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
         ),
     )
     related_object_type_id = ContentTypeMultipleChoiceField(
@@ -85,6 +87,25 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
     is_cloneable = forms.NullBooleanField(
         label=_('Is cloneable'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    validation_minimum = forms.IntegerField(
+        label=_('Minimum value'),
+        required=False
+    )
+    validation_maximum = forms.IntegerField(
+        label=_('Maximum value'),
+        required=False
+    )
+    validation_regex = forms.CharField(
+        label=_('Validation regex'),
+        required=False
+    )
+    validation_unique = forms.NullBooleanField(
+        label=_('Must be unique'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -475,37 +496,3 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     tag = TagFilterField(model)
-
-
-class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
-    model = ObjectChange
-    fieldsets = (
-        FieldSet('q', 'filter_id'),
-        FieldSet('time_before', 'time_after', name=_('Time')),
-        FieldSet('action', 'user_id', 'changed_object_type_id', name=_('Attributes')),
-    )
-    time_after = forms.DateTimeField(
-        required=False,
-        label=_('After'),
-        widget=DateTimePicker()
-    )
-    time_before = forms.DateTimeField(
-        required=False,
-        label=_('Before'),
-        widget=DateTimePicker()
-    )
-    action = forms.ChoiceField(
-        label=_('Action'),
-        choices=add_blank_choice(ObjectChangeActionChoices),
-        required=False
-    )
-    user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
-        required=False,
-        label=_('User')
-    )
-    changed_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ObjectType.objects.with_feature('change_logging'),
-        required=False,
-        label=_('Object Type'),
-    )

@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -179,6 +180,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
+    validation_unique = models.BooleanField(
+        verbose_name=_('must be unique'),
+        default=False,
+        help_text=_('The value of this field must be unique for the assigned object')
+    )
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
@@ -216,7 +222,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     clone_fields = (
         'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-        'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'validation_unique', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
@@ -331,6 +337,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': _("Regular expression validation is supported only for text and URL fields")
+            })
+
+        # Uniqueness can not be enforced for boolean fields
+        if self.validation_unique and self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            raise ValidationError({
+                'validation_unique': _("Uniqueness cannot be enforced for boolean fields")
             })
 
         # Choice set must be set on selection fields, and *only* on selection fields
@@ -520,7 +532,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     RegexValidator(
                         regex=self.validation_regex,
                         message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
-                            regex=self.validation_regex
+                            regex=escape(self.validation_regex)
                         ))
                     )
                 ]
@@ -660,6 +672,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
                 if type(value) is not datetime:
+                    # Work around UTC issue for Python < 3.11; see
+                    # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
+                    if type(value) is str and value.endswith('Z'):
+                        value = f'{value[:-1]}+00:00'
                     try:
                         datetime.fromisoformat(value)
                     except ValueError:

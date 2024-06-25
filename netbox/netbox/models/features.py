@@ -9,9 +9,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
-from core.choices import JobStatusChoices
+from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
+from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.registry import registry
@@ -90,7 +91,8 @@ class ChangeLoggingMixin(models.Model):
         Return a new ObjectChange representing a change made to this object. This will typically be called automatically
         by ChangeLoggingMiddleware.
         """
-        from extras.models import ObjectChange
+        # TODO: Fix circular import
+        from core.models import ObjectChange
 
         exclude = []
         if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
@@ -248,7 +250,7 @@ class CustomFieldsMixin(models.Model):
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
-            if value in (None, '', []) and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
+            if value in CUSTOMFIELD_EMPTY_VALUES and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
                 continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value
@@ -283,6 +285,15 @@ class CustomFieldsMixin(models.Model):
                 raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
                     name=field_name, error=e.message
                 ))
+
+            # Validate uniqueness if enforced
+            if custom_fields[field_name].validation_unique and value not in CUSTOMFIELD_EMPTY_VALUES:
+                if self._meta.model.objects.filter(**{
+                    f'custom_field_data__{field_name}': value
+                }).exists():
+                    raise ValidationError(_("Custom field '{name}' must have a unique value.").format(
+                        name=field_name
+                    ))
 
         # Check for missing required values
         for cf in custom_fields.values():

@@ -25,6 +25,10 @@ urlpatterns = (
     path('jobs/<int:pk>/', views.JobView.as_view(), name='job'),
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
+    # Change logging
+    path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
+    path('changelog/<int:pk>/', include(get_model_urls('core', 'objectchange'))),
+
     # Background Tasks
     path('background-queues/', views.BackgroundQueueListView.as_view(), name='background_queue_list'),
     path('background-queues/<int:queue_index>/<str:status>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),

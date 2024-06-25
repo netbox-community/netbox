@@ -40,3 +40,7 @@ The security cipher used to apply wireless authentication. Options include:
 ### Pre-Shared Key
 
 The security key configured on each client to grant access to the secured wireless LAN. This applies only to certain authentication types.
+
+### Distance
+
+The numeric distance of the link, including a unit designation (e.g. 100 meters or 25 feet).

@@ -6,10 +6,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-from core.models import Job
-from core.tables import JobTable
-from extras import forms, tables
-from extras.models import *
+from core.models import Job, ObjectChange
+from core.tables import JobTable, ObjectChangeTable
+from extras.forms import JournalEntryForm
+from extras.models import JournalEntry
+from extras.tables import JournalEntryTable
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin, ViewTab
 from .base import BaseMultiObjectView
@@ -56,7 +57,7 @@ class ObjectChangeLogView(View):
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
             Q(related_object_type=content_type, related_object_id=obj.pk)
         )
-        objectchanges_table = tables.ObjectChangeTable(
+        objectchanges_table = ObjectChangeTable(
             data=objectchanges,
             orderable=False,
             user=request.user
@@ -108,13 +109,13 @@ class ObjectJournalView(View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = tables.JournalEntryTable(journalentries, user=request.user)
+        journalentry_table = JournalEntryTable(journalentries, user=request.user)
         journalentry_table.configure(request)
         journalentry_table.columns.hide('assigned_object_type')
         journalentry_table.columns.hide('assigned_object')
 
         if request.user.has_perm('extras.add_journalentry'):
-            form = forms.JournalEntryForm(
+            form = JournalEntryForm(
                 initial={
                     'assigned_object_type': ContentType.objects.get_for_model(obj),
                     'assigned_object_id': obj.pk
