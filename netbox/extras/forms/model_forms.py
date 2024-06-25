@@ -64,7 +64,9 @@ class CustomFieldForm(forms.ModelForm):
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
         ),
         FieldSet('default', 'choice_set', name=_('Values')),
-        FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
+        FieldSet(
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
+        ),
     )
 
     class Meta:

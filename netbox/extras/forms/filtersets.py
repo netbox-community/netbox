@@ -41,6 +41,9 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
             'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible',
             'ui_editable', 'is_cloneable', name=_('Attributes')
         ),
+        FieldSet(
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
+        ),
     )
     related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -84,6 +87,25 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
     is_cloneable = forms.NullBooleanField(
         label=_('Is cloneable'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    validation_minimum = forms.IntegerField(
+        label=_('Minimum value'),
+        required=False
+    )
+    validation_maximum = forms.IntegerField(
+        label=_('Maximum value'),
+        required=False
+    )
+    validation_regex = forms.CharField(
+        label=_('Validation regex'),
+        required=False
+    )
+    validation_unique = forms.NullBooleanField(
+        label=_('Must be unique'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

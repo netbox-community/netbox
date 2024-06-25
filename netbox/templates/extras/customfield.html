@@ -120,6 +120,10 @@
             {% endif %}
           </td>
         </tr>
+        <tr>
+          <th scope="row">{% trans "Must be Unique" %}</th>
+          <td>{% checkmark object.validation_unique %}</td>
+        </tr>
       </table>
     </div>
     <div class="card">
