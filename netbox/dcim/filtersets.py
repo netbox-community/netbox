@@ -69,6 +69,7 @@ __all__ = (
     'RackFilterSet',
     'RackReservationFilterSet',
     'RackRoleFilterSet',
+    'RackTypeFilterSet',
     'RearPortFilterSet',
     'RearPortTemplateFilterSet',
     'RegionFilterSet',
@@ -287,6 +288,41 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
     class Meta:
         model = RackRole
         fields = ('id', 'name', 'slug', 'color', 'description')
+
+
+class RackTypeFilterSet(NetBoxModelFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=RackTypeChoices
+    )
+    width = django_filters.MultipleChoiceFilter(
+        choices=RackWidthChoices
+    )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackRole.objects.all(),
+        label=_('Role (ID)'),
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=RackRole.objects.all(),
+        to_field_name='slug',
+        label=_('Role (slug)'),
+    )
+
+    class Meta:
+        model = Rack
+        fields = (
+            'id', 'name', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
 
 
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):

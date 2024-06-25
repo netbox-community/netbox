@@ -57,6 +57,7 @@ __all__ = (
     'RackForm',
     'RackReservationForm',
     'RackRoleForm',
+    'RackTypeForm',
     'RearPortForm',
     'RearPortTemplateForm',
     'RegionForm',
@@ -198,6 +199,33 @@ class RackRoleForm(NetBoxModelForm):
         model = RackRole
         fields = [
             'name', 'slug', 'color', 'description', 'tags',
+        ]
+
+
+class RackTypeForm(NetBoxModelForm):
+    role = DynamicModelChoiceField(
+        label=_('Role'),
+        queryset=RackRole.objects.all(),
+        required=False
+    )
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet('name', 'status', 'role', 'description', 'tags', name=_('Rack')),
+        FieldSet(
+            'type', 'width', 'starting_unit', 'u_height',
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            'mounting_depth', 'desc_units', name=_('Dimensions')
+        ),
+    )
+
+    class Meta:
+        model = Rack
+        fields = [
+            'name', 'role',
+            'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
 
 

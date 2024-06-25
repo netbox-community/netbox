@@ -579,6 +579,52 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# RackTypes
+#
+
+class RackTypeListView(generic.ObjectListView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    filterset_form = forms.RackTypeFilterForm
+    table = tables.RackTypeTable
+    template_name = 'dcim/racktype_list.html'
+
+
+@register_model_view(RackType)
+class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = Rack.objects.prefetch_related('role')
+
+
+@register_model_view(RackType, 'edit')
+class RackTypeEditView(generic.ObjectEditView):
+    queryset = RackType.objects.all()
+    form = forms.RackTypeForm
+
+
+@register_model_view(RackType, 'delete')
+class RackTypeDeleteView(generic.ObjectDeleteView):
+    queryset = RackType.objects.all()
+
+
+class RackTypeBulkImportView(generic.BulkImportView):
+    queryset = RackType.objects.all()
+    model_form = forms.RackTypeImportForm
+
+
+class RackTypeBulkEditView(generic.BulkEditView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
+    form = forms.RackTypeBulkEditForm
+
+
+class RackTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
+
+
+#
 # Racks
 #
 

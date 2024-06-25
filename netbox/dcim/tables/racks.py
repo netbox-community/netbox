@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import WEIGHT
@@ -11,6 +11,7 @@ __all__ = (
     'RackTable',
     'RackReservationTable',
     'RackRoleTable',
+    'RackTypeTable',
 )
 
 
@@ -42,6 +43,61 @@ class RackRoleTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description')
+
+
+#
+# Rack Types
+#
+
+class RackTypeTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        order_by=('_name',),
+        linkify=True
+    )
+    role = columns.ColoredLabelColumn(
+        verbose_name=_('Role'),
+    )
+    u_height = tables.TemplateColumn(
+        template_code="{{ value }}U",
+        verbose_name=_('Height')
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:rack_list'
+    )
+    outer_width = tables.TemplateColumn(
+        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Width')
+    )
+    outer_depth = tables.TemplateColumn(
+        template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Depth')
+    )
+    weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
+    max_weight = columns.TemplateColumn(
+        verbose_name=_('Max Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_max_weight', 'weight_unit')
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = RackType
+        fields = (
+            'pk', 'id', 'name', 'role',
+            'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
+            'weight', 'max_weight', 'comments',
+            'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'role', 'u_height',
+        )
 
 
 #

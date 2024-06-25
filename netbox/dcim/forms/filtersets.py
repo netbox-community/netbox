@@ -47,6 +47,7 @@ __all__ = (
     'RackElevationFilterForm',
     'RackReservationFilterForm',
     'RackRoleFilterForm',
+    'RackTypeFilterForm',
     'RearPortFilterForm',
     'RegionFilterForm',
     'SiteFilterForm',
@@ -237,6 +238,53 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
 class RackRoleFilterForm(NetBoxModelFilterSetForm):
     model = RackRole
     tag = TagFilterField(model)
+
+
+class RackTypeFilterForm(NetBoxModelFilterSetForm):
+    model = Rack
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('role_id', name=_('Function')),
+        FieldSet('type', 'width', 'serial', name=_('Hardware')),
+        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+    )
+    selector_fields = ('filter_id', 'q',)
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=RackTypeChoices,
+        required=False
+    )
+    width = forms.MultipleChoiceField(
+        label=_('Width'),
+        choices=RackWidthChoices,
+        required=False
+    )
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=RackRole.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Role')
+    )
+    serial = forms.CharField(
+        label=_('Serial'),
+        required=False
+    )
+    tag = TagFilterField(model)
+    weight = forms.DecimalField(
+        label=_('Weight'),
+        required=False,
+        min_value=1
+    )
+    max_weight = forms.IntegerField(
+        label=_('Max weight'),
+        required=False,
+        min_value=1
+    )
+    weight_unit = forms.ChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
 
 
 class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
