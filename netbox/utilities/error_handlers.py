@@ -7,7 +7,7 @@ from django.db.models import ProtectedError, RestrictedError
 from django.http import JsonResponse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from rest_framework import status
 
 __all__ = (
@@ -28,7 +28,10 @@ def handle_protectederror(obj_list, request, e):
         raise e
 
     # Formulate the error message
-    err_message = _("Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ").format(
+    err_message = _(ngettext(
+        "Unable to delete <strong>{objects}</strong>. {count} dependent object was found: ",
+        "Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ",
+        len(protected_objects),)).format(
         objects=', '.join(str(obj) for obj in obj_list),
         count=len(protected_objects) if len(protected_objects) <= 50 else _('More than 50')
     )
