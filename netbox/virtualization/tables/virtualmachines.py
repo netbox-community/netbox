@@ -173,6 +173,8 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {
             'data-name': lambda record: record.name,
+            'data-virtual': lambda record: "true",
+            'data-enabled': lambda record: "true" if record.enabled else "false",
         }
 
 

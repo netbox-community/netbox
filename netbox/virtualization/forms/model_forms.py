@@ -178,8 +178,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'site_id': '$site',
-        }
+            'site_id': ['$site', 'null']
+        },
     )
     device = DynamicModelChoiceField(
         label=_('Device'),

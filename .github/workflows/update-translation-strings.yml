@@ -1,0 +1,45 @@
+name: Update translation strings
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  LOCALE: "en"
+
+jobs:
+  makemessages:
+    runs-on: ubuntu-latest
+    env:
+      NETBOX_CONFIGURATION: netbox.configuration_testing
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install system dependencies
+      run: sudo apt install -y gettext
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run makemessages
+      run: python netbox/manage.py makemessages -l ${{ env.LOCALE }}
+
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: 'netbox/translations/'
+        default_author: github_actions
+        message: 'Update source translation strings'

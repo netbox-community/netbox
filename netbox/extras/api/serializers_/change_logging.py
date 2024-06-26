@@ -30,6 +30,16 @@ class ObjectChangeSerializer(BaseModelSerializer):
     changed_object = serializers.SerializerMethodField(
         read_only=True
     )
+    prechange_data = serializers.JSONField(
+        source='prechange_data_clean',
+        read_only=True,
+        allow_null=True
+    )
+    postchange_data = serializers.JSONField(
+        source='postchange_data_clean',
+        read_only=True,
+        allow_null=True
+    )
 
     class Meta:
         model = ObjectChange

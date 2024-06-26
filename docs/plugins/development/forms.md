@@ -89,13 +89,13 @@ This form facilitates editing multiple objects in bulk. Unlike a model form, thi
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
-from netbox.forms import NetBoxModelImportForm
+from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import CommentField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
 from .models import MyModel, MyModelStatusChoices
 
 
-class MyModelEditForm(NetBoxModelImportForm):
+class MyModelBulkEditForm(NetBoxModelBulkEditForm):
     name = forms.CharField(
         required=False
     )

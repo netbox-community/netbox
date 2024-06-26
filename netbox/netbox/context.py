@@ -7,4 +7,4 @@ __all__ = (
 
 
 current_request = ContextVar('current_request', default=None)
-events_queue = ContextVar('events_queue', default=[])
+events_queue = ContextVar('events_queue', default=dict())

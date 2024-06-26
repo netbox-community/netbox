@@ -55,18 +55,6 @@ def run_validators(instance, validators):
 clear_events = Signal()
 
 
-def is_same_object(instance, webhook_data, request_id):
-    """
-    Compare the given instance to the most recent queued webhook object, returning True
-    if they match. This check is used to avoid creating duplicate webhook entries.
-    """
-    return (
-        ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
-        instance.pk == webhook_data['object_id'] and
-        request_id == webhook_data['request_id']
-    )
-
-
 @receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
     """
@@ -112,14 +100,13 @@ def handle_changed_object(sender, instance, **kwargs):
         objectchange.request_id = request.id
         objectchange.save()
 
-    # If this is an M2M change, update the previously queued webhook (from post_save)
+    # Ensure that we're working with fresh M2M assignments
+    if m2m_changed:
+        instance.refresh_from_db()
+
+    # Enqueue the object for event processing
     queue = events_queue.get()
-    if m2m_changed and queue and is_same_object(instance, queue[-1], request.id):
-        instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
-        queue[-1]['data'] = serialize_for_event(instance)
-        queue[-1]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
-    else:
-        enqueue_object(queue, instance, request.user, request.id, action)
+    enqueue_object(queue, instance, request.user, request.id, action)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -179,7 +166,7 @@ def handle_deleted_object(sender, instance, **kwargs):
             obj.snapshot()  # Ensure the change record includes the "before" state
             getattr(obj, related_field_name).remove(instance)
 
-    # Enqueue webhooks
+    # Enqueue the object for event processing
     queue = events_queue.get()
     enqueue_object(queue, instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
     events_queue.set(queue)
@@ -195,7 +182,7 @@ def clear_events_queue(sender, **kwargs):
     """
     logger = logging.getLogger('events')
     logger.info(f"Clearing {len(events_queue.get())} queued events ({sender})")
-    events_queue.set([])
+    events_queue.set({})
 
 
 #

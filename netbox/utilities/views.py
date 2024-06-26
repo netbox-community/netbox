@@ -1,15 +1,20 @@
+from typing import Iterable
+
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from utilities.relations import get_related_models
 from .permissions import resolve_permission
 
 __all__ = (
     'ContentTypePermissionRequiredMixin',
+    'GetRelatedModelsMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
     'ViewTab',
@@ -119,7 +124,7 @@ class GetReturnURLMixin:
         # First, see if `return_url` was specified as a query parameter or form data. Use this URL only if it's
         # considered safe.
         return_url = request.GET.get('return_url') or request.POST.get('return_url')
-        if return_url and return_url.startswith('/'):
+        if return_url and url_has_allowed_host_and_scheme(return_url, allowed_hosts=None):
             return return_url
 
         # Next, check if the object being modified (if any) has an absolute URL.
@@ -140,6 +145,46 @@ class GetReturnURLMixin:
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
+
+
+class GetRelatedModelsMixin:
+    """
+    Provides logic for collecting all related models for the currently viewed model.
+    """
+
+    def get_related_models(self, request, instance, omit=[], extra=[]):
+        """
+        Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
+
+        Args:
+            request: Current request being processed.
+            instance: The instance related models should be looked up for. A list of instances can be passed to match
+                related objects in this list (e.g. to find sites of a region including child regions).
+            omit: Remove relationships to these models from the result. Needs to be passed, if related models don't
+                provide a `_list` view.
+            extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
+                relationships.
+        """
+        model = self.queryset.model
+        related = filter(
+            lambda m: m[0] is not model and m[0] not in omit,
+            get_related_models(model, False)
+        )
+
+        related_models = [
+            (
+                model.objects.restrict(request.user, 'view').filter(**(
+                    {f'{field}__in': instance}
+                    if isinstance(instance, Iterable)
+                    else {field: instance}
+                )),
+                f'{field}_id'
+            )
+            for model, field in related
+        ]
+        related_models.extend(extra)
+
+        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
 
 
 class ViewTab:

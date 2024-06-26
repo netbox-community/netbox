@@ -1,12 +1,17 @@
+from functools import cached_property
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from mptt.models import MPTTModel
 
 from core.models import ObjectType
 from extras.choices import *
+from netbox.models.features import ChangeLoggingMixin
+from utilities.data import shallow_compare_dict
 from ..querysets import ObjectChangeQuerySet
 
 __all__ = (
@@ -136,6 +141,71 @@ class ObjectChange(models.Model):
     def get_action_color(self):
         return ObjectChangeActionChoices.colors.get(self.action)
 
-    @property
+    @cached_property
     def has_changes(self):
         return self.prechange_data != self.postchange_data
+
+    @cached_property
+    def diff_exclude_fields(self):
+        """
+        Return a set of attributes which should be ignored when calculating a diff
+        between the pre- and post-change data. (For instance, it would not make
+        sense to compare the "last updated" times as these are expected to differ.)
+        """
+        model = self.changed_object_type.model_class()
+        attrs = set()
+
+        # Exclude auto-populated change tracking fields
+        if issubclass(model, ChangeLoggingMixin):
+            attrs.update({'created', 'last_updated'})
+
+        # Exclude MPTT-internal fields
+        if issubclass(model, MPTTModel):
+            attrs.update({'level', 'lft', 'rght', 'tree_id'})
+
+        return attrs
+
+    def get_clean_data(self, prefix):
+        """
+        Return only the pre-/post-change attributes which are relevant for calculating a diff.
+        """
+        ret = {}
+        change_data = getattr(self, f'{prefix}_data') or {}
+        for k, v in change_data.items():
+            if k not in self.diff_exclude_fields and not k.startswith('_'):
+                ret[k] = v
+        return ret
+
+    @cached_property
+    def prechange_data_clean(self):
+        return self.get_clean_data('prechange')
+
+    @cached_property
+    def postchange_data_clean(self):
+        return self.get_clean_data('postchange')
+
+    def diff(self):
+        """
+        Return a dictionary of pre- and post-change values for attributes which have changed.
+        """
+        prechange_data = self.prechange_data_clean
+        postchange_data = self.postchange_data_clean
+
+        # Determine which attributes have changed
+        if self.action == ObjectChangeActionChoices.ACTION_CREATE:
+            changed_attrs = sorted(postchange_data.keys())
+        elif self.action == ObjectChangeActionChoices.ACTION_DELETE:
+            changed_attrs = sorted(prechange_data.keys())
+        else:
+            # TODO: Support deep (recursive) comparison
+            changed_data = shallow_compare_dict(prechange_data, postchange_data)
+            changed_attrs = sorted(changed_data.keys())
+
+        return {
+            'pre': {
+                k: prechange_data.get(k) for k in changed_attrs
+            },
+            'post': {
+                k: postchange_data.get(k) for k in changed_attrs
+            },
+        }

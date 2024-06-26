@@ -465,7 +465,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Cluster'),
         queryset=Cluster.objects.all(),
         required=False,
-        selector=True
+        selector=True,
+        query_params={
+            'site_id': ['$site', 'null']
+        },
     )
     comments = CommentField()
     local_context_data = JSONField(

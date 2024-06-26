@@ -58,15 +58,21 @@ def enqueue_object(queue, instance, user, request_id, action):
     if model_name not in registry['model_features']['event_rules'].get(app_label, []):
         return
 
-    queue.append({
-        'content_type': ContentType.objects.get_for_model(instance),
-        'object_id': instance.pk,
-        'event': action,
-        'data': serialize_for_event(instance),
-        'snapshots': get_snapshots(instance, action),
-        'username': user.username,
-        'request_id': request_id
-    })
+    assert instance.pk is not None
+    key = f'{app_label}.{model_name}:{instance.pk}'
+    if key in queue:
+        queue[key]['data'] = serialize_for_event(instance)
+        queue[key]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+    else:
+        queue[key] = {
+            'content_type': ContentType.objects.get_for_model(instance),
+            'object_id': instance.pk,
+            'event': action,
+            'data': serialize_for_event(instance),
+            'snapshots': get_snapshots(instance, action),
+            'username': user.username,
+            'request_id': request_id
+        }
 
 
 def process_event_rules(event_rules, model_name, event, data, username=None, snapshots=None, request_id=None):
@@ -163,14 +169,14 @@ def process_event_queue(events):
         )
 
 
-def flush_events(queue):
+def flush_events(events):
     """
-    Flush a list of object representation to RQ for webhook processing.
+    Flush a list of object representations to RQ for event processing.
     """
-    if queue:
+    if events:
         for name in settings.EVENTS_PIPELINE:
             try:
                 func = import_string(name)
-                func(queue)
+                func(events)
             except Exception as e:
                 logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

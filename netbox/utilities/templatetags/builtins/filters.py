@@ -58,7 +58,7 @@ def linkify(instance, attr=None):
         url = instance.get_absolute_url()
         return mark_safe(f'<a href="{url}">{escape(text)}</a>')
     except (AttributeError, TypeError):
-        return text
+        return escape(text)
 
 
 @register.filter()

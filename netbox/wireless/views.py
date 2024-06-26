@@ -1,7 +1,7 @@
 from dcim.models import Interface
 from netbox.views import generic
 from utilities.query import count_related
-from utilities.views import register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -24,17 +24,14 @@ class WirelessLANGroupListView(generic.ObjectListView):
 
 
 @register_model_view(WirelessLANGroup)
-class WirelessLANGroupView(generic.ObjectView):
+class WirelessLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
-        related_models = (
-            (WirelessLAN.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
-        )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, groups),
         }
 
 

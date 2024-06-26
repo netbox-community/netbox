@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from utilities.ordering import naturalize
@@ -26,6 +27,7 @@ class ColorField(models.CharField):
 
     def formfield(self, **kwargs):
         kwargs['widget'] = ColorSelect
+        kwargs['help_text'] = mark_safe(_('RGB color in hexadecimal. Example: ') + '<code>00ff00</code>')
         return super().formfield(**kwargs)
 
 

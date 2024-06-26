@@ -39,7 +39,7 @@ def handle_protectederror(obj_list, request, e):
         if hasattr(dependent, 'get_absolute_url'):
             dependent_objects.append(f'<a href="{dependent.get_absolute_url()}">{escape(dependent)}</a>')
         else:
-            dependent_objects.append(str(dependent))
+            dependent_objects.append(escape(str(dependent)))
     err_message += ', '.join(dependent_objects)
 
     messages.error(request, mark_safe(err_message))

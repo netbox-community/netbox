@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.4-dev'
+VERSION = '4.0.7-dev'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -386,6 +386,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
+if not DEBUG:
+    INSTALLED_APPS.remove('debug_toolbar')
 if not DJANGO_ADMIN_ENABLED:
     INSTALLED_APPS.remove('django.contrib.admin')
 
@@ -567,7 +569,7 @@ if SENTRY_ENABLED:
 
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
-CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
 CENSUS_PARAMS = {
     'version': VERSION,
     'python_version': sys.version.split()[0],

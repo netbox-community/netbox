@@ -1,6 +1,64 @@
 # NetBox v4.0
 
-## v4.0.4 (FUTURE)
+## v4.0.7 (FUTURE)
+
+---
+
+## v4.0.6 (2024-06-24)
+
+### Enhancements
+
+* [#15348](https://github.com/netbox-community/netbox/issues/15348) - Show saved filters alongside quick search on object list views
+* [#15794](https://github.com/netbox-community/netbox/issues/15794) - Dynamically populate related objects in UI views
+* [#16256](https://github.com/netbox-community/netbox/issues/16256) - Enable alphabetical ordering of bookmarks on dashboard
+* [#16307](https://github.com/netbox-community/netbox/issues/16307) - Enable calling `log_*()` methods on Script without passing a message
+
+### Bug Fixes
+
+* [#13925](https://github.com/netbox-community/netbox/issues/13925) - Fix support for "zulu" (UTC) timestamps for custom fields
+* [#14829](https://github.com/netbox-community/netbox/issues/14829) - Fix support for simple conditions (without AND/OR) in event rules
+* [#15717](https://github.com/netbox-community/netbox/issues/15717) - Allow assigning a device/VM in a site to a cluster with no site assigned
+* [#16143](https://github.com/netbox-community/netbox/issues/16143) - Display timestamps in tables in the configured timezone
+* [#16149](https://github.com/netbox-community/netbox/issues/16149) - Fix object linking in custom script logs
+* [#16252](https://github.com/netbox-community/netbox/issues/16252) - Fix total count in tab at top of rack elevations view
+* [#16273](https://github.com/netbox-community/netbox/issues/16273) - Restore global search bar on mobile
+* [#16416](https://github.com/netbox-community/netbox/issues/16416) - Retain dark/light mode toggle on mobile view
+* [#16444](https://github.com/netbox-community/netbox/issues/16444) - Disable ordering circuits list by A/Z termination
+* [#16450](https://github.com/netbox-community/netbox/issues/16450) - Searching for rack unit in form dropdown should be case-insensitive
+* [#16452](https://github.com/netbox-community/netbox/issues/16452) - Fix sizing of buttons within object attribute panels
+* [#16454](https://github.com/netbox-community/netbox/issues/16454) - Address DNS lookup bug in `django-debug-toolbar
+* [#16460](https://github.com/netbox-community/netbox/issues/16460) - Omit spaces from telephone number URLs
+* [#16512](https://github.com/netbox-community/netbox/issues/16512) - Restore a user's preferred language (if any) on login
+* [#16542](https://github.com/netbox-community/netbox/issues/16542) - Fix bulk form operations when HTMX is enabled
+* [#16702](https://github.com/netbox-community/netbox/issues/16702) - Fix validation of `return_url` query parameter
+
+---
+
+## v4.0.5 (2024-06-06)
+
+### Enhancements
+
+* [#14810](https://github.com/netbox-community/netbox/issues/14810) - Enable contact assignment for services
+* [#15489](https://github.com/netbox-community/netbox/issues/15489) - Add 1000Base-TX interface type
+* [#15873](https://github.com/netbox-community/netbox/issues/15873) - Improve readability of allocates resource numbers for clusters
+* [#16290](https://github.com/netbox-community/netbox/issues/16290) - Capture entire object in changelog data (but continue to display only non-internal attributes)
+* [#16353](https://github.com/netbox-community/netbox/issues/16353) - Enable plugins to extend object change view with custom content
+
+### Bug Fixes
+
+* [#13422](https://github.com/netbox-community/netbox/issues/13422) - Rebuild MPTT trees for applicable models after merging staged changes
+* [#14567](https://github.com/netbox-community/netbox/issues/14567) - Apply active quicksearch value when exporting "current view" from object list
+* [#15194](https://github.com/netbox-community/netbox/issues/15194) - Avoid enqueuing duplicate event triggers for a modified object
+* [#16039](https://github.com/netbox-community/netbox/issues/16039) - Fix row highlighting for front & rear port connections under device view
+* [#16050](https://github.com/netbox-community/netbox/issues/16050) - Fix display of names & descriptions defined for custom scripts
+* [#16083](https://github.com/netbox-community/netbox/issues/16083) - Disable font ligatures to avoid peculiarities in rendered text
+* [#16202](https://github.com/netbox-community/netbox/issues/16202) - Fix site map button URL for certain localizations
+* [#16261](https://github.com/netbox-community/netbox/issues/16261) - Fix GraphQL filtering for certain multi-value filters
+* [#16286](https://github.com/netbox-community/netbox/issues/16286) - Fix global search support for provider accounts
+* [#16312](https://github.com/netbox-community/netbox/issues/16312) - Fix object list navigation for dashboard widgets
+* [#16315](https://github.com/netbox-community/netbox/issues/16315) - Fix filtering change log & journal entries by object type in UI
+* [#16376](https://github.com/netbox-community/netbox/issues/16376) - Update change log for the terminating object (e.g. interface) when attaching a cable
+* [#16400](https://github.com/netbox-community/netbox/issues/16400) - Fix AttributeError when attempting to restore a previous configuration revision after deleting the current one
 
 ---
 

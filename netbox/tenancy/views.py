@@ -4,8 +4,7 @@ from django.utils.translation import gettext as _
 
 from netbox.views import generic
 from utilities.query import count_related
-from utilities.relations import get_related_models
-from utilities.views import register_model_view, ViewTab
+from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -56,17 +55,14 @@ class TenantGroupListView(generic.ObjectListView):
 
 
 @register_model_view(TenantGroup)
-class TenantGroupView(generic.ObjectView):
+class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = TenantGroup.objects.all()
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
-        related_models = (
-            (Tenant.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
-        )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, groups),
         }
 
 
@@ -123,17 +119,12 @@ class TenantListView(generic.ObjectListView):
 
 
 @register_model_view(Tenant)
-class TenantView(generic.ObjectView):
+class TenantView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Tenant.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = [
-            (model.objects.restrict(request.user, 'view').filter(tenant=instance), f'{field}_id')
-            for model, field in get_related_models(Tenant)
-        ]
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -189,17 +180,14 @@ class ContactGroupListView(generic.ObjectListView):
 
 
 @register_model_view(ContactGroup)
-class ContactGroupView(generic.ObjectView):
+class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactGroup.objects.all()
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
-        related_models = (
-            (Contact.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
-        )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, groups),
         }
 
 
@@ -256,16 +244,12 @@ class ContactRoleListView(generic.ObjectListView):
 
 
 @register_model_view(ContactRole)
-class ContactRoleView(generic.ObjectView):
+class ContactRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactRole.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (ContactAssignment.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 

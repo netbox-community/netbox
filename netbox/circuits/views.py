@@ -7,7 +7,7 @@ from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
-from utilities.views import register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -26,17 +26,12 @@ class ProviderListView(generic.ObjectListView):
 
 
 @register_model_view(Provider)
-class ProviderView(generic.ObjectView):
+class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Provider.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
-            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -92,16 +87,12 @@ class ProviderAccountListView(generic.ObjectListView):
 
 
 @register_model_view(ProviderAccount)
-class ProviderAccountView(generic.ObjectView):
+class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderAccount.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Circuit.objects.restrict(request.user, 'view').filter(provider_account=instance), 'provider_account_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -156,19 +147,21 @@ class ProviderNetworkListView(generic.ObjectListView):
 
 
 @register_model_view(ProviderNetwork)
-class ProviderNetworkView(generic.ObjectView):
+class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (
-                Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
-                'provider_network_id',
-            ),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
+                        'provider_network_id',
+                    ),
+                ),
+            ),
         }
 
 
@@ -215,16 +208,12 @@ class CircuitTypeListView(generic.ObjectListView):
 
 
 @register_model_view(CircuitType)
-class CircuitTypeView(generic.ObjectView):
+class CircuitTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CircuitType.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Circuit.objects.restrict(request.user, 'view').filter(type=instance), 'type_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 

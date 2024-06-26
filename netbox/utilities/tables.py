@@ -29,7 +29,7 @@ def linkify_phone(value):
     """
     if value is None:
         return None
-    return f"tel:{value}"
+    return f"tel:{value.replace(' ', '')}"
 
 
 def register_table_column(column, name, *tables):
