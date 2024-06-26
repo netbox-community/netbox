@@ -12,7 +12,7 @@ from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from dcim.choices import *
 from dcim.constants import *
@@ -318,10 +318,13 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             if racked_instance_count:
                 url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
                 raise ValidationError({
-                    'u_height': mark_safe(_(
+                    'u_height': mark_safe(_(ngettext(
+                        'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instance</a> already '
+                        'mounted within racks.',
                         'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
-                        'mounted within racks.'
-                    ).format(url=url, racked_instance_count=racked_instance_count))
+                        'mounted within racks.',
+                        racked_instance_count,
+                    )).format(url=url, racked_instance_count=racked_instance_count))
                 })
 
         if (

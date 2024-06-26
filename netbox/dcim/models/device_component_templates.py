@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -539,7 +539,11 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             # Validate rear port position assignment
             if self.rear_port_position > self.rear_port.positions:
                 raise ValidationError(
-                    _("Invalid rear port position ({position}); rear port {name} has only {count} positions").format(
+                    _(ngettext(
+                        "Invalid rear port position ({position}); rear port {name} has only {count} position",
+                        "Invalid rear port position ({position}); rear port {name} has only {count} positions",
+                        self.rear_port.positions,
+                    )).format(
                         position=self.rear_port_position,
                         name=self.rear_port.name,
                         count=self.rear_port.positions

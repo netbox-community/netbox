@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
@@ -1026,10 +1026,13 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             # Validate rear port position assignment
             if self.rear_port_position > self.rear_port.positions:
                 raise ValidationError({
-                    "rear_port_position": _(
+                    "rear_port_position": _(ngettext(
                         "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
-                        "positions."
-                    ).format(
+                        "position.",
+                        "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
+                        "positions.",
+                        self.rear_port.positions
+                    )).format(
                         rear_port_position=self.rear_port_position,
                         name=self.rear_port.name,
                         positions=self.rear_port.positions

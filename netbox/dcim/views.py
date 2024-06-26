@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 from django.views.generic import View
 from jinja2.exceptions import TemplateError
 
@@ -136,7 +136,11 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
                     for cable in Cable.objects.filter(pk__in=cable_ids):
                         cable.delete()
 
-                messages.success(request, _("Disconnected {count} {type}").format(
+                messages.success(request, _(ngettext(
+                    "Disconnected 1 {type}",
+                    "Disconnected {count} {type}",
+                    count,
+                )).format(
                     count=count,
                     type=self.queryset.model._meta.verbose_name_plural
                 ))
