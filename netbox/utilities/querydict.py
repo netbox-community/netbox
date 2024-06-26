@@ -55,7 +55,7 @@ def prepare_cloned_fields(instance):
     for key, value in attrs.items():
         if type(value) in (list, tuple):
             params.extend([(key, v) for v in value])
-        elif value not in (False, None):
+        elif value not in (False, None) or value == 0:
             params.append((key, value))
         else:
             params.append((key, ''))
