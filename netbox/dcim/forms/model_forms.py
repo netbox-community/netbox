@@ -204,6 +204,7 @@ class RackRoleForm(NetBoxModelForm):
 
 class RackTypeForm(NetBoxModelForm):
     comments = CommentField()
+    slug = SlugField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Rack')),
