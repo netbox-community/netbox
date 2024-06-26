@@ -230,17 +230,6 @@ SESSION_FILE_PATH = None
 #     'AWS_STORAGE_BUCKET_NAME': 'netbox',
 #     'AWS_S3_REGION_NAME': 'eu-west-1',
 # }
-# Swift is also supported as storage backend, for example:
-# STORAGE_BACKEND = 'swift.storage.SwiftStorage'
-# STORAGE_CONFIG = {
-#     'SWIFT_AUTH_URL': 'https://swift.netbox.dev/auth/v1.0',
-#     'SWIFT_USERNAME': 'netbox',
-#     'SWIFT_PASSWORD': 'Secret',
-#     'SWIFT_CONTAINER_NAME': 'netbox',
-#     'SWIFT_USE_TEMP_URLS': True,
-#     'SWIFT_TEMP_URL_KEY': 'Secret',
-#     'SWIFT_BASE_URL': 'https://demo.netbox.dev/',
-# }
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
