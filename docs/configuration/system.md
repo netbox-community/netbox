@@ -187,7 +187,7 @@ The configuration parameters for the specified storage backend are defined under
 
 Default: Empty
 
-A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the [`django-storages` documentation](https://django-storages.readthedocs.io/en/stable/) or [`django-storage-swift` documentation](https://github.com/dennisv/django-storage-swift) for more detail.
+A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the documentation for your selected backend ([`django-storages`](https://django-storages.readthedocs.io/en/stable/) or [`django-storage-swift`](https://github.com/dennisv/django-storage-swift)) for more detail.
 
 If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
