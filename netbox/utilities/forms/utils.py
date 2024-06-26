@@ -2,7 +2,7 @@ import re
 
 from django import forms
 from django.forms.models import fields_for_model
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 
 from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
@@ -244,7 +244,11 @@ def parse_csv(reader):
     for i, row in enumerate(reader, start=1):
         if len(row) != len(headers):
             raise forms.ValidationError(
-                _("Row {row}: Expected {count_expected} columns but found {count_found}").format(
+                _(ngettext(
+                    "Row {row}: Expected {count_expected} column but found {count_found}",
+                    "Row {row}: Expected {count_expected} columns but found {count_found}",
+                    len(row),
+                )).format(
                     row=i, count_expected=len(headers), count_found=len(row)
                 )
             )
