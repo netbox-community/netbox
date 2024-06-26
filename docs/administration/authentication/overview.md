@@ -49,9 +49,9 @@ to an empty dictionary. This dictionary maps a `social_core` module's name (ie.
 `REMOTE_AUTH_BACKEND.name`) to a couple of parameters, `(display_name, icon)`.
 
 The `display_name` is the name displayed to the user on the login page. The
-icon refers to a [Material Design
-Icons](https://github.com/google/material-design-icons) icon's name, or `None`
-for no icon.
+icon may either be the URL of an icon; refer to a [Material Design
+Icons](https://github.com/google/material-design-icons) icon's name; or be
+`None` for no icon.
 
 For instance, the OIDC backend may be customized with
 ```python
