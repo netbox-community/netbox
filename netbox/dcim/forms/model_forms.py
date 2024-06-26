@@ -206,7 +206,7 @@ class RackTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'description', 'tags', name=_('Rack')),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Rack')),
         FieldSet(
             'type', 'width', 'starting_unit', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -218,9 +218,9 @@ class RackTypeForm(NetBoxModelForm):
     class Meta:
         model = RackType
         fields = [
-            'name',
-            'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+            'weight_unit', 'description', 'comments', 'tags',
         ]
 
 

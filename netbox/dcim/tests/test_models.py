@@ -80,7 +80,8 @@ class RackTypeTestCase(TestCase):
     def setUpTestData(cls):
 
         RackType.objects.create(
-            name='Rack 1',
+            name='RackType 1',
+            slug='rack-type-1',
             width=11,
             u_height=22,
             starting_unit=3,

@@ -343,9 +343,9 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         racks = (
-            Rack(name='RackType 1'),
-            Rack(name='RackType 2'),
-            Rack(name='RackType 3'),
+            RackType(name='RackType 1', slug='rack-type-1',),
+            RackType(name='RackType 2', slug='rack-type-2',),
+            RackType(name='RackType 3', slug='rack-type-3',),
         )
         RackType.objects.bulk_create(racks)
 
@@ -353,6 +353,7 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'RackType X',
+            'slug': 'rack-type-x',
             'type': RackTypeChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
             'u_height': 48,
@@ -369,10 +370,10 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,width,u_height,weight,max_weight,weight_unit",
-            "RackType 4,19,42,100,2000,kg",
-            "RackType 5,19,42,100,2000,kg",
-            "RackType 6,19,42,100,2000,kg",
+            "name,slug,width,u_height,weight,max_weight,weight_unit",
+            "RackType 4,rack-type-4,19,42,100,2000,kg",
+            "RackType 5,rack-type-5,19,42,100,2000,kg",
+            "RackType 6,rack-type-6,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (

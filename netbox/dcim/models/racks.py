@@ -51,6 +51,11 @@ class RackType(PrimaryModel, WeightMixin):
         max_length=100,
         blank=True
     )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+        unique=True
+    )
     type = models.CharField(
         choices=RackTypeChoices,
         max_length=50,

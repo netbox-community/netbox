@@ -39,6 +39,7 @@ class Migration(migrations.Migration):
                         'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
                     ),
                 ),
+                ('slug', models.SlugField(max_length=100, unique=True)),
                 ('type', models.CharField(blank=True, max_length=50)),
                 ('width', models.PositiveSmallIntegerField(default=19)),
                 (
