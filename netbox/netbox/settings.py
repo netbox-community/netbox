@@ -226,6 +226,7 @@ if STORAGE_BACKEND is not None:
         # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
         storages.utils.setting = _setting
 
+    # django-storage-swift
     elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
 
         try:
