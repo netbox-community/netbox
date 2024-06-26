@@ -15,7 +15,6 @@ __all__ = (
 
 
 class ProviderSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
     accounts = SerializedPKRelatedField(
         queryset=ProviderAccount.objects.all(),
         serializer=NestedProviderAccountSerializer,
@@ -36,34 +35,32 @@ class ProviderSerializer(NetBoxModelSerializer):
     class Meta:
         model = Provider
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'accounts', 'description', 'comments', 'asns', 'tags',
-            'custom_fields', 'created', 'last_updated', 'circuit_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'accounts', 'description', 'comments',
+            'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
 
 class ProviderAccountSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
     provider = ProviderSerializer(nested=True)
     name = serializers.CharField(allow_blank=True, max_length=100, required=False, default='')
 
     class Meta:
         model = ProviderAccount
         fields = [
-            'id', 'url', 'display', 'provider', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'provider', 'name', 'account', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'account', 'description')
 
 
 class ProviderNetworkSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
     provider = ProviderSerializer(nested=True)
 
     class Meta:
         model = ProviderNetwork
         fields = [
-            'id', 'url', 'display', 'provider', 'name', 'service_id', 'description', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'provider', 'name', 'service_id', 'description', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

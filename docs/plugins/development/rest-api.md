@@ -27,7 +27,7 @@ Serializers are responsible for converting Python objects to JSON data suitable 
 
 #### Example
 
-To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class. It is generally advisable to include a `url` attribute on each serializer. This will render the direct link to access the object being rendered.
+To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class.
 
 ```python
 # api/serializers.py
@@ -36,9 +36,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 from my_plugin.models import MyModel
 
 class MyModelSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:myplugin-api:mymodel-detail'
-    )
+    foo = SiteSerializer(nested=True, allow_null=True)
 
     class Meta:
         model = MyModel
@@ -63,9 +61,7 @@ from netbox.api.serializers import WritableNestedSerializer
 from my_plugin.models import MyModel
 
 class NestedMyModelSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:myplugin-api:mymodel-detail'
-    )
+    foo = SiteSerializer(nested=True, allow_null=True)
 
     class Meta:
         model = MyModel

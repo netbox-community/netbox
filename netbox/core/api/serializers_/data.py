@@ -13,9 +13,6 @@ __all__ = (
 
 
 class DataSourceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='core-api:datasource-detail'
-    )
     type = ChoiceField(
         choices=get_data_backend_choices()
     )
@@ -30,16 +27,13 @@ class DataSourceSerializer(NetBoxModelSerializer):
     class Meta:
         model = DataSource
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description', 'comments',
+            'id', 'url', 'display_url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description', 'comments',
             'parameters', 'ignore_rules', 'custom_fields', 'created', 'last_updated', 'file_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DataFileSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='core-api:datafile-detail'
-    )
     source = DataSourceSerializer(
         nested=True,
         read_only=True
@@ -48,6 +42,6 @@ class DataFileSerializer(NetBoxModelSerializer):
     class Meta:
         model = DataFile
         fields = [
-            'id', 'url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
+            'id', 'url', 'display_url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
         ]
         brief_fields = ('id', 'url', 'display', 'path')

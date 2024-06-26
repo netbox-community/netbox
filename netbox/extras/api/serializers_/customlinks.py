@@ -11,7 +11,6 @@ __all__ = (
 
 
 class CustomLinkSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_links'),
         many=True
@@ -20,7 +19,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'url', 'display', 'object_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
-            'button_class', 'new_window', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'object_types', 'name', 'enabled', 'link_text', 'link_url',
+            'weight', 'group_name', 'button_class', 'new_window', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name')
