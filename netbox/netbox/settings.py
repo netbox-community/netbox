@@ -502,15 +502,6 @@ EXEMPT_EXCLUDE_MODELS = (
     ('users', 'user'),
 )
 
-# All URLs starting with a string listed here are exempt from login enforcement
-AUTH_EXEMPT_PATHS = (
-    f'/{BASE_PATH}api/',
-    f'/{BASE_PATH}graphql/',
-    f'/{BASE_PATH}login/',
-    f'/{BASE_PATH}oauth/',
-    f'/{BASE_PATH}metrics',
-)
-
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
     f'/{BASE_PATH}admin/',
