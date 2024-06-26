@@ -27,7 +27,7 @@ class ColorField(models.CharField):
 
     def formfield(self, **kwargs):
         kwargs['widget'] = ColorSelect
-        kwargs['help_text'] = mark_safe(_('RGB color in hexadecimal. Example:') + '<code>00ff00</code>')
+        kwargs['help_text'] = mark_safe(_('RGB color in hexadecimal. Example: ') + '<code>00ff00</code>')
         return super().formfield(**kwargs)
 
 
