@@ -43,12 +43,12 @@ class RackTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name',
+            'id', 'url', 'display_url', 'display', 'name', 'slug',
             'type', 'width', 'u_height', 'starting_unit', 'weight', 'max_weight',
             'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class RackSerializer(NetBoxModelSerializer):

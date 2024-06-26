@@ -301,7 +301,7 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = RackType
         fields = (
-            'id', 'name', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 

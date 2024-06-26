@@ -612,7 +612,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
     fields='__all__',
     filters=RackTypeFilter
 )
-class RackTypeType(ImageAttachmentsMixin, NetBoxObjectType):
+class RackTypeType(NetBoxObjectType):
     _name: str
 
 

@@ -276,7 +276,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
@@ -285,21 +285,24 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         racks = (
-            RackType(name='Rack 1'),
-            RackType(name='Rack 2'),
-            RackType(name='Rack 3'),
+            RackType(name='RackType 1', slug='rack-type-1'),
+            RackType(name='RackType 2', slug='rack-type-2'),
+            RackType(name='RackType 3', slug='rack-type-3'),
         )
         RackType.objects.bulk_create(racks)
 
         cls.create_data = [
             {
-                'name': 'Test Rack 4',
+                'name': 'Test RackType 4',
+                'slug': 'test-rack-type-4',
             },
             {
-                'name': 'Test Rack 5',
+                'name': 'Test RackType 5',
+                'slug': 'test-rack-type-5',
             },
             {
-                'name': 'Test Rack 6',
+                'name': 'Test RackType 6',
+                'slug': 'test-rack-type-6',
             },
         ]
 
