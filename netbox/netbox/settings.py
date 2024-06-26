@@ -206,11 +206,6 @@ DATABASES = {
 if STORAGE_BACKEND is not None:
     DEFAULT_FILE_STORAGE = STORAGE_BACKEND
 
-    def _setting(name, default=None):
-        if name in STORAGE_CONFIG:
-            return STORAGE_CONFIG[name]
-        return globals().get(name, default)
-
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
         try:
@@ -224,11 +219,14 @@ if STORAGE_BACKEND is not None:
             raise e
 
         # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
+        def _setting(name, default=None):
+            if name in STORAGE_CONFIG:
+                return STORAGE_CONFIG[name]
+            return globals().get(name, default)
         storages.utils.setting = _setting
 
     # django-storage-swift
     elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
-
         try:
             import swift.utils  # type: ignore
         except ModuleNotFoundError as e:
@@ -239,9 +237,10 @@ if STORAGE_BACKEND is not None:
                 )
             raise e
 
-        # Monkey-patch django-storage-swift to fetch settings from STORAGE_CONFIG
-        swift.utils.setting = _setting
-
+        # Load all SWIFT_* settings from the user configuration
+        for param, value in STORAGE_CONFIG.items():
+            if param.startswith('SWIFT_'):
+                globals()[param] = value
 
 if STORAGE_CONFIG and STORAGE_BACKEND is None:
     warnings.warn(
