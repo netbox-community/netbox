@@ -1019,9 +1019,15 @@ class DeviceFilterSet(
         label=_('VM cluster (ID)'),
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster__group__slug',
+        queryset=ClusterGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Cluster group (slug)'),
+    )
+    cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
         queryset=ClusterGroup.objects.all(),
-        label=_('Cluster group (name)'),
+        label=_('Cluster group (ID)'),
     )
     model = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__slug',

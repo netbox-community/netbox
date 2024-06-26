@@ -656,7 +656,7 @@ class DeviceFilterForm(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
             name=_('Components')
         ),
-        FieldSet('cluster_group', 'cluster_id', name=_('Cluster')),
+        FieldSet('cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet(
             'has_primary_ip', 'has_oob_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data',
             'has_virtual_device_context',
@@ -828,7 +828,7 @@ class DeviceFilterForm(
         required=False,
         label=_('Cluster')
     )
-    cluster_group = DynamicModelMultipleChoiceField(
+    cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
         label=_('Cluster group')
