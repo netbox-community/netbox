@@ -177,7 +177,7 @@ The dotted path to the desired search backend class. `CachedValueSearchBackend` 
 
 Default: None (local storage)
 
-The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provides backends for several popular file storage services. If not configured, local filesystem storage will be used.
+The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
 
 The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
 
