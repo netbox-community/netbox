@@ -14,7 +14,7 @@
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
-    {{ plugin.description }}
+    {{ plugin.tag_line }}
   </div>
 {% endblock subtitle %}
 
@@ -26,21 +26,36 @@ From
 {% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs">
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" role="tab">
+      <a class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         {% trans "Overview" %}
       </a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link" role="tab">
+      <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
         {% trans "Version history" %}
-      </a>
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link" role="tab">
+      <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
         {% trans "Install" %}
-      </a>
+      </button>
     </li>
   </ul>
+
 {% endblock tabs %}
+
+{% block content %}
+
+  {# Component creation form #}
+  <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+    {{ plugin.description_short }}
+  </div>
+  <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
+    y
+  </div>
+  <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
+    z
+  </div>
+{% endblock content %}

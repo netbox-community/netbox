@@ -668,7 +668,8 @@ def get_local_plugins(plugins):
         plugins[plugin_config.name] = {
             'slug': plugin_config.name,
             'name': plugin_config.verbose_name,
-            'description': plugin_config.description,
+            'tag_line': plugin_config.description,
+            'description_short': None,
             'author': plugin_config.author or _('Unknown Author'),
             'version': plugin_config.version,
             'icon': None,
@@ -702,12 +703,14 @@ def get_catalog_plugins(plugins):
             if data['config_name'] in plugins:
                 plugins[data['config_name']]['is_local'] = False
                 plugins[data['config_name']]['is_certified'] = data['release_latest']['is_certified']
+                plugins[data['config_name']]['description_short'] = data['description_short']
             else:
                 plugins[data['config_name']] = {
                     'slug': data['config_name'],
                     'name': data['title_short'],
                     'title_long': data['title_long'],
-                    'description': data['description_short'],
+                    'tag_line': data['tag_line'],
+                    'description_short': data['description_short'],
                     'author': data['author']['name'] or _('Unknown Author'),
                     'version': 'x',
                     'icon': None,
