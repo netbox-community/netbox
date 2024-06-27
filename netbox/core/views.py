@@ -1,5 +1,8 @@
+import importlib
+import importlib.util
 import json
 import platform
+import requests
 
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
@@ -649,4 +652,106 @@ class SystemView(UserPassesTestMixin, View):
             'stats': stats,
             'plugins_table': plugins_table,
             'config': config,
+        })
+
+
+#
+# Plugins
+#
+
+def get_local_plugins(plugins):
+    for plugin_name in settings.PLUGINS:
+        plugin = importlib.import_module(plugin_name)
+        plugin_config: PluginConfig = plugin.config
+
+        plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
+        plugins[plugin_config.name] = {
+            'slug': plugin_config.name,
+            'name': plugin_config.verbose_name,
+            'description': plugin_config.description,
+            'author': plugin_config.author or _('Unknown Author'),
+            'version': plugin_config.version,
+            'icon': None,
+            'is_local': True,
+            'is_installed': True,
+            'is_certified': False,
+            'is_community': False,
+        }
+
+    return plugins
+
+
+def get_catalog_plugins(plugins):
+    url = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
+    session = requests.Session()
+
+    def get_pages():
+        payload = {'page': '1', 'per_page': '25'}
+        first_page = session.get(url, params=payload).json()
+        yield first_page
+        num_pages = first_page['metadata']['pagination']['last_page']
+
+        for page in range(2, num_pages + 1):
+            payload['page'] = page
+            next_page = session.get(url, params=payload).json()
+            yield next_page
+
+    for page in get_pages():
+        for data in page['data']:
+
+            if data['config_name'] in plugins:
+                plugins[data['config_name']]['is_local'] = False
+                plugins[data['config_name']]['is_certified'] = data['release_latest']['is_certified']
+            else:
+                plugins[data['config_name']] = {
+                    'slug': data['config_name'],
+                    'name': data['title_short'],
+                    'title_long': data['title_long'],
+                    'description': data['description_short'],
+                    'author': data['author']['name'] or _('Unknown Author'),
+                    'version': 'x',
+                    'icon': None,
+                    'is_local': False,
+                    'is_installed': False,
+                    'is_certified': data['release_latest']['is_certified'],
+                    'is_community': not data['release_latest']['is_certified'],
+                }
+
+    return plugins
+
+
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+
+        # Plugins
+        plugins = {}
+        plugins = get_local_plugins(plugins)
+        plugins = get_catalog_plugins(plugins)
+        plugins = [v for k, v in plugins.items()]
+        plugins = sorted(plugins, key=lambda d: d['name'])
+
+        return render(request, 'core/plugin_list.html', {
+            'plugins': plugins,
+        })
+
+
+class PluginView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, name):
+
+        # Plugins
+        plugins = {}
+        plugins = get_local_plugins(plugins)
+        plugins = get_catalog_plugins(plugins)
+
+        plugin = plugins[name]
+        return render(request, 'core/plugin.html', {
+            'plugin': plugin,
         })

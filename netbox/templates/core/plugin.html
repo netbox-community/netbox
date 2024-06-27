@@ -1,0 +1,46 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% block title %}{{ plugin.name }}{% endblock %}
+
+{% block object_identifier %}
+{% endblock object_identifier %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'core:plugin_list' %}">{% trans "Plugins" %}</a></li>
+{% endblock breadcrumbs %}
+
+{% block subtitle %}
+  <div class="text-secondary fs-5">
+    {{ plugin.description }}
+  </div>
+{% endblock subtitle %}
+
+{% block controls %}
+<div class="text-secondary">
+From
+</div>
+{{ plugin.author }}
+{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">
+        {% trans "Overview" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" role="tab">
+        {% trans "Version history" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" role="tab">
+        {% trans "Install" %}
+      </a>
+    </li>
+  </ul>
+{% endblock tabs %}
