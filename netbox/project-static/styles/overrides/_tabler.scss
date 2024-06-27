@@ -36,50 +36,6 @@ pre {
 }
 
 table a {
-  color: $dark-teal;
-}
-
-// Side navigation
-.navbar-vertical {
-  background-color: $rich-black;
-  .dropdown-item {
-    color: white!important;
-  }
-  .text-secondary {
-    color: $gray-400!important;
-  }
-}
-
-// Dark mode overrides
-body[data-bs-theme=dark] {
-
-  // Background colors to match brand colors
-  background-color: $rich-black;
-  .navbar, .page-header {
-    background-color: $rich-black;
-  }
-  .page, .page-tabs .nav-tabs .nav-link.active {
-    background-color: $rich-black-light;
-  }
-
-  // Adjust dark table link color without affecting buttons and badges
-  table {
-    a {
-      color: $bright-teal;
-    }
-    .badge a {
-      color: inherit;
-    }
-    .btn {
-      color: var(--#{$prefix}body-color);
-    }
-  }
-}
-
-// Dark mode colors
-@if $enable-dark-mode {
-  @include color-mode(dark, true) {
-    --#{$prefix}link-color: #{$bright-teal};
-    --#{$prefix}secondary: #{$gray-400};
-  }
+  // Adjust table anchor link contrast as not enough contrast in dark mode
+  filter: brightness(110%);
 }
