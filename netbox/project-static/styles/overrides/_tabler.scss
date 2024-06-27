@@ -35,8 +35,13 @@ pre {
   display: inline-block;;
 }
 
-table a {
-  color: $dark-teal;
+table {
+  a {
+    color: $dark-teal;
+  }
+  th.orderable a {
+    color: var(--#{$prefix}body-color);
+  }
 }
 
 // Override background color alpha value
@@ -86,5 +91,12 @@ body[data-bs-theme=dark] {
     .btn {
       color: var(--#{$prefix}body-color);
     }
+    th.orderable a {
+      color: var(--#{$prefix}body-color);
+    }
+  }
+
+  .text-muted {
+    color: var(--#{$prefix}secondary-color) !important;
   }
 }
