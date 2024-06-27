@@ -39,7 +39,7 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
             form_field = customfield.to_form_field(set_initial=False)
             initial = self.instance.custom_field_data.get(customfield.name)
             if customfield.type == CustomFieldTypeChoices.TYPE_JSON:
-                form_field.initial = json.dumps(initial)
+                form_field.initial = json.dumps(initial) if initial else ''
             else:
                 form_field.initial = initial
             return form_field
