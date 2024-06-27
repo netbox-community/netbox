@@ -677,6 +677,7 @@ def get_local_plugins(plugins):
             'is_installed': True,
             'is_certified': False,
             'is_community': False,
+            'versions': None,
         }
 
     return plugins
@@ -700,6 +701,9 @@ def get_catalog_plugins(plugins):
     for page in get_pages():
         for data in page['data']:
 
+            versions = []
+            versions.append(data['release_latest'])
+            versions.extend(data['release_recent_history'])
             if data['config_name'] in plugins:
                 plugins[data['config_name']]['is_local'] = False
                 plugins[data['config_name']]['is_certified'] = data['release_latest']['is_certified']
@@ -718,6 +722,7 @@ def get_catalog_plugins(plugins):
                     'is_installed': False,
                     'is_certified': data['release_latest']['is_certified'],
                     'is_community': not data['release_latest']['is_certified'],
+                    'versions': versions,
                 }
 
     return plugins

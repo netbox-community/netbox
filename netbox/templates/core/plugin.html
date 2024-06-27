@@ -53,9 +53,32 @@ From
     {{ plugin.description_short }}
   </div>
   <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
-    y
+    {{ plugin.versions }}
   </div>
   <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
-    z
+    <p>You can install this plugin from the command line with PyPi.</p>
+    <p>The following commands may be helpful; always refer to the plugin's own documentation and the Installing a Plugin unit of the NetBox documentation.</p>
+    <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
+    <code>
+      source /opt/netbox/venv/bin/activate<br />
+      pip install netbox-acls
+    </code>
+    <p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
+    <code>
+PLUGINS=［<br />
+"netbox_acls',<br />
+]
+    </code>
+    <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
+    <code>
+python3<br />
+/opt/netbox/netbox/netbox/manage.py migrate<br />
+pythons<br />
+/opt/netbox/netbox/netbox/manage.py collectstatic
+    </code>
+    <p>4. Restart the NetBox services to complete the plugin installation:</p>
+    <code>
+sudo systemctl restart netbox netbox-rq
+    </code>
   </div>
 {% endblock content %}
