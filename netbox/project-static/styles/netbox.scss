@@ -24,12 +24,3 @@
 @import 'custom/interfaces';
 @import 'custom/markdown';
 @import 'custom/misc';
-
-table tbody {
-  @each $color, $value in $theme-colors {
-    tr.#{$color} {
-      background-color: rgba($value, 0.15);
-      border-color: $gray-500;
-    }
-  }
-}
