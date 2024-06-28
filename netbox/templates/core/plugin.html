@@ -53,32 +53,35 @@ From
     {{ plugin.description_short }}
   </div>
   <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
-    {{ plugin.versions }}
+    <div class="card">
+      <div class="table-responsive" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
   </div>
   <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
     <p>You can install this plugin from the command line with PyPi.</p>
     <p>The following commands may be helpful; always refer to the plugin's own documentation and the Installing a Plugin unit of the NetBox documentation.</p>
     <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
-    <code>
-      source /opt/netbox/venv/bin/activate<br />
-      pip install netbox-acls
-    </code>
+
+    <pre class="block"><code>
+source /opt/netbox/venv/bin/activate
+pip install netbox-acls
+    </code></pre>
     <p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
-    <code>
-PLUGINS=［<br />
-"netbox_acls',<br />
+    <pre class="block"><code>
+PLUGINS=［
+    "netbox_acls',
 ]
-    </code>
+    </code></pre>
     <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
-    <code>
-python3<br />
-/opt/netbox/netbox/netbox/manage.py migrate<br />
-pythons<br />
-/opt/netbox/netbox/netbox/manage.py collectstatic
-    </code>
+    <pre class="block"><code>
+python3 /opt/netbox/netbox/netbox/manage.py migrate
+python3 /opt/netbox/netbox/netbox/manage.py collectstatic
+    </code></pre>
     <p>4. Restart the NetBox services to complete the plugin installation:</p>
-    <code>
+    <pre class="block"><code>
 sudo systemctl restart netbox netbox-rq
-    </code>
+    </code></pre>
   </div>
 {% endblock content %}

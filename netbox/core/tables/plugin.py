@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.contrib.humanize.templatetags.humanize import naturalday
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from netbox.tables import BaseTable
@@ -32,3 +34,6 @@ class CertifiedPluginTable(BaseTable):
         default_columns = (
             'version', 'last_updated', 'min_version', 'max_version',
         )
+
+    def render_last_updated(self, value, record):
+        return naturalday(datetime.fromisoformat(value))

@@ -39,6 +39,7 @@ from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .tables import CertifiedPluginTable
 
 
 #
@@ -760,6 +761,11 @@ class PluginView(UserPassesTestMixin, View):
         plugins = get_catalog_plugins(plugins)
 
         plugin = plugins[name]
+
+        table = CertifiedPluginTable(plugin['versions'], user=request.user)
+        table.configure(request)
+
         return render(request, 'core/plugin.html', {
             'plugin': plugin,
+            'table': table,
         })
