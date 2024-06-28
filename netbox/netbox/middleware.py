@@ -43,6 +43,13 @@ class CoreMiddleware:
             login_url = f'{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}'
             return HttpResponseRedirect(login_url)
 
+        # If language cookie is not set, check if it should be set and redirect to requested page
+        if request.user.is_authenticated and not request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME):
+            if language := request.user.config.get('locale.language'):
+                response = HttpResponseRedirect(request.path)
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+                return response
+
         # Enable the event_tracking context manager and process the request.
         with event_tracking(request):
             response = self.get_response(request)
