@@ -470,7 +470,7 @@ MENUS = [
 #
 
 for menu in registry['plugins']['menus']:
-    MENUS.append(menu)
+    MENUS.insert(-1, menu)
 
 if registry['plugins']['menu_items']:
 
@@ -484,4 +484,4 @@ if registry['plugins']['menu_items']:
         icon_class="mdi mdi-puzzle",
         groups=groups
     )
-    MENUS.append(plugins_menu)
+    MENUS.insert(-1, plugins_menu)
