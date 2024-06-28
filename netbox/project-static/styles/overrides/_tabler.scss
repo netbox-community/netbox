@@ -63,9 +63,20 @@ table {
 // Dark mode colors
 @if $enable-dark-mode {
   @include color-mode(dark, true) {
+    --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
     --#{$prefix}link-color: #{$bright-teal};
     --#{$prefix}secondary: #{$gray-400};
   }
+}
+
+// Slightly increase alert contrast between bg and text
+.alert {
+  background: var(--#{$prefix}bg-surface);
+}
+
+//
+.page, .page-tabs .nav-tabs .nav-link.active {
+  background-color: var(--#{$prefix}bg-surface-tertiary)!important;
 }
 
 // Dark mode overrides
@@ -77,7 +88,7 @@ body[data-bs-theme=dark] {
     background-color: $rich-black;
   }
   .page, .page-tabs .nav-tabs .nav-link.active {
-    background-color: $rich-black-light;
+    background-color: $rich-black-light!important;
   }
 
   // Adjust dark table link color without affecting buttons and badges
@@ -96,7 +107,13 @@ body[data-bs-theme=dark] {
     }
   }
 
-  .text-muted {
-    color: var(--#{$prefix}secondary-color) !important;
+  // Adjusting text colors
+  .text- {
+    &muted {
+      color: var(--#{$prefix}secondary-color) !important;
+    }
+    &secondary {
+      color: $gray-400!important;
+    }
   }
 }
