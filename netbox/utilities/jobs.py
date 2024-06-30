@@ -7,6 +7,10 @@ from rq.timeouts import JobTimeoutException
 from core.choices import JobStatusChoices
 from core.models import Job
 
+__all__ = (
+    'BackgroundJob',
+)
+
 
 class BackgroundJob(ABC):
     """
@@ -18,7 +22,7 @@ class BackgroundJob(ABC):
 
     @classmethod
     @abstractmethod
-    def run(cls, *args, **kwargs) -> None:
+    def run(cls, *args, **kwargs):
         """
         Run the job.
 
@@ -62,7 +66,7 @@ class BackgroundJob(ABC):
         """
         Enqueue a new `BackgroundJob`.
 
-        This method is a wrapper of `Job.enqueue` using `handle()` as function callback. See its documentation for
+        This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
         return Job.enqueue(cls.handle, *args, **kwargs)
