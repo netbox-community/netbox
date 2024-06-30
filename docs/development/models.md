@@ -18,7 +18,7 @@ Depending on its classification, each NetBox model may support various features 
 | [Custom links](../customization/custom-links.md)           | `CustomLinksMixin`      | `custom_links`     | These models support the assignment of custom links                                     |
 | [Custom validation](../customization/custom-validation.md) | `CustomValidationMixin` | -                  | Supports the enforcement of custom validation rules                                     |
 | [Export templates](../customization/export-templates.md)   | `ExportTemplatesMixin`  | `export_templates` | Users can create custom export templates for these models                               |
-| [Job results](../features/background-jobs.md)              | `JobsMixin`             | `jobs`             | Users can create custom export templates for these models                               |
+| [Job results](../features/background-jobs.md)              | `JobsMixin`             | `jobs`             | Background jobs can be scheduled for these models                                       |
 | [Journaling](../features/journaling.md)                    | `JournalingMixin`       | `journaling`       | These models support persistent historical commentary                                   |
 | [Synchronized data](../integrations/synchronized-data.md)  | `SyncedDataMixin`       | `synced_data`      | Certain model data can be automatically synchronized from a remote data source          |
 | [Tagging](../models/extras/tag.md)                         | `TagsMixin`             | `tags`             | The models can be tagged with user-defined tags                                         |
