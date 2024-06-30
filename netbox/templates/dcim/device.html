@@ -125,28 +125,30 @@
                       </div>
                     </h5>
                     <table class="table table-hover attr-table">
-                        <tr>
-                            <th>{% trans "Device" %}</th>
-                            <th>{% trans "Position" %}</th>
-                            <th>{% trans "Master" %}</th>
-                            <th>{% trans "Priority" %}</th>
+                      <thead>
+                        <tr class="border-bottom">
+                          <th>{% trans "Device" %}</th>
+                          <th>{% trans "Position" %}</th>
+                          <th>{% trans "Master" %}</th>
+                          <th>{% trans "Priority" %}</th>
                         </tr>
+                      </thead>
+                      <tbody>
                         {% for vc_member in vc_members %}
-                            <tr{% if vc_member == object %} class="info"{% endif %}>
-                                <td>
-                                    {{ vc_member|linkify }}
-                                </td>
-                                <td>
-                                  {% badge vc_member.vc_position show_empty=True %}
-                                </td>
-                                <td>
-                                  {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
-                                </td>
-                                <td>
-                                  {{ vc_member.vc_priority|placeholder }}
-                                </td>
-                            </tr>
+                          <tr{% if vc_member == object %} class="table-primary"{% endif %}>
+                            <td>{{ vc_member|linkify }}</td>
+                            <td>{% badge vc_member.vc_position show_empty=True %}</td>
+                            <td>
+                              {% if object.virtual_chassis.master == vc_member %}
+                                {% checkmark True %}
+                              {% else %}
+                                {{ ''|placeholder }}
+                              {% endif %}
+                            </td>
+                            <td>{{ vc_member.vc_priority|placeholder }}</td>
+                          </tr>
                         {% endfor %}
+                      </tbody>
                     </table>
                 </div>
             {% endif %}
