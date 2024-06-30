@@ -66,11 +66,16 @@ class Command(BaseCommand):
             raise CommandError(_("No indexers found!"))
         self.stdout.write(f'Reindexing {len(indexers)} models.')
 
-        # Clear all cached values for the specified models (if not being lazy)
-        if not kwargs['lazy'] and not model_labels:
-            self.stdout.write('Clearing all cached values... ', ending='')
+        # Clear cached values for the specified models (if not being lazy)
+        if not kwargs['lazy']:
+            if model_labels:
+                content_types = [ContentType.objects.get_for_model(model) for model in indexers.keys()]
+            else:
+                content_types = None
+
+            self.stdout.write('Clearing cached values... ', ending='')
             self.stdout.flush()
-            deleted_count = search_backend.clear()
+            deleted_count = search_backend.clear(object_types=content_types)
             self.stdout.write(f'{deleted_count} entries deleted.')
 
         # Index models
@@ -81,18 +86,11 @@ class Command(BaseCommand):
             self.stdout.write(f'  {app_label}.{model_name}... ', ending='')
             self.stdout.flush()
 
-            content_type = ContentType.objects.get_for_model(model)
-            cached_count = search_backend.count(object_types=[content_type])
-
-            if cached_count:
-                if kwargs['lazy']:
+            if kwargs['lazy']:
+                content_type = ContentType.objects.get_for_model(model)
+                if cached_count := search_backend.count(object_types=[content_type]):
                     self.stdout.write(f'Skipping (found {cached_count} existing).')
                     continue
-
-                if model_labels:
-                    self.stdout.write(f'clearing {cached_count} cached values... ', ending='')
-                    self.stdout.flush()
-                    search_backend.clear(object_types=[content_type])
 
             i = search_backend.cache(model.objects.iterator(), remove_existing=False)
             if i:
