@@ -1,13 +1,17 @@
 import decimal
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from itertools import count, groupby
 
 __all__ = (
     'array_to_ranges',
     'array_to_string',
+    'check_ranges_overlap',
     'deepmerge',
     'drange',
     'flatten_dict',
+    'ranges_to_string',
     'shallow_compare_dict',
+    'string_to_range_array',
 )
 
 
@@ -113,3 +117,49 @@ def drange(start, end, step=decimal.Decimal(1)):
         while start > end:
             yield start
             start += step
+
+
+def check_ranges_overlap(ranges):
+    """
+    Check if array of ranges overlap
+    """
+
+    # sort the ranges in increasing order
+    ranges.sort(key=lambda x: x.lower)
+
+    for i in range(1, len(ranges)):
+        if (ranges[i - 1].upper >= ranges[i].lower):
+            return True
+
+    return False
+
+
+def ranges_to_string(ranges):
+    """
+    Generate a human-friendly string from a set of ranges. Intended for use with ArrayField.
+    For example:
+        [1-100, 200-300] => "1-100, 200-300"
+    """
+    if not ranges:
+        return ""
+
+    return ', '.join([f"{val.lower}-{val.upper}" for val in ranges])
+
+
+def string_to_range_array(value):
+    """
+    Given a string in the format "1-100, 200-300" create an array of ranges. Intended for use with ArrayField.
+    For example:
+        "1-100, 200-300" => [1-100, 200-300]
+    """
+    if not value:
+        return None
+    ranges = value.split(",")
+    values = []
+    for dash_range in value.split(','):
+        if '-' not in dash_range:
+            return None
+
+        lower, upper = dash_range.split('-')
+        values.append(NumericRange(int(lower), int(upper)))
+    return values

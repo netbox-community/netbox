@@ -154,9 +154,8 @@ class VLANGroupIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
-        ('max_vid', 2000),
     )
-    display_attrs = ('scope_type', 'min_vid', 'max_vid', 'description')
+    display_attrs = ('scope_type', 'description')
 
 
 @register_search
