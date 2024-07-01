@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.choices import ObjectChangeActionChoices
-from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
@@ -125,8 +124,8 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
-            Job.enqueue(
-                "extras.scripts.run_script",
+            ScriptJob = import_string("extras.jobs.ScriptJob")
+            ScriptJob.enqueue(
                 instance=event_rule.action_object,
                 name=script.name,
                 user=user,

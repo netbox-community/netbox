@@ -153,7 +153,7 @@ class DataSource(JobsMixin, PrimaryModel):
 
         return objectchange
 
-    def enqueue_sync_job(self, request):
+    def enqueue_sync_job(self, request=None):
         """
         Enqueue a background job to synchronize the DataSource by calling sync().
         """
@@ -162,10 +162,11 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Enqueue a sync job
-        return Job.enqueue(
-            import_string('core.jobs.sync_datasource'),
+        SyncDataSourceJob = import_string('core.jobs.SyncDataSourceJob')
+        return SyncDataSourceJob.enqueue(
             instance=self,
-            user=request.user
+            user=(request.user if request else None),
+            run_now=(request is None),
         )
 
     def get_backend(self):

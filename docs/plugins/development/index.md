@@ -47,6 +47,7 @@ project-name/
     - __init__.py
     - filtersets.py
     - graphql.py
+    - jobs.py
     - models.py
     - middleware.py
     - navigation.py

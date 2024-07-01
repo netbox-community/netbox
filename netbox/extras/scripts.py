@@ -2,32 +2,23 @@ import inspect
 import json
 import logging
 import os
-import traceback
-from datetime import timedelta
 
 import yaml
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
-from django.db import transaction
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
-from core.choices import JobStatusChoices
-from core.models import Job
 from extras.choices import LogLevelChoices
-from extras.models import ScriptModule, Script as ScriptModel
-from extras.signals import clear_events
+from extras.models import ScriptModule
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
-from netbox.context_managers import event_tracking
-from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DatePicker, DateTimePicker
 from .forms import ScriptForm
-from .utils import is_report
 
 
 __all__ = (
@@ -48,7 +39,6 @@ __all__ = (
     'StringVar',
     'TextVar',
     'get_module_and_script',
-    'run_script',
 )
 
 
@@ -613,111 +603,3 @@ def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
     script = module.scripts.get(name=script_name)
     return module, script
-
-
-def run_script(data, job, request=None, commit=True, **kwargs):
-    """
-    A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
-    exists outside the Script class to ensure it cannot be overridden by a script author.
-
-    Args:
-        data: A dictionary of data to be passed to the script upon execution
-        job: The Job associated with this execution
-        request: The WSGI request associated with this execution (if any)
-        commit: Passed through to Script.run()
-    """
-    job.start()
-
-    script = ScriptModel.objects.get(pk=job.object_id).python_class()
-
-    logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
-    logger.info(f"Running script (commit={commit})")
-
-    # Add files to form data
-    if request:
-        files = request.FILES
-        for field_name, fileobj in files.items():
-            data[field_name] = fileobj
-
-    # Add the current request as a property of the script
-    script.request = request
-
-    def set_job_data(script):
-        job.data = {
-            'log': script.messages,
-            'output': script.output,
-            'tests': script.tests,
-        }
-
-        return job
-
-    def _run_script(job):
-        """
-        Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
-        the event_tracking context manager (which is bypassed if commit == False).
-        """
-        try:
-            try:
-                with transaction.atomic():
-                    script.output = script.run(data, commit)
-                    if not commit:
-                        raise AbortTransaction()
-            except AbortTransaction:
-                script.log_info(message=_("Database changes have been reverted automatically."))
-                if request:
-                    clear_events.send(request)
-
-            job.data = script.get_job_data()
-            if script.failed:
-                logger.warning(f"Script failed")
-                job.terminate(status=JobStatusChoices.STATUS_FAILED)
-            else:
-                job.terminate()
-
-        except Exception as e:
-            if type(e) is AbortScript:
-                msg = _("Script aborted with error: ") + str(e)
-                if is_report(type(script)):
-                    script.log_failure(message=msg)
-                else:
-                    script.log_failure(msg)
-
-                logger.error(f"Script aborted with error: {e}")
-            else:
-                stacktrace = traceback.format_exc()
-                script.log_failure(
-                    message=_("An exception occurred: ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-                )
-                logger.error(f"Exception raised during script execution: {e}")
-            script.log_info(message=_("Database changes have been reverted due to error."))
-
-            job.data = script.get_job_data()
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
-            if request:
-                clear_events.send(request)
-
-        logger.info(f"Script completed in {job.duration}")
-
-    # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
-    # change logging, event rules, etc.
-    if commit:
-        with event_tracking(request):
-            _run_script(job)
-    else:
-        _run_script(job)
-
-    # Schedule the next job if an interval has been set
-    if job.interval:
-        new_scheduled_time = job.scheduled + timedelta(minutes=job.interval)
-        Job.enqueue(
-            run_script,
-            instance=job.object,
-            name=job.name,
-            user=job.user,
-            schedule_at=new_scheduled_time,
-            interval=job.interval,
-            job_timeout=script.job_timeout,
-            data=data,
-            request=request,
-            commit=commit
-        )
