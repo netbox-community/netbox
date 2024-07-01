@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-27 05:01+0000\n"
+"POT-Creation-Date: 2024-07-01 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10334,7 +10334,7 @@ msgstr ""
 msgid "Background Tasks"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:483 netbox/templates/500.html:35
+#: netbox/netbox/navigation/menu.py:480 netbox/templates/500.html:35
 #: netbox/templates/account/preferences.html:22
 #: netbox/templates/core/system.html:80
 msgid "Plugins"
