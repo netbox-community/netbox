@@ -22,8 +22,10 @@ def _get_registered_content(obj, method, template_context):
         'perms': template_context['perms'],
     }
 
-    model_name = obj._meta.label_lower if obj is not None else None
-    template_extensions = registry['plugins']['template_extensions'].get(model_name, [])
+    template_extensions = registry['plugins']['template_extensions'].get(None, [])
+    if obj is not None:
+        model_name = obj._meta.label_lower
+        template_extensions.extend(registry['plugins']['template_extensions'].get(model_name, []))
     for template_extension in template_extensions:
 
         # If the class has not overridden the specified method, we can skip it (because we know it

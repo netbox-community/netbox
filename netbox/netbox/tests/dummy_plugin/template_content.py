@@ -8,7 +8,7 @@ class GlobalContent(PluginTemplateExtension):
 
 
 class SiteContent(PluginTemplateExtension):
-    model = 'dcim.site'
+    models = ['dcim.site']
 
     def left_page(self):
         return "SITE CONTENT - LEFT PAGE"
