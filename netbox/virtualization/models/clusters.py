@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from dcim.models import Device
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -137,7 +137,9 @@ class Cluster(ContactsMixin, PrimaryModel):
         if self.pk and self.site:
             if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=self.site).count():
                 raise ValidationError({
-                    'site': _(
-                        "{count} devices are assigned as hosts for this cluster but are not in site {site}"
-                    ).format(count=nonsite_devices, site=self.site)
+                    'site': _(ngettext(
+                        "{count} device is assigned as hosts for this cluster but is not in site {site}",
+                        "{count} devices are assigned as hosts for this cluster but are not in site {site}",
+                        nonsite_devices,
+                    )).format(count=nonsite_devices, site=self.site)
                 })
