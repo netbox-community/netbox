@@ -160,6 +160,11 @@ class DCIMQuery:
     power_port_template_list: List[PowerPortTemplateType] = strawberry_django.field()
 
     @strawberry.field
+    def rack_type(self, id: int) -> RackTypeType:
+        return models.RackType.objects.get(id=id)
+    rack_type_list: List[RackTypeType] = strawberry_django.field()
+
+    @strawberry.field
     def rack(self, id: int) -> RackType:
         return models.Rack.objects.get(id=id)
     rack_list: List[RackType] = strawberry_django.field()

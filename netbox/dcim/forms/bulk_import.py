@@ -45,6 +45,7 @@ __all__ = (
     'RackImportForm',
     'RackReservationImportForm',
     'RackRoleImportForm',
+    'RackTypeImportForm',
     'RearPortImportForm',
     'RegionImportForm',
     'SiteImportForm',
@@ -177,6 +178,43 @@ class RackRoleImportForm(NetBoxModelImportForm):
         help_texts = {
             'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
         }
+
+
+class RackTypeImportForm(NetBoxModelImportForm):
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=RackTypeChoices,
+        required=False,
+        help_text=_('Rack type')
+    )
+    width = forms.ChoiceField(
+        label=_('Width'),
+        choices=RackWidthChoices,
+        help_text=_('Rail-to-rail width (in inches)')
+    )
+    outer_unit = CSVChoiceField(
+        label=_('Outer unit'),
+        choices=RackDimensionUnitChoices,
+        required=False,
+        help_text=_('Unit for outer dimensions')
+    )
+    weight_unit = CSVChoiceField(
+        label=_('Weight unit'),
+        choices=WeightUnitChoices,
+        required=False,
+        help_text=_('Unit for rack weights')
+    )
+
+    class Meta:
+        model = RackType
+        fields = (
+            'name', 'slug', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
+            'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
 
 class RackImportForm(NetBoxModelImportForm):

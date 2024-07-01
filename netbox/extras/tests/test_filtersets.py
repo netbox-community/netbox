@@ -1187,6 +1187,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'rack',
         'rackreservation',
         'rackrole',
+        'racktype',
         'rearport',
         'region',
         'rir',
