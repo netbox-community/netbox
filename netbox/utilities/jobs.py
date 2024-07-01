@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
+from django.db.backends.signals import connection_created
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -12,6 +13,7 @@ from netbox.constants import ADVISORY_LOCK_KEYS
 __all__ = (
     'BackgroundJob',
     'ScheduledJob',
+    'SystemJob',
 )
 
 
@@ -146,3 +148,49 @@ class ScheduledJob(BackgroundJob):
             job.delete()
 
         return cls.enqueue(instance=instance, interval=interval, *args, **kwargs)
+
+
+class SystemJob(ScheduledJob):
+    """
+    A `ScheduledJob` not being bound to any particular NetBox object.
+
+    This class can be used to schedule system background tasks that are not specific to a particular NetBox object, but
+    a general task. A typical use case for this class is to implement a general synchronization of NetBox objects from
+    another system. If the configuration of the other system isn't stored in the database, but the NetBox configuration
+    instead, there is no object to bind the `Job` object to. This class therefore allows unbound jobs to be scheduled
+    for system background tasks.
+
+    The main use case for this method is to schedule jobs programmatically instead of using user events, e.g. to start
+    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to setup a new schedule
+    outside of the request-response cycle. It will register the new schedule right after all plugins are loaded and the
+    database is connected. Then `schedule()` will take care of scheduling a single job at a time.
+    """
+
+    @classmethod
+    def enqueue(cls, *args, **kwargs):
+        kwargs.pop('instance', None)
+        return super().enqueue(instance=Job(), *args, **kwargs)
+
+    @classmethod
+    def schedule(cls, *args, **kwargs):
+        kwargs.pop('instance', None)
+        return super().schedule(instance=Job(), *args, **kwargs)
+
+    @classmethod
+    def handle(cls, job, *args, **kwargs):
+        # A job requires a related object to be handled, or internal methods will fail. To avoid adding an extra model
+        # for this, the existing job object is used as a reference. This is not ideal, but it works for this purpose.
+        job.object = job
+        job.object_id = None  # Hide changes from UI
+
+        super().handle(job, *args, **kwargs)
+
+    @classmethod
+    def setup(cls, *args, **kwargs):
+        """
+        Setup a new `SystemJob` during plugin initialization.
+
+        This method should be called from the plugins `ready()` function to setup the schedule as early as possible. For
+        interactive setup of schedules (e.g. on user requests), either use `schedule()` or `enqueue()` instead.
+        """
+        connection_created.connect(lambda sender, **signal_kwargs: cls.schedule(*args, **kwargs))
