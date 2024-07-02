@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
+from dcim.forms import DeviceFilterForm
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
@@ -173,6 +174,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
+    filterset_form = forms.VirtualMachineFilterForm
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -190,6 +192,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     child_model = Device
     table = DeviceTable
     filterset = DeviceFilterSet
+    filterset_form = DeviceFilterForm
     template_name = 'virtualization/cluster/devices.html'
     actions = {
         'add': {'add'},
@@ -350,6 +353,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
+    filterset_form = forms.VMInterfaceFilterForm
     template_name = 'virtualization/virtualmachine/interfaces.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -375,6 +379,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     child_model = VirtualDisk
     table = tables.VirtualMachineVirtualDiskTable
     filterset = filtersets.VirtualDiskFilterSet
+    filterset_form = forms.VirtualDiskFilterForm
     template_name = 'virtualization/virtualmachine/virtual_disks.html'
     tab = ViewTab(
         label=_('Virtual Disks'),
