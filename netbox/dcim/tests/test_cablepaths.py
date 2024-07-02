@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from circuits.models import *
 from dcim.choices import LinkStatusChoices
+from dcim.exceptions import UnsupportedCablePath
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.utils import object_to_path_node
@@ -2261,7 +2262,7 @@ class CablePathTestCase(TestCase):
             b_terminations=[frontport1, frontport3],
             label='C1'
         )
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(UnsupportedCablePath):
             cable1.save()
 
         self.assertPathDoesNotExist(
@@ -2280,7 +2281,7 @@ class CablePathTestCase(TestCase):
             label='C3'
         )
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(UnsupportedCablePath):
             cable3.save()
 
         self.assertPathDoesNotExist(
