@@ -47,6 +47,11 @@ class CoreMiddleware:
         with event_tracking(request):
             response = self.get_response(request)
 
+        # Check if language cookie should be renewed
+        if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
+            if language := request.user.config.get('locale.language'):
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id
 
