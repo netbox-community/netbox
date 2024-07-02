@@ -49,12 +49,15 @@ AUTH_BACKEND_ATTRS = {
     'okta-openidconnect': ('Okta (OIDC)', None),
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
 }
+# Override with potential user configuration
+AUTH_BACKEND_ATTRS.update(getattr(settings, 'SOCIAL_AUTH_BACKEND_ATTRS', {}))
 
 
 def get_auth_backend_display(name):
     """
-    Return the user-friendly name and icon name for a remote authentication backend, if known. Defaults to the
-    raw backend name and no icon.
+    Return the user-friendly name and icon name for a remote authentication backend, if
+    known. Obtained from the defaults dictionary AUTH_BACKEND_ATTRS, overridden by the
+    setting `SOCIAL_AUTH_BACKEND_ATTRS`. Defaults to the raw backend name and no icon.
     """
     return AUTH_BACKEND_ATTRS.get(name, (name, None))
 
