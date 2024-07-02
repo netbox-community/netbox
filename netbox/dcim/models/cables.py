@@ -220,22 +220,24 @@ class Cable(PrimaryModel):
         b_terminations = {ct.termination: ct for ct in self.terminations.filter(cable_end='B')}
 
         # Delete stale CableTerminations
+        # Call CableTermination with no_traceoath_signal so signal handler isn't sent multiple
+        # times as we handle that below
         if self._terminations_modified:
             for termination, ct in a_terminations.items():
                 if termination.pk and termination not in self.a_terminations:
-                    ct.delete()
+                    ct.delete(no_tracepath_signal=True)
             for termination, ct in b_terminations.items():
                 if termination.pk and termination not in self.b_terminations:
-                    ct.delete()
+                    ct.delete(no_tracepath_signal=True)
 
         # Save new CableTerminations (if any)
         if self._terminations_modified:
             for termination in self.a_terminations:
                 if not termination.pk or termination not in a_terminations:
-                    CableTermination(cable=self, cable_end='A', termination=termination).save()
+                    CableTermination(cable=self, cable_end='A', termination=termination).save(no_tracepath_signal=True)
             for termination in self.b_terminations:
                 if not termination.pk or termination not in b_terminations:
-                    CableTermination(cable=self, cable_end='B', termination=termination).save()
+                    CableTermination(cable=self, cable_end='B', termination=termination).save(no_tracepath_signal=True)
 
         trace_paths.send(Cable, instance=self, created=_created)
 
@@ -311,6 +313,13 @@ class CableTermination(ChangeLoggedModel):
         verbose_name = _('cable termination')
         verbose_name_plural = _('cable terminations')
 
+    def __init__(self, *args, a_terminations=None, b_terminations=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # A copy of the PK to be used by __str__ in case the object is deleted
+        self._orig_cable = self.__dict__.get('cable')
+        self._orig_cable_end = self.__dict__.get('cable_end')
+
     def __str__(self):
         return f'Cable {self.cable} to {self.termination}'
 
@@ -348,9 +357,11 @@ class CableTermination(ChangeLoggedModel):
             raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
 
     def save(self, *args, **kwargs):
+        no_tracepath_signal = kwargs.pop('no_tracepath_signal', False)
 
         # Cache objects associated with the terminating object (for filtering)
         self.cache_related_objects()
+        created = self.pk is None
 
         super().save(*args, **kwargs)
 
@@ -361,7 +372,27 @@ class CableTermination(ChangeLoggedModel):
         termination.cable_end = self.cable_end
         termination.save()
 
+        if not no_tracepath_signal:
+            if created:
+                self.cable._terminations_modified = True
+                trace_paths.send(Cable, instance=self.cable, created=False)
+            else:
+                if self._orig_cable and self._orig_cable != self.cable:
+                    # Need to send signal to both old and new cable
+                    self._orig_cable._terminations_modified = True
+                    trace_paths.send(Cable, instance=self._orig_cable, created=False)
+
+                    self._orig_cable = self.cable
+                    self.cable._terminations_modified = True
+                    trace_paths.send(Cable, instance=self.cable, created=False)
+
+                elif self._orig_cable_end and self._orig_cable_end != self.cable_end:
+                    self._orig_cable_end = self.cable_end
+                    self.cable._terminations_modified = True
+                    trace_paths.send(Cable, instance=self.cable, created=False)
+
     def delete(self, *args, **kwargs):
+        no_tracepath_signal = kwargs.pop('no_tracepath_signal', False)
 
         # Delete the cable association on the terminating object
         termination_model = self.termination._meta.model
@@ -371,6 +402,8 @@ class CableTermination(ChangeLoggedModel):
         )
 
         super().delete(*args, **kwargs)
+        if not no_tracepath_signal:
+            trace_paths.send(Cable, instance=self.cable, created=False)
 
     def cache_related_objects(self):
         """
