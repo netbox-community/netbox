@@ -1,0 +1,8 @@
+{% load helpers %}
+
+<div id="applied_filters_pane" hx-swap-oob="true">
+  {# Applied filters #}
+  {% if filter_form %}
+    {% applied_filters model filter_form request.GET %}
+  {% endif %}
+</div>

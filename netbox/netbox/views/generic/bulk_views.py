@@ -11,6 +11,7 @@ from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -161,6 +162,26 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # Render the objects table
         table = self.get_table(self.queryset, request, has_bulk_actions)
 
+        # Check for filterset_form(s) on this view and/or the table, if a form exists:
+        # * If both exist, initialize both
+        # * If a filterset form for the table exists, only initialize the table filterset_form
+        # * If a filterset form exists for the view, initialize the filterset form
+        # * Apply to the table for use by the table and initialize a separate instance of the form for use by the table
+        #   column filters
+        # * Otherwise set to None
+        if self.filterset_form and table.filterset_form:
+            filterset_form = self.filterset_form(request.GET)
+            table.filterset_form = table.filterset_form(request.GET)
+        elif self.filterset_form and not table.filterset_form:
+            filterset_form = self.filterset_form(request.GET)
+            table.filterset_form = self.filterset_form(request.GET)
+        elif not self.filterset_form and table.filterset_form:
+            filterset_form = None
+            table.filterset_form = table.filterset_form(request.GET)
+        else:
+            filterset_form = None
+            table.filterset_form = None
+
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
             if request.GET.get('embedded', False):
@@ -168,15 +189,20 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
                     table.columns.hide('pk')
+            filter_chits = render_to_string('inc/applied_filters_pane.html', {
+                'model': model,
+                'filter_form': filterset_form,
+            }, request)
             return render(request, 'htmx/table.html', {
                 'table': table,
+                'filter_chits': filter_chits,
             })
 
         context = {
             'model': model,
             'table': table,
             'actions': actions,
-            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'filter_form': filterset_form,
             'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }

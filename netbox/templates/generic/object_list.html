@@ -68,9 +68,7 @@ Context:
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
 
       {# Applied filters #}
-      {% if filter_form %}
-        {% applied_filters model filter_form request.GET %}
-      {% endif %}
+      {% include 'inc/applied_filters_pane.html' %}
 
       {# Object table controls #}
       {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
