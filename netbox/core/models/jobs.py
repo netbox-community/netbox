@@ -1,6 +1,7 @@
 import uuid
 
 import django_rq
+from rq.exceptions import NoSuchJobError
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -152,10 +153,14 @@ class Job(models.Model):
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
-        queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(str(self.job_id))
+        job = None
+        for check_queue in get_config().QUEUE_MAPPINGS:
+            queue = django_rq.get_queue(check_queue)
+            try:
+                job = queue.fetch_job(str(self.job_id))
+                break
+            except NoSuchJobError:
+                pass
 
         if job:
             job.cancel()
@@ -198,7 +203,7 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
+    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, rq_queue_name=None, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
@@ -208,11 +213,20 @@ class Job(models.Model):
             name: Name for the job (optional)
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
+            rq_queue_name: Queue name to route the job to for processing
             interval: Recurrence interval (in minutes)
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
-        rq_queue_name = get_queue_for_model(object_type.model)
-        queue = django_rq.get_queue(rq_queue_name)
+        queue = None
+        if rq_queue_name:
+            try:
+                queue = django_rq.get_queue(rq_queue_name)
+            except Exception:
+                # User defined queue casued an error - return to default logic
+                pass
+        if not queue:
+            rq_queue_name = get_queue_for_model(object_type.model)
+            queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
             object_type=object_type,
