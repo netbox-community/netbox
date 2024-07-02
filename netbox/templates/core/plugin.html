@@ -1,0 +1,87 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% block title %}{{ plugin.name }}{% endblock %}
+
+{% block object_identifier %}
+{% endblock object_identifier %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'core:plugin_list' %}">{% trans "Plugins" %}</a></li>
+{% endblock breadcrumbs %}
+
+{% block subtitle %}
+  <div class="text-secondary fs-5">
+    {{ plugin.tag_line }}
+  </div>
+{% endblock subtitle %}
+
+{% block controls %}
+<div class="text-secondary">
+From
+</div>
+{{ plugin.author }}
+{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        {% trans "Overview" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+        {% trans "Version history" %}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+        {% trans "Install" %}
+      </button>
+    </li>
+  </ul>
+
+{% endblock tabs %}
+
+{% block content %}
+
+  {# Component creation form #}
+  <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+    {{ plugin.description_short }}
+  </div>
+  <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
+    <div class="card">
+      <div class="table-responsive" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
+    <p>You can install this plugin from the command line with PyPi.</p>
+    <p>The following commands may be helpful; always refer to the plugin's own documentation and the Installing a Plugin unit of the NetBox documentation.</p>
+    <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
+
+    <pre class="block"><code>
+source /opt/netbox/venv/bin/activate
+pip install netbox-acls
+    </code></pre>
+    <p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
+    <pre class="block"><code>
+PLUGINS=［
+    "netbox_acls',
+]
+    </code></pre>
+    <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
+    <pre class="block"><code>
+python3 /opt/netbox/netbox/netbox/manage.py migrate
+python3 /opt/netbox/netbox/netbox/manage.py collectstatic
+    </code></pre>
+    <p>4. Restart the NetBox services to complete the plugin installation:</p>
+    <pre class="block"><code>
+sudo systemctl restart netbox netbox-rq
+    </code></pre>
+  </div>
+{% endblock content %}

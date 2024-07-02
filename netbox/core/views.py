@@ -1,5 +1,8 @@
+import importlib
+import importlib.util
 import json
 import platform
+import requests
 
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
@@ -36,6 +39,7 @@ from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .tables import CertifiedPluginTable
 
 
 #
@@ -649,4 +653,163 @@ class SystemView(UserPassesTestMixin, View):
             'stats': stats,
             'plugins_table': plugins_table,
             'config': config,
+        })
+
+
+#
+# Plugins
+#
+
+def get_local_plugins(plugins):
+    for plugin_name in settings.PLUGINS:
+        plugin = importlib.import_module(plugin_name)
+        plugin_config: PluginConfig = plugin.config
+
+        plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
+        plugins[plugin_config.name] = {
+            'slug': plugin_config.name,
+            'name': plugin_config.verbose_name,
+            'tag_line': plugin_config.description,
+            'description_short': None,
+            'author': plugin_config.author or _('Unknown Author'),
+            'version': plugin_config.version,
+            'icon': None,
+            'is_local': True,
+            'is_installed': True,
+            'is_certified': False,
+            'is_community': False,
+            'versions': None,
+        }
+
+    return plugins
+
+    def get_feed(self):
+        # Fetch RSS content from cache if available
+        if feed_content := cache.get(self.cache_key):
+            return {
+                'feed': feedparser.FeedParserDict(feed_content),
+            }
+
+        # Fetch feed content from remote server
+        try:
+            response = requests.get(
+                url=self.config['feed_url'],
+                headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
+                proxies=settings.HTTP_PROXIES,
+                timeout=3
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return {
+                'error': e,
+            }
+
+        # Parse feed content
+        feed = feedparser.parse(response.content)
+        if not feed.bozo:
+            # Cap number of entries
+            max_entries = self.config.get('max_entries')
+            feed['entries'] = feed['entries'][:max_entries]
+            # Cache the feed content
+            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+
+        return {
+            'feed': feed,
+        }
+
+
+def get_catalog_plugins(plugins):
+    url = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
+    session = requests.Session()
+
+    def get_pages():
+        payload = {'page': '1', 'per_page': '25'}
+        first_page = session.get(url, params=payload).json()
+        yield first_page
+        num_pages = first_page['metadata']['pagination']['last_page']
+
+        for page in range(2, num_pages + 1):
+            payload['page'] = page
+            next_page = session.get(url, params=payload).json()
+            yield next_page
+
+    for page in get_pages():
+        for data in page['data']:
+
+            versions = []
+            versions.append(data['release_latest'])
+            versions.extend(data['release_recent_history'])
+            if data['config_name'] in plugins:
+                plugins[data['config_name']]['is_local'] = False
+                plugins[data['config_name']]['is_certified'] = data['release_latest']['is_certified']
+                plugins[data['config_name']]['description_short'] = data['description_short']
+            else:
+                plugins[data['config_name']] = {
+                    'slug': data['config_name'],
+                    'name': data['title_short'],
+                    'title_long': data['title_long'],
+                    'tag_line': data['tag_line'],
+                    'description_short': data['description_short'],
+                    'author': data['author']['name'] or _('Unknown Author'),
+                    'version': 'x',
+                    'icon': None,
+                    'is_local': False,
+                    'is_installed': False,
+                    'is_certified': data['release_latest']['is_certified'],
+                    'is_community': not data['release_latest']['is_certified'],
+                    'versions': versions,
+                }
+
+    return plugins
+
+
+def get_plugins():
+    if plugins := cache.get('plugins-catalog-feed'):
+        return plugins
+
+    plugins = {}
+    plugins = get_local_plugins(plugins)
+    plugins = get_catalog_plugins(plugins)
+    plugins = [v for k, v in plugins.items()]
+    plugins = sorted(plugins, key=lambda d: d['name'])
+
+    cache.set('plugins-catalog-feed', plugins, 3600)
+    return plugins
+
+
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+
+        # Plugins
+        plugins = get_plugins()
+
+        return render(request, 'core/plugin_list.html', {
+            'plugins': plugins,
+        })
+
+
+class PluginView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, name):
+
+        # Plugins
+        plugins = {}
+        plugins = get_local_plugins(plugins)
+        plugins = get_catalog_plugins(plugins)
+
+        plugin = plugins[name]
+
+        table = CertifiedPluginTable(plugin['versions'], user=request.user)
+        table.configure(request)
+
+        return render(request, 'core/plugin.html', {
+            'plugin': plugin,
+            'table': table,
         })
