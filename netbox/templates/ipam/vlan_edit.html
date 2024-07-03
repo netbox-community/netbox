@@ -53,10 +53,6 @@
     {% endwith %}
   </div>
 
-  <div class="field-group my-5">
-    {% render_field form.comments %}
-  </div>
-
   {% if form.custom_fields %}
     <div class="field-group my-5">
       <div class="row">
@@ -65,4 +61,8 @@
       {% render_custom_fields form %}
     </div>
   {% endif %}
+
+  <div class="field-group my-5">
+    {% render_field form.comments %}
+  </div>
 {% endblock %}
