@@ -154,7 +154,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
             'table_config': f'{table.name}_config',
-            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
             'actions': actions,
             'tab': self.tab,
             'return_url': request.get_full_path(),
