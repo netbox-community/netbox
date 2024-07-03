@@ -22,7 +22,7 @@ def _get_registered_content(obj, method, template_context):
         'perms': template_context['perms'],
     }
 
-    template_extensions = registry['plugins']['template_extensions'].get(None, [])
+    template_extensions = list(registry['plugins']['template_extensions'].get(None, []))
     if obj is not None:
         model_name = obj._meta.label_lower
         template_extensions.extend(registry['plugins']['template_extensions'].get(model_name, []))
