@@ -1,5 +1,13 @@
 // Navbar styling
 .navbar-vertical.navbar-expand-lg {
+  background-color: $rich-black;
+  .dropdown-item {
+    color: white!important;
+  }
+  .text-secondary {
+    color: $bright-teal!important;
+  }
+
   .navbar-collapse {
     .dropdown-menu {
       .dropdown-item {

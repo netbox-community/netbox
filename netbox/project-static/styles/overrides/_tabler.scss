@@ -35,29 +35,13 @@ pre {
   display: inline-block;;
 }
 
-table {
-  a {
-    color: $dark-teal;
-  }
-  th.orderable a {
-    color: var(--#{$prefix}body-color);
-  }
+table th.orderable a {
+  color: var(--#{$prefix}body-color);
 }
 
 // Override background color alpha value
 [data-bs-theme=dark] ::selection {
   background-color: rgba(var(--tblr-primary-rgb),.48)
-}
-
-// Side navigation
-.navbar-vertical {
-  background-color: $rich-black;
-  .dropdown-item {
-    color: white!important;
-  }
-  .text-secondary {
-    color: $gray-400!important;
-  }
 }
 
 // Dark mode colors
@@ -74,9 +58,16 @@ table {
   background: var(--#{$prefix}bg-surface);
 }
 
-//
+// Altering background colors
 .page, .page-tabs .nav-tabs .nav-link.active {
   background-color: var(--#{$prefix}bg-surface-tertiary)!important;
+}
+.page-body .card .card-header {
+  background: var(--tblr-bg-surface-secondary)!important;
+}
+
+.footer .text-primary {
+  color: $rich-black!important;
 }
 
 // Dark mode overrides
@@ -102,9 +93,6 @@ body[data-bs-theme=dark] {
     .btn {
       color: var(--#{$prefix}body-color);
     }
-    th.orderable a {
-      color: var(--#{$prefix}body-color);
-    }
   }
 
   // Adjusting text colors
@@ -115,5 +103,8 @@ body[data-bs-theme=dark] {
     &secondary {
       color: $gray-400!important;
     }
+  }
+  .footer .text-primary {
+    color: white!important;
   }
 }
