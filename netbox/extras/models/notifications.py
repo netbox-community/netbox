@@ -2,11 +2,13 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.choices import *
 from extras.querysets import NotificationQuerySet
+from netbox.models import ChangeLoggedModel
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -88,7 +90,7 @@ class Notification(models.Model):
             )
 
 
-class NotificationGroup(models.Model):
+class NotificationGroup(ChangeLoggedModel):
     """
     A collection of users and/or groups to be informed for certain notifications.
     """
@@ -121,6 +123,12 @@ class NotificationGroup(models.Model):
         ordering = ('name',)
         verbose_name = _('notification group')
         verbose_name_plural = _('notification groups')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:notificationgroup', args=[self.pk])
 
 
 class Subscription(models.Model):

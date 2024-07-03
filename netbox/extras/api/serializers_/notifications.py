@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import ObjectType
-from extras.models import Notification, Subscription
+from extras.models import Notification, NotificationGroup, Subscription
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
 from users.api.serializers_.users import GroupSerializer, UserSerializer
@@ -54,9 +54,9 @@ class NotificationGroupSerializer(ValidatedModelSerializer):
     )
 
     class Meta:
-        model = Notification
+        model = NotificationGroup
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'object', 'groups', 'users',
+            'id', 'url', 'display', 'name', 'description', 'groups', 'users',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

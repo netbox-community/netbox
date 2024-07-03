@@ -360,6 +360,18 @@ class EventRuleForm(NetBoxModelForm):
             initial=initial
         )
 
+    def init_notificationgroup_choice(self):
+        initial = None
+        if self.instance.action_type == EventRuleActionChoices.NOTIFICATION:
+            notificationgroup_id = get_field_value(self, 'action_object_id')
+            initial = NotificationGroup.objects.get(pk=notificationgroup_id) if notificationgroup_id else None
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Notification group'),
+            queryset=NotificationGroup.objects.all(),
+            required=True,
+            initial=initial
+        )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['action_object_type'].required = False
@@ -372,6 +384,8 @@ class EventRuleForm(NetBoxModelForm):
             self.init_webhook_choice()
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.init_script_choice()
+        elif action_type == EventRuleActionChoices.NOTIFICATION:
+            self.init_notificationgroup_choice()
 
     def clean(self):
         super().clean()
@@ -387,6 +401,10 @@ class EventRuleForm(NetBoxModelForm):
                 Script,
                 for_concrete_model=False
             )
+            self.cleaned_data['action_object_id'] = action_choice.id
+        # Notification
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.NOTIFICATION:
+            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
 
         return self.cleaned_data

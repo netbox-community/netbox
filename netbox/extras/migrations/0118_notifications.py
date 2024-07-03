@@ -17,6 +17,8 @@ class Migration(migrations.Migration):
             name='NotificationGroup',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('created', models.DateTimeField(auto_now_add=True, null=True)),
+                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('groups', models.ManyToManyField(blank=True, related_name='notification_groups', to='users.group')),

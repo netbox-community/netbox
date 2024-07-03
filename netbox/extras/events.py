@@ -13,6 +13,7 @@ from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
+from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
@@ -132,6 +133,11 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
                 user=user,
                 data=data
             )
+
+        # Notifications
+        elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
+            # TODO: Create notifications
+            pass
 
         else:
             raise ValueError(_("Unknown action type for an event rule: {action_type}").format(

@@ -293,6 +293,10 @@ class NotificationTable(NetBoxTable):
 
 
 class NotificationGroupTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True,
+        verbose_name=_('Name')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = NotificationGroup
