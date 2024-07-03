@@ -35,12 +35,76 @@ pre {
   display: inline-block;;
 }
 
-table a {
-  // Adjust table anchor link contrast as not enough contrast in dark mode
-  filter: brightness(110%);
+table th.orderable a {
+  color: var(--#{$prefix}body-color);
 }
 
 // Override background color alpha value
 [data-bs-theme=dark] ::selection {
   background-color: rgba(var(--tblr-primary-rgb),.48)
+}
+
+// Dark mode colors
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
+    --#{$prefix}link-color: #{$bright-teal};
+    --#{$prefix}secondary: #{$gray-400};
+  }
+}
+
+// Slightly increase alert contrast between bg and text
+.alert {
+  background: var(--#{$prefix}bg-surface);
+}
+
+// Altering background colors
+.page, .page-tabs .nav-tabs .nav-link.active {
+  background-color: var(--#{$prefix}bg-surface-tertiary)!important;
+}
+.page-body .card .card-header {
+  background: var(--tblr-bg-surface-secondary)!important;
+}
+
+.footer .text-primary {
+  color: $rich-black!important;
+}
+
+// Dark mode overrides
+body[data-bs-theme=dark] {
+
+  // Background colors to match brand colors
+  background-color: $rich-black;
+  .navbar, .page-header {
+    background-color: $rich-black;
+  }
+  .page, .page-tabs .nav-tabs .nav-link.active {
+    background-color: $rich-black-light!important;
+  }
+
+  // Adjust dark table link color without affecting buttons and badges
+  table {
+    a {
+      color: $bright-teal;
+    }
+    .badge a {
+      color: inherit;
+    }
+    .btn {
+      color: var(--#{$prefix}body-color);
+    }
+  }
+
+  // Adjusting text colors
+  .text- {
+    &muted {
+      color: var(--#{$prefix}secondary-color) !important;
+    }
+    &secondary {
+      color: $gray-400!important;
+    }
+  }
+  .footer .text-primary {
+    color: white!important;
+  }
 }
