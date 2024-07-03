@@ -55,3 +55,14 @@ The sampling rate for transactions. Must be a value between 0 (disabled) and 1.0
 
 !!! warning "Consider performance implications"
     A high sampling rate for transactions can induce significant performance penalties. If transaction reporting is desired, it is recommended to use a relatively low sample rate of 10% to 20% (0.1 to 0.2).
+
+---
+
+## SENTRY_SEND_DEFAULT_PII
+
+Default: False (disabled)
+
+If this flag is enabled, certain personally identifiable information (PII) is added.
+
+!!! warning "Sensitive data"
+    If you enable this option, be aware that senstive data such as cookies and auth tokens will be logged.
