@@ -12,13 +12,14 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
-from extras.choices import NotificationEventChoices, NotificationKindChoices
+from extras.choices import NotificationEventChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
+from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .events import enqueue_object
@@ -289,10 +290,15 @@ def process_job_end_event_rules(sender, **kwargs):
 #
 
 @receiver(post_save)
-def notify_object_changed(sender, instance, **kwargs):
-    ct = ContentType.objects.get_for_model(instance)
+def notify_object_changed(sender, instance, created, raw, **kwargs):
+    if created or raw:
+        return
 
-    # Find any Subscriptions for this object
+    ct = ContentType.objects.get_for_model(instance)
+    if ct.model not in registry['model_features']['notifications'].get(ct.app_label, []):
+        return
+
+    # Find any Subscriptions for supported objects
     subscriptions = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values('user')
 
     # Delete any existing Notifications for the object
