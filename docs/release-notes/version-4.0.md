@@ -6,6 +6,11 @@
 
 * [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
 * [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#15660](https://github.com/netbox-community/netbox/issues/15660) - Add Czech language support
+* [#15696](https://github.com/netbox-community/netbox/issues/15696) - Add Danish language support
+* [#16793](https://github.com/netbox-community/netbox/issues/16793) - Add Italian language support
+* [#14640](https://github.com/netbox-community/netbox/issues/14640) - Add Dutch language support
+* [#14792](https://github.com/netbox-community/netbox/issues/14792) - Add Polish language support
 
 ### Bug Fixes
 
