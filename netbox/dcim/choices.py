@@ -825,6 +825,7 @@ class InterfaceTypeChoices(ChoiceSet):
     # Ethernet
     TYPE_100ME_FX = '100base-fx'
     TYPE_100ME_LFX = '100base-lfx'
+    TYPE_100ME_FX_SFP = '100base-fx-sfp'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
     TYPE_1GE_FIXED = '1000base-t'
@@ -985,6 +986,7 @@ class InterfaceTypeChoices(ChoiceSet):
             (
                 (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
                 (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
+                (TYPE_100ME_FX_SFP, '100BASE-FX-SFP (10/100ME FIBER)'),
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
@@ -1000,6 +1002,7 @@ class InterfaceTypeChoices(ChoiceSet):
             (
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
+
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
                 (TYPE_10GE_XFP, 'XFP (10GE)'),
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
