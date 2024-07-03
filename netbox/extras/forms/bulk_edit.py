@@ -343,3 +343,17 @@ class JournalEntryBulkEditForm(BulkEditForm):
         required=False
     )
     comments = CommentField()
+
+
+class NotificationGroupBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=NotificationGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    nullable_fields = ('description',)

@@ -8,6 +8,7 @@ from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
@@ -26,6 +27,7 @@ __all__ = (
     'ImageAttachmentFilterSet',
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
+    'NotificationGroupFilterSet',
     'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
@@ -334,6 +336,35 @@ class BookmarkFilterSet(BaseFilterSet):
     class Meta:
         model = Bookmark
         fields = ('id', 'object_id')
+
+
+class NotificationGroupFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    # user_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=get_user_model().objects.all(),
+    #     label=_('User (ID)'),
+    # )
+    # group_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=Group.objects.all(),
+    #     label=_('Group (ID)'),
+    # )
+
+    class Meta:
+        model = NotificationGroup
+        fields = (
+            'id', 'name', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):

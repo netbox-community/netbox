@@ -12,6 +12,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group, User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
@@ -32,7 +33,9 @@ __all__ = (
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
+    'NotificationGroupForm',
     'SavedFilterForm',
+    'SubscriptionForm',
     'TagForm',
     'WebhookForm',
 )
@@ -235,6 +238,34 @@ class BookmarkForm(forms.ModelForm):
 
     class Meta:
         model = Bookmark
+        fields = ('object_type', 'object_id')
+
+
+class NotificationGroupForm(forms.ModelForm):
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
+        required=False,
+        queryset=Group.objects.all()
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        required=False,
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = NotificationGroup
+        fields = ('name', 'description', 'groups', 'users')
+
+
+class SubscriptionForm(forms.ModelForm):
+    object_type = ContentTypeChoiceField(
+        label=_('Object type'),
+        queryset=ObjectType.objects.with_feature('notifications')
+    )
+
+    class Meta:
+        model = Subscription
         fields = ('object_type', 'object_id')
 
 

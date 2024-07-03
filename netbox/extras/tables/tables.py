@@ -19,9 +19,12 @@ __all__ = (
     'ExportTemplateTable',
     'ImageAttachmentTable',
     'JournalEntryTable',
+    'NotificationGroupTable',
+    'NotificationTable',
     'SavedFilterTable',
     'ReportResultsTable',
     'ScriptResultsTable',
+    'SubscriptionTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -259,6 +262,58 @@ class BookmarkTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Bookmark
+        fields = ('pk', 'object', 'object_type', 'created')
+        default_columns = ('object', 'object_type', 'created')
+
+
+class NotificationTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Types'),
+    )
+    object = tables.Column(
+        verbose_name=_('Object'),
+        linkify=True
+    )
+    created = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Created'),
+    )
+    read = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Read'),
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Notification
+        fields = ('pk', 'object', 'object_type', 'created', 'read')
+        default_columns = ('object', 'object_type', 'created', 'read')
+
+
+class NotificationGroupTable(NetBoxTable):
+
+    class Meta(NetBoxTable.Meta):
+        model = NotificationGroup
+        fields = ('pk', 'name', 'description', 'groups', 'users')
+        default_columns = ('name', 'description')
+
+
+class SubscriptionTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Types'),
+    )
+    object = tables.Column(
+        verbose_name=_('Object'),
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Subscription
         fields = ('pk', 'object', 'object_type', 'created')
         default_columns = ('object', 'object_type', 'created')
 

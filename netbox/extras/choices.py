@@ -149,6 +149,41 @@ class JournalEntryKindChoices(ChoiceSet):
 
 
 #
+# Notifications
+#
+
+class NotificationKindChoices(ChoiceSet):
+    key = 'Notification.kind'
+
+    KIND_INFO = 'info'
+    KIND_SUCCESS = 'success'
+    KIND_WARNING = 'warning'
+    KIND_DANGER = 'danger'
+
+    CHOICES = [
+        (KIND_INFO, _('Info'), 'cyan'),
+        (KIND_SUCCESS, _('Success'), 'green'),
+        (KIND_WARNING, _('Warning'), 'yellow'),
+        (KIND_DANGER, _('Danger'), 'red'),
+    ]
+
+
+# TODO: Support dynamic entries from plugins
+class NotificationEventChoices(ChoiceSet):
+    key = 'Notification.event'
+
+    OBJECT_CREATED = 'object_created'
+    OBJECT_CHANGED = 'object_changed'
+    OBJECT_DELETED = 'object_deleted'
+
+    CHOICES = [
+        (OBJECT_CREATED, _('Object created')),
+        (OBJECT_CHANGED, _('Object changed')),
+        (OBJECT_DELETED, _('Object deleted')),
+    ]
+
+
+#
 # Reports and Scripts
 #
 

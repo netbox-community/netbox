@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="list-group list-group-flush list-group-hoverable" style="min-width: 300px">
+  {% for notification in notifications %}
+    <div class="list-group-item p-2">
+      <div class="row align-items-center">
+        <div class="col text-truncate">
+          <a href="{{ notification.get_absolute_url }}" class="text-body d-block">{{ notification.object }}</a>
+          <div class="d-block text-secondary fs-5">{{ notification.get_event_display }} {{ notification.created|timesince }} {% trans "ago" %}</div>
+        </div>
+        <div class="col-auto">
+          <a href="#" hx-get="{% url 'extras:notification_read' pk=notification.pk %}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Mark read" %}">
+            <i class="mdi mdi-close"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="dropdown-item text-muted">
+      {% trans "No unread notifications" %}
+    </div>
+  {% endfor %}
+</div>
+<hr class="dropdown-divider" />
+<a href="{% url 'account:notifications' %}" class="dropdown-item">{% trans "All notifications" %}</a>

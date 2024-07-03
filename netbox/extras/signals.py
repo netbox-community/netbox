@@ -12,15 +12,16 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
+from extras.choices import NotificationEventChoices, NotificationKindChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
-from extras.models import EventRule
+from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
-from .events import enqueue_object, get_snapshots, serialize_for_event
+from .events import enqueue_object
 from .models import CustomField, TaggedItem
 from .validators import CustomValidator
 
@@ -281,3 +282,30 @@ def process_job_end_event_rules(sender, **kwargs):
     event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
     process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)
+
+
+#
+# Notifications
+#
+
+@receiver(post_save)
+def notify_object_changed(sender, instance, **kwargs):
+    ct = ContentType.objects.get_for_model(instance)
+
+    # Find any Subscriptions for this object
+    subscriptions = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values('user')
+
+    # Delete any existing Notifications for the object
+    subscribed_users = [sub['user'] for sub in subscriptions]
+    Notification.objects.filter(object_type=ct, object_id=instance.pk, user__in=subscribed_users).delete()
+
+    # Create Notifications for Subscribers
+    notifications = [
+        Notification(
+            user_id=sub['user'],
+            object=instance,
+            event=NotificationEventChoices.OBJECT_CHANGED
+        )
+        for sub in subscriptions
+    ]
+    Notification.objects.bulk_create(notifications)

@@ -23,6 +23,7 @@ __all__ = (
     'EventRuleImportForm',
     'ExportTemplateImportForm',
     'JournalEntryImportForm',
+    'NotificationGroupImportForm',
     'SavedFilterImportForm',
     'TagImportForm',
     'WebhookImportForm',
@@ -250,3 +251,10 @@ class JournalEntryImportForm(NetBoxModelImportForm):
         fields = (
             'assigned_object_type', 'assigned_object_id', 'created_by', 'kind', 'comments', 'tags'
         )
+
+
+class NotificationGroupImportForm(CSVModelForm):
+
+    class Meta:
+        model = NotificationGroup
+        fields = ('name', 'description')
