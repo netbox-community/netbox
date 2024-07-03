@@ -13,6 +13,7 @@ class ObjectContactsView(generic.ObjectChildrenView):
     child_model = ContactAssignment
     table = tables.ContactAssignmentTable
     filterset = filtersets.ContactAssignmentFilterSet
+    filterset_form = forms.ContactAssignmentFilterForm
     template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
