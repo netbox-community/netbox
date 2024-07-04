@@ -85,7 +85,7 @@ class Notification(models.Model):
         return super().__str__()
 
     def get_absolute_url(self):
-        return reverse('extras:notifications')
+        return reverse('account:notifications')
 
     def get_read_url(self):
         return reverse('extras:notification_read', kwargs={'pk': self.pk})
@@ -204,6 +204,9 @@ class Subscription(models.Model):
         )
         verbose_name = _('subscription')
         verbose_name_plural = _('subscriptions')
+
+    def get_absolute_url(self):
+        return reverse('account:subscriptions')
 
     def clean(self):
         super().clean()
