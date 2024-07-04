@@ -1,0 +1,11 @@
+{% load form_helpers %}
+{% if form_field %}
+<div class="column-filter dropdown">
+    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside"><i class="mdi mdi-filter-settings"></i></a>
+    <div class="dropdown-menu">
+        <div class="px-3 py-3">
+            {% render_table_filter_field form_field table=table request=request %}
+        </div>
+    </div>
+</div>
+{% endif %}

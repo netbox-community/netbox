@@ -2,6 +2,9 @@
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
+{# OOB Swaps to update various components #}
+{{ filter_chits }}
+
 <div class="htmx-container table-responsive">
   {% with preferences|get_key:"pagination.placement" as paginator_placement %}
     {% if paginator_placement == 'top' or paginator_placement == 'both' %}

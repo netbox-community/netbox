@@ -6,6 +6,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, T
 
 __all__ = (
     'getfield',
+    'get_filter_field',
     'render_custom_fields',
     'render_errors',
     'render_field',
@@ -13,6 +14,7 @@ __all__ = (
     'widget_type',
 )
 
+from utilities.templatetags.helpers import querystring
 
 register = template.Library()
 
@@ -30,6 +32,14 @@ def getfield(form, fieldname):
         return form[fieldname]
     except KeyError:
         return None
+
+
+@register.filter()
+def get_filter_field(form, fieldname):
+    # Check for a table form column map attribute and use that to map form fields if set
+    if hasattr(form, '_table_form_column_map') and form._table_form_column_map.get(fieldname):
+        return getfield(form, form._table_form_column_map.get(fieldname))
+    return getfield(form, f'{fieldname}') or getfield(form, f'{fieldname}_id')
 
 
 @register.filter(name='widget_type')
@@ -120,10 +130,44 @@ def render_field(field, bulk_nullable=False, label=None):
     """
     Render a single form field from template
     """
+
     return {
         'field': field,
         'label': label or field.label,
         'bulk_nullable': bulk_nullable or getattr(field, '_nullable', False),
+    }
+
+
+@register.inclusion_tag('form_helpers/render_field.html')
+def render_table_filter_field(field, table, request):
+    """
+    Render a single form field for table column filters from template
+    """
+    url = ""
+
+    # Handle filter forms
+    if table:
+        # Build kwargs for querystring function
+        kwargs = {field.name: None}
+        # Build request url
+        if request and table.htmx_url:
+            url = table.htmx_url + querystring(request, **kwargs)
+        elif request:
+            url = querystring(request, **kwargs)
+
+    # Set HTMX args
+    if hasattr(field.field, 'widget'):
+        field.field.widget.attrs.update({
+            'id': f'table_filter_id_{field.name}',
+            'hx-get': url if url else '#',
+            'hx-push-url': "true",
+            'hx-trigger': 'hidden.bs.dropdown from:closest .dropdown'
+        })
+
+    return {
+        'field': field,
+        'label': None,
+        'bulk_nullable': False,
     }
 
 
