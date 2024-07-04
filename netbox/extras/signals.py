@@ -294,24 +294,21 @@ def notify_object_changed(sender, instance, created, raw, **kwargs):
     if created or raw:
         return
 
+    # Skip unsupported object types
     ct = ContentType.objects.get_for_model(instance)
     if ct.model not in registry['model_features']['notifications'].get(ct.app_label, []):
         return
 
-    # Find any Subscriptions for supported objects
-    subscriptions = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values('user')
+    # Find all subscribed Users
+    subscribed_users = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values_list('user', flat=True)
+    if not subscribed_users:
+        return
 
     # Delete any existing Notifications for the object
-    subscribed_users = [sub['user'] for sub in subscriptions]
     Notification.objects.filter(object_type=ct, object_id=instance.pk, user__in=subscribed_users).delete()
 
     # Create Notifications for Subscribers
-    notifications = [
-        Notification(
-            user_id=sub['user'],
-            object=instance,
-            event_name=OBJECT_UPDATED
-        )
-        for sub in subscriptions
-    ]
-    Notification.objects.bulk_create(notifications)
+    Notification.objects.bulk_create([
+        Notification(user_id=user, object=instance, event_name=OBJECT_UPDATED)
+        for user in subscribed_users
+    ])
