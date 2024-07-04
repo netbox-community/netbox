@@ -3,9 +3,12 @@
   {% for notification in notifications %}
     <div class="list-group-item p-2">
       <div class="row align-items-center">
+        <div class="col-auto text-{{ notification.event.color }} pe-0">
+          <i class="{{ notification.event.icon }}"></i>
+        </div>
         <div class="col text-truncate">
           <a href="{{ notification.get_read_url }}" class="text-body d-block">{{ notification.object }}</a>
-          <div class="d-block text-secondary fs-5">{{ notification.get_event_display }} {{ notification.created|timesince }} {% trans "ago" %}</div>
+          <div class="d-block text-secondary fs-5">{{ notification.event }} {{ notification.created|timesince }} {% trans "ago" %}</div>
         </div>
         <div class="col-auto">
           <a href="#" hx-get="{{ notification.get_dismiss_url }}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Dismiss" %}">

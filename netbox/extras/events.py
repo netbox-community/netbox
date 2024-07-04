@@ -12,8 +12,8 @@ from core.choices import ObjectChangeActionChoices
 from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
+from netbox.events import Event
 from netbox.registry import registry
-from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
@@ -21,6 +21,15 @@ from .choices import EventRuleActionChoices
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
+
+EVENT_OBJECT_CREATED = 'object_created'
+EVENT_OBJECT_UPDATED = 'object_updated'
+EVENT_OBJECT_DELETED = 'object_deleted'
+
+# Register event types
+Event(name=EVENT_OBJECT_CREATED, text=_('Object created')).register()
+Event(name=EVENT_OBJECT_UPDATED, text=_('Object updated')).register()
+Event(name=EVENT_OBJECT_DELETED, text=_('Object deleted')).register()
 
 
 def serialize_for_event(instance):

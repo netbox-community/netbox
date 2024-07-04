@@ -149,25 +149,6 @@ class JournalEntryKindChoices(ChoiceSet):
 
 
 #
-# Notifications
-#
-
-# TODO: Support dynamic entries from plugins
-class NotificationEventChoices(ChoiceSet):
-    key = 'Notification.event'
-
-    OBJECT_CREATED = 'object_created'
-    OBJECT_CHANGED = 'object_changed'
-    OBJECT_DELETED = 'object_deleted'
-
-    CHOICES = [
-        (OBJECT_CREATED, _('Object created')),
-        (OBJECT_CHANGED, _('Object changed')),
-        (OBJECT_DELETED, _('Object deleted')),
-    ]
-
-
-#
 # Reports and Scripts
 #
 

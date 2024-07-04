@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -6,9 +8,9 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from extras.choices import *
 from extras.querysets import NotificationQuerySet
 from netbox.models import ChangeLoggedModel
+from netbox.registry import registry
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -44,10 +46,9 @@ class Notification(models.Model):
         ct_field='object_type',
         fk_field='object_id'
     )
-    event = models.CharField(
+    event_name = models.CharField(
         verbose_name=_('event'),
-        max_length=30,
-        choices=NotificationEventChoices
+        max_length=50
     )
 
     objects = NotificationQuerySet.as_manager()
@@ -88,6 +89,10 @@ class Notification(models.Model):
             raise ValidationError(
                 _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
             )
+
+    @cached_property
+    def event(self):
+        return registry['events'].get(self.event_name)
 
 
 class NotificationGroup(ChangeLoggedModel):

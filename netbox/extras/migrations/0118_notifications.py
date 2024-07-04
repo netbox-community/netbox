@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('read', models.DateTimeField(null=True)),
                 ('object_id', models.PositiveBigIntegerField()),
-                ('event', models.CharField(max_length=30)),
+                ('event_name', models.CharField(max_length=50)),
                 ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL)),
             ],

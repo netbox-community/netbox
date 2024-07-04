@@ -12,7 +12,6 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
-from extras.choices import NotificationEventChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule, Notification, Subscription
@@ -22,7 +21,7 @@ from netbox.models.features import ChangeLoggingMixin
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
-from .events import enqueue_object
+from .events import EVENT_OBJECT_UPDATED, enqueue_object
 from .models import CustomField, TaggedItem
 from .validators import CustomValidator
 
@@ -310,7 +309,7 @@ def notify_object_changed(sender, instance, created, raw, **kwargs):
         Notification(
             user_id=sub['user'],
             object=instance,
-            event=NotificationEventChoices.OBJECT_CHANGED
+            event_name=EVENT_OBJECT_UPDATED
         )
         for sub in subscriptions
     ]
