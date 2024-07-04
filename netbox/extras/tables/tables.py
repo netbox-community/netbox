@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.tables import BaseTable, NetBoxTable, columns
+from .columns import NotificationActionsColumn
 
 __all__ = (
     'BookmarkTable',
@@ -303,8 +304,8 @@ class NotificationTable(NetBoxTable):
         timespec='minutes',
         verbose_name=_('Read'),
     )
-    actions = columns.ActionsColumn(
-        actions=('delete',)
+    actions = NotificationActionsColumn(
+        actions=('dismiss',)
     )
 
     class Meta(NetBoxTable.Meta):

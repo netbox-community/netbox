@@ -432,7 +432,7 @@ class NotificationReadView(LoginRequiredMixin, View):
     Mark the Notification read and redirect the user to its attached object.
     """
     def get(self, request, pk):
-        notification = get_object_or_404(Notification, pk=pk)
+        notification = get_object_or_404(request.user.notifications, pk=pk)
         notification.read = timezone.now()
         notification.save()
 
@@ -445,12 +445,15 @@ class NotificationDismissView(LoginRequiredMixin, View):
     A convenience view which allows deleting notifications with one click.
     """
     def get(self, request, pk):
-        request.user.notifications.filter(pk=pk).delete()
+        notification = get_object_or_404(request.user.notifications, pk=pk)
+        notification.delete()
 
-        notifications = request.user.notifications.unread()[:10]
-        return render(request, 'htmx/notifications.html', {
-            'notifications': notifications,
-        })
+        if htmx_partial(request):
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+            })
+
+        return redirect('account:notifications')
 
 
 @register_model_view(Notification, 'delete')
