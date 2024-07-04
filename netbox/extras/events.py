@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.choices import ObjectChangeActionChoices
-from core.events import JOB_ENDED, JOB_STARTED, OBJECT_CREATED, OBJECT_DELETED, OBJECT_UPDATED
+from core.events import JOB_COMPLETED, JOB_STARTED, OBJECT_CREATED, OBJECT_DELETED, OBJECT_UPDATED
 from core.models import Job
 from extras.constants import EVENT_CREATE, EVENT_DELETE, EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
 from netbox.config import get_config
@@ -144,7 +144,7 @@ def process_event_rules(event_rules, object_type, event, data, username=None, sn
                 EVENT_UPDATE: OBJECT_UPDATED,
                 EVENT_DELETE: OBJECT_DELETED,
                 EVENT_JOB_START: JOB_STARTED,
-                EVENT_JOB_END: JOB_ENDED,
+                EVENT_JOB_END: JOB_COMPLETED,
             }[event]
             event_rule.action_object.notify(
                 object_type=object_type,
