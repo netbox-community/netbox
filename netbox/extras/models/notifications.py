@@ -21,6 +21,16 @@ __all__ = (
 )
 
 
+def get_event_type_choices():
+    """
+    Compile a list of choices from all registered event types
+    """
+    return [
+        (name, event.text)
+        for name, event in registry['events'].items()
+    ]
+
+
 class Notification(models.Model):
     """
     A notification message for a User relating to a specific object in NetBox.
@@ -49,7 +59,8 @@ class Notification(models.Model):
     )
     event_name = models.CharField(
         verbose_name=_('event'),
-        max_length=50
+        max_length=50,
+        choices=get_event_type_choices
     )
 
     objects = NotificationQuerySet.as_manager()

@@ -18,7 +18,7 @@ from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 from .choices import EventRuleActionChoices
-from .constants import EVENT_CREATE, EVENT_DELETE, EVENT_UPDATE
+from .constants import EVENT_CREATE, EVENT_DELETE, EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -27,6 +27,8 @@ logger = logging.getLogger('netbox.events_processor')
 Event(name=EVENT_CREATE, text=_('Object created')).register()
 Event(name=EVENT_UPDATE, text=_('Object updated')).register()
 Event(name=EVENT_DELETE, text=_('Object deleted')).register()
+Event(name=EVENT_JOB_START, text=_('Job started')).register()
+Event(name=EVENT_JOB_END, text=_('Job ended')).register()
 
 
 def serialize_for_event(instance):
