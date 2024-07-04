@@ -11,6 +11,7 @@ from core.models import ObjectType
 from extras.querysets import NotificationQuerySet
 from netbox.models import ChangeLoggedModel
 from netbox.registry import registry
+from users.models import User
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -134,6 +135,24 @@ class NotificationGroup(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('extras:notificationgroup', args=[self.pk])
+
+    @cached_property
+    def members(self):
+        """
+        Return all Users who belong to this notification group.
+        """
+        return self.users.union(
+            User.objects.filter(groups__in=self.groups.all())
+        ).order_by('username')
+
+    def notify(self, **kwargs):
+        """
+        Bulk-create Notifications for all members of this group.
+        """
+        Notification.objects.bulk_create([
+            Notification(user=member, **kwargs)
+            for member in self.members
+        ])
 
 
 class Subscription(models.Model):

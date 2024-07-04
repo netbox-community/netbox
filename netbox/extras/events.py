@@ -18,18 +18,15 @@ from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 from .choices import EventRuleActionChoices
+from .constants import EVENT_CREATE, EVENT_DELETE, EVENT_UPDATE
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
 
-EVENT_OBJECT_CREATED = 'object_created'
-EVENT_OBJECT_UPDATED = 'object_updated'
-EVENT_OBJECT_DELETED = 'object_deleted'
-
 # Register event types
-Event(name=EVENT_OBJECT_CREATED, text=_('Object created')).register()
-Event(name=EVENT_OBJECT_UPDATED, text=_('Object updated')).register()
-Event(name=EVENT_OBJECT_DELETED, text=_('Object deleted')).register()
+Event(name=EVENT_CREATE, text=_('Object created')).register()
+Event(name=EVENT_UPDATE, text=_('Object updated')).register()
+Event(name=EVENT_DELETE, text=_('Object deleted')).register()
 
 
 def serialize_for_event(instance):
@@ -88,7 +85,7 @@ def enqueue_object(queue, instance, user, request_id, action):
         }
 
 
-def process_event_rules(event_rules, model_name, event, data, username=None, snapshots=None, request_id=None):
+def process_event_rules(event_rules, object_type, event, data, username=None, snapshots=None, request_id=None):
     if username:
         user = get_user_model().objects.get(username=username)
     else:
@@ -110,7 +107,7 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             # Compile the task parameters
             params = {
                 "event_rule": event_rule,
-                "model_name": model_name,
+                "model_name": object_type.model,
                 "event": event,
                 "data": data,
                 "snapshots": snapshots,
@@ -143,10 +140,14 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
                 data=data
             )
 
-        # Notifications
+        # Notification groups
         elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
-            # TODO: Create notifications
-            pass
+            # Bulk-create notifications for all members of the notification group
+            event_rule.action_object.notify(
+                object_type=object_type,
+                object_id=data['id'],
+                event_name=event
+            )
 
         else:
             raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
@@ -182,7 +183,7 @@ def process_event_queue(events):
         event_rules = events_cache[action_flag][content_type]
 
         process_event_rules(
-            event_rules, content_type.model, data['event'], data['data'], data['username'],
+            event_rules, content_type, data['event'], data['data'], data['username'],
             snapshots=data['snapshots'], request_id=data['request_id']
         )
 
