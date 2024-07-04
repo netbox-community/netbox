@@ -66,6 +66,19 @@ table th.orderable a {
   background: var(--tblr-bg-surface-secondary)!important;
 }
 
+// Altering dashboard card colors
+.grid-stack {
+  .card-header {
+    // Default color of card header changes depending on theme
+    &.bg-default {
+      background: var(--tblr-bg-surface-secondary)!important;
+    }
+    a {
+      color: inherit!important;
+    }
+  }
+}
+
 .footer .text-primary {
   color: $rich-black!important;
 }
