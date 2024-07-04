@@ -176,7 +176,8 @@ class Subscription(models.Model):
     )
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='subscriptions'
     )
     object_type = models.ForeignKey(
         to='contenttypes.ContentType',

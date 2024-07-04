@@ -151,7 +151,6 @@ class NotificationViewSet(NetBoxModelViewSet):
 
 
 class NotificationGroupViewSet(NetBoxModelViewSet):
-    metadata_class = ContentTypeMetadata
     queryset = NotificationGroup.objects.all()
     serializer_class = serializers.NotificationGroupSerializer
 

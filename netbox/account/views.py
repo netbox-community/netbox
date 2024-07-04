@@ -276,7 +276,7 @@ class NotificationListView(LoginRequiredMixin, generic.ObjectListView):
     template_name = 'account/notifications.html'
 
     def get_queryset(self, request):
-        return Notification.objects.filter(user=request.user)
+        return request.user.notifications.all()
 
     def get_extra_context(self, request):
         return {
@@ -289,7 +289,7 @@ class SubscriptionListView(LoginRequiredMixin, generic.ObjectListView):
     template_name = 'account/subscriptions.html'
 
     def get_queryset(self, request):
-        return Subscription.objects.filter(user=request.user)
+        return request.user.subscriptions.all()
 
     def get_extra_context(self, request):
         return {
