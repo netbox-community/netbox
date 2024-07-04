@@ -365,7 +365,7 @@ class ContactAssignmentEditView(generic.ObjectEditView):
 
     def get_extra_addanother_params(self, request):
         return {
-            'content_type': request.GET.get('content_type'),
+            'object_type': request.GET.get('object_type'),
             'object_id': request.GET.get('object_id'),
         }
 
