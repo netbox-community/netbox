@@ -322,11 +322,17 @@ class NotificationGroupTable(NetBoxTable):
         linkify=True,
         verbose_name=_('Name')
     )
+    users = columns.ManyToManyColumn(
+        linkify_item=True
+    )
+    groups = columns.ManyToManyColumn(
+        linkify_item=True
+    )
 
     class Meta(NetBoxTable.Meta):
         model = NotificationGroup
         fields = ('pk', 'name', 'description', 'groups', 'users')
-        default_columns = ('name', 'description')
+        default_columns = ('name', 'description', 'groups', 'users')
 
 
 class WebhookTable(NetBoxTable):

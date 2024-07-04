@@ -156,4 +156,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
 class NotificationQuerySet(RestrictedQuerySet):
 
     def unread(self):
+        """
+        Return only unread notifications.
+        """
         return self.filter(read__isnull=True)

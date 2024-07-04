@@ -8,7 +8,7 @@ from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
-from users.models import Group
+from users.models import Group, User
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
@@ -343,14 +343,16 @@ class NotificationGroupFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    # user_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=get_user_model().objects.all(),
-    #     label=_('User (ID)'),
-    # )
-    # group_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Group.objects.all(),
-    #     label=_('Group (ID)'),
-    # )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='users',
+        queryset=User.objects.all(),
+        label=_('User (ID)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups',
+        queryset=Group.objects.all(),
+        label=_('Group (ID)'),
+    )
 
     class Meta:
         model = NotificationGroup

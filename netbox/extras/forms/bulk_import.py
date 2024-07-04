@@ -10,9 +10,11 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelImportForm
+from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVMultipleContentTypeField, SlugField,
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleContentTypeField,
+    SlugField,
 )
 
 __all__ = (
@@ -254,7 +256,25 @@ class JournalEntryImportForm(NetBoxModelImportForm):
 
 
 class NotificationGroupImportForm(CSVModelForm):
+    users = CSVModelMultipleChoiceField(
+        label=_('Users'),
+        queryset=User.objects.all(),
+        required=False,
+        to_field_name='username',
+        help_text=mark_safe(
+            _('User names separated by commas, encased with double quotes')
+        )
+    )
+    groups = CSVModelMultipleChoiceField(
+        label=_('Groups'),
+        queryset=Group.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=mark_safe(
+            _('Group names separated by commas, encased with double quotes')
+        )
+    )
 
     class Meta:
         model = NotificationGroup
-        fields = ('name', 'description')
+        fields = ('name', 'description', 'users', 'groups')

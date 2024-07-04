@@ -21,7 +21,7 @@ __all__ = (
 )
 
 
-def get_event_type_choices():
+def get_event_name_choices():
     """
     Compile a list of choices from all registered event types
     """
@@ -60,7 +60,7 @@ class Notification(models.Model):
     event_name = models.CharField(
         verbose_name=_('event'),
         max_length=50,
-        choices=get_event_type_choices
+        choices=get_event_name_choices
     )
 
     objects = NotificationQuerySet.as_manager()
