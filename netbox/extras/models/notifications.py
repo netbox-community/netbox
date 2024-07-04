@@ -78,7 +78,13 @@ class Notification(models.Model):
         return super().__str__()
 
     def get_absolute_url(self):
-        return self.object.get_absolute_url()
+        return reverse('extras:notifications')
+
+    def get_read_url(self):
+        return reverse('extras:notification_read', kwargs={'pk': self.pk})
+
+    def get_dismiss_url(self):
+        return reverse('extras:notification_dismiss', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()

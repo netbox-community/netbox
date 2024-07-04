@@ -266,13 +266,34 @@ class BookmarkTable(NetBoxTable):
         default_columns = ('object', 'object_type', 'created')
 
 
-class NotificationTable(NetBoxTable):
+class SubscriptionTable(NetBoxTable):
     object_type = columns.ContentTypeColumn(
-        verbose_name=_('Object Types'),
+        verbose_name=_('Object Type'),
     )
     object = tables.Column(
         verbose_name=_('Object'),
         linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Subscription
+        fields = ('pk', 'object', 'object_type', 'created')
+        default_columns = ('object', 'object_type', 'created')
+
+
+class NotificationTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    object = tables.Column(
+        verbose_name=_('Object'),
+        linkify={
+            'viewname': 'extras:notification_read',
+            'args': [tables.A('pk')],
+        }
     )
     created = columns.DateTimeColumn(
         timespec='minutes',
@@ -290,6 +311,9 @@ class NotificationTable(NetBoxTable):
         model = Notification
         fields = ('pk', 'object', 'object_type', 'created', 'read')
         default_columns = ('object', 'object_type', 'created', 'read')
+        row_attrs = {
+            'data-unread': lambda record: not record.read,
+        }
 
 
 class NotificationGroupTable(NetBoxTable):
@@ -302,24 +326,6 @@ class NotificationGroupTable(NetBoxTable):
         model = NotificationGroup
         fields = ('pk', 'name', 'description', 'groups', 'users')
         default_columns = ('name', 'description')
-
-
-class SubscriptionTable(NetBoxTable):
-    object_type = columns.ContentTypeColumn(
-        verbose_name=_('Object Types'),
-    )
-    object = tables.Column(
-        verbose_name=_('Object'),
-        linkify=True
-    )
-    actions = columns.ActionsColumn(
-        actions=('delete',)
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = Subscription
-        fields = ('pk', 'object', 'object_type', 'created')
-        default_columns = ('object', 'object_type', 'created')
 
 
 class WebhookTable(NetBoxTable):

@@ -1,0 +1,8 @@
+@use 'sass:map';
+
+// Highlight unread notifications
+tr[data-unread=True] {
+  td {
+    background-color: rgba(map.get($theme-colors, "green"), 0.15);
+  }
+}
