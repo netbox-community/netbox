@@ -25,7 +25,8 @@ class IKEProposalSerializer(NetBoxModelSerializer):
         choices=EncryptionAlgorithmChoices
     )
     authentication_algorithm = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        required=False
     )
     group = ChoiceField(
         choices=DHGroupChoices
