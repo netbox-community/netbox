@@ -2,15 +2,6 @@ from dataclasses import dataclass
 
 from netbox.registry import registry
 
-__all__ = (
-    'EVENT_TYPE_DANGER',
-    'EVENT_TYPE_INFO',
-    'EVENT_TYPE_SUCCESS',
-    'EVENT_TYPE_WARNING',
-    'Event',
-)
-
-
 EVENT_TYPE_INFO = 'info'
 EVENT_TYPE_SUCCESS = 'success'
 EVENT_TYPE_WARNING = 'warning'

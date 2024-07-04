@@ -9,26 +9,19 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.choices import ObjectChangeActionChoices
+from core.events import JOB_ENDED, JOB_STARTED, OBJECT_CREATED, OBJECT_DELETED, OBJECT_UPDATED
 from core.models import Job
+from extras.constants import EVENT_CREATE, EVENT_DELETE, EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
-from netbox.events import Event
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 from .choices import EventRuleActionChoices
-from .constants import EVENT_CREATE, EVENT_DELETE, EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
-
-# Register event types
-Event(name=EVENT_CREATE, text=_('Object created')).register()
-Event(name=EVENT_UPDATE, text=_('Object updated')).register()
-Event(name=EVENT_DELETE, text=_('Object deleted')).register()
-Event(name=EVENT_JOB_START, text=_('Job started')).register()
-Event(name=EVENT_JOB_END, text=_('Job ended')).register()
 
 
 def serialize_for_event(instance):
@@ -145,10 +138,18 @@ def process_event_rules(event_rules, object_type, event, data, username=None, sn
         # Notification groups
         elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
             # Bulk-create notifications for all members of the notification group
+            # TODO: Support dynamic events upstream
+            event_name = {
+                EVENT_CREATE: OBJECT_CREATED,
+                EVENT_UPDATE: OBJECT_UPDATED,
+                EVENT_DELETE: OBJECT_DELETED,
+                EVENT_JOB_START: JOB_STARTED,
+                EVENT_JOB_END: JOB_ENDED,
+            }[event]
             event_rule.action_object.notify(
                 object_type=object_type,
                 object_id=data['id'],
-                event_name=event
+                event_name=event_name
             )
 
         else:

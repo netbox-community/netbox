@@ -10,9 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from core.choices import ObjectChangeActionChoices
+from core.events import OBJECT_UPDATED
 from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
-from extras.constants import EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
+from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
@@ -309,7 +310,7 @@ def notify_object_changed(sender, instance, created, raw, **kwargs):
         Notification(
             user_id=sub['user'],
             object=instance,
-            event_name=EVENT_UPDATE
+            event_name=OBJECT_UPDATED
         )
         for sub in subscriptions
     ]
