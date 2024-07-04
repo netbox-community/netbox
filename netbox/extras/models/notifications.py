@@ -44,12 +44,6 @@ class Notification(models.Model):
         ct_field='object_type',
         fk_field='object_id'
     )
-    kind = models.CharField(
-        verbose_name=_('kind'),
-        max_length=30,
-        choices=NotificationKindChoices,
-        default=NotificationKindChoices.KIND_INFO
-    )
     event = models.CharField(
         verbose_name=_('event'),
         max_length=30,

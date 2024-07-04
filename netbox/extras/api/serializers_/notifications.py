@@ -26,9 +26,9 @@ class NotificationSerializer(ValidatedModelSerializer):
     class Meta:
         model = Notification
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'read', 'kind', 'event',
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'read', 'event',
         ]
-        brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user', 'kind', 'event')
+        brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user', 'event')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, instance):
