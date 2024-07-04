@@ -5,18 +5,27 @@
 ### Enhancements
 
 * [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
+* [#16716](https://github.com/netbox-community/netbox/issues/16716) - Display NAT address (if any) for OOB IP address under device view
 * [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#16791](https://github.com/netbox-community/netbox/issues/16791) - Add 200 & 400 Gbps selections for circuit termination port speed
 
 ### Bug Fixes
 
 * [#16523](https://github.com/netbox-community/netbox/issues/16523) - Restore highlighting of current device in virtual chassis members panel
 * [#16654](https://github.com/netbox-community/netbox/issues/16654) - Fix parent item assignment for inventory item bulk import
 * [#16657](https://github.com/netbox-community/netbox/issues/16657) - Fix translation of object types in global search
+* [#16679](https://github.com/netbox-community/netbox/issues/16679) - Avoid overwriting custom JSON fields during bulk edit
 * [#16689](https://github.com/netbox-community/netbox/issues/16689) - System configuration view should reflect static parameters when no config revisions exist
 * [#16714](https://github.com/netbox-community/netbox/issues/16714) - Fix cloning of device types with 0U height
 * [#16723](https://github.com/netbox-community/netbox/issues/16723) - Fix escaping of path to virtual environment in `upgrade.sh`
 * [#16735](https://github.com/netbox-community/netbox/issues/16735) - Object list "results" tab should show a count of zero when empty
 * [#16747](https://github.com/netbox-community/netbox/issues/16747) - Avoid clearing entire search cache when manually reindexing specific apps/models
+* [#16779](https://github.com/netbox-community/netbox/issues/16779) - Fix saved filter selection for child object lists
+* [#16780](https://github.com/netbox-community/netbox/issues/16780) - IKE proposal created via REST API should not require authentication_algorithm
+* [#16796](https://github.com/netbox-community/netbox/issues/16796) - Allow assignment of VM with no site to a cluster with a site
+* [#16806](https://github.com/netbox-community/netbox/issues/16806) - Fix redirect URL when creating contact assignments with "add another" button
+* [#16807](https://github.com/netbox-community/netbox/issues/16807) - Fix layout of VLAN edit form when custom fields are present
+* [#16813](https://github.com/netbox-community/netbox/issues/16813) - Fix AttributeError exception when filtering bookmarks in dashboard widget by object type
 
 ---
 
