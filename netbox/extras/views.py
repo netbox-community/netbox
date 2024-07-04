@@ -409,21 +409,10 @@ class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
 class NotificationsView(LoginRequiredMixin, View):
 
     def get(self, request):
-        notifications = Notification.objects.filter(
-            user=request.user,
-            read__isnull=True
-        )
         return render(request, 'htmx/notifications.html', {
-            'notifications': notifications,
+            'notifications': request.user.notifications.unread(),
+            'total_count': request.user.notifications.count(),
         })
-
-    def post(self, request):
-        form = forms.RenderMarkdownForm(request.POST)
-        if not form.is_valid():
-            HttpResponseBadRequest()
-        rendered = render_markdown(form.cleaned_data['text'])
-
-        return HttpResponse(rendered)
 
 
 @register_model_view(Notification, 'read')

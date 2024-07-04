@@ -19,6 +19,10 @@
       {% trans "No unread notifications" %}
     </div>
   {% endfor %}
+  {% if total_count %}
+    <a href="{% url 'account:notifications' %}" class="list-group-item list-group-item-action d-flex justify-content-between p-2">
+      {% trans "All notifications" %}
+      {% badge total_count %}
+    </a>
+  {% endif %}
 </div>
-<hr class="dropdown-divider" />
-<a href="{% url 'account:notifications' %}" class="dropdown-item">{% trans "All notifications" %}</a>
