@@ -18,8 +18,8 @@ def register_template_extensions(class_list):
     """
     Register a list of PluginTemplateExtension classes
     """
-    # Validation
     for template_extension in class_list:
+        # Validation
         if not inspect.isclass(template_extension):
             raise TypeError(
                 _("PluginTemplateExtension class {template_extension} was passed as an instance!").format(
@@ -33,7 +33,17 @@ def register_template_extensions(class_list):
                 )
             )
 
-        registry['plugins']['template_extensions'][template_extension.model].append(template_extension)
+        if template_extension.models:
+            # Registration for multiple models
+            models = template_extension.models
+        elif template_extension.model:
+            # Registration for a single model
+            models = [template_extension.model]
+        else:
+            # Global registration (no specific models)
+            models = [None]
+        for model in models:
+            registry['plugins']['template_extensions'][model].append(template_extension)
 
 
 def register_menu(menu):

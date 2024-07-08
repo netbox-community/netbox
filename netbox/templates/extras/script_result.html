@@ -42,8 +42,26 @@
     <div class="tab-pane show active" id="results" role="tabpanel" aria-labelledby="results-tab">
 
       {# Object table controls #}
-      <div class="row mb-3">
-        <div class="col-auto ms-auto d-print-none">
+      <div class="d-flex align-items-center mb-3">
+        <div>{% trans "Log threshold" %}</div>
+
+        <div class="px-2 d-print-none">
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ log_levels|get_key:log_threshold }}
+            </button>
+            <div class="dropdown-menu">
+              {% for level, name in log_levels.items %}
+                <a class="dropdown-item d-flex justify-content-between" href="{% url 'extras:script_result' job_pk=job.pk %}?log_threshold={{ level }}">
+                  {{ name }}
+                  {% if level == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="ms-auto d-print-none">
           {% if request.user.is_authenticated and job.completed %}
             <div class="table-configure input-group">
               <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config"
