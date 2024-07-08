@@ -21,7 +21,7 @@ from netbox.models.features import ChangeLoggingMixin
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
-from .events import enqueue_object
+from .events import enqueue_event
 from .models import CustomField, TaggedItem
 from .validators import CustomValidator
 
@@ -73,23 +73,23 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Determine the type of change being made
     if kwargs.get('created'):
-        action = OBJECT_CREATED
+        event_type = OBJECT_CREATED
     elif 'created' in kwargs:
-        action = OBJECT_UPDATED
+        event_type = OBJECT_UPDATED
     elif kwargs.get('action') in ['post_add', 'post_remove'] and kwargs['pk_set']:
         # m2m_changed with objects added or removed
         m2m_changed = True
-        action = OBJECT_UPDATED
+        event_type = OBJECT_UPDATED
     else:
         return
 
     # Create/update an ObjectChange record for this change
-    change_event = {
+    action = {
         OBJECT_CREATED: ObjectChangeActionChoices.ACTION_CREATE,
         OBJECT_UPDATED: ObjectChangeActionChoices.ACTION_UPDATE,
         OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
-    }[action]
-    objectchange = instance.to_objectchange(change_event)
+    }[event_type]
+    objectchange = instance.to_objectchange(action)
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
     if m2m_changed and (
@@ -112,13 +112,13 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_object(queue, instance, request.user, request.id, action)
+    enqueue_event(queue, instance, request.user, request.id, event_type)
     events_queue.set(queue)
 
     # Increment metric counters
-    if action == OBJECT_CREATED:
+    if event_type == OBJECT_CREATED:
         model_inserts.labels(instance._meta.model_name).inc()
-    elif action == OBJECT_UPDATED:
+    elif event_type == OBJECT_UPDATED:
         model_updates.labels(instance._meta.model_name).inc()
 
 
@@ -174,7 +174,7 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_object(queue, instance, request.user, request.id, OBJECT_DELETED)
+    enqueue_event(queue, instance, request.user, request.id, OBJECT_DELETED)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -276,7 +276,13 @@ def process_job_start_event_rules(sender, **kwargs):
     """
     event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
-    process_event_rules(event_rules, sender.object_type, JOB_STARTED, sender.data, username)
+    process_event_rules(
+        event_rules=event_rules,
+        object_type=sender.object_type,
+        event_type=JOB_STARTED,
+        data=sender.data,
+        username=username
+    )
 
 
 @receiver(job_end)
@@ -286,7 +292,13 @@ def process_job_end_event_rules(sender, **kwargs):
     """
     event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
-    process_event_rules(event_rules, sender.object_type, JOB_COMPLETED, sender.data, username)
+    process_event_rules(
+        event_rules=event_rules,
+        object_type=sender.object_type,
+        event_type=JOB_COMPLETED,
+        data=sender.data,
+        username=username
+    )
 
 
 #

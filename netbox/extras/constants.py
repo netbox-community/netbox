@@ -8,6 +8,7 @@ CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 HTTP_CONTENT_TYPE_JSON = 'application/json'
 
 WEBHOOK_EVENT_TYPES = {
+    # Map registered event types to public webhook "event" equivalents
     OBJECT_CREATED: 'created',
     OBJECT_UPDATED: 'updated',
     OBJECT_DELETED: 'deleted',

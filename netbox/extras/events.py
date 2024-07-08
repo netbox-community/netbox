@@ -8,7 +8,6 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
-from core.choices import ObjectChangeActionChoices
 from core.events import *
 from core.models import Job
 from netbox.config import get_config
@@ -36,12 +35,12 @@ def serialize_for_event(instance):
     return serializer.data
 
 
-def get_snapshots(instance, action):
+def get_snapshots(instance, event_type):
     snapshots = {
         'prechange': getattr(instance, '_prechange_snapshot', None),
         'postchange': None,
     }
-    if action != ObjectChangeActionChoices.ACTION_DELETE:
+    if event_type != OBJECT_DELETED:
         # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
         if hasattr(instance, 'serialize_object'):
             snapshots['postchange'] = instance.serialize_object()
@@ -51,7 +50,7 @@ def get_snapshots(instance, action):
     return snapshots
 
 
-def enqueue_object(queue, instance, user, request_id, action):
+def enqueue_event(queue, instance, user, request_id, event_type):
     """
     Enqueue a serialized representation of a created/updated/deleted object for the processing of
     events once the request has completed.
@@ -66,24 +65,21 @@ def enqueue_object(queue, instance, user, request_id, action):
     key = f'{app_label}.{model_name}:{instance.pk}'
     if key in queue:
         queue[key]['data'] = serialize_for_event(instance)
-        queue[key]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+        queue[key]['snapshots']['postchange'] = get_snapshots(instance, event_type)['postchange']
     else:
         queue[key] = {
-            'content_type': ContentType.objects.get_for_model(instance),
+            'object_type': ContentType.objects.get_for_model(instance),
             'object_id': instance.pk,
-            'event': action,
+            'event_type': event_type,
             'data': serialize_for_event(instance),
-            'snapshots': get_snapshots(instance, action),
+            'snapshots': get_snapshots(instance, event_type),
             'username': user.username,
             'request_id': request_id
         }
 
 
-def process_event_rules(event_rules, object_type, event, data, username=None, snapshots=None, request_id=None):
-    if username:
-        user = get_user_model().objects.get(username=username)
-    else:
-        user = None
+def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request_id=None):
+    user = get_user_model().objects.get(username=username) if username else None
 
     for event_rule in event_rules:
 
@@ -102,7 +98,7 @@ def process_event_rules(event_rules, object_type, event, data, username=None, sn
             params = {
                 "event_rule": event_rule,
                 "model_name": object_type.model,
-                "event": event,
+                "event_type": event_type,
                 "data": data,
                 "snapshots": snapshots,
                 "timestamp": timezone.now().isoformat(),
@@ -140,7 +136,7 @@ def process_event_rules(event_rules, object_type, event, data, username=None, sn
             event_rule.action_object.notify(
                 object_type=object_type,
                 object_id=data['id'],
-                event_name=event
+                event_name=event_type
             )
 
         else:
@@ -158,33 +154,39 @@ def process_event_queue(events):
         'type_update': {},
         'type_delete': {},
     }
+    event_actions = {
+        # TODO: Add EventRule support for dynamically registered event types
+        OBJECT_CREATED: 'type_create',
+        OBJECT_UPDATED: 'type_update',
+        OBJECT_DELETED: 'type_delete',
+        JOB_STARTED: 'type_job_start',
+        JOB_COMPLETED: 'type_job_end',
+        # Map failed & errored jobs to type_job_end
+        JOB_FAILED: 'type_job_end',
+        JOB_ERRORED: 'type_job_end',
+    }
 
-    for data in events:
-        action_flag = {
-            # TODO: Add EventRule support for dynamically registered event types
-            OBJECT_CREATED: 'type_create',
-            OBJECT_UPDATED: 'type_update',
-            OBJECT_DELETED: 'type_delete',
-            JOB_STARTED: 'type_job_start',
-            JOB_COMPLETED: 'type_job_end',
-            # Map failed & errored jobs to type_job_end
-            JOB_FAILED: 'type_job_end',
-            JOB_ERRORED: 'type_job_end',
-        }[data['event']]
-        content_type = data['content_type']
+    for event in events:
+        action_flag = event_actions[event['event_type']]
+        object_type = event['object_type']
 
         # Cache applicable Event Rules
-        if content_type not in events_cache[action_flag]:
-            events_cache[action_flag][content_type] = EventRule.objects.filter(
+        if object_type not in events_cache[action_flag]:
+            events_cache[action_flag][object_type] = EventRule.objects.filter(
                 **{action_flag: True},
-                object_types=content_type,
+                object_types=object_type,
                 enabled=True
             )
-        event_rules = events_cache[action_flag][content_type]
+        event_rules = events_cache[action_flag][object_type]
 
         process_event_rules(
-            event_rules, content_type, data['event'], data['data'], data['username'],
-            snapshots=data['snapshots'], request_id=data['request_id']
+            event_rules=event_rules,
+            object_type=object_type,
+            event_type=event['event_type'],
+            data=event['data'],
+            username=event['username'],
+            snapshots=event['snapshots'],
+            request_id=event['request_id']
         )
 
 
