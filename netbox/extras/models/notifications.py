@@ -41,7 +41,8 @@ class Notification(models.Model):
     )
     read = models.DateTimeField(
         verbose_name=_('read'),
-        null=True
+        null=True,
+        blank=True
     )
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,

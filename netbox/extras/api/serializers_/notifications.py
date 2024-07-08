@@ -28,7 +28,7 @@ class NotificationSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'read', 'event_type',
         ]
-        brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user', 'event')
+        brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user', 'read', 'event_type')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, instance):
@@ -73,7 +73,7 @@ class SubscriptionSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
         ]
-        brief_fields = ('id', 'url', 'display', 'object_id', 'object_type')
+        brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, instance):
