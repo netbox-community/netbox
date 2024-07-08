@@ -111,6 +111,11 @@ table th.orderable a {
 .text-bg-green,.text-bg-success,.progress-bar {
   color: $rich-black!important;
 }
+.bg-green {
+  a, i, span {
+    color: $rich-black!important;
+  }
+}
 
 // Dark mode overrides
 body[data-bs-theme=dark] {
