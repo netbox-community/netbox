@@ -9,7 +9,7 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
-from core.choices import ObjectChangeActionChoices
+from core.events import *
 from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
@@ -132,7 +132,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['event'], OBJECT_CREATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -182,7 +182,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+            self.assertEqual(job.kwargs['event'], OBJECT_CREATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -213,7 +213,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['event'], OBJECT_UPDATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -269,7 +269,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(job.kwargs['event'], OBJECT_UPDATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -295,7 +295,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(job.kwargs['event'], OBJECT_DELETED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
@@ -328,7 +328,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+            self.assertEqual(job.kwargs['event'], OBJECT_DELETED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
@@ -370,7 +370,7 @@ class EventRuleTest(APITestCase):
             instance=site,
             user=self.user,
             request_id=request_id,
-            action=ObjectChangeActionChoices.ACTION_CREATE
+            action=OBJECT_CREATED
         )
         flush_events(list(webhooks_queue.values()))
 

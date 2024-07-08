@@ -9,9 +9,8 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.choices import ObjectChangeActionChoices
-from core.events import JOB_COMPLETED, JOB_STARTED, OBJECT_CREATED, OBJECT_DELETED, OBJECT_UPDATED
+from core.events import *
 from core.models import Job
-from extras.constants import EVENT_CREATE, EVENT_DELETE, EVENT_JOB_END, EVENT_JOB_START, EVENT_UPDATE
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
@@ -138,18 +137,10 @@ def process_event_rules(event_rules, object_type, event, data, username=None, sn
         # Notification groups
         elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
             # Bulk-create notifications for all members of the notification group
-            # TODO: Support dynamic events upstream
-            event_name = {
-                EVENT_CREATE: OBJECT_CREATED,
-                EVENT_UPDATE: OBJECT_UPDATED,
-                EVENT_DELETE: OBJECT_DELETED,
-                EVENT_JOB_START: JOB_STARTED,
-                EVENT_JOB_END: JOB_COMPLETED,
-            }[event]
             event_rule.action_object.notify(
                 object_type=object_type,
                 object_id=data['id'],
-                event_name=event_name
+                event_name=event
             )
 
         else:
@@ -170,9 +161,15 @@ def process_event_queue(events):
 
     for data in events:
         action_flag = {
-            ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
-            ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
-            ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
+            # TODO: Add EventRule support for dynamically registered event types
+            OBJECT_CREATED: 'type_create',
+            OBJECT_UPDATED: 'type_update',
+            OBJECT_DELETED: 'type_delete',
+            JOB_STARTED: 'type_job_start',
+            JOB_COMPLETED: 'type_job_end',
+            # Map failed & errored jobs to type_job_end
+            JOB_FAILED: 'type_job_end',
+            JOB_ERRORED: 'type_job_end',
         }[data['event']]
         content_type = data['content_type']
 
