@@ -66,12 +66,12 @@ From
 
     <pre class="block"><code>
 source /opt/netbox/venv/bin/activate
-pip install netbox-acls
+pip install {{ plugin.slug }}
     </code></pre>
     <p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
     <pre class="block"><code>
 PLUGINS=［
-    "netbox_acls',
+    "{{ plugin.config_name }}",
 ]
     </code></pre>
     <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>

@@ -668,6 +668,7 @@ def get_local_plugins(plugins):
         plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
         plugins[plugin_config.name] = {
             'slug': plugin_config.name,
+            'config_name': None,
             'name': plugin_config.verbose_name,
             'tag_line': plugin_config.description,
             'description_short': None,
@@ -678,7 +679,7 @@ def get_local_plugins(plugins):
             'is_installed': True,
             'is_certified': False,
             'is_community': False,
-            'versions': None,
+            'versions': [],
         }
 
     return plugins
@@ -745,7 +746,8 @@ def get_catalog_plugins(plugins):
                 plugins[data['config_name']]['description_short'] = data['description_short']
             else:
                 plugins[data['config_name']] = {
-                    'slug': data['config_name'],
+                    'slug': data['slug'],
+                    'config_name': data['config_name'],
                     'name': data['title_short'],
                     'title_long': data['title_long'],
                     'tag_line': data['tag_line'],
