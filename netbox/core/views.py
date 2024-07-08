@@ -671,7 +671,7 @@ def get_local_plugins(plugins):
             'config_name': None,
             'name': plugin_config.verbose_name,
             'tag_line': plugin_config.description,
-            'description_short': None,
+            'description_short': plugin_config.description,
             'author': plugin_config.author or _('Unknown Author'),
             'version': plugin_config.version,
             'icon': None,

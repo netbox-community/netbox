@@ -34,6 +34,7 @@ class CertifiedPluginTable(BaseTable):
         default_columns = (
             'version', 'last_updated', 'min_version', 'max_version',
         )
+        orderable = False
 
     def render_last_updated(self, value, record):
         return naturalday(datetime.fromisoformat(value))
