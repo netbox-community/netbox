@@ -57,7 +57,7 @@ urlpatterns = [
     path('notification-groups/', views.NotificationGroupListView.as_view(), name='notificationgroup_list'),
     path('notification-groups/add/', views.NotificationGroupEditView.as_view(), name='notificationgroup_add'),
     path('notification-groups/import/', views.NotificationGroupBulkImportView.as_view(), name='notificationgroup_import'),
-    # path('notification-groups/edit/', views.NotificationGroupBulkEditView.as_view(), name='notificationgroup_bulk_edit'),
+    path('notification-groups/edit/', views.NotificationGroupBulkEditView.as_view(), name='notificationgroup_bulk_edit'),
     path('notification-groups/delete/', views.NotificationGroupBulkDeleteView.as_view(), name='notificationgroup_bulk_delete'),
     path('notification-groups/<int:pk>/', include(get_model_urls('extras', 'notificationgroup'))),
 

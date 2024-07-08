@@ -18,6 +18,7 @@ __all__ = (
     'EventRuleBulkEditForm',
     'ExportTemplateBulkEditForm',
     'JournalEntryBulkEditForm',
+    'NotificationGroupBulkEditForm',
     'SavedFilterBulkEditForm',
     'TagBulkEditForm',
     'WebhookBulkEditForm',

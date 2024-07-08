@@ -389,11 +389,11 @@ class NotificationGroupBulkImportView(generic.BulkImportView):
     model_form = forms.NotificationGroupImportForm
 
 
-# class NotificationGroupBulkEditView(generic.BulkEditView):
-#     queryset = NotificationGroup.objects.all()
-#     filterset = filtersets.NotificationGroupFilterSet
-#     table = tables.NotificationGroupTable
-#     form = forms.NotificationGroupBulkEditForm
+class NotificationGroupBulkEditView(generic.BulkEditView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    table = tables.NotificationGroupTable
+    form = forms.NotificationGroupBulkEditForm
 
 
 class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
