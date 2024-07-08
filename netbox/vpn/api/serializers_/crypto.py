@@ -50,7 +50,8 @@ class IKEPolicySerializer(NetBoxModelSerializer):
         choices=IKEVersionChoices
     )
     mode = ChoiceField(
-        choices=IKEModeChoices
+        choices=IKEModeChoices,
+        required=False
     )
     proposals = SerializedPKRelatedField(
         queryset=IKEProposal.objects.all(),
