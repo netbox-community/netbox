@@ -21,7 +21,7 @@ __all__ = (
 )
 
 
-def get_event_name_choices():
+def get_event_type_choices():
     """
     Compile a list of choices from all registered event types
     """
@@ -57,10 +57,10 @@ class Notification(models.Model):
         ct_field='object_type',
         fk_field='object_id'
     )
-    event_name = models.CharField(
+    event_type = models.CharField(
         verbose_name=_('event'),
         max_length=50,
-        choices=get_event_name_choices
+        choices=get_event_type_choices
     )
 
     objects = NotificationQuerySet.as_manager()
@@ -104,7 +104,7 @@ class Notification(models.Model):
 
     @cached_property
     def event(self):
-        return registry['events'].get(self.event_name)
+        return registry['events'].get(self.event_type)
 
 
 class NotificationGroup(ChangeLoggedModel):

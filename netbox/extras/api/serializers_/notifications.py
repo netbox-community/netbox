@@ -26,7 +26,7 @@ class NotificationSerializer(ValidatedModelSerializer):
     class Meta:
         model = Notification
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'read', 'event_name',
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'read', 'event_type',
         ]
         brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'user', 'event')
 

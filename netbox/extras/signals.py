@@ -325,6 +325,6 @@ def notify_object_changed(sender, instance, created, raw, **kwargs):
 
     # Create Notifications for Subscribers
     Notification.objects.bulk_create([
-        Notification(user_id=user, object=instance, event_name=OBJECT_UPDATED)
+        Notification(user_id=user, object=instance, event_type=OBJECT_UPDATED)
         for user in subscribed_users
     ])

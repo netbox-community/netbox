@@ -136,7 +136,7 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             event_rule.action_object.notify(
                 object_type=object_type,
                 object_id=data['id'],
-                event_name=event_type
+                event_type=event_type
             )
 
         else:
