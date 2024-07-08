@@ -32,16 +32,48 @@
     </div>
 
     <div class="col-auto ms-auto d-print-none">
-      {% if request.user.is_authenticated and table_modal %}
-        <div class="table-configure input-group">
-          <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}"
-                  data-bs-target="#{{ table_modal }}"
-                  class="btn">
-            <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
-          </button>
+
+        <div class="row">
+          <div class="col-5">
+            <div class="px-2 d-print-none">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% trans "Status" %}
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=installed">
+                    {% trans "Installed & Available" %}
+                    {% if status == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-5">
+            <div class="px-2 d-print-none">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% trans "Sort" %}
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=x">
+                    {% trans "By Name (A-Z)" %}
+                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=x">
+                    {% trans "By Name (Z-A)" %}
+                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      {% endif %}
+
     </div>
+
   </div>
 
   {# System status #}
