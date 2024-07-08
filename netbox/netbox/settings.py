@@ -225,6 +225,23 @@ if STORAGE_BACKEND is not None:
             return globals().get(name, default)
         storages.utils.setting = _setting
 
+    # django-storage-swift
+    elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
+        try:
+            import swift.utils  # type: ignore
+        except ModuleNotFoundError as e:
+            if getattr(e, 'name') == 'swift':
+                raise ImproperlyConfigured(
+                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
+                    "It can be installed by running 'pip install django-storage-swift'."
+                )
+            raise e
+
+        # Load all SWIFT_* settings from the user configuration
+        for param, value in STORAGE_CONFIG.items():
+            if param.startswith('SWIFT_'):
+                globals()[param] = value
+
 if STORAGE_CONFIG and STORAGE_BACKEND is None:
     warnings.warn(
         "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
