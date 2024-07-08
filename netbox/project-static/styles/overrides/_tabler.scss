@@ -49,7 +49,13 @@ table th.orderable a {
   @include color-mode(dark, true) {
     --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
     --#{$prefix}link-color: #{$bright-teal};
+    --#{$prefix}link-color-rgb: 0,242,212;
+    --#{$prefix}link-hover-color-rgb: 0,242,212;
     --#{$prefix}secondary: #{$gray-400};
+    --#{$prefix}primary: #{$bright-teal};
+    --#{$prefix}primary-fg: #{$rich-black};
+    --#{$prefix}primary-rgb: 0,242,212;
+    --#{$prefix}btn-active-color: #{$rich-black};
   }
 }
 
@@ -70,6 +76,42 @@ table th.orderable a {
   color: $rich-black!important;
 }
 
+// Add button focus state
+.btn:focus {
+  border: 1px solid var(--tblr-primary-fg);
+  outline: 2px solid var(--tblr-primary)!important;
+}
+
+// Fix secondary combo button contrast
+.btn-outline-secondary {
+  &.active {
+    color: var(--tblr-primary-fg);
+  }
+  &:hover {
+    color: var(--tblr-primary-fg);
+  }
+}
+
+// Change text color based on button color
+@each $color, $value in $theme-colors {
+  .btn-#{$color} {
+    @if $color == 'primary'{
+      --#{$prefix}btn-color: var(--#{$prefix}#{$color}-fg);
+      --#{$prefix}btn-hover-color: var(--#{$prefix}#{$color}-fg);
+      --#{$prefix}btn-active-color: var(--#{$prefix}#{$color}-fg);
+    } @else {
+      --#{$prefix}btn-color: inherit;
+      --#{$prefix}btn-hover-color: $gray-800;
+      --#{$prefix}btn-active-color: $gray-800;
+    }
+  }
+}
+
+// Adjust text color for new green
+.text-bg-green,.text-bg-success,.progress-bar {
+  color: $rich-black!important;
+}
+
 // Dark mode overrides
 body[data-bs-theme=dark] {
 
@@ -86,17 +128,25 @@ body[data-bs-theme=dark] {
   table {
     a {
       color: $bright-teal;
+
+      &.dropdown-item {
+        color: inherit;
+      }
     }
     .badge a {
       color: inherit;
     }
     .btn {
-      color: var(--#{$prefix}body-color);
+      // color: var(--#{$prefix}body-color);
+      color: $rich-black;
     }
   }
 
   // Adjusting text colors
   .text- {
+    &bg-primary {
+      color: $rich-black!important;
+    }
     &muted {
       color: var(--#{$prefix}secondary-color) !important;
     }
