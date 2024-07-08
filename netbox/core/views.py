@@ -740,12 +740,12 @@ def get_catalog_plugins(plugins):
             versions = []
             versions.append(data['release_latest'])
             versions.extend(data['release_recent_history'])
-            if data['config_name'] in plugins:
-                plugins[data['config_name']]['is_local'] = False
-                plugins[data['config_name']]['is_certified'] = data['release_latest']['is_certified']
-                plugins[data['config_name']]['description_short'] = data['description_short']
+            if data['slug'] in plugins:
+                plugins[data['slug']]['is_local'] = False
+                plugins[data['slug']]['is_certified'] = data['release_latest']['is_certified']
+                plugins[data['slug']]['description_short'] = data['description_short']
             else:
-                plugins[data['config_name']] = {
+                plugins[data['slug']] = {
                     'slug': data['slug'],
                     'config_name': data['config_name'],
                     'name': data['title_short'],
@@ -772,8 +772,6 @@ def get_plugins():
     plugins = {}
     plugins = get_local_plugins(plugins)
     plugins = get_catalog_plugins(plugins)
-    plugins = [v for k, v in plugins.items()]
-    plugins = sorted(plugins, key=lambda d: d['name'])
 
     cache.set('plugins-catalog-feed', plugins, 3600)
     return plugins
@@ -788,6 +786,8 @@ class PluginListView(UserPassesTestMixin, View):
 
         # Plugins
         plugins = get_plugins()
+        plugins = [v for k, v in plugins.items()]
+        plugins = sorted(plugins, key=lambda d: d['name'])
 
         return render(request, 'core/plugin_list.html', {
             'plugins': plugins,
@@ -801,11 +801,7 @@ class PluginView(UserPassesTestMixin, View):
 
     def get(self, request, name):
 
-        # Plugins
-        plugins = {}
-        plugins = get_local_plugins(plugins)
-        plugins = get_catalog_plugins(plugins)
-
+        plugins = get_plugins()
         plugin = plugins[name]
 
         table = CertifiedPluginTable(plugin['versions'], user=request.user)
