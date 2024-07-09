@@ -13,14 +13,16 @@
     </div>
   </div>
 
-  <div class="col-auto d-print-none">
-    <div class="input-group">
-      <div class="input-group-text">
-        <i class="mdi mdi-filter" title="{% trans "Saved filter" %}"></i>
+  {% if filter_form %}
+    <div class="col-auto d-print-none">
+      <div class="input-group">
+        <div class="input-group-text">
+          <i class="mdi mdi-filter" title="{% trans "Saved filter" %}"></i>
+        </div>
+        {{ filter_form.filter_id }}
       </div>
-      {{ filter_form.filter_id }}
     </div>
-  </div>
+  {% endif %}
 
   <div class="col-auto ms-auto d-print-none">
     {% if request.user.is_authenticated and table_modal %}

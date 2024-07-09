@@ -1,5 +1,6 @@
 from typing import Iterable
 
+from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -13,6 +14,7 @@ from utilities.relations import get_related_models
 from .permissions import resolve_permission
 
 __all__ = (
+    'ConditionalLoginRequiredMixin',
     'ContentTypePermissionRequiredMixin',
     'GetRelatedModelsMixin',
     'GetReturnURLMixin',
@@ -27,10 +29,20 @@ __all__ = (
 # View Mixins
 #
 
-class ContentTypePermissionRequiredMixin(AccessMixin):
+class ConditionalLoginRequiredMixin(AccessMixin):
+    """
+    Similar to Django's LoginRequiredMixin, but enforces authentication only if LOGIN_REQUIRED is True.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ContentTypePermissionRequiredMixin(ConditionalLoginRequiredMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check model-level permission assignments.
-    This is related to ObjectPermissionRequiredMixin, except that is does not enforce object-level permissions,
+    This is related to ObjectPermissionRequiredMixin, except that it does not enforce object-level permissions,
     and fits within NetBox's custom permission enforcement system.
 
     additional_permissions: An optional iterable of statically declared permissions to evaluate in addition to those
@@ -63,7 +75,7 @@ class ContentTypePermissionRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ObjectPermissionRequiredMixin(AccessMixin):
+class ObjectPermissionRequiredMixin(ConditionalLoginRequiredMixin):
     """
     Similar to Django's built-in PermissionRequiredMixin, but extended to check for both model-level and object-level
     permission assignments. If the user has only object-level permissions assigned, the view's queryset is filtered

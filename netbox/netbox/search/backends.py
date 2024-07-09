@@ -8,6 +8,7 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 import netaddr
 from netaddr.core import AddrFormatError
 
@@ -39,7 +40,7 @@ class SearchBackend:
             # Organize choices by category
             categories = defaultdict(dict)
             for label, idx in registry['search'].items():
-                categories[idx.get_category()][label] = title(idx.model._meta.verbose_name)
+                categories[idx.get_category()][label] = _(title(idx.model._meta.verbose_name))
 
             # Compile a nested tuple of choices for form rendering
             results = (

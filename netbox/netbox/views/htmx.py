@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
@@ -6,7 +7,7 @@ from django.utils.module_loading import import_string
 from django.views.generic import View
 
 
-class ObjectSelectorView(View):
+class ObjectSelectorView(LoginRequiredMixin, View):
     template_name = 'htmx/object_selector.html'
 
     def get(self, request):

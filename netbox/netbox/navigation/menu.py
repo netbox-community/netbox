@@ -462,16 +462,13 @@ MENUS = [
     PROVISIONING_MENU,
     CUSTOMIZATION_MENU,
     OPERATIONS_MENU,
-    ADMIN_MENU,
 ]
 
-#
-# Add plugin menus
-#
-
+# Add top-level plugin menus
 for menu in registry['plugins']['menus']:
     MENUS.append(menu)
 
+# Add the default "plugins" menu
 if registry['plugins']['menu_items']:
 
     # Build the default plugins menu
@@ -485,3 +482,6 @@ if registry['plugins']['menu_items']:
         groups=groups
     )
     MENUS.append(plugins_menu)
+
+# Add the admin menu last
+MENUS.append(ADMIN_MENU)
