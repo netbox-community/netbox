@@ -147,6 +147,7 @@ SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
@@ -553,7 +554,7 @@ if SENTRY_ENABLED:
         release=VERSION,
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=True,
+        send_default_pii=SENTRY_SEND_DEFAULT_PII,
         http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
     )
