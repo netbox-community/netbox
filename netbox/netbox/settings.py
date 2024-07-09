@@ -149,6 +149,7 @@ SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
@@ -226,6 +227,23 @@ if STORAGE_BACKEND is not None:
                 return STORAGE_CONFIG[name]
             return globals().get(name, default)
         storages.utils.setting = _setting
+
+    # django-storage-swift
+    elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
+        try:
+            import swift.utils  # type: ignore
+        except ModuleNotFoundError as e:
+            if getattr(e, 'name') == 'swift':
+                raise ImproperlyConfigured(
+                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
+                    "It can be installed by running 'pip install django-storage-swift'."
+                )
+            raise e
+
+        # Load all SWIFT_* settings from the user configuration
+        for param, value in STORAGE_CONFIG.items():
+            if param.startswith('SWIFT_'):
+                globals()[param] = value
 
 if STORAGE_CONFIG and STORAGE_BACKEND is None:
     warnings.warn(
@@ -529,7 +547,7 @@ if SENTRY_ENABLED:
         release=RELEASE.full_version,
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=True,
+        send_default_pii=SENTRY_SEND_DEFAULT_PII,
         http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
     )

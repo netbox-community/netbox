@@ -135,4 +135,6 @@ First, run the `build-site` action, by navigating to Actions > build-site > Run 
 
 Once the documentation files have been compiled, they must be published by running the `deploy-kinsta` action. Select the desired deployment environment (staging or production) and specify `latest` as the deploy tag.
 
+Clear the CDN cache from the [Kinsta](https://my.kinsta.com/) portal. Navigate to _Sites_ / _NetBox Labs_ / _Live_, select _CDN_ in the left-nav, click the _Clear CDN cache_ button, and confirm the clear operation.
+
 Finally, verify that the documentation at <https://netboxlabs.com/docs/netbox/en/stable/> has been updated.
