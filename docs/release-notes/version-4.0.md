@@ -1,5 +1,41 @@
 # NetBox v4.0
 
+## v4.0.7 (2024-07-09)
+
+### Enhancements
+
+* [#14554](https://github.com/netbox-community/netbox/issues/14554) - Add support for [django-storage-swift](https://github.com/dennisv/django-storage-swift) storage backend
+* [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
+* [#16716](https://github.com/netbox-community/netbox/issues/16716) - Display NAT address (if any) for OOB IP address under device view
+* [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#16791](https://github.com/netbox-community/netbox/issues/16791) - Add 200 & 400 Gbps selections for circuit termination port speed
+* [#16802](https://github.com/netbox-community/netbox/issues/16802) - Introduce `SENTRY_SEND_DEFAULT_PII` configuration parameter and disable PII export by default
+* [#16817](https://github.com/netbox-community/netbox/issues/16817) - Add 200 & 400 Gbps selections for circuit commit rate
+
+### Bug Fixes
+
+* [#16523](https://github.com/netbox-community/netbox/issues/16523) - Restore highlighting of current device in virtual chassis members panel
+* [#16654](https://github.com/netbox-community/netbox/issues/16654) - Fix parent item assignment for inventory item bulk import
+* [#16657](https://github.com/netbox-community/netbox/issues/16657) - Fix translation of object types in global search
+* [#16679](https://github.com/netbox-community/netbox/issues/16679) - Avoid overwriting custom JSON fields during bulk edit
+* [#16689](https://github.com/netbox-community/netbox/issues/16689) - System configuration view should reflect static parameters when no config revisions exist
+* [#16714](https://github.com/netbox-community/netbox/issues/16714) - Fix cloning of device types with 0U height
+* [#16721](https://github.com/netbox-community/netbox/issues/16721) - Fix errant API request after deselecting a rack in device edit form
+* [#16723](https://github.com/netbox-community/netbox/issues/16723) - Fix escaping of path to virtual environment in `upgrade.sh`
+* [#16735](https://github.com/netbox-community/netbox/issues/16735) - Object list "results" tab should show a count of zero when empty
+* [#16747](https://github.com/netbox-community/netbox/issues/16747) - Avoid clearing entire search cache when manually reindexing specific apps/models
+* [#16758](https://github.com/netbox-community/netbox/issues/16758) - Ensure manually selected lagnuage persists across browser sessions
+* [#16779](https://github.com/netbox-community/netbox/issues/16779) - Fix saved filter selection for child object lists
+* [#16780](https://github.com/netbox-community/netbox/issues/16780) - IKE proposal created via REST API should not require authentication_algorithm
+* [#16796](https://github.com/netbox-community/netbox/issues/16796) - Allow assignment of VM with no site to a cluster with a site
+* [#16806](https://github.com/netbox-community/netbox/issues/16806) - Fix redirect URL when creating contact assignments with "add another" button
+* [#16807](https://github.com/netbox-community/netbox/issues/16807) - Fix layout of VLAN edit form when custom fields are present
+* [#16808](https://github.com/netbox-community/netbox/issues/16808) - Fix event rule triggering in scenario where objects are updated immediately prior to deletion
+* [#16813](https://github.com/netbox-community/netbox/issues/16813) - Fix AttributeError exception when filtering bookmarks in dashboard widget by object type
+* [#16843](https://github.com/netbox-community/netbox/issues/16843) - Permit creation of IKE policies via REST API without specifying an IKE mode
+
+---
+
 ## v4.0.6 (2024-06-24)
 
 ### Enhancements

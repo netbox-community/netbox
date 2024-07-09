@@ -179,8 +179,8 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
                 'cluster': _('A virtual machine must be assigned to a site and/or cluster.')
             })
 
-        # Validate site for cluster & device
-        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
+        # Validate site for cluster & VM
+        if self.cluster and self.site and self.cluster.site and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': _(
                     'The selected cluster ({cluster}) is not assigned to this site ({site}).'

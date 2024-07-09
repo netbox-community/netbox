@@ -33,7 +33,7 @@ echo "Using ${PYTHON_VERSION}"
 
 # Remove the existing virtual environment (if any)
 if [ -d "$VIRTUALENV" ]; then
-  COMMAND="rm -rf ${VIRTUALENV}"
+  COMMAND="rm -rf \"${VIRTUALENV}\""
   echo "Removing old virtual environment..."
   eval $COMMAND
 else
@@ -41,7 +41,7 @@ else
 fi
 
 # Create a new virtual environment
-COMMAND="${PYTHON} -m venv ${VIRTUALENV}"
+COMMAND="${PYTHON} -m venv \"${VIRTUALENV}\""
 echo "Creating a new virtual environment at ${VIRTUALENV}..."
 eval $COMMAND || {
   echo "--------------------------------------------------------------------"

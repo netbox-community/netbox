@@ -13,6 +13,7 @@ class ObjectContactsView(generic.ObjectChildrenView):
     child_model = ContactAssignment
     table = tables.ContactAssignmentTable
     filterset = filtersets.ContactAssignmentFilterSet
+    filterset_form = forms.ContactAssignmentFilterForm
     template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
@@ -364,7 +365,7 @@ class ContactAssignmentEditView(generic.ObjectEditView):
 
     def get_extra_addanother_params(self, request):
         return {
-            'content_type': request.GET.get('content_type'),
+            'object_type': request.GET.get('object_type'),
             'object_id': request.GET.get('object_id'),
         }
 

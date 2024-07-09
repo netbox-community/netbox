@@ -38,6 +38,8 @@ class CircuitCommitRateChoices(ChoiceSet):
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
         (100000000, '100 Gbps'),
+        (200000000, '200 Gbps'),
+        (400000000, '400 Gbps'),
         (1544, 'T1 (1.544 Mbps)'),
         (2048, 'E1 (2.048 Mbps)'),
     ]
@@ -69,6 +71,8 @@ class CircuitTerminationPortSpeedChoices(ChoiceSet):
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
         (100000000, '100 Gbps'),
+        (200000000, '200 Gbps'),
+        (400000000, '400 Gbps'),
         (1544, 'T1 (1.544 Mbps)'),
         (2048, 'E1 (2.048 Mbps)'),
     ]

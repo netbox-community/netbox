@@ -87,12 +87,14 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         child_model: The model class which represents the child objects
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
+        filterset_form: The form class used to render filter options
         actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
             action names must be prefixed with `bulk_`. (See ActionsMixin.)
     """
     child_model = None
     table = None
     filterset = None
+    filterset_form = None
     template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
@@ -152,6 +154,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
             'table_config': f'{table.name}_config',
+            'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
             'actions': actions,
             'tab': self.tab,
             'return_url': request.get_full_path(),
