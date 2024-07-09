@@ -81,3 +81,29 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_UPDATE, _('Updated'), 'blue'),
         (ACTION_DELETE, _('Deleted'), 'red'),
     )
+
+
+class PluginSortChoices(ChoiceSet):
+
+    SORT_NAME_AZ = 'az'
+    SORT_NAME_ZA = 'za'
+    SORT_UPDATED = 'updated'
+    SORT_PUBLISHED = 'published'
+
+    CHOICES = (
+        (SORT_NAME_AZ, _('By Name (A-Z)'), 'az'),
+        (SORT_NAME_ZA, _('By Name (Z-A)'), 'za'),
+        (SORT_UPDATED, _('By updated date'), 'updated'),
+        (SORT_PUBLISHED, _('By published date'), 'published'),
+    )
+
+
+class PluginStatusChoices(ChoiceSet):
+
+    STATUS_ALL = 'all'
+    STATUS_INSTALLED = 'installed'
+
+    CHOICES = (
+        (STATUS_ALL, _('All'), 'all'),
+        (STATUS_INSTALLED, _('Installed'), 'installed'),
+    )

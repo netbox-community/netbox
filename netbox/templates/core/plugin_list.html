@@ -36,13 +36,18 @@
         <div class="row">
           <div class="col-auto">
             <div class="px-2 d-print-none">
+              {% trans "Status" %}
               <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   {% trans "Status" %}
                 </button>
                 <div class="dropdown-menu">
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=all">
+                    {% trans "All" %}
+                    {% if status == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
                   <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=installed">
-                    {% trans "Installed & Available" %}
+                    {% trans "Installed" %}
                     {% if status == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
                   </a>
                 </div>
@@ -52,17 +57,26 @@
 
           <div class="col-auto">
             <div class="px-2 d-print-none">
+              {% trans "Sort" %}
               <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   {% trans "Sort" %}
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=x">
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=az">
                     {% trans "By Name (A-Z)" %}
                     {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
                   </a>
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=x">
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=za">
                     {% trans "By Name (Z-A)" %}
+                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=updated">
+                    {% trans "By updated date" %}
+                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                  </a>
+                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=published">
+                    {% trans "By published date" %}
                     {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
                   </a>
                 </div>

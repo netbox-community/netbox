@@ -2,8 +2,10 @@ import importlib
 import importlib.util
 import json
 import platform
+import pytz
 import requests
 
+from datetime import datetime
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
@@ -38,6 +40,7 @@ from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
+from .choices import PluginSortChoices, PluginStatusChoices
 from .models import *
 from .tables import CertifiedPluginTable
 
@@ -673,8 +676,8 @@ def get_local_plugins(plugins):
             'tag_line': plugin_config.description,
             'description_short': plugin_config.description,
             'author': plugin_config.author or _('Unknown Author'),
-            'version': plugin_config.version,
-            'icon': None,
+            'created': datetime.min.replace(tzinfo=pytz.UTC),
+            'updated': datetime.min.replace(tzinfo=pytz.UTC),
             'is_local': True,
             'is_installed': True,
             'is_certified': False,
@@ -753,8 +756,8 @@ def get_catalog_plugins(plugins):
                     'tag_line': data['tag_line'],
                     'description_short': data['description_short'],
                     'author': data['author']['name'] or _('Unknown Author'),
-                    'version': 'x',
-                    'icon': None,
+                    'created': datetime.fromisoformat(data['created_at']),
+                    'updated': datetime.fromisoformat(data['updated_at']),
                     'is_local': False,
                     'is_installed': False,
                     'is_certified': data['release_latest']['is_certified'],
@@ -783,11 +786,23 @@ class PluginListView(UserPassesTestMixin, View):
         return self.request.user.is_staff
 
     def get(self, request):
+        sort = request.GET.get('sort', PluginSortChoices.SORT_NAME_AZ)
+        status = request.GET.get('status', PluginStatusChoices.STATUS_ALL)
+        q = request.GET.get('q', None)
 
-        # Plugins
         plugins = get_plugins()
-        plugins = [v for k, v in plugins.items()]
-        plugins = sorted(plugins, key=lambda d: d['name'])
+        if status == PluginStatusChoices.STATUS_INSTALLED:
+            plugins = [v for k, v in plugins.items() if v['is_installed']]
+        else:
+            plugins = [v for k, v in plugins.items()]
+        if sort == PluginSortChoices.SORT_NAME_ZA:
+            plugins = sorted(plugins, key=lambda d: d['name'], reverse=True)
+        elif sort == PluginSortChoices.SORT_UPDATED:
+            plugins = sorted(plugins, key=lambda d: d['updated'])
+        elif sort == PluginSortChoices.SORT_PUBLISHED:
+            plugins = sorted(plugins, key=lambda d: d['created'])
+        else:
+            plugins = sorted(plugins, key=lambda d: d['name'])
 
         return render(request, 'core/plugin_list.html', {
             'plugins': plugins,
