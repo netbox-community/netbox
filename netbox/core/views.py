@@ -806,6 +806,10 @@ class PluginListView(UserPassesTestMixin, View):
 
         return render(request, 'core/plugin_list.html', {
             'plugins': plugins,
+            'sort_choices': dict(PluginSortChoices),
+            'status_choices': dict(PluginStatusChoices),
+            'sort': sort,
+            'status': status,
         })
 
 

@@ -39,17 +39,15 @@
               {% trans "Status" %}
               <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% trans "Status" %}
+                  {{ status_choices|get_key:status }}
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=all">
-                    {% trans "All" %}
-                    {% if status == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status=installed">
-                    {% trans "Installed" %}
-                    {% if status == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
+                  {% for level, name in status_choices.items %}
+                    <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status={{ level }}">
+                      {{ name }}
+                      {% if level == status %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                    </a>
+                  {% endfor %}
                 </div>
               </div>
             </div>
@@ -57,28 +55,18 @@
 
           <div class="col-auto">
             <div class="px-2 d-print-none">
-              {% trans "Sort" %}
+                {% trans "Sort" %}
               <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% trans "Sort" %}
+                  {{ sort_choices|get_key:sort }}
                 </button>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=az">
-                    {% trans "By Name (A-Z)" %}
-                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=za">
-                    {% trans "By Name (Z-A)" %}
-                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=updated">
-                    {% trans "By updated date" %}
-                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
-                  <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort=published">
-                    {% trans "By published date" %}
-                    {% if sort == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                  </a>
+                  {% for level, name in sort_choices.items %}
+                    <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort={{ level }}">
+                      {{ name }}
+                      {% if level == sort %}<span class="badge bg-green ms-auto"></span>{% endif %}
+                    </a>
+                  {% endfor %}
                 </div>
               </div>
             </div>
