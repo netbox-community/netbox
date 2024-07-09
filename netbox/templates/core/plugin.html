@@ -32,6 +32,7 @@ From
         {% trans "Overview" %}
       </a>
     </li>
+    {% if not plugin.is_local %}
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
         {% trans "Version history" %}
@@ -42,6 +43,7 @@ From
         {% trans "Install" %}
       </button>
     </li>
+    {% endif %}
   </ul>
 
 {% endblock tabs %}
@@ -52,6 +54,7 @@ From
   <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
     {{ plugin.description_short }}
   </div>
+  {% if not plugin.is_local %}
   <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
     <div class="card">
 
@@ -85,4 +88,5 @@ python3 /opt/netbox/netbox/netbox/manage.py collectstatic
 sudo systemctl restart netbox netbox-rq
     </code></pre>
   </div>
+  {% endif %}
 {% endblock content %}
