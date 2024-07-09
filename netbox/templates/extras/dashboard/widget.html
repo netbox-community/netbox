@@ -9,14 +9,14 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    <div class="card-header {% if widget.color and widget.color != 'gray' %} text-{{ widget.fg_color }} {% endif %} bg-{{ widget.color|default:'default' }} px-2 py-1 d-flex flex-row">
+    <div class="card-header {% if widget.color %} text-{{ widget.fg_color }} {% endif %} bg-{{ widget.color|default:'default' }} px-2 py-1 d-flex flex-row">
       <a href="#"
         hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
         hx-target="#htmx-modal-content"
         data-bs-toggle="modal"
         data-bs-target="#htmx-modal"
       >
-        <i class="mdi mdi-cog {% if widget.color and widget.color != 'gray' %} text-{{ widget.fg_color }} {% endif %}"></i>
+        <i class="mdi mdi-cog {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
       </a>
       <div class="card-title flex-fill text-center">
         {% if widget.title %}
@@ -29,7 +29,7 @@
         data-bs-toggle="modal"
         data-bs-target="#htmx-modal"
       >
-        <i class="mdi mdi-close {% if widget.color and widget.color != 'gray' %} text-{{ widget.fg_color }} {% endif %}"></i>
+        <i class="mdi mdi-close {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
       </a>
     </div>
     <div class="card-body p-2 pt-1 overflow-auto">
