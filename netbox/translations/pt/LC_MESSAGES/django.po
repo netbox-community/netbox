@@ -10888,7 +10888,7 @@ msgstr "Erro"
 #: netbox/netbox/tables/tables.py:57
 #, python-brace-format
 msgid "No {model_name} found"
-msgstr "{model_name} não encontrado"
+msgstr "{model_name} não encontrados"
 
 #: netbox/netbox/tables/tables.py:248
 #: netbox/templates/generic/bulk_import.html:117
