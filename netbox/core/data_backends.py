@@ -99,7 +99,7 @@ class GitBackend(DataBackend):
                 )
         elif not self.url_scheme:
             clone_args["depth"] = None
-            del(clone_args["quiet"])
+            del (clone_args["quiet"])
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:
