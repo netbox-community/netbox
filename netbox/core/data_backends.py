@@ -97,6 +97,9 @@ class GitBackend(DataBackend):
                         "password": self.params.get('password'),
                     }
                 )
+        elif not self.url_scheme:
+            clone_args["depth"] = None
+            del(clone_args["quiet"])
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:
