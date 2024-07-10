@@ -338,7 +338,7 @@ class BookmarkFilterSet(BaseFilterSet):
         fields = ('id', 'object_id')
 
 
-class NotificationGroupFilterSet(BaseFilterSet):
+class NotificationGroupFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -348,10 +348,22 @@ class NotificationGroupFilterSet(BaseFilterSet):
         queryset=User.objects.all(),
         label=_('User (ID)'),
     )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='users__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label=_('User (name)'),
+    )
     group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='groups',
         queryset=Group.objects.all(),
         label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups__name',
+        queryset=Group.objects.all(),
+        to_field_name='name',
+        label=_('Group (name)'),
     )
 
     class Meta:

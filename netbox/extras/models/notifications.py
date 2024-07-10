@@ -206,6 +206,11 @@ class Subscription(models.Model):
         verbose_name = _('subscription')
         verbose_name_plural = _('subscriptions')
 
+    def __str__(self):
+        if self.object:
+            return str(self.object)
+        return super().__str__()
+
     def get_absolute_url(self):
         return reverse('account:subscriptions')
 

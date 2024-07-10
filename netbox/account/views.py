@@ -21,7 +21,7 @@ from social_core.backends.utils import load_backends
 from account.models import UserToken
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
-from extras.models import Bookmark, Notification, Subscription
+from extras.models import Bookmark
 from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
