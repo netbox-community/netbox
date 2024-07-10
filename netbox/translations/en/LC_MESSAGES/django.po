@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-09 05:02+0000\n"
+"POT-Creation-Date: 2024-07-10 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6789,12 +6789,12 @@ msgstr ""
 msgid "Show your personal bookmarks"
 msgstr ""
 
-#: netbox/extras/events.py:134
+#: netbox/extras/events.py:137
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:182
+#: netbox/extras/events.py:185
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -10465,43 +10465,43 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:741
+#: netbox/netbox/settings.py:742
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:742
+#: netbox/netbox/settings.py:743
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:743
+#: netbox/netbox/settings.py:744
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:744
+#: netbox/netbox/settings.py:745
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:745
+#: netbox/netbox/settings.py:746
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:746
+#: netbox/netbox/settings.py:747
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:747
+#: netbox/netbox/settings.py:748
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:748
+#: netbox/netbox/settings.py:749
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:749
+#: netbox/netbox/settings.py:750
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:750
+#: netbox/netbox/settings.py:751
 msgid "Chinese"
 msgstr ""
 
