@@ -249,7 +249,7 @@ class ActionsColumn(tables.Column):
 
     def render(self, record, table, **kwargs):
         # Skip dummy records (e.g. available VLANs) or those with no actions
-        if not getattr(record, 'pk', None) or not self.actions:
+        if not getattr(record, 'pk', None) or not (self.actions or self.extra_buttons):
             return ''
 
         model = table.Meta.model
