@@ -2,6 +2,17 @@
 
 ## v4.0.8 (FUTURE)
 
+### Enhancements
+
+* [#15375](https://github.com/netbox-community/netbox/issues/15375) - Enable customization of SSO backend name & icon
+
+### Bug Fixes
+
+* [#16357](https://github.com/netbox-community/netbox/issues/16357) - Replicate assigned type & tenant for cable when clicking "create an add another"
+* [#16760](https://github.com/netbox-community/netbox/issues/16760) - Fix data source syncing using git via a local path
+* [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
+* [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
+
 ---
 
 ## v4.0.7 (2024-07-09)
