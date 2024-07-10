@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 import django_rq
@@ -24,6 +25,7 @@ __all__ = (
     'Job',
 )
 
+logger = logging.getLogger('netbox.core.jobs')
 
 class Job(models.Model):
     """
@@ -222,8 +224,7 @@ class Job(models.Model):
             try:
                 queue = django_rq.get_queue(rq_queue_name)
             except Exception:
-                # User defined queue casued an error - return to default logic
-                pass
+                logger.warning(f"User defined queue '{rq_queue_name}' cased an error or was not found. Falling back to default queue.")
         if not queue:
             rq_queue_name = get_queue_for_model(object_type.model)
             queue = django_rq.get_queue(rq_queue_name)
