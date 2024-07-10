@@ -27,6 +27,7 @@ __all__ = (
 
 logger = logging.getLogger('netbox.core.jobs')
 
+
 class Job(models.Model):
     """
     Tracks the lifecycle of a job which represents a background task (e.g. the execution of a custom script).
