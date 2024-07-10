@@ -63,6 +63,9 @@ def enqueue_object(queue, instance, user, request_id, action):
     if key in queue:
         queue[key]['data'] = serialize_for_event(instance)
         queue[key]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+        # If the object is being deleted, update any prior "update" event to "delete"
+        if action == ObjectChangeActionChoices.ACTION_DELETE:
+            queue[key]['event'] = action
     else:
         queue[key] = {
             'content_type': ContentType.objects.get_for_model(instance),

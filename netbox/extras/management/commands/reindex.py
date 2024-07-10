@@ -66,11 +66,16 @@ class Command(BaseCommand):
             raise CommandError(_("No indexers found!"))
         self.stdout.write(f'Reindexing {len(indexers)} models.')
 
-        # Clear all cached values for the specified models (if not being lazy)
+        # Clear cached values for the specified models (if not being lazy)
         if not kwargs['lazy']:
+            if model_labels:
+                content_types = [ContentType.objects.get_for_model(model) for model in indexers.keys()]
+            else:
+                content_types = None
+
             self.stdout.write('Clearing cached values... ', ending='')
             self.stdout.flush()
-            deleted_count = search_backend.clear()
+            deleted_count = search_backend.clear(object_types=content_types)
             self.stdout.write(f'{deleted_count} entries deleted.')
 
         # Index models

@@ -110,7 +110,7 @@ Pillow
 
 # PostgreSQL database adapter for Python
 # https://github.com/psycopg/psycopg/blob/master/docs/news.rst
-psycopg[binary,pool]
+psycopg[c,pool]
 
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
