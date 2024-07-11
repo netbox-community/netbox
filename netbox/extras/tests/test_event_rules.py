@@ -399,7 +399,7 @@ class EventRuleTest(APITestCase):
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
         self.queue.empty()
 
         # Test multiple updates
@@ -411,7 +411,7 @@ class EventRuleTest(APITestCase):
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
         self.queue.empty()
 
         # Test update & delete
@@ -422,5 +422,5 @@ class EventRuleTest(APITestCase):
             site.delete()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
         self.queue.empty()

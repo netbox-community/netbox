@@ -56,7 +56,7 @@ class NotificationGroupSerializer(ValidatedModelSerializer):
     class Meta:
         model = NotificationGroup
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'groups', 'users',
+            'id', 'url', 'display', 'display_url', 'name', 'description', 'groups', 'users',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
