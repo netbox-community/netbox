@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.postgres.fields import ArrayField, BigIntegerRangeField
+from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -53,7 +53,7 @@ class VLANGroup(OrganizationalModel):
         fk_field='scope_id'
     )
     vlan_id_ranges = ArrayField(
-        BigIntegerRangeField(),
+        IntegerRangeField(),
         verbose_name=_('min/max VLAN IDs'),
         default=get_default_vlan_ids,
         help_text=_('Ranges of Minimum, maximum VLAN IDs'),

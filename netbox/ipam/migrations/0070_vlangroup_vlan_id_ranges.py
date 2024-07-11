@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             model_name='vlangroup',
             name='vlan_id_ranges',
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=django.contrib.postgres.fields.ranges.BigIntegerRangeField(),
+                base_field=django.contrib.postgres.fields.ranges.IntegerRangeField(),
                 blank=True, null=True, size=None,
                 default=ipam.models.vlans.get_default_vlan_ids,
             ),
