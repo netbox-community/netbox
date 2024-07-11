@@ -5,17 +5,17 @@
 # 
 # Translators:
 # Burak Senturk, 2024
-# Hamdi Suat Aknar, 2024
 # Jeremy Stretch, 2024
+# Hamdi Suat Aknar, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-11 05:01+0000\n"
+"POT-Creation-Date: 2024-07-09 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Hamdi Suat Aknar, 2024\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -64,7 +64,7 @@ msgstr "Son Kullanım"
 msgid "Allowed IPs"
 msgstr "İzin verilen IP'ler"
 
-#: netbox/account/views.py:214
+#: netbox/account/views.py:204
 msgid "Your preferences have been updated."
 msgstr "Tercihleriniz güncellendi."
 
@@ -1510,16 +1510,16 @@ msgstr "Şifre"
 msgid "Branch"
 msgstr "Şube"
 
-#: netbox/core/data_backends.py:106
+#: netbox/core/data_backends.py:105
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr "Uzaktan veri getirilemedi ({name}): {error}"
 
-#: netbox/core/data_backends.py:119
+#: netbox/core/data_backends.py:118
 msgid "AWS access key ID"
 msgstr "AWS erişim anahtarı kimliği"
 
-#: netbox/core/data_backends.py:123
+#: netbox/core/data_backends.py:122
 msgid "AWS secret access key"
 msgstr "AWS gizli erişim anahtarı"
 
@@ -1863,7 +1863,7 @@ msgstr ""
 msgid "last updated"
 msgstr "son güncellendi"
 
-#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:444
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:442
 msgid "path"
 msgstr "yol"
 
@@ -4636,48 +4636,48 @@ msgstr "uzunluk"
 msgid "length unit"
 msgstr "uzunluk birimi"
 
-#: netbox/dcim/models/cables.py:95
+#: netbox/dcim/models/cables.py:93
 msgid "cable"
 msgstr "kablo"
 
-#: netbox/dcim/models/cables.py:96
+#: netbox/dcim/models/cables.py:94
 msgid "cables"
 msgstr "kablolar"
 
-#: netbox/dcim/models/cables.py:165
+#: netbox/dcim/models/cables.py:163
 msgid "Must specify a unit when setting a cable length"
 msgstr "Kablo uzunluğu ayarlarken bir birim belirtmeniz gerekir"
 
-#: netbox/dcim/models/cables.py:168
+#: netbox/dcim/models/cables.py:166
 msgid "Must define A and B terminations when creating a new cable."
 msgstr "Yeni bir kablo oluştururken A ve B sonlandırmalarını tanımlamalıdır."
 
-#: netbox/dcim/models/cables.py:175
+#: netbox/dcim/models/cables.py:173
 msgid "Cannot connect different termination types to same end of cable."
 msgstr "Farklı sonlandırma türleri kablonun aynı ucuna bağlanamaz."
 
-#: netbox/dcim/models/cables.py:183
+#: netbox/dcim/models/cables.py:181
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "Uyumsuz sonlandırma türleri: {type_a} ve {type_b}"
 
-#: netbox/dcim/models/cables.py:193
+#: netbox/dcim/models/cables.py:191
 msgid "A and B terminations cannot connect to the same object."
 msgstr "A ve B sonlandırmaları aynı nesneye bağlanamaz."
 
-#: netbox/dcim/models/cables.py:260 netbox/ipam/models/asns.py:37
+#: netbox/dcim/models/cables.py:258 netbox/ipam/models/asns.py:37
 msgid "end"
 msgstr "son"
 
-#: netbox/dcim/models/cables.py:313
+#: netbox/dcim/models/cables.py:311
 msgid "cable termination"
 msgstr "kablo sonlandırma"
 
-#: netbox/dcim/models/cables.py:314
+#: netbox/dcim/models/cables.py:312
 msgid "cable terminations"
 msgstr "kablo sonlandırmaları"
 
-#: netbox/dcim/models/cables.py:333
+#: netbox/dcim/models/cables.py:331
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -4686,32 +4686,32 @@ msgstr ""
 "Yinelenen sonlandırma bulundu {app_label}.{model} {termination_id}: kablo "
 "{cable_pk}"
 
-#: netbox/dcim/models/cables.py:343
+#: netbox/dcim/models/cables.py:341
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Kablolar sonlandırılamaz {type_display} arayüzleri"
 
-#: netbox/dcim/models/cables.py:350
+#: netbox/dcim/models/cables.py:348
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr "Bir sağlayıcı ağına bağlı devre sonlandırmaları kablolanmayabilir."
 
-#: netbox/dcim/models/cables.py:448 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/cables.py:446 netbox/extras/models/configs.py:50
 msgid "is active"
 msgstr "aktiftir"
 
-#: netbox/dcim/models/cables.py:452
+#: netbox/dcim/models/cables.py:450
 msgid "is complete"
 msgstr "tamamlandı"
 
-#: netbox/dcim/models/cables.py:456
+#: netbox/dcim/models/cables.py:454
 msgid "is split"
 msgstr "bölünmüş"
 
-#: netbox/dcim/models/cables.py:464
+#: netbox/dcim/models/cables.py:462
 msgid "cable path"
 msgstr "kablo yolu"
 
-#: netbox/dcim/models/cables.py:465
+#: netbox/dcim/models/cables.py:463
 msgid "cable paths"
 msgstr "kablo yolları"
 
@@ -6639,11 +6639,11 @@ msgstr "En eski"
 
 #: netbox/extras/choices.py:126
 msgid "Alphabetical (A-Z)"
-msgstr "Alfabetik (A-Z)"
+msgstr ""
 
 #: netbox/extras/choices.py:127
 msgid "Alphabetical (Z-A)"
-msgstr "Alfabetik (Z-A)"
+msgstr ""
 
 #: netbox/extras/choices.py:143 netbox/templates/generic/object.html:61
 msgid "Updated"
@@ -6831,12 +6831,10 @@ msgstr "Kural seti bir sözlük olmalı, değil {ruleset}."
 #: netbox/extras/conditions.py:142
 msgid "Invalid logic type: must be 'AND' or 'OR'. Please check documentation."
 msgstr ""
-"Geçersiz mantık türü: 'AND' veya 'OR' olmalıdır. Lütfen belgeleri kontrol "
-"edin."
 
 #: netbox/extras/conditions.py:154
 msgid "Incorrect key(s) informed. Please check documentation."
-msgstr "Yanlış anahtar (ler) bilgilendirildi. Lütfen belgeleri kontrol edin."
+msgstr ""
 
 #: netbox/extras/dashboard/forms.py:38
 msgid "Widget type"
@@ -6896,44 +6894,44 @@ msgstr "Görüntülenecek nesnelerin varsayılan sayısı"
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr "Geçersiz biçim. URL parametreleri sözlük olarak iletilmelidir."
 
-#: netbox/extras/dashboard/widgets.py:288
+#: netbox/extras/dashboard/widgets.py:284
 msgid "RSS Feed"
 msgstr "RSS Beslemesi"
 
-#: netbox/extras/dashboard/widgets.py:293
+#: netbox/extras/dashboard/widgets.py:289
 msgid "Embed an RSS feed from an external website."
 msgstr "Harici bir web sitesinden bir RSS beslemesi ekleyin."
 
-#: netbox/extras/dashboard/widgets.py:300
+#: netbox/extras/dashboard/widgets.py:296
 msgid "Feed URL"
 msgstr "Akış URL'si"
 
-#: netbox/extras/dashboard/widgets.py:305
+#: netbox/extras/dashboard/widgets.py:301
 msgid "The maximum number of objects to display"
 msgstr "Görüntülenecek maksimum nesne sayısı"
 
-#: netbox/extras/dashboard/widgets.py:310
+#: netbox/extras/dashboard/widgets.py:306
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 "Önbelleğe alınan içeriğin ne kadar süre saklanacağı (saniye cinsinden)"
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:358
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr "Yer İşaretleri"
 
-#: netbox/extras/dashboard/widgets.py:366
+#: netbox/extras/dashboard/widgets.py:362
 msgid "Show your personal bookmarks"
 msgstr "Kişisel yer imlerinizi gösterin"
 
-#: netbox/extras/events.py:137
+#: netbox/extras/events.py:134
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "Bir olay kuralı için bilinmeyen eylem türü: {action_type}"
 
-#: netbox/extras/events.py:185
+#: netbox/extras/events.py:182
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "Olaylar boru hattı içe aktarılamıyor {name} hata: {error}"
@@ -9895,7 +9893,7 @@ msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr ""
 "Geçersiz değer. İçerik türünü 'olarak belirtin<app_label>.<model_name>'."
 
-#: netbox/netbox/authentication/__init__.py:141
+#: netbox/netbox/authentication/__init__.py:138
 #, python-brace-format
 msgid "Invalid permission {permission} for model {model}"
 msgstr "Geçersiz izin {permission} model için {model}"
@@ -10200,7 +10198,7 @@ msgstr "Nesne türü (ler)"
 
 #: netbox/netbox/forms/__init__.py:40
 msgid "Lookup"
-msgstr "Aramak"
+msgstr ""
 
 #: netbox/netbox/forms/base.py:88
 msgid ""
@@ -10743,43 +10741,43 @@ msgstr "Başlatıldıktan sonra kayıt defterine mağazalar eklenemiyor"
 msgid "Cannot delete stores from registry"
 msgstr "Mağazalar kayıt defterinden silinemiyor"
 
-#: netbox/netbox/settings.py:742
+#: netbox/netbox/settings.py:741
 msgid "German"
 msgstr "Alman"
 
-#: netbox/netbox/settings.py:743
+#: netbox/netbox/settings.py:742
 msgid "English"
 msgstr "İngilizce"
 
-#: netbox/netbox/settings.py:744
+#: netbox/netbox/settings.py:743
 msgid "Spanish"
 msgstr "İspanyolca"
 
-#: netbox/netbox/settings.py:745
+#: netbox/netbox/settings.py:744
 msgid "French"
 msgstr "Fransızca"
 
-#: netbox/netbox/settings.py:746
+#: netbox/netbox/settings.py:745
 msgid "Japanese"
 msgstr "Japonca"
 
-#: netbox/netbox/settings.py:747
+#: netbox/netbox/settings.py:746
 msgid "Portuguese"
 msgstr "Portekizce"
 
-#: netbox/netbox/settings.py:748
+#: netbox/netbox/settings.py:747
 msgid "Russian"
 msgstr "Rusça"
 
-#: netbox/netbox/settings.py:749
+#: netbox/netbox/settings.py:748
 msgid "Turkish"
 msgstr "Türkçe"
 
-#: netbox/netbox/settings.py:750
+#: netbox/netbox/settings.py:749
 msgid "Ukrainian"
 msgstr "Ukraynalı"
 
-#: netbox/netbox/settings.py:751
+#: netbox/netbox/settings.py:750
 msgid "Chinese"
 msgstr "Çince"
 
@@ -13085,11 +13083,11 @@ msgstr "Veriler yukarı akış dosyasıyla senkronize değil"
 
 #: netbox/templates/inc/table_controls_htmx.html:7
 msgid "Quick search"
-msgstr "Hızlı arama"
+msgstr ""
 
 #: netbox/templates/inc/table_controls_htmx.html:20
 msgid "Saved filter"
-msgstr "Kaydedilen filtre"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:23
 msgid "Django Admin"
@@ -14165,7 +14163,7 @@ msgstr "50'den fazla"
 
 #: netbox/utilities/fields.py:30
 msgid "RGB color in hexadecimal. Example: "
-msgstr "Onaltılık olarak RGB rengi. Örnek: "
+msgstr ""
 
 #: netbox/utilities/fields.py:159
 #, python-format
@@ -14479,11 +14477,11 @@ msgstr "Aşağı hareket et"
 
 #: netbox/utilities/templates/navigation/menu.html:14
 msgid "Search…"
-msgstr "Arama..."
+msgstr ""
 
 #: netbox/utilities/templates/navigation/menu.html:14
 msgid "Search NetBox"
-msgstr "Arama NetBox"
+msgstr ""
 
 #: netbox/utilities/templates/widgets/apiselect.html:7
 msgid "Open selector"
