@@ -23,7 +23,7 @@ def _get_registered_content(obj, method, template_context):
     }
 
     template_extensions = list(registry['plugins']['template_extensions'].get(None, []))
-    if obj is not None:
+    if hasattr(obj, '_meta'):
         model_name = obj._meta.label_lower
         template_extensions.extend(registry['plugins']['template_extensions'].get(model_name, []))
     for template_extension in template_extensions:
