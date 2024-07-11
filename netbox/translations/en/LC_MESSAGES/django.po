@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-10 05:01+0000\n"
+"POT-Creation-Date: 2024-07-11 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,7 +58,7 @@ msgstr ""
 msgid "Allowed IPs"
 msgstr ""
 
-#: netbox/account/views.py:204
+#: netbox/account/views.py:214
 msgid "Your preferences have been updated."
 msgstr ""
 
@@ -1485,16 +1485,16 @@ msgstr ""
 msgid "Branch"
 msgstr ""
 
-#: netbox/core/data_backends.py:105
+#: netbox/core/data_backends.py:106
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr ""
 
-#: netbox/core/data_backends.py:118
+#: netbox/core/data_backends.py:119
 msgid "AWS access key ID"
 msgstr ""
 
-#: netbox/core/data_backends.py:122
+#: netbox/core/data_backends.py:123
 msgid "AWS secret access key"
 msgstr ""
 
@@ -1832,7 +1832,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:442
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:444
 msgid "path"
 msgstr ""
 
@@ -4560,80 +4560,80 @@ msgstr ""
 msgid "length unit"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:93
+#: netbox/dcim/models/cables.py:95
 msgid "cable"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:94
+#: netbox/dcim/models/cables.py:96
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:163
+#: netbox/dcim/models/cables.py:165
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:166
+#: netbox/dcim/models/cables.py:168
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:173
+#: netbox/dcim/models/cables.py:175
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:181
+#: netbox/dcim/models/cables.py:183
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:191
+#: netbox/dcim/models/cables.py:193
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:258 netbox/ipam/models/asns.py:37
+#: netbox/dcim/models/cables.py:260 netbox/ipam/models/asns.py:37
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:311
+#: netbox/dcim/models/cables.py:313
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:312
+#: netbox/dcim/models/cables.py:314
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:331
+#: netbox/dcim/models/cables.py:333
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:341
+#: netbox/dcim/models/cables.py:343
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:348
+#: netbox/dcim/models/cables.py:350
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:446 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/cables.py:448 netbox/extras/models/configs.py:50
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:450
+#: netbox/dcim/models/cables.py:452
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:454
+#: netbox/dcim/models/cables.py:456
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:462
+#: netbox/dcim/models/cables.py:464
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:463
+#: netbox/dcim/models/cables.py:465
 msgid "cable paths"
 msgstr ""
 
@@ -6759,33 +6759,33 @@ msgstr ""
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:284
+#: netbox/extras/dashboard/widgets.py:288
 msgid "RSS Feed"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:289
+#: netbox/extras/dashboard/widgets.py:293
 msgid "Embed an RSS feed from an external website."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:296
+#: netbox/extras/dashboard/widgets.py:300
 msgid "Feed URL"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:301
+#: netbox/extras/dashboard/widgets.py:305
 msgid "The maximum number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:306
+#: netbox/extras/dashboard/widgets.py:310
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:358 netbox/templates/account/base.html:10
+#: netbox/extras/dashboard/widgets.py:362 netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:366
 msgid "Show your personal bookmarks"
 msgstr ""
 
@@ -9635,7 +9635,7 @@ msgstr ""
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr ""
 
-#: netbox/netbox/authentication/__init__.py:138
+#: netbox/netbox/authentication/__init__.py:141
 #, python-brace-format
 msgid "Invalid permission {permission} for model {model}"
 msgstr ""
