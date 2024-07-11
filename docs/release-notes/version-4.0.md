@@ -4,7 +4,12 @@
 
 ### Enhancements
 
+* [#14640](https://github.com/netbox-community/netbox/issues/14640) - Add Dutch language support
+* [#14792](https://github.com/netbox-community/netbox/issues/14792) - Add Polish language support
 * [#15375](https://github.com/netbox-community/netbox/issues/15375) - Enable customization of SSO backend name & icon
+* [#15660](https://github.com/netbox-community/netbox/issues/15660) - Add Czech language support
+* [#15696](https://github.com/netbox-community/netbox/issues/15696) - Add Danish language support
+* [#16793](https://github.com/netbox-community/netbox/issues/16793) - Add Italian language support
 
 ### Bug Fixes
 
