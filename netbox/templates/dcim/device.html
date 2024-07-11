@@ -125,28 +125,30 @@
                       </div>
                     </h5>
                     <table class="table table-hover attr-table">
-                        <tr>
-                            <th>{% trans "Device" %}</th>
-                            <th>{% trans "Position" %}</th>
-                            <th>{% trans "Master" %}</th>
-                            <th>{% trans "Priority" %}</th>
+                      <thead>
+                        <tr class="border-bottom">
+                          <th>{% trans "Device" %}</th>
+                          <th>{% trans "Position" %}</th>
+                          <th>{% trans "Master" %}</th>
+                          <th>{% trans "Priority" %}</th>
                         </tr>
+                      </thead>
+                      <tbody>
                         {% for vc_member in vc_members %}
-                            <tr{% if vc_member == object %} class="info"{% endif %}>
-                                <td>
-                                    {{ vc_member|linkify }}
-                                </td>
-                                <td>
-                                  {% badge vc_member.vc_position show_empty=True %}
-                                </td>
-                                <td>
-                                  {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
-                                </td>
-                                <td>
-                                  {{ vc_member.vc_priority|placeholder }}
-                                </td>
-                            </tr>
+                          <tr{% if vc_member == object %} class="table-primary"{% endif %}>
+                            <td>{{ vc_member|linkify }}</td>
+                            <td>{% badge vc_member.vc_position show_empty=True %}</td>
+                            <td>
+                              {% if object.virtual_chassis.master == vc_member %}
+                                {% checkmark True %}
+                              {% else %}
+                                {{ ''|placeholder }}
+                              {% endif %}
+                            </td>
+                            <td>{{ vc_member.vc_priority|placeholder }}</td>
+                          </tr>
                         {% endfor %}
+                      </tbody>
                     </table>
                 </div>
             {% endif %}
@@ -221,6 +223,11 @@
                         <td>
                           {% if object.oob_ip %}
                             <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
+                            {% if object.oob_ip.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.oob_ip.nat_inside.get_absolute_url }}">{{ object.oob_ip.nat_inside.address.ip }}</a>)
+                            {% elif object.oob_ip.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.oob_ip.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
                             {% copy_content "oob_ip" %}
                           {% else %}
                             {{ ''|placeholder }}

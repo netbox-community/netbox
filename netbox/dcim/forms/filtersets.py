@@ -14,6 +14,7 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
+from virtualization.models import Cluster, ClusterGroup
 from vpn.models import L2VPN
 from wireless.choices import *
 
@@ -655,6 +656,7 @@ class DeviceFilterForm(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
             name=_('Components')
         ),
+        FieldSet('cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet(
             'has_primary_ip', 'has_oob_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data',
             'has_virtual_device_context',
@@ -820,6 +822,16 @@ class DeviceFilterForm(
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    cluster_id = DynamicModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        label=_('Cluster')
+    )
+    cluster_group_id = DynamicModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        label=_('Cluster group')
     )
     tag = TagFilterField(model)
 

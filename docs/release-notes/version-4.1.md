@@ -12,7 +12,14 @@
 ### Enhancements
 
 * [#7537](https://github.com/netbox-community/netbox/issues/7537) - Add a serial number field for virtual machines
+* [#8984](https://github.com/netbox-community/netbox/issues/8984) - Enable filtering of custom script output by log level
+* [#15156](https://github.com/netbox-community/netbox/issues/15156) - Add `display_url` field to all REST API serializers
 * [#16359](https://github.com/netbox-community/netbox/issues/16359) - Enable plugins to embed content in the top navigation bar
+* [#16580](https://github.com/netbox-community/netbox/issues/16580) - Enable individual views to enforce `LOGIN_REQUIRED` selectively (remove `AUTH_EXEMPT_PATHS`)
+
+### Plugins
+
+* [#16726](https://github.com/netbox-community/netbox/issues/16726) - Extend `PluginTemplateExtension` to enable registering multiple models
 
 ### Other Changes
 
