@@ -739,11 +739,16 @@ RQ_QUEUES.update({
 
 # Supported translation languages
 LANGUAGES = (
+    ('cs', _('Czech')),
+    ('da', _('Danish')),
     ('de', _('German')),
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
+    ('it', _('Italian')),
     ('ja', _('Japanese')),
+    ('nl', _('Dutch')),
+    ('pl', _('Polish')),
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
     ('tr', _('Turkish')),
