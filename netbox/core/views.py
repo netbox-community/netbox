@@ -2,10 +2,9 @@ import importlib
 import importlib.util
 import json
 import platform
-import pytz
 import requests
 
-from datetime import datetime
+from datetime import datetime, timezone
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
@@ -676,8 +675,8 @@ def get_local_plugins(plugins):
             'tag_line': plugin_config.description,
             'description_short': plugin_config.description,
             'author': plugin_config.author or _('Unknown Author'),
-            'created': datetime.min.replace(tzinfo=pytz.UTC),
-            'updated': datetime.min.replace(tzinfo=pytz.UTC),
+            'created': datetime.min.replace(tzinfo=timezone.utc),
+            'updated': datetime.min.replace(tzinfo=timezone.utc),
             'is_local': True,
             'is_installed': True,
             'is_certified': False,
