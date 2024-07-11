@@ -54,11 +54,27 @@ def plugin_navbar(context):
 
 
 @register.simple_tag(takes_context=True)
+def plugin_list_buttons(context, model):
+    """
+    Render all list buttons registered by plugins
+    """
+    return _get_registered_content(model, 'list_buttons', context)
+
+
+@register.simple_tag(takes_context=True)
 def plugin_buttons(context, obj):
     """
     Render all buttons registered by plugins
     """
     return _get_registered_content(obj, 'buttons', context)
+
+
+@register.simple_tag(takes_context=True)
+def plugin_alerts(context, obj):
+    """
+    Render all object alerts registered by plugins
+    """
+    return _get_registered_content(obj, 'alerts', context)
 
 
 @register.simple_tag(takes_context=True)
@@ -83,11 +99,3 @@ def plugin_full_width_page(context, obj):
     Render all full width page content registered by plugins
     """
     return _get_registered_content(obj, 'full_width_page', context)
-
-
-@register.simple_tag(takes_context=True)
-def plugin_list_buttons(context, model):
-    """
-    Render all list buttons registered by plugins
-    """
-    return _get_registered_content(model, 'list_buttons', context)

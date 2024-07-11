@@ -110,6 +110,10 @@ Blocks:
         <div class="page-body my-1">
           <div class="container-fluid tab-content py-3">
 
+            {# Page alerts #}
+            {% block alerts %}{% endblock %}
+            {# /Page alerts #}
+
             {# Page content #}
             {% block content %}{% endblock %}
             {# /Page content #}
