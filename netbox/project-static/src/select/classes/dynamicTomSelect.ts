@@ -74,19 +74,24 @@ export class DynamicTomSelect extends TomSelect {
 
   load(value: string) {
     const self = this;
-    const url = self.getRequestUrl(value);
 
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
     self.clearOptions();
 
-    addClasses(self.wrapper, self.settings.loadingClass);
-    self.loading++;
-
     // Populate the null option (if any) if not searching
     if (self.nullOption && !value) {
       self.addOption(self.nullOption);
     }
+
+    // Get the API request URL. If none is provided, abort as no request can be made.
+    const url = self.getRequestUrl(value);
+    if (!url) {
+      return;
+    }
+
+    addClasses(self.wrapper, self.settings.loadingClass);
+    self.loading++;
 
     // Make the API request
     fetch(url)
@@ -129,6 +134,9 @@ export class DynamicTomSelect extends TomSelect {
       for (const result of this.api_url.matchAll(new RegExp(`({{${key}}})`, 'g'))) {
         if (value) {
           url = replaceAll(url, result[1], value.toString());
+        } else {
+          // No value is available to replace the token; abort.
+          return '';
         }
       }
     }

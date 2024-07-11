@@ -191,7 +191,7 @@ class MyView(generic.ObjectView):
 
 ### Extra Template Content
 
-Plugins can inject custom content into certain areas of core NetBox views. This is accomplished by subclassing `PluginTemplateExtension`, designating a particular NetBox model, and defining the desired method(s) to render custom content. Five methods are available:
+Plugins can inject custom content into certain areas of core NetBox views. This is accomplished by subclassing `PluginTemplateExtension`, optionally designating one or more particular NetBox models, and defining the desired method(s) to render custom content. Five methods are available:
 
 | Method              | View        | Description                                         |
 |---------------------|-------------|-----------------------------------------------------|
@@ -206,7 +206,9 @@ Plugins can inject custom content into certain areas of core NetBox views. This 
 
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
 
-When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data include:
+To control where the custom content is injected, plugin authors can specify an iterable of models by overriding the `models` attribute on the subclass. Extensions which do not specify a set of models will be invoked on every view, where supported.
+
+When a PluginTemplateExtension is instantiated, context data is assigned to `self.context`. Available data includes:
 
 * `object` - The object being viewed (object views only)
 * `model` - The model of the list view (list views only)
@@ -223,7 +225,7 @@ from netbox.plugins import PluginTemplateExtension
 from .models import Animal
 
 class SiteAnimalCount(PluginTemplateExtension):
-    model = 'dcim.site'
+    models = ['dcim.site']
 
     def right_page(self):
         return self.render('netbox_animal_sounds/inc/animal_count.html', extra_context={

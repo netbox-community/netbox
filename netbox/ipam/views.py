@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
+from dcim.forms import InterfaceFilterForm
 from dcim.models import Interface, Site
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
@@ -14,6 +15,7 @@ from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
+from virtualization.forms import VMInterfaceFilterForm
 from virtualization.models import VMInterface
 from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
@@ -206,6 +208,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     child_model = ASN
     table = tables.ASNTable
     filterset = filtersets.ASNFilterSet
+    filterset_form = forms.ASNFilterForm
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
@@ -337,6 +340,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     child_model = Prefix
     table = tables.PrefixTable
     filterset = filtersets.PrefixFilterSet
+    filterset_form = forms.PrefixFilterForm
     template_name = 'ipam/aggregate/prefixes.html'
     tab = ViewTab(
         label=_('Prefixes'),
@@ -523,6 +527,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
     child_model = Prefix
     table = tables.PrefixTable
     filterset = filtersets.PrefixFilterSet
+    filterset_form = forms.PrefixFilterForm
     template_name = 'ipam/prefix/prefixes.html'
     tab = ViewTab(
         label=_('Child Prefixes'),
@@ -558,6 +563,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
     child_model = IPRange
     table = tables.IPRangeTable
     filterset = filtersets.IPRangeFilterSet
+    filterset_form = forms.IPRangeFilterForm
     template_name = 'ipam/prefix/ip_ranges.html'
     tab = ViewTab(
         label=_('Child Ranges'),
@@ -584,6 +590,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
+    filterset_form = forms.IPAddressFilterForm
     template_name = 'ipam/prefix/ip_addresses.html'
     tab = ViewTab(
         label=_('IP Addresses'),
@@ -683,6 +690,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
+    filterset_form = forms.IPRangeFilterForm
     template_name = 'ipam/iprange/ip_addresses.html'
     tab = ViewTab(
         label=_('IP Addresses'),
@@ -885,6 +893,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
+    filterset_form = forms.IPAddressFilterForm
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
@@ -957,6 +966,7 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
     child_model = VLAN
     table = tables.VLANTable
     filterset = filtersets.VLANFilterSet
+    filterset_form = forms.VLANFilterForm
     tab = ViewTab(
         label=_('VLANs'),
         badge=lambda x: x.get_child_vlans().count(),
@@ -1112,6 +1122,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
+    filterset_form = InterfaceFilterForm
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
@@ -1129,6 +1140,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
+    filterset_form = VMInterfaceFilterForm
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),

@@ -229,9 +229,6 @@ class TagImportForm(CSVModelForm):
     class Meta:
         model = Tag
         fields = ('name', 'slug', 'color', 'description')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 class JournalEntryImportForm(NetBoxModelImportForm):

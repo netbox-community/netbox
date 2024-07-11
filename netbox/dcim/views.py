@@ -31,6 +31,7 @@ from utilities.views import (
     GetRelatedModelsMixin, GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 )
 from virtualization.filtersets import VirtualMachineFilterSet
+from virtualization.forms import VirtualMachineFilterForm
 from virtualization.models import VirtualMachine
 from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
@@ -725,6 +726,7 @@ class RackRackReservationsView(generic.ObjectChildrenView):
     child_model = RackReservation
     table = tables.RackReservationTable
     filterset = filtersets.RackReservationFilterSet
+    filterset_form = forms.RackReservationFilterForm
     template_name = 'dcim/rack/reservations.html'
     tab = ViewTab(
         label=_('Reservations'),
@@ -743,6 +745,7 @@ class RackNonRackedView(generic.ObjectChildrenView):
     child_model = Device
     table = tables.DeviceTable
     filterset = filtersets.DeviceFilterSet
+    filterset_form = forms.DeviceFilterForm
     template_name = 'dcim/rack/non_racked_devices.html'
     tab = ViewTab(
         label=_('Non-Racked Devices'),
@@ -1881,6 +1884,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
+    filterset_form = forms.ConsolePortFilterForm
     template_name = 'dcim/device/consoleports.html',
     tab = ViewTab(
         label=_('Console Ports'),
@@ -1896,6 +1900,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
+    filterset_form = forms.ConsoleServerPortFilterForm
     template_name = 'dcim/device/consoleserverports.html'
     tab = ViewTab(
         label=_('Console Server Ports'),
@@ -1911,6 +1916,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     child_model = PowerPort
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
+    filterset_form = forms.PowerPortFilterForm
     template_name = 'dcim/device/powerports.html'
     tab = ViewTab(
         label=_('Power Ports'),
@@ -1926,6 +1932,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
+    filterset_form = forms.PowerOutletFilterForm
     template_name = 'dcim/device/poweroutlets.html'
     tab = ViewTab(
         label=_('Power Outlets'),
@@ -1941,6 +1948,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
+    filterset_form = forms.InterfaceFilterForm
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
@@ -1962,6 +1970,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     child_model = FrontPort
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
+    filterset_form = forms.FrontPortFilterForm
     template_name = 'dcim/device/frontports.html'
     tab = ViewTab(
         label=_('Front Ports'),
@@ -1977,6 +1986,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     child_model = RearPort
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
+    filterset_form = forms.RearPortFilterForm
     template_name = 'dcim/device/rearports.html'
     tab = ViewTab(
         label=_('Rear Ports'),
@@ -1992,6 +2002,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     child_model = ModuleBay
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
+    filterset_form = forms.ModuleBayFilterForm
     template_name = 'dcim/device/modulebays.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -2011,6 +2022,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
+    filterset_form = forms.DeviceBayFilterForm
     template_name = 'dcim/device/devicebays.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -2030,6 +2042,7 @@ class DeviceInventoryView(DeviceComponentsView):
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
     template_name = 'dcim/device/inventory.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -2108,6 +2121,7 @@ class DeviceVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = VirtualMachineTable
     filterset = VirtualMachineFilterSet
+    filterset_form = VirtualMachineFilterForm
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: VirtualMachine.objects.filter(cluster=obj.cluster, device=obj).count(),
@@ -2990,6 +3004,7 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     child_model = InventoryItem
     table = tables.InventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
     tab = ViewTab(
         label=_('Children'),
         badge=lambda obj: obj.child_items.count(),

@@ -20,6 +20,7 @@ class PluginTemplateExtension:
     * settings - Global NetBox settings
     * config - Plugin-specific configuration parameters
     """
+    models = None
     model = None
 
     def __init__(self, context):
