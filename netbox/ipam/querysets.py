@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, F, OuterRef, Q, Subquery, Value
+from django.db.models import Count, Func, F, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Round
 
@@ -64,6 +64,12 @@ class VLANGroupQuerySet(RestrictedQuerySet):
         return self.annotate(
             vlan_count=count_related(VLAN, 'group'),
             utilization=Round(F('vlan_count') * 100 / F('_total_vlan_ids'), 2)
+        )
+
+    def annotate_vlan_ranges(self):
+
+        return self.annotate(
+            vid_range=Func(F('vlan_id_ranges'), function='unnest')
         )
 
 

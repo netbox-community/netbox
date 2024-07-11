@@ -915,7 +915,7 @@ class IPAddressContactsView(ObjectContactsView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
+    queryset = VLANGroup.objects.annotate_utilization().annotate_vlan_ranges().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable

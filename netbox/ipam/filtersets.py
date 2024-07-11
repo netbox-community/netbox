@@ -911,6 +911,9 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
+    vlan_id = django_filters.NumberFilter(
+        method='filter_vlan_id'
+    )
 
     class Meta:
         model = VLANGroup
@@ -930,6 +933,11 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
         return queryset.filter(
             scope_type=ContentType.objects.get(model=model_name),
             scope_id=value
+        )
+
+    def filter_vlan_id(self, queryset, name, value):
+        return queryset.filter(
+            vid_range__contained_by=value
         )
 
 
