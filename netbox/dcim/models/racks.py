@@ -42,6 +42,12 @@ class RackType(PrimaryModel, WeightMixin):
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
+    RACK_FIELDS = [
+        'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+        'outer_depth', 'outer_unit', 'weight', 'weight_unit', 'max_weight',
+        'mounting_depth'
+    ]
+
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -424,8 +430,16 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                         'location': _("Location must be from the same site, {site}.").format(site=self.site)
                     })
 
+            if self.rack_type:
+                for field_name in self.rack_type.RACK_FIELDS:
+                    if getattr(self, field_name, None) != getattr(self.rack_type, field_name, None):
+                        raise ValidationError({
+                            field_name: _("Cannot modify field {field_name} if rack_type set.").format(field_name=field_name)
+                        })
+
     def save(self, *args, **kwargs):
         if (not self.pk) and self.rack_type:
+            self.type = self.rack_type.type
             self.width = self.rack_type.width
             self.u_height = self.rack_type.u_height
             self.starting_unit = self.rack_type.starting_unit

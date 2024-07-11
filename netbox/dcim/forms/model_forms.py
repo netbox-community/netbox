@@ -271,6 +271,13 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk and self.instance.rack_type:
+            for field_name in self.instance.rack_type.RACK_FIELDS:
+                self.fields[field_name].disabled = True
+
 
 class RackReservationForm(TenancyForm, NetBoxModelForm):
     rack = DynamicModelChoiceField(
