@@ -6,11 +6,7 @@
   {% with notifications=request.user.notifications.unread.exists %}
     <div class="nav-item dropdown">
       <a href="#" class="nav-link" data-bs-toggle="dropdown" hx-get="{% url 'extras:notifications' %}" hx-target="next .notifications" aria-label="Notifications">
-          {% if notifications %}
-            <span class="text-primary"><i class="mdi mdi-bell-badge"></i></span>
-          {% else %}
-            <i class="mdi mdi-bell"></i>
-          {% endif %}
+        {% include 'inc/notification_bell.html' %}
       </a>
       <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications"></div>
     </div>
