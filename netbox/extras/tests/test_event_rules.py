@@ -391,13 +391,36 @@ class EventRuleTest(APITestCase):
         request.id = uuid.uuid4()
         request.user = self.user
 
-        self.assertEqual(self.queue.count, 0, msg="Unexpected jobs found in queue")
-
+        # Test create & update
         with event_tracking(request):
             site = Site(name='Site 1', slug='site-1')
             site.save()
-
-            # Save the site a second time
+            site.description = 'foo'
             site.save()
-
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
+        job = self.queue.get_jobs()[0]
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.queue.empty()
+
+        # Test multiple updates
+        site = Site.objects.create(name='Site 2', slug='site-2')
+        with event_tracking(request):
+            site.description = 'foo'
+            site.save()
+            site.description = 'bar'
+            site.save()
+        self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
+        job = self.queue.get_jobs()[0]
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.queue.empty()
+
+        # Test update & delete
+        site = Site.objects.create(name='Site 3', slug='site-3')
+        with event_tracking(request):
+            site.description = 'foo'
+            site.save()
+            site.delete()
+        self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
+        job = self.queue.get_jobs()[0]
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.queue.empty()

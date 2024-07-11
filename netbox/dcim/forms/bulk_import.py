@@ -174,9 +174,6 @@ class RackRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackRole
         fields = ('name', 'slug', 'color', 'description', 'tags')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 class RackImportForm(NetBoxModelImportForm):
@@ -384,9 +381,6 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = DeviceRole
         fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 class PlatformImportForm(NetBoxModelImportForm):
@@ -1052,7 +1046,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
+            'device', 'name', 'label', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
             'description', 'tags', 'component_type', 'component_name',
         )
 
@@ -1104,9 +1098,6 @@ class InventoryItemRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItemRole
         fields = ('name', 'slug', 'color', 'description')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 #
@@ -1183,9 +1174,6 @@ class CableImportForm(NetBoxModelImportForm):
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
             'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
     def _clean_side(self, side):
         """
