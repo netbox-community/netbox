@@ -161,6 +161,7 @@ class RackType(PrimaryModel, WeightMixin):
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
     def save(self, *args, **kwargs):
+        update = self.pk
 
         # Store the given max weight (if any) in grams for use in database ordering
         if self.max_weight and self.weight_unit:
@@ -173,6 +174,22 @@ class RackType(PrimaryModel, WeightMixin):
             self.outer_unit = ''
 
         super().save(*args, **kwargs)
+        if update:
+            # Update all racks associated with this rack_type
+            self.instances.all().update(
+                type=self.type,
+                width=self.width,
+                u_height=self.u_height,
+                starting_unit=self.starting_unit,
+                desc_units=self.desc_units,
+                outer_width=self.outer_width,
+                outer_depth=self.outer_depth,
+                outer_unit=self.outer_unit,
+                weight=self.weight,
+                weight_unit=self.weight_unit,
+                max_weight=self.max_weight,
+                mounting_depth=self.mounting_depth
+            )
 
     @property
     def units(self):
