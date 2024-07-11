@@ -225,8 +225,11 @@ nav:
             - ExportTemplate: 'models/extras/exporttemplate.md'
             - ImageAttachment: 'models/extras/imageattachment.md'
             - JournalEntry: 'models/extras/journalentry.md'
+            - Notification: 'models/extras/notification.md'
+            - NotificationGroup: 'models/extras/notificationgroup.md'
             - SavedFilter: 'models/extras/savedfilter.md'
             - StagedChange: 'models/extras/stagedchange.md'
+            - Subscription: 'models/extras/subscription.md'
             - Tag: 'models/extras/tag.md'
             - Webhook: 'models/extras/webhook.md'
         - IPAM:
