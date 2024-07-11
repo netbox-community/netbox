@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-09 05:02+0000\n"
+"POT-Creation-Date: 2024-07-11 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: jiyin luo, 2024\n"
 "Language-Team: Chinese (https://app.transifex.com/netbox-community/teams/178115/zh/)\n"
@@ -72,7 +72,7 @@ msgstr "最后使用"
 msgid "Allowed IPs"
 msgstr "允许的IP"
 
-#: netbox/account/views.py:204
+#: netbox/account/views.py:214
 msgid "Your preferences have been updated."
 msgstr "你的首选项已更新。"
 
@@ -234,7 +234,7 @@ msgstr "站点"
 #: netbox/virtualization/filtersets.py:75
 #: netbox/virtualization/filtersets.py:203 netbox/vpn/filtersets.py:382
 msgid "Site (slug)"
-msgstr "站点（站点）"
+msgstr "站点(缩写)"
 
 #: netbox/circuits/filtersets.py:65
 msgid "ASN (ID)"
@@ -1415,7 +1415,7 @@ msgstr "该用户无权同步该数据源。"
 
 #: netbox/core/choices.py:18
 msgid "New"
-msgstr "新创建"
+msgstr "新建"
 
 #: netbox/core/choices.py:19 netbox/core/constants.py:18
 #: netbox/core/tables/tasks.py:15 netbox/templates/core/rq_task.html:77
@@ -1517,16 +1517,16 @@ msgstr "密码"
 msgid "Branch"
 msgstr "分支"
 
-#: netbox/core/data_backends.py:105
+#: netbox/core/data_backends.py:106
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr "获取远程数据失败({name}): {error}"
 
-#: netbox/core/data_backends.py:118
+#: netbox/core/data_backends.py:119
 msgid "AWS access key ID"
 msgstr "AWS access key ID"
 
-#: netbox/core/data_backends.py:122
+#: netbox/core/data_backends.py:123
 msgid "AWS secret access key"
 msgstr "AWS secret access key"
 
@@ -1818,7 +1818,7 @@ msgstr "URL"
 #: netbox/extras/models/models.py:90 netbox/extras/models/models.py:329
 #: netbox/extras/models/models.py:554 netbox/users/models/permissions.py:29
 msgid "enabled"
-msgstr "开启"
+msgstr "已启用"
 
 #: netbox/core/models/data.py:66
 msgid "ignore rules"
@@ -1864,7 +1864,7 @@ msgstr "初始化后端时出错。 需要安装依赖："
 msgid "last updated"
 msgstr "最后更新"
 
-#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:442
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:444
 msgid "path"
 msgstr "路径"
 
@@ -3557,7 +3557,7 @@ msgstr "链路聚合"
 
 #: netbox/dcim/forms/bulk_edit.py:1318 netbox/dcim/forms/model_forms.py:1253
 msgid "Virtual device contexts"
-msgstr "设备虚拟实例"
+msgstr "设备虚拟上下文"
 
 #: netbox/dcim/forms/bulk_edit.py:1324 netbox/dcim/forms/bulk_import.py:653
 #: netbox/dcim/forms/bulk_import.py:679 netbox/dcim/forms/filtersets.py:1181
@@ -3588,21 +3588,21 @@ msgstr "模式"
 #: netbox/ipam/models/vlans.py:84 netbox/virtualization/forms/bulk_edit.py:240
 #: netbox/virtualization/forms/model_forms.py:321
 msgid "VLAN group"
-msgstr "VLAN group"
+msgstr "VLAN 组"
 
 #: netbox/dcim/forms/bulk_edit.py:1369 netbox/dcim/forms/model_forms.py:1307
 #: netbox/dcim/tables/devices.py:567
 #: netbox/virtualization/forms/bulk_edit.py:248
 #: netbox/virtualization/forms/model_forms.py:326
 msgid "Untagged VLAN"
-msgstr "Untagged VLAN"
+msgstr "未标记的VLAN"
 
 #: netbox/dcim/forms/bulk_edit.py:1377 netbox/dcim/forms/model_forms.py:1316
 #: netbox/dcim/tables/devices.py:573
 #: netbox/virtualization/forms/bulk_edit.py:256
 #: netbox/virtualization/forms/model_forms.py:335
 msgid "Tagged VLANs"
-msgstr "Tagged VLANs"
+msgstr "已标记 VLANs"
 
 #: netbox/dcim/forms/bulk_edit.py:1387 netbox/dcim/forms/model_forms.py:1289
 msgid "Wireless LAN group"
@@ -4610,80 +4610,80 @@ msgstr "长度"
 msgid "length unit"
 msgstr "长度单位"
 
-#: netbox/dcim/models/cables.py:93
+#: netbox/dcim/models/cables.py:95
 msgid "cable"
 msgstr "电缆"
 
-#: netbox/dcim/models/cables.py:94
+#: netbox/dcim/models/cables.py:96
 msgid "cables"
 msgstr "线缆"
 
-#: netbox/dcim/models/cables.py:163
+#: netbox/dcim/models/cables.py:165
 msgid "Must specify a unit when setting a cable length"
 msgstr "设置电缆长度时必须指定单位"
 
-#: netbox/dcim/models/cables.py:166
+#: netbox/dcim/models/cables.py:168
 msgid "Must define A and B terminations when creating a new cable."
 msgstr "创建新电缆时必须定义A端和B端。"
 
-#: netbox/dcim/models/cables.py:173
+#: netbox/dcim/models/cables.py:175
 msgid "Cannot connect different termination types to same end of cable."
 msgstr "无法将不同的端点类型连接到电缆的两端。"
 
-#: netbox/dcim/models/cables.py:181
+#: netbox/dcim/models/cables.py:183
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "不兼容的端点类型： {type_a} 和{type_b}"
 
-#: netbox/dcim/models/cables.py:191
+#: netbox/dcim/models/cables.py:193
 msgid "A and B terminations cannot connect to the same object."
 msgstr "A B端不能连接到同一个对象"
 
-#: netbox/dcim/models/cables.py:258 netbox/ipam/models/asns.py:37
+#: netbox/dcim/models/cables.py:260 netbox/ipam/models/asns.py:37
 msgid "end"
 msgstr "结束"
 
-#: netbox/dcim/models/cables.py:311
+#: netbox/dcim/models/cables.py:313
 msgid "cable termination"
 msgstr "线缆端点"
 
-#: netbox/dcim/models/cables.py:312
+#: netbox/dcim/models/cables.py:314
 msgid "cable terminations"
 msgstr "线缆端点"
 
-#: netbox/dcim/models/cables.py:331
+#: netbox/dcim/models/cables.py:333
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr "发现{app_label}重复成端：{model} {termination_id}: cable {cable_pk}"
 
-#: netbox/dcim/models/cables.py:341
+#: netbox/dcim/models/cables.py:343
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "电缆不能连接至{type_display} 接口"
 
-#: netbox/dcim/models/cables.py:348
+#: netbox/dcim/models/cables.py:350
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr "运营商网络的线路可能没有连接。"
 
-#: netbox/dcim/models/cables.py:446 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/cables.py:448 netbox/extras/models/configs.py:50
 msgid "is active"
 msgstr "激活的"
 
-#: netbox/dcim/models/cables.py:450
+#: netbox/dcim/models/cables.py:452
 msgid "is complete"
 msgstr "完成的"
 
-#: netbox/dcim/models/cables.py:454
+#: netbox/dcim/models/cables.py:456
 msgid "is split"
 msgstr "被拆分的"
 
-#: netbox/dcim/models/cables.py:462
+#: netbox/dcim/models/cables.py:464
 msgid "cable path"
 msgstr "线缆连接路径"
 
-#: netbox/dcim/models/cables.py:463
+#: netbox/dcim/models/cables.py:465
 msgid "cable paths"
 msgstr "线缆连接路径"
 
@@ -6813,43 +6813,43 @@ msgstr "要显示的默认对象数"
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr "无效的格式。URL参数必须作为字典传递。"
 
-#: netbox/extras/dashboard/widgets.py:284
+#: netbox/extras/dashboard/widgets.py:288
 msgid "RSS Feed"
 msgstr "RSS订阅"
 
-#: netbox/extras/dashboard/widgets.py:289
+#: netbox/extras/dashboard/widgets.py:293
 msgid "Embed an RSS feed from an external website."
 msgstr "嵌入来自外部网站的 RSS 源。"
 
-#: netbox/extras/dashboard/widgets.py:296
+#: netbox/extras/dashboard/widgets.py:300
 msgid "Feed URL"
 msgstr "订阅链接"
 
-#: netbox/extras/dashboard/widgets.py:301
+#: netbox/extras/dashboard/widgets.py:305
 msgid "The maximum number of objects to display"
 msgstr "要多显示的对象数"
 
-#: netbox/extras/dashboard/widgets.py:306
+#: netbox/extras/dashboard/widgets.py:310
 msgid "How long to stored the cached content (in seconds)"
 msgstr "存储缓存内容的时间（秒）"
 
-#: netbox/extras/dashboard/widgets.py:358
+#: netbox/extras/dashboard/widgets.py:362
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr "书签"
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:366
 msgid "Show your personal bookmarks"
 msgstr "显示您的个人书签"
 
-#: netbox/extras/events.py:134
+#: netbox/extras/events.py:137
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "事件规则的未知操作类型: {action_type}"
 
-#: netbox/extras/events.py:182
+#: netbox/extras/events.py:185
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "无法导入事件管道 {name}错误: {error}"
@@ -9733,7 +9733,7 @@ msgstr "无效的内容类型: {content_type}"
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr "无效的值。需要将内容类型指定为 '<app_label>.<model_name>'。"
 
-#: netbox/netbox/authentication/__init__.py:138
+#: netbox/netbox/authentication/__init__.py:141
 #, python-brace-format
 msgid "Invalid permission {permission} for model {model}"
 msgstr "模型{model}的权限{permission}无效"
@@ -10565,43 +10565,43 @@ msgstr "初始化后无法在注册表中添加存储空间"
 msgid "Cannot delete stores from registry"
 msgstr "无法从注册表中删除存储"
 
-#: netbox/netbox/settings.py:741
+#: netbox/netbox/settings.py:742
 msgid "German"
 msgstr "德语"
 
-#: netbox/netbox/settings.py:742
+#: netbox/netbox/settings.py:743
 msgid "English"
 msgstr "英语"
 
-#: netbox/netbox/settings.py:743
+#: netbox/netbox/settings.py:744
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: netbox/netbox/settings.py:744
+#: netbox/netbox/settings.py:745
 msgid "French"
 msgstr "法语"
 
-#: netbox/netbox/settings.py:745
+#: netbox/netbox/settings.py:746
 msgid "Japanese"
 msgstr "日语"
 
-#: netbox/netbox/settings.py:746
+#: netbox/netbox/settings.py:747
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: netbox/netbox/settings.py:747
+#: netbox/netbox/settings.py:748
 msgid "Russian"
 msgstr "俄语"
 
-#: netbox/netbox/settings.py:748
+#: netbox/netbox/settings.py:749
 msgid "Turkish"
 msgstr "土耳其语"
 
-#: netbox/netbox/settings.py:749
+#: netbox/netbox/settings.py:750
 msgid "Ukrainian"
 msgstr "乌克兰语"
 
-#: netbox/netbox/settings.py:750
+#: netbox/netbox/settings.py:751
 msgid "Chinese"
 msgstr "中文"
 
