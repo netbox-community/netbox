@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         ),
         # Pre-v2.10 sequence name (see #15605)
         migrations.RunSQL(
-            "ALTER TABLE IF EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
+            "ALTER TABLE IF NOT EXISTS extras_customfield_object_types_id_seq AND EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
         ),
 
         # Custom links
