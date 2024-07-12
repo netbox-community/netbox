@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-11 05:01+0000\n"
+"POT-Creation-Date: 2024-07-12 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10466,42 +10466,62 @@ msgid "Cannot delete stores from registry"
 msgstr ""
 
 #: netbox/netbox/settings.py:742
-msgid "German"
+msgid "Czech"
 msgstr ""
 
 #: netbox/netbox/settings.py:743
-msgid "English"
+msgid "Danish"
 msgstr ""
 
 #: netbox/netbox/settings.py:744
-msgid "Spanish"
+msgid "German"
 msgstr ""
 
 #: netbox/netbox/settings.py:745
-msgid "French"
+msgid "English"
 msgstr ""
 
 #: netbox/netbox/settings.py:746
-msgid "Japanese"
+msgid "Spanish"
 msgstr ""
 
 #: netbox/netbox/settings.py:747
-msgid "Portuguese"
+msgid "French"
 msgstr ""
 
 #: netbox/netbox/settings.py:748
-msgid "Russian"
+msgid "Italian"
 msgstr ""
 
 #: netbox/netbox/settings.py:749
-msgid "Turkish"
+msgid "Japanese"
 msgstr ""
 
 #: netbox/netbox/settings.py:750
-msgid "Ukrainian"
+msgid "Dutch"
 msgstr ""
 
 #: netbox/netbox/settings.py:751
+msgid "Polish"
+msgstr ""
+
+#: netbox/netbox/settings.py:752
+msgid "Portuguese"
+msgstr ""
+
+#: netbox/netbox/settings.py:753
+msgid "Russian"
+msgstr ""
+
+#: netbox/netbox/settings.py:754
+msgid "Turkish"
+msgstr ""
+
+#: netbox/netbox/settings.py:755
+msgid "Ukrainian"
+msgstr ""
+
+#: netbox/netbox/settings.py:756
 msgid "Chinese"
 msgstr ""
 
