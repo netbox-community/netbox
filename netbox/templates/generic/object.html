@@ -77,7 +77,7 @@ Context:
       {% if perms.extras.add_bookmark and object.bookmarks %}
         {% bookmark_button object %}
       {% endif %}
-      {% if perms.extras.add_subscription %}
+      {% if perms.extras.add_subscription and object.subscriptions %}
         {% subscribe_button object %}
       {% endif %}
       {% if request.user|can_add:object %}

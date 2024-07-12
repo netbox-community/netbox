@@ -4,6 +4,7 @@ from django.urls import NoReverseMatch, reverse
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
+from netbox.models.features import NotificationsMixin
 from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_viewname
 
@@ -97,6 +98,10 @@ def delete_button(instance):
 
 @register.inclusion_tag('buttons/subscribe.html', takes_context=True)
 def subscribe_button(context, instance):
+    # Skip for objects which don't support notifications
+    if not (issubclass(instance.__class__, NotificationsMixin)):
+        return {}
+
     # Check if this user has already subscribed to the object
     content_type = ContentType.objects.get_for_model(instance)
     subscription = Subscription.objects.filter(
