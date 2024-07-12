@@ -258,18 +258,14 @@ class NotificationGroupImportForm(CSVModelForm):
         queryset=User.objects.all(),
         required=False,
         to_field_name='username',
-        help_text=mark_safe(
-            _('User names separated by commas, encased with double quotes')
-        )
+        help_text=_('User names separated by commas, encased with double quotes')
     )
     groups = CSVModelMultipleChoiceField(
         label=_('Groups'),
         queryset=Group.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=mark_safe(
-            _('Group names separated by commas, encased with double quotes')
-        )
+        help_text=_('Group names separated by commas, encased with double quotes')
     )
 
     class Meta:
