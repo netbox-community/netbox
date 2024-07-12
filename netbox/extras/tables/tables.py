@@ -287,6 +287,15 @@ class SubscriptionTable(NetBoxTable):
 
 
 class NotificationTable(NetBoxTable):
+    icon = columns.TemplateColumn(
+        template_code='<span class="text-{{ value.color }}"><i class="{{ value.icon }}"></i></span>',
+        accessor=tables.A('event'),
+        attrs={
+            'td': {'class': 'w-1'},
+            'th': {'class': 'w-1'},
+        },
+        verbose_name=''
+    )
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
@@ -312,8 +321,8 @@ class NotificationTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Notification
-        fields = ('pk', 'object', 'object_type', 'created', 'read')
-        default_columns = ('object', 'object_type', 'created', 'read')
+        fields = ('pk', 'icon', 'object', 'object_type', 'event_type', 'created', 'read')
+        default_columns = ('icon', 'object', 'object_type', 'event_type', 'created', 'read')
         row_attrs = {
             'data-unread': lambda record: not record.read,
         }
