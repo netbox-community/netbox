@@ -83,7 +83,7 @@ msgstr "你的首选项已更新。"
 #: netbox/virtualization/choices.py:20 netbox/virtualization/choices.py:45
 #: netbox/vpn/choices.py:18
 msgid "Planned"
-msgstr "已规划的"
+msgstr "已规划"
 
 #: netbox/circuits/choices.py:22 netbox/netbox/navigation/menu.py:290
 msgid "Provisioning"
