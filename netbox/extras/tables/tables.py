@@ -288,7 +288,7 @@ class SubscriptionTable(NetBoxTable):
 
 class NotificationTable(NetBoxTable):
     icon = columns.TemplateColumn(
-        template_code='<span class="text-{{ value.color }}"><i class="{{ value.icon }}"></i></span>',
+        template_code='<span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>',
         accessor=tables.A('event'),
         attrs={
             'td': {'class': 'w-1'},
