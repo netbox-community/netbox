@@ -84,11 +84,11 @@ To create a viewset for a plugin model, subclass `NetBoxModelViewSet` in `api/vi
 
 ```python
 # api/views.py
-from netbox.api.viewsets import ModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from my_plugin.models import MyModel
 from .serializers import MyModelSerializer
 
-class MyModelViewSet(ModelViewSet):
+class MyModelViewSet(NetBoxModelViewSet):
     queryset = MyModel.objects.all()
     serializer_class = MyModelSerializer
 ```
