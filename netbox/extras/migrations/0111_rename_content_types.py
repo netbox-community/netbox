@@ -1,5 +1,16 @@
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.utils import ProgrammingError
+
+
+def create_legacy_sequence(apps, schema_editor):
+    # Pre-v2.10 sequence name (see #15605)
+    try:
+        migrations.RunSQL(
+            "ALTER TABLE IF EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
+        )
+    except ProgrammingError as e:
+        pass
 
 
 class Migration(migrations.Migration):
@@ -29,9 +40,9 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             "ALTER TABLE IF EXISTS extras_customfield_content_types_id_seq RENAME TO extras_customfield_object_types_id_seq"
         ),
-        # Pre-v2.10 sequence name (see #15605)
-        migrations.RunSQL(
-            "ALTER TABLE IF NOT EXISTS extras_customfield_object_types_id_seq AND EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
+        migrations.RunPython(
+            code=create_legacy_sequence,
+            reverse_code=migrations.RunPython.noop
         ),
 
         # Custom links
