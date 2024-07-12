@@ -273,7 +273,8 @@ class SubscriptionTable(NetBoxTable):
     )
     object = tables.Column(
         verbose_name=_('Object'),
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     actions = columns.ActionsColumn(
         actions=('delete',)
@@ -294,7 +295,8 @@ class NotificationTable(NetBoxTable):
         linkify={
             'viewname': 'extras:notification_read',
             'args': [tables.A('pk')],
-        }
+        },
+        orderable=False
     )
     created = columns.DateTimeColumn(
         timespec='minutes',
