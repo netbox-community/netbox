@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-11 05:01+0000\n"
+"POT-Creation-Date: 2024-07-12 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: chbally, 2024\n"
 "Language-Team: German (https://app.transifex.com/netbox-community/teams/178115/de/)\n"
@@ -10931,42 +10931,62 @@ msgid "Cannot delete stores from registry"
 msgstr "Stores können nicht aus der Registrierung gelöscht werden"
 
 #: netbox/netbox/settings.py:742
+msgid "Czech"
+msgstr "Tschechisch"
+
+#: netbox/netbox/settings.py:743
+msgid "Danish"
+msgstr "Dänisch"
+
+#: netbox/netbox/settings.py:744
 msgid "German"
 msgstr "Deutsch"
 
-#: netbox/netbox/settings.py:743
+#: netbox/netbox/settings.py:745
 msgid "English"
 msgstr "Englisch"
 
-#: netbox/netbox/settings.py:744
+#: netbox/netbox/settings.py:746
 msgid "Spanish"
 msgstr "Spanisch"
 
-#: netbox/netbox/settings.py:745
+#: netbox/netbox/settings.py:747
 msgid "French"
 msgstr "Französisch"
 
-#: netbox/netbox/settings.py:746
+#: netbox/netbox/settings.py:748
+msgid "Italian"
+msgstr "Italenisch"
+
+#: netbox/netbox/settings.py:749
 msgid "Japanese"
 msgstr "Japanisch"
 
-#: netbox/netbox/settings.py:747
+#: netbox/netbox/settings.py:750
+msgid "Dutch"
+msgstr "Niederländisch"
+
+#: netbox/netbox/settings.py:751
+msgid "Polish"
+msgstr "Polnisch"
+
+#: netbox/netbox/settings.py:752
 msgid "Portuguese"
 msgstr "Portugiesisch"
 
-#: netbox/netbox/settings.py:748
+#: netbox/netbox/settings.py:753
 msgid "Russian"
 msgstr "Russisch"
 
-#: netbox/netbox/settings.py:749
+#: netbox/netbox/settings.py:754
 msgid "Turkish"
 msgstr "Türkisch"
 
-#: netbox/netbox/settings.py:750
+#: netbox/netbox/settings.py:755
 msgid "Ukrainian"
 msgstr "Ukrainisch"
 
-#: netbox/netbox/settings.py:751
+#: netbox/netbox/settings.py:756
 msgid "Chinese"
 msgstr "chinesisch"
 
