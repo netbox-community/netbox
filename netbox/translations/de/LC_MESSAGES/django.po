@@ -13232,8 +13232,8 @@ msgid ""
 "Are you sure you want to <strong class=\"text-danger\">delete</strong> "
 "%(object_type)s <strong>%(object)s</strong>?"
 msgstr ""
-"Bist du sicher, dass du%(object_type)s <strong>%(object)s</strong>  <strong "
-"class=\"text-danger\">löschen</strong> willst?"
+"Bist du sicher, dass du %(object_type)s <strong>%(object)s</strong>  <strong"
+" class=\"text-danger\">löschen</strong> willst?"
 
 #: netbox/templates/htmx/delete_form.html:17
 msgid "The following objects will be deleted as a result of this action."
