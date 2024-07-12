@@ -1,8 +1,9 @@
 @use 'sass:map';
 
-// Highlight unread notifications
-tr[data-unread=True] {
+// Mute read notifications
+tr[data-read=True] {
   td {
-    background-color: rgba(map.get($theme-colors, "green"), 0.15);
+    background-color: var(--#{$prefix}bg-surface-secondary);
+    color: $text-muted;
   }
 }

@@ -324,7 +324,7 @@ class NotificationTable(NetBoxTable):
         fields = ('pk', 'icon', 'object', 'object_type', 'event_type', 'created', 'read')
         default_columns = ('icon', 'object', 'object_type', 'event_type', 'created', 'read')
         row_attrs = {
-            'data-unread': lambda record: not record.read,
+            'data-read': lambda record: bool(record.read),
         }
 
 
