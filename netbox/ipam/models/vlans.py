@@ -54,9 +54,8 @@ class VLANGroup(OrganizationalModel):
     )
     vlan_id_ranges = ArrayField(
         IntegerRangeField(),
-        verbose_name=_('min/max VLAN IDs'),
+        verbose_name=_('VLAN ID ranges'),
         default=get_default_vlan_ids,
-        help_text=_('Ranges of Minimum, maximum VLAN IDs'),
         blank=True,
         null=True
     )

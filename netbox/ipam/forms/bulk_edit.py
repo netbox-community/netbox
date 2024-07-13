@@ -473,7 +473,8 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     vlan_id_ranges = NumericRangeArrayField(
-        required=False,
+        label=_('VLAN ID ranges'),
+        required=False
     )
 
     model = VLANGroup

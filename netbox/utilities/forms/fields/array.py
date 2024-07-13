@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from utilities.data import ranges_to_string, string_to_range_array
 
@@ -37,9 +38,8 @@ class NumericRangeArrayField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = _(
-                "Specify one or more numeric ranges separated by commas "
-                "Example: <code>1-5,20-30</code>"
+            self.help_text = mark_safe(
+                _("Specify one or more numeric ranges separated by commas. Example: " + "<code>1-5,20-30</code>")
             )
 
     def clean(self, value):

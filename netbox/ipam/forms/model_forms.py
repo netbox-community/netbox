@@ -634,6 +634,7 @@ class VLANGroupForm(NetBoxModelForm):
     )
     slug = SlugField()
     vlan_id_ranges = NumericRangeArrayField(
+        label=_('VLAN IDs'),
         required=False
     )
 
