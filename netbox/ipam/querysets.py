@@ -66,12 +66,6 @@ class VLANGroupQuerySet(RestrictedQuerySet):
             utilization=Round(F('vlan_count') * 100 / F('_total_vlan_ids'), 2)
         )
 
-    def annotate_vlan_ranges(self):
-
-        return self.annotate(
-            vid_range=Func(F('vlan_id_ranges'), function='unnest')
-        )
-
 
 class VLANQuerySet(RestrictedQuerySet):
 
