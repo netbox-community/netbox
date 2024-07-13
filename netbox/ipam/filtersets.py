@@ -911,8 +911,8 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
-    vlan_id = django_filters.NumberFilter(
-        method='filter_vlan_id'
+    contains_vid = django_filters.NumberFilter(
+        method='filter_contains_vid'
     )
 
     class Meta:
@@ -935,9 +935,19 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
             scope_id=value
         )
 
-    def filter_vlan_id(self, queryset, name, value):
+    def filter_contains_vid(self, queryset, name, value):
+        """
+        Return all VLANGroups which contain the given VLAN ID.
+        """
+        table_name = VLANGroup._meta.db_table
+        # TODO: See if this can be optimized without compromising queryset integrity
+        # Expand VLAN ID ranges to query by integer
+        groups = VLANGroup.objects.raw(
+            f'SELECT id FROM {table_name}, unnest(vlan_id_ranges) vid_range WHERE %s <@ vid_range',
+            params=(value,)
+        )
         return queryset.filter(
-            vid_range__contained_by=value
+            pk__in=[g.id for g in groups]
         )
 
 
