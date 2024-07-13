@@ -138,12 +138,9 @@ def ranges_to_string(ranges):
     """
     Generate a human-friendly string from a set of ranges. Intended for use with ArrayField.
     For example:
-        [1-100, 200-300] => "1-100, 200-300"
+        [Range(1, 100), Range(200, 300)] => "1-100, 200-300"
     """
-    if not ranges:
-        return ""
-
-    return ', '.join([f"{val.lower}-{val.upper}" for val in ranges])
+    return ', '.join([f"{r.lower}-{r.upper}" for r in ranges])
 
 
 def string_to_range_array(value):

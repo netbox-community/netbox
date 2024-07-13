@@ -34,18 +34,17 @@ class NumericRangeArrayField(forms.CharField):
     A field which allows for array of numeric ranges:
       Example: 1-5,7-20,30-50
     """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.help_text:
-            self.help_text = mark_safe(
+    def __init__(self, *args, help_text='', **kwargs):
+        if not help_text:
+            help_text = mark_safe(
                 _("Specify one or more numeric ranges separated by commas. Example: " + "<code>1-5,20-30</code>")
             )
+        super().__init__(*args, help_text=help_text, **kwargs)
 
     def clean(self, value):
         if value and not self.to_python(value):
             raise forms.ValidationError(
-                _("Invalid ranges ({value}). Must be range of number '100-200' and ranges must be in ascending order.").format(value=value)
+                _("Invalid ranges ({value}). Must be a range of integers in ascending order.").format(value=value)
             )
         return super().clean(value)
 
