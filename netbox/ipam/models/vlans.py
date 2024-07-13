@@ -3,7 +3,6 @@ from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -19,10 +18,6 @@ __all__ = (
     'VLAN',
     'VLANGroup',
 )
-
-
-def get_default_vlan_ids():
-    return [NumericRange(VLAN_VID_MIN, VLAN_VID_MAX)]
 
 
 class VLANGroup(OrganizationalModel):
@@ -55,7 +50,6 @@ class VLANGroup(OrganizationalModel):
     vlan_id_ranges = ArrayField(
         IntegerRangeField(),
         verbose_name=_('VLAN ID ranges'),
-        default=get_default_vlan_ids,
         blank=True,
         null=True
     )

@@ -15,7 +15,7 @@ from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    SlugField, NumericRangeArrayField
+    NumericRangeArrayField, SlugField
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker

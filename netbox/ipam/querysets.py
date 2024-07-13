@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Func, F, OuterRef, Q, Subquery, Value
+from django.db.models import Count, F, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Round
 
