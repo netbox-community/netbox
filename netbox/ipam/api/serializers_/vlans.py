@@ -6,11 +6,10 @@ from dcim.api.serializers_.sites import SiteSerializer
 from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup
-from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
-from utilities.data import ranges_to_string, string_to_range_array
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .roles import RoleSerializer
 
@@ -20,14 +19,6 @@ __all__ = (
     'VLANGroupSerializer',
     'VLANSerializer',
 )
-
-
-class NumericRangeArraySerializer(serializers.CharField):
-    def to_internal_value(self, data):
-        return string_to_range_array(data)
-
-    def to_representation(self, instance):
-        return ranges_to_string(instance)
 
 
 class VLANGroupSerializer(NetBoxModelSerializer):
@@ -41,11 +32,11 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
+    vlan_id_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
 
     # Related object counts
     vlan_count = RelatedObjectCountField('vlans')
-    vlan_id_ranges = NumericRangeArraySerializer(required=False)
 
     class Meta:
         model = VLANGroup
