@@ -588,12 +588,16 @@ class RackTypeListView(generic.ObjectListView):
     filterset = filtersets.RackTypeFilterSet
     filterset_form = forms.RackTypeFilterForm
     table = tables.RackTypeTable
-    template_name = 'dcim/racktype_list.html'
 
 
 @register_model_view(RackType)
 class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = RackType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
 
 
 @register_model_view(RackType, 'edit')

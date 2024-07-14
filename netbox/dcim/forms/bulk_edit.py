@@ -13,7 +13,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from wireless.models import WirelessLAN, WirelessLANGroup
 from wireless.choices import WirelessRoleChoices
@@ -234,6 +234,10 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Height (U)')
     )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
     desc_units = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -284,12 +288,14 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackType
     fieldsets = (
-        FieldSet('description', name=_('Rack')),
+        FieldSet('description', 'type', name=_('Rack Type')),
         FieldSet(
-            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
-            name=_('Hardware')
+            'width', 'u_height',
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            'mounting_depth', name=_('Dimensions')
         ),
-        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
     )
     nullable_fields = (
         'outer_width', 'outer_depth', 'outer_unit', 'weight',

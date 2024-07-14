@@ -207,13 +207,14 @@ class RackTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'description', 'tags', name=_('Rack')),
+        FieldSet('name', 'slug', 'description', 'type', 'tags', name=_('Rack')),
         FieldSet(
-            'type', 'width', 'starting_unit', 'u_height',
+            'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-            'mounting_depth', 'desc_units', name=_('Dimensions')
+            'mounting_depth', name=_('Dimensions')
         ),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
     )
 
     class Meta:

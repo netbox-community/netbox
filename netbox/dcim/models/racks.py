@@ -37,7 +37,7 @@ __all__ = (
 # Rack Types
 #
 
-class RackType(PrimaryModel, WeightMixin):
+class RackType(WeightMixin, PrimaryModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -124,10 +124,10 @@ class RackType(PrimaryModel, WeightMixin):
         verbose_name=_('mounting depth'),
         blank=True,
         null=True,
-        help_text=(
-            _('Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
-              'distance between the front and rear rails.')
-        )
+        help_text=(_(
+            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the distance between the '
+            'front and rear rails.'
+        ))
     )
 
     clone_fields = (

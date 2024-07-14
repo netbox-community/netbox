@@ -39,7 +39,6 @@ __all__ = [
     'NestedRackReservationSerializer',
     'NestedRackRoleSerializer',
     'NestedRackSerializer',
-    'NestedRackTypeSerializer',
     'NestedRearPortSerializer',
     'NestedRearPortTemplateSerializer',
     'NestedRegionSerializer',
@@ -110,13 +109,6 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
     class Meta:
         model = models.RackRole
         fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'rack_count']
-
-
-class NestedRackTypeSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = models.RackType
-        fields = ['id', 'url', 'display_url', 'display', 'name']
 
 
 @extend_schema_serializer(

@@ -245,7 +245,7 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('type', 'width', name=_('Hardware')),
+        FieldSet('type', 'width', 'u_height', 'starting_unit', name=_('Rack Type')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     selector_fields = ('filter_id', 'q',)
@@ -259,7 +259,21 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
         choices=RackWidthChoices,
         required=False
     )
-    tag = TagFilterField(model)
+    u_height = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    desc_units = forms.NullBooleanField(
+        required=False,
+        label=_('Descending units'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -275,6 +289,7 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
+    tag = TagFilterField(model)
 
 
 class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):

@@ -184,6 +184,11 @@ class RackTypeImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Rack type')
     )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text=_('The lowest-numbered position in the rack')
+    )
     width = forms.ChoiceField(
         label=_('Width'),
         choices=RackWidthChoices,
@@ -205,7 +210,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackType
         fields = (
-            'name', 'slug', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+            'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
             'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )

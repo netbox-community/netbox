@@ -250,9 +250,7 @@ class RackTypeIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = (
-        'site', 'description',
-    )
+    display_attrs = ('type', 'description')
 
 
 @register_search

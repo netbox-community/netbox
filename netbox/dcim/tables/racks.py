@@ -59,12 +59,6 @@ class RackTypeTable(NetBoxTable):
         template_code="{{ value }}U",
         verbose_name=_('Height')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
-    tags = columns.TagColumn(
-        url_name='dcim:rack_list'
-    )
     outer_width = tables.TemplateColumn(
         template_code="{{ record.outer_width }} {{ record.outer_unit }}",
         verbose_name=_('Outer Width')
@@ -83,17 +77,21 @@ class RackTypeTable(NetBoxTable):
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:rack_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = RackType
         fields = (
-            'pk', 'id', 'name',
-            'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
-            'weight', 'max_weight', 'comments',
-            'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth',
+            'mounting_depth', 'weight', 'max_weight', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'u_height',
+            'pk', 'name', 'type', 'u_height', 'description',
         )
 
 
