@@ -203,11 +203,15 @@ class RackRoleForm(NetBoxModelForm):
 
 
 class RackTypeForm(NetBoxModelForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all()
+    )
     comments = CommentField()
     slug = SlugField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'description', 'type', 'tags', name=_('Rack')),
+        FieldSet('manufacturer', 'name', 'slug', 'description', 'type', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -220,9 +224,9 @@ class RackTypeForm(NetBoxModelForm):
     class Meta:
         model = RackType
         fields = [
-            'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'comments', 'tags',
+            'manufacturer', 'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'comments', 'tags',
         ]
 
 

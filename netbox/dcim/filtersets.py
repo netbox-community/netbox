@@ -291,6 +291,16 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class RackTypeFilterSet(NetBoxModelFilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=RackTypeChoices
     )
@@ -301,8 +311,8 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = RackType
         fields = (
-            'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 
     def search(self, queryset, name, value):

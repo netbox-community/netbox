@@ -220,6 +220,11 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
     type = forms.ChoiceField(
         label=_('Type'),
         choices=add_blank_choice(RackTypeChoices),
@@ -288,12 +293,14 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackType
     fieldsets = (
-        FieldSet('description', 'type', name=_('Rack Type')),
+        FieldSet('manufacturer', 'description', 'type', name=_('Rack Type')),
         FieldSet(
-            'width', 'u_height',
+            'width',
+            'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-            'mounting_depth', name=_('Dimensions')
+            'mounting_depth',
+            name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
     )

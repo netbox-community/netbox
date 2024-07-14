@@ -4,6 +4,10 @@ A rack type defines the physical characteristics of a particular model of [rack]
 
 ## Fields
 
+### Manufacturer
+
+The [manufacturer](./manufacturer.md) which produces this type of rack.
+
 ### Name
 
 The unique name of the rack type.

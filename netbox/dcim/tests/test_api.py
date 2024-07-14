@@ -276,33 +276,41 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
 
     @classmethod
     def setUpTestData(cls):
-
-        racks = (
-            RackType(name='RackType 1', slug='rack-type-1'),
-            RackType(name='RackType 2', slug='rack-type-2'),
-            RackType(name='RackType 3', slug='rack-type-3'),
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
         )
-        RackType.objects.bulk_create(racks)
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], name='Rack Type 1', slug='rack-type-1'),
+            RackType(manufacturer=manufacturers[0], name='Rack Type 2', slug='rack-type-2'),
+            RackType(manufacturer=manufacturers[0], name='Rack Type 3', slug='rack-type-3'),
+        )
+        RackType.objects.bulk_create(rack_types)
 
         cls.create_data = [
             {
-                'name': 'Test RackType 4',
-                'slug': 'test-rack-type-4',
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 4',
+                'slug': 'rack-type-4',
             },
             {
-                'name': 'Test RackType 5',
-                'slug': 'test-rack-type-5',
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 5',
+                'slug': 'rack-type-5',
             },
             {
-                'name': 'Test RackType 6',
-                'slug': 'test-rack-type-6',
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 6',
+                'slug': 'rack-type-6',
             },
         ]
 

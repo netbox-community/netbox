@@ -614,6 +614,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 )
 class RackTypeType(NetBoxObjectType):
     _name: str
+    manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
 
 @strawberry_django.type(

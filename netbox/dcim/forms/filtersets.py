@@ -248,7 +248,12 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
         FieldSet('type', 'width', 'u_height', 'starting_unit', name=_('Rack Type')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
-    selector_fields = ('filter_id', 'q',)
+    selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
     type = forms.MultipleChoiceField(
         label=_('Type'),
         choices=RackTypeChoices,

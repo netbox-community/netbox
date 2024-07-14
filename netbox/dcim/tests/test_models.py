@@ -78,8 +78,10 @@ class RackTypeTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
 
         RackType.objects.create(
+            manufacturer=manufacturer,
             name='RackType 1',
             slug='rack-type-1',
             width=11,

@@ -55,6 +55,10 @@ class RackTypeTable(NetBoxTable):
         order_by=('_name',),
         linkify=True
     )
+    manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
+        linkify=True
+    )
     u_height = tables.TemplateColumn(
         template_code="{{ value }}U",
         verbose_name=_('Height')
@@ -87,11 +91,12 @@ class RackTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackType
         fields = (
-            'pk', 'id', 'name', 'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth',
-            'mounting_depth', 'weight', 'max_weight', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'manufacturer', 'type', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'type', 'u_height', 'description',
+            'pk', 'name', 'manufacturer', 'type', 'u_height', 'description',
         )
 
 

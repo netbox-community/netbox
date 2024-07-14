@@ -474,9 +474,16 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
 
         racks = (
             RackType(
+                manufacturer=manufacturers[0],
                 name='RackType 1',
                 slug='rack-type-1',
                 type=RackTypeChoices.TYPE_2POST,
@@ -492,6 +499,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 description='foobar1'
             ),
             RackType(
+                manufacturer=manufacturers[1],
                 name='RackType 2',
                 slug='rack-type-2',
                 type=RackTypeChoices.TYPE_4POST,
@@ -507,6 +515,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 description='foobar2'
             ),
             RackType(
+                manufacturer=manufacturers[2],
                 name='RackType 3',
                 slug='rack-type-3',
                 type=RackTypeChoices.TYPE_CABINET,
@@ -527,6 +536,13 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['RackType 1', 'RackType 2']}

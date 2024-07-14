@@ -48,6 +48,11 @@ class RackType(WeightMixin, PrimaryModel):
         'mounting_depth'
     ]
 
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='rack_types'
+    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -83,7 +88,7 @@ class RackType(WeightMixin, PrimaryModel):
     starting_unit = models.PositiveSmallIntegerField(
         default=RACK_STARTING_UNIT_DEFAULT,
         verbose_name=_('starting unit'),
-        validators=[MinValueValidator(1),],
+        validators=[MinValueValidator(1)],
         help_text=_('Starting unit for rack')
     )
     desc_units = models.BooleanField(
@@ -107,7 +112,7 @@ class RackType(WeightMixin, PrimaryModel):
         verbose_name=_('outer unit'),
         max_length=50,
         choices=RackDimensionUnitChoices,
-        blank=True,
+        blank=True
     )
     max_weight = models.PositiveIntegerField(
         verbose_name=_('max weight'),
@@ -131,11 +136,11 @@ class RackType(WeightMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'type', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'manufacturer', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+        'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
-        'dcim.Site',
+        'dcim.Manufacturer',
     )
 
     class Meta:
@@ -204,7 +209,6 @@ class RackType(WeightMixin, PrimaryModel):
 #
 # Racks
 #
-
 
 class RackRole(OrganizationalModel):
     """

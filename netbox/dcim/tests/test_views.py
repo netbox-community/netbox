@@ -341,17 +341,23 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        racks = (
-            RackType(name='RackType 1', slug='rack-type-1',),
-            RackType(name='RackType 2', slug='rack-type-2',),
-            RackType(name='RackType 3', slug='rack-type-3',),
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
         )
-        RackType.objects.bulk_create(racks)
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], name='RackType 1', slug='rack-type-1',),
+            RackType(manufacturer=manufacturers[0], name='RackType 2', slug='rack-type-2',),
+            RackType(manufacturer=manufacturers[0], name='RackType 3', slug='rack-type-3',),
+        )
+        RackType.objects.bulk_create(rack_types)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
             'name': 'RackType X',
             'slug': 'rack-type-x',
             'type': RackTypeChoices.TYPE_CABINET,
@@ -370,20 +376,21 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,slug,width,u_height,weight,max_weight,weight_unit",
-            "RackType 4,rack-type-4,19,42,100,2000,kg",
-            "RackType 5,rack-type-5,19,42,100,2000,kg",
-            "RackType 6,rack-type-6,19,42,100,2000,kg",
+            "manufacturer,name,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
             "id,name",
-            f"{racks[0].pk},RackType 7",
-            f"{racks[1].pk},RackType 8",
-            f"{racks[2].pk},RackType 9",
+            f"{rack_types[0].pk},RackType 7",
+            f"{rack_types[1].pk},RackType 8",
+            f"{rack_types[2].pk},RackType 9",
         )
 
         cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
             'type': RackTypeChoices.TYPE_4POST,
             'width': RackWidthChoices.WIDTH_23IN,
             'u_height': 49,

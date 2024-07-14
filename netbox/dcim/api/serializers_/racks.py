@@ -9,6 +9,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import ConfigItem
 from tenancy.api.serializers_.tenants import TenantSerializer
 from users.api.serializers_.users import UserSerializer
+from .manufacturers import ManufacturerSerializer
 from .sites import LocationSerializer, SiteSerializer
 
 __all__ = (
@@ -35,6 +36,9 @@ class RackRoleSerializer(NetBoxModelSerializer):
 
 
 class RackTypeSerializer(NetBoxModelSerializer):
+    manufacturer = ManufacturerSerializer(
+        nested=True
+    )
     type = ChoiceField(
         choices=RackTypeChoices,
         allow_blank=True,
@@ -61,12 +65,12 @@ class RackTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'type', 'width', 'u_height',
-            'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight', 'max_weight',
-            'weight_unit', 'mounting_depth', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'manufacturer', 'name', 'slug', 'description', 'type', 'width',
+            'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
+            'max_weight', 'weight_unit', 'mounting_depth', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'manufacturer', 'name', 'slug', 'description')
 
 
 class RackSerializer(NetBoxModelSerializer):
