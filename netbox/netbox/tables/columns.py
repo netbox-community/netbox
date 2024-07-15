@@ -275,7 +275,7 @@ class ActionsColumn(tables.Column):
                 if len(self.actions) == 1 or (self.split_actions and idx == 0):
                     dropdown_class = attrs.css_class
                     button = (
-                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button">'
+                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button" aria-label="{attrs.title}">'
                         f'<i class="mdi mdi-{attrs.icon}"></i></a>'
                     )
 

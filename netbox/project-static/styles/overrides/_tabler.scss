@@ -93,6 +93,10 @@ body[data-bs-theme=dark] {
     .btn {
       color: var(--#{$prefix}body-color);
     }
+    // Stops table headers from appearing as primary link color
+    th.orderable a {
+      color: var(--#{$prefix}body-color);
+    }
   }
 
   // Adjusting text colors
