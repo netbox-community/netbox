@@ -32,16 +32,12 @@ pre {
 // Dropdown items
 .dropdown-item {
   // Tabler sets display: flex
-  display: inline-block;;
-}
-
-table th.orderable a {
-  color: var(--#{$prefix}body-color);
+  display: inline-block;
 }
 
 // Override background color alpha value
 [data-bs-theme=dark] ::selection {
-  background-color: rgba(var(--tblr-primary-rgb),.48)
+  background-color: rgba(var(--tblr-primary-rgb),.48);
 }
 
 // Dark mode colors
@@ -73,6 +69,11 @@ table th.orderable a {
 // Dark mode overrides
 body[data-bs-theme=dark] {
 
+  // Altering background colors
+  .card {
+    background: $rich-black!important;
+  }
+
   // Background colors to match brand colors
   background-color: $rich-black;
   .navbar, .page-header {
@@ -80,23 +81,6 @@ body[data-bs-theme=dark] {
   }
   .page, .page-tabs .nav-tabs .nav-link.active {
     background-color: $rich-black-light!important;
-  }
-
-  // Adjust dark table link color without affecting buttons and badges
-  table {
-    a {
-      color: $bright-teal;
-    }
-    .badge a {
-      color: inherit;
-    }
-    .btn {
-      color: var(--#{$prefix}body-color);
-    }
-    // Stops table headers from appearing as primary link color
-    th.orderable a {
-      color: var(--#{$prefix}body-color);
-    }
   }
 
   // Adjusting text colors
