@@ -111,6 +111,10 @@ Context:
   </ul>
 {% endblock tabs %}
 
+{% block alerts %}
+  {% plugin_alerts object %}
+{% endblock alerts %}
+
 {% block content %}{% endblock %}
 
 {% block modals %}
