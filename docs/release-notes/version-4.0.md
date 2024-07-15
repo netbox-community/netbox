@@ -14,7 +14,11 @@
 ### Bug Fixes
 
 * [#16357](https://github.com/netbox-community/netbox/issues/16357) - Replicate assigned type & tenant for cable when clicking "create an add another"
+* [#16402](https://github.com/netbox-community/netbox/issues/16402) - Remove inoperative links from report result view
+* [#16536](https://github.com/netbox-community/netbox/issues/16536) - Revert `role` & `role_id` filters for device components to `device_role` & `device_role_id` to avoid conflict with inventory item `role` field
+* [#16624](https://github.com/netbox-community/netbox/issues/16624) - Correct OpenAPI schema definitions for several fields
 * [#16760](https://github.com/netbox-community/netbox/issues/16760) - Fix data source syncing using git via a local path
+* [#16819](https://github.com/netbox-community/netbox/issues/16819) - Highlight parent device in rack when viewing child device
 * [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
 * [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
 
