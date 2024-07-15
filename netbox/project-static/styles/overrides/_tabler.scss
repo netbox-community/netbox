@@ -71,7 +71,7 @@ pre {
 body[data-bs-theme=dark] {
 
   // Change content color when primary teal changes with theme
-  .bg-primary, {
+  .bg-primary {
     .card-title,a,i {
       color: $rich-black!important;
     }
