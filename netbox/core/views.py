@@ -685,40 +685,6 @@ def get_local_plugins(plugins):
 
     return plugins
 
-    def get_feed(self):
-        # Fetch RSS content from cache if available
-        if feed_content := cache.get(self.cache_key):
-            return {
-                'feed': feedparser.FeedParserDict(feed_content),
-            }
-
-        # Fetch feed content from remote server
-        try:
-            response = requests.get(
-                url=self.config['feed_url'],
-                headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
-                proxies=settings.HTTP_PROXIES,
-                timeout=3
-            )
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            return {
-                'error': e,
-            }
-
-        # Parse feed content
-        feed = feedparser.parse(response.content)
-        if not feed.bozo:
-            # Cap number of entries
-            max_entries = self.config.get('max_entries')
-            feed['entries'] = feed['entries'][:max_entries]
-            # Cache the feed content
-            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
-
-        return {
-            'feed': feed,
-        }
-
 
 def get_catalog_plugins(plugins):
     url = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
