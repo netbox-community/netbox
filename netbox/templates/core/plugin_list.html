@@ -1,4 +1,4 @@
-{% extends 'generic/_base.html' %}
+{% extends 'generic/object_list.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load i18n %}
@@ -18,24 +18,26 @@
 {% endblock tabs %}
 
 {% block content %}
-  <p>{% trans "NetBox plugins enable you to document and model new kinds of resources, connect automations, add workflows, and much more." %}</p>
+  <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+    <p>{% trans "NetBox plugins enable you to document and model new kinds of resources, connect automations, add workflows, and much more." %}</p>
 
-  <div class="row mb-3" id="results">
-    <div class="col-auto d-print-none">
-      <div class="input-group input-group-flat me-2 mt-2 quicksearch" hx-disinherit="hx-select hx-swap">
-        <input type="search" results="5" name="q" id="quicksearch" class="form-control" placeholder="{% trans "Quick search" %}"
-            hx-get="{{ request.full_path }}" hx-target="#plugins_list" hx-trigger="keyup changed delay:500ms, search"/>
-        <span class="input-group-text py-1">
-          <a href="#" id="quicksearch_clear" class="invisible text-secondary"><i class="mdi mdi-close-circle"></i></a>
-        </span>
+    <div class="row mb-3" id="results">
+      <div class="col-auto d-print-none">
+        <div class="input-group input-group-flat me-2 mt-2 quicksearch" hx-disinherit="hx-select hx-swap">
+          <input type="search" results="5" name="q" id="quicksearch" class="form-control" placeholder="{% trans "Quick search" %}"
+              hx-get="{{ request.full_path }}" hx-target="#plugins_list" hx-trigger="keyup changed delay:500ms, search"/>
+          <span class="input-group-text py-1">
+            <a href="#" id="quicksearch_clear" class="invisible text-secondary"><i class="mdi mdi-close-circle"></i></a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="htmx-container table-responsive" id="object_list">
+        {% include 'htmx/table.html' %}
       </div>
     </div>
 
   </div>
-
-  {# System status #}
-  <div class="row mb-3 htmx-container" id="plugin_list">
-      {% include 'core/htmx/plugins.html' %}
-  </div>
-
 {% endblock content %}

@@ -768,8 +768,8 @@ def get_catalog_plugins(plugins):
 
 
 def get_plugins():
-    # if plugins := cache.get('plugins-catalog-feed'):
-    #     return plugins
+    if plugins := cache.get('plugins-catalog-feed'):
+        return plugins
 
     plugins = {}
     plugins = get_local_plugins(plugins)
