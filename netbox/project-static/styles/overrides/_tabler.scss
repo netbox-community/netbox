@@ -45,6 +45,7 @@ pre {
   @include color-mode(dark, true) {
     --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
     --#{$prefix}link-color: #{$bright-teal};
+    --#{$prefix}primary-rgb: 0,242,212;
     --#{$prefix}secondary: #{$gray-400};
   }
 }
@@ -68,6 +69,16 @@ pre {
 
 // Dark mode overrides
 body[data-bs-theme=dark] {
+
+  // Change content color when primary teal changes with theme
+  .bg-primary, {
+    .card-title,a,i {
+      color: $rich-black!important;
+    }
+  }
+  .text-bg-primary {
+    color: $rich-black!important;
+  }
 
   // Altering background colors
   .card {

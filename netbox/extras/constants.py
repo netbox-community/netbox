@@ -26,7 +26,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 5,
         'title': 'Bookmarks',
-        'color': 'orange',
+        'color': 'primary',
     },
     {
         'widget': 'extras.ObjectCountsWidget',
@@ -46,7 +46,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 2,
         'title': 'Welcome!',
-        'color': 'green',
+        'color': 'primary',
         'config': {
             'content': (
                 'This is your personal dashboard. Feel free to customize it by rearranging, resizing, or removing '
@@ -128,7 +128,6 @@ DEFAULT_DASHBOARD = [
         'width': 12,
         'height': 5,
         'title': 'Change Log',
-        'color': 'blue',
         'config': {
             'model': 'core.objectchange',
             'page_size': 25,

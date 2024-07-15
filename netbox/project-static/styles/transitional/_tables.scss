@@ -65,11 +65,8 @@ body[data-bs-theme=dark] {
 
   // Adjust dark table link color without affecting buttons and badges
   table {
-    a:not(.btn) {
+    a:not(.btn,.badge a) {
       color: $bright-teal;
-    }
-    .badge a {
-      color: inherit;
     }
     // Stops table headers from appearing as primary link color
     th.orderable a {
@@ -79,7 +76,7 @@ body[data-bs-theme=dark] {
 
   table.object-list {
     a {
-      color: var(--#{$prefix}body-color);
+      color: var(--#{$prefix}body-color)!important;
     }
   }
 }
