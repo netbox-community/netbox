@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col col-12 col-xl-6">
             <div class="card">
-                <h2 class="card-header h5">{% trans "Device" %}</h2>
+                <h2 class="card-header">{% trans "Device" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Region" %}</th>
@@ -116,7 +116,7 @@
             </div>
             {% if vc_members %}
                 <div class="card">
-                    <h2 class="card-header h5">
+                    <h2 class="card-header">
                       {% trans "Virtual Chassis" %}
                       <div class="card-actions">
                         <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
@@ -154,7 +154,7 @@
             {% include 'inc/panels/tags.html' %}
             {% include 'inc/panels/comments.html' %}
             <div class="card">
-              <h2 class="card-header h5">
+              <h2 class="card-header">
                 {% trans "Virtual Device Contexts" %}
                 {% if perms.dcim.add_virtualdevicecontext %}
                   <div class="card-actions">
@@ -170,7 +170,7 @@
         </div>
         <div class="col col-12 col-xl-6">
             <div class="card">
-                <h2 class="card-header h5">{% trans "Management" %}</h2>
+                <h2 class="card-header">{% trans "Management" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Status" %}</th>
@@ -242,7 +242,7 @@
             </div>
             {% if object.powerports.exists and object.poweroutlets.exists %}
                 <div class="card">
-                    <h2 class="card-header h5">{% trans "Power Utilization" %}</h2>
+                    <h2 class="card-header">{% trans "Power Utilization" %}</h2>
                     <table class="table table-hover">
                         <thead>
                           <tr>
@@ -291,7 +291,7 @@
                 </div>
             {% endif %}
             <div class="card">
-              <h2 class="card-header h5">
+              <h2 class="card-header">
                 {% trans "Services" %}
                 {% if perms.ipam.add_service %}
                   <div class="card-actions">
@@ -305,7 +305,7 @@
             </div>
             {% include 'inc/panels/image_attachments.html' %}
             <div class="card">
-                <h2 class="card-header h5">{% trans "Dimensions" %}</h2>
+                <h2 class="card-header">{% trans "Dimensions" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Height" %}</th>

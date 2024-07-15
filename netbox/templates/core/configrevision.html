@@ -32,12 +32,12 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h2 class="card-header h5">{% trans "Configuration Data" %}</h2>
+        <h2 class="card-header">{% trans "Configuration Data" %}</h2>
         {% include 'core/inc/config_data.html' with config=object.data %}
       </div>
 
       <div class="card">
-        <h2 class="card-header h5">{% trans "Comment" %}</h2>
+        <h2 class="card-header">{% trans "Comment" %}</h2>
         <div class="card-body">
           {{ object.comment|placeholder }}
         </div>

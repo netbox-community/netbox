@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="card">
-    <h2 class="h5 card-header d-flex justify-content-between">
+    <h2 class="card-header d-flex justify-content-between">
       {% blocktrans %}Termination{% endblocktrans %} {{ side }}
       <div>
         {% if not termination and perms.circuits.add_circuittermination %}
