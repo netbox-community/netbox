@@ -31,51 +31,6 @@
       </div>
     </div>
 
-    <div class="col-auto ms-auto d-print-none">
-
-        <div class="row">
-          <div class="col-auto">
-            <div class="px-2 d-print-none">
-              {% trans "Status" %}
-              <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {{ status_choices|get_key:status }}
-                </button>
-                <div class="dropdown-menu">
-                  {% for level, name in status_choices.items %}
-                    <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?status={{ level }}">
-                      {{ name }}
-                      {% if level == status %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                    </a>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-auto">
-            <div class="px-2 d-print-none">
-                {% trans "Sort" %}
-              <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {{ sort_choices|get_key:sort }}
-                </button>
-                <div class="dropdown-menu">
-                  {% for level, name in sort_choices.items %}
-                    <a class="dropdown-item d-flex justify-content-between" href="{% url 'core:plugin_list' %}?sort={{ level }}">
-                      {{ name }}
-                      {% if level == sort %}<span class="badge bg-green ms-auto"></span>{% endif %}
-                    </a>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-    </div>
-
   </div>
 
   {# System status #}

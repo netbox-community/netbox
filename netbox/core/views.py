@@ -41,7 +41,7 @@ from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModels
 from . import filtersets, forms, tables
 from .choices import PluginSortChoices, PluginStatusChoices
 from .models import *
-from .tables import CertifiedPluginTable
+from .tables import CertifiedPluginTable, PluginVersionTable
 
 
 #
@@ -648,7 +648,7 @@ class SystemView(UserPassesTestMixin, View):
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
-        plugins_table = tables.PluginTable(plugins, orderable=False)
+        plugins_table = tables.InstalledPluginTable(plugins, orderable=False)
         plugins_table.configure(request)
 
         return render(request, 'core/system.html', {
@@ -675,8 +675,8 @@ def get_local_plugins(plugins):
             'tag_line': plugin_config.description,
             'description_short': plugin_config.description,
             'author': plugin_config.author or _('Unknown Author'),
-            'created': datetime.min.replace(tzinfo=timezone.utc),
-            'updated': datetime.min.replace(tzinfo=timezone.utc),
+            'created': None,
+            'updated': None,
             'is_local': True,
             'is_installed': True,
             'is_certified': False,
@@ -768,8 +768,8 @@ def get_catalog_plugins(plugins):
 
 
 def get_plugins():
-    if plugins := cache.get('plugins-catalog-feed'):
-        return plugins
+    # if plugins := cache.get('plugins-catalog-feed'):
+    #     return plugins
 
     plugins = {}
     plugins = get_local_plugins(plugins)
@@ -785,30 +785,22 @@ class PluginListView(UserPassesTestMixin, View):
         return self.request.user.is_staff
 
     def get(self, request):
-        sort = request.GET.get('sort', PluginSortChoices.SORT_NAME_AZ)
-        status = request.GET.get('status', PluginStatusChoices.STATUS_ALL)
         q = request.GET.get('q', None)
 
         plugins = get_plugins()
-        if status == PluginStatusChoices.STATUS_INSTALLED:
-            plugins = [v for k, v in plugins.items() if v['is_installed']]
-        else:
-            plugins = [v for k, v in plugins.items()]
-        if sort == PluginSortChoices.SORT_NAME_ZA:
-            plugins = sorted(plugins, key=lambda d: d['name'], reverse=True)
-        elif sort == PluginSortChoices.SORT_UPDATED:
-            plugins = sorted(plugins, key=lambda d: d['updated'])
-        elif sort == PluginSortChoices.SORT_PUBLISHED:
-            plugins = sorted(plugins, key=lambda d: d['created'])
-        else:
-            plugins = sorted(plugins, key=lambda d: d['name'])
+        plugins = [v for k, v in plugins.items()]
+
+        table = CertifiedPluginTable(plugins, user=request.user)
+        table.configure(request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if htmx_partial(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
 
         return render(request, 'core/plugin_list.html', {
-            'plugins': plugins,
-            'sort_choices': dict(PluginSortChoices),
-            'status_choices': dict(PluginStatusChoices),
-            'sort': sort,
-            'status': status,
+            'table': table,
         })
 
 
@@ -822,7 +814,7 @@ class PluginView(UserPassesTestMixin, View):
         plugins = get_plugins()
         plugin = plugins[name]
 
-        table = CertifiedPluginTable(plugin['versions'], user=request.user)
+        table = PluginVersionTable(plugin['versions'], user=request.user)
         table.configure(request)
 
         return render(request, 'core/plugin.html', {
