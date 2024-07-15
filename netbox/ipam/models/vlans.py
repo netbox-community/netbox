@@ -21,7 +21,7 @@ __all__ = (
 )
 
 
-def default_vland_id_ranges():
+def default_vlan_id_ranges():
     return [
         NumericRange(VLAN_VID_MIN, VLAN_VID_MAX, bounds='[]')
     ]
@@ -57,7 +57,7 @@ class VLANGroup(OrganizationalModel):
     vlan_id_ranges = ArrayField(
         IntegerRangeField(),
         verbose_name=_('VLAN ID ranges'),
-        default=default_vland_id_ranges
+        default=default_vlan_id_ranges
     )
     _total_vlan_ids = models.PositiveBigIntegerField(
         default=VLAN_VID_MAX - VLAN_VID_MIN + 1
@@ -120,7 +120,7 @@ class VLANGroup(OrganizationalModel):
         """
         available_vlans = {}
         for vlan_range in self.vlan_id_ranges:
-            available_vlans = {vid for vid in range(vlan_range.lower, vlan_range.upper + 1)}
+            available_vlans = {vid for vid in range(vlan_range.lower, vlan_range.upper)}
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)

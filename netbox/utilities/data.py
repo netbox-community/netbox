@@ -138,27 +138,25 @@ def ranges_to_string(ranges):
     """
     Generate a human-friendly string from a set of ranges. Intended for use with ArrayField.
     For example:
-        [Range(1, 100), Range(200, 300)] => "1-100, 200-300"
+        [[1, 100)], [200, 300)] => "1-99,200-299"
     """
     if not ranges:
         return ''
-    return ', '.join([f"{r.lower}-{r.upper}" for r in ranges])
+    return ','.join([f"{r.lower}-{r.upper - 1}" for r in ranges])
 
 
 def string_to_range_array(value):
     """
     Given a string in the format "1-100, 200-300" create an array of ranges. Intended for use with ArrayField.
     For example:
-        "1-100, 200-300" => [1-100, 200-300]
+        "1-99,200-299" => [NumericRange(1, 100), NumericRange(200, 300)]
     """
     if not value:
         return None
-    ranges = value.split(",")
     values = []
     for dash_range in value.split(','):
         if '-' not in dash_range:
             return None
-
         lower, upper = dash_range.split('-')
-        values.append(NumericRange(int(lower), int(upper)))
+        values.append(NumericRange(int(lower), int(upper), bounds='[]'))
     return values

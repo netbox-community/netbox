@@ -10,7 +10,9 @@ def move_min_max(apps, schema_editor):
     VLANGroup = apps.get_model('ipam', 'VLANGroup')
     for group in VLANGroup.objects.all():
         if group.min_vid or group.max_vid:
-            group.vlan_id_ranges = [NumericRange(group.min_vid, group.max_vid)]
+            group.vlan_id_ranges = [
+                NumericRange(group.min_vid, group.max_vid, bounds='[]')
+            ]
 
             group._total_vlan_ids = 0
             for vlan_range in group.vlan_id_ranges:
@@ -31,7 +33,7 @@ class Migration(migrations.Migration):
             name='vlan_id_ranges',
             field=django.contrib.postgres.fields.ArrayField(
                 base_field=django.contrib.postgres.fields.ranges.IntegerRangeField(),
-                default=ipam.models.vlans.default_vland_id_ranges,
+                default=ipam.models.vlans.default_vlan_id_ranges,
                 size=None
             ),
         ),

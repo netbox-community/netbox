@@ -9,6 +9,7 @@ from utilities.querysets import RestrictedQuerySet
 __all__ = (
     'ASNRangeQuerySet',
     'PrefixQuerySet',
+    'VLANGroupQuerySet',
     'VLANQuerySet',
 )
 

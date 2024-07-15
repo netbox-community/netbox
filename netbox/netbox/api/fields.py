@@ -168,7 +168,7 @@ class IntegerRangeSerializer(serializers.Serializer):
         if type(data[0]) is not int or type(data[1]) is not int:
             raise ValidationError(_("Range boundaries must be defined as integers."))
 
-        return NumericRange(data[0], data[1])
+        return NumericRange(data[0], data[1], bounds='[]')
 
     def to_representation(self, instance):
-        return instance.lower, instance.upper
+        return instance.lower, instance.upper - 1
