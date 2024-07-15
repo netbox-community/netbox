@@ -57,9 +57,7 @@
 	</div>
 	<div class="col col-md-6">
     <div class="card">
-      <h2 class="card-header">
-        {% trans "Additional Headers" %}
-      </h2>
+      <h2 class="card-header">{% trans "Additional Headers" %}</h2>
       <div class="card-body">
         {% if object.additional_headers %}
           <pre>{{ object.additional_headers }}</pre>
@@ -69,9 +67,7 @@
       </div>
     </div>
     <div class="card">
-      <h2 class="card-header">
-        {% trans "Body Template" %}
-      </h2>
+      <h2 class="card-header">{% trans "Body Template" %}</h2>
       <div class="card-body">
         {% if object.body_template %}
           <pre>{{ object.body_template }}</pre>
