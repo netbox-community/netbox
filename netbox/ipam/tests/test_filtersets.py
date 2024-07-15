@@ -1564,7 +1564,7 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def text_contains_vid(self):
+    def test_contains_vid(self):
         params = {'contains_vid': 123}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'contains_vid': 1}
