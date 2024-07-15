@@ -257,6 +257,15 @@ class NotificationGroupForm(forms.ModelForm):
         model = NotificationGroup
         fields = ('name', 'description', 'groups', 'users')
 
+    def clean(self):
+        super().clean()
+
+        # At least one User or Group must be assigned
+        if not self.cleaned_data['groups'] and not self.cleaned_data['users']:
+            raise forms.ValidationError(_("A notification group specify at least one user or group."))
+
+        return self.cleaned_data
+
 
 class SubscriptionForm(forms.ModelForm):
     object_type = ContentTypeChoiceField(

@@ -31,13 +31,17 @@ __all__ = (
     'WebhookTable',
 )
 
-IMAGEATTACHMENT_IMAGE = '''
+IMAGEATTACHMENT_IMAGE = """
 {% if record.image %}
   <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
 {% else %}
   &mdash;
 {% endif %}
-'''
+"""
+
+NOTIFICATION_ICON = """
+<span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>
+"""
 
 
 class CustomFieldTable(NetBoxTable):
@@ -276,19 +280,23 @@ class SubscriptionTable(NetBoxTable):
         linkify=True,
         orderable=False
     )
+    user = tables.Column(
+        verbose_name=_('User'),
+        linkify=True
+    )
     actions = columns.ActionsColumn(
         actions=('delete',)
     )
 
     class Meta(NetBoxTable.Meta):
         model = Subscription
-        fields = ('pk', 'object', 'object_type', 'created')
+        fields = ('pk', 'object', 'object_type', 'created', 'user')
         default_columns = ('object', 'object_type', 'created')
 
 
 class NotificationTable(NetBoxTable):
     icon = columns.TemplateColumn(
-        template_code='<span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>',
+        template_code=NOTIFICATION_ICON,
         accessor=tables.A('event'),
         attrs={
             'td': {'class': 'w-1'},
@@ -315,14 +323,18 @@ class NotificationTable(NetBoxTable):
         timespec='minutes',
         verbose_name=_('Read'),
     )
+    user = tables.Column(
+        verbose_name=_('User'),
+        linkify=True
+    )
     actions = NotificationActionsColumn(
         actions=('dismiss',)
     )
 
     class Meta(NetBoxTable.Meta):
         model = Notification
-        fields = ('pk', 'icon', 'object', 'object_type', 'event_type', 'created', 'read')
-        default_columns = ('icon', 'object', 'object_type', 'event_type', 'created', 'read')
+        fields = ('pk', 'icon', 'object', 'object_type', 'event_type', 'created', 'read', 'user')
+        default_columns = ('icon', 'object', 'object_type', 'event_type', 'created')
         row_attrs = {
             'data-read': lambda record: bool(record.read),
         }

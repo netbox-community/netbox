@@ -88,12 +88,6 @@ class Notification(models.Model):
     def get_absolute_url(self):
         return reverse('account:notifications')
 
-    def get_read_url(self):
-        return reverse('extras:notification_read', kwargs={'pk': self.pk})
-
-    def get_dismiss_url(self):
-        return reverse('extras:notification_dismiss', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -105,6 +99,9 @@ class Notification(models.Model):
 
     @cached_property
     def event(self):
+        """
+        Returns the registered Event which triggered this Notification.
+        """
         return registry['events'].get(self.event_type)
 
 
@@ -165,6 +162,7 @@ class NotificationGroup(ChangeLoggedModel):
             Notification(user=member, **kwargs)
             for member in self.members
         ])
+    notify.alters_data = True
 
 
 class Subscription(models.Model):

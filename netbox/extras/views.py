@@ -407,7 +407,9 @@ class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
 #
 
 class NotificationsView(LoginRequiredMixin, View):
-
+    """
+    HTMX-only user-specific notifications list.
+    """
     def get(self, request):
         return render(request, 'htmx/notifications.html', {
             'notifications': request.user.notifications.unread(),

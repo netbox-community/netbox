@@ -7,11 +7,11 @@
           <i class="{{ notification.event.icon }}"></i>
         </div>
         <div class="col text-truncate">
-          <a href="{{ notification.get_read_url }}" class="text-body d-block">{{ notification.object }}</a>
+          <a href="{% url 'extras:notification_read' pk=notification.pk %}" class="text-body d-block">{{ notification.object }}</a>
           <div class="d-block text-secondary fs-5">{{ notification.event }} {{ notification.created|timesince }} {% trans "ago" %}</div>
         </div>
         <div class="col-auto">
-          <a href="#" hx-get="{{ notification.get_dismiss_url }}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Dismiss" %}">
+          <a href="#" hx-get="{% url 'extras:notification_dismiss' pk=notification.pk %}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Dismiss" %}">
             <i class="mdi mdi-close"></i>
           </a>
         </div>
