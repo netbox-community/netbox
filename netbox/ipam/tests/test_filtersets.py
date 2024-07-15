@@ -1466,7 +1466,7 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
-    ignore_fields = ('vlan_id_ranges',)
+    ignore_fields = ('vid_ranges',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1499,46 +1499,46 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLANGroup(
                 name='VLAN Group 1',
                 slug='vlan-group-1',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(100, 200)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(100, 200)],
                 scope=region,
                 description='foobar1'
             ),
             VLANGroup(
                 name='VLAN Group 2',
                 slug='vlan-group-2',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(200, 300)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(200, 300)],
                 scope=sitegroup,
                 description='foobar2'
             ),
             VLANGroup(
                 name='VLAN Group 3',
                 slug='vlan-group-3',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(300, 400)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(300, 400)],
                 scope=site,
                 description='foobar3'
             ),
             VLANGroup(
                 name='VLAN Group 4',
                 slug='vlan-group-4',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(400, 500)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(400, 500)],
                 scope=location
             ),
             VLANGroup(
                 name='VLAN Group 5',
                 slug='vlan-group-5',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(500, 600)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(500, 600)],
                 scope=rack
             ),
             VLANGroup(
                 name='VLAN Group 6',
                 slug='vlan-group-6',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(600, 700)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(600, 700)],
                 scope=clustergroup
             ),
             VLANGroup(
                 name='VLAN Group 7',
                 slug='vlan-group-7',
-                vlan_id_ranges=[NumericRange(1, 11), NumericRange(700, 800)],
+                vid_ranges=[NumericRange(1, 11), NumericRange(700, 800)],
                 scope=cluster
             ),
             VLANGroup(

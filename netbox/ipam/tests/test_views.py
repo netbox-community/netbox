@@ -765,7 +765,7 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'VLAN Group X',
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
-            'vlan_id_ranges': '100-199,300-399',
+            'vid_ranges': '100-199,300-399',
             'tags': [t.pk for t in tags],
         }
 

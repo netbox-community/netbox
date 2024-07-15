@@ -510,7 +510,7 @@ class TestVLANGroup(TestCase):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group 1',
             slug='vlan-group-1',
-            vlan_id_ranges=string_to_range_array('100-199'),
+            vid_ranges=string_to_range_array('100-199'),
         )
         VLAN.objects.bulk_create((
             VLAN(name='VLAN 100', vid=100, group=vlangroup),

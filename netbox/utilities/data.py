@@ -142,7 +142,12 @@ def ranges_to_string(ranges):
     """
     if not ranges:
         return ''
-    return ','.join([f"{r.lower}-{r.upper - 1}" for r in ranges])
+    output = []
+    for r in ranges:
+        lower = r.lower if r.lower_inc else r.lower + 1
+        upper = r.upper if r.upper_inc else r.upper - 1
+        output.append(f'{lower}-{upper}')
+    return ','.join(output)
 
 
 def string_to_range_array(value):

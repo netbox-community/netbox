@@ -72,8 +72,8 @@ class VLANGroupTable(NetBoxTable):
         linkify=True,
         orderable=False
     )
-    vlan_ranges = tables.Column(
-        verbose_name=_('VLAN Ranges'),
+    vid_ranges_list = tables.Column(
+        verbose_name=_('VID Ranges'),
         orderable=False
     )
     vlan_count = columns.LinkedCountColumn(
@@ -95,7 +95,7 @@ class VLANGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLANGroup
         fields = (
-            'pk', 'id', 'name', 'scope_type', 'scope', 'vlan_ranges', 'vlan_count', 'slug', 'description',
+            'pk', 'id', 'name', 'scope_type', 'scope', 'vid_ranges_list', 'vlan_count', 'slug', 'description',
             'tags', 'created', 'last_updated', 'actions', 'utilization',
         )
         default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')

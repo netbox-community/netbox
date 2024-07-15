@@ -943,7 +943,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
         # TODO: See if this can be optimized without compromising queryset integrity
         # Expand VLAN ID ranges to query by integer
         groups = VLANGroup.objects.raw(
-            f'SELECT id FROM {table_name}, unnest(vlan_id_ranges) vid_range WHERE %s <@ vid_range',
+            f'SELECT id FROM {table_name}, unnest(vid_ranges) vid_range WHERE %s <@ vid_range',
             params=(value,)
         )
         return queryset.filter(
