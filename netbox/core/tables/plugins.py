@@ -79,9 +79,6 @@ class CertifiedPluginTable(BaseTable):
         linkify=('core:plugin', [tables.A('slug')]),
         verbose_name=_('Name')
     )
-    status = tables.Column(
-        verbose_name=_('Status')
-    )
     author = tables.Column(
         verbose_name=_('Author')
     )
@@ -104,8 +101,8 @@ class CertifiedPluginTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
-            'name', 'status', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
+            'name', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
         )
         default_columns = (
-            'name', 'status', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
+            'name', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
         )
