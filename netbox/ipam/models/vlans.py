@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -18,6 +19,12 @@ __all__ = (
     'VLAN',
     'VLANGroup',
 )
+
+
+def default_vland_id_ranges():
+    return [
+        NumericRange(VLAN_VID_MIN, VLAN_VID_MAX, bounds='[]')
+    ]
 
 
 class VLANGroup(OrganizationalModel):
@@ -50,8 +57,7 @@ class VLANGroup(OrganizationalModel):
     vlan_id_ranges = ArrayField(
         IntegerRangeField(),
         verbose_name=_('VLAN ID ranges'),
-        blank=True,
-        null=True
+        default=default_vland_id_ranges
     )
     _total_vlan_ids = models.PositiveBigIntegerField(
         default=VLAN_VID_MAX - VLAN_VID_MIN + 1
@@ -93,21 +99,18 @@ class VLANGroup(OrganizationalModel):
         if self.vlan_id_ranges and check_ranges_overlap(self.vlan_id_ranges):
             raise ValidationError({'vlan_id_ranges': _("Ranges cannot overlap.")})
 
-        for ranges in self.vlan_id_ranges:
-            if ranges.lower >= ranges.upper:
+        for vid_range in self.vlan_id_ranges:
+            if vid_range.lower >= vid_range.upper:
                 raise ValidationError({
                     'vlan_id_ranges': _(
-                        "Maximum child VID must be greater than or equal to minimum child VID Invalid range ({value})"
-                    ).format(value=ranges)
+                        "Maximum child VID must be greater than or equal to minimum child VID ({value})"
+                    ).format(value=vid_range)
                 })
 
     def save(self, *args, **kwargs):
-        if self.vlan_id_ranges:
-            self._total_vlan_ids = 0
-            for vlan_range in self.vlan_id_ranges:
-                self._total_vlan_ids += vlan_range.upper - vlan_range.lower + 1
-        else:
-            self._total_vlan_ids = VLAN_VID_MAX - VLAN_VID_MIN + 1
+        self._total_vlan_ids = 0
+        for vid_range in self.vlan_id_ranges:
+            self._total_vlan_ids += vid_range.upper - vid_range.lower + 1
 
         super().save(*args, **kwargs)
 
@@ -249,8 +252,8 @@ class VLAN(PrimaryModel):
         # Validate group min/max VIDs
         if self.group and self.group.vlan_id_ranges:
             in_bounds = False
-            for ranges in self.group.vlan_id_ranges:
-                if ranges.lower <= self.vid <= ranges.upper:
+            for vid_range in self.group.vlan_id_ranges:
+                if vid_range.lower <= self.vid <= vid_range.upper:
                     in_bounds = True
 
             if not in_bounds:
