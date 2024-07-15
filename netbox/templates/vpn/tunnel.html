@@ -15,7 +15,7 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Tunnel" %}</h5>
+        <h2 class="card-header">{% trans "Tunnel" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -68,7 +68,7 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">
+        <h2 class="card-header">
           {% trans "Terminations" %}
           {% if perms.vpn.add_tunneltermination %}
             <div class="card-actions">
@@ -77,7 +77,7 @@
               </a>
             </div>
           {% endif %}
-        </h5>
+        </h2>
         {% htmx_table 'vpn:tunneltermination_list' tunnel_id=object.pk %}
       </div>
       {% plugin_full_width_page object %}

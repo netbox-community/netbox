@@ -22,7 +22,7 @@
   {% for module in script_modules %}
     {% include 'inc/sync_warning.html' with object=module %}
     <div class="card">
-      <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
+      <h2 class="card-header justify-content-between" id="module{{ module.pk }}">
         <div>
           <i class="mdi mdi-file-document-outline"></i> {{ module }}
         </div>
@@ -38,7 +38,7 @@
             </a>
           {% endif %}
         </div>
-      </h5>
+      </h2>
       {% if module.scripts %}
         <table class="table table-hover scripts">
           <thead>

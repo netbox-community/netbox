@@ -2,8 +2,8 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">{% trans "Related Objects" %}</h5>
-  <ul class="list-group list-group-flush">
+  <h2 class="card-header">{% trans "Related Objects" %}</h2>
+  <ul class="list-group list-group-flush" role="presentation">
     {% for qs, filter_param in related_models %}
       {% with viewname=qs.model|viewname:"list" %}
         <a href="{% url viewname %}?{{ filter_param }}={{ object.pk }}" class="list-group-item list-group-item-action d-flex justify-content-between">

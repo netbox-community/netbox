@@ -15,7 +15,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Interface" %}</h5>
+            <h2 class="card-header">{% trans "Interface" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Virtual Machine" %}</th>
@@ -81,7 +81,7 @@
 <div class="row mb-3">
     <div class="col col-md-12">
         <div class="card">
-            <h5 class="card-header">
+            <h2 class="card-header">
               {% trans "IP Addresses" %}
               {% if perms.ipam.add_ipaddress %}
                 <div class="card-actions">
@@ -90,7 +90,7 @@
                   </a>
                 </div>
               {% endif %}
-            </h5>
+            </h2>
             {% htmx_table 'ipam:ipaddress_list' vminterface_id=object.pk %}
         </div>
     </div>

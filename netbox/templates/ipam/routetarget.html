@@ -7,7 +7,7 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Route Target" %}</h5>
+        <h2 class="card-header">{% trans "Route Target" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -35,13 +35,13 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Importing VRFs" %}</h5>
+        <h2 class="card-header">{% trans "Importing VRFs" %}</h2>
         {% htmx_table 'ipam:vrf_list' import_target_id=object.pk %}
       </div>
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Exporting VRFs" %}</h5>
+        <h2 class="card-header">{% trans "Exporting VRFs" %}</h2>
         {% htmx_table 'ipam:vrf_list' export_target_id=object.pk %}
       </div>
     </div>
@@ -49,13 +49,13 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Importing L2VPNs" %}</h5>
+        <h2 class="card-header">{% trans "Importing L2VPNs" %}</h2>
         {% htmx_table 'vpn:l2vpn_list' import_target_id=object.pk %}
       </div>
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Exporting L2VPNs" %}</h5>
+        <h2 class="card-header">{% trans "Exporting L2VPNs" %}</h2>
         {% htmx_table 'vpn:l2vpn_list' export_target_id=object.pk %}
       </div>
     </div>
