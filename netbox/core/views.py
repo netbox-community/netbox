@@ -788,7 +788,10 @@ class PluginListView(UserPassesTestMixin, View):
         q = request.GET.get('q', None)
 
         plugins = get_plugins()
-        plugins = [v for k, v in plugins.items()]
+        if q:
+            plugins = [v for k, v in plugins.items() if q.casefold() in v['name'].casefold()]
+        else:
+            plugins = [v for k, v in plugins.items()]
 
         table = CertifiedPluginTable(plugins, user=request.user)
         table.configure(request)
