@@ -489,10 +489,12 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=RackTypeChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
                 u_height=42,
+                starting_unit=1,
                 desc_units=False,
                 outer_width=100,
                 outer_depth=100,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=100,
                 weight=10,
                 max_weight=1000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
@@ -505,10 +507,12 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=RackTypeChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
                 u_height=43,
+                starting_unit=2,
                 desc_units=False,
                 outer_width=200,
                 outer_depth=200,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=200,
                 weight=20,
                 max_weight=2000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
@@ -521,10 +525,12 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=RackTypeChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
                 u_height=44,
+                starting_unit=3,
                 desc_units=True,
                 outer_width=300,
                 outer_depth=300,
                 outer_unit=RackDimensionUnitChoices.UNIT_INCH,
+                mounting_depth=300,
                 weight=30,
                 max_weight=3000,
                 weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
@@ -569,10 +575,8 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_starting_unit(self):
-        params = {'starting_unit': [1]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'starting_unit': [2]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'starting_unit': [1, 2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_desc_units(self):
         params = {'desc_units': 'true'}
@@ -591,6 +595,10 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_outer_unit(self):
         self.assertEqual(RackType.objects.filter(outer_unit__isnull=False).count(), 3)
         params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mounting_depth(self):
+        params = {'mounting_depth': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_weight(self):
