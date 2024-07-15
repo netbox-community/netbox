@@ -118,9 +118,9 @@ class VLANGroup(OrganizationalModel):
         """
         Return all available VLANs within this group.
         """
-        available_vlans = {}
+        available_vlans = set()
         for vlan_range in self.vid_ranges:
-            available_vlans = {vid for vid in range(vlan_range.lower, vlan_range.upper)}
+            available_vlans = available_vlans.union({vid for vid in range(vlan_range.lower, vlan_range.upper)})
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
