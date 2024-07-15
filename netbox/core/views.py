@@ -39,7 +39,6 @@ from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
-from .choices import PluginSortChoices, PluginStatusChoices
 from .models import *
 from .tables import CertifiedPluginTable, PluginVersionTable
 
