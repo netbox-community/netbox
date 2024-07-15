@@ -9,12 +9,12 @@ from django.urls import reverse
 from requests import Session
 from rest_framework import status
 
-from core.choices import ObjectChangeActionChoices
+from core.events import *
 from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import EventRuleActionChoices
-from extras.events import enqueue_object, flush_events, serialize_for_event
+from extras.events import enqueue_event, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
 from netbox.context_managers import event_tracking
@@ -132,7 +132,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -182,7 +182,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+            self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -213,7 +213,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -269,7 +269,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+            self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -295,7 +295,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
@@ -328,7 +328,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
-            self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+            self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
@@ -365,12 +365,12 @@ class EventRuleTest(APITestCase):
         # Enqueue a webhook for processing
         webhooks_queue = {}
         site = Site.objects.create(name='Site 1', slug='site-1')
-        enqueue_object(
+        enqueue_event(
             webhooks_queue,
             instance=site,
             user=self.user,
             request_id=request_id,
-            action=ObjectChangeActionChoices.ACTION_CREATE
+            event_type=OBJECT_CREATED
         )
         flush_events(list(webhooks_queue.values()))
 
@@ -378,7 +378,7 @@ class EventRuleTest(APITestCase):
         job = self.queue.jobs[0]
 
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
-        with patch.object(Session, 'send', dummy_send) as mock_send:
+        with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
 
     def test_duplicate_triggers(self):
@@ -399,7 +399,7 @@ class EventRuleTest(APITestCase):
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
         self.queue.empty()
 
         # Test multiple updates
@@ -411,7 +411,7 @@ class EventRuleTest(APITestCase):
             site.save()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
         self.queue.empty()
 
         # Test update & delete
@@ -422,5 +422,5 @@ class EventRuleTest(APITestCase):
             site.delete()
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
-        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
         self.queue.empty()

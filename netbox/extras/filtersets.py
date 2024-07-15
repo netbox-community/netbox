@@ -8,6 +8,7 @@ from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group, User
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
@@ -26,6 +27,7 @@ __all__ = (
     'ImageAttachmentFilterSet',
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
+    'NotificationGroupFilterSet',
     'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
@@ -334,6 +336,49 @@ class BookmarkFilterSet(BaseFilterSet):
     class Meta:
         model = Bookmark
         fields = ('id', 'object_id')
+
+
+class NotificationGroupFilterSet(ChangeLoggedModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='users',
+        queryset=User.objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='users__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label=_('User (name)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups',
+        queryset=Group.objects.all(),
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='groups__name',
+        queryset=Group.objects.all(),
+        to_field_name='name',
+        label=_('Group (name)'),
+    )
+
+    class Meta:
+        model = NotificationGroup
+        fields = (
+            'id', 'name', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):

@@ -1,0 +1,57 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Notification Group" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>
+              {{ object.name }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>
+                {{ object.description|placeholder }}
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Groups" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for group in object.groups.all %}
+            <a href="{{ group.get_absolute_url }}" class="list-group-item list-group-item-action">{{ group }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None assigned" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Users" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for user in object.users.all %}
+            <a href="{{ user.get_absolute_url }}" class="list-group-item list-group-item-action">{{ user }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None assigned" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

@@ -6,6 +6,7 @@ from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
@@ -354,6 +355,139 @@ class BookmarkBulkDeleteView(generic.BulkDeleteView):
 
     def get_queryset(self, request):
         return Bookmark.objects.filter(user=request.user)
+
+
+#
+# Notification groups
+#
+
+class NotificationGroupListView(generic.ObjectListView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    filterset_form = forms.NotificationGroupFilterForm
+    table = tables.NotificationGroupTable
+
+
+@register_model_view(NotificationGroup)
+class NotificationGroupView(generic.ObjectView):
+    queryset = NotificationGroup.objects.all()
+
+
+@register_model_view(NotificationGroup, 'edit')
+class NotificationGroupEditView(generic.ObjectEditView):
+    queryset = NotificationGroup.objects.all()
+    form = forms.NotificationGroupForm
+
+
+@register_model_view(NotificationGroup, 'delete')
+class NotificationGroupDeleteView(generic.ObjectDeleteView):
+    queryset = NotificationGroup.objects.all()
+
+
+class NotificationGroupBulkImportView(generic.BulkImportView):
+    queryset = NotificationGroup.objects.all()
+    model_form = forms.NotificationGroupImportForm
+
+
+class NotificationGroupBulkEditView(generic.BulkEditView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    table = tables.NotificationGroupTable
+    form = forms.NotificationGroupBulkEditForm
+
+
+class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    table = tables.NotificationGroupTable
+
+
+#
+# Notifications
+#
+
+class NotificationsView(LoginRequiredMixin, View):
+    """
+    HTMX-only user-specific notifications list.
+    """
+    def get(self, request):
+        return render(request, 'htmx/notifications.html', {
+            'notifications': request.user.notifications.unread(),
+            'total_count': request.user.notifications.count(),
+        })
+
+
+@register_model_view(Notification, 'read')
+class NotificationReadView(LoginRequiredMixin, View):
+    """
+    Mark the Notification read and redirect the user to its attached object.
+    """
+    def get(self, request, pk):
+        notification = get_object_or_404(request.user.notifications, pk=pk)
+        notification.read = timezone.now()
+        notification.save()
+
+        return redirect(notification.object.get_absolute_url())
+
+
+@register_model_view(Notification, 'dismiss')
+class NotificationDismissView(LoginRequiredMixin, View):
+    """
+    A convenience view which allows deleting notifications with one click.
+    """
+    def get(self, request, pk):
+        notification = get_object_or_404(request.user.notifications, pk=pk)
+        notification.delete()
+
+        if htmx_partial(request):
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+            })
+
+        return redirect('account:notifications')
+
+
+@register_model_view(Notification, 'delete')
+class NotificationDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Notification.objects.filter(user=request.user)
+
+
+class NotificationBulkDeleteView(generic.BulkDeleteView):
+    table = tables.NotificationTable
+
+    def get_queryset(self, request):
+        return Notification.objects.filter(user=request.user)
+
+
+#
+# Subscriptions
+#
+
+class SubscriptionCreateView(generic.ObjectEditView):
+    form = forms.SubscriptionForm
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Subscription, 'delete')
+class SubscriptionDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
+
+
+class SubscriptionBulkDeleteView(generic.BulkDeleteView):
+    table = tables.SubscriptionTable
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
 
 
 #

@@ -141,6 +141,27 @@ class BookmarkViewSet(NetBoxModelViewSet):
 
 
 #
+# Notifications & subscriptions
+#
+
+class NotificationViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Notification.objects.all()
+    serializer_class = serializers.NotificationSerializer
+
+
+class NotificationGroupViewSet(NetBoxModelViewSet):
+    queryset = NotificationGroup.objects.all()
+    serializer_class = serializers.NotificationGroupSerializer
+
+
+class SubscriptionViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Subscription.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
+
+
+#
 # Tags
 #
 

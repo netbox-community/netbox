@@ -3,7 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import NoReverseMatch, reverse
 
 from core.models import ObjectType
-from extras.models import Bookmark, ExportTemplate
+from extras.models import Bookmark, ExportTemplate, Subscription
+from netbox.models.features import NotificationsMixin
 from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_viewname
 
@@ -17,6 +18,7 @@ __all__ = (
     'edit_button',
     'export_button',
     'import_button',
+    'subscribe_button',
     'sync_button',
 )
 
@@ -91,6 +93,41 @@ def delete_button(instance):
 
     return {
         'url': url,
+    }
+
+
+@register.inclusion_tag('buttons/subscribe.html', takes_context=True)
+def subscribe_button(context, instance):
+    # Skip for objects which don't support notifications
+    if not (issubclass(instance.__class__, NotificationsMixin)):
+        return {}
+
+    # Check if this user has already subscribed to the object
+    content_type = ContentType.objects.get_for_model(instance)
+    subscription = Subscription.objects.filter(
+        object_type=content_type,
+        object_id=instance.pk,
+        user=context['request'].user
+    ).first()
+
+    # Compile form URL & data
+    if subscription:
+        form_url = reverse('extras:subscription_delete', kwargs={'pk': subscription.pk})
+        form_data = {
+            'confirm': 'true',
+        }
+    else:
+        form_url = reverse('extras:subscription_add')
+        form_data = {
+            'object_type': content_type.pk,
+            'object_id': instance.pk,
+        }
+
+    return {
+        'subscription': subscription,
+        'form_url': form_url,
+        'form_data': form_data,
+        'return_url': instance.get_absolute_url(),
     }
 
 
