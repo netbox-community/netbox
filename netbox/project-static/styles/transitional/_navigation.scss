@@ -51,11 +51,6 @@
   }
 }
 
-// Fixes bug where user loads page on dark mode, switches to light mode but filter is not removed
-[data-bs-theme=dark] .navbar-brand-autodark .navbar-brand-image {
-  filter: none!important;
-}
-
 // Dark theme styling
 body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
 
@@ -87,10 +82,5 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
   }
   .text-secondary {
     color: $bright-teal!important;
-  }
-
-  // Override svg logo fill
-  .navbar-brand-autodark .navbar-brand-image {
-    filter: none!important;
   }
 }
