@@ -49,6 +49,57 @@
       }
     }
   }
+
+  // Ensures theme toggle appears above background image
+  .navbar-nav {
+    z-index: 1;
+  }
+
+  // Logo text for non-community editions
+  .navbar-brand {
+    a:hover {
+      text-decoration: none;
+    }
+    .netbox-edition {
+      font-size: .6rem;
+      letter-spacing: .25rem;
+      text-align: center;
+    }
+    &-image-edition {
+      height: 1.2rem;
+      width: auto;
+    }
+  }
+
+  // Navigation geometric graphic for non-community editions
+  .netbox-motif {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    width: 100%;
+
+    img {
+      bottom: 0;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.30) 100%);
+      opacity: .25;
+      position: absolute;
+      user-drag: none;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-drag: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      width:100%;
+    }
+
+    @include media-breakpoint-up(lg) {
+      bottom: 0;
+
+      img {
+        opacity: .5;
+      }
+    }
+  }
 }
 
 // Fixes bug where user loads page on dark mode, switches to light mode but filter is not removed
@@ -92,5 +143,12 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
   // Override svg logo fill
   .navbar-brand-autodark .navbar-brand-image {
     filter: none!important;
+  }
+
+  // Navigation geometric graphic for non-community editions
+  .netbox-motif {
+    img {
+      opacity: .25;
+    }
   }
 }
