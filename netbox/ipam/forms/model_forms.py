@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.forms import IntegerRangeField, SimpleArrayField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -14,7 +15,7 @@ from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    SlugField,
+    NumericRangeArrayField, SlugField
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
@@ -632,10 +633,13 @@ class VLANGroupForm(NetBoxModelForm):
         }
     )
     slug = SlugField()
+    vid_ranges = NumericRangeArrayField(
+        label=_('VLAN IDs')
+    )
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
-        FieldSet('min_vid', 'max_vid', name=_('Child VLANs')),
+        FieldSet('vid_ranges', name=_('Child VLANs')),
         FieldSet(
             'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
             name=_('Scope')
@@ -646,7 +650,7 @@ class VLANGroupForm(NetBoxModelForm):
         model = VLANGroup
         fields = [
             'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
+            'clustergroup', 'cluster', 'vid_ranges', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

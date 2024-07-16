@@ -9,6 +9,7 @@ from utilities.querysets import RestrictedQuerySet
 __all__ = (
     'ASNRangeQuerySet',
     'PrefixQuerySet',
+    'VLANGroupQuerySet',
     'VLANQuerySet',
 )
 
@@ -63,7 +64,7 @@ class VLANGroupQuerySet(RestrictedQuerySet):
 
         return self.annotate(
             vlan_count=count_related(VLAN, 'group'),
-            utilization=Round(F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100, 2)
+            utilization=Round(F('vlan_count') * 100 / F('_total_vlan_ids'), 2)
         )
 
 

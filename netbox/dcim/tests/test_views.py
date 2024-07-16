@@ -336,6 +336,75 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RackType
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], name='RackType 1', slug='rack-type-1',),
+            RackType(manufacturer=manufacturers[0], name='RackType 2', slug='rack-type-2',),
+            RackType(manufacturer=manufacturers[0], name='RackType 3', slug='rack-type-3',),
+        )
+        RackType.objects.bulk_create(rack_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'name': 'RackType X',
+            'slug': 'rack-type-x',
+            'type': RackFormFactorChoices.TYPE_CABINET,
+            'width': RackWidthChoices.WIDTH_19IN,
+            'u_height': 48,
+            'desc_units': False,
+            'outer_width': 500,
+            'outer_depth': 500,
+            'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
+            'weight': 100,
+            'max_weight': 2000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "manufacturer,name,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{rack_types[0].pk},RackType 7",
+            f"{rack_types[1].pk},RackType 8",
+            f"{rack_types[2].pk},RackType 9",
+        )
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'type': RackFormFactorChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'weight': 200,
+            'max_weight': 4000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'New comments',
+        }
+
+
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Rack
 
@@ -380,7 +449,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': rackroles[1].pk,
             'serial': '123456',
             'asset_tag': 'ABCDEF',
-            'type': RackTypeChoices.TYPE_CABINET,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
             'u_height': 48,
             'desc_units': False,
@@ -416,7 +485,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,
             'serial': '654321',
-            'type': RackTypeChoices.TYPE_4POST,
+            'form_factor': RackFormFactorChoices.TYPE_4POST,
             'width': RackWidthChoices.WIDTH_23IN,
             'u_height': 49,
             'desc_units': True,

@@ -9,157 +9,107 @@
 {% block content %}
   <div class="row">
 	  <div class="col col-12 col-xl-5">
-        <div class="card">
-            <h5 class="card-header">{% trans "Rack" %}</h5>
-            <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Region" %}</th>
-                    <td>
-                        {% nested_tree object.site.region %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Site" %}</th>
-                    <td>{{ object.site|linkify }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Location" %}</th>
-                    <td>{% nested_tree object.location %}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Facility ID" %}</th>
-                    <td>{{ object.facility_id|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Tenant" %}</th>
-                    <td>
-                        {% if object.tenant.group %}
-                            {{ object.tenant.group|linkify }} /
-                        {% endif %}
-                        {{ object.tenant|linkify|placeholder }}
-                    </td>
-                </tr>
-                 <tr>
-                    <th scope="row">{% trans "Status" %}</th>
-                    <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Role" %}</th>
-                    <td>{{ object.role|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Description" %}</th>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Serial Number" %}</th>
-                    <td class="font-monospace">{{ object.serial|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Asset Tag" %}</th>
-                    <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Space Utilization" %}</th>
-                    <td>{% utilization_graph object.get_utilization %}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Power Utilization" %}</th>
-                    <td>{% utilization_graph object.get_power_utilization %}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="card">
-            <h5 class="card-header">{% trans "Dimensions" %}</h5>
-            <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Type" %}</th>
-                    <td>
-                        {% if object.type %}
-                            {{ object.get_type_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Width" %}</th>
-                    <td>{{ object.get_width_display }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Height" %}</th>
-                    <td>{{ object.u_height }}U ({% if object.desc_units %}{% trans "descending" %}{% else %}{% trans "ascending" %}{% endif %})</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Starting Unit" %}</th>
-                    <td>
-                      {{ object.starting_unit }}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Outer Width" %}</th>
-                    <td>
-                        {% if object.outer_width %}
-                            {{ object.outer_width }} {{ object.get_outer_unit_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Outer Depth" %}</th>
-                    <td>
-                        {% if object.outer_depth %}
-                            {{ object.outer_depth }} {{ object.get_outer_unit_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Mounting Depth" %}</th>
-                    <td>
-                        {% if object.mounting_depth %}
-                            {{ object.mounting_depth }} {% trans "Millimeters" %}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Rack Weight" %}</th>
-                    <td>
-                        {% if object.weight %}
-                            {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Maximum Weight" %}</th>
-                    <td>
-                        {% if object.max_weight %}
-                            {{ object.max_weight }} {{ object.get_weight_unit_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Total Weight" %}</th>
-                    <td>
-                      {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
-                      ({{ object.total_weight|kg_to_pounds|floatformat }} {% trans "Pounds" %})
-                    </td>
-                </tr>
-            </table>
-        </div>
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% include 'inc/panels/comments.html' %}
-        {% include 'inc/panels/image_attachments.html' %}
-        {% plugin_left_page object %}
+      <div class="card">
+        <h5 class="card-header">{% trans "Rack" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Region" %}</th>
+            <td>{% nested_tree object.site.region %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Site" %}</th>
+            <td>{{ object.site|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Location" %}</th>
+            <td>{% nested_tree object.location %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Facility ID" %}</th>
+            <td>{{ object.facility_id|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+           <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Rack Type" %}</th>
+            <td>{{ object.rack_type|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Role" %}</th>
+            <td>{{ object.role|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Serial Number" %}</th>
+            <td class="font-monospace">{{ object.serial|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Asset Tag" %}</th>
+            <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Space Utilization" %}</th>
+            <td>{% utilization_graph object.get_utilization %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Power Utilization" %}</th>
+            <td>{% utilization_graph object.get_power_utilization %}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'dcim/inc/panels/racktype_dimensions.html' %}
+      {% include 'dcim/inc/panels/racktype_numbering.html' %}
+      <div class="card">
+        <h5 class="card-header">{% trans "Weight" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Rack Weight" %}</th>
+            <td>
+              {% if object.weight %}
+                {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Maximum Weight" %}</th>
+            <td>
+              {% if object.max_weight %}
+                {{ object.max_weight }} {{ object.get_weight_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Total Weight" %}</th>
+            <td>
+              {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
+              ({{ object.total_weight|kg_to_pounds|floatformat }} {% trans "Pounds" %})
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/image_attachments.html' %}
+      {% plugin_left_page object %}
 	  </div>
     <div class="col col-12 col-xl-7">
       <div class="text-end mb-4">
@@ -170,26 +120,26 @@
         </select>
       </div>
         <div class="row" style="margin-bottom: 20px">
-            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
-              <div style="margin-left: 30px">
-                <h4>{% trans "Front" %}</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='front' extra_params=svg_extra %}
-              </div>
+          <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+            <div style="margin-left: 30px">
+              <h4>{% trans "Front" %}</h4>
+              {% include 'dcim/inc/rack_elevation.html' with face='front' extra_params=svg_extra %}
             </div>
-            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
-              <div style="margin-left: 30px">
-                <h4>{% trans "Rear" %}</h4>
-                {% include 'dcim/inc/rack_elevation.html' with face='rear' extra_params=svg_extra %}
-              </div>
+          </div>
+          <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+            <div style="margin-left: 30px">
+              <h4>{% trans "Rear" %}</h4>
+              {% include 'dcim/inc/rack_elevation.html' with face='rear' extra_params=svg_extra %}
             </div>
+          </div>
         </div>
         {% include 'inc/panels/related_objects.html' %}
         {% plugin_right_page object %}
     </div>
   </div>
   <div class="row">
-      <div class="col col-md-12">
-          {% plugin_full_width_page object %}
-      </div>
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
   </div>
 {% endblock %}

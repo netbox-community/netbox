@@ -9,7 +9,8 @@ from ipam.models import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField,
+    NumericRangeArrayField,
 )
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -411,22 +412,13 @@ class VLANGroupImportForm(NetBoxModelImportForm):
         required=False,
         label=_('Scope type (app & model)')
     )
-    min_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Minimum child VLAN VID (default: {minimum})').format(minimum=VLAN_VID_MIN)
-    )
-    max_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Maximum child VLAN VID (default: {maximum})').format(maximum=VLAN_VID_MIN)
+    vid_ranges = NumericRangeArrayField(
+        required=False
     )
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'min_vid', 'max_vid', 'description', 'tags')
+        fields = ('name', 'slug', 'scope_type', 'scope_id', 'vid_ranges', 'description', 'tags')
         labels = {
             'scope_id': 'Scope ID',
         }

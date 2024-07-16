@@ -21,6 +21,7 @@ from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
+from utilities.datetime import datetime_from_timestamp
 from utilities.forms.fields import (
     CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, DynamicMultipleChoiceField, JSONField, LaxURLField,
@@ -672,12 +673,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
                 if type(value) is not datetime:
-                    # Work around UTC issue for Python < 3.11; see
-                    # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
-                    if type(value) is str and value.endswith('Z'):
-                        value = f'{value[:-1]}+00:00'
                     try:
-                        datetime.fromisoformat(value)
+                        datetime_from_timestamp(value)
                     except ValueError:
                         raise ValidationError(
                             _("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")

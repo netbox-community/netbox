@@ -74,6 +74,61 @@ class LocationTestCase(TestCase):
         self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
+class RackTypeTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        RackType.objects.create(
+            manufacturer=manufacturer,
+            name='RackType 1',
+            slug='rack-type-1',
+            width=11,
+            u_height=22,
+            starting_unit=3,
+            desc_units=True,
+            outer_width=444,
+            outer_depth=5,
+            outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+            weight=66,
+            weight_unit=WeightUnitChoices.UNIT_POUND,
+            max_weight=7777,
+            mounting_depth=8,
+        )
+
+    def test_rack_creation(self):
+        rack_type = RackType.objects.first()
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+        )
+        Site.objects.bulk_create(sites)
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+        )
+        for location in locations:
+            location.save()
+
+        rack = Rack.objects.create(
+            name='Rack 1',
+            facility_id='A101',
+            site=sites[0],
+            location=locations[0],
+            rack_type=rack_type
+        )
+        self.assertEqual(rack.width, rack_type.width)
+        self.assertEqual(rack.u_height, rack_type.u_height)
+        self.assertEqual(rack.starting_unit, rack_type.starting_unit)
+        self.assertEqual(rack.desc_units, rack_type.desc_units)
+        self.assertEqual(rack.outer_width, rack_type.outer_width)
+        self.assertEqual(rack.outer_depth, rack_type.outer_depth)
+        self.assertEqual(rack.outer_unit, rack_type.outer_unit)
+        self.assertEqual(rack.weight, rack_type.weight)
+        self.assertEqual(rack.weight_unit, rack_type.weight_unit)
+        self.assertEqual(rack.max_weight, rack_type.max_weight)
+        self.assertEqual(rack.mounting_depth, rack_type.mounting_depth)
+
+
 class RackTestCase(TestCase):
 
     @classmethod

@@ -12,6 +12,7 @@ router.register('sites', views.SiteViewSet)
 
 # Racks
 router.register('locations', views.LocationViewSet)
+router.register('rack-types', views.RackTypeViewSet)
 router.register('rack-roles', views.RackRoleViewSet)
 router.register('racks', views.RackViewSet)
 router.register('rack-reservations', views.RackReservationViewSet)
