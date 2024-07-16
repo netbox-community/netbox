@@ -11,6 +11,8 @@ from utilities.fields import ColorField
 
 __all__ = (
     'Circuit',
+    'CircuitGroupAssignment',
+    'CircuitRedundancyGroup',
     'CircuitTermination',
     'CircuitType',
 )
@@ -149,6 +151,39 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
         if self.provider_account and self.provider != self.provider_account.provider:
             raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
+
+
+class CircuitRedundancyGroup(PrimaryModel):
+    """
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100
+    )
+    circuits = models.ManyToManyField(Circuit, through='CircuitGroupAssignment')
+
+    class Meta:
+        ordering = ('name', 'pk')  # Name may be non-unique
+        verbose_name = _('Circuit redundancy group')
+        verbose_name_plural = _('Circuit redundancy group')
+
+    def get_absolute_url(self):
+        return reverse('circuits:circuitredundancygroup', args=[self.pk])
+
+
+class CircuitGroupAssignment(models.Model):
+    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
+    group = models.ForeignKey(CircuitRedundancyGroup, on_delete=models.CASCADE)
+    priority = models.CharField(
+        verbose_name=_('priority'),
+        max_length=50,
+        choices=CircuitPriorityChoices,
+        blank=True
+    )
 
 
 class CircuitTermination(

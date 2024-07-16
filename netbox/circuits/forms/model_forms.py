@@ -12,6 +12,7 @@ from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
+    'CircuitRedundancyGroupForm',
     'CircuitTerminationForm',
     'CircuitTypeForm',
     'ProviderForm',
@@ -171,3 +172,14 @@ class CircuitTerminationForm(NetBoxModelForm):
                 options=CircuitTerminationPortSpeedChoices
             ),
         }
+
+
+class CircuitRedundancyGroupForm(TenancyForm, NetBoxModelForm):
+    comments = CommentField()
+
+    class Meta:
+        model = CircuitRedundancyGroup
+        fields = [
+            'name', 'tenant_group', 'tenant',
+            'comments', 'tags',
+        ]

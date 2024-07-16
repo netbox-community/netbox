@@ -440,3 +440,41 @@ class CircuitTerminationBulkDeleteView(generic.BulkDeleteView):
 
 # Trace view
 register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermination})(PathTraceView)
+
+
+#
+# Circuit Redundacy Groups
+#
+
+class CircuitRedundancyGroupListView(generic.ObjectListView):
+    queryset = CircuitRedundancyGroup.objects.all()
+    filterset = filtersets.CircuitRedundancyGroupFilterSet
+    filterset_form = forms.CircuitRedundancyGroupFilterForm
+    table = tables.CircuitRedundancyGroupTable
+
+
+@register_model_view(CircuitRedundancyGroup)
+class CircuitRedundancyGroupView(generic.ObjectView):
+    queryset = CircuitRedundancyGroup.objects.all()
+
+
+@register_model_view(CircuitRedundancyGroup, 'edit')
+class CircuitRedundancyGroupEditView(generic.ObjectEditView):
+    queryset = CircuitRedundancyGroup.objects.all()
+    form = forms.CircuitRedundancyGroupForm
+
+
+@register_model_view(CircuitRedundancyGroup, 'delete')
+class CircuitRedundancyGroupDeleteView(generic.ObjectDeleteView):
+    queryset = CircuitRedundancyGroup.objects.all()
+
+
+class CircuitRedundancyGroupBulkImportView(generic.BulkImportView):
+    queryset = CircuitRedundancyGroup.objects.all()
+    model_form = forms.CircuitRedundancyGroupImportForm
+
+
+class CircuitRedundancyGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitRedundancyGroup.objects.all()
+    filterset = filtersets.CircuitRedundancyGroupFilterSet
+    table = tables.CircuitRedundancyGroupTable

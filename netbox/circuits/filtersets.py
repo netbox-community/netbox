@@ -13,6 +13,7 @@ from .models import *
 
 __all__ = (
     'CircuitFilterSet',
+    'CircuitRedundancyGroupFilterSet',
     'CircuitTerminationFilterSet',
     'CircuitTypeFilterSet',
     'ProviderNetworkFilterSet',
@@ -302,4 +303,19 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
             Q(xconnect_id__icontains=value) |
             Q(pp_info__icontains=value) |
             Q(description__icontains=value)
+        ).distinct()
+
+
+class CircuitRedundancyGroupFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = CircuitRedundancyGroup
+        fields = ('id', 'name',)
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(comments__icontains=value)
         ).distinct()

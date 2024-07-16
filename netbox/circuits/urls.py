@@ -55,4 +55,11 @@ urlpatterns = [
     path('circuit-terminations/delete/', views.CircuitTerminationBulkDeleteView.as_view(), name='circuittermination_bulk_delete'),
     path('circuit-terminations/<int:pk>/', include(get_model_urls('circuits', 'circuittermination'))),
 
+    # Circuit Redundacy Groups
+    path('circuit-redundancy-groups/', views.CircuitRedundancyGroupListView.as_view(), name='circuitredundancygroup_list'),
+    path('circuit-redundancy-groups/add/', views.CircuitRedundancyGroupEditView.as_view(), name='circuitredundancygroup_add'),
+    path('circuit-redundancy-groups/import/', views.CircuitRedundancyGroupBulkImportView.as_view(), name='circuitredundancygroup_import'),
+    # path('circuit-redundancy-groups/edit/', views.CircuitRedundancyGroupBulkEditView.as_view(), name='circuitredundancygroup_bulk_edit'),
+    path('circuit-redundancy-groups/delete/', views.CircuitRedundancyGroupBulkDeleteView.as_view(), name='circuitredundancygroup_bulk_delete'),
+    path('circuit-redundancy-groups/<int:pk>/', include(get_model_urls('circuits', 'circuitredundancygroup'))),
 ]
