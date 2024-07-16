@@ -206,6 +206,7 @@ nav:
             - Rack: 'models/dcim/rack.md'
             - RackReservation: 'models/dcim/rackreservation.md'
             - RackRole: 'models/dcim/rackrole.md'
+            - RackType: 'models/dcim/racktype.md'
             - RearPort: 'models/dcim/rearport.md'
             - RearPortTemplate: 'models/dcim/rearporttemplate.md'
             - Region: 'models/dcim/region.md'

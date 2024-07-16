@@ -162,6 +162,16 @@ class RackRoleViewSet(NetBoxModelViewSet):
 
 
 #
+# Rack Types
+#
+
+class RackTypeViewSet(NetBoxModelViewSet):
+    queryset = RackType.objects.all()
+    serializer_class = serializers.RackTypeSerializer
+    filterset_class = filtersets.RackTypeFilterSet
+
+
+#
 # Racks
 #
 

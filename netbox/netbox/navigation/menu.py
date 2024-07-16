@@ -24,6 +24,7 @@ ORGANIZATION_MENU = Menu(
             label=_('Racks'),
             items=(
                 get_model_item('dcim', 'rack', _('Racks')),
+                get_model_item('dcim', 'racktype', _('Rack Types')),
                 get_model_item('dcim', 'rackrole', _('Rack Roles')),
                 get_model_item('dcim', 'rackreservation', _('Reservations')),
                 MenuItem(
