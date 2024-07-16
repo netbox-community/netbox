@@ -92,31 +92,6 @@ table th.orderable a {
   }
 }
 
-// Change text color based on button color
-@each $color, $value in $theme-colors {
-  .btn-#{$color} {
-    @if $color == 'primary'{
-      --#{$prefix}btn-color: var(--#{$prefix}#{$color}-fg);
-      --#{$prefix}btn-hover-color: var(--#{$prefix}#{$color}-fg);
-      --#{$prefix}btn-active-color: var(--#{$prefix}#{$color}-fg);
-    } @else {
-      --#{$prefix}btn-color: inherit;
-      --#{$prefix}btn-hover-color: $gray-800;
-      --#{$prefix}btn-active-color: $gray-800;
-    }
-  }
-}
-
-// Adjust text color for new green
-.text-bg-green,.text-bg-success,.progress-bar {
-  color: $rich-black!important;
-}
-.bg-green {
-  a, i, span {
-    color: $rich-black!important;
-  }
-}
-
 // Dark mode overrides
 body[data-bs-theme=dark] {
 
@@ -133,7 +108,6 @@ body[data-bs-theme=dark] {
   table {
     a {
       color: $bright-teal;
-
       &.dropdown-item {
         color: inherit;
       }
@@ -142,8 +116,7 @@ body[data-bs-theme=dark] {
       color: inherit;
     }
     .btn {
-      // color: var(--#{$prefix}body-color);
-      color: $rich-black;
+       color: var(--#{$prefix}body-color);
     }
     // Stops table headers from appearing as primary link color
     th.orderable a {
