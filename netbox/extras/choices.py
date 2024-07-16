@@ -276,7 +276,6 @@ class DashboardWidgetColorChoices(ChoiceSet):
     GRAY = 'gray'
     BLACK = 'black'
     WHITE = 'white'
-    NETBOXTEAL = 'primary'
 
     CHOICES = (
         (BLUE, _('Blue')),
@@ -292,7 +291,6 @@ class DashboardWidgetColorChoices(ChoiceSet):
         (GRAY, _('Gray')),
         (BLACK, _('Black')),
         (WHITE, _('White')),
-        (NETBOXTEAL, _('NetBox Teal')),
     )
 
 

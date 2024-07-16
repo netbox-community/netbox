@@ -26,7 +26,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 5,
         'title': 'Bookmarks',
-        'color': 'primary',
+        'color': 'orange',
     },
     {
         'widget': 'extras.ObjectCountsWidget',
@@ -46,7 +46,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 2,
         'title': 'Welcome!',
-        'color': 'primary',
+        'color': 'green',
         'config': {
             'content': (
                 'This is your personal dashboard. Feel free to customize it by rearranging, resizing, or removing '
