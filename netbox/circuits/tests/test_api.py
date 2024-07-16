@@ -206,6 +206,63 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
+class CircuitRedundancyGroupTest(APIViewTestCases.APIViewTestCase):
+    model = CircuitRedundancyGroup
+    brief_fields = ['name', 'description', 'display', 'id', 'url']
+    bulk_update_data = {
+        'status': 'planned',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        circuit_types = (
+            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
+            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
+        )
+        CircuitType.objects.bulk_create(circuit_types)
+
+        circuits = (
+            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+        )
+        Circuit.objects.bulk_create(circuits)
+
+        cls.create_data = [
+            {
+                'cid': 'Circuit 4',
+                'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
+                'type': circuit_types[1].pk,
+            },
+            {
+                'cid': 'Circuit 5',
+                'provider': providers[1].pk,
+                'provider_account': provider_accounts[1].pk,
+                'type': circuit_types[1].pk,
+            },
+            {
+                'cid': 'Circuit 6',
+                'provider': providers[1].pk,
+                # Omit provider account to test uniqueness constraint
+                'type': circuit_types[1].pk,
+            },
+        ]
+
+
 class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
     model = ProviderAccount
     brief_fields = ['account', 'description', 'display', 'id', 'name', 'url']
