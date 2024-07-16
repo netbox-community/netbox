@@ -29,7 +29,8 @@ def default_vid_ranges():
 
 class VLANGroup(OrganizationalModel):
     """
-    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique. Each group must
+     define one or more ranges of valid VLAN IDs, and may be assigned a specific scope.
     """
     name = models.CharField(
         verbose_name=_('name'),
@@ -98,7 +99,6 @@ class VLANGroup(OrganizationalModel):
         # Validate VID ranges
         if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
-
         for vid_range in self.vid_ranges:
             if vid_range.lower >= vid_range.upper:
                 raise ValidationError({
@@ -120,7 +120,9 @@ class VLANGroup(OrganizationalModel):
         """
         available_vlans = set()
         for vlan_range in self.vid_ranges:
-            available_vlans = available_vlans.union({vid for vid in range(vlan_range.lower, vlan_range.upper)})
+            available_vlans = available_vlans.union({
+                vid for vid in range(vlan_range.lower, vlan_range.upper)
+            })
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
@@ -249,14 +251,9 @@ class VLAN(PrimaryModel):
                 ).format(group=self.group, scope=self.group.scope, site=self.site)
             )
 
-        # Validate group min/max VIDs
-        if self.group and self.group.vid_ranges:
-            in_bounds = False
-            for vid_range in self.group.vid_ranges:
-                if vid_range.lower <= self.vid <= vid_range.upper:
-                    in_bounds = True
-
-            if not in_bounds:
+        # Check that the VLAN ID is permitted in the assigned group (if any)
+        if self.group:
+            if not any([self.vid in r for r in self.group.vid_ranges]):
                 raise ValidationError({
                     'vid': _(
                         "VID must be in ranges {ranges} for VLANs in group {group}"

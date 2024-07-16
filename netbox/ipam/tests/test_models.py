@@ -533,3 +533,13 @@ class TestVLANGroup(TestCase):
 
         VLAN.objects.create(name='VLAN 104', vid=104, group=vlangroup)
         self.assertEqual(vlangroup.get_next_available_vid(), 105)
+
+    def test_vid_validation(self):
+        vlangroup = VLANGroup.objects.first()
+
+        vlan = VLAN(vid=1, name='VLAN 1', group=vlangroup)
+        with self.assertRaises(ValidationError):
+            vlan.full_clean()
+
+        vlan = VLAN(vid=109, name='VLAN 109', group=vlangroup)
+        vlan.full_clean()
