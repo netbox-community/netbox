@@ -131,16 +131,13 @@ def available_vlans_from_range(vlans, vlan_group, vlan_range):
     return new_vlans
 
 
-def add_available_vlans(vlans, vlan_group=None):
+def add_available_vlans(vlans, vlan_group):
     """
     Create fake records for all gaps between used VLANs
     """
     new_vlans = []
-    if vlan_group and vlan_group.vid_ranges:
-        for vlan_range in vlan_group.vid_ranges:
-            new_vlans.extend(available_vlans_from_range(vlans, vlan_group, vlan_range))
-    else:
-        new_vlans = available_vlans_from_range(vlans, vlan_group, vlan_range)
+    for vlan_range in vlan_group.vid_ranges:
+        new_vlans.extend(available_vlans_from_range(vlans, vlan_group, vlan_range))
 
     vlans = list(vlans) + new_vlans
     vlans.sort(key=lambda v: v.vid if type(v) is VLAN else v['vid'])
