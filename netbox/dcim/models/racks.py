@@ -126,12 +126,6 @@ class RackType(RackBase):
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
-    RACK_FIELDS = [
-        'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'weight', 'weight_unit', 'max_weight',
-        'mounting_depth'
-    ]
-
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -400,13 +394,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
                     raise ValidationError({
                         'location': _("Location must be from the same site, {site}.").format(site=self.site)
                     })
-
-            if self.rack_type:
-                for field_name in self.rack_type.RACK_FIELDS:
-                    if getattr(self, field_name, None) != getattr(self.rack_type, field_name, None):
-                        raise ValidationError({
-                            field_name: _("Cannot modify field {field_name} if rack_type set.").format(field_name=field_name)
-                        })
 
     def save(self, *args, **kwargs):
         if (not self.pk) and self.rack_type:
