@@ -16,7 +16,7 @@
 
       {% csrf_token %}
       <div class="card">
-          <h5 class="card-header">{% trans "Add New Member" %}</h5>
+          <h2 class="card-header">{% trans "Add New Member" %}</h2>
           <div class="card-body">
               {% render_form member_select_form %}
               {% render_form membership_form %}
