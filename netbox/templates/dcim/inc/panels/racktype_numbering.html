@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="card">
+  <h5 class="card-header">{% trans "Numbering" %}</h5>
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Starting Unit" %}</th>
+      <td>{{ object.starting_unit }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Descending Units" %}</th>
+      <td>{% checkmark object.desc_units %}</td>
+    </tr>
+  </table>
+</div>
