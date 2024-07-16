@@ -116,7 +116,7 @@ body[data-bs-theme=dark] {
       color: inherit;
     }
     .btn {
-       color: var(--#{$prefix}body-color);
+      color: var(--#{$prefix}body-color);
     }
     // Stops table headers from appearing as primary link color
     th.orderable a {
