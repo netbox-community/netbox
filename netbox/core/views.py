@@ -33,7 +33,7 @@ from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.query import count_related
-from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
@@ -52,16 +52,12 @@ class DataSourceListView(generic.ObjectListView):
 
 
 @register_model_view(DataSource)
-class DataSourceView(generic.ObjectView):
+class DataSourceView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DataSource.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (DataFile.objects.restrict(request.user, 'view').filter(source=instance), 'source_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -629,7 +625,7 @@ class SystemView(UserPassesTestMixin, View):
             config = ConfigRevision.objects.get(pk=cache.get('config_version'))
         except ConfigRevision.DoesNotExist:
             # Fall back to using the active config data if no record is found
-            config = ConfigRevision(data=get_config().defaults)
+            config = get_config()
 
         # Raw data export
         if 'export' in request.GET:

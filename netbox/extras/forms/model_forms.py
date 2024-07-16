@@ -12,6 +12,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group, User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
@@ -32,7 +33,9 @@ __all__ = (
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
+    'NotificationGroupForm',
     'SavedFilterForm',
+    'SubscriptionForm',
     'TagForm',
     'WebhookForm',
 )
@@ -64,7 +67,9 @@ class CustomFieldForm(forms.ModelForm):
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
         ),
         FieldSet('default', 'choice_set', name=_('Values')),
-        FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
+        FieldSet(
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
+        ),
     )
 
     class Meta:
@@ -236,6 +241,43 @@ class BookmarkForm(forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
+class NotificationGroupForm(forms.ModelForm):
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
+        required=False,
+        queryset=Group.objects.all()
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        required=False,
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = NotificationGroup
+        fields = ('name', 'description', 'groups', 'users')
+
+    def clean(self):
+        super().clean()
+
+        # At least one User or Group must be assigned
+        if not self.cleaned_data['groups'] and not self.cleaned_data['users']:
+            raise forms.ValidationError(_("A notification group specify at least one user or group."))
+
+        return self.cleaned_data
+
+
+class SubscriptionForm(forms.ModelForm):
+    object_type = ContentTypeChoiceField(
+        label=_('Object type'),
+        queryset=ObjectType.objects.with_feature('notifications')
+    )
+
+    class Meta:
+        model = Subscription
+        fields = ('object_type', 'object_id')
+
+
 class WebhookForm(NetBoxModelForm):
 
     fieldsets = (
@@ -327,6 +369,18 @@ class EventRuleForm(NetBoxModelForm):
             initial=initial
         )
 
+    def init_notificationgroup_choice(self):
+        initial = None
+        if self.instance.action_type == EventRuleActionChoices.NOTIFICATION:
+            notificationgroup_id = get_field_value(self, 'action_object_id')
+            initial = NotificationGroup.objects.get(pk=notificationgroup_id) if notificationgroup_id else None
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Notification group'),
+            queryset=NotificationGroup.objects.all(),
+            required=True,
+            initial=initial
+        )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['action_object_type'].required = False
@@ -339,6 +393,8 @@ class EventRuleForm(NetBoxModelForm):
             self.init_webhook_choice()
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.init_script_choice()
+        elif action_type == EventRuleActionChoices.NOTIFICATION:
+            self.init_notificationgroup_choice()
 
     def clean(self):
         super().clean()
@@ -354,6 +410,10 @@ class EventRuleForm(NetBoxModelForm):
                 Script,
                 for_concrete_model=False
             )
+            self.cleaned_data['action_object_id'] = action_choice.id
+        # Notification
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.NOTIFICATION:
+            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
 
         return self.cleaned_data

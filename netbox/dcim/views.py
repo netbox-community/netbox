@@ -17,7 +17,7 @@ from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
+from ipam.models import ASN, IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
@@ -27,8 +27,11 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
-from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+from utilities.views import (
+    GetRelatedModelsMixin, GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+)
 from virtualization.filtersets import VirtualMachineFilterSet
+from virtualization.forms import VirtualMachineFilterForm
 from virtualization.models import VirtualMachine
 from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
@@ -226,19 +229,21 @@ class RegionListView(generic.ObjectListView):
 
 
 @register_model_view(Region)
-class RegionView(generic.ObjectView):
+class RegionView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Region.objects.all()
 
     def get_extra_context(self, request, instance):
         regions = instance.get_descendants(include_self=True)
-        related_models = (
-            (Site.objects.restrict(request.user, 'view').filter(region__in=regions), 'region_id'),
-            (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
-        )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                regions,
+                extra=(
+                    (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                    (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                ),
+            ),
         }
 
 
@@ -306,19 +311,21 @@ class SiteGroupListView(generic.ObjectListView):
 
 
 @register_model_view(SiteGroup)
-class SiteGroupView(generic.ObjectView):
+class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = SiteGroup.objects.all()
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
-        related_models = (
-            (Site.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
-            (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
-        )
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                groups,
+                extra=(
+                    (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                ),
+            ),
         }
 
 
@@ -380,31 +387,25 @@ class SiteListView(generic.ObjectListView):
 
 
 @register_model_view(Site)
-class SiteView(generic.ObjectView):
+class SiteView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Site.objects.prefetch_related('tenant__group')
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            # DCIM
-            (Location.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
-            (Device.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
-            # Virtualization
-            (VirtualMachine.objects.restrict(request.user, 'view').filter(cluster__site=instance), 'site_id'),
-            # IPAM
-            (Prefix.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
-            (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
-            (VLANGroup.objects.restrict(request.user, 'view').filter(
-                scope_type=ContentType.objects.get_for_model(Site),
-                scope_id=instance.pk
-            ), 'site'),
-            (VLAN.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
-            # Circuits
-            (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                [CableTermination, CircuitTermination],
+                (
+                    (VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(Site),
+                        scope_id=instance.pk
+                    ), 'site'),
+                    (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
+                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
+                     'site_id'),
+                ),
+            ),
         }
 
 
@@ -466,18 +467,13 @@ class LocationListView(generic.ObjectListView):
 
 
 @register_model_view(Location)
-class LocationView(generic.ObjectView):
+class LocationView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Location.objects.all()
 
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
-        related_models = (
-            (Rack.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
-            (Device.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, locations, [CableTermination]),
         }
 
 
@@ -541,16 +537,12 @@ class RackRoleListView(generic.ObjectListView):
 
 
 @register_model_view(RackRole)
-class RackRoleView(generic.ObjectView):
+class RackRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = RackRole.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Rack.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -585,6 +577,56 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.RackRoleFilterSet
     table = tables.RackRoleTable
+
+
+#
+# RackTypes
+#
+
+class RackTypeListView(generic.ObjectListView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    filterset_form = forms.RackTypeFilterForm
+    table = tables.RackTypeTable
+
+
+@register_model_view(RackType)
+class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = RackType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(RackType, 'edit')
+class RackTypeEditView(generic.ObjectEditView):
+    queryset = RackType.objects.all()
+    form = forms.RackTypeForm
+
+
+@register_model_view(RackType, 'delete')
+class RackTypeDeleteView(generic.ObjectDeleteView):
+    queryset = RackType.objects.all()
+
+
+class RackTypeBulkImportView(generic.BulkImportView):
+    queryset = RackType.objects.all()
+    model_form = forms.RackTypeImportForm
+
+
+class RackTypeBulkEditView(generic.BulkEditView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
+    form = forms.RackTypeBulkEditForm
+
+
+class RackTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
 
 
 #
@@ -655,15 +697,10 @@ class RackElevationListView(generic.ObjectListView):
 
 
 @register_model_view(Rack)
-class RackView(generic.ObjectView):
+class RackView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Device.objects.restrict(request.user, 'view').filter(rack=instance), 'rack_id'),
-            (PowerFeed.objects.restrict(request.user).filter(rack=instance), 'rack_id'),
-        )
-
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
         if instance.location:
@@ -679,7 +716,7 @@ class RackView(generic.ObjectView):
         ])
 
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance, [CableTermination]),
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
@@ -693,6 +730,7 @@ class RackRackReservationsView(generic.ObjectChildrenView):
     child_model = RackReservation
     table = tables.RackReservationTable
     filterset = filtersets.RackReservationFilterSet
+    filterset_form = forms.RackReservationFilterForm
     template_name = 'dcim/rack/reservations.html'
     tab = ViewTab(
         label=_('Reservations'),
@@ -711,6 +749,7 @@ class RackNonRackedView(generic.ObjectChildrenView):
     child_model = Device
     table = tables.DeviceTable
     filterset = filtersets.DeviceFilterSet
+    filterset_form = forms.DeviceFilterForm
     template_name = 'dcim/rack/non_racked_devices.html'
     tab = ViewTab(
         label=_('Non-Racked Devices'),
@@ -838,19 +877,12 @@ class ManufacturerListView(generic.ObjectListView):
 
 
 @register_model_view(Manufacturer)
-class ManufacturerView(generic.ObjectView):
+class ManufacturerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Manufacturer.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (DeviceType.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
-            (ModuleType.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
-            (InventoryItem.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
-            (Platform.objects.restrict(request.user, 'view').filter(manufacturer=instance), 'manufacturer_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance, [InventoryItemTemplate]),
         }
 
 
@@ -912,16 +944,16 @@ class DeviceTypeListView(generic.ObjectListView):
 
 
 @register_model_view(DeviceType)
-class DeviceTypeView(generic.ObjectView):
+class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceType.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Device.objects.restrict(request.user).filter(device_type=instance), 'device_type_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance, omit=[
+                ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate,
+                InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate,
+                RearPortTemplate,
+            ]),
         }
 
 
@@ -1151,16 +1183,16 @@ class ModuleTypeListView(generic.ObjectListView):
 
 
 @register_model_view(ModuleType)
-class ModuleTypeView(generic.ObjectView):
+class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Module.objects.restrict(request.user).filter(module_type=instance), 'module_type_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance, omit=[
+                ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate,
+                InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate,
+                RearPortTemplate,
+            ]),
         }
 
 
@@ -1711,17 +1743,12 @@ class DeviceRoleListView(generic.ObjectListView):
 
 
 @register_model_view(DeviceRole)
-class DeviceRoleView(generic.ObjectView):
+class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceRole.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Device.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-            (VirtualMachine.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -1775,17 +1802,12 @@ class PlatformListView(generic.ObjectListView):
 
 
 @register_model_view(Platform)
-class PlatformView(generic.ObjectView):
+class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Platform.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Device.objects.restrict(request.user, 'view').filter(platform=instance), 'platform_id'),
-            (VirtualMachine.objects.restrict(request.user, 'view').filter(platform=instance), 'platform_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -1866,6 +1888,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     child_model = ConsolePort
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
+    filterset_form = forms.ConsolePortFilterForm
     template_name = 'dcim/device/consoleports.html',
     tab = ViewTab(
         label=_('Console Ports'),
@@ -1881,6 +1904,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     child_model = ConsoleServerPort
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
+    filterset_form = forms.ConsoleServerPortFilterForm
     template_name = 'dcim/device/consoleserverports.html'
     tab = ViewTab(
         label=_('Console Server Ports'),
@@ -1896,6 +1920,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     child_model = PowerPort
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
+    filterset_form = forms.PowerPortFilterForm
     template_name = 'dcim/device/powerports.html'
     tab = ViewTab(
         label=_('Power Ports'),
@@ -1911,6 +1936,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     child_model = PowerOutlet
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
+    filterset_form = forms.PowerOutletFilterForm
     template_name = 'dcim/device/poweroutlets.html'
     tab = ViewTab(
         label=_('Power Outlets'),
@@ -1926,6 +1952,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
+    filterset_form = forms.InterfaceFilterForm
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
@@ -1947,6 +1974,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     child_model = FrontPort
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
+    filterset_form = forms.FrontPortFilterForm
     template_name = 'dcim/device/frontports.html'
     tab = ViewTab(
         label=_('Front Ports'),
@@ -1962,6 +1990,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     child_model = RearPort
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
+    filterset_form = forms.RearPortFilterForm
     template_name = 'dcim/device/rearports.html'
     tab = ViewTab(
         label=_('Rear Ports'),
@@ -1977,6 +2006,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     child_model = ModuleBay
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
+    filterset_form = forms.ModuleBayFilterForm
     template_name = 'dcim/device/modulebays.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -1996,6 +2026,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     child_model = DeviceBay
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
+    filterset_form = forms.DeviceBayFilterForm
     template_name = 'dcim/device/devicebays.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -2015,6 +2046,7 @@ class DeviceInventoryView(DeviceComponentsView):
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
     template_name = 'dcim/device/inventory.html'
     actions = {
         **DEFAULT_ACTION_PERMISSIONS,
@@ -2093,6 +2125,7 @@ class DeviceVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = VirtualMachineTable
     filterset = VirtualMachineFilterSet
+    filterset_form = VirtualMachineFilterForm
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: VirtualMachine.objects.filter(cluster=obj.cluster, device=obj).count(),
@@ -2157,22 +2190,12 @@ class ModuleListView(generic.ObjectListView):
 
 
 @register_model_view(Module)
-class ModuleView(generic.ObjectView):
+class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Module.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Interface.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (ConsolePort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (ConsoleServerPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (PowerPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (PowerOutlet.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (FrontPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-            (RearPort.objects.restrict(request.user, 'view').filter(module=instance), 'module_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -2985,6 +3008,7 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     child_model = InventoryItem
     table = tables.InventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
+    filterset_form = forms.InventoryItemFilterForm
     tab = ViewTab(
         label=_('Children'),
         badge=lambda obj: obj.child_items.count(),
@@ -3451,8 +3475,9 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             if membership_form.is_valid():
 
                 membership_form.save()
-                msg = f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
-                messages.success(request, mark_safe(msg))
+                messages.success(request, mark_safe(
+                    f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
+                ))
 
                 if '_addanother' in request.POST:
                     return redirect(request.get_full_path())
@@ -3552,16 +3577,12 @@ class PowerPanelListView(generic.ObjectListView):
 
 
 @register_model_view(PowerPanel)
-class PowerPanelView(generic.ObjectView):
+class PowerPanelView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = PowerPanel.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (PowerFeed.objects.restrict(request.user).filter(power_panel=instance), 'power_panel_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -3665,16 +3686,18 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 
 
 @register_model_view(VirtualDeviceContext)
-class VirtualDeviceContextView(generic.ObjectView):
+class VirtualDeviceContextView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            (Interface.objects.restrict(request.user, 'view').filter(vdcs__in=[instance]), 'vdc_id'),
-        )
-
         return {
-            'related_models': related_models,
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (Interface.objects.restrict(request.user, 'view').filter(vdcs__in=[instance]), 'vdc_id'),
+                ),
+            ),
         }
 
 

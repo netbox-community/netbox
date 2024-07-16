@@ -162,6 +162,16 @@ class RackRoleViewSet(NetBoxModelViewSet):
 
 
 #
+# Rack Types
+#
+
+class RackTypeViewSet(NetBoxModelViewSet):
+    queryset = RackType.objects.all()
+    serializer_class = serializers.RackTypeSerializer
+    filterset_class = filtersets.RackTypeFilterSet
+
+
+#
 # Racks
 #
 
@@ -219,9 +229,9 @@ class RackViewSet(NetBoxModelViewSet):
             )
 
             # Enable filtering rack units by ID
-            q = data['q']
-            if q:
-                elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name'])]
+            if q := data['q']:
+                q = q.lower()
+                elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name']).lower()]
 
             page = self.paginate_queryset(elevation)
             if page is not None:

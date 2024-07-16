@@ -107,3 +107,7 @@ For numeric custom fields only. The maximum valid value (optional).
 ### Validation Regex
 
 For string-based custom fields only. A regular expression used to validate the field's value (optional).
+
+### Uniqueness Validation
+
+If enabled, each object must have a unique value set for this custom field (per object type).

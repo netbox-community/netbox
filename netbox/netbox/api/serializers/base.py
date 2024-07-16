@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 from utilities.api import get_related_object_by_attrs
+from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
 
 __all__ = (
     'BaseModelSerializer',
@@ -14,6 +15,8 @@ __all__ = (
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
+    url = NetBoxAPIHyperlinkedIdentityField()
+    display_url = NetBoxURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):

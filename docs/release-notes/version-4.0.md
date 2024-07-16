@@ -1,6 +1,72 @@
 # NetBox v4.0
 
-## v4.0.6 (FUTURE)
+## v4.0.8 (FUTURE)
+
+---
+
+## v4.0.7 (2024-07-09)
+
+### Enhancements
+
+* [#14554](https://github.com/netbox-community/netbox/issues/14554) - Add support for [django-storage-swift](https://github.com/dennisv/django-storage-swift) storage backend
+* [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
+* [#16716](https://github.com/netbox-community/netbox/issues/16716) - Display NAT address (if any) for OOB IP address under device view
+* [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#16791](https://github.com/netbox-community/netbox/issues/16791) - Add 200 & 400 Gbps selections for circuit termination port speed
+* [#16802](https://github.com/netbox-community/netbox/issues/16802) - Introduce `SENTRY_SEND_DEFAULT_PII` configuration parameter and disable PII export by default
+* [#16817](https://github.com/netbox-community/netbox/issues/16817) - Add 200 & 400 Gbps selections for circuit commit rate
+
+### Bug Fixes
+
+* [#16523](https://github.com/netbox-community/netbox/issues/16523) - Restore highlighting of current device in virtual chassis members panel
+* [#16654](https://github.com/netbox-community/netbox/issues/16654) - Fix parent item assignment for inventory item bulk import
+* [#16657](https://github.com/netbox-community/netbox/issues/16657) - Fix translation of object types in global search
+* [#16679](https://github.com/netbox-community/netbox/issues/16679) - Avoid overwriting custom JSON fields during bulk edit
+* [#16689](https://github.com/netbox-community/netbox/issues/16689) - System configuration view should reflect static parameters when no config revisions exist
+* [#16714](https://github.com/netbox-community/netbox/issues/16714) - Fix cloning of device types with 0U height
+* [#16721](https://github.com/netbox-community/netbox/issues/16721) - Fix errant API request after deselecting a rack in device edit form
+* [#16723](https://github.com/netbox-community/netbox/issues/16723) - Fix escaping of path to virtual environment in `upgrade.sh`
+* [#16735](https://github.com/netbox-community/netbox/issues/16735) - Object list "results" tab should show a count of zero when empty
+* [#16747](https://github.com/netbox-community/netbox/issues/16747) - Avoid clearing entire search cache when manually reindexing specific apps/models
+* [#16758](https://github.com/netbox-community/netbox/issues/16758) - Ensure manually selected lagnuage persists across browser sessions
+* [#16779](https://github.com/netbox-community/netbox/issues/16779) - Fix saved filter selection for child object lists
+* [#16780](https://github.com/netbox-community/netbox/issues/16780) - IKE proposal created via REST API should not require authentication_algorithm
+* [#16796](https://github.com/netbox-community/netbox/issues/16796) - Allow assignment of VM with no site to a cluster with a site
+* [#16806](https://github.com/netbox-community/netbox/issues/16806) - Fix redirect URL when creating contact assignments with "add another" button
+* [#16807](https://github.com/netbox-community/netbox/issues/16807) - Fix layout of VLAN edit form when custom fields are present
+* [#16808](https://github.com/netbox-community/netbox/issues/16808) - Fix event rule triggering in scenario where objects are updated immediately prior to deletion
+* [#16813](https://github.com/netbox-community/netbox/issues/16813) - Fix AttributeError exception when filtering bookmarks in dashboard widget by object type
+* [#16843](https://github.com/netbox-community/netbox/issues/16843) - Permit creation of IKE policies via REST API without specifying an IKE mode
+
+---
+
+## v4.0.6 (2024-06-24)
+
+### Enhancements
+
+* [#15348](https://github.com/netbox-community/netbox/issues/15348) - Show saved filters alongside quick search on object list views
+* [#15794](https://github.com/netbox-community/netbox/issues/15794) - Dynamically populate related objects in UI views
+* [#16256](https://github.com/netbox-community/netbox/issues/16256) - Enable alphabetical ordering of bookmarks on dashboard
+* [#16307](https://github.com/netbox-community/netbox/issues/16307) - Enable calling `log_*()` methods on Script without passing a message
+
+### Bug Fixes
+
+* [#13925](https://github.com/netbox-community/netbox/issues/13925) - Fix support for "zulu" (UTC) timestamps for custom fields
+* [#14829](https://github.com/netbox-community/netbox/issues/14829) - Fix support for simple conditions (without AND/OR) in event rules
+* [#15717](https://github.com/netbox-community/netbox/issues/15717) - Allow assigning a device/VM in a site to a cluster with no site assigned
+* [#16143](https://github.com/netbox-community/netbox/issues/16143) - Display timestamps in tables in the configured timezone
+* [#16149](https://github.com/netbox-community/netbox/issues/16149) - Fix object linking in custom script logs
+* [#16252](https://github.com/netbox-community/netbox/issues/16252) - Fix total count in tab at top of rack elevations view
+* [#16273](https://github.com/netbox-community/netbox/issues/16273) - Restore global search bar on mobile
+* [#16416](https://github.com/netbox-community/netbox/issues/16416) - Retain dark/light mode toggle on mobile view
+* [#16444](https://github.com/netbox-community/netbox/issues/16444) - Disable ordering circuits list by A/Z termination
+* [#16450](https://github.com/netbox-community/netbox/issues/16450) - Searching for rack unit in form dropdown should be case-insensitive
+* [#16452](https://github.com/netbox-community/netbox/issues/16452) - Fix sizing of buttons within object attribute panels
+* [#16454](https://github.com/netbox-community/netbox/issues/16454) - Address DNS lookup bug in `django-debug-toolbar
+* [#16460](https://github.com/netbox-community/netbox/issues/16460) - Omit spaces from telephone number URLs
+* [#16512](https://github.com/netbox-community/netbox/issues/16512) - Restore a user's preferred language (if any) on login
+* [#16542](https://github.com/netbox-community/netbox/issues/16542) - Fix bulk form operations when HTMX is enabled
+* [#16702](https://github.com/netbox-community/netbox/issues/16702) - Fix validation of `return_url` query parameter
 
 ---
 

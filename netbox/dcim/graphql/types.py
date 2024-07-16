@@ -50,6 +50,7 @@ __all__ = (
     'RackType',
     'RackReservationType',
     'RackRoleType',
+    'RackTypeType',
     'RearPortType',
     'RearPortTemplateType',
     'RegionType',
@@ -607,6 +608,16 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.RackType,
+    fields='__all__',
+    filters=RackTypeFilter
+)
+class RackTypeType(NetBoxObjectType):
+    _name: str
+    manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
+
+
+@strawberry_django.type(
     models.Rack,
     fields='__all__',
     filters=RackFilter
@@ -618,6 +629,7 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RackRoleType", strawberry.lazy('dcim.graphql.types')] | None
 
+    rack_type: Annotated["RackTypeType", strawberry.lazy('dcim.graphql.types')] | None
     reservations: List[Annotated["RackReservationType", strawberry.lazy('dcim.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     powerfeeds: List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]

@@ -15,7 +15,6 @@ __all__ = (
 
 
 class ObjectChangeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='core-api:objectchange-detail')
     user = UserSerializer(
         nested=True,
         read_only=True
@@ -44,8 +43,8 @@ class ObjectChangeSerializer(BaseModelSerializer):
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'url', 'display', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type',
-            'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
+            'id', 'url', 'display_url', 'display', 'time', 'user', 'user_name', 'request_id', 'action',
+            'changed_object_type', 'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

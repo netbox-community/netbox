@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.db import transaction
@@ -12,7 +13,7 @@ from extras.forms import JournalEntryForm
 from extras.models import JournalEntry
 from extras.tables import JournalEntryTable
 from utilities.permissions import get_permission_for_model
-from utilities.views import GetReturnURLMixin, ViewTab
+from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab
 from .base import BaseMultiObjectView
 
 __all__ = (
@@ -24,7 +25,7 @@ __all__ = (
 )
 
 
-class ObjectChangeLogView(View):
+class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
     """
     Present a history of changes made to a particular object. The model class must be passed as a keyword argument
     when referencing this view in a URL path. For example:
@@ -77,7 +78,7 @@ class ObjectChangeLogView(View):
         })
 
 
-class ObjectJournalView(View):
+class ObjectJournalView(ConditionalLoginRequiredMixin, View):
     """
     Show all journal entries for an object. The model class must be passed as a keyword argument when referencing this
     view in a URL path. For example:
@@ -138,7 +139,7 @@ class ObjectJournalView(View):
         })
 
 
-class ObjectJobsView(View):
+class ObjectJobsView(ConditionalLoginRequiredMixin, View):
     """
     Render a list of all Job assigned to an object. For example:
 
@@ -191,7 +192,7 @@ class ObjectJobsView(View):
         })
 
 
-class ObjectSyncDataView(View):
+class ObjectSyncDataView(LoginRequiredMixin, View):
 
     def post(self, request, model, **kwargs):
         """

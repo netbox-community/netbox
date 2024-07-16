@@ -1,0 +1,9 @@
+{% if notifications %}
+  <span class="text-primary" id="notifications-alert" hx-swap-oob="true">
+    <i class="mdi mdi-bell-badge"></i>
+  </span>
+{% else %}
+  <span class="text-muted" id="notifications-alert" hx-swap-oob="true">
+    <i class="mdi mdi-bell"></i>
+  </span>
+{% endif %}

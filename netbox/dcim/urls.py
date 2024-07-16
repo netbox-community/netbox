@@ -63,6 +63,14 @@ urlpatterns = [
     path('racks/delete/', views.RackBulkDeleteView.as_view(), name='rack_bulk_delete'),
     path('racks/<int:pk>/', include(get_model_urls('dcim', 'rack'))),
 
+    # Rack Types
+    path('rack-types/', views.RackTypeListView.as_view(), name='racktype_list'),
+    path('rack-types/add/', views.RackTypeEditView.as_view(), name='racktype_add'),
+    path('rack-types/import/', views.RackTypeBulkImportView.as_view(), name='racktype_import'),
+    path('rack-types/edit/', views.RackTypeBulkEditView.as_view(), name='racktype_bulk_edit'),
+    path('rack-types/delete/', views.RackTypeBulkDeleteView.as_view(), name='racktype_bulk_delete'),
+    path('rack-types/<int:pk>/', include(get_model_urls('dcim', 'racktype'))),
+
     # Manufacturers
     path('manufacturers/', views.ManufacturerListView.as_view(), name='manufacturer_list'),
     path('manufacturers/add/', views.ManufacturerEditView.as_view(), name='manufacturer_add'),

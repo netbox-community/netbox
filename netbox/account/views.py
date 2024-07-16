@@ -22,7 +22,7 @@ from account.models import UserToken
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from extras.models import Bookmark
-from extras.tables import BookmarkTable
+from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
@@ -106,10 +106,16 @@ class LoginView(View):
             # Ensure the user has a UserConfig defined. (This should normally be handled by
             # create_userconfig() on user creation.)
             if not hasattr(request.user, 'config'):
-                config = get_config()
-                UserConfig(user=request.user, data=config.DEFAULT_USER_PREFERENCES).save()
+                request.user.config = get_config()
+                UserConfig(user=request.user, data=request.user.config.DEFAULT_USER_PREFERENCES).save()
 
-            return self.redirect_to_next(request, logger)
+            response = self.redirect_to_next(request, logger)
+
+            # Set the user's preferred language (if any)
+            if language := request.user.config.get('locale.language'):
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+
+            return response
 
         else:
             logger.debug(f"Login form validation failed for username: {form['username'].value()}")
@@ -147,9 +153,10 @@ class LogoutView(View):
         logger.info(f"User {username} has logged out")
         messages.info(request, "You have logged out.")
 
-        # Delete session key cookie (if set) upon logout
+        # Delete session key & language cookies (if set) upon logout
         response = HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
         response.delete_cookie('session_key')
+        response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 
         return response
 
@@ -201,7 +208,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
             # Set/clear language cookie
             if language := form.cleaned_data['locale.language']:
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
             else:
                 response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 
@@ -257,6 +264,36 @@ class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
     def get_extra_context(self, request):
         return {
             'active_tab': 'bookmarks',
+        }
+
+
+#
+# Notifications & subscriptions
+#
+
+class NotificationListView(LoginRequiredMixin, generic.ObjectListView):
+    table = NotificationTable
+    template_name = 'account/notifications.html'
+
+    def get_queryset(self, request):
+        return request.user.notifications.all()
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'notifications',
+        }
+
+
+class SubscriptionListView(LoginRequiredMixin, generic.ObjectListView):
+    table = SubscriptionTable
+    template_name = 'account/subscriptions.html'
+
+    def get_queryset(self, request):
+        return request.user.subscriptions.all()
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'subscriptions',
         }
 
 

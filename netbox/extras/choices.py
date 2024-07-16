@@ -117,10 +117,14 @@ class BookmarkOrderingChoices(ChoiceSet):
 
     ORDERING_NEWEST = '-created'
     ORDERING_OLDEST = 'created'
+    ORDERING_ALPHABETICAL_AZ = 'name'
+    ORDERING_ALPHABETICAL_ZA = '-name'
 
     CHOICES = (
         (ORDERING_NEWEST, _('Newest')),
         (ORDERING_OLDEST, _('Oldest')),
+        (ORDERING_ALPHABETICAL_AZ, _('Alphabetical (A-Z)')),
+        (ORDERING_ALPHABETICAL_ZA, _('Alphabetical (Z-A)')),
     )
 
 
@@ -298,8 +302,10 @@ class EventRuleActionChoices(ChoiceSet):
 
     WEBHOOK = 'webhook'
     SCRIPT = 'script'
+    NOTIFICATION = 'notification'
 
     CHOICES = (
         (WEBHOOK, _('Webhook')),
         (SCRIPT, _('Script')),
+        (NOTIFICATION, _('Notification')),
     )

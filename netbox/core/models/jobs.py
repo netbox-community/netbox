@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import ObjectType
 from core.signals import job_end, job_start
-from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet

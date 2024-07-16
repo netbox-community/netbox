@@ -66,9 +66,6 @@ class CircuitTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = CircuitType
         fields = ('name', 'slug', 'color', 'description', 'tags')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 class CircuitImportForm(NetBoxModelImportForm):

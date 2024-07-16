@@ -6,6 +6,8 @@ from typing import Union
 
 from django.core.exceptions import ImproperlyConfigured
 
+from utilities.datetime import datetime_from_timestamp
+
 RELEASE_PATH = 'release.yaml'
 LOCAL_RELEASE_PATH = 'local/release.yaml'
 
@@ -52,6 +54,6 @@ def load_release_data():
 
     # Convert the published date to a date object
     if 'published' in data:
-        data['published'] = datetime.date.fromisoformat(data['published'])
+        data['published'] = datetime_from_timestamp(data['published'])
 
     return ReleaseInfo(**data)
