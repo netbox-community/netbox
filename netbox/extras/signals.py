@@ -10,17 +10,18 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from core.choices import ObjectChangeActionChoices
+from core.events import *
 from core.models import ObjectChange, ObjectType
 from core.signals import job_end, job_start
-from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
-from extras.models import EventRule
+from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
+from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
-from .events import enqueue_object, get_snapshots, serialize_for_event
+from .events import enqueue_event
 from .models import CustomField, TaggedItem
 from .validators import CustomValidator
 
@@ -72,17 +73,22 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Determine the type of change being made
     if kwargs.get('created'):
-        action = ObjectChangeActionChoices.ACTION_CREATE
+        event_type = OBJECT_CREATED
     elif 'created' in kwargs:
-        action = ObjectChangeActionChoices.ACTION_UPDATE
+        event_type = OBJECT_UPDATED
     elif kwargs.get('action') in ['post_add', 'post_remove'] and kwargs['pk_set']:
         # m2m_changed with objects added or removed
         m2m_changed = True
-        action = ObjectChangeActionChoices.ACTION_UPDATE
+        event_type = OBJECT_UPDATED
     else:
         return
 
     # Create/update an ObjectChange record for this change
+    action = {
+        OBJECT_CREATED: ObjectChangeActionChoices.ACTION_CREATE,
+        OBJECT_UPDATED: ObjectChangeActionChoices.ACTION_UPDATE,
+        OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
+    }[event_type]
     objectchange = instance.to_objectchange(action)
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
@@ -106,13 +112,13 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_object(queue, instance, request.user, request.id, action)
+    enqueue_event(queue, instance, request.user, request.id, event_type)
     events_queue.set(queue)
 
     # Increment metric counters
-    if action == ObjectChangeActionChoices.ACTION_CREATE:
+    if event_type == OBJECT_CREATED:
         model_inserts.labels(instance._meta.model_name).inc()
-    elif action == ObjectChangeActionChoices.ACTION_UPDATE:
+    elif event_type == OBJECT_UPDATED:
         model_updates.labels(instance._meta.model_name).inc()
 
 
@@ -168,7 +174,7 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_object(queue, instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
+    enqueue_event(queue, instance, request.user, request.id, OBJECT_DELETED)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -270,7 +276,13 @@ def process_job_start_event_rules(sender, **kwargs):
     """
     event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
-    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, username)
+    process_event_rules(
+        event_rules=event_rules,
+        object_type=sender.object_type,
+        event_type=JOB_STARTED,
+        data=sender.data,
+        username=username
+    )
 
 
 @receiver(job_end)
@@ -280,4 +292,39 @@ def process_job_end_event_rules(sender, **kwargs):
     """
     event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
-    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)
+    process_event_rules(
+        event_rules=event_rules,
+        object_type=sender.object_type,
+        event_type=JOB_COMPLETED,
+        data=sender.data,
+        username=username
+    )
+
+
+#
+# Notifications
+#
+
+@receiver(post_save)
+def notify_object_changed(sender, instance, created, raw, **kwargs):
+    if created or raw:
+        return
+
+    # Skip unsupported object types
+    ct = ContentType.objects.get_for_model(instance)
+    if ct.model not in registry['model_features']['notifications'].get(ct.app_label, []):
+        return
+
+    # Find all subscribed Users
+    subscribed_users = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values_list('user', flat=True)
+    if not subscribed_users:
+        return
+
+    # Delete any existing Notifications for the object
+    Notification.objects.filter(object_type=ct, object_id=instance.pk, user__in=subscribed_users).delete()
+
+    # Create Notifications for Subscribers
+    Notification.objects.bulk_create([
+        Notification(user_id=user, object=instance, event_type=OBJECT_UPDATED)
+        for user in subscribed_users
+    ])

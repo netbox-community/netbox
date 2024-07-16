@@ -34,6 +34,7 @@ __all__ = (
     'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
+    'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
     'register_models',
@@ -377,6 +378,25 @@ class BookmarksMixin(models.Model):
         abstract = True
 
 
+class NotificationsMixin(models.Model):
+    """
+    Enables support for user notifications.
+    """
+    notifications = GenericRelation(
+        to='extras.Notification',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+    subscriptions = GenericRelation(
+        to='extras.Subscription',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+
+    class Meta:
+        abstract = True
+
+
 class JobsMixin(models.Model):
     """
     Enables support for job results.
@@ -582,13 +602,14 @@ FEATURES_MAP = {
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
     'custom_validation': CustomValidationMixin,
+    'event_rules': EventRulesMixin,
     'export_templates': ExportTemplatesMixin,
     'image_attachments': ImageAttachmentsMixin,
     'jobs': JobsMixin,
     'journaling': JournalingMixin,
+    'notifications': NotificationsMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,
-    'event_rules': EventRulesMixin,
 }
 
 registry['model_features'].update({

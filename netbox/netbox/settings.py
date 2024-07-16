@@ -84,6 +84,16 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'extras.add_bookmark': ({'user': '$user'},),
     'extras.change_bookmark': ({'user': '$user'},),
     'extras.delete_bookmark': ({'user': '$user'},),
+    # Permit users to manage their own notifications
+    'extras.view_notification': ({'user': '$user'},),
+    'extras.add_notification': ({'user': '$user'},),
+    'extras.change_notification': ({'user': '$user'},),
+    'extras.delete_notification': ({'user': '$user'},),
+    # Permit users to manage their own subscriptions
+    'extras.view_subscription': ({'user': '$user'},),
+    'extras.add_subscription': ({'user': '$user'},),
+    'extras.change_subscription': ({'user': '$user'},),
+    'extras.delete_subscription': ({'user': '$user'},),
     # Permit users to manage their own API tokens
     'users.view_token': ({'user': '$user'},),
     'users.add_token': ({'user': '$user'},),

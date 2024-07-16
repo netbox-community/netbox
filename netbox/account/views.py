@@ -22,7 +22,7 @@ from account.models import UserToken
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from extras.models import Bookmark
-from extras.tables import BookmarkTable
+from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
@@ -264,6 +264,36 @@ class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
     def get_extra_context(self, request):
         return {
             'active_tab': 'bookmarks',
+        }
+
+
+#
+# Notifications & subscriptions
+#
+
+class NotificationListView(LoginRequiredMixin, generic.ObjectListView):
+    table = NotificationTable
+    template_name = 'account/notifications.html'
+
+    def get_queryset(self, request):
+        return request.user.notifications.all()
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'notifications',
+        }
+
+
+class SubscriptionListView(LoginRequiredMixin, generic.ObjectListView):
+    table = SubscriptionTable
+    template_name = 'account/subscriptions.html'
+
+    def get_queryset(self, request):
+        return request.user.subscriptions.all()
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'subscriptions',
         }
 
 

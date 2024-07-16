@@ -355,6 +355,7 @@ OPERATIONS_MENU = Menu(
         MenuGroup(
             label=_('Logging'),
             items=(
+                get_model_item('extras', 'notificationgroup', _('Notification Groups')),
                 get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['import']),
                 get_model_item('core', 'objectchange', _('Change Log'), actions=[]),
             ),

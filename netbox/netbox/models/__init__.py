@@ -29,6 +29,7 @@ class NetBoxFeatureSet(
     CustomValidationMixin,
     ExportTemplatesMixin,
     JournalingMixin,
+    NotificationsMixin,
     TagsMixin,
     EventRulesMixin
 ):
