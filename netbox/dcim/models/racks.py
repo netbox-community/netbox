@@ -37,7 +37,91 @@ __all__ = (
 # Rack Types
 #
 
-class RackType(WeightMixin, PrimaryModel):
+class RackBase(WeightMixin, PrimaryModel):
+    """
+    Base class for RackType & Rack. Holds
+    """
+    # Rack type
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
+        max_length=50,
+        blank=True,
+        verbose_name=_('form factor')
+    )
+    width = models.PositiveSmallIntegerField(
+        choices=RackWidthChoices,
+        default=RackWidthChoices.WIDTH_19IN,
+        verbose_name=_('width'),
+        help_text=_('Rail-to-rail width')
+    )
+
+    # Numbering
+    u_height = models.PositiveSmallIntegerField(
+        default=RACK_U_HEIGHT_DEFAULT,
+        verbose_name=_('height (U)'),
+        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
+        help_text=_('Height in rack units')
+    )
+    starting_unit = models.PositiveSmallIntegerField(
+        default=RACK_STARTING_UNIT_DEFAULT,
+        verbose_name=_('starting unit'),
+        validators=[MinValueValidator(1)],
+        help_text=_('Starting unit for rack')
+    )
+    desc_units = models.BooleanField(
+        default=False,
+        verbose_name=_('descending units'),
+        help_text=_('Units are numbered top-to-bottom')
+    )
+
+    # Dimensions
+    outer_width = models.PositiveSmallIntegerField(
+        verbose_name=_('outer width'),
+        blank=True,
+        null=True,
+        help_text=_('Outer dimension of rack (width)')
+    )
+    outer_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('outer depth'),
+        blank=True,
+        null=True,
+        help_text=_('Outer dimension of rack (depth)')
+    )
+    outer_unit = models.CharField(
+        verbose_name=_('outer unit'),
+        max_length=50,
+        choices=RackDimensionUnitChoices,
+        blank=True
+    )
+    mounting_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('mounting depth'),
+        blank=True,
+        null=True,
+        help_text=(_(
+            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the distance between the '
+            'front and rear rails.'
+        ))
+    )
+
+    # Weight
+    # WeightMixin provides weight, weight_unit, and _abs_weight
+    max_weight = models.PositiveIntegerField(
+        verbose_name=_('max weight'),
+        blank=True,
+        null=True,
+        help_text=_('Maximum load capacity for the rack')
+    )
+    # Stores the normalized max weight (in grams) for database ordering
+    _abs_max_weight = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+class RackType(RackBase):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -66,73 +150,6 @@ class RackType(WeightMixin, PrimaryModel):
         verbose_name=_('slug'),
         max_length=100,
         unique=True
-    )
-    form_factor = models.CharField(
-        choices=RackFormFactorChoices,
-        max_length=50,
-        blank=True,
-        verbose_name=_('form factor')
-    )
-    width = models.PositiveSmallIntegerField(
-        choices=RackWidthChoices,
-        default=RackWidthChoices.WIDTH_19IN,
-        verbose_name=_('width'),
-        help_text=_('Rail-to-rail width')
-    )
-    u_height = models.PositiveSmallIntegerField(
-        default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name=_('height (U)'),
-        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
-        help_text=_('Height in rack units')
-    )
-    starting_unit = models.PositiveSmallIntegerField(
-        default=RACK_STARTING_UNIT_DEFAULT,
-        verbose_name=_('starting unit'),
-        validators=[MinValueValidator(1)],
-        help_text=_('Starting unit for rack')
-    )
-    desc_units = models.BooleanField(
-        default=False,
-        verbose_name=_('descending units'),
-        help_text=_('Units are numbered top-to-bottom')
-    )
-    outer_width = models.PositiveSmallIntegerField(
-        verbose_name=_('outer width'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (width)')
-    )
-    outer_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('outer depth'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (depth)')
-    )
-    outer_unit = models.CharField(
-        verbose_name=_('outer unit'),
-        max_length=50,
-        choices=RackDimensionUnitChoices,
-        blank=True
-    )
-    max_weight = models.PositiveIntegerField(
-        verbose_name=_('max weight'),
-        blank=True,
-        null=True,
-        help_text=_('Maximum load capacity for the rack')
-    )
-    # Stores the normalized max weight (in grams) for database ordering
-    _abs_max_weight = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    mounting_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('mounting depth'),
-        blank=True,
-        null=True,
-        help_text=(_(
-            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the distance between the '
-            'front and rear rails.'
-        ))
     )
 
     clone_fields = (
@@ -228,7 +245,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -301,73 +318,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         unique=True,
         verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
-    )
-    form_factor = models.CharField(
-        choices=RackFormFactorChoices,
-        max_length=50,
-        blank=True,
-        verbose_name=_('form factor')
-    )
-    width = models.PositiveSmallIntegerField(
-        choices=RackWidthChoices,
-        default=RackWidthChoices.WIDTH_19IN,
-        verbose_name=_('width'),
-        help_text=_('Rail-to-rail width')
-    )
-    u_height = models.PositiveSmallIntegerField(
-        default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name=_('height (U)'),
-        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
-        help_text=_('Height in rack units')
-    )
-    starting_unit = models.PositiveSmallIntegerField(
-        default=RACK_STARTING_UNIT_DEFAULT,
-        verbose_name=_('starting unit'),
-        validators=[MinValueValidator(1),],
-        help_text=_('Starting unit for rack')
-    )
-    desc_units = models.BooleanField(
-        default=False,
-        verbose_name=_('descending units'),
-        help_text=_('Units are numbered top-to-bottom')
-    )
-    outer_width = models.PositiveSmallIntegerField(
-        verbose_name=_('outer width'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (width)')
-    )
-    outer_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('outer depth'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (depth)')
-    )
-    outer_unit = models.CharField(
-        verbose_name=_('outer unit'),
-        max_length=50,
-        choices=RackDimensionUnitChoices,
-        blank=True,
-    )
-    max_weight = models.PositiveIntegerField(
-        verbose_name=_('max weight'),
-        blank=True,
-        null=True,
-        help_text=_('Maximum load capacity for the rack')
-    )
-    # Stores the normalized max weight (in grams) for database ordering
-    _abs_max_weight = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    mounting_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('mounting depth'),
-        blank=True,
-        null=True,
-        help_text=(
-            _('Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
-              'distance between the front and rear rails.')
-        )
     )
 
     # Generic relations

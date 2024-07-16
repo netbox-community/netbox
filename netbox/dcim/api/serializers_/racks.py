@@ -35,10 +35,7 @@ class RackRoleSerializer(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
 
 
-class RackTypeSerializer(NetBoxModelSerializer):
-    manufacturer = ManufacturerSerializer(
-        nested=True
-    )
+class RackBaseSerializer(NetBoxModelSerializer):
     form_factor = ChoiceField(
         choices=RackFormFactorChoices,
         allow_blank=True,
@@ -62,6 +59,12 @@ class RackTypeSerializer(NetBoxModelSerializer):
         allow_null=True
     )
 
+
+class RackTypeSerializer(RackBaseSerializer):
+    manufacturer = ManufacturerSerializer(
+        nested=True
+    )
+
     class Meta:
         model = RackType
         fields = [
@@ -73,19 +76,43 @@ class RackTypeSerializer(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'name', 'slug', 'description')
 
 
-class RackSerializer(NetBoxModelSerializer):
-    site = SiteSerializer(nested=True)
-    location = LocationSerializer(nested=True, required=False, allow_null=True, default=None)
-    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
-    status = ChoiceField(choices=RackStatusChoices, required=False)
-    role = RackRoleSerializer(nested=True, required=False, allow_null=True)
-    form_factor = ChoiceField(choices=RackFormFactorChoices, allow_blank=True, required=False, allow_null=True)
-    facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label=_('Facility ID'),
-                                        default=None)
-    rack_type = RackTypeSerializer(nested=True, required=False, allow_null=True, default=None)
-    width = ChoiceField(choices=RackWidthChoices, required=False)
-    outer_unit = ChoiceField(choices=RackDimensionUnitChoices, allow_blank=True, required=False, allow_null=True)
-    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
+class RackSerializer(RackBaseSerializer):
+    site = SiteSerializer(
+        nested=True
+    )
+    location = LocationSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    tenant = TenantSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
+    status = ChoiceField(
+        choices=RackStatusChoices,
+        required=False
+    )
+    role = RackRoleSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
+    facility_id = serializers.CharField(
+        max_length=50,
+        allow_blank=True,
+        allow_null=True,
+        label=_('Facility ID'),
+        default=None
+    )
+    rack_type = RackTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
 
     # Related object counts
     device_count = RelatedObjectCountField('devices')
