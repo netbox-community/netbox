@@ -34,7 +34,7 @@ Blocks:
         </button>
 
         {# Logo #}
-        <h1 class="navbar-brand navbar-brand-autodark">
+        <h1 class="navbar-brand">
           <a href="{% url 'home' %}">
             {% if settings.RELEASE.edition != 'Community' %}
               <img src="{% static 'logo_netboxlabs_dark_teal.svg' %}" alt="{% trans "NetBox Labs Logo" %}" class="navbar-brand-image-edition hide-theme-dark">

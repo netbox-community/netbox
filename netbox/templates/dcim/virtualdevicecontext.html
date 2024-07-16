@@ -12,7 +12,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Virtual Device Context" %}</h5>
+      <h2 class="card-header">{% trans "Virtual Device Context" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Name" %}</th>
@@ -78,7 +78,7 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Interfaces" %}</h5>
+      <h2 class="card-header">{% trans "Interfaces" %}</h2>
       {% htmx_table 'dcim:interface_list' vdc_id=object.pk %}
     </div>
     {% plugin_full_width_page object %}
