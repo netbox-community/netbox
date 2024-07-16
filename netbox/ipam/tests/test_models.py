@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
-from utilities.data import string_to_range_array
+from utilities.data import string_to_ranges
 
 from ipam.choices import *
 from ipam.models import *
@@ -510,7 +510,7 @@ class TestVLANGroup(TestCase):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group 1',
             slug='vlan-group-1',
-            vid_ranges=string_to_range_array('100-199'),
+            vid_ranges=string_to_ranges('100-199'),
         )
         VLAN.objects.bulk_create((
             VLAN(name='VLAN 100', vid=100, group=vlangroup),

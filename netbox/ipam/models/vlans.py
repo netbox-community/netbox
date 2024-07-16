@@ -95,7 +95,7 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
-        # Validate vlan ranges
+        # Validate VID ranges
         if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 

@@ -8,7 +8,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
-from utilities.data import string_to_range_array
+from utilities.data import string_to_ranges
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
@@ -883,7 +883,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group X',
             slug='vlan-group-x',
-            vid_ranges=string_to_range_array(f"{MIN_VID}-{MAX_VID}")
+            vid_ranges=string_to_ranges(f"{MIN_VID}-{MAX_VID}")
         )
 
         # Create a set of VLANs within the group

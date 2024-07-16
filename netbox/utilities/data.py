@@ -11,7 +11,7 @@ __all__ = (
     'flatten_dict',
     'ranges_to_string',
     'shallow_compare_dict',
-    'string_to_range_array',
+    'string_to_ranges',
 )
 
 
@@ -121,14 +121,15 @@ def drange(start, end, step=decimal.Decimal(1)):
 
 def check_ranges_overlap(ranges):
     """
-    Check if array of ranges overlap
+    Check for overlap in an iterable of NumericRanges.
     """
-
-    # sort the ranges in increasing order
     ranges.sort(key=lambda x: x.lower)
 
     for i in range(1, len(ranges)):
-        if (ranges[i - 1].upper >= ranges[i].lower):
+        prev_range = ranges[i - 1]
+        prev_upper = prev_range.upper if prev_range.upper_inc else prev_range.upper - 1
+        lower = ranges[i].lower if ranges[i].lower_inc else ranges[i].lower + 1
+        if prev_upper >= lower:
             return True
 
     return False
@@ -136,8 +137,7 @@ def check_ranges_overlap(ranges):
 
 def ranges_to_string(ranges):
     """
-    Generate a human-friendly string from a set of ranges. Intended for use with ArrayField.
-    For example:
+    Generate a human-friendly string from a set of ranges. Intended for use with ArrayField. For example:
         [[1, 100)], [200, 300)] => "1-99,200-299"
     """
     if not ranges:
@@ -150,14 +150,15 @@ def ranges_to_string(ranges):
     return ','.join(output)
 
 
-def string_to_range_array(value):
+def string_to_ranges(value):
     """
-    Given a string in the format "1-100, 200-300" create an array of ranges. Intended for use with ArrayField.
+    Given a string in the format "1-100, 200-300" return an list of NumericRanges. Intended for use with ArrayField.
     For example:
         "1-99,200-299" => [NumericRange(1, 100), NumericRange(200, 300)]
     """
     if not value:
         return None
+    value.replace(' ', '')  # Remove whitespace
     values = []
     for dash_range in value.split(','):
         if '-' not in dash_range:
