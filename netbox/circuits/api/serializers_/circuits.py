@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.choices import CircuitStatusChoices
-from circuits.models import Circuit, CircuitTermination, CircuitType
+from circuits.models import Circuit, CircuitRedundancyGroup, CircuitTermination, CircuitType
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
@@ -12,6 +12,7 @@ from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, Pro
 
 __all__ = (
     'CircuitSerializer',
+    'CircuitRedundancyGroupSerializer',
     'CircuitTerminationSerializer',
     'CircuitTypeSerializer',
 )
@@ -75,3 +76,14 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
             'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'circuit', 'term_side', 'description', 'cable', '_occupied')
+
+
+class CircuitRedundancyGroupSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = CircuitRedundancyGroup
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name',
+            'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name',)

@@ -56,6 +56,16 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 #
+# Circuits
+#
+
+class CircuitRedundancyGroupViewSet(NetBoxModelViewSet):
+    queryset = CircuitRedundancyGroup.objects.all()
+    serializer_class = serializers.CircuitRedundancyGroupSerializer
+    filterset_class = filtersets.CircuitRedundancyGroupFilterSet
+
+
+#
 # Provider accounts
 #
 
