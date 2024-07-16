@@ -1,26 +1,32 @@
-// Navbar styling
+// Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
-  background-color: $rich-black;
-  .dropdown-item {
-    color: white!important;
-  }
-  .text-secondary {
-    color: $bright-teal!important;
-  }
 
+  // Background Gradient
+  background: linear-gradient(180deg, rgba(0, 133, 125, 0.00) 0%, rgba(0, 133, 125, 0.10) 100%), #FFF;
+
+  // Adjust hover color & style for menu items
   .navbar-collapse {
+    .nav-link-icon {
+      color: var(--tblr-nav-link-color)!important;
+    }
+    .text-secondary {
+      color: $dark-teal!important;
+    }
+
     .dropdown-menu {
+
+      // Adjust hover color & style for menu items
       .dropdown-item {
         a {
-          color: inherit;
+          color: $rich-black;
         }
         .btn-group {
           visibility: hidden;
         }
 
-        // Adjust hover color & style for menu items
+        // Style menu item hover state
         &:hover {
-          background-color: $gray-700;
+          background-color: var(--tblr-navbar-active-bg);
           a {
             text-decoration: none;
           }
@@ -31,9 +37,9 @@
 
         // Style active menu item
         &.active {
-          background-color: $gray-700;
+          background-color: var(--tblr-navbar-active-bg);
           a {
-            color: white;
+            color: $rich-black;
           }
           .btn-group {
             visibility: visible;
@@ -42,5 +48,39 @@
 
       }
     }
+  }
+}
+
+// Dark theme styling
+body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
+
+  // Background Gradient
+  background: linear-gradient(180deg, rgba(0, 242, 212, 0.00) 0%, rgba(0, 242, 212, 0.10) 100%), #001423;
+
+  // Border color for active dropdown list
+  .nav-item.dropdown.active:after {
+    border-color: $bright-teal!important;
+  }
+
+  // Adjust hover color & style for menu items
+  .dropdown-item {
+    a {
+      color: white!important;
+    }
+    &.active {
+      background-color: $navbar-dark-active-bg!important;
+      a {
+        color: white!important;
+      }
+    }
+    &:hover {
+      background-color: $navbar-dark-active-bg!important;
+    }
+    .nav-link-title {
+      color: white!important;
+    }
+  }
+  .text-secondary {
+    color: $bright-teal!important;
   }
 }

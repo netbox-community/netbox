@@ -19,7 +19,7 @@ Blocks:
   <div class="page">
 
     {# Sidebar #}
-    <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+    <aside class="navbar navbar-vertical navbar-expand-lg">
       <div class="container-fluid">
 
         {# Menu toggle (mobile view) #}
@@ -28,9 +28,10 @@ Blocks:
         </button>
 
         {# Logo #}
-        <h1 class="navbar-brand navbar-brand-autodark">
+        <h1 class="navbar-brand">
           <a href="{% url 'home' %}">
-            <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image">
+            <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
+            <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
           </a>
         </h1>
 
