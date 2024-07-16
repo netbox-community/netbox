@@ -7,6 +7,7 @@ from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = [
     'NestedCircuitSerializer',
+    'NestedCircuitRedundancyGroupSerializer',
     'NestedCircuitTerminationSerializer',
     'NestedCircuitTypeSerializer',
     'NestedProviderNetworkSerializer',
@@ -80,3 +81,10 @@ class NestedCircuitTerminationSerializer(WritableNestedSerializer):
     class Meta:
         model = CircuitTermination
         fields = ['id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'cable', '_occupied']
+
+
+class NestedCircuitRedundancyGroupSerializer(WritableNestedSerializer):
+
+    class Meta:
+        model = CircuitRedundancyGroup
+        fields = ['id', 'url', 'display_url', 'display', 'name']
