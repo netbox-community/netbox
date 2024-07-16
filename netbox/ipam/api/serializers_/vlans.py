@@ -6,7 +6,7 @@ from dcim.api.serializers_.sites import SiteSerializer
 from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup
-from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
@@ -32,6 +32,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
+    vid_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
 
     # Related object counts
@@ -40,8 +41,8 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid',
-            'max_vid', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vid_ranges',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []
