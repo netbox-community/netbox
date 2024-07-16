@@ -102,11 +102,6 @@
   }
 }
 
-// Fixes bug where user loads page on dark mode, switches to light mode but filter is not removed
-[data-bs-theme=dark] .navbar-brand-autodark .navbar-brand-image {
-  filter: none!important;
-}
-
 // Dark theme styling
 body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
 
@@ -138,11 +133,6 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
   }
   .text-secondary {
     color: $bright-teal!important;
-  }
-
-  // Override svg logo fill
-  .navbar-brand-autodark .navbar-brand-image {
-    filter: none!important;
   }
 
   // Navigation geometric graphic for non-community editions
@@ -150,39 +140,5 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
     img {
       opacity: .25;
     }
-  }
-}
-
-// Dark theme styling
-body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
-
-  // Background Gradient
-  background: linear-gradient(180deg, rgba(0, 242, 212, 0.00) 0%, rgba(0, 242, 212, 0.10) 100%), #001423;
-
-  // Border color for active dropdown list
-  .nav-item.dropdown.active:after {
-    border-color: $bright-teal!important;
-  }
-
-  // Adjust hover color & style for menu items
-  .dropdown-item {
-    a {
-      color: white!important;
-    }
-    &.active {
-      background-color: $navbar-dark-active-bg!important;
-      a {
-        color: white!important;
-      }
-    }
-    &:hover {
-      background-color: $navbar-dark-active-bg!important;
-    }
-    .nav-link-title {
-      color: white!important;
-    }
-  }
-  .text-secondary {
-    color: $bright-teal!important;
   }
 }
