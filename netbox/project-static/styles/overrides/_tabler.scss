@@ -49,7 +49,13 @@ table th.orderable a {
   @include color-mode(dark, true) {
     --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
     --#{$prefix}link-color: #{$bright-teal};
+    --#{$prefix}link-color-rgb: 0,242,212;
+    --#{$prefix}link-hover-color-rgb: 0,242,212;
     --#{$prefix}secondary: #{$gray-400};
+    --#{$prefix}primary: #{$bright-teal};
+    --#{$prefix}primary-fg: #{$rich-black};
+    --#{$prefix}primary-rgb: 0,242,212;
+    --#{$prefix}btn-active-color: #{$rich-black};
   }
 }
 
@@ -70,6 +76,22 @@ table th.orderable a {
   color: $rich-black!important;
 }
 
+// Add button focus state
+.btn:focus {
+  border: 1px solid var(--tblr-primary-fg);
+  outline: 2px solid var(--tblr-primary)!important;
+}
+
+// Fix secondary combo button contrast
+.btn-outline-secondary {
+  &.active {
+    color: var(--tblr-primary-fg);
+  }
+  &:hover {
+    color: var(--tblr-primary-fg);
+  }
+}
+
 // Dark mode overrides
 body[data-bs-theme=dark] {
 
@@ -86,6 +108,9 @@ body[data-bs-theme=dark] {
   table {
     a {
       color: $bright-teal;
+      &.dropdown-item {
+        color: inherit;
+      }
     }
     .badge a {
       color: inherit;
@@ -101,6 +126,9 @@ body[data-bs-theme=dark] {
 
   // Adjusting text colors
   .text- {
+    &bg-primary {
+      color: $rich-black!important;
+    }
     &muted {
       color: var(--#{$prefix}secondary-color) !important;
     }
