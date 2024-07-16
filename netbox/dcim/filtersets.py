@@ -301,8 +301,8 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
-    type = django_filters.MultipleChoiceFilter(
-        choices=RackTypeChoices
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
     )
     width = django_filters.MultipleChoiceFilter(
         choices=RackWidthChoices
@@ -389,8 +389,8 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         choices=RackStatusChoices,
         null_value=None
     )
-    type = django_filters.MultipleChoiceFilter(
-        choices=RackTypeChoices
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
     )
     width = django_filters.MultipleChoiceFilter(
         choices=RackWidthChoices

@@ -21,14 +21,8 @@
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Type" %}</th>
-            <td>
-              {% if object.type %}
-                {{ object.get_type_display }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <th scope="row">{% trans "Form factor" %}</th>
+            <td>{{ object.get_form_factor_display|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Description" %}</th>

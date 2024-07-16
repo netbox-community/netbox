@@ -211,7 +211,7 @@ class RackTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        FieldSet('manufacturer', 'name', 'slug', 'description', 'type', 'tags', name=_('Rack Type')),
+        FieldSet('manufacturer', 'name', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -224,9 +224,9 @@ class RackTypeForm(NetBoxModelForm):
     class Meta:
         model = RackType
         fields = [
-            'manufacturer', 'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
-            'comments', 'tags',
+            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+            'description', 'comments', 'tags',
         ]
 
 
@@ -261,7 +261,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
-            'rack_type', 'type', 'width', 'starting_unit', 'u_height',
+            'rack_type', 'form_factor', 'width', 'starting_unit', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth', 'desc_units', name=_('Dimensions')
@@ -272,8 +272,9 @@ class RackForm(TenancyForm, NetBoxModelForm):
         model = Rack
         fields = [
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'rack_type', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

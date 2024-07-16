@@ -39,8 +39,8 @@ class RackTypeSerializer(NetBoxModelSerializer):
     manufacturer = ManufacturerSerializer(
         nested=True
     )
-    type = ChoiceField(
-        choices=RackTypeChoices,
+    form_factor = ChoiceField(
+        choices=RackFormFactorChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -65,8 +65,8 @@ class RackTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = RackType
         fields = [
-            'id', 'url', 'display_url', 'display', 'manufacturer', 'name', 'slug', 'description', 'type', 'width',
-            'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
+            'id', 'url', 'display_url', 'display', 'manufacturer', 'name', 'slug', 'description', 'form_factor',
+            'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
             'max_weight', 'weight_unit', 'mounting_depth', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
@@ -79,7 +79,7 @@ class RackSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=RackStatusChoices, required=False)
     role = RackRoleSerializer(nested=True, required=False, allow_null=True)
-    type = ChoiceField(choices=RackTypeChoices, allow_blank=True, required=False, allow_null=True)
+    form_factor = ChoiceField(choices=RackFormFactorChoices, allow_blank=True, required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, allow_blank=True, allow_null=True, label=_('Facility ID'),
                                         default=None)
     rack_type = RackTypeSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -95,7 +95,7 @@ class RackSerializer(NetBoxModelSerializer):
         model = Rack
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status',
-            'role', 'serial', 'asset_tag', 'rack_type', 'type', 'width', 'u_height', 'starting_unit', 'weight',
+            'role', 'serial', 'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'weight',
             'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
             'powerfeed_count',

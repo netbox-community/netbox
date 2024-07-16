@@ -12,9 +12,9 @@ The [manufacturer](./manufacturer.md) which produces this type of rack.
 
 The unique name of the rack type.
 
-### Type
+### Form Factor
 
-A rack can be designated as one of the following types:
+A rack can be designated as one of the following form factors:
 
 * 2-post frame
 * 4-post frame

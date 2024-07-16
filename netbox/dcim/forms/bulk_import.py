@@ -184,11 +184,11 @@ class RackTypeImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('The manufacturer of this rack type')
     )
-    type = CSVChoiceField(
+    form_factor = CSVChoiceField(
         label=_('Type'),
-        choices=RackTypeChoices,
+        choices=RackFormFactorChoices,
         required=False,
-        help_text=_('Rack type')
+        help_text=_('Form factor')
     )
     starting_unit = forms.IntegerField(
         required=False,
@@ -216,9 +216,9 @@ class RackTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackType
         fields = (
-            'manufacturer', 'name', 'slug', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
-            'comments', 'tags',
+            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+            'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -256,11 +256,11 @@ class RackImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Name of assigned role')
     )
-    type = CSVChoiceField(
+    form_factor = CSVChoiceField(
         label=_('Type'),
-        choices=RackTypeChoices,
+        choices=RackFormFactorChoices,
         required=False,
-        help_text=_('Rack type')
+        help_text=_('Form factor')
     )
     width = forms.ChoiceField(
         label=_('Width'),
@@ -283,7 +283,7 @@ class RackImportForm(NetBoxModelImportForm):
     class Meta:
         model = Rack
         fields = (
-            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
+            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'form_factor', 'serial', 'asset_tag',
             'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
             'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )

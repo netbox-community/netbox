@@ -73,14 +73,8 @@
             <h5 class="card-header">{% trans "Dimensions" %}</h5>
             <table class="table table-hover attr-table">
                 <tr>
-                    <th scope="row">{% trans "Type" %}</th>
-                    <td>
-                        {% if object.type %}
-                            {{ object.get_type_display }}
-                        {% else %}
-                            {{ ''|placeholder }}
-                        {% endif %}
-                    </td>
+                    <th scope="row">{% trans "Form factor" %}</th>
+                    <td>{{ object.get_form_factor_display|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Width" %}</th>

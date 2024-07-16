@@ -67,11 +67,11 @@ class RackType(WeightMixin, PrimaryModel):
         max_length=100,
         unique=True
     )
-    type = models.CharField(
-        choices=RackTypeChoices,
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
         max_length=50,
         blank=True,
-        verbose_name=_('type')
+        verbose_name=_('form factor')
     )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
@@ -136,7 +136,7 @@ class RackType(WeightMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'manufacturer', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
         'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -181,8 +181,8 @@ class RackType(WeightMixin, PrimaryModel):
         super().save(*args, **kwargs)
         if update:
             # Update all racks associated with this rack_type
-            self.instances.all().update(
-                type=self.type,
+            self.instances.update(
+                form_factor=self.form_factor,
                 width=self.width,
                 u_height=self.u_height,
                 starting_unit=self.starting_unit,
@@ -302,11 +302,11 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
     )
-    type = models.CharField(
-        choices=RackTypeChoices,
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
         max_length=50,
         blank=True,
-        verbose_name=_('type')
+        verbose_name=_('form factor')
     )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
@@ -379,7 +379,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -460,7 +460,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def save(self, *args, **kwargs):
         if (not self.pk) and self.rack_type:
-            self.type = self.rack_type.type
+            self.form_factor = self.rack_type.form_factor
             self.width = self.rack_type.width
             self.u_height = self.rack_type.u_height
             self.starting_unit = self.rack_type.starting_unit

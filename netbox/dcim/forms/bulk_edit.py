@@ -225,9 +225,9 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(RackTypeChoices),
+    form_factor = forms.ChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
         required=False
     )
     width = forms.ChoiceField(
@@ -293,7 +293,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackType
     fieldsets = (
-        FieldSet('manufacturer', 'description', 'type', name=_('Rack Type')),
+        FieldSet('manufacturer', 'description', 'form_factor', name=_('Rack Type')),
         FieldSet(
             'width',
             'u_height',
@@ -370,9 +370,9 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         max_length=50,
         required=False
     )
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(RackTypeChoices),
+    form_factor = forms.ChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
         required=False
     )
     width = forms.ChoiceField(
@@ -437,8 +437,8 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet(
-            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
-            name=_('Hardware')
+            'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', name=_('Hardware')
         ),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )

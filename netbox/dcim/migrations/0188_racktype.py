@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                 ),
                 ),
                 ('slug', models.SlugField(max_length=100, unique=True)),
-                ('type', models.CharField(blank=True, max_length=50)),
+                ('form_factor', models.CharField(blank=True, max_length=50)),
                 ('width', models.PositiveSmallIntegerField(default=19)),
                 ('u_height', models.PositiveSmallIntegerField(
                     default=42,
@@ -73,6 +73,11 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'racktypes',
                 'ordering': ('_name', 'pk'),
             },
+        ),
+        migrations.RenameField(
+            model_name='rack',
+            old_name='type',
+            new_name='form_factor',
         ),
         migrations.AddField(
             model_name='rack',

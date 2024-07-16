@@ -245,7 +245,7 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('type', 'width', 'u_height', 'starting_unit', name=_('Rack Type')),
+        FieldSet('form_factor', 'width', 'u_height', 'starting_unit', name=_('Rack Type')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
@@ -254,9 +254,9 @@ class RackTypeFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Manufacturer')
     )
-    type = forms.MultipleChoiceField(
-        label=_('Type'),
-        choices=RackTypeChoices,
+    form_factor = forms.MultipleChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
         required=False
     )
     width = forms.MultipleChoiceField(
@@ -303,7 +303,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('status', 'role_id', name=_('Function')),
-        FieldSet('type', 'width', 'serial', 'asset_tag', name=_('Hardware')),
+        FieldSet('form_factor', 'width', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
@@ -341,9 +341,9 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         choices=RackStatusChoices,
         required=False
     )
-    type = forms.MultipleChoiceField(
-        label=_('Type'),
-        choices=RackTypeChoices,
+    form_factor = forms.MultipleChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
         required=False
     )
     width = forms.MultipleChoiceField(

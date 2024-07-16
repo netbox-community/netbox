@@ -91,7 +91,7 @@ class RackTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackType
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'type', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'pk', 'id', 'name', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
             'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments', 'tags', 'created',
             'last_updated',
         )
@@ -170,9 +170,9 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
-            'asset_tag', 'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
-            'weight', 'max_weight', 'comments', 'device_count', 'get_utilization', 'get_power_utilization',
-            'description', 'contacts', 'tags', 'created', 'last_updated',
+            'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth',
+            'mounting_depth', 'weight', 'max_weight', 'comments', 'device_count', 'get_utilization',
+            'get_power_utilization', 'description', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

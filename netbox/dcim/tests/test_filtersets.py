@@ -486,7 +486,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 manufacturer=manufacturers[0],
                 name='RackType 1',
                 slug='rack-type-1',
-                type=RackTypeChoices.TYPE_2POST,
+                form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
                 u_height=42,
                 starting_unit=1,
@@ -504,7 +504,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 manufacturer=manufacturers[1],
                 name='RackType 2',
                 slug='rack-type-2',
-                type=RackTypeChoices.TYPE_4POST,
+                form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
                 u_height=43,
                 starting_unit=2,
@@ -522,7 +522,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 manufacturer=manufacturers[2],
                 name='RackType 3',
                 slug='rack-type-3',
-                type=RackTypeChoices.TYPE_CABINET,
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
                 u_height=44,
                 starting_unit=3,
@@ -562,8 +562,8 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [RackTypeChoices.TYPE_2POST, RackTypeChoices.TYPE_4POST]}
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_width(self):
@@ -686,7 +686,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[0],
                 serial='ABC',
                 asset_tag='1001',
-                type=RackTypeChoices.TYPE_2POST,
+                form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
                 u_height=42,
                 desc_units=False,
@@ -708,7 +708,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[1],
                 serial='DEF',
                 asset_tag='1002',
-                type=RackTypeChoices.TYPE_4POST,
+                form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
                 u_height=43,
                 desc_units=False,
@@ -730,7 +730,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[2],
                 serial='GHI',
                 asset_tag='1003',
-                type=RackTypeChoices.TYPE_CABINET,
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
                 u_height=44,
                 desc_units=True,
@@ -765,8 +765,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [RackTypeChoices.TYPE_2POST, RackTypeChoices.TYPE_4POST]}
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_width(self):
