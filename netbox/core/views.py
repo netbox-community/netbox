@@ -4,7 +4,6 @@ import json
 import platform
 import requests
 
-from datetime import datetime, timezone
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
@@ -30,10 +29,12 @@ from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
 from netbox.config import get_config, PARAMS
+from netbox.plugins import PluginConfig
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.data import shallow_compare_dict
+from utilities.datetime import datetime_from_timestamp
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.query import count_related
@@ -720,8 +721,8 @@ def get_catalog_plugins(plugins):
                     'tag_line': data['tag_line'],
                     'description_short': data['description_short'],
                     'author': data['author']['name'] or _('Unknown Author'),
-                    'created': datetime.fromisoformat(data['created_at']),
-                    'updated': datetime.fromisoformat(data['updated_at']),
+                    'created': datetime_from_timestamp(data['created_at']),
+                    'updated': datetime_from_timestamp(data['updated_at']),
                     'is_local': False,
                     'is_installed': False,
                     'is_certified': data['release_latest']['is_certified'],
