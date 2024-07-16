@@ -263,12 +263,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
-    # Fields which cannot be set locally if a RackType is assigned
-    RACKTYPE_FIELDS = [
-        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-        'mounting_depth', 'weight', 'weight_unit', 'max_weight'
-    ]
-
     class Meta:
         model = Rack
         fields = [
@@ -290,7 +284,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
 
         # Omit RackType-defined fields if rack_type is set
         if get_field_value(self, 'rack_type'):
-            for field_name in self.RACKTYPE_FIELDS:
+            for field_name in Rack.RACKTYPE_FIELDS:
                 del self.fields[field_name]
         else:
             self.fieldsets = (

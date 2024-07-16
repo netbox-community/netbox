@@ -41,7 +41,6 @@ class RackBase(WeightMixin, PrimaryModel):
     """
     Base class for RackType & Rack. Holds
     """
-    # Rack type
     form_factor = models.CharField(
         choices=RackFormFactorChoices,
         max_length=50,
@@ -177,8 +176,6 @@ class RackType(RackBase):
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
     def save(self, *args, **kwargs):
-        update = self.pk
-
         # Store the given max weight (if any) in grams for use in database ordering
         if self.max_weight and self.weight_unit:
             self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
@@ -190,22 +187,12 @@ class RackType(RackBase):
             self.outer_unit = ''
 
         super().save(*args, **kwargs)
-        if update:
-            # Update all racks associated with this rack_type
-            self.instances.update(
-                form_factor=self.form_factor,
-                width=self.width,
-                u_height=self.u_height,
-                starting_unit=self.starting_unit,
-                desc_units=self.desc_units,
-                outer_width=self.outer_width,
-                outer_depth=self.outer_depth,
-                outer_unit=self.outer_unit,
-                weight=self.weight,
-                weight_unit=self.weight_unit,
-                max_weight=self.max_weight,
-                mounting_depth=self.mounting_depth
-            )
+
+        # Update all Racks associated with this RackType
+        for rack in self.racks.all():
+            rack.snapshot()
+            rack.copy_racktype_attrs()
+            rack.save()
 
     @property
     def units(self):
@@ -244,10 +231,16 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
+    # Fields which cannot be set locally if a RackType is assigned
+    RACKTYPE_FIELDS = [
+        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+        'mounting_depth', 'weight', 'weight_unit', 'max_weight'
+    ]
+
     rack_type = models.ForeignKey(
         to='dcim.RackType',
         on_delete=models.PROTECT,
-        related_name='instances',
+        related_name='racks',
         blank=True,
         null=True,
     )
@@ -396,19 +389,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
                     })
 
     def save(self, *args, **kwargs):
-        if (not self.pk) and self.rack_type:
-            self.form_factor = self.rack_type.form_factor
-            self.width = self.rack_type.width
-            self.u_height = self.rack_type.u_height
-            self.starting_unit = self.rack_type.starting_unit
-            self.desc_units = self.rack_type.desc_units
-            self.outer_width = self.rack_type.outer_width
-            self.outer_depth = self.rack_type.outer_depth
-            self.outer_unit = self.rack_type.outer_unit
-            self.weight = self.rack_type.weight
-            self.weight_unit = self.rack_type.weight_unit
-            self.max_weight = self.rack_type.max_weight
-            self.mounting_depth = self.rack_type.mounting_depth
+        self.copy_racktype_attrs()
 
         # Store the given max weight (if any) in grams for use in database ordering
         if self.max_weight and self.weight_unit:
@@ -421,6 +402,14 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             self.outer_unit = ''
 
         super().save(*args, **kwargs)
+
+    def copy_racktype_attrs(self):
+        """
+        Copy physical attributes from the assigned RackType (if any).
+        """
+        if self.rack_type:
+            for field_name in self.RACKTYPE_FIELDS:
+                setattr(self, field_name, getattr(self.rack_type, field_name))
 
     @property
     def units(self):

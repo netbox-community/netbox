@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
-                related_name='instances',
+                related_name='racks',
                 to='dcim.racktype',
             ),
         ),
