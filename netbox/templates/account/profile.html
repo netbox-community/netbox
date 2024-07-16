@@ -9,7 +9,7 @@
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Account Details" %}</h5>
+        <h2 class="card-header">{% trans "Account Details" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Username" %}</th>
@@ -50,7 +50,7 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
+        <h2 class="card-header">{% trans "Assigned Groups" %}</h2>
         <ul class="list-group list-group-flush">
           {% for group in request.user.groups.all %}
             <li class="list-group-item">{{ group }}</li>
@@ -65,7 +65,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
-          <h5 class="card-header text-center">{% trans "Recent Activity" %}</h5>
+          <h2 class="card-header text-center">{% trans "Recent Activity" %}</h2>
           <div class="table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
           </div>

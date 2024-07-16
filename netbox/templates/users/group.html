@@ -11,7 +11,7 @@
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Group" %}</h5>
+        <h2 class="card-header">{% trans "Group" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -26,7 +26,7 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Users" %}</h5>
+        <h2 class="card-header">{% trans "Users" %}</h2>
         <div class="list-group list-group-flush">
           {% for user in object.users.all %}
             <a href="{% url 'users:user' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
+        <h2 class="card-header">{% trans "Assigned Permissions" %}</h2>
         <div class="list-group list-group-flush">
           {% for perm in object.object_permissions.all %}
             <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>

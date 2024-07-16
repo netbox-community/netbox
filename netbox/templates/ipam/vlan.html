@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">{% trans "VLAN" %}</h5>
+                <h2 class="card-header">{% trans "VLAN" %}</h2>
                 <table class="table table-hover attr-table">
                     {% if object.site.region %}
                         <tr>
@@ -80,7 +80,7 @@
     <div class="row">
       <div class="col col-md-12">
         <div class="card">
-          <h5 class="card-header">
+          <h2 class="card-header">
             {% trans "Prefixes" %}
             {% if perms.ipam.add_prefix %}
               <div class="card-actions">
@@ -89,7 +89,7 @@
                 </a>
               </div>
             {% endif %}
-          </h5>
+          </h2>
           {% htmx_table 'ipam:prefix_list' vlan_id=object.pk %}
         </div>
         {% plugin_full_width_page object %}

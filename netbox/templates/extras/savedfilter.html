@@ -7,7 +7,7 @@
 <div class="row mb-3">
 	<div class="col col-md-5">
     <div class="card">
-      <h5 class="card-header">{% trans "Saved Filter" %}</h5>
+      <h2 class="card-header">{% trans "Saved Filter" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Name" %}</th>
@@ -36,7 +36,7 @@
       </table>
     </div>
     <div class="card">
-      <h5 class="card-header">{% trans "Assigned Models" %}</h5>
+      <h2 class="card-header">{% trans "Assigned Models" %}</h2>
       <table class="table table-hover attr-table">
         {% for object_type in object.object_types.all %}
           <tr>
@@ -49,9 +49,7 @@
 	</div>
 	<div class="col col-md-7">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Parameters" %}
-      </h5>
+      <h2 class="card-header">{% trans "Parameters" %}</h2>
       <div class="card-body">
         <pre>{{ object.parameters|json }}</pre>
       </div>
