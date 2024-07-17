@@ -5,6 +5,12 @@ from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg
 from utilities.querysets import RestrictedQuerySet
 
+__all__ = (
+    'ConfigContextModelQuerySet',
+    'ConfigContextQuerySet',
+    'NotificationQuerySet',
+)
+
 
 class ConfigContextQuerySet(RestrictedQuerySet):
 
@@ -145,3 +151,12 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         )
 
         return base_query
+
+
+class NotificationQuerySet(RestrictedQuerySet):
+
+    def unread(self):
+        """
+        Return only unread notifications.
+        """
+        return self.filter(read__isnull=True)

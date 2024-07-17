@@ -51,7 +51,7 @@ class LocationStatusChoices(ChoiceSet):
 # Racks
 #
 
-class RackTypeChoices(ChoiceSet):
+class RackFormFactorChoices(ChoiceSet):
 
     TYPE_2POST = '2-post-frame'
     TYPE_4POST = '4-post-frame'

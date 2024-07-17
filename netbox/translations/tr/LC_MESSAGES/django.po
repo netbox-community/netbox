@@ -6,15 +6,16 @@
 # Translators:
 # Burak Senturk, 2024
 # Jeremy Stretch, 2024
+# Hamdi Suat Aknar, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-22 05:02+0000\n"
+"POT-Creation-Date: 2024-07-09 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Hamdi Suat Aknar, 2024\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -112,8 +113,8 @@ msgstr "Hizmet dışı bırakıldı"
 #: netbox/dcim/filtersets.py:97 netbox/dcim/filtersets.py:151
 #: netbox/dcim/filtersets.py:211 netbox/dcim/filtersets.py:297
 #: netbox/dcim/filtersets.py:406 netbox/dcim/filtersets.py:969
-#: netbox/dcim/filtersets.py:1305 netbox/dcim/filtersets.py:1832
-#: netbox/dcim/filtersets.py:2075 netbox/dcim/filtersets.py:2133
+#: netbox/dcim/filtersets.py:1316 netbox/dcim/filtersets.py:1843
+#: netbox/dcim/filtersets.py:2086 netbox/dcim/filtersets.py:2144
 #: netbox/ipam/filtersets.py:339 netbox/ipam/filtersets.py:945
 #: netbox/virtualization/filtersets.py:45
 #: netbox/virtualization/filtersets.py:173 netbox/vpn/filtersets.py:377
@@ -124,8 +125,8 @@ msgstr "Bölge (ID)"
 #: netbox/dcim/filtersets.py:104 netbox/dcim/filtersets.py:157
 #: netbox/dcim/filtersets.py:218 netbox/dcim/filtersets.py:304
 #: netbox/dcim/filtersets.py:413 netbox/dcim/filtersets.py:976
-#: netbox/dcim/filtersets.py:1312 netbox/dcim/filtersets.py:1839
-#: netbox/dcim/filtersets.py:2082 netbox/dcim/filtersets.py:2140
+#: netbox/dcim/filtersets.py:1323 netbox/dcim/filtersets.py:1850
+#: netbox/dcim/filtersets.py:2093 netbox/dcim/filtersets.py:2151
 #: netbox/extras/filtersets.py:461 netbox/ipam/filtersets.py:346
 #: netbox/ipam/filtersets.py:952 netbox/virtualization/filtersets.py:52
 #: netbox/virtualization/filtersets.py:180 netbox/vpn/filtersets.py:372
@@ -135,9 +136,9 @@ msgstr "Bölge (kısa ad)"
 #: netbox/circuits/filtersets.py:42 netbox/circuits/filtersets.py:209
 #: netbox/dcim/filtersets.py:127 netbox/dcim/filtersets.py:224
 #: netbox/dcim/filtersets.py:310 netbox/dcim/filtersets.py:419
-#: netbox/dcim/filtersets.py:982 netbox/dcim/filtersets.py:1318
-#: netbox/dcim/filtersets.py:1845 netbox/dcim/filtersets.py:2088
-#: netbox/dcim/filtersets.py:2146 netbox/ipam/filtersets.py:352
+#: netbox/dcim/filtersets.py:982 netbox/dcim/filtersets.py:1329
+#: netbox/dcim/filtersets.py:1856 netbox/dcim/filtersets.py:2099
+#: netbox/dcim/filtersets.py:2157 netbox/ipam/filtersets.py:352
 #: netbox/ipam/filtersets.py:958 netbox/virtualization/filtersets.py:58
 #: netbox/virtualization/filtersets.py:186
 msgid "Site group (ID)"
@@ -146,9 +147,9 @@ msgstr "Site grubu (ID)"
 #: netbox/circuits/filtersets.py:49 netbox/circuits/filtersets.py:216
 #: netbox/dcim/filtersets.py:134 netbox/dcim/filtersets.py:231
 #: netbox/dcim/filtersets.py:317 netbox/dcim/filtersets.py:426
-#: netbox/dcim/filtersets.py:989 netbox/dcim/filtersets.py:1325
-#: netbox/dcim/filtersets.py:1852 netbox/dcim/filtersets.py:2095
-#: netbox/dcim/filtersets.py:2153 netbox/extras/filtersets.py:467
+#: netbox/dcim/filtersets.py:989 netbox/dcim/filtersets.py:1336
+#: netbox/dcim/filtersets.py:1863 netbox/dcim/filtersets.py:2106
+#: netbox/dcim/filtersets.py:2164 netbox/extras/filtersets.py:467
 #: netbox/ipam/filtersets.py:359 netbox/ipam/filtersets.py:965
 #: netbox/virtualization/filtersets.py:65
 #: netbox/virtualization/filtersets.py:193
@@ -157,7 +158,7 @@ msgstr "Site grubu (kısa ad)"
 
 #: netbox/circuits/filtersets.py:54 netbox/circuits/forms/bulk_edit.py:186
 #: netbox/circuits/forms/bulk_edit.py:214
-#: netbox/circuits/forms/bulk_import.py:126
+#: netbox/circuits/forms/bulk_import.py:123
 #: netbox/circuits/forms/filtersets.py:49
 #: netbox/circuits/forms/filtersets.py:169
 #: netbox/circuits/forms/filtersets.py:207
@@ -166,15 +167,15 @@ msgstr "Site grubu (kısa ad)"
 #: netbox/circuits/tables/circuits.py:107 netbox/dcim/forms/bulk_edit.py:167
 #: netbox/dcim/forms/bulk_edit.py:239 netbox/dcim/forms/bulk_edit.py:575
 #: netbox/dcim/forms/bulk_edit.py:771 netbox/dcim/forms/bulk_import.py:130
-#: netbox/dcim/forms/bulk_import.py:184 netbox/dcim/forms/bulk_import.py:257
-#: netbox/dcim/forms/bulk_import.py:485 netbox/dcim/forms/bulk_import.py:1262
-#: netbox/dcim/forms/bulk_import.py:1290 netbox/dcim/forms/filtersets.py:85
-#: netbox/dcim/forms/filtersets.py:218 netbox/dcim/forms/filtersets.py:265
-#: netbox/dcim/forms/filtersets.py:374 netbox/dcim/forms/filtersets.py:682
-#: netbox/dcim/forms/filtersets.py:916 netbox/dcim/forms/filtersets.py:940
-#: netbox/dcim/forms/filtersets.py:1030 netbox/dcim/forms/filtersets.py:1068
-#: netbox/dcim/forms/filtersets.py:1476 netbox/dcim/forms/filtersets.py:1500
-#: netbox/dcim/forms/filtersets.py:1524 netbox/dcim/forms/model_forms.py:136
+#: netbox/dcim/forms/bulk_import.py:181 netbox/dcim/forms/bulk_import.py:254
+#: netbox/dcim/forms/bulk_import.py:479 netbox/dcim/forms/bulk_import.py:1250
+#: netbox/dcim/forms/bulk_import.py:1278 netbox/dcim/forms/filtersets.py:86
+#: netbox/dcim/forms/filtersets.py:219 netbox/dcim/forms/filtersets.py:266
+#: netbox/dcim/forms/filtersets.py:375 netbox/dcim/forms/filtersets.py:684
+#: netbox/dcim/forms/filtersets.py:928 netbox/dcim/forms/filtersets.py:952
+#: netbox/dcim/forms/filtersets.py:1042 netbox/dcim/forms/filtersets.py:1080
+#: netbox/dcim/forms/filtersets.py:1488 netbox/dcim/forms/filtersets.py:1512
+#: netbox/dcim/forms/filtersets.py:1536 netbox/dcim/forms/model_forms.py:136
 #: netbox/dcim/forms/model_forms.py:164 netbox/dcim/forms/model_forms.py:206
 #: netbox/dcim/forms/model_forms.py:406 netbox/dcim/forms/model_forms.py:671
 #: netbox/dcim/forms/object_create.py:391 netbox/dcim/tables/devices.py:150
@@ -273,8 +274,8 @@ msgstr "Devre tipi (kısa ad)"
 #: netbox/circuits/filtersets.py:221 netbox/circuits/filtersets.py:266
 #: netbox/dcim/filtersets.py:235 netbox/dcim/filtersets.py:321
 #: netbox/dcim/filtersets.py:394 netbox/dcim/filtersets.py:993
-#: netbox/dcim/filtersets.py:1330 netbox/dcim/filtersets.py:1857
-#: netbox/dcim/filtersets.py:2099 netbox/dcim/filtersets.py:2158
+#: netbox/dcim/filtersets.py:1341 netbox/dcim/filtersets.py:1868
+#: netbox/dcim/filtersets.py:2110 netbox/dcim/filtersets.py:2169
 #: netbox/ipam/filtersets.py:232 netbox/ipam/filtersets.py:363
 #: netbox/ipam/filtersets.py:969 netbox/virtualization/filtersets.py:69
 #: netbox/virtualization/filtersets.py:197 netbox/vpn/filtersets.py:387
@@ -287,7 +288,7 @@ msgstr "Fesih A (ID)"
 
 #: netbox/circuits/filtersets.py:258 netbox/core/filtersets.py:73
 #: netbox/core/filtersets.py:132 netbox/dcim/filtersets.py:693
-#: netbox/dcim/filtersets.py:1299 netbox/dcim/filtersets.py:2206
+#: netbox/dcim/filtersets.py:1310 netbox/dcim/filtersets.py:2217
 #: netbox/extras/filtersets.py:41 netbox/extras/filtersets.py:63
 #: netbox/extras/filtersets.py:92 netbox/extras/filtersets.py:127
 #: netbox/extras/filtersets.py:176 netbox/extras/filtersets.py:204
@@ -304,11 +305,12 @@ msgstr "Fesih A (ID)"
 #: netbox/tenancy/filtersets.py:100 netbox/users/filtersets.py:23
 #: netbox/users/filtersets.py:52 netbox/users/filtersets.py:92
 #: netbox/users/filtersets.py:140 netbox/utilities/forms/forms.py:104
+#: netbox/utilities/templates/navigation/menu.html:16
 msgid "Search"
 msgstr "Arama"
 
 #: netbox/circuits/filtersets.py:262 netbox/circuits/forms/bulk_edit.py:170
-#: netbox/circuits/forms/bulk_import.py:117
+#: netbox/circuits/forms/bulk_import.py:114
 #: netbox/circuits/forms/filtersets.py:196
 #: netbox/circuits/forms/filtersets.py:212
 #: netbox/circuits/forms/model_forms.py:109
@@ -329,9 +331,9 @@ msgstr "Sağlayıcı Ağı (ID)"
 #: netbox/circuits/forms/filtersets.py:54
 #: netbox/circuits/forms/model_forms.py:27
 #: netbox/circuits/tables/providers.py:33 netbox/dcim/forms/bulk_edit.py:127
-#: netbox/dcim/forms/filtersets.py:188 netbox/dcim/forms/model_forms.py:122
+#: netbox/dcim/forms/filtersets.py:189 netbox/dcim/forms/model_forms.py:122
 #: netbox/dcim/tables/sites.py:94 netbox/ipam/models/asns.py:126
-#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:210
+#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:213
 #: netbox/netbox/navigation/menu.py:159 netbox/netbox/navigation/menu.py:162
 #: netbox/templates/circuits/provider.html:23
 msgid "ASNs"
@@ -469,7 +471,7 @@ msgstr "Açıklama"
 #: netbox/circuits/forms/bulk_edit.py:121
 #: netbox/circuits/forms/bulk_import.py:35
 #: netbox/circuits/forms/bulk_import.py:50
-#: netbox/circuits/forms/bulk_import.py:76
+#: netbox/circuits/forms/bulk_import.py:73
 #: netbox/circuits/forms/filtersets.py:68
 #: netbox/circuits/forms/filtersets.py:86
 #: netbox/circuits/forms/filtersets.py:114
@@ -502,8 +504,8 @@ msgstr "Servis ID"
 #: netbox/circuits/forms/filtersets.py:105 netbox/dcim/forms/bulk_edit.py:205
 #: netbox/dcim/forms/bulk_edit.py:502 netbox/dcim/forms/bulk_edit.py:702
 #: netbox/dcim/forms/bulk_edit.py:1071 netbox/dcim/forms/bulk_edit.py:1098
-#: netbox/dcim/forms/bulk_edit.py:1571 netbox/dcim/forms/filtersets.py:983
-#: netbox/dcim/forms/filtersets.py:1359 netbox/dcim/forms/filtersets.py:1380
+#: netbox/dcim/forms/bulk_edit.py:1571 netbox/dcim/forms/filtersets.py:995
+#: netbox/dcim/forms/filtersets.py:1371 netbox/dcim/forms/filtersets.py:1392
 #: netbox/dcim/tables/devices.py:687 netbox/dcim/tables/devices.py:744
 #: netbox/dcim/tables/devices.py:968 netbox/dcim/tables/devicetypes.py:245
 #: netbox/dcim/tables/devicetypes.py:260 netbox/dcim/tables/racks.py:32
@@ -519,7 +521,7 @@ msgid "Color"
 msgstr "Renk"
 
 #: netbox/circuits/forms/bulk_edit.py:116
-#: netbox/circuits/forms/bulk_import.py:89
+#: netbox/circuits/forms/bulk_import.py:86
 #: netbox/circuits/forms/filtersets.py:124 netbox/core/forms/bulk_edit.py:18
 #: netbox/core/forms/filtersets.py:30 netbox/core/tables/data.py:20
 #: netbox/core/tables/jobs.py:18 netbox/dcim/forms/bulk_edit.py:282
@@ -527,17 +529,17 @@ msgstr "Renk"
 #: netbox/dcim/forms/bulk_edit.py:887 netbox/dcim/forms/bulk_edit.py:906
 #: netbox/dcim/forms/bulk_edit.py:929 netbox/dcim/forms/bulk_edit.py:971
 #: netbox/dcim/forms/bulk_edit.py:1015 netbox/dcim/forms/bulk_edit.py:1066
-#: netbox/dcim/forms/bulk_edit.py:1093 netbox/dcim/forms/bulk_import.py:214
-#: netbox/dcim/forms/bulk_import.py:653 netbox/dcim/forms/bulk_import.py:679
-#: netbox/dcim/forms/bulk_import.py:705 netbox/dcim/forms/bulk_import.py:725
-#: netbox/dcim/forms/bulk_import.py:808 netbox/dcim/forms/bulk_import.py:902
-#: netbox/dcim/forms/bulk_import.py:944 netbox/dcim/forms/bulk_import.py:1161
-#: netbox/dcim/forms/bulk_import.py:1327 netbox/dcim/forms/filtersets.py:287
-#: netbox/dcim/forms/filtersets.py:874 netbox/dcim/forms/filtersets.py:973
-#: netbox/dcim/forms/filtersets.py:1094 netbox/dcim/forms/filtersets.py:1164
-#: netbox/dcim/forms/filtersets.py:1186 netbox/dcim/forms/filtersets.py:1208
-#: netbox/dcim/forms/filtersets.py:1225 netbox/dcim/forms/filtersets.py:1259
-#: netbox/dcim/forms/filtersets.py:1354 netbox/dcim/forms/filtersets.py:1375
+#: netbox/dcim/forms/bulk_edit.py:1093 netbox/dcim/forms/bulk_import.py:211
+#: netbox/dcim/forms/bulk_import.py:647 netbox/dcim/forms/bulk_import.py:673
+#: netbox/dcim/forms/bulk_import.py:699 netbox/dcim/forms/bulk_import.py:719
+#: netbox/dcim/forms/bulk_import.py:802 netbox/dcim/forms/bulk_import.py:896
+#: netbox/dcim/forms/bulk_import.py:938 netbox/dcim/forms/bulk_import.py:1152
+#: netbox/dcim/forms/bulk_import.py:1315 netbox/dcim/forms/filtersets.py:288
+#: netbox/dcim/forms/filtersets.py:886 netbox/dcim/forms/filtersets.py:985
+#: netbox/dcim/forms/filtersets.py:1106 netbox/dcim/forms/filtersets.py:1176
+#: netbox/dcim/forms/filtersets.py:1198 netbox/dcim/forms/filtersets.py:1220
+#: netbox/dcim/forms/filtersets.py:1237 netbox/dcim/forms/filtersets.py:1271
+#: netbox/dcim/forms/filtersets.py:1366 netbox/dcim/forms/filtersets.py:1387
 #: netbox/dcim/forms/model_forms.py:646 netbox/dcim/forms/model_forms.py:652
 #: netbox/dcim/forms/object_import.py:84
 #: netbox/dcim/forms/object_import.py:113
@@ -576,14 +578,14 @@ msgid "Type"
 msgstr "Tür"
 
 #: netbox/circuits/forms/bulk_edit.py:126
-#: netbox/circuits/forms/bulk_import.py:82
+#: netbox/circuits/forms/bulk_import.py:79
 #: netbox/circuits/forms/filtersets.py:137
 #: netbox/circuits/forms/model_forms.py:96
 msgid "Provider account"
 msgstr "Sağlayıcı hesabı"
 
 #: netbox/circuits/forms/bulk_edit.py:134
-#: netbox/circuits/forms/bulk_import.py:95
+#: netbox/circuits/forms/bulk_import.py:92
 #: netbox/circuits/forms/filtersets.py:148 netbox/core/forms/filtersets.py:35
 #: netbox/core/forms/filtersets.py:76 netbox/core/tables/data.py:23
 #: netbox/core/tables/jobs.py:26 netbox/core/tables/tasks.py:88
@@ -592,13 +594,13 @@ msgstr "Sağlayıcı hesabı"
 #: netbox/dcim/forms/bulk_edit.py:654 netbox/dcim/forms/bulk_edit.py:686
 #: netbox/dcim/forms/bulk_edit.py:813 netbox/dcim/forms/bulk_edit.py:1594
 #: netbox/dcim/forms/bulk_import.py:87 netbox/dcim/forms/bulk_import.py:146
-#: netbox/dcim/forms/bulk_import.py:202 netbox/dcim/forms/bulk_import.py:450
-#: netbox/dcim/forms/bulk_import.py:604 netbox/dcim/forms/bulk_import.py:1155
-#: netbox/dcim/forms/bulk_import.py:1322 netbox/dcim/forms/bulk_import.py:1386
-#: netbox/dcim/forms/filtersets.py:171 netbox/dcim/forms/filtersets.py:230
-#: netbox/dcim/forms/filtersets.py:282 netbox/dcim/forms/filtersets.py:728
-#: netbox/dcim/forms/filtersets.py:843 netbox/dcim/forms/filtersets.py:877
-#: netbox/dcim/forms/filtersets.py:978 netbox/dcim/forms/filtersets.py:1089
+#: netbox/dcim/forms/bulk_import.py:199 netbox/dcim/forms/bulk_import.py:444
+#: netbox/dcim/forms/bulk_import.py:598 netbox/dcim/forms/bulk_import.py:1146
+#: netbox/dcim/forms/bulk_import.py:1310 netbox/dcim/forms/bulk_import.py:1374
+#: netbox/dcim/forms/filtersets.py:172 netbox/dcim/forms/filtersets.py:231
+#: netbox/dcim/forms/filtersets.py:283 netbox/dcim/forms/filtersets.py:730
+#: netbox/dcim/forms/filtersets.py:855 netbox/dcim/forms/filtersets.py:889
+#: netbox/dcim/forms/filtersets.py:990 netbox/dcim/forms/filtersets.py:1101
 #: netbox/dcim/tables/devices.py:137 netbox/dcim/tables/devices.py:800
 #: netbox/dcim/tables/devices.py:1028 netbox/dcim/tables/modules.py:69
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:66
@@ -616,7 +618,7 @@ msgstr "Sağlayıcı hesabı"
 #: netbox/templates/circuits/circuit.html:34
 #: netbox/templates/core/datasource.html:46 netbox/templates/core/job.html:30
 #: netbox/templates/core/rq_task.html:81 netbox/templates/core/system.html:18
-#: netbox/templates/dcim/cable.html:19 netbox/templates/dcim/device.html:176
+#: netbox/templates/dcim/cable.html:19 netbox/templates/dcim/device.html:178
 #: netbox/templates/dcim/location.html:45 netbox/templates/dcim/module.html:66
 #: netbox/templates/dcim/powerfeed.html:36 netbox/templates/dcim/rack.html:43
 #: netbox/templates/dcim/site.html:43
@@ -652,20 +654,20 @@ msgid "Status"
 msgstr "Durum"
 
 #: netbox/circuits/forms/bulk_edit.py:140
-#: netbox/circuits/forms/bulk_import.py:100
+#: netbox/circuits/forms/bulk_import.py:97
 #: netbox/circuits/forms/filtersets.py:117 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_edit.py:186 netbox/dcim/forms/bulk_edit.py:256
 #: netbox/dcim/forms/bulk_edit.py:368 netbox/dcim/forms/bulk_edit.py:588
 #: netbox/dcim/forms/bulk_edit.py:692 netbox/dcim/forms/bulk_edit.py:1599
 #: netbox/dcim/forms/bulk_import.py:106 netbox/dcim/forms/bulk_import.py:151
-#: netbox/dcim/forms/bulk_import.py:195 netbox/dcim/forms/bulk_import.py:282
-#: netbox/dcim/forms/bulk_import.py:424 netbox/dcim/forms/bulk_import.py:1167
-#: netbox/dcim/forms/bulk_import.py:1379 netbox/dcim/forms/filtersets.py:166
-#: netbox/dcim/forms/filtersets.py:198 netbox/dcim/forms/filtersets.py:249
-#: netbox/dcim/forms/filtersets.py:334 netbox/dcim/forms/filtersets.py:355
-#: netbox/dcim/forms/filtersets.py:652 netbox/dcim/forms/filtersets.py:835
-#: netbox/dcim/forms/filtersets.py:897 netbox/dcim/forms/filtersets.py:927
-#: netbox/dcim/forms/filtersets.py:1049 netbox/dcim/tables/power.py:88
+#: netbox/dcim/forms/bulk_import.py:192 netbox/dcim/forms/bulk_import.py:279
+#: netbox/dcim/forms/bulk_import.py:418 netbox/dcim/forms/bulk_import.py:1158
+#: netbox/dcim/forms/bulk_import.py:1367 netbox/dcim/forms/filtersets.py:167
+#: netbox/dcim/forms/filtersets.py:199 netbox/dcim/forms/filtersets.py:250
+#: netbox/dcim/forms/filtersets.py:335 netbox/dcim/forms/filtersets.py:356
+#: netbox/dcim/forms/filtersets.py:653 netbox/dcim/forms/filtersets.py:847
+#: netbox/dcim/forms/filtersets.py:909 netbox/dcim/forms/filtersets.py:939
+#: netbox/dcim/forms/filtersets.py:1061 netbox/dcim/tables/power.py:88
 #: netbox/extras/filtersets.py:564 netbox/extras/forms/filtersets.py:332
 #: netbox/extras/forms/filtersets.py:405 netbox/ipam/forms/bulk_edit.py:41
 #: netbox/ipam/forms/bulk_edit.py:66 netbox/ipam/forms/bulk_edit.py:110
@@ -804,29 +806,22 @@ msgstr "Fesih Ayrıntıları"
 
 #: netbox/circuits/forms/bulk_import.py:38
 #: netbox/circuits/forms/bulk_import.py:53
-#: netbox/circuits/forms/bulk_import.py:79
+#: netbox/circuits/forms/bulk_import.py:76
 msgid "Assigned provider"
 msgstr "Atanan sağlayıcı"
 
-#: netbox/circuits/forms/bulk_import.py:70
-#: netbox/dcim/forms/bulk_import.py:178 netbox/dcim/forms/bulk_import.py:388
-#: netbox/dcim/forms/bulk_import.py:1108 netbox/dcim/forms/bulk_import.py:1187
-#: netbox/extras/forms/bulk_import.py:232
-msgid "RGB color in hexadecimal. Example:"
-msgstr "Onaltılık değerde RGB rengi. Örnek:"
-
-#: netbox/circuits/forms/bulk_import.py:85
+#: netbox/circuits/forms/bulk_import.py:82
 msgid "Assigned provider account"
 msgstr "Atanan sağlayıcı hesabı"
 
-#: netbox/circuits/forms/bulk_import.py:92
+#: netbox/circuits/forms/bulk_import.py:89
 msgid "Type of circuit"
 msgstr "Devre tipi"
 
-#: netbox/circuits/forms/bulk_import.py:97 netbox/dcim/forms/bulk_import.py:89
-#: netbox/dcim/forms/bulk_import.py:148 netbox/dcim/forms/bulk_import.py:204
-#: netbox/dcim/forms/bulk_import.py:452 netbox/dcim/forms/bulk_import.py:606
-#: netbox/dcim/forms/bulk_import.py:1324 netbox/ipam/forms/bulk_import.py:193
+#: netbox/circuits/forms/bulk_import.py:94 netbox/dcim/forms/bulk_import.py:89
+#: netbox/dcim/forms/bulk_import.py:148 netbox/dcim/forms/bulk_import.py:201
+#: netbox/dcim/forms/bulk_import.py:446 netbox/dcim/forms/bulk_import.py:600
+#: netbox/dcim/forms/bulk_import.py:1312 netbox/ipam/forms/bulk_import.py:193
 #: netbox/ipam/forms/bulk_import.py:258 netbox/ipam/forms/bulk_import.py:294
 #: netbox/ipam/forms/bulk_import.py:460
 #: netbox/virtualization/forms/bulk_import.py:56
@@ -835,11 +830,11 @@ msgstr "Devre tipi"
 msgid "Operational status"
 msgstr "Operasyonel durum"
 
-#: netbox/circuits/forms/bulk_import.py:104
+#: netbox/circuits/forms/bulk_import.py:101
 #: netbox/dcim/forms/bulk_import.py:110 netbox/dcim/forms/bulk_import.py:155
-#: netbox/dcim/forms/bulk_import.py:286 netbox/dcim/forms/bulk_import.py:428
-#: netbox/dcim/forms/bulk_import.py:1171 netbox/dcim/forms/bulk_import.py:1319
-#: netbox/dcim/forms/bulk_import.py:1383 netbox/ipam/forms/bulk_import.py:41
+#: netbox/dcim/forms/bulk_import.py:283 netbox/dcim/forms/bulk_import.py:422
+#: netbox/dcim/forms/bulk_import.py:1162 netbox/dcim/forms/bulk_import.py:1307
+#: netbox/dcim/forms/bulk_import.py:1371 netbox/ipam/forms/bulk_import.py:41
 #: netbox/ipam/forms/bulk_import.py:70 netbox/ipam/forms/bulk_import.py:98
 #: netbox/ipam/forms/bulk_import.py:118 netbox/ipam/forms/bulk_import.py:138
 #: netbox/ipam/forms/bulk_import.py:167 netbox/ipam/forms/bulk_import.py:253
@@ -851,7 +846,7 @@ msgstr "Operasyonel durum"
 msgid "Assigned tenant"
 msgstr "Atanan kiracı"
 
-#: netbox/circuits/forms/bulk_import.py:122
+#: netbox/circuits/forms/bulk_import.py:119
 #: netbox/templates/circuits/inc/circuit_termination.html:6
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:15
 #: netbox/templates/dcim/cable.html:68 netbox/templates/dcim/cable.html:72
@@ -859,7 +854,7 @@ msgstr "Atanan kiracı"
 msgid "Termination"
 msgstr "Fesih"
 
-#: netbox/circuits/forms/bulk_import.py:132
+#: netbox/circuits/forms/bulk_import.py:129
 #: netbox/circuits/forms/filtersets.py:145
 #: netbox/circuits/forms/filtersets.py:225
 #: netbox/circuits/forms/model_forms.py:142
@@ -871,20 +866,20 @@ msgstr "Sağlayıcı ağı"
 #: netbox/circuits/forms/filtersets.py:198 netbox/dcim/forms/bulk_edit.py:248
 #: netbox/dcim/forms/bulk_edit.py:346 netbox/dcim/forms/bulk_edit.py:580
 #: netbox/dcim/forms/bulk_edit.py:627 netbox/dcim/forms/bulk_edit.py:780
-#: netbox/dcim/forms/bulk_import.py:189 netbox/dcim/forms/bulk_import.py:263
-#: netbox/dcim/forms/bulk_import.py:491 netbox/dcim/forms/bulk_import.py:1268
-#: netbox/dcim/forms/bulk_import.py:1302 netbox/dcim/forms/filtersets.py:93
-#: netbox/dcim/forms/filtersets.py:246 netbox/dcim/forms/filtersets.py:279
-#: netbox/dcim/forms/filtersets.py:331 netbox/dcim/forms/filtersets.py:382
-#: netbox/dcim/forms/filtersets.py:649 netbox/dcim/forms/filtersets.py:691
-#: netbox/dcim/forms/filtersets.py:896 netbox/dcim/forms/filtersets.py:925
-#: netbox/dcim/forms/filtersets.py:945 netbox/dcim/forms/filtersets.py:1009
-#: netbox/dcim/forms/filtersets.py:1039 netbox/dcim/forms/filtersets.py:1048
-#: netbox/dcim/forms/filtersets.py:1159 netbox/dcim/forms/filtersets.py:1181
-#: netbox/dcim/forms/filtersets.py:1203 netbox/dcim/forms/filtersets.py:1220
-#: netbox/dcim/forms/filtersets.py:1240 netbox/dcim/forms/filtersets.py:1348
-#: netbox/dcim/forms/filtersets.py:1370 netbox/dcim/forms/filtersets.py:1391
-#: netbox/dcim/forms/filtersets.py:1406 netbox/dcim/forms/filtersets.py:1420
+#: netbox/dcim/forms/bulk_import.py:186 netbox/dcim/forms/bulk_import.py:260
+#: netbox/dcim/forms/bulk_import.py:485 netbox/dcim/forms/bulk_import.py:1256
+#: netbox/dcim/forms/bulk_import.py:1290 netbox/dcim/forms/filtersets.py:94
+#: netbox/dcim/forms/filtersets.py:247 netbox/dcim/forms/filtersets.py:280
+#: netbox/dcim/forms/filtersets.py:332 netbox/dcim/forms/filtersets.py:383
+#: netbox/dcim/forms/filtersets.py:650 netbox/dcim/forms/filtersets.py:693
+#: netbox/dcim/forms/filtersets.py:908 netbox/dcim/forms/filtersets.py:937
+#: netbox/dcim/forms/filtersets.py:957 netbox/dcim/forms/filtersets.py:1021
+#: netbox/dcim/forms/filtersets.py:1051 netbox/dcim/forms/filtersets.py:1060
+#: netbox/dcim/forms/filtersets.py:1171 netbox/dcim/forms/filtersets.py:1193
+#: netbox/dcim/forms/filtersets.py:1215 netbox/dcim/forms/filtersets.py:1232
+#: netbox/dcim/forms/filtersets.py:1252 netbox/dcim/forms/filtersets.py:1360
+#: netbox/dcim/forms/filtersets.py:1382 netbox/dcim/forms/filtersets.py:1403
+#: netbox/dcim/forms/filtersets.py:1418 netbox/dcim/forms/filtersets.py:1432
 #: netbox/dcim/forms/model_forms.py:179 netbox/dcim/forms/model_forms.py:211
 #: netbox/dcim/forms/model_forms.py:411 netbox/dcim/forms/model_forms.py:676
 #: netbox/dcim/tables/devices.py:154 netbox/dcim/tables/power.py:30
@@ -907,14 +902,14 @@ msgid "Location"
 msgstr "Konum"
 
 #: netbox/circuits/forms/filtersets.py:30
-#: netbox/circuits/forms/filtersets.py:118 netbox/dcim/forms/filtersets.py:137
-#: netbox/dcim/forms/filtersets.py:151 netbox/dcim/forms/filtersets.py:167
-#: netbox/dcim/forms/filtersets.py:199 netbox/dcim/forms/filtersets.py:250
-#: netbox/dcim/forms/filtersets.py:335 netbox/dcim/forms/filtersets.py:406
-#: netbox/dcim/forms/filtersets.py:653 netbox/dcim/forms/filtersets.py:1010
+#: netbox/circuits/forms/filtersets.py:118 netbox/dcim/forms/filtersets.py:138
+#: netbox/dcim/forms/filtersets.py:152 netbox/dcim/forms/filtersets.py:168
+#: netbox/dcim/forms/filtersets.py:200 netbox/dcim/forms/filtersets.py:251
+#: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:407
+#: netbox/dcim/forms/filtersets.py:654 netbox/dcim/forms/filtersets.py:1022
 #: netbox/netbox/navigation/menu.py:44 netbox/netbox/navigation/menu.py:46
 #: netbox/tenancy/forms/filtersets.py:42 netbox/tenancy/tables/columns.py:70
-#: netbox/tenancy/tables/contacts.py:25 netbox/tenancy/views.py:18
+#: netbox/tenancy/tables/contacts.py:25 netbox/tenancy/views.py:19
 #: netbox/virtualization/forms/filtersets.py:37
 #: netbox/virtualization/forms/filtersets.py:48
 #: netbox/virtualization/forms/filtersets.py:106
@@ -924,13 +919,13 @@ msgstr "İletişim"
 #: netbox/circuits/forms/filtersets.py:35
 #: netbox/circuits/forms/filtersets.py:155 netbox/dcim/forms/bulk_edit.py:111
 #: netbox/dcim/forms/bulk_edit.py:223 netbox/dcim/forms/bulk_edit.py:755
-#: netbox/dcim/forms/bulk_import.py:92 netbox/dcim/forms/filtersets.py:71
-#: netbox/dcim/forms/filtersets.py:178 netbox/dcim/forms/filtersets.py:204
-#: netbox/dcim/forms/filtersets.py:257 netbox/dcim/forms/filtersets.py:360
-#: netbox/dcim/forms/filtersets.py:668 netbox/dcim/forms/filtersets.py:902
-#: netbox/dcim/forms/filtersets.py:932 netbox/dcim/forms/filtersets.py:1016
-#: netbox/dcim/forms/filtersets.py:1055 netbox/dcim/forms/filtersets.py:1468
-#: netbox/dcim/forms/filtersets.py:1492 netbox/dcim/forms/filtersets.py:1516
+#: netbox/dcim/forms/bulk_import.py:92 netbox/dcim/forms/filtersets.py:72
+#: netbox/dcim/forms/filtersets.py:179 netbox/dcim/forms/filtersets.py:205
+#: netbox/dcim/forms/filtersets.py:258 netbox/dcim/forms/filtersets.py:361
+#: netbox/dcim/forms/filtersets.py:670 netbox/dcim/forms/filtersets.py:914
+#: netbox/dcim/forms/filtersets.py:944 netbox/dcim/forms/filtersets.py:1028
+#: netbox/dcim/forms/filtersets.py:1067 netbox/dcim/forms/filtersets.py:1480
+#: netbox/dcim/forms/filtersets.py:1504 netbox/dcim/forms/filtersets.py:1528
 #: netbox/dcim/forms/model_forms.py:111 netbox/dcim/forms/object_create.py:375
 #: netbox/dcim/tables/devices.py:140 netbox/dcim/tables/sites.py:85
 #: netbox/extras/filtersets.py:455 netbox/ipam/forms/bulk_edit.py:206
@@ -951,11 +946,11 @@ msgstr "Bölge"
 
 #: netbox/circuits/forms/filtersets.py:40
 #: netbox/circuits/forms/filtersets.py:160 netbox/dcim/forms/bulk_edit.py:231
-#: netbox/dcim/forms/bulk_edit.py:763 netbox/dcim/forms/filtersets.py:76
-#: netbox/dcim/forms/filtersets.py:183 netbox/dcim/forms/filtersets.py:209
-#: netbox/dcim/forms/filtersets.py:270 netbox/dcim/forms/filtersets.py:365
-#: netbox/dcim/forms/filtersets.py:673 netbox/dcim/forms/filtersets.py:907
-#: netbox/dcim/forms/filtersets.py:1021 netbox/dcim/forms/filtersets.py:1060
+#: netbox/dcim/forms/bulk_edit.py:763 netbox/dcim/forms/filtersets.py:77
+#: netbox/dcim/forms/filtersets.py:184 netbox/dcim/forms/filtersets.py:210
+#: netbox/dcim/forms/filtersets.py:271 netbox/dcim/forms/filtersets.py:366
+#: netbox/dcim/forms/filtersets.py:675 netbox/dcim/forms/filtersets.py:919
+#: netbox/dcim/forms/filtersets.py:1033 netbox/dcim/forms/filtersets.py:1072
 #: netbox/dcim/forms/object_create.py:383 netbox/extras/filtersets.py:472
 #: netbox/ipam/forms/bulk_edit.py:211 netbox/ipam/forms/bulk_edit.py:445
 #: netbox/ipam/forms/bulk_edit.py:517 netbox/ipam/forms/filtersets.py:222
@@ -972,14 +967,14 @@ msgstr "Site grubu"
 #: netbox/circuits/forms/filtersets.py:81
 #: netbox/circuits/forms/filtersets.py:100
 #: netbox/circuits/forms/filtersets.py:115 netbox/core/forms/filtersets.py:64
-#: netbox/dcim/forms/bulk_edit.py:726 netbox/dcim/forms/filtersets.py:165
-#: netbox/dcim/forms/filtersets.py:197 netbox/dcim/forms/filtersets.py:834
-#: netbox/dcim/forms/filtersets.py:926 netbox/dcim/forms/filtersets.py:1050
-#: netbox/dcim/forms/filtersets.py:1158 netbox/dcim/forms/filtersets.py:1180
-#: netbox/dcim/forms/filtersets.py:1202 netbox/dcim/forms/filtersets.py:1219
-#: netbox/dcim/forms/filtersets.py:1236 netbox/dcim/forms/filtersets.py:1347
-#: netbox/dcim/forms/filtersets.py:1369 netbox/dcim/forms/filtersets.py:1390
-#: netbox/dcim/forms/filtersets.py:1405 netbox/dcim/forms/filtersets.py:1418
+#: netbox/dcim/forms/bulk_edit.py:726 netbox/dcim/forms/filtersets.py:166
+#: netbox/dcim/forms/filtersets.py:198 netbox/dcim/forms/filtersets.py:846
+#: netbox/dcim/forms/filtersets.py:938 netbox/dcim/forms/filtersets.py:1062
+#: netbox/dcim/forms/filtersets.py:1170 netbox/dcim/forms/filtersets.py:1192
+#: netbox/dcim/forms/filtersets.py:1214 netbox/dcim/forms/filtersets.py:1231
+#: netbox/dcim/forms/filtersets.py:1248 netbox/dcim/forms/filtersets.py:1359
+#: netbox/dcim/forms/filtersets.py:1381 netbox/dcim/forms/filtersets.py:1402
+#: netbox/dcim/forms/filtersets.py:1417 netbox/dcim/forms/filtersets.py:1430
 #: netbox/extras/forms/filtersets.py:43 netbox/extras/forms/filtersets.py:112
 #: netbox/extras/forms/filtersets.py:143 netbox/extras/forms/filtersets.py:183
 #: netbox/extras/forms/filtersets.py:199 netbox/extras/forms/filtersets.py:230
@@ -1105,17 +1100,17 @@ msgstr "Yerel çapraz bağlantının kimliği"
 
 #: netbox/circuits/models/circuits.py:206
 msgid "patch panel/port(s)"
-msgstr "yama paneli/bağlantı noktası (lar)"
+msgstr "bağlantı paneli/port(lar)"
 
 #: netbox/circuits/models/circuits.py:207
 msgid "Patch panel ID and port number(s)"
-msgstr "Yama paneli kimliği ve bağlantı noktası numaraları"
+msgstr "Bağlantı paneli ID ve port numaraları"
 
 #: netbox/circuits/models/circuits.py:210
 #: netbox/dcim/models/device_component_templates.py:61
 #: netbox/dcim/models/device_components.py:69 netbox/dcim/models/racks.py:538
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:219
-#: netbox/extras/models/customfields.py:123 netbox/extras/models/models.py:60
+#: netbox/extras/models/customfields.py:124 netbox/extras/models/models.py:60
 #: netbox/extras/models/models.py:186 netbox/extras/models/models.py:424
 #: netbox/extras/models/models.py:539 netbox/extras/models/staging.py:32
 #: netbox/extras/models/tags.py:32 netbox/netbox/models/__init__.py:109
@@ -1155,7 +1150,7 @@ msgstr "Devre sonlandırma hem siteye hem de sağlayıcı ağına bağlanamaz."
 #: netbox/dcim/models/devices.py:1360 netbox/dcim/models/power.py:39
 #: netbox/dcim/models/power.py:92 netbox/dcim/models/racks.py:63
 #: netbox/dcim/models/sites.py:138 netbox/extras/models/configs.py:36
-#: netbox/extras/models/configs.py:215 netbox/extras/models/customfields.py:90
+#: netbox/extras/models/configs.py:215 netbox/extras/models/customfields.py:91
 #: netbox/extras/models/models.py:55 netbox/extras/models/models.py:181
 #: netbox/extras/models/models.py:324 netbox/extras/models/models.py:420
 #: netbox/extras/models/models.py:529 netbox/extras/models/models.py:624
@@ -1228,7 +1223,7 @@ msgstr "sağlayıcı ağları"
 #: netbox/circuits/tables/providers.py:99 netbox/core/tables/data.py:16
 #: netbox/core/tables/jobs.py:14 netbox/core/tables/plugins.py:13
 #: netbox/core/tables/tasks.py:11 netbox/core/tables/tasks.py:115
-#: netbox/dcim/forms/filtersets.py:61 netbox/dcim/forms/object_create.py:43
+#: netbox/dcim/forms/filtersets.py:62 netbox/dcim/forms/object_create.py:43
 #: netbox/dcim/tables/devices.py:52 netbox/dcim/tables/devices.py:89
 #: netbox/dcim/tables/devices.py:131 netbox/dcim/tables/devices.py:286
 #: netbox/dcim/tables/devices.py:380 netbox/dcim/tables/devices.py:421
@@ -1503,7 +1498,7 @@ msgstr "Kullanıcı Adı"
 
 #: netbox/core/data_backends.py:49 netbox/core/data_backends.py:55
 msgid "Only used for cloning with HTTP(S)"
-msgstr "Yalnızca HTTP (S) ile klonlama için kullanılır"
+msgstr "Sadece HTTP(S) ile klonlama için kullanılır"
 
 #: netbox/core/data_backends.py:53 netbox/templates/account/base.html:17
 #: netbox/templates/account/password.html:11
@@ -1539,7 +1534,7 @@ msgstr "Veri kaynağı (isim)"
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:40
 #: netbox/core/tables/data.py:26 netbox/dcim/forms/bulk_edit.py:1020
-#: netbox/dcim/forms/bulk_edit.py:1293 netbox/dcim/forms/filtersets.py:1276
+#: netbox/dcim/forms/bulk_edit.py:1293 netbox/dcim/forms/filtersets.py:1288
 #: netbox/dcim/tables/devices.py:541 netbox/dcim/tables/devicetypes.py:221
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/bulk_edit.py:162
 #: netbox/extras/forms/bulk_edit.py:221 netbox/extras/forms/filtersets.py:120
@@ -1599,7 +1594,7 @@ msgstr "Veri kaynağı"
 
 #: netbox/core/forms/filtersets.py:67 netbox/extras/forms/filtersets.py:449
 msgid "Creation"
-msgstr "Yaratılış"
+msgstr "Oluşturma"
 
 #: netbox/core/forms/filtersets.py:71 netbox/extras/forms/filtersets.py:470
 #: netbox/extras/forms/filtersets.py:510 netbox/extras/tables/tables.py:184
@@ -1642,7 +1637,7 @@ msgid "Completed before"
 msgstr "Daha önce tamamlandı"
 
 #: netbox/core/forms/filtersets.py:123 netbox/dcim/forms/bulk_edit.py:361
-#: netbox/dcim/forms/filtersets.py:353 netbox/dcim/forms/filtersets.py:397
+#: netbox/dcim/forms/filtersets.py:354 netbox/dcim/forms/filtersets.py:398
 #: netbox/dcim/forms/model_forms.py:258 netbox/extras/forms/filtersets.py:465
 #: netbox/extras/forms/filtersets.py:505
 #: netbox/templates/dcim/rackreservation.html:58
@@ -1697,7 +1692,7 @@ msgstr "Güç"
 #: netbox/core/forms/model_forms.py:159 netbox/netbox/navigation/menu.py:141
 #: netbox/templates/core/inc/config_data.html:37
 msgid "IPAM"
-msgstr "IPAME"
+msgstr "IPAM"
 
 #: netbox/core/forms/model_forms.py:160 netbox/netbox/navigation/menu.py:217
 #: netbox/templates/core/inc/config_data.html:50
@@ -1726,7 +1721,7 @@ msgstr "Doğrulama"
 msgid "User Preferences"
 msgstr "Kullanıcı Tercihleri"
 
-#: netbox/core/forms/model_forms.py:167 netbox/dcim/forms/filtersets.py:661
+#: netbox/core/forms/model_forms.py:167 netbox/dcim/forms/filtersets.py:663
 #: netbox/templates/core/inc/config_data.html:127
 #: netbox/users/forms/model_forms.py:65
 msgid "Miscellaneous"
@@ -1801,7 +1796,7 @@ msgstr "Yapılandırma revizyonu #{id}"
 #: netbox/dcim/models/device_components.py:971
 #: netbox/dcim/models/device_components.py:1045
 #: netbox/dcim/models/power.py:102 netbox/dcim/models/racks.py:128
-#: netbox/extras/models/customfields.py:76 netbox/extras/models/search.py:41
+#: netbox/extras/models/customfields.py:77 netbox/extras/models/search.py:41
 #: netbox/virtualization/models/clusters.py:61 netbox/vpn/models/l2vpn.py:32
 msgid "type"
 msgstr "türü"
@@ -1959,15 +1954,15 @@ msgstr "hata"
 
 #: netbox/core/models/jobs.py:101
 msgid "job ID"
-msgstr "iş kimliği"
+msgstr "görev ID"
 
 #: netbox/core/models/jobs.py:112
 msgid "job"
-msgstr "iş"
+msgstr "görev"
 
 #: netbox/core/models/jobs.py:113
 msgid "jobs"
-msgstr "meslekler"
+msgstr "görevler"
 
 #: netbox/core/models/jobs.py:135
 #, python-brace-format
@@ -2055,7 +2050,7 @@ msgstr "Ana bilgisayar"
 
 #: netbox/core/tables/tasks.py:50 netbox/ipam/forms/filtersets.py:542
 msgid "Port"
-msgstr "Liman"
+msgstr "Port"
 
 #: netbox/core/tables/tasks.py:54
 msgid "DB"
@@ -2095,7 +2090,7 @@ msgstr "Doğum"
 
 #: netbox/core/tables/tasks.py:124 netbox/templates/core/rq_worker.html:59
 msgid "PID"
-msgstr "PİD"
+msgstr "PID"
 
 #: netbox/core/tables/tasks.py:128
 msgid "No workers found"
@@ -2170,7 +2165,7 @@ msgstr "{n} inç"
 msgid "Reserved"
 msgstr "Rezerve edilmiş"
 
-#: netbox/dcim/choices.py:101 netbox/templates/dcim/device.html:252
+#: netbox/dcim/choices.py:101 netbox/templates/dcim/device.html:259
 msgid "Available"
 msgstr "Mevcut"
 
@@ -2192,8 +2187,8 @@ msgstr "İnç"
 #: netbox/dcim/forms/bulk_edit.py:86 netbox/dcim/forms/bulk_edit.py:172
 #: netbox/dcim/forms/bulk_edit.py:1298 netbox/dcim/forms/bulk_import.py:59
 #: netbox/dcim/forms/bulk_import.py:73 netbox/dcim/forms/bulk_import.py:136
-#: netbox/dcim/forms/bulk_import.py:511 netbox/dcim/forms/bulk_import.py:778
-#: netbox/dcim/forms/bulk_import.py:1033 netbox/dcim/forms/filtersets.py:227
+#: netbox/dcim/forms/bulk_import.py:505 netbox/dcim/forms/bulk_import.py:772
+#: netbox/dcim/forms/bulk_import.py:1027 netbox/dcim/forms/filtersets.py:228
 #: netbox/dcim/forms/model_forms.py:73 netbox/dcim/forms/model_forms.py:92
 #: netbox/dcim/forms/model_forms.py:169 netbox/dcim/forms/model_forms.py:1010
 #: netbox/dcim/forms/model_forms.py:1449
@@ -2227,14 +2222,14 @@ msgstr "Ebeveyn"
 msgid "Child"
 msgstr "Çocuk"
 
-#: netbox/dcim/choices.py:155 netbox/templates/dcim/device.html:332
+#: netbox/dcim/choices.py:155 netbox/templates/dcim/device.html:339
 #: netbox/templates/dcim/rack.html:175
 #: netbox/templates/dcim/rack_elevation_list.html:20
 #: netbox/templates/dcim/rackreservation.html:76
 msgid "Front"
 msgstr "Ön"
 
-#: netbox/dcim/choices.py:156 netbox/templates/dcim/device.html:338
+#: netbox/dcim/choices.py:156 netbox/templates/dcim/device.html:345
 #: netbox/templates/dcim/rack.html:181
 #: netbox/templates/dcim/rack_elevation_list.html:21
 #: netbox/templates/dcim/rackreservation.html:82
@@ -2318,7 +2313,7 @@ msgid "Virtual"
 msgstr "Sanal"
 
 #: netbox/dcim/choices.py:814 netbox/dcim/choices.py:1051
-#: netbox/dcim/forms/bulk_edit.py:1408 netbox/dcim/forms/filtersets.py:1239
+#: netbox/dcim/forms/bulk_edit.py:1408 netbox/dcim/forms/filtersets.py:1251
 #: netbox/dcim/forms/model_forms.py:936 netbox/dcim/forms/model_forms.py:1344
 #: netbox/netbox/navigation/menu.py:127 netbox/netbox/navigation/menu.py:131
 #: netbox/templates/dcim/interface.html:210
@@ -2330,7 +2325,7 @@ msgid "Virtual interfaces"
 msgstr "Sanal arayüzler"
 
 #: netbox/dcim/choices.py:979 netbox/dcim/forms/bulk_edit.py:1303
-#: netbox/dcim/forms/bulk_import.py:785 netbox/dcim/forms/model_forms.py:922
+#: netbox/dcim/forms/bulk_import.py:779 netbox/dcim/forms/model_forms.py:922
 #: netbox/dcim/tables/devices.py:644 netbox/templates/dcim/interface.html:106
 #: netbox/templates/virtualization/vminterface.html:43
 #: netbox/virtualization/forms/bulk_edit.py:212
@@ -2359,9 +2354,9 @@ msgstr "Ethernet (arka panel)"
 msgid "Cellular"
 msgstr "Hücresel"
 
-#: netbox/dcim/choices.py:1117 netbox/dcim/forms/filtersets.py:303
-#: netbox/dcim/forms/filtersets.py:738 netbox/dcim/forms/filtersets.py:882
-#: netbox/dcim/forms/filtersets.py:1434
+#: netbox/dcim/choices.py:1117 netbox/dcim/forms/filtersets.py:304
+#: netbox/dcim/forms/filtersets.py:740 netbox/dcim/forms/filtersets.py:894
+#: netbox/dcim/forms/filtersets.py:1446
 #: netbox/templates/dcim/inventoryitem.html:52
 #: netbox/templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
@@ -2432,9 +2427,9 @@ msgstr "Fiber Optik"
 
 #: netbox/dcim/choices.py:1434
 msgid "Fiber"
-msgstr "Elyaf"
+msgstr "Fiber"
 
-#: netbox/dcim/choices.py:1458 netbox/dcim/forms/filtersets.py:1146
+#: netbox/dcim/choices.py:1458 netbox/dcim/forms/filtersets.py:1158
 msgid "Connected"
 msgstr "Bağlı"
 
@@ -2456,9 +2451,9 @@ msgstr "Mil"
 
 #: netbox/dcim/choices.py:1481 netbox/templates/dcim/cable_trace.html:66
 msgid "Feet"
-msgstr "Ayaklar"
+msgstr "Feet"
 
-#: netbox/dcim/choices.py:1497 netbox/templates/dcim/device.html:320
+#: netbox/dcim/choices.py:1497 netbox/templates/dcim/device.html:327
 #: netbox/templates/dcim/rack.html:152
 msgid "Kilograms"
 msgstr "Kilogram"
@@ -2528,7 +2523,7 @@ msgstr "Grup (kısa ad)"
 
 #: netbox/dcim/filtersets.py:175 netbox/dcim/filtersets.py:180
 msgid "AS (ID)"
-msgstr "OLARAK (İD)"
+msgstr "AS (ID)"
 
 #: netbox/dcim/filtersets.py:245
 msgid "Parent location (ID)"
@@ -2536,29 +2531,29 @@ msgstr "Ana konum (ID)"
 
 #: netbox/dcim/filtersets.py:251
 msgid "Parent location (slug)"
-msgstr "Ana konum (sümüklü böcek)"
+msgstr "Ana konum (kısa ad)"
 
 #: netbox/dcim/filtersets.py:257 netbox/dcim/filtersets.py:333
 #: netbox/dcim/filtersets.py:432 netbox/dcim/filtersets.py:1005
-#: netbox/dcim/filtersets.py:1341 netbox/dcim/filtersets.py:2111
+#: netbox/dcim/filtersets.py:1352 netbox/dcim/filtersets.py:2122
 msgid "Location (ID)"
 msgstr "Konum (ID)"
 
 #: netbox/dcim/filtersets.py:264 netbox/dcim/filtersets.py:340
-#: netbox/dcim/filtersets.py:439 netbox/dcim/filtersets.py:1347
+#: netbox/dcim/filtersets.py:439 netbox/dcim/filtersets.py:1358
 #: netbox/extras/filtersets.py:494
 msgid "Location (slug)"
 msgstr "Konum (kısa ad)"
 
 #: netbox/dcim/filtersets.py:354 netbox/dcim/filtersets.py:840
-#: netbox/dcim/filtersets.py:942 netbox/dcim/filtersets.py:1779
+#: netbox/dcim/filtersets.py:942 netbox/dcim/filtersets.py:1790
 #: netbox/ipam/filtersets.py:381 netbox/ipam/filtersets.py:493
 #: netbox/ipam/filtersets.py:989 netbox/virtualization/filtersets.py:210
 msgid "Role (ID)"
 msgstr "Rol (ID)"
 
 #: netbox/dcim/filtersets.py:360 netbox/dcim/filtersets.py:846
-#: netbox/dcim/filtersets.py:948 netbox/dcim/filtersets.py:1785
+#: netbox/dcim/filtersets.py:948 netbox/dcim/filtersets.py:1796
 #: netbox/extras/filtersets.py:510 netbox/ipam/filtersets.py:387
 #: netbox/ipam/filtersets.py:499 netbox/ipam/filtersets.py:995
 #: netbox/virtualization/filtersets.py:216
@@ -2566,7 +2561,7 @@ msgid "Role (slug)"
 msgstr "Rol (kısa ad)"
 
 #: netbox/dcim/filtersets.py:389 netbox/dcim/filtersets.py:1010
-#: netbox/dcim/filtersets.py:1352 netbox/dcim/filtersets.py:2173
+#: netbox/dcim/filtersets.py:1363 netbox/dcim/filtersets.py:2184
 msgid "Rack (ID)"
 msgstr "Raf (ID)"
 
@@ -2584,15 +2579,15 @@ msgstr "Kullanıcı (isim)"
 
 #: netbox/dcim/filtersets.py:481 netbox/dcim/filtersets.py:620
 #: netbox/dcim/filtersets.py:830 netbox/dcim/filtersets.py:881
-#: netbox/dcim/filtersets.py:921 netbox/dcim/filtersets.py:1243
-#: netbox/dcim/filtersets.py:1769
+#: netbox/dcim/filtersets.py:921 netbox/dcim/filtersets.py:1254
+#: netbox/dcim/filtersets.py:1780
 msgid "Manufacturer (ID)"
 msgstr "Üretici (ID)"
 
 #: netbox/dcim/filtersets.py:487 netbox/dcim/filtersets.py:626
 #: netbox/dcim/filtersets.py:836 netbox/dcim/filtersets.py:887
-#: netbox/dcim/filtersets.py:927 netbox/dcim/filtersets.py:1249
-#: netbox/dcim/filtersets.py:1775
+#: netbox/dcim/filtersets.py:927 netbox/dcim/filtersets.py:1260
+#: netbox/dcim/filtersets.py:1786
 msgid "Manufacturer (slug)"
 msgstr "Üretici (kısa ad)"
 
@@ -2604,93 +2599,93 @@ msgstr "Varsayılan platform (ID)"
 msgid "Default platform (slug)"
 msgstr "Varsayılan platform (kısa ad)"
 
-#: netbox/dcim/filtersets.py:500 netbox/dcim/forms/filtersets.py:452
+#: netbox/dcim/filtersets.py:500 netbox/dcim/forms/filtersets.py:453
 msgid "Has a front image"
 msgstr "Ön resmi var"
 
-#: netbox/dcim/filtersets.py:504 netbox/dcim/forms/filtersets.py:459
+#: netbox/dcim/filtersets.py:504 netbox/dcim/forms/filtersets.py:460
 msgid "Has a rear image"
 msgstr "Arka görüntüsü var"
 
 #: netbox/dcim/filtersets.py:509 netbox/dcim/filtersets.py:630
-#: netbox/dcim/filtersets.py:1068 netbox/dcim/forms/filtersets.py:466
-#: netbox/dcim/forms/filtersets.py:562 netbox/dcim/forms/filtersets.py:777
+#: netbox/dcim/filtersets.py:1079 netbox/dcim/forms/filtersets.py:467
+#: netbox/dcim/forms/filtersets.py:563 netbox/dcim/forms/filtersets.py:779
 msgid "Has console ports"
 msgstr "Konsol bağlantı noktaları vardır"
 
 #: netbox/dcim/filtersets.py:513 netbox/dcim/filtersets.py:634
-#: netbox/dcim/filtersets.py:1072 netbox/dcim/forms/filtersets.py:473
-#: netbox/dcim/forms/filtersets.py:569 netbox/dcim/forms/filtersets.py:784
+#: netbox/dcim/filtersets.py:1083 netbox/dcim/forms/filtersets.py:474
+#: netbox/dcim/forms/filtersets.py:570 netbox/dcim/forms/filtersets.py:786
 msgid "Has console server ports"
 msgstr "Konsol sunucusu bağlantı noktaları vardır"
 
 #: netbox/dcim/filtersets.py:517 netbox/dcim/filtersets.py:638
-#: netbox/dcim/filtersets.py:1076 netbox/dcim/forms/filtersets.py:480
-#: netbox/dcim/forms/filtersets.py:576 netbox/dcim/forms/filtersets.py:791
+#: netbox/dcim/filtersets.py:1087 netbox/dcim/forms/filtersets.py:481
+#: netbox/dcim/forms/filtersets.py:577 netbox/dcim/forms/filtersets.py:793
 msgid "Has power ports"
 msgstr "Güç bağlantı noktaları vardır"
 
 #: netbox/dcim/filtersets.py:521 netbox/dcim/filtersets.py:642
-#: netbox/dcim/filtersets.py:1080 netbox/dcim/forms/filtersets.py:487
-#: netbox/dcim/forms/filtersets.py:583 netbox/dcim/forms/filtersets.py:798
+#: netbox/dcim/filtersets.py:1091 netbox/dcim/forms/filtersets.py:488
+#: netbox/dcim/forms/filtersets.py:584 netbox/dcim/forms/filtersets.py:800
 msgid "Has power outlets"
 msgstr "Elektrik prizleri var"
 
 #: netbox/dcim/filtersets.py:525 netbox/dcim/filtersets.py:646
-#: netbox/dcim/filtersets.py:1084 netbox/dcim/forms/filtersets.py:494
-#: netbox/dcim/forms/filtersets.py:590 netbox/dcim/forms/filtersets.py:805
+#: netbox/dcim/filtersets.py:1095 netbox/dcim/forms/filtersets.py:495
+#: netbox/dcim/forms/filtersets.py:591 netbox/dcim/forms/filtersets.py:807
 msgid "Has interfaces"
 msgstr "Arayüzleri vardır"
 
 #: netbox/dcim/filtersets.py:529 netbox/dcim/filtersets.py:650
-#: netbox/dcim/filtersets.py:1088 netbox/dcim/forms/filtersets.py:501
-#: netbox/dcim/forms/filtersets.py:597 netbox/dcim/forms/filtersets.py:812
+#: netbox/dcim/filtersets.py:1099 netbox/dcim/forms/filtersets.py:502
+#: netbox/dcim/forms/filtersets.py:598 netbox/dcim/forms/filtersets.py:814
 msgid "Has pass-through ports"
 msgstr "Geçiş bağlantı noktaları vardır"
 
-#: netbox/dcim/filtersets.py:533 netbox/dcim/filtersets.py:1092
-#: netbox/dcim/forms/filtersets.py:515
+#: netbox/dcim/filtersets.py:533 netbox/dcim/filtersets.py:1103
+#: netbox/dcim/forms/filtersets.py:516
 msgid "Has module bays"
 msgstr "Modül yuvaları vardır"
 
-#: netbox/dcim/filtersets.py:537 netbox/dcim/filtersets.py:1096
-#: netbox/dcim/forms/filtersets.py:508
+#: netbox/dcim/filtersets.py:537 netbox/dcim/filtersets.py:1107
+#: netbox/dcim/forms/filtersets.py:509
 msgid "Has device bays"
-msgstr "Aygıt yuvaları vardır"
+msgstr "Cihaz yuvaları var"
 
-#: netbox/dcim/filtersets.py:541 netbox/dcim/forms/filtersets.py:522
+#: netbox/dcim/filtersets.py:541 netbox/dcim/forms/filtersets.py:523
 msgid "Has inventory items"
 msgstr "Envanter kalemleri var"
 
 #: netbox/dcim/filtersets.py:698 netbox/dcim/filtersets.py:937
-#: netbox/dcim/filtersets.py:1373
+#: netbox/dcim/filtersets.py:1384
 msgid "Device type (ID)"
-msgstr "Aygıt tipi (ID)"
+msgstr "Cihaz tipi (ID)"
 
-#: netbox/dcim/filtersets.py:717 netbox/dcim/filtersets.py:1254
+#: netbox/dcim/filtersets.py:717 netbox/dcim/filtersets.py:1265
 msgid "Module type (ID)"
 msgstr "Modül tipi (ID)"
 
-#: netbox/dcim/filtersets.py:752 netbox/dcim/filtersets.py:1524
+#: netbox/dcim/filtersets.py:752 netbox/dcim/filtersets.py:1535
 msgid "Power port (ID)"
 msgstr "Güç bağlantı noktası (ID)"
 
-#: netbox/dcim/filtersets.py:826 netbox/dcim/filtersets.py:1765
+#: netbox/dcim/filtersets.py:826 netbox/dcim/filtersets.py:1776
 msgid "Parent inventory item (ID)"
 msgstr "Ana envanter kalemi (ID)"
 
 #: netbox/dcim/filtersets.py:869 netbox/dcim/filtersets.py:895
-#: netbox/dcim/filtersets.py:1064 netbox/virtualization/filtersets.py:238
+#: netbox/dcim/filtersets.py:1075 netbox/virtualization/filtersets.py:238
 msgid "Config template (ID)"
 msgstr "Yapılandırma şablonu (ID)"
 
 #: netbox/dcim/filtersets.py:933
 msgid "Device type (slug)"
-msgstr "Aygıt tipi (kısa ad)"
+msgstr "Cihaz tipi (kısa ad)"
 
 #: netbox/dcim/filtersets.py:953
 msgid "Parent Device (ID)"
-msgstr "Ana Aygıt (ID)"
+msgstr "Ana Cihaz (ID)"
 
 #: netbox/dcim/filtersets.py:957 netbox/virtualization/filtersets.py:220
 msgid "Platform (ID)"
@@ -2701,9 +2696,9 @@ msgstr "Platform (ID)"
 msgid "Platform (slug)"
 msgstr "Platform (kısa ad)"
 
-#: netbox/dcim/filtersets.py:999 netbox/dcim/filtersets.py:1336
-#: netbox/dcim/filtersets.py:1863 netbox/dcim/filtersets.py:2105
-#: netbox/dcim/filtersets.py:2164
+#: netbox/dcim/filtersets.py:999 netbox/dcim/filtersets.py:1347
+#: netbox/dcim/filtersets.py:1874 netbox/dcim/filtersets.py:2116
+#: netbox/dcim/filtersets.py:2175
 msgid "Site name (slug)"
 msgstr "Site adı (kısa ad)"
 
@@ -2715,16 +2710,25 @@ msgstr "Ebeveyn bölmesi (ID)"
 msgid "VM cluster (ID)"
 msgstr "VM kümesi (ID)"
 
-#: netbox/dcim/filtersets.py:1025
-msgid "Device model (slug)"
-msgstr "Aygıt modeli (kısa ad)"
+#: netbox/dcim/filtersets.py:1025 netbox/extras/filtersets.py:543
+#: netbox/virtualization/filtersets.py:136
+msgid "Cluster group (slug)"
+msgstr "Küme grubu (kısa ad)"
 
-#: netbox/dcim/filtersets.py:1036 netbox/dcim/forms/bulk_edit.py:423
+#: netbox/dcim/filtersets.py:1030 netbox/virtualization/filtersets.py:130
+msgid "Cluster group (ID)"
+msgstr "Küme grubu (ID)"
+
+#: netbox/dcim/filtersets.py:1036
+msgid "Device model (slug)"
+msgstr "Cihaz modeli (kısa ad)"
+
+#: netbox/dcim/filtersets.py:1047 netbox/dcim/forms/bulk_edit.py:423
 msgid "Is full depth"
 msgstr "Tam derinlik mi"
 
-#: netbox/dcim/filtersets.py:1040 netbox/dcim/forms/common.py:18
-#: netbox/dcim/forms/filtersets.py:747 netbox/dcim/forms/filtersets.py:1291
+#: netbox/dcim/filtersets.py:1051 netbox/dcim/forms/common.py:18
+#: netbox/dcim/forms/filtersets.py:749 netbox/dcim/forms/filtersets.py:1303
 #: netbox/dcim/models/device_components.py:519
 #: netbox/virtualization/filtersets.py:230
 #: netbox/virtualization/filtersets.py:297
@@ -2733,88 +2737,88 @@ msgstr "Tam derinlik mi"
 msgid "MAC address"
 msgstr "MAC adresi"
 
-#: netbox/dcim/filtersets.py:1047 netbox/dcim/filtersets.py:1211
-#: netbox/dcim/forms/filtersets.py:756 netbox/dcim/forms/filtersets.py:849
+#: netbox/dcim/filtersets.py:1058 netbox/dcim/filtersets.py:1222
+#: netbox/dcim/forms/filtersets.py:758 netbox/dcim/forms/filtersets.py:861
 #: netbox/virtualization/filtersets.py:234
 #: netbox/virtualization/forms/filtersets.py:176
 msgid "Has a primary IP"
 msgstr "Birincil IP'ye sahiptir"
 
-#: netbox/dcim/filtersets.py:1051
+#: netbox/dcim/filtersets.py:1062
 msgid "Has an out-of-band IP"
 msgstr "Bant dışı bir IP'ye sahiptir"
 
-#: netbox/dcim/filtersets.py:1056
+#: netbox/dcim/filtersets.py:1067
 msgid "Virtual chassis (ID)"
 msgstr "Sanal kasa (ID)"
 
-#: netbox/dcim/filtersets.py:1060
+#: netbox/dcim/filtersets.py:1071
 msgid "Is a virtual chassis member"
 msgstr "Sanal bir şasi üyesidir"
 
-#: netbox/dcim/filtersets.py:1101
+#: netbox/dcim/filtersets.py:1112
 msgid "OOB IP (ID)"
 msgstr "OOB İP (KİMLİĞİ)"
 
-#: netbox/dcim/filtersets.py:1105
+#: netbox/dcim/filtersets.py:1116
 msgid "Has virtual device context"
 msgstr "Sanal cihaz bağlamına sahiptir"
 
-#: netbox/dcim/filtersets.py:1194
+#: netbox/dcim/filtersets.py:1205
 msgid "VDC (ID)"
 msgstr "VDC (KİMLİK)"
 
-#: netbox/dcim/filtersets.py:1199
+#: netbox/dcim/filtersets.py:1210
 msgid "Device model"
 msgstr "Cihaz modeli"
 
-#: netbox/dcim/filtersets.py:1204 netbox/ipam/filtersets.py:632
+#: netbox/dcim/filtersets.py:1215 netbox/ipam/filtersets.py:632
 #: netbox/vpn/filtersets.py:102 netbox/vpn/filtersets.py:420
 msgid "Interface (ID)"
 msgstr "Arayüz (ID)"
 
-#: netbox/dcim/filtersets.py:1260
+#: netbox/dcim/filtersets.py:1271
 msgid "Module type (model)"
 msgstr "Modül tipi (model)"
 
-#: netbox/dcim/filtersets.py:1266
+#: netbox/dcim/filtersets.py:1277
 msgid "Module Bay (ID)"
 msgstr "Modül Yuvası (ID)"
 
-#: netbox/dcim/filtersets.py:1270 netbox/dcim/filtersets.py:1362
+#: netbox/dcim/filtersets.py:1281 netbox/dcim/filtersets.py:1373
 #: netbox/ipam/filtersets.py:611 netbox/ipam/filtersets.py:851
 #: netbox/ipam/filtersets.py:1075 netbox/virtualization/filtersets.py:161
 #: netbox/vpn/filtersets.py:398
 msgid "Device (ID)"
-msgstr "Aygıt (ID)"
+msgstr "Cihaz (ID)"
 
-#: netbox/dcim/filtersets.py:1358
+#: netbox/dcim/filtersets.py:1369
 msgid "Rack (name)"
 msgstr "Raf (isim)"
 
-#: netbox/dcim/filtersets.py:1368 netbox/ipam/filtersets.py:606
+#: netbox/dcim/filtersets.py:1379 netbox/ipam/filtersets.py:606
 #: netbox/ipam/filtersets.py:846 netbox/ipam/filtersets.py:1081
 #: netbox/vpn/filtersets.py:393
 msgid "Device (name)"
-msgstr "Aygıt (isim)"
-
-#: netbox/dcim/filtersets.py:1379
-msgid "Device type (model)"
-msgstr "Aygıt tipi (model)"
-
-#: netbox/dcim/filtersets.py:1384
-msgid "Device role (ID)"
-msgstr "Aygıt rolü (ID)"
+msgstr "Cihaz (isim)"
 
 #: netbox/dcim/filtersets.py:1390
-msgid "Device role (slug)"
-msgstr "Aygıt rolü (kısa ad)"
+msgid "Device type (model)"
+msgstr "Cihaz tipi (model)"
 
 #: netbox/dcim/filtersets.py:1395
+msgid "Device role (ID)"
+msgstr "Cihaz rolü (ID)"
+
+#: netbox/dcim/filtersets.py:1401
+msgid "Device role (slug)"
+msgstr "Cihaz rolü (kısa ad)"
+
+#: netbox/dcim/filtersets.py:1406
 msgid "Virtual Chassis (ID)"
 msgstr "Sanal Kasa (ID)"
 
-#: netbox/dcim/filtersets.py:1401 netbox/dcim/forms/filtersets.py:107
+#: netbox/dcim/filtersets.py:1412 netbox/dcim/forms/filtersets.py:108
 #: netbox/dcim/tables/devices.py:203 netbox/netbox/navigation/menu.py:66
 #: netbox/templates/dcim/device.html:120
 #: netbox/templates/dcim/device_edit.html:93
@@ -2824,25 +2828,25 @@ msgstr "Sanal Kasa (ID)"
 msgid "Virtual Chassis"
 msgstr "Sanal Şasi"
 
-#: netbox/dcim/filtersets.py:1421
+#: netbox/dcim/filtersets.py:1432
 msgid "Module (ID)"
 msgstr "Modül (ID)"
 
-#: netbox/dcim/filtersets.py:1428
+#: netbox/dcim/filtersets.py:1439
 msgid "Cable (ID)"
 msgstr "Kablo (ID)"
 
-#: netbox/dcim/filtersets.py:1537 netbox/ipam/forms/bulk_import.py:188
+#: netbox/dcim/filtersets.py:1548 netbox/ipam/forms/bulk_import.py:188
 #: netbox/vpn/forms/bulk_import.py:308
 msgid "Assigned VLAN"
 msgstr "Atanmış VLAN"
 
-#: netbox/dcim/filtersets.py:1541
+#: netbox/dcim/filtersets.py:1552
 msgid "Assigned VID"
 msgstr "Atanmış VID"
 
-#: netbox/dcim/filtersets.py:1546 netbox/dcim/forms/bulk_edit.py:1382
-#: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/filtersets.py:1334
+#: netbox/dcim/filtersets.py:1557 netbox/dcim/forms/bulk_edit.py:1382
+#: netbox/dcim/forms/bulk_import.py:830 netbox/dcim/forms/filtersets.py:1346
 #: netbox/dcim/forms/model_forms.py:1325
 #: netbox/dcim/models/device_components.py:712
 #: netbox/dcim/tables/devices.py:610 netbox/ipam/filtersets.py:316
@@ -2874,18 +2878,18 @@ msgstr "Atanmış VID"
 msgid "VRF"
 msgstr "VRF"
 
-#: netbox/dcim/filtersets.py:1552 netbox/ipam/filtersets.py:322
+#: netbox/dcim/filtersets.py:1563 netbox/ipam/filtersets.py:322
 #: netbox/ipam/filtersets.py:333 netbox/ipam/filtersets.py:489
 #: netbox/ipam/filtersets.py:590 netbox/ipam/filtersets.py:601
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: netbox/dcim/filtersets.py:1557 netbox/ipam/filtersets.py:1016
+#: netbox/dcim/filtersets.py:1568 netbox/ipam/filtersets.py:1016
 #: netbox/vpn/filtersets.py:361
 msgid "L2VPN (ID)"
 msgstr "L2VPN (KİMLİĞİ)"
 
-#: netbox/dcim/filtersets.py:1563 netbox/dcim/forms/filtersets.py:1339
+#: netbox/dcim/filtersets.py:1574 netbox/dcim/forms/filtersets.py:1351
 #: netbox/dcim/tables/devices.py:558 netbox/ipam/filtersets.py:1022
 #: netbox/ipam/forms/filtersets.py:525 netbox/ipam/tables/vlans.py:133
 #: netbox/templates/dcim/interface.html:93 netbox/templates/ipam/vlan.html:66
@@ -2897,84 +2901,84 @@ msgstr "L2VPN (KİMLİĞİ)"
 msgid "L2VPN"
 msgstr "L2VPN"
 
-#: netbox/dcim/filtersets.py:1595
+#: netbox/dcim/filtersets.py:1606
 msgid "Virtual Chassis Interfaces for Device"
-msgstr "Aygıt için Sanal Kasa Arabirimleri"
+msgstr "Cihaz için Sanal Şasi Arayüzleri"
 
-#: netbox/dcim/filtersets.py:1600
+#: netbox/dcim/filtersets.py:1611
 msgid "Virtual Chassis Interfaces for Device (ID)"
-msgstr "Aygıt için Sanal Kasa Arabirimleri (ID)"
+msgstr "Cihaz için Sanal Şasi Arayüzleri (ID)"
 
-#: netbox/dcim/filtersets.py:1604
+#: netbox/dcim/filtersets.py:1615
 msgid "Kind of interface"
 msgstr "Arayüz türü"
 
-#: netbox/dcim/filtersets.py:1609 netbox/virtualization/filtersets.py:289
+#: netbox/dcim/filtersets.py:1620 netbox/virtualization/filtersets.py:289
 msgid "Parent interface (ID)"
 msgstr "Ebeveyn arabirimi (ID)"
 
-#: netbox/dcim/filtersets.py:1614 netbox/virtualization/filtersets.py:294
+#: netbox/dcim/filtersets.py:1625 netbox/virtualization/filtersets.py:294
 msgid "Bridged interface (ID)"
 msgstr "Köprülü arayüz (ID)"
 
-#: netbox/dcim/filtersets.py:1619
+#: netbox/dcim/filtersets.py:1630
 msgid "LAG interface (ID)"
 msgstr "LAG arabirimi (ID)"
 
-#: netbox/dcim/filtersets.py:1646 netbox/dcim/filtersets.py:1658
-#: netbox/dcim/forms/filtersets.py:1251 netbox/dcim/forms/model_forms.py:1637
+#: netbox/dcim/filtersets.py:1657 netbox/dcim/filtersets.py:1669
+#: netbox/dcim/forms/filtersets.py:1263 netbox/dcim/forms/model_forms.py:1637
 #: netbox/templates/dcim/virtualdevicecontext.html:15
 msgid "Virtual Device Context"
-msgstr "Sanal Aygıt Bağlamı"
-
-#: netbox/dcim/filtersets.py:1652
-msgid "Virtual Device Context (Identifier)"
-msgstr "Sanal Aygıt Bağlamı (Tanımlayıcı)"
+msgstr "Sanal Cihaz Bağlamı"
 
 #: netbox/dcim/filtersets.py:1663
+msgid "Virtual Device Context (Identifier)"
+msgstr "Sanal Cihaz Bağlamı (Tanımlayıcı)"
+
+#: netbox/dcim/filtersets.py:1674
 #: netbox/templates/wireless/wirelesslan.html:11
 #: netbox/wireless/forms/model_forms.py:53
 msgid "Wireless LAN"
 msgstr "Kablosuz LAN"
 
-#: netbox/dcim/filtersets.py:1667 netbox/dcim/tables/devices.py:597
+#: netbox/dcim/filtersets.py:1678 netbox/dcim/tables/devices.py:597
 msgid "Wireless link"
 msgstr "Kablosuz bağlantı"
 
-#: netbox/dcim/filtersets.py:1737
+#: netbox/dcim/filtersets.py:1748
 msgid "Installed module (ID)"
 msgstr "Yüklü modül (ID)"
 
-#: netbox/dcim/filtersets.py:1748
+#: netbox/dcim/filtersets.py:1759
 msgid "Installed device (ID)"
 msgstr "Yüklü cihaz (ID)"
 
-#: netbox/dcim/filtersets.py:1754
+#: netbox/dcim/filtersets.py:1765
 msgid "Installed device (name)"
 msgstr "Yüklü cihaz (isim)"
 
-#: netbox/dcim/filtersets.py:1820
+#: netbox/dcim/filtersets.py:1831
 msgid "Master (ID)"
 msgstr "Master (ID)"
 
-#: netbox/dcim/filtersets.py:1826
+#: netbox/dcim/filtersets.py:1837
 msgid "Master (name)"
 msgstr "Master (isim)"
 
-#: netbox/dcim/filtersets.py:1868 netbox/tenancy/filtersets.py:246
+#: netbox/dcim/filtersets.py:1879 netbox/tenancy/filtersets.py:246
 msgid "Tenant (ID)"
 msgstr "Kiracı (ID)"
 
-#: netbox/dcim/filtersets.py:1874 netbox/extras/filtersets.py:570
+#: netbox/dcim/filtersets.py:1885 netbox/extras/filtersets.py:570
 #: netbox/tenancy/filtersets.py:252
 msgid "Tenant (slug)"
 msgstr "Kiracı (kısa ad)"
 
-#: netbox/dcim/filtersets.py:1910 netbox/dcim/forms/filtersets.py:996
+#: netbox/dcim/filtersets.py:1921 netbox/dcim/forms/filtersets.py:1008
 msgid "Unterminated"
 msgstr "Sonlandırılmamış"
 
-#: netbox/dcim/filtersets.py:2168
+#: netbox/dcim/filtersets.py:2179
 msgid "Power panel (ID)"
 msgstr "Güç paneli (ID)"
 
@@ -2989,12 +2993,12 @@ msgstr "Güç paneli (ID)"
 msgid "Tags"
 msgstr "Etiketler"
 
-#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1396
+#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1408
 #: netbox/dcim/forms/model_forms.py:431 netbox/dcim/forms/model_forms.py:489
 #: netbox/dcim/forms/object_create.py:197
 #: netbox/dcim/forms/object_create.py:353 netbox/dcim/tables/devices.py:162
 #: netbox/dcim/tables/devices.py:690 netbox/dcim/tables/devicetypes.py:242
-#: netbox/templates/dcim/device.html:43 netbox/templates/dcim/device.html:130
+#: netbox/templates/dcim/device.html:43 netbox/templates/dcim/device.html:131
 #: netbox/templates/dcim/modulebay.html:34
 #: netbox/templates/dcim/virtualchassis.html:66
 #: netbox/templates/dcim/virtualchassis_edit.html:55
@@ -3068,9 +3072,9 @@ msgid "Time zone"
 msgstr "Saat dilimi"
 
 #: netbox/dcim/forms/bulk_edit.py:267 netbox/dcim/forms/bulk_edit.py:1160
-#: netbox/dcim/forms/bulk_edit.py:1548 netbox/dcim/forms/bulk_import.py:207
-#: netbox/dcim/forms/bulk_import.py:1021 netbox/dcim/forms/filtersets.py:300
-#: netbox/dcim/forms/filtersets.py:706 netbox/dcim/forms/filtersets.py:1426
+#: netbox/dcim/forms/bulk_edit.py:1548 netbox/dcim/forms/bulk_import.py:204
+#: netbox/dcim/forms/bulk_import.py:1015 netbox/dcim/forms/filtersets.py:301
+#: netbox/dcim/forms/filtersets.py:708 netbox/dcim/forms/filtersets.py:1438
 #: netbox/dcim/forms/model_forms.py:219 netbox/dcim/forms/model_forms.py:1018
 #: netbox/dcim/forms/model_forms.py:1457
 #: netbox/dcim/forms/object_import.py:181 netbox/dcim/tables/devices.py:166
@@ -3087,7 +3091,7 @@ msgstr "Saat dilimi"
 #: netbox/ipam/forms/model_forms.py:689 netbox/ipam/tables/ip.py:257
 #: netbox/ipam/tables/ip.py:313 netbox/ipam/tables/ip.py:363
 #: netbox/ipam/tables/vlans.py:126 netbox/ipam/tables/vlans.py:230
-#: netbox/templates/dcim/device.html:180
+#: netbox/templates/dcim/device.html:182
 #: netbox/templates/dcim/inc/panels/inventory_items.html:20
 #: netbox/templates/dcim/interface.html:223
 #: netbox/templates/dcim/inventoryitem.html:36
@@ -3119,14 +3123,14 @@ msgstr "Rol"
 msgid "Serial Number"
 msgstr "Seri Numarası"
 
-#: netbox/dcim/forms/bulk_edit.py:277 netbox/dcim/forms/filtersets.py:307
-#: netbox/dcim/forms/filtersets.py:742 netbox/dcim/forms/filtersets.py:886
-#: netbox/dcim/forms/filtersets.py:1438
+#: netbox/dcim/forms/bulk_edit.py:277 netbox/dcim/forms/filtersets.py:308
+#: netbox/dcim/forms/filtersets.py:744 netbox/dcim/forms/filtersets.py:898
+#: netbox/dcim/forms/filtersets.py:1450
 msgid "Asset tag"
 msgstr "Varlık etiketi"
 
-#: netbox/dcim/forms/bulk_edit.py:287 netbox/dcim/forms/bulk_import.py:220
-#: netbox/dcim/forms/filtersets.py:292 netbox/templates/dcim/rack.html:86
+#: netbox/dcim/forms/bulk_edit.py:287 netbox/dcim/forms/bulk_import.py:217
+#: netbox/dcim/forms/filtersets.py:293 netbox/templates/dcim/rack.html:86
 msgid "Width"
 msgstr "Genişlik"
 
@@ -3146,7 +3150,7 @@ msgstr "Dış genişlik"
 msgid "Outer depth"
 msgstr "Dış derinlik"
 
-#: netbox/dcim/forms/bulk_edit.py:311 netbox/dcim/forms/bulk_import.py:225
+#: netbox/dcim/forms/bulk_edit.py:311 netbox/dcim/forms/bulk_import.py:222
 msgid "Outer unit"
 msgstr "Dış ünite"
 
@@ -3157,18 +3161,18 @@ msgstr "Montaj derinliği"
 #: netbox/dcim/forms/bulk_edit.py:321 netbox/dcim/forms/bulk_edit.py:351
 #: netbox/dcim/forms/bulk_edit.py:436 netbox/dcim/forms/bulk_edit.py:459
 #: netbox/dcim/forms/bulk_edit.py:475 netbox/dcim/forms/bulk_edit.py:495
-#: netbox/dcim/forms/bulk_import.py:332 netbox/dcim/forms/bulk_import.py:358
-#: netbox/dcim/forms/filtersets.py:251 netbox/dcim/forms/filtersets.py:312
-#: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:423
-#: netbox/dcim/forms/filtersets.py:529 netbox/dcim/forms/filtersets.py:548
-#: netbox/dcim/forms/filtersets.py:604 netbox/dcim/forms/model_forms.py:232
+#: netbox/dcim/forms/bulk_import.py:329 netbox/dcim/forms/bulk_import.py:355
+#: netbox/dcim/forms/filtersets.py:252 netbox/dcim/forms/filtersets.py:313
+#: netbox/dcim/forms/filtersets.py:337 netbox/dcim/forms/filtersets.py:424
+#: netbox/dcim/forms/filtersets.py:530 netbox/dcim/forms/filtersets.py:549
+#: netbox/dcim/forms/filtersets.py:605 netbox/dcim/forms/model_forms.py:232
 #: netbox/dcim/forms/model_forms.py:346 netbox/dcim/tables/devicetypes.py:103
 #: netbox/dcim/tables/modules.py:35 netbox/dcim/tables/racks.py:103
 #: netbox/extras/forms/bulk_edit.py:45 netbox/extras/forms/bulk_edit.py:108
 #: netbox/extras/forms/bulk_edit.py:158 netbox/extras/forms/bulk_edit.py:278
 #: netbox/extras/forms/filtersets.py:61 netbox/extras/forms/filtersets.py:134
 #: netbox/extras/forms/filtersets.py:221 netbox/ipam/forms/bulk_edit.py:188
-#: netbox/templates/dcim/device.html:317
+#: netbox/templates/dcim/device.html:324
 #: netbox/templates/dcim/devicetype.html:49
 #: netbox/templates/dcim/moduletype.html:30
 #: netbox/templates/extras/configcontext.html:17
@@ -3178,25 +3182,25 @@ msgstr "Montaj derinliği"
 msgid "Weight"
 msgstr "Ağırlığı"
 
-#: netbox/dcim/forms/bulk_edit.py:326 netbox/dcim/forms/filtersets.py:317
+#: netbox/dcim/forms/bulk_edit.py:326 netbox/dcim/forms/filtersets.py:318
 msgid "Max weight"
 msgstr "Maksimum ağırlık"
 
 #: netbox/dcim/forms/bulk_edit.py:331 netbox/dcim/forms/bulk_edit.py:441
-#: netbox/dcim/forms/bulk_edit.py:480 netbox/dcim/forms/bulk_import.py:231
-#: netbox/dcim/forms/bulk_import.py:337 netbox/dcim/forms/bulk_import.py:363
-#: netbox/dcim/forms/filtersets.py:322 netbox/dcim/forms/filtersets.py:533
-#: netbox/dcim/forms/filtersets.py:608
+#: netbox/dcim/forms/bulk_edit.py:480 netbox/dcim/forms/bulk_import.py:228
+#: netbox/dcim/forms/bulk_import.py:334 netbox/dcim/forms/bulk_import.py:360
+#: netbox/dcim/forms/filtersets.py:323 netbox/dcim/forms/filtersets.py:534
+#: netbox/dcim/forms/filtersets.py:609
 msgid "Weight unit"
 msgstr "Ağırlık birimi"
 
 #: netbox/dcim/forms/bulk_edit.py:345 netbox/dcim/forms/bulk_edit.py:808
-#: netbox/dcim/forms/bulk_import.py:270 netbox/dcim/forms/bulk_import.py:273
-#: netbox/dcim/forms/bulk_import.py:498 netbox/dcim/forms/bulk_import.py:1309
-#: netbox/dcim/forms/bulk_import.py:1313 netbox/dcim/forms/filtersets.py:102
-#: netbox/dcim/forms/filtersets.py:340 netbox/dcim/forms/filtersets.py:354
-#: netbox/dcim/forms/filtersets.py:392 netbox/dcim/forms/filtersets.py:701
-#: netbox/dcim/forms/filtersets.py:954 netbox/dcim/forms/filtersets.py:1086
+#: netbox/dcim/forms/bulk_import.py:267 netbox/dcim/forms/bulk_import.py:270
+#: netbox/dcim/forms/bulk_import.py:492 netbox/dcim/forms/bulk_import.py:1297
+#: netbox/dcim/forms/bulk_import.py:1301 netbox/dcim/forms/filtersets.py:103
+#: netbox/dcim/forms/filtersets.py:341 netbox/dcim/forms/filtersets.py:355
+#: netbox/dcim/forms/filtersets.py:393 netbox/dcim/forms/filtersets.py:703
+#: netbox/dcim/forms/filtersets.py:966 netbox/dcim/forms/filtersets.py:1098
 #: netbox/dcim/forms/model_forms.py:226 netbox/dcim/forms/model_forms.py:248
 #: netbox/dcim/forms/model_forms.py:422 netbox/dcim/forms/model_forms.py:703
 #: netbox/dcim/forms/object_create.py:400 netbox/dcim/tables/devices.py:158
@@ -3213,9 +3217,9 @@ msgid "Rack"
 msgstr "Raf"
 
 #: netbox/dcim/forms/bulk_edit.py:349 netbox/dcim/forms/bulk_edit.py:628
-#: netbox/dcim/forms/filtersets.py:248 netbox/dcim/forms/filtersets.py:333
-#: netbox/dcim/forms/filtersets.py:416 netbox/dcim/forms/filtersets.py:543
-#: netbox/dcim/forms/filtersets.py:651 netbox/dcim/forms/filtersets.py:861
+#: netbox/dcim/forms/filtersets.py:249 netbox/dcim/forms/filtersets.py:334
+#: netbox/dcim/forms/filtersets.py:417 netbox/dcim/forms/filtersets.py:544
+#: netbox/dcim/forms/filtersets.py:652 netbox/dcim/forms/filtersets.py:873
 #: netbox/dcim/forms/model_forms.py:613 netbox/dcim/forms/model_forms.py:1527
 #: netbox/templates/dcim/device_edit.html:20
 msgid "Hardware"
@@ -3224,12 +3228,12 @@ msgstr "Donanım"
 #: netbox/dcim/forms/bulk_edit.py:402 netbox/dcim/forms/bulk_edit.py:466
 #: netbox/dcim/forms/bulk_edit.py:530 netbox/dcim/forms/bulk_edit.py:554
 #: netbox/dcim/forms/bulk_edit.py:638 netbox/dcim/forms/bulk_edit.py:1165
-#: netbox/dcim/forms/bulk_edit.py:1553 netbox/dcim/forms/bulk_import.py:319
-#: netbox/dcim/forms/bulk_import.py:353 netbox/dcim/forms/bulk_import.py:395
-#: netbox/dcim/forms/bulk_import.py:431 netbox/dcim/forms/bulk_import.py:1027
-#: netbox/dcim/forms/filtersets.py:429 netbox/dcim/forms/filtersets.py:554
-#: netbox/dcim/forms/filtersets.py:630 netbox/dcim/forms/filtersets.py:711
-#: netbox/dcim/forms/filtersets.py:866 netbox/dcim/forms/filtersets.py:1431
+#: netbox/dcim/forms/bulk_edit.py:1553 netbox/dcim/forms/bulk_import.py:316
+#: netbox/dcim/forms/bulk_import.py:350 netbox/dcim/forms/bulk_import.py:389
+#: netbox/dcim/forms/bulk_import.py:425 netbox/dcim/forms/bulk_import.py:1021
+#: netbox/dcim/forms/filtersets.py:430 netbox/dcim/forms/filtersets.py:555
+#: netbox/dcim/forms/filtersets.py:631 netbox/dcim/forms/filtersets.py:713
+#: netbox/dcim/forms/filtersets.py:878 netbox/dcim/forms/filtersets.py:1443
 #: netbox/dcim/forms/model_forms.py:281 netbox/dcim/forms/model_forms.py:293
 #: netbox/dcim/forms/model_forms.py:339 netbox/dcim/forms/model_forms.py:379
 #: netbox/dcim/forms/model_forms.py:1023 netbox/dcim/forms/model_forms.py:1462
@@ -3246,13 +3250,13 @@ msgstr "Donanım"
 msgid "Manufacturer"
 msgstr "Üretici"
 
-#: netbox/dcim/forms/bulk_edit.py:407 netbox/dcim/forms/bulk_import.py:325
-#: netbox/dcim/forms/filtersets.py:434 netbox/dcim/forms/model_forms.py:297
+#: netbox/dcim/forms/bulk_edit.py:407 netbox/dcim/forms/bulk_import.py:322
+#: netbox/dcim/forms/filtersets.py:435 netbox/dcim/forms/model_forms.py:297
 msgid "Default platform"
 msgstr "Varsayılan platform"
 
 #: netbox/dcim/forms/bulk_edit.py:412 netbox/dcim/forms/bulk_edit.py:471
-#: netbox/dcim/forms/filtersets.py:437 netbox/dcim/forms/filtersets.py:557
+#: netbox/dcim/forms/filtersets.py:438 netbox/dcim/forms/filtersets.py:558
 msgid "Part number"
 msgstr "Parça numarası"
 
@@ -3265,8 +3269,8 @@ msgid "Exclude from utilization"
 msgstr "Kullanımdan hariç tut"
 
 #: netbox/dcim/forms/bulk_edit.py:431 netbox/dcim/forms/bulk_edit.py:603
-#: netbox/dcim/forms/bulk_import.py:525 netbox/dcim/forms/filtersets.py:446
-#: netbox/dcim/forms/filtersets.py:733 netbox/templates/dcim/device.html:98
+#: netbox/dcim/forms/bulk_import.py:519 netbox/dcim/forms/filtersets.py:447
+#: netbox/dcim/forms/filtersets.py:735 netbox/templates/dcim/device.html:98
 #: netbox/templates/dcim/devicetype.html:65
 msgid "Airflow"
 msgstr "Hava akışı"
@@ -3276,7 +3280,7 @@ msgstr "Hava akışı"
 #: netbox/templates/dcim/devicebay.html:52
 #: netbox/templates/dcim/module.html:58
 msgid "Device Type"
-msgstr "Aygıt Türü"
+msgstr "Cihaz Türü"
 
 #: netbox/dcim/forms/bulk_edit.py:494 netbox/dcim/forms/model_forms.py:345
 #: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:65
@@ -3291,11 +3295,11 @@ msgid "VM role"
 msgstr "VM rolü"
 
 #: netbox/dcim/forms/bulk_edit.py:511 netbox/dcim/forms/bulk_edit.py:535
-#: netbox/dcim/forms/bulk_edit.py:618 netbox/dcim/forms/bulk_import.py:376
-#: netbox/dcim/forms/bulk_import.py:380 netbox/dcim/forms/bulk_import.py:402
-#: netbox/dcim/forms/bulk_import.py:406 netbox/dcim/forms/bulk_import.py:531
-#: netbox/dcim/forms/bulk_import.py:535 netbox/dcim/forms/filtersets.py:619
-#: netbox/dcim/forms/filtersets.py:635 netbox/dcim/forms/filtersets.py:752
+#: netbox/dcim/forms/bulk_edit.py:618 netbox/dcim/forms/bulk_import.py:373
+#: netbox/dcim/forms/bulk_import.py:377 netbox/dcim/forms/bulk_import.py:396
+#: netbox/dcim/forms/bulk_import.py:400 netbox/dcim/forms/bulk_import.py:525
+#: netbox/dcim/forms/bulk_import.py:529 netbox/dcim/forms/filtersets.py:620
+#: netbox/dcim/forms/filtersets.py:636 netbox/dcim/forms/filtersets.py:754
 #: netbox/dcim/forms/model_forms.py:358 netbox/dcim/forms/model_forms.py:384
 #: netbox/dcim/forms/model_forms.py:498
 #: netbox/virtualization/forms/bulk_import.py:132
@@ -3306,21 +3310,21 @@ msgid "Config template"
 msgstr "Yapılandırma şablonu"
 
 #: netbox/dcim/forms/bulk_edit.py:559 netbox/dcim/forms/bulk_edit.py:959
-#: netbox/dcim/forms/bulk_import.py:437 netbox/dcim/forms/filtersets.py:112
+#: netbox/dcim/forms/bulk_import.py:431 netbox/dcim/forms/filtersets.py:113
 #: netbox/dcim/forms/model_forms.py:444 netbox/dcim/forms/model_forms.py:820
 #: netbox/dcim/forms/model_forms.py:837 netbox/extras/filtersets.py:499
 msgid "Device type"
-msgstr "Aygıt tipi"
+msgstr "Cihaz tipi"
 
-#: netbox/dcim/forms/bulk_edit.py:570 netbox/dcim/forms/bulk_import.py:418
-#: netbox/dcim/forms/filtersets.py:117 netbox/dcim/forms/model_forms.py:452
+#: netbox/dcim/forms/bulk_edit.py:570 netbox/dcim/forms/bulk_import.py:412
+#: netbox/dcim/forms/filtersets.py:118 netbox/dcim/forms/model_forms.py:452
 msgid "Device role"
-msgstr "Aygıt rolü"
+msgstr "Cihaz rolü"
 
-#: netbox/dcim/forms/bulk_edit.py:593 netbox/dcim/forms/bulk_import.py:443
-#: netbox/dcim/forms/filtersets.py:725 netbox/dcim/forms/model_forms.py:394
+#: netbox/dcim/forms/bulk_edit.py:593 netbox/dcim/forms/bulk_import.py:437
+#: netbox/dcim/forms/filtersets.py:727 netbox/dcim/forms/model_forms.py:394
 #: netbox/dcim/forms/model_forms.py:456 netbox/dcim/tables/devices.py:179
-#: netbox/extras/filtersets.py:515 netbox/templates/dcim/device.html:184
+#: netbox/extras/filtersets.py:515 netbox/templates/dcim/device.html:186
 #: netbox/templates/dcim/platform.html:26
 #: netbox/templates/virtualization/virtualmachine.html:27
 #: netbox/virtualization/forms/bulk_edit.py:160
@@ -3333,21 +3337,21 @@ msgstr "Platform"
 
 #: netbox/dcim/forms/bulk_edit.py:626 netbox/dcim/forms/bulk_edit.py:1179
 #: netbox/dcim/forms/bulk_edit.py:1543 netbox/dcim/forms/bulk_edit.py:1589
-#: netbox/dcim/forms/bulk_import.py:586 netbox/dcim/forms/bulk_import.py:648
-#: netbox/dcim/forms/bulk_import.py:674 netbox/dcim/forms/bulk_import.py:700
-#: netbox/dcim/forms/bulk_import.py:720 netbox/dcim/forms/bulk_import.py:773
-#: netbox/dcim/forms/bulk_import.py:891 netbox/dcim/forms/bulk_import.py:939
-#: netbox/dcim/forms/bulk_import.py:956 netbox/dcim/forms/bulk_import.py:968
-#: netbox/dcim/forms/bulk_import.py:1016 netbox/dcim/forms/bulk_import.py:1373
-#: netbox/dcim/forms/connections.py:24 netbox/dcim/forms/filtersets.py:129
-#: netbox/dcim/forms/filtersets.py:840 netbox/dcim/forms/filtersets.py:970
-#: netbox/dcim/forms/filtersets.py:1160 netbox/dcim/forms/filtersets.py:1182
-#: netbox/dcim/forms/filtersets.py:1204 netbox/dcim/forms/filtersets.py:1221
-#: netbox/dcim/forms/filtersets.py:1241 netbox/dcim/forms/filtersets.py:1349
-#: netbox/dcim/forms/filtersets.py:1371 netbox/dcim/forms/filtersets.py:1392
-#: netbox/dcim/forms/filtersets.py:1407 netbox/dcim/forms/filtersets.py:1421
-#: netbox/dcim/forms/filtersets.py:1484 netbox/dcim/forms/filtersets.py:1508
-#: netbox/dcim/forms/filtersets.py:1532 netbox/dcim/forms/model_forms.py:576
+#: netbox/dcim/forms/bulk_import.py:580 netbox/dcim/forms/bulk_import.py:642
+#: netbox/dcim/forms/bulk_import.py:668 netbox/dcim/forms/bulk_import.py:694
+#: netbox/dcim/forms/bulk_import.py:714 netbox/dcim/forms/bulk_import.py:767
+#: netbox/dcim/forms/bulk_import.py:885 netbox/dcim/forms/bulk_import.py:933
+#: netbox/dcim/forms/bulk_import.py:950 netbox/dcim/forms/bulk_import.py:962
+#: netbox/dcim/forms/bulk_import.py:1010 netbox/dcim/forms/bulk_import.py:1361
+#: netbox/dcim/forms/connections.py:24 netbox/dcim/forms/filtersets.py:130
+#: netbox/dcim/forms/filtersets.py:852 netbox/dcim/forms/filtersets.py:982
+#: netbox/dcim/forms/filtersets.py:1172 netbox/dcim/forms/filtersets.py:1194
+#: netbox/dcim/forms/filtersets.py:1216 netbox/dcim/forms/filtersets.py:1233
+#: netbox/dcim/forms/filtersets.py:1253 netbox/dcim/forms/filtersets.py:1361
+#: netbox/dcim/forms/filtersets.py:1383 netbox/dcim/forms/filtersets.py:1404
+#: netbox/dcim/forms/filtersets.py:1419 netbox/dcim/forms/filtersets.py:1433
+#: netbox/dcim/forms/filtersets.py:1496 netbox/dcim/forms/filtersets.py:1520
+#: netbox/dcim/forms/filtersets.py:1544 netbox/dcim/forms/model_forms.py:576
 #: netbox/dcim/forms/model_forms.py:797 netbox/dcim/forms/model_forms.py:1156
 #: netbox/dcim/forms/model_forms.py:1611
 #: netbox/dcim/forms/object_create.py:257 netbox/dcim/tables/connections.py:22
@@ -3365,7 +3369,7 @@ msgstr "Platform"
 #: netbox/ipam/forms/model_forms.py:784 netbox/ipam/tables/vlans.py:176
 #: netbox/templates/dcim/consoleport.html:20
 #: netbox/templates/dcim/consoleserverport.html:20
-#: netbox/templates/dcim/device.html:15 netbox/templates/dcim/device.html:129
+#: netbox/templates/dcim/device.html:15 netbox/templates/dcim/device.html:130
 #: netbox/templates/dcim/device_edit.html:10
 #: netbox/templates/dcim/devicebay.html:20
 #: netbox/templates/dcim/devicebay.html:48
@@ -3397,7 +3401,7 @@ msgstr "Platform"
 #: netbox/wireless/forms/model_forms.py:141
 #: netbox/wireless/tables/wirelesslan.py:75
 msgid "Device"
-msgstr "Aygıt"
+msgstr "Cihaz"
 
 #: netbox/dcim/forms/bulk_edit.py:629
 #: netbox/templates/extras/dashboard/widget_config.html:7
@@ -3405,7 +3409,7 @@ msgstr "Aygıt"
 msgid "Configuration"
 msgstr "Yapılandırma"
 
-#: netbox/dcim/forms/bulk_edit.py:643 netbox/dcim/forms/bulk_import.py:598
+#: netbox/dcim/forms/bulk_edit.py:643 netbox/dcim/forms/bulk_import.py:592
 #: netbox/dcim/forms/model_forms.py:590 netbox/dcim/forms/model_forms.py:845
 msgid "Module type"
 msgstr "Modül tipi"
@@ -3415,7 +3419,7 @@ msgstr "Modül tipi"
 #: netbox/dcim/forms/bulk_edit.py:966 netbox/dcim/forms/bulk_edit.py:1010
 #: netbox/dcim/forms/bulk_edit.py:1061 netbox/dcim/forms/bulk_edit.py:1088
 #: netbox/dcim/forms/bulk_edit.py:1115 netbox/dcim/forms/bulk_edit.py:1133
-#: netbox/dcim/forms/bulk_edit.py:1151 netbox/dcim/forms/filtersets.py:65
+#: netbox/dcim/forms/bulk_edit.py:1151 netbox/dcim/forms/filtersets.py:66
 #: netbox/dcim/forms/object_create.py:46 netbox/templates/dcim/cable.html:32
 #: netbox/templates/dcim/consoleport.html:32
 #: netbox/templates/dcim/consoleserverport.html:32
@@ -3433,13 +3437,13 @@ msgstr "Modül tipi"
 msgid "Label"
 msgstr "etiket"
 
-#: netbox/dcim/forms/bulk_edit.py:706 netbox/dcim/forms/filtersets.py:987
+#: netbox/dcim/forms/bulk_edit.py:706 netbox/dcim/forms/filtersets.py:999
 #: netbox/templates/dcim/cable.html:50
 msgid "Length"
 msgstr "Uzunluk"
 
-#: netbox/dcim/forms/bulk_edit.py:711 netbox/dcim/forms/bulk_import.py:1174
-#: netbox/dcim/forms/bulk_import.py:1177 netbox/dcim/forms/filtersets.py:991
+#: netbox/dcim/forms/bulk_edit.py:711 netbox/dcim/forms/bulk_import.py:1165
+#: netbox/dcim/forms/bulk_import.py:1168 netbox/dcim/forms/filtersets.py:1003
 msgid "Length unit"
 msgstr "Uzunluk birimi"
 
@@ -3448,34 +3452,34 @@ msgstr "Uzunluk birimi"
 msgid "Domain"
 msgstr "Alan adı"
 
-#: netbox/dcim/forms/bulk_edit.py:803 netbox/dcim/forms/bulk_import.py:1296
-#: netbox/dcim/forms/filtersets.py:1077 netbox/dcim/forms/model_forms.py:698
+#: netbox/dcim/forms/bulk_edit.py:803 netbox/dcim/forms/bulk_import.py:1284
+#: netbox/dcim/forms/filtersets.py:1089 netbox/dcim/forms/model_forms.py:698
 msgid "Power panel"
 msgstr "Güç paneli"
 
-#: netbox/dcim/forms/bulk_edit.py:825 netbox/dcim/forms/bulk_import.py:1332
-#: netbox/dcim/forms/filtersets.py:1099
+#: netbox/dcim/forms/bulk_edit.py:825 netbox/dcim/forms/bulk_import.py:1320
+#: netbox/dcim/forms/filtersets.py:1111
 #: netbox/templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "Tedarik"
 
-#: netbox/dcim/forms/bulk_edit.py:831 netbox/dcim/forms/bulk_import.py:1337
-#: netbox/dcim/forms/filtersets.py:1104
+#: netbox/dcim/forms/bulk_edit.py:831 netbox/dcim/forms/bulk_import.py:1325
+#: netbox/dcim/forms/filtersets.py:1116
 #: netbox/templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "Faz"
 
-#: netbox/dcim/forms/bulk_edit.py:837 netbox/dcim/forms/filtersets.py:1109
+#: netbox/dcim/forms/bulk_edit.py:837 netbox/dcim/forms/filtersets.py:1121
 #: netbox/templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "Gerilim"
 
-#: netbox/dcim/forms/bulk_edit.py:841 netbox/dcim/forms/filtersets.py:1113
+#: netbox/dcim/forms/bulk_edit.py:841 netbox/dcim/forms/filtersets.py:1125
 #: netbox/templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "Amper"
 
-#: netbox/dcim/forms/bulk_edit.py:845 netbox/dcim/forms/filtersets.py:1117
+#: netbox/dcim/forms/bulk_edit.py:845 netbox/dcim/forms/filtersets.py:1129
 msgid "Max utilization"
 msgstr "Maksimum kullanım"
 
@@ -3499,13 +3503,13 @@ msgstr "Tahsis edilen çekiliş"
 msgid "Allocated power draw (watts)"
 msgstr "Tahsis edilen güç çekimi (watt)"
 
-#: netbox/dcim/forms/bulk_edit.py:976 netbox/dcim/forms/bulk_import.py:731
+#: netbox/dcim/forms/bulk_edit.py:976 netbox/dcim/forms/bulk_import.py:725
 #: netbox/dcim/forms/model_forms.py:901 netbox/dcim/forms/model_forms.py:1226
 #: netbox/dcim/forms/model_forms.py:1514 netbox/dcim/forms/object_import.py:55
 msgid "Power port"
 msgstr "Güç bağlantı noktası"
 
-#: netbox/dcim/forms/bulk_edit.py:981 netbox/dcim/forms/bulk_import.py:738
+#: netbox/dcim/forms/bulk_edit.py:981 netbox/dcim/forms/bulk_import.py:732
 msgid "Feed leg"
 msgstr "Besleme bacağı"
 
@@ -3514,7 +3518,7 @@ msgid "Management only"
 msgstr "Yalnızca yönetim"
 
 #: netbox/dcim/forms/bulk_edit.py:1037 netbox/dcim/forms/bulk_edit.py:1339
-#: netbox/dcim/forms/bulk_import.py:821 netbox/dcim/forms/filtersets.py:1300
+#: netbox/dcim/forms/bulk_import.py:815 netbox/dcim/forms/filtersets.py:1312
 #: netbox/dcim/forms/object_import.py:90
 #: netbox/dcim/models/device_component_templates.py:411
 #: netbox/dcim/models/device_components.py:671
@@ -3522,14 +3526,14 @@ msgid "PoE mode"
 msgstr "PoE modu"
 
 #: netbox/dcim/forms/bulk_edit.py:1043 netbox/dcim/forms/bulk_edit.py:1345
-#: netbox/dcim/forms/bulk_import.py:827 netbox/dcim/forms/filtersets.py:1305
+#: netbox/dcim/forms/bulk_import.py:821 netbox/dcim/forms/filtersets.py:1317
 #: netbox/dcim/forms/object_import.py:95
 #: netbox/dcim/models/device_component_templates.py:417
 #: netbox/dcim/models/device_components.py:677
 msgid "PoE type"
 msgstr "PoE tipi"
 
-#: netbox/dcim/forms/bulk_edit.py:1049 netbox/dcim/forms/filtersets.py:1310
+#: netbox/dcim/forms/bulk_edit.py:1049 netbox/dcim/forms/filtersets.py:1322
 #: netbox/dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "Kablosuz rolü"
@@ -3557,9 +3561,9 @@ msgstr "GECİKME"
 msgid "Virtual device contexts"
 msgstr "Sanal cihaz bağlamları"
 
-#: netbox/dcim/forms/bulk_edit.py:1324 netbox/dcim/forms/bulk_import.py:659
-#: netbox/dcim/forms/bulk_import.py:685 netbox/dcim/forms/filtersets.py:1169
-#: netbox/dcim/forms/filtersets.py:1191 netbox/dcim/forms/filtersets.py:1264
+#: netbox/dcim/forms/bulk_edit.py:1324 netbox/dcim/forms/bulk_import.py:653
+#: netbox/dcim/forms/bulk_import.py:679 netbox/dcim/forms/filtersets.py:1181
+#: netbox/dcim/forms/filtersets.py:1203 netbox/dcim/forms/filtersets.py:1276
 #: netbox/dcim/tables/devices.py:594
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:67
 #: netbox/templates/dcim/consoleport.html:40
@@ -3567,7 +3571,7 @@ msgstr "Sanal cihaz bağlamları"
 msgid "Speed"
 msgstr "Hız"
 
-#: netbox/dcim/forms/bulk_edit.py:1353 netbox/dcim/forms/bulk_import.py:830
+#: netbox/dcim/forms/bulk_edit.py:1353 netbox/dcim/forms/bulk_import.py:824
 #: netbox/templates/vpn/ikepolicy.html:25
 #: netbox/templates/vpn/ipsecprofile.html:21
 #: netbox/templates/vpn/ipsecprofile.html:48
@@ -3613,7 +3617,7 @@ msgstr "Kablosuz LAN grubu"
 msgid "Wireless LANs"
 msgstr "Kablosuz LAN'lar"
 
-#: netbox/dcim/forms/bulk_edit.py:1401 netbox/dcim/forms/filtersets.py:1237
+#: netbox/dcim/forms/bulk_edit.py:1401 netbox/dcim/forms/filtersets.py:1249
 #: netbox/dcim/forms/model_forms.py:1337 netbox/ipam/forms/bulk_edit.py:271
 #: netbox/ipam/forms/bulk_edit.py:362 netbox/ipam/forms/filtersets.py:169
 #: netbox/templates/dcim/interface.html:122
@@ -3622,13 +3626,13 @@ msgstr "Kablosuz LAN'lar"
 msgid "Addressing"
 msgstr "Adresleme"
 
-#: netbox/dcim/forms/bulk_edit.py:1402 netbox/dcim/forms/filtersets.py:650
+#: netbox/dcim/forms/bulk_edit.py:1402 netbox/dcim/forms/filtersets.py:651
 #: netbox/dcim/forms/model_forms.py:1338
 #: netbox/virtualization/forms/model_forms.py:350
 msgid "Operation"
 msgstr "Operasyon"
 
-#: netbox/dcim/forms/bulk_edit.py:1403 netbox/dcim/forms/filtersets.py:1238
+#: netbox/dcim/forms/bulk_edit.py:1403 netbox/dcim/forms/filtersets.py:1250
 #: netbox/dcim/forms/model_forms.py:935 netbox/dcim/forms/model_forms.py:1340
 msgid "PoE"
 msgstr "PoE"
@@ -3676,8 +3680,8 @@ msgstr "Atanan grup"
 msgid "available options"
 msgstr "mevcut seçenekler"
 
-#: netbox/dcim/forms/bulk_import.py:133 netbox/dcim/forms/bulk_import.py:488
-#: netbox/dcim/forms/bulk_import.py:1293 netbox/ipam/forms/bulk_import.py:174
+#: netbox/dcim/forms/bulk_import.py:133 netbox/dcim/forms/bulk_import.py:482
+#: netbox/dcim/forms/bulk_import.py:1281 netbox/ipam/forms/bulk_import.py:174
 #: netbox/ipam/forms/bulk_import.py:441
 #: netbox/virtualization/forms/bulk_import.py:63
 #: netbox/virtualization/forms/bulk_import.py:89
@@ -3692,105 +3696,106 @@ msgstr "Ana konum"
 msgid "Location not found."
 msgstr "Konum bulunamadı."
 
-#: netbox/dcim/forms/bulk_import.py:199
+#: netbox/dcim/forms/bulk_import.py:196
 msgid "Name of assigned tenant"
 msgstr "Atanan kiracının adı"
 
-#: netbox/dcim/forms/bulk_import.py:211
+#: netbox/dcim/forms/bulk_import.py:208
 msgid "Name of assigned role"
 msgstr "Atanan rolün adı"
 
-#: netbox/dcim/forms/bulk_import.py:217
+#: netbox/dcim/forms/bulk_import.py:214
 msgid "Rack type"
 msgstr "Raf tipi"
 
-#: netbox/dcim/forms/bulk_import.py:222
+#: netbox/dcim/forms/bulk_import.py:219
 msgid "Rail-to-rail width (in inches)"
 msgstr "Ray-ray genişliği (inç cinsinden)"
 
-#: netbox/dcim/forms/bulk_import.py:228
+#: netbox/dcim/forms/bulk_import.py:225
 msgid "Unit for outer dimensions"
 msgstr "Dış boyutlar için birim"
 
-#: netbox/dcim/forms/bulk_import.py:234
+#: netbox/dcim/forms/bulk_import.py:231
 msgid "Unit for rack weights"
 msgstr "Raf ağırlıkları için ünite"
 
-#: netbox/dcim/forms/bulk_import.py:260
+#: netbox/dcim/forms/bulk_import.py:257
 msgid "Parent site"
 msgstr "Ana site"
 
-#: netbox/dcim/forms/bulk_import.py:267 netbox/dcim/forms/bulk_import.py:1306
+#: netbox/dcim/forms/bulk_import.py:264 netbox/dcim/forms/bulk_import.py:1294
 msgid "Rack's location (if any)"
 msgstr "Rafın konumu (varsa)"
 
-#: netbox/dcim/forms/bulk_import.py:276 netbox/dcim/forms/model_forms.py:253
+#: netbox/dcim/forms/bulk_import.py:273 netbox/dcim/forms/model_forms.py:253
 #: netbox/dcim/tables/racks.py:153
 #: netbox/templates/dcim/rackreservation.html:12
 #: netbox/templates/dcim/rackreservation.html:45
 msgid "Units"
 msgstr "Birimler"
 
-#: netbox/dcim/forms/bulk_import.py:279
+#: netbox/dcim/forms/bulk_import.py:276
 msgid "Comma-separated list of individual unit numbers"
 msgstr "Bireysel birim numaralarının virgülle ayrılmış listesi"
 
-#: netbox/dcim/forms/bulk_import.py:322
+#: netbox/dcim/forms/bulk_import.py:319
 msgid "The manufacturer which produces this device type"
 msgstr "Bu cihaz tipini üreten üretici"
 
-#: netbox/dcim/forms/bulk_import.py:329
+#: netbox/dcim/forms/bulk_import.py:326
 msgid "The default platform for devices of this type (optional)"
 msgstr "Bu tür cihazlar için varsayılan platform (isteğe bağlı)"
 
-#: netbox/dcim/forms/bulk_import.py:334
+#: netbox/dcim/forms/bulk_import.py:331
 msgid "Device weight"
-msgstr "Aygıt ağırlığı"
+msgstr "Cihaz ağırlığı"
 
-#: netbox/dcim/forms/bulk_import.py:340
+#: netbox/dcim/forms/bulk_import.py:337
 msgid "Unit for device weight"
-msgstr "Aygıt ağırlığı için birim"
+msgstr "Cihaz ağırlığı için birim"
 
-#: netbox/dcim/forms/bulk_import.py:360
+#: netbox/dcim/forms/bulk_import.py:357
 msgid "Module weight"
 msgstr "Modül ağırlığı"
 
-#: netbox/dcim/forms/bulk_import.py:366
+#: netbox/dcim/forms/bulk_import.py:363
 msgid "Unit for module weight"
 msgstr "Modül ağırlığı için birim"
 
-#: netbox/dcim/forms/bulk_import.py:399
+#: netbox/dcim/forms/bulk_import.py:393
 msgid "Limit platform assignments to this manufacturer"
 msgstr "Platform atamalarını bu üreticiye sınırlayın"
 
-#: netbox/dcim/forms/bulk_import.py:421 netbox/dcim/forms/bulk_import.py:1376
+#: netbox/dcim/forms/bulk_import.py:415 netbox/dcim/forms/bulk_import.py:1364
 #: netbox/tenancy/forms/bulk_import.py:106
 msgid "Assigned role"
 msgstr "Atanan rol"
 
-#: netbox/dcim/forms/bulk_import.py:434
+#: netbox/dcim/forms/bulk_import.py:428
 msgid "Device type manufacturer"
-msgstr "Aygıt tipi üreticisi"
+msgstr "Cihaz tipi üreticisi"
 
-#: netbox/dcim/forms/bulk_import.py:440
+#: netbox/dcim/forms/bulk_import.py:434
 msgid "Device type model"
-msgstr "Aygıt tipi modeli"
+msgstr "Cihaz tipi modeli"
 
-#: netbox/dcim/forms/bulk_import.py:447
+#: netbox/dcim/forms/bulk_import.py:441
 #: netbox/virtualization/forms/bulk_import.py:126
 msgid "Assigned platform"
 msgstr "Atanan platform"
 
-#: netbox/dcim/forms/bulk_import.py:455 netbox/dcim/forms/bulk_import.py:459
+#: netbox/dcim/forms/bulk_import.py:449 netbox/dcim/forms/bulk_import.py:453
 #: netbox/dcim/forms/model_forms.py:479
 msgid "Virtual chassis"
 msgstr "Sanal şasi"
 
-#: netbox/dcim/forms/bulk_import.py:462 netbox/dcim/forms/model_forms.py:465
+#: netbox/dcim/forms/bulk_import.py:456 netbox/dcim/forms/filtersets.py:659
+#: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/model_forms.py:465
 #: netbox/dcim/tables/devices.py:199 netbox/extras/filtersets.py:548
 #: netbox/extras/forms/filtersets.py:331 netbox/ipam/forms/bulk_edit.py:479
 #: netbox/ipam/forms/filtersets.py:415 netbox/ipam/forms/filtersets.py:459
-#: netbox/ipam/forms/model_forms.py:627 netbox/templates/dcim/device.html:232
+#: netbox/ipam/forms/model_forms.py:627 netbox/templates/dcim/device.html:239
 #: netbox/templates/virtualization/cluster.html:10
 #: netbox/templates/virtualization/virtualmachine.html:88
 #: netbox/templates/virtualization/virtualmachine.html:97
@@ -3807,63 +3812,63 @@ msgstr "Sanal şasi"
 msgid "Cluster"
 msgstr "Küme"
 
-#: netbox/dcim/forms/bulk_import.py:466
+#: netbox/dcim/forms/bulk_import.py:460
 msgid "Virtualization cluster"
 msgstr "Sanallaştırma kümesi"
 
-#: netbox/dcim/forms/bulk_import.py:495
+#: netbox/dcim/forms/bulk_import.py:489
 msgid "Assigned location (if any)"
 msgstr "Atanan konum (varsa)"
 
-#: netbox/dcim/forms/bulk_import.py:502
+#: netbox/dcim/forms/bulk_import.py:496
 msgid "Assigned rack (if any)"
 msgstr "Atanmış raf (varsa)"
 
-#: netbox/dcim/forms/bulk_import.py:505
+#: netbox/dcim/forms/bulk_import.py:499
 msgid "Face"
 msgstr "Yüz"
 
-#: netbox/dcim/forms/bulk_import.py:508
+#: netbox/dcim/forms/bulk_import.py:502
 msgid "Mounted rack face"
 msgstr "Monte edilmiş raf yüzü"
 
-#: netbox/dcim/forms/bulk_import.py:515
+#: netbox/dcim/forms/bulk_import.py:509
 msgid "Parent device (for child devices)"
-msgstr "Ana cihaz (çocuk cihazlar için)"
+msgstr "Ana cihaz (alt cihazlar için)"
 
-#: netbox/dcim/forms/bulk_import.py:518
+#: netbox/dcim/forms/bulk_import.py:512
 msgid "Device bay"
-msgstr "Aygıt yuvası"
+msgstr "Cihaz yuvası"
+
+#: netbox/dcim/forms/bulk_import.py:516
+msgid "Device bay in which this device is installed (for child devices)"
+msgstr "Bu cihazın kurulu olduğu cihaz yuvası (alt cihazlar için)"
 
 #: netbox/dcim/forms/bulk_import.py:522
-msgid "Device bay in which this device is installed (for child devices)"
-msgstr "Bu cihazın kurulu olduğu cihaz yuvası (çocuk cihazlar için)"
-
-#: netbox/dcim/forms/bulk_import.py:528
 msgid "Airflow direction"
 msgstr "Hava akışı yönü"
 
-#: netbox/dcim/forms/bulk_import.py:589
+#: netbox/dcim/forms/bulk_import.py:583
 msgid "The device in which this module is installed"
 msgstr "Bu modülün kurulu olduğu cihaz"
 
-#: netbox/dcim/forms/bulk_import.py:592 netbox/dcim/forms/model_forms.py:583
+#: netbox/dcim/forms/bulk_import.py:586 netbox/dcim/forms/model_forms.py:583
 msgid "Module bay"
 msgstr "Modül yuvası"
 
-#: netbox/dcim/forms/bulk_import.py:595
+#: netbox/dcim/forms/bulk_import.py:589
 msgid "The module bay in which this module is installed"
 msgstr "Bu modülün kurulu olduğu modül yuvası"
 
-#: netbox/dcim/forms/bulk_import.py:601
+#: netbox/dcim/forms/bulk_import.py:595
 msgid "The type of module"
 msgstr "Modül türü"
 
-#: netbox/dcim/forms/bulk_import.py:609 netbox/dcim/forms/model_forms.py:599
+#: netbox/dcim/forms/bulk_import.py:603 netbox/dcim/forms/model_forms.py:599
 msgid "Replicate components"
 msgstr "Bileşenleri çoğaltın"
 
-#: netbox/dcim/forms/bulk_import.py:611
+#: netbox/dcim/forms/bulk_import.py:605
 msgid ""
 "Automatically populate components associated with this module type (enabled "
 "by default)"
@@ -3871,87 +3876,87 @@ msgstr ""
 "Bu modül türüyle ilişkili bileşenleri otomatik olarak doldurun (varsayılan "
 "olarak etkindir)"
 
-#: netbox/dcim/forms/bulk_import.py:614 netbox/dcim/forms/model_forms.py:605
+#: netbox/dcim/forms/bulk_import.py:608 netbox/dcim/forms/model_forms.py:605
 msgid "Adopt components"
 msgstr "Bileşenleri benimseyin"
 
-#: netbox/dcim/forms/bulk_import.py:616 netbox/dcim/forms/model_forms.py:608
+#: netbox/dcim/forms/bulk_import.py:610 netbox/dcim/forms/model_forms.py:608
 msgid "Adopt already existing components"
 msgstr "Mevcut bileşenleri benimseyin"
 
-#: netbox/dcim/forms/bulk_import.py:656 netbox/dcim/forms/bulk_import.py:682
-#: netbox/dcim/forms/bulk_import.py:708
+#: netbox/dcim/forms/bulk_import.py:650 netbox/dcim/forms/bulk_import.py:676
+#: netbox/dcim/forms/bulk_import.py:702
 msgid "Port type"
 msgstr "Bağlantı noktası tipi"
 
-#: netbox/dcim/forms/bulk_import.py:664 netbox/dcim/forms/bulk_import.py:690
+#: netbox/dcim/forms/bulk_import.py:658 netbox/dcim/forms/bulk_import.py:684
 msgid "Port speed in bps"
 msgstr "Bps cinsinden bağlantı noktası hızı"
 
-#: netbox/dcim/forms/bulk_import.py:728
+#: netbox/dcim/forms/bulk_import.py:722
 msgid "Outlet type"
 msgstr "Çıkış tipi"
 
-#: netbox/dcim/forms/bulk_import.py:735
+#: netbox/dcim/forms/bulk_import.py:729
 msgid "Local power port which feeds this outlet"
 msgstr "Bu prizi besleyen yerel güç portu"
 
-#: netbox/dcim/forms/bulk_import.py:741
+#: netbox/dcim/forms/bulk_import.py:735
 msgid "Electrical phase (for three-phase circuits)"
 msgstr "Elektrik fazı (üç fazlı devreler için)"
 
-#: netbox/dcim/forms/bulk_import.py:782 netbox/dcim/forms/model_forms.py:1264
+#: netbox/dcim/forms/bulk_import.py:776 netbox/dcim/forms/model_forms.py:1264
 #: netbox/virtualization/forms/bulk_import.py:155
 #: netbox/virtualization/forms/model_forms.py:305
 msgid "Parent interface"
 msgstr "Ebeveyn arayüzü"
 
-#: netbox/dcim/forms/bulk_import.py:789 netbox/dcim/forms/model_forms.py:1272
+#: netbox/dcim/forms/bulk_import.py:783 netbox/dcim/forms/model_forms.py:1272
 #: netbox/virtualization/forms/bulk_import.py:162
 #: netbox/virtualization/forms/model_forms.py:313
 msgid "Bridged interface"
 msgstr "Köprülü arayüz"
 
-#: netbox/dcim/forms/bulk_import.py:792
+#: netbox/dcim/forms/bulk_import.py:786
 msgid "Lag"
 msgstr "Gecikme"
 
-#: netbox/dcim/forms/bulk_import.py:796
+#: netbox/dcim/forms/bulk_import.py:790
 msgid "Parent LAG interface"
 msgstr "Ebeveyn LAG arayüzü"
 
-#: netbox/dcim/forms/bulk_import.py:799
+#: netbox/dcim/forms/bulk_import.py:793
 msgid "Vdcs"
 msgstr "Vdcs"
 
-#: netbox/dcim/forms/bulk_import.py:804
+#: netbox/dcim/forms/bulk_import.py:798
 msgid "VDC names separated by commas, encased with double quotes. Example:"
 msgstr ""
 "VDC isimleri virgülle ayrılmış, çift tırnak işareti ile çevrelenmiştir. "
 "Örnek:"
 
-#: netbox/dcim/forms/bulk_import.py:810
+#: netbox/dcim/forms/bulk_import.py:804
 msgid "Physical medium"
 msgstr "Fiziksel ortam"
 
-#: netbox/dcim/forms/bulk_import.py:813 netbox/dcim/forms/filtersets.py:1271
+#: netbox/dcim/forms/bulk_import.py:807 netbox/dcim/forms/filtersets.py:1283
 msgid "Duplex"
 msgstr "Dubleks"
 
-#: netbox/dcim/forms/bulk_import.py:818
+#: netbox/dcim/forms/bulk_import.py:812
 msgid "Poe mode"
 msgstr "Poe modu"
 
-#: netbox/dcim/forms/bulk_import.py:824
+#: netbox/dcim/forms/bulk_import.py:818
 msgid "Poe type"
 msgstr "Poe tipi"
 
-#: netbox/dcim/forms/bulk_import.py:833
+#: netbox/dcim/forms/bulk_import.py:827
 #: netbox/virtualization/forms/bulk_import.py:168
 msgid "IEEE 802.1Q operational mode (for L2 interfaces)"
 msgstr "IEEE 802.1Q çalışma modu (L2 arayüzleri için)"
 
-#: netbox/dcim/forms/bulk_import.py:840 netbox/ipam/forms/bulk_import.py:160
+#: netbox/dcim/forms/bulk_import.py:834 netbox/ipam/forms/bulk_import.py:160
 #: netbox/ipam/forms/bulk_import.py:246 netbox/ipam/forms/bulk_import.py:282
 #: netbox/ipam/forms/filtersets.py:201 netbox/ipam/forms/filtersets.py:277
 #: netbox/ipam/forms/filtersets.py:336
@@ -3959,150 +3964,150 @@ msgstr "IEEE 802.1Q çalışma modu (L2 arayüzleri için)"
 msgid "Assigned VRF"
 msgstr "Atanmış VRF"
 
-#: netbox/dcim/forms/bulk_import.py:843
+#: netbox/dcim/forms/bulk_import.py:837
 msgid "Rf role"
 msgstr "Rf rolü"
 
-#: netbox/dcim/forms/bulk_import.py:846
+#: netbox/dcim/forms/bulk_import.py:840
 msgid "Wireless role (AP/station)"
 msgstr "Kablosuz rolü (AP/istasyon)"
 
-#: netbox/dcim/forms/bulk_import.py:882
+#: netbox/dcim/forms/bulk_import.py:876
 #, python-brace-format
 msgid "VDC {vdc} is not assigned to device {device}"
 msgstr "VDC {vdc} cihaza atanmadı {device}"
 
-#: netbox/dcim/forms/bulk_import.py:896 netbox/dcim/forms/model_forms.py:948
+#: netbox/dcim/forms/bulk_import.py:890 netbox/dcim/forms/model_forms.py:948
 #: netbox/dcim/forms/model_forms.py:1522
 #: netbox/dcim/forms/object_import.py:117
 msgid "Rear port"
 msgstr "Arka bağlantı noktası"
 
-#: netbox/dcim/forms/bulk_import.py:899
+#: netbox/dcim/forms/bulk_import.py:893
 msgid "Corresponding rear port"
 msgstr "İlgili arka bağlantı noktası"
 
-#: netbox/dcim/forms/bulk_import.py:904 netbox/dcim/forms/bulk_import.py:945
-#: netbox/dcim/forms/bulk_import.py:1164
+#: netbox/dcim/forms/bulk_import.py:898 netbox/dcim/forms/bulk_import.py:939
+#: netbox/dcim/forms/bulk_import.py:1155
 msgid "Physical medium classification"
 msgstr "Fiziksel ortam sınıflandırması"
 
-#: netbox/dcim/forms/bulk_import.py:973 netbox/dcim/tables/devices.py:805
+#: netbox/dcim/forms/bulk_import.py:967 netbox/dcim/tables/devices.py:805
 msgid "Installed device"
 msgstr "Yüklü cihaz"
 
-#: netbox/dcim/forms/bulk_import.py:977
+#: netbox/dcim/forms/bulk_import.py:971
 msgid "Child device installed within this bay"
 msgstr "Bu bölmeye takılan çocuk cihazı"
 
-#: netbox/dcim/forms/bulk_import.py:979
+#: netbox/dcim/forms/bulk_import.py:973
 msgid "Child device not found."
 msgstr "Çocuk cihazı bulunamadı."
 
-#: netbox/dcim/forms/bulk_import.py:1037
+#: netbox/dcim/forms/bulk_import.py:1031
 msgid "Parent inventory item"
 msgstr "Ana envanter kalemi"
 
-#: netbox/dcim/forms/bulk_import.py:1040
+#: netbox/dcim/forms/bulk_import.py:1034
 msgid "Component type"
 msgstr "Bileşen tipi"
 
-#: netbox/dcim/forms/bulk_import.py:1044
+#: netbox/dcim/forms/bulk_import.py:1038
 msgid "Component Type"
 msgstr "Bileşen Türü"
 
-#: netbox/dcim/forms/bulk_import.py:1047
+#: netbox/dcim/forms/bulk_import.py:1041
 msgid "Compnent name"
 msgstr "Bileşen adı"
 
-#: netbox/dcim/forms/bulk_import.py:1049
+#: netbox/dcim/forms/bulk_import.py:1043
 msgid "Component Name"
 msgstr "Bileşen Adı"
 
-#: netbox/dcim/forms/bulk_import.py:1091
+#: netbox/dcim/forms/bulk_import.py:1085
 #, python-brace-format
 msgid "Component not found: {device} - {component_name}"
 msgstr "Bileşen bulunamadı: {device} - {component_name}"
 
-#: netbox/dcim/forms/bulk_import.py:1119
+#: netbox/dcim/forms/bulk_import.py:1110
 msgid "Side A device"
 msgstr "A Tarafı Cihazı"
 
-#: netbox/dcim/forms/bulk_import.py:1122 netbox/dcim/forms/bulk_import.py:1140
+#: netbox/dcim/forms/bulk_import.py:1113 netbox/dcim/forms/bulk_import.py:1131
 msgid "Device name"
-msgstr "Aygıt adı"
+msgstr "Cihaz adı"
 
-#: netbox/dcim/forms/bulk_import.py:1125
+#: netbox/dcim/forms/bulk_import.py:1116
 msgid "Side A type"
 msgstr "Taraf A tipi"
 
-#: netbox/dcim/forms/bulk_import.py:1128 netbox/dcim/forms/bulk_import.py:1146
+#: netbox/dcim/forms/bulk_import.py:1119 netbox/dcim/forms/bulk_import.py:1137
 msgid "Termination type"
 msgstr "Sonlandırma türü"
 
-#: netbox/dcim/forms/bulk_import.py:1131
+#: netbox/dcim/forms/bulk_import.py:1122
 msgid "Side A name"
 msgstr "A Tarafı adı"
 
-#: netbox/dcim/forms/bulk_import.py:1132 netbox/dcim/forms/bulk_import.py:1150
+#: netbox/dcim/forms/bulk_import.py:1123 netbox/dcim/forms/bulk_import.py:1141
 msgid "Termination name"
 msgstr "Fesih adı"
 
-#: netbox/dcim/forms/bulk_import.py:1137
+#: netbox/dcim/forms/bulk_import.py:1128
 msgid "Side B device"
 msgstr "B tarafı cihazı"
 
-#: netbox/dcim/forms/bulk_import.py:1143
+#: netbox/dcim/forms/bulk_import.py:1134
 msgid "Side B type"
 msgstr "Taraf B tipi"
 
-#: netbox/dcim/forms/bulk_import.py:1149
+#: netbox/dcim/forms/bulk_import.py:1140
 msgid "Side B name"
 msgstr "B tarafı adı"
 
-#: netbox/dcim/forms/bulk_import.py:1158
+#: netbox/dcim/forms/bulk_import.py:1149
 #: netbox/wireless/forms/bulk_import.py:86
 msgid "Connection status"
 msgstr "Bağlantı durumu"
 
-#: netbox/dcim/forms/bulk_import.py:1213
+#: netbox/dcim/forms/bulk_import.py:1201
 #, python-brace-format
 msgid "Side {side_upper}: {device} {termination_object} is already connected"
 msgstr "Yan {side_upper}: {device} {termination_object} zaten bağlı"
 
-#: netbox/dcim/forms/bulk_import.py:1219
+#: netbox/dcim/forms/bulk_import.py:1207
 #, python-brace-format
 msgid "{side_upper} side termination not found: {device} {name}"
 msgstr "{side_upper} yan sonlandırma bulunamadı: {device} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:1244 netbox/dcim/forms/model_forms.py:733
-#: netbox/dcim/tables/devices.py:992 netbox/templates/dcim/device.html:131
+#: netbox/dcim/forms/bulk_import.py:1232 netbox/dcim/forms/model_forms.py:733
+#: netbox/dcim/tables/devices.py:992 netbox/templates/dcim/device.html:132
 #: netbox/templates/dcim/virtualchassis.html:27
 #: netbox/templates/dcim/virtualchassis.html:67
 msgid "Master"
 msgstr "Usta"
 
-#: netbox/dcim/forms/bulk_import.py:1248
+#: netbox/dcim/forms/bulk_import.py:1236
 msgid "Master device"
 msgstr "Ana cihaz"
 
-#: netbox/dcim/forms/bulk_import.py:1265
+#: netbox/dcim/forms/bulk_import.py:1253
 msgid "Name of parent site"
 msgstr "Ana sitenin adı"
 
-#: netbox/dcim/forms/bulk_import.py:1299
+#: netbox/dcim/forms/bulk_import.py:1287
 msgid "Upstream power panel"
 msgstr "Yukarı akış güç paneli"
 
-#: netbox/dcim/forms/bulk_import.py:1329
+#: netbox/dcim/forms/bulk_import.py:1317
 msgid "Primary or redundant"
 msgstr "Birincil veya gereksiz"
 
-#: netbox/dcim/forms/bulk_import.py:1334
+#: netbox/dcim/forms/bulk_import.py:1322
 msgid "Supply type (AC/DC)"
 msgstr "Besleme tipi (AC/DC)"
 
-#: netbox/dcim/forms/bulk_import.py:1339
+#: netbox/dcim/forms/bulk_import.py:1327
 msgid "Single or three-phase"
 msgstr "Tek veya üç fazlı"
 
@@ -4159,11 +4164,11 @@ msgstr "Güç Beslemesi"
 msgid "Side"
 msgstr "Yan"
 
-#: netbox/dcim/forms/filtersets.py:142
+#: netbox/dcim/forms/filtersets.py:143
 msgid "Parent region"
 msgstr "Ana bölge"
 
-#: netbox/dcim/forms/filtersets.py:156 netbox/tenancy/forms/bulk_import.py:28
+#: netbox/dcim/forms/filtersets.py:157 netbox/tenancy/forms/bulk_import.py:28
 #: netbox/tenancy/forms/bulk_import.py:62
 #: netbox/tenancy/forms/filtersets.py:33 netbox/tenancy/forms/filtersets.py:62
 #: netbox/wireless/forms/bulk_import.py:25
@@ -4171,51 +4176,58 @@ msgstr "Ana bölge"
 msgid "Parent group"
 msgstr "Ebeveyn grubu"
 
-#: netbox/dcim/forms/filtersets.py:247 netbox/dcim/forms/filtersets.py:332
+#: netbox/dcim/forms/filtersets.py:248 netbox/dcim/forms/filtersets.py:333
 msgid "Function"
 msgstr "Fonksiyon"
 
-#: netbox/dcim/forms/filtersets.py:418 netbox/dcim/forms/model_forms.py:317
+#: netbox/dcim/forms/filtersets.py:419 netbox/dcim/forms/model_forms.py:317
 #: netbox/templates/inc/panels/image_attachments.html:6
 msgid "Images"
 msgstr "Görüntüler"
 
-#: netbox/dcim/forms/filtersets.py:421 netbox/dcim/forms/filtersets.py:546
-#: netbox/dcim/forms/filtersets.py:656
+#: netbox/dcim/forms/filtersets.py:422 netbox/dcim/forms/filtersets.py:547
+#: netbox/dcim/forms/filtersets.py:657
 msgid "Components"
 msgstr "Bileşenleri"
 
-#: netbox/dcim/forms/filtersets.py:441
+#: netbox/dcim/forms/filtersets.py:442
 msgid "Subdevice role"
 msgstr "Alt aygıt rolü"
 
-#: netbox/dcim/forms/filtersets.py:719
+#: netbox/dcim/forms/filtersets.py:721
 msgid "Model"
 msgstr "Modeli"
 
-#: netbox/dcim/forms/filtersets.py:763
+#: netbox/dcim/forms/filtersets.py:765
 msgid "Has an OOB IP"
 msgstr "OOB IP'ye sahiptir"
 
-#: netbox/dcim/forms/filtersets.py:770
+#: netbox/dcim/forms/filtersets.py:772
 msgid "Virtual chassis member"
 msgstr "Sanal şasi elemanı"
 
-#: netbox/dcim/forms/filtersets.py:819
+#: netbox/dcim/forms/filtersets.py:821
 msgid "Has virtual device contexts"
 msgstr "Sanal cihaz bağlamlarına sahiptir"
 
-#: netbox/dcim/forms/filtersets.py:1129
+#: netbox/dcim/forms/filtersets.py:834 netbox/extras/filtersets.py:537
+#: netbox/ipam/forms/bulk_edit.py:476 netbox/ipam/forms/filtersets.py:464
+#: netbox/ipam/forms/model_forms.py:624
+#: netbox/virtualization/forms/filtersets.py:112
+msgid "Cluster group"
+msgstr "Küme grubu"
+
+#: netbox/dcim/forms/filtersets.py:1141
 msgid "Cabled"
 msgstr "Kablolu"
 
-#: netbox/dcim/forms/filtersets.py:1136
+#: netbox/dcim/forms/filtersets.py:1148
 msgid "Occupied"
 msgstr "işgal"
 
-#: netbox/dcim/forms/filtersets.py:1161 netbox/dcim/forms/filtersets.py:1183
-#: netbox/dcim/forms/filtersets.py:1205 netbox/dcim/forms/filtersets.py:1222
-#: netbox/dcim/forms/filtersets.py:1242 netbox/dcim/tables/devices.py:352
+#: netbox/dcim/forms/filtersets.py:1173 netbox/dcim/forms/filtersets.py:1195
+#: netbox/dcim/forms/filtersets.py:1217 netbox/dcim/forms/filtersets.py:1234
+#: netbox/dcim/forms/filtersets.py:1254 netbox/dcim/tables/devices.py:352
 #: netbox/templates/dcim/consoleport.html:55
 #: netbox/templates/dcim/consoleserverport.html:55
 #: netbox/templates/dcim/frontport.html:69
@@ -4227,42 +4239,42 @@ msgstr "işgal"
 msgid "Connection"
 msgstr "Bağlantı"
 
-#: netbox/dcim/forms/filtersets.py:1254 netbox/extras/forms/bulk_edit.py:316
-#: netbox/extras/forms/bulk_import.py:242
+#: netbox/dcim/forms/filtersets.py:1266 netbox/extras/forms/bulk_edit.py:316
+#: netbox/extras/forms/bulk_import.py:239
 #: netbox/extras/forms/filtersets.py:473
 #: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:513
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr "Tür"
 
-#: netbox/dcim/forms/filtersets.py:1283
+#: netbox/dcim/forms/filtersets.py:1295
 msgid "Mgmt only"
 msgstr "Sadece Mgmt"
 
-#: netbox/dcim/forms/filtersets.py:1295 netbox/dcim/forms/model_forms.py:1330
+#: netbox/dcim/forms/filtersets.py:1307 netbox/dcim/forms/model_forms.py:1330
 #: netbox/dcim/models/device_components.py:630
 #: netbox/templates/dcim/interface.html:129
 msgid "WWN"
 msgstr "WWN"
 
-#: netbox/dcim/forms/filtersets.py:1315
+#: netbox/dcim/forms/filtersets.py:1327
 msgid "Wireless channel"
 msgstr "Kablosuz kanal"
 
-#: netbox/dcim/forms/filtersets.py:1319
+#: netbox/dcim/forms/filtersets.py:1331
 msgid "Channel frequency (MHz)"
 msgstr "Kanal frekansı (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1323
+#: netbox/dcim/forms/filtersets.py:1335
 msgid "Channel width (MHz)"
 msgstr "Kanal genişliği (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1327
+#: netbox/dcim/forms/filtersets.py:1339
 #: netbox/templates/dcim/interface.html:85
 msgid "Transmit power (dBm)"
 msgstr "İletim gücü (dBm)"
 
-#: netbox/dcim/forms/filtersets.py:1350 netbox/dcim/forms/filtersets.py:1372
+#: netbox/dcim/forms/filtersets.py:1362 netbox/dcim/forms/filtersets.py:1384
 #: netbox/dcim/tables/devices.py:316 netbox/templates/dcim/cable.html:12
 #: netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/frontport.html:77
@@ -4273,7 +4285,7 @@ msgstr "İletim gücü (dBm)"
 msgid "Cable"
 msgstr "Kablo"
 
-#: netbox/dcim/forms/filtersets.py:1442 netbox/dcim/tables/devices.py:915
+#: netbox/dcim/forms/filtersets.py:1454 netbox/dcim/tables/devices.py:915
 msgid "Discovered"
 msgstr "Keşfedildi"
 
@@ -4298,7 +4310,7 @@ msgstr "Envanter Kontrolü"
 msgid "Outer Dimensions"
 msgstr "Dış Ölçüler"
 
-#: netbox/dcim/forms/model_forms.py:233 netbox/templates/dcim/device.html:308
+#: netbox/dcim/forms/model_forms.py:233 netbox/templates/dcim/device.html:315
 #: netbox/templates/dcim/rack.html:73
 msgid "Dimensions"
 msgstr "Ölçüler"
@@ -4328,7 +4340,7 @@ msgstr "Şasi"
 #: netbox/dcim/forms/model_forms.py:366
 #: netbox/templates/dcim/devicerole.html:23
 msgid "Device Role"
-msgstr "Aygıt Rolü"
+msgstr "Cİhaz Rolü"
 
 #: netbox/dcim/forms/model_forms.py:433 netbox/dcim/models/devices.py:634
 msgid "The lowest-numbered unit occupied by the device"
@@ -4338,7 +4350,7 @@ msgstr "Cihazın kullandığı en düşük numaralı birim"
 msgid "The position in the virtual chassis this device is identified by"
 msgstr "Bu cihazın sanal kasadaki konumu tanımlanır"
 
-#: netbox/dcim/forms/model_forms.py:494 netbox/templates/dcim/device.html:132
+#: netbox/dcim/forms/model_forms.py:494 netbox/templates/dcim/device.html:133
 #: netbox/templates/dcim/virtualchassis.html:68
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:26
@@ -4518,13 +4530,13 @@ msgstr "Envanter Öğesi"
 msgid "Inventory Item Role"
 msgstr "Envanter Öğesi Rolü"
 
-#: netbox/dcim/forms/model_forms.py:1617 netbox/templates/dcim/device.html:188
+#: netbox/dcim/forms/model_forms.py:1617 netbox/templates/dcim/device.html:190
 #: netbox/templates/dcim/virtualdevicecontext.html:30
 #: netbox/templates/virtualization/virtualmachine.html:48
 msgid "Primary IPv4"
 msgstr "Birincil IPv4"
 
-#: netbox/dcim/forms/model_forms.py:1626 netbox/templates/dcim/device.html:204
+#: netbox/dcim/forms/model_forms.py:1626 netbox/templates/dcim/device.html:206
 #: netbox/templates/dcim/virtualdevicecontext.html:41
 #: netbox/templates/virtualization/virtualmachine.html:64
 msgid "Primary IPv6"
@@ -4612,7 +4624,7 @@ msgstr "İlk VC üyesi için bir pozisyon belirtilmelidir."
 #: netbox/dcim/models/cables.py:62
 #: netbox/dcim/models/device_component_templates.py:55
 #: netbox/dcim/models/device_components.py:63
-#: netbox/extras/models/customfields.py:109
+#: netbox/extras/models/customfields.py:110
 msgid "label"
 msgstr "etiketlemek"
 
@@ -5289,13 +5301,13 @@ msgstr "Bu tür bir cihaz ({device_type}) cihaz bölmelerini desteklemez."
 
 #: netbox/dcim/models/device_components.py:1143
 msgid "Cannot install a device into itself."
-msgstr "Bir aygıt kendi içine yüklenemiyor."
+msgstr "Bir cihaz kendi içine yüklenemiyor."
 
 #: netbox/dcim/models/device_components.py:1151
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
-msgstr "Belirtilen aygıt yüklenemiyor; cihaz zaten yüklü {bay}."
+msgstr "Belirtilen cihaz yüklenemiyor; cihaz zaten yüklü {bay}."
 
 #: netbox/dcim/models/device_components.py:1172
 msgid "inventory item role"
@@ -5395,7 +5407,7 @@ msgstr "tam derinliktir"
 
 #: netbox/dcim/models/devices.py:117
 msgid "Device consumes both front and rear rack faces."
-msgstr "Aygıt hem ön hem de arka raf yüzlerini tüketir."
+msgstr "Cihaz hem ön hem de arka kabin yüzlerini tüketir."
 
 #: netbox/dcim/models/devices.py:123
 msgid "parent/child status"
@@ -5406,8 +5418,8 @@ msgid ""
 "Parent devices house child devices in device bays. Leave blank if this "
 "device type is neither a parent nor a child."
 msgstr ""
-"Ana cihazlar, alt aygıtları cihaz yuvalarında barındırır. Bu cihaz türü "
-"ebeveyn veya çocuk değilse boş bırakın."
+"Ana cihazlar, alt cihazarı cihaz yuvalarında barındırır. Bu cihaz türü ana "
+"veya alt cihaz değilse boş bırakın."
 
 #: netbox/dcim/models/devices.py:128 netbox/dcim/models/devices.py:649
 msgid "airflow"
@@ -5431,8 +5443,8 @@ msgid ""
 "Device {device} in rack {rack} does not have sufficient space to accommodate"
 " a height of {height}U"
 msgstr ""
-"Aygıt {device} rafta {rack} bir yüksekliği barındırmak için yeterli alana "
-"sahip değildir {height}U"
+"{rack} kabininde {device} cihazını {height}U yüksekliğinde barındırmak için "
+"yeterli alan bulunmamaktadır"
 
 #: netbox/dcim/models/devices.py:322
 #, python-brace-format
@@ -5449,7 +5461,7 @@ msgid ""
 "Must delete all device bay templates associated with this device before "
 "declassifying it as a parent device."
 msgstr ""
-"Ana aygıt olarak sınıflandırmadan önce bu aygıtla ilişkili tüm aygıt yuvası "
+"Ana cihaz olarak sınıflandırmadan önce bu cihazla ilişkili tüm cihaz yuvası "
 "şablonlarını silmeniz gerekir."
 
 #: netbox/dcim/models/devices.py:337
@@ -5705,7 +5717,7 @@ msgstr "belirlemek"
 msgid "Numeric identifier unique to the parent device"
 msgstr "Ana aygıta benzersiz sayısal tanımlayıcı"
 
-#: netbox/dcim/models/devices.py:1398 netbox/extras/models/customfields.py:210
+#: netbox/dcim/models/devices.py:1398 netbox/extras/models/customfields.py:211
 #: netbox/extras/models/models.py:127 netbox/extras/models/models.py:722
 #: netbox/netbox/models/__init__.py:114
 msgid "comments"
@@ -6055,43 +6067,43 @@ msgstr "konumlar"
 msgid "Parent location ({parent}) must belong to the same site ({site})."
 msgstr "Ana konum ({parent}) aynı siteye ({site}) ait olmalıdır."
 
-#: netbox/dcim/tables/cables.py:54
+#: netbox/dcim/tables/cables.py:55
 msgid "Termination A"
 msgstr "Fesih A"
 
-#: netbox/dcim/tables/cables.py:59
+#: netbox/dcim/tables/cables.py:60
 msgid "Termination B"
 msgstr "Sonlandırma B"
 
-#: netbox/dcim/tables/cables.py:65 netbox/wireless/tables/wirelesslink.py:22
+#: netbox/dcim/tables/cables.py:66 netbox/wireless/tables/wirelesslink.py:22
 msgid "Device A"
 msgstr "Aygıt A"
 
-#: netbox/dcim/tables/cables.py:71 netbox/wireless/tables/wirelesslink.py:31
+#: netbox/dcim/tables/cables.py:72 netbox/wireless/tables/wirelesslink.py:31
 msgid "Device B"
 msgstr "Aygıt B"
 
-#: netbox/dcim/tables/cables.py:77
+#: netbox/dcim/tables/cables.py:78
 msgid "Location A"
 msgstr "Konum A"
 
-#: netbox/dcim/tables/cables.py:83
+#: netbox/dcim/tables/cables.py:84
 msgid "Location B"
 msgstr "Konum B"
 
-#: netbox/dcim/tables/cables.py:89
+#: netbox/dcim/tables/cables.py:90
 msgid "Rack A"
 msgstr "Raf A"
 
-#: netbox/dcim/tables/cables.py:95
+#: netbox/dcim/tables/cables.py:96
 msgid "Rack B"
 msgstr "Raf B"
 
-#: netbox/dcim/tables/cables.py:101
+#: netbox/dcim/tables/cables.py:102
 msgid "Site A"
 msgstr "Site A"
 
-#: netbox/dcim/tables/cables.py:107
+#: netbox/dcim/tables/cables.py:108
 msgid "Site B"
 msgstr "Site B"
 
@@ -6107,7 +6119,7 @@ msgstr "Ulaşılabilir"
 #: netbox/netbox/navigation/menu.py:60 netbox/netbox/navigation/menu.py:62
 #: netbox/virtualization/forms/model_forms.py:122
 #: netbox/virtualization/tables/clusters.py:83
-#: netbox/virtualization/views.py:202
+#: netbox/virtualization/views.py:205
 msgid "Devices"
 msgstr "Aygıtlar"
 
@@ -6188,8 +6200,8 @@ msgid "Power outlets"
 msgstr "Elektrik prizleri"
 
 #: netbox/dcim/tables/devices.py:243 netbox/dcim/tables/devices.py:1046
-#: netbox/dcim/tables/devicetypes.py:125 netbox/dcim/views.py:985
-#: netbox/dcim/views.py:1224 netbox/dcim/views.py:1900
+#: netbox/dcim/tables/devicetypes.py:125 netbox/dcim/views.py:988
+#: netbox/dcim/views.py:1227 netbox/dcim/views.py:1908
 #: netbox/netbox/navigation/menu.py:81 netbox/netbox/navigation/menu.py:237
 #: netbox/templates/dcim/device/base.html:37
 #: netbox/templates/dcim/device_list.html:43
@@ -6201,7 +6213,7 @@ msgstr "Elektrik prizleri"
 #: netbox/templates/virtualization/virtualmachine/base.html:27
 #: netbox/templates/virtualization/virtualmachine_list.html:14
 #: netbox/virtualization/tables/virtualmachines.py:100
-#: netbox/virtualization/views.py:359 netbox/wireless/tables/wirelesslan.py:55
+#: netbox/virtualization/views.py:363 netbox/wireless/tables/wirelesslan.py:55
 msgid "Interfaces"
 msgstr "Arayüzler"
 
@@ -6211,7 +6223,7 @@ msgstr "Ön bağlantı noktaları"
 
 #: netbox/dcim/tables/devices.py:252
 msgid "Device bays"
-msgstr "Aygıt yuvaları"
+msgstr "Cihaz yuvaları"
 
 #: netbox/dcim/tables/devices.py:255
 msgid "Module bays"
@@ -6227,8 +6239,8 @@ msgid "Module Bay"
 msgstr "Modül Yuvası"
 
 #: netbox/dcim/tables/devices.py:310 netbox/dcim/tables/devicetypes.py:48
-#: netbox/dcim/tables/devicetypes.py:140 netbox/dcim/views.py:1060
-#: netbox/dcim/views.py:1993 netbox/netbox/navigation/menu.py:90
+#: netbox/dcim/tables/devicetypes.py:140 netbox/dcim/views.py:1063
+#: netbox/dcim/views.py:2006 netbox/netbox/navigation/menu.py:90
 #: netbox/templates/dcim/device/base.html:52
 #: netbox/templates/dcim/device_list.html:71
 #: netbox/templates/dcim/devicetype/base.html:49
@@ -6258,8 +6270,8 @@ msgid "Allocated draw (W)"
 msgstr "Tahsis edilen çekiliş (W)"
 
 #: netbox/dcim/tables/devices.py:546 netbox/ipam/forms/model_forms.py:747
-#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:589
-#: netbox/ipam/views.py:688 netbox/netbox/navigation/menu.py:145
+#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:596
+#: netbox/ipam/views.py:696 netbox/netbox/navigation/menu.py:145
 #: netbox/netbox/navigation/menu.py:147
 #: netbox/templates/dcim/interface.html:339
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
@@ -6322,7 +6334,7 @@ msgstr "Öğeler"
 #: netbox/dcim/tables/devicetypes.py:38 netbox/netbox/navigation/menu.py:71
 #: netbox/netbox/navigation/menu.py:73
 msgid "Device Types"
-msgstr "Aygıt Türleri"
+msgstr "Cihaz Türleri"
 
 #: netbox/dcim/tables/devicetypes.py:43 netbox/netbox/navigation/menu.py:74
 msgid "Module Types"
@@ -6352,8 +6364,8 @@ msgstr "U Yüksekliği"
 msgid "Instances"
 msgstr "Örnekler"
 
-#: netbox/dcim/tables/devicetypes.py:113 netbox/dcim/views.py:925
-#: netbox/dcim/views.py:1164 netbox/dcim/views.py:1840
+#: netbox/dcim/tables/devicetypes.py:113 netbox/dcim/views.py:928
+#: netbox/dcim/views.py:1167 netbox/dcim/views.py:1844
 #: netbox/netbox/navigation/menu.py:84
 #: netbox/templates/dcim/device/base.html:25
 #: netbox/templates/dcim/device_list.html:15
@@ -6363,8 +6375,8 @@ msgstr "Örnekler"
 msgid "Console Ports"
 msgstr "Konsol Bağlantı Noktaları"
 
-#: netbox/dcim/tables/devicetypes.py:116 netbox/dcim/views.py:940
-#: netbox/dcim/views.py:1179 netbox/dcim/views.py:1855
+#: netbox/dcim/tables/devicetypes.py:116 netbox/dcim/views.py:943
+#: netbox/dcim/views.py:1182 netbox/dcim/views.py:1860
 #: netbox/netbox/navigation/menu.py:85
 #: netbox/templates/dcim/device/base.html:28
 #: netbox/templates/dcim/device_list.html:22
@@ -6374,8 +6386,8 @@ msgstr "Konsol Bağlantı Noktaları"
 msgid "Console Server Ports"
 msgstr "Konsol Sunucusu Bağlantı Noktaları"
 
-#: netbox/dcim/tables/devicetypes.py:119 netbox/dcim/views.py:955
-#: netbox/dcim/views.py:1194 netbox/dcim/views.py:1870
+#: netbox/dcim/tables/devicetypes.py:119 netbox/dcim/views.py:958
+#: netbox/dcim/views.py:1197 netbox/dcim/views.py:1876
 #: netbox/netbox/navigation/menu.py:86
 #: netbox/templates/dcim/device/base.html:31
 #: netbox/templates/dcim/device_list.html:29
@@ -6385,8 +6397,8 @@ msgstr "Konsol Sunucusu Bağlantı Noktaları"
 msgid "Power Ports"
 msgstr "Güç Bağlantı Noktaları"
 
-#: netbox/dcim/tables/devicetypes.py:122 netbox/dcim/views.py:970
-#: netbox/dcim/views.py:1209 netbox/dcim/views.py:1885
+#: netbox/dcim/tables/devicetypes.py:122 netbox/dcim/views.py:973
+#: netbox/dcim/views.py:1212 netbox/dcim/views.py:1892
 #: netbox/netbox/navigation/menu.py:87
 #: netbox/templates/dcim/device/base.html:34
 #: netbox/templates/dcim/device_list.html:36
@@ -6396,8 +6408,8 @@ msgstr "Güç Bağlantı Noktaları"
 msgid "Power Outlets"
 msgstr "Elektrik Prizleri"
 
-#: netbox/dcim/tables/devicetypes.py:128 netbox/dcim/views.py:1000
-#: netbox/dcim/views.py:1239 netbox/dcim/views.py:1921
+#: netbox/dcim/tables/devicetypes.py:128 netbox/dcim/views.py:1003
+#: netbox/dcim/views.py:1242 netbox/dcim/views.py:1930
 #: netbox/netbox/navigation/menu.py:82
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -6406,8 +6418,8 @@ msgstr "Elektrik Prizleri"
 msgid "Front Ports"
 msgstr "Ön Bağlantı Noktaları"
 
-#: netbox/dcim/tables/devicetypes.py:131 netbox/dcim/views.py:1015
-#: netbox/dcim/views.py:1254 netbox/dcim/views.py:1936
+#: netbox/dcim/tables/devicetypes.py:131 netbox/dcim/views.py:1018
+#: netbox/dcim/views.py:1257 netbox/dcim/views.py:1946
 #: netbox/netbox/navigation/menu.py:83
 #: netbox/templates/dcim/device/base.html:43
 #: netbox/templates/dcim/device_list.html:50
@@ -6417,16 +6429,16 @@ msgstr "Ön Bağlantı Noktaları"
 msgid "Rear Ports"
 msgstr "Arka Bağlantı Noktaları"
 
-#: netbox/dcim/tables/devicetypes.py:134 netbox/dcim/views.py:1045
-#: netbox/dcim/views.py:1974 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/tables/devicetypes.py:134 netbox/dcim/views.py:1048
+#: netbox/dcim/views.py:1986 netbox/netbox/navigation/menu.py:89
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/device_list.html:57
 #: netbox/templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
-msgstr "Aygıt Yuvaları"
+msgstr "Cihaz Yuvaları"
 
-#: netbox/dcim/tables/devicetypes.py:137 netbox/dcim/views.py:1030
-#: netbox/dcim/views.py:1955 netbox/netbox/navigation/menu.py:88
+#: netbox/dcim/tables/devicetypes.py:137 netbox/dcim/views.py:1033
+#: netbox/dcim/views.py:1966 netbox/netbox/navigation/menu.py:88
 #: netbox/templates/dcim/device/base.html:46
 #: netbox/templates/dcim/device_list.html:64
 #: netbox/templates/dcim/devicetype/base.html:43
@@ -6451,7 +6463,7 @@ msgstr "Kullanılabilir Güç (VA)"
 msgid "Racks"
 msgstr "Raflar"
 
-#: netbox/dcim/tables/racks.py:73 netbox/templates/dcim/device.html:311
+#: netbox/dcim/tables/racks.py:73 netbox/templates/dcim/device.html:318
 #: netbox/templates/dcim/rack.html:90
 msgid "Height"
 msgstr "Yükseklik"
@@ -6484,38 +6496,38 @@ msgstr "Siteler"
 msgid "Test case must set peer_termination_type"
 msgstr "Test senaryosu peer_termination_type ayarlamalıdır"
 
-#: netbox/dcim/views.py:139
+#: netbox/dcim/views.py:140
 #, python-brace-format
 msgid "Disconnected {count} {type}"
 msgstr "Bağlantısı kesildi {count} {type}"
 
-#: netbox/dcim/views.py:684 netbox/netbox/navigation/menu.py:28
+#: netbox/dcim/views.py:686 netbox/netbox/navigation/menu.py:28
 msgid "Reservations"
 msgstr "Rezervasyon"
 
-#: netbox/dcim/views.py:702 netbox/templates/dcim/location.html:90
+#: netbox/dcim/views.py:705 netbox/templates/dcim/location.html:90
 #: netbox/templates/dcim/site.html:140
 msgid "Non-Racked Devices"
 msgstr "Raf Olmayan Cihazlar"
 
-#: netbox/dcim/views.py:2006 netbox/extras/forms/model_forms.py:453
+#: netbox/dcim/views.py:2019 netbox/extras/forms/model_forms.py:453
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:225
-#: netbox/virtualization/views.py:399
+#: netbox/virtualization/views.py:404
 msgid "Config Context"
 msgstr "Yapılandırma Bağlamı"
 
-#: netbox/dcim/views.py:2016 netbox/virtualization/views.py:409
+#: netbox/dcim/views.py:2029 netbox/virtualization/views.py:414
 msgid "Render Config"
 msgstr "Oluştur Yapılandırması"
 
-#: netbox/dcim/views.py:2066 netbox/extras/tables/tables.py:441
+#: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:441
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
-#: netbox/virtualization/views.py:177
+#: netbox/virtualization/views.py:179
 msgid "Virtual Machines"
 msgstr "Sanal Makineler"
 
-#: netbox/dcim/views.py:2948 netbox/ipam/tables/ip.py:233
+#: netbox/dcim/views.py:2963 netbox/ipam/tables/ip.py:233
 msgid "Children"
 msgstr "Çocuklar"
 
@@ -6943,16 +6955,6 @@ msgstr "Küme türü"
 msgid "Cluster type (slug)"
 msgstr "Küme tipi (kısa ad)"
 
-#: netbox/extras/filtersets.py:537 netbox/ipam/forms/bulk_edit.py:476
-#: netbox/ipam/forms/filtersets.py:464 netbox/ipam/forms/model_forms.py:624
-#: netbox/virtualization/forms/filtersets.py:112
-msgid "Cluster group"
-msgstr "Küme grubu"
-
-#: netbox/extras/filtersets.py:543 netbox/virtualization/filtersets.py:136
-msgid "Cluster group (slug)"
-msgstr "Küme grubu (kısa ad)"
-
 #: netbox/extras/filtersets.py:553 netbox/tenancy/forms/forms.py:16
 #: netbox/tenancy/forms/forms.py:39
 msgid "Tenant group"
@@ -6993,13 +6995,13 @@ msgstr "Gerekli"
 
 #: netbox/extras/forms/bulk_edit.py:53 netbox/extras/forms/bulk_import.py:57
 #: netbox/extras/forms/filtersets.py:79
-#: netbox/extras/models/customfields.py:194
+#: netbox/extras/models/customfields.py:195
 msgid "UI visible"
 msgstr "Kullanıcı arayüzü görünür"
 
 #: netbox/extras/forms/bulk_edit.py:58 netbox/extras/forms/bulk_import.py:63
 #: netbox/extras/forms/filtersets.py:84
-#: netbox/extras/models/customfields.py:201
+#: netbox/extras/models/customfields.py:202
 msgid "UI editable"
 msgstr "UI düzenlenebilir"
 
@@ -7178,11 +7180,11 @@ msgstr "Web kancası {name} bulunamadı"
 msgid "Script {name} not found"
 msgstr "Senaryo {name} bulunamadı"
 
-#: netbox/extras/forms/bulk_import.py:239
+#: netbox/extras/forms/bulk_import.py:236
 msgid "Assigned object type"
 msgstr "Atanan nesne türü"
 
-#: netbox/extras/forms/bulk_import.py:244
+#: netbox/extras/forms/bulk_import.py:241
 msgid "The classification of entry"
 msgstr "Girişin sınıflandırılması"
 
@@ -7278,7 +7280,7 @@ msgstr "Konumlar"
 #: netbox/extras/forms/filtersets.py:370
 #: netbox/extras/forms/model_forms.py:403
 msgid "Device types"
-msgstr "Aygıt türleri"
+msgstr "Cihaz türleri"
 
 #: netbox/extras/forms/filtersets.py:375
 #: netbox/extras/forms/model_forms.py:408
@@ -7406,7 +7408,7 @@ msgstr "Şablon kodu"
 #: netbox/extras/forms/model_forms.py:173
 #: netbox/templates/extras/exporttemplate.html:12
 msgid "Export Template"
-msgstr "Dışa Aktar Şablonu"
+msgstr "Dışa Aktarma Şablonu"
 
 #: netbox/extras/forms/model_forms.py:175
 msgid "Rendering"
@@ -7641,31 +7643,31 @@ msgstr "yapılandırma şablonu"
 msgid "config templates"
 msgstr "yapılandırma şablonları"
 
-#: netbox/extras/models/customfields.py:73
+#: netbox/extras/models/customfields.py:74
 msgid "The object(s) to which this field applies."
 msgstr "Bu alanın geçerli olduğu nesne (ler) dir."
 
-#: netbox/extras/models/customfields.py:80
+#: netbox/extras/models/customfields.py:81
 msgid "The type of data this custom field holds"
 msgstr "Bu özel alanın tuttuğu veri türü"
 
-#: netbox/extras/models/customfields.py:87
+#: netbox/extras/models/customfields.py:88
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr "Bu alanın eşlendiği NetBox nesnesinin türü (nesne alanları için)"
 
-#: netbox/extras/models/customfields.py:93
+#: netbox/extras/models/customfields.py:94
 msgid "Internal field name"
 msgstr "İç alan adı"
 
-#: netbox/extras/models/customfields.py:97
+#: netbox/extras/models/customfields.py:98
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr "Yalnızca alfasayısal karakterlere ve alt çizgilere izin verilir."
 
-#: netbox/extras/models/customfields.py:102
+#: netbox/extras/models/customfields.py:103
 msgid "Double underscores are not permitted in custom field names."
 msgstr "Özel alan adlarında çift alt çizgilere izin verilmez."
 
-#: netbox/extras/models/customfields.py:113
+#: netbox/extras/models/customfields.py:114
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
@@ -7673,19 +7675,19 @@ msgstr ""
 "Kullanıcılara görüntülenen alanın adı (belirtilmezse, 'alanın adı "
 "kullanılacaktır)"
 
-#: netbox/extras/models/customfields.py:117 netbox/extras/models/models.py:345
+#: netbox/extras/models/customfields.py:118 netbox/extras/models/models.py:345
 msgid "group name"
 msgstr "grup adı"
 
-#: netbox/extras/models/customfields.py:120
+#: netbox/extras/models/customfields.py:121
 msgid "Custom fields within the same group will be displayed together"
 msgstr "Aynı gruptaki özel alanlar birlikte görüntülenecektir"
 
-#: netbox/extras/models/customfields.py:128
+#: netbox/extras/models/customfields.py:129
 msgid "required"
 msgstr "gereklidir"
 
-#: netbox/extras/models/customfields.py:130
+#: netbox/extras/models/customfields.py:131
 msgid ""
 "If true, this field is required when creating new objects or editing an "
 "existing object."
@@ -7693,11 +7695,11 @@ msgstr ""
 "Eğer true ise, yeni nesneler oluştururken veya varolan bir nesneyi "
 "düzenlerken bu alan gereklidir."
 
-#: netbox/extras/models/customfields.py:133
+#: netbox/extras/models/customfields.py:134
 msgid "search weight"
 msgstr "arama ağırlığı"
 
-#: netbox/extras/models/customfields.py:136
+#: netbox/extras/models/customfields.py:137
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
@@ -7705,11 +7707,11 @@ msgstr ""
 "Arama için ağırlıklandırma. Düşük değerler daha önemli kabul edilir. Arama "
 "ağırlığı sıfır olan alanlar göz ardı edilecektir."
 
-#: netbox/extras/models/customfields.py:141
+#: netbox/extras/models/customfields.py:142
 msgid "filter logic"
 msgstr "filtre mantığı"
 
-#: netbox/extras/models/customfields.py:145
+#: netbox/extras/models/customfields.py:146
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire "
 "field."
@@ -7717,11 +7719,11 @@ msgstr ""
 "Loose, belirli bir dizgenin herhangi bir örneğiyle eşleşir; tam olarak tüm "
 "alanla eşleşir."
 
-#: netbox/extras/models/customfields.py:148
+#: netbox/extras/models/customfields.py:149
 msgid "default"
 msgstr "varsayılan"
 
-#: netbox/extras/models/customfields.py:152
+#: netbox/extras/models/customfields.py:153
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with"
 " double quotes (e.g. \"Foo\")."
@@ -7729,35 +7731,35 @@ msgstr ""
 "Alan için varsayılan değer (JSON değeri olmalıdır). Dizeleri çift tırnak "
 "işaretleriyle kapsülleyin (örn. “Foo”)."
 
-#: netbox/extras/models/customfields.py:157
+#: netbox/extras/models/customfields.py:158
 msgid "display weight"
 msgstr "ekran ağırlığı"
 
-#: netbox/extras/models/customfields.py:158
+#: netbox/extras/models/customfields.py:159
 msgid "Fields with higher weights appear lower in a form."
 msgstr "Daha yüksek ağırlığa sahip alanlar bir formda daha düşük görünür."
 
-#: netbox/extras/models/customfields.py:163
+#: netbox/extras/models/customfields.py:164
 msgid "minimum value"
 msgstr "minimum değer"
 
-#: netbox/extras/models/customfields.py:164
+#: netbox/extras/models/customfields.py:165
 msgid "Minimum allowed value (for numeric fields)"
 msgstr "İzin verilen minimum değer (sayısal alanlar için)"
 
-#: netbox/extras/models/customfields.py:169
+#: netbox/extras/models/customfields.py:170
 msgid "maximum value"
 msgstr "maksimum değer"
 
-#: netbox/extras/models/customfields.py:170
+#: netbox/extras/models/customfields.py:171
 msgid "Maximum allowed value (for numeric fields)"
 msgstr "İzin verilen maksimum değer (sayısal alanlar için)"
 
-#: netbox/extras/models/customfields.py:176
+#: netbox/extras/models/customfields.py:177
 msgid "validation regex"
 msgstr "doğrulama regex"
 
-#: netbox/extras/models/customfields.py:178
+#: netbox/extras/models/customfields.py:179
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -7768,174 +7770,174 @@ msgstr ""
 "zorlamak için ^ ve $ kullanın. Örneğin, <code>^ [A-Z]{3}$</code> değerleri "
 "tam olarak üç büyük harfle sınırlayacaktır."
 
-#: netbox/extras/models/customfields.py:186
+#: netbox/extras/models/customfields.py:187
 msgid "choice set"
 msgstr "seçim seti"
 
-#: netbox/extras/models/customfields.py:195
+#: netbox/extras/models/customfields.py:196
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr ""
 "Özel alanın kullanıcı arayüzünde görüntülenip görüntülenmeyeceğini belirtir"
 
-#: netbox/extras/models/customfields.py:202
+#: netbox/extras/models/customfields.py:203
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr ""
 "Özel alan değerinin kullanıcı arayüzünde düzenlenip düzenlenemeyeceğini "
 "belirtir"
 
-#: netbox/extras/models/customfields.py:206
+#: netbox/extras/models/customfields.py:207
 msgid "is cloneable"
 msgstr "klonlanabilir"
 
-#: netbox/extras/models/customfields.py:207
+#: netbox/extras/models/customfields.py:208
 msgid "Replicate this value when cloning objects"
 msgstr "Nesneleri klonlarken bu değeri çoğaltın"
 
-#: netbox/extras/models/customfields.py:224
+#: netbox/extras/models/customfields.py:225
 msgid "custom field"
 msgstr "özel alan"
 
-#: netbox/extras/models/customfields.py:225
+#: netbox/extras/models/customfields.py:226
 msgid "custom fields"
 msgstr "özel alanlar"
 
-#: netbox/extras/models/customfields.py:314
+#: netbox/extras/models/customfields.py:315
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr "Geçersiz varsayılan değer”{value}“: {error}"
 
-#: netbox/extras/models/customfields.py:321
+#: netbox/extras/models/customfields.py:322
 msgid "A minimum value may be set only for numeric fields"
 msgstr "Minimum değer yalnızca sayısal alanlar için ayarlanabilir"
 
-#: netbox/extras/models/customfields.py:323
+#: netbox/extras/models/customfields.py:324
 msgid "A maximum value may be set only for numeric fields"
 msgstr "Maksimum değer yalnızca sayısal alanlar için ayarlanabilir"
 
-#: netbox/extras/models/customfields.py:333
+#: netbox/extras/models/customfields.py:334
 msgid ""
 "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 "Düzenli ifade doğrulaması yalnızca metin ve URL alanları için desteklenir"
 
-#: netbox/extras/models/customfields.py:343
+#: netbox/extras/models/customfields.py:344
 msgid "Selection fields must specify a set of choices."
 msgstr "Seçim alanları bir dizi seçenek belirtmelidir."
 
-#: netbox/extras/models/customfields.py:347
+#: netbox/extras/models/customfields.py:348
 msgid "Choices may be set only on selection fields."
 msgstr "Seçenekler yalnızca seçim alanlarında ayarlanabilir."
 
-#: netbox/extras/models/customfields.py:354
+#: netbox/extras/models/customfields.py:355
 msgid "Object fields must define an object type."
 msgstr "Nesne alanları bir nesne türü tanımlamalıdır."
 
-#: netbox/extras/models/customfields.py:359
+#: netbox/extras/models/customfields.py:360
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr "{type} alanlar bir nesne türü tanımlayamaz."
 
-#: netbox/extras/models/customfields.py:439
+#: netbox/extras/models/customfields.py:440
 msgid "True"
 msgstr "Doğru"
 
-#: netbox/extras/models/customfields.py:440
+#: netbox/extras/models/customfields.py:441
 msgid "False"
 msgstr "Yanlış"
 
-#: netbox/extras/models/customfields.py:522
+#: netbox/extras/models/customfields.py:523
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr "Değerler bu normal ifadeyle eşleşmelidir: <code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:616
+#: netbox/extras/models/customfields.py:617
 msgid "Value must be a string."
 msgstr "Değer bir dize olmalıdır."
 
-#: netbox/extras/models/customfields.py:618
+#: netbox/extras/models/customfields.py:619
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "Değer regex ile eşleşmelidir '{regex}'"
 
-#: netbox/extras/models/customfields.py:623
+#: netbox/extras/models/customfields.py:624
 msgid "Value must be an integer."
 msgstr "Değer bir tamsayı olmalıdır."
 
-#: netbox/extras/models/customfields.py:626
-#: netbox/extras/models/customfields.py:641
+#: netbox/extras/models/customfields.py:627
+#: netbox/extras/models/customfields.py:642
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "Değer en az olmalıdır {minimum}"
 
-#: netbox/extras/models/customfields.py:630
-#: netbox/extras/models/customfields.py:645
+#: netbox/extras/models/customfields.py:631
+#: netbox/extras/models/customfields.py:646
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "Değer geçmemelidir {maximum}"
 
-#: netbox/extras/models/customfields.py:638
+#: netbox/extras/models/customfields.py:639
 msgid "Value must be a decimal."
 msgstr "Değer ondalık olmalıdır."
 
-#: netbox/extras/models/customfields.py:650
+#: netbox/extras/models/customfields.py:651
 msgid "Value must be true or false."
 msgstr "Değer doğru veya yanlış olmalıdır."
 
-#: netbox/extras/models/customfields.py:658
+#: netbox/extras/models/customfields.py:659
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "Tarih değerleri ISO 8601 biçiminde olmalıdır (YYYY-AA-GG)."
 
-#: netbox/extras/models/customfields.py:671
+#: netbox/extras/models/customfields.py:672
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 "Tarih ve saat değerleri ISO 8601 biçiminde olmalıdır (YYYY-MM-DD HH:MM:SS)."
 
-#: netbox/extras/models/customfields.py:678
+#: netbox/extras/models/customfields.py:679
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "Geçersiz seçim ({value}) seçim seti için {choiceset}."
 
-#: netbox/extras/models/customfields.py:688
+#: netbox/extras/models/customfields.py:689
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "Geçersiz seçim (ler) ({value}) seçim seti için {choiceset}."
 
-#: netbox/extras/models/customfields.py:697
+#: netbox/extras/models/customfields.py:698
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "Değer bir nesne kimliği olmalıdır, değil {type}"
 
-#: netbox/extras/models/customfields.py:703
+#: netbox/extras/models/customfields.py:704
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "Değer, nesne kimliklerinin bir listesi olmalıdır, değil {type}"
 
-#: netbox/extras/models/customfields.py:707
+#: netbox/extras/models/customfields.py:708
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "Geçersiz nesne kimliği bulundu: {id}"
 
-#: netbox/extras/models/customfields.py:710
+#: netbox/extras/models/customfields.py:711
 msgid "Required field cannot be empty."
 msgstr "Zorunlu alan boş olamaz."
 
-#: netbox/extras/models/customfields.py:729
+#: netbox/extras/models/customfields.py:730
 msgid "Base set of predefined choices (optional)"
 msgstr "Önceden tanımlanmış seçeneklerin temel kümesi (isteğe bağlı)"
 
-#: netbox/extras/models/customfields.py:741
+#: netbox/extras/models/customfields.py:742
 msgid "Choices are automatically ordered alphabetically"
 msgstr "Seçenekler otomatik olarak alfabetik olarak sıralanır"
 
-#: netbox/extras/models/customfields.py:748
+#: netbox/extras/models/customfields.py:749
 msgid "custom field choice set"
 msgstr "özel alan seçim kümesi"
 
-#: netbox/extras/models/customfields.py:749
+#: netbox/extras/models/customfields.py:750
 msgid "custom field choice sets"
 msgstr "özel alan seçim kümeleri"
 
-#: netbox/extras/models/customfields.py:785
+#: netbox/extras/models/customfields.py:786
 msgid "Must define base or extra choices."
 msgstr "Temel veya ekstra seçenekleri tanımlamalıdır."
 
@@ -8376,19 +8378,19 @@ msgstr "Komut Dosyası Verileri"
 msgid "Script Execution Parameters"
 msgstr "Script Yürütme Parametreleri"
 
-#: netbox/extras/scripts.py:664
+#: netbox/extras/scripts.py:666
 msgid "Database changes have been reverted automatically."
 msgstr "Veritabanı değişiklikleri otomatik olarak geri alındı."
 
-#: netbox/extras/scripts.py:677
+#: netbox/extras/scripts.py:679
 msgid "Script aborted with error: "
 msgstr "Komut dosyası hatayla iptal edildi: "
 
-#: netbox/extras/scripts.py:687
+#: netbox/extras/scripts.py:689
 msgid "An exception occurred: "
 msgstr "Bir istisna oluştu: "
 
-#: netbox/extras/scripts.py:690
+#: netbox/extras/scripts.py:692
 msgid "Database changes have been reverted due to error."
 msgstr "Veritabanı değişiklikleri hata nedeniyle geri alındı."
 
@@ -8484,7 +8486,7 @@ msgstr "İş Sonu"
 #: netbox/extras/tables/tables.py:426 netbox/netbox/navigation/menu.py:64
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
-msgstr "Aygıt Rolleri"
+msgstr "Cihaz Rolleri"
 
 #: netbox/extras/tables/tables.py:467 netbox/templates/account/profile.html:19
 #: netbox/templates/users/user.html:21
@@ -9131,7 +9133,7 @@ msgstr "VRF'de mevcut"
 
 #: netbox/ipam/forms/filtersets.py:311
 msgid "Device/VM"
-msgstr "Aygıt/VM"
+msgstr "Cihaz/VM"
 
 #: netbox/ipam/forms/filtersets.py:321
 msgid "Parent Prefix"
@@ -9139,7 +9141,7 @@ msgstr "Ebeveyn Öneki"
 
 #: netbox/ipam/forms/filtersets.py:347
 msgid "Assigned Device"
-msgstr "Atanan Aygıt"
+msgstr "Atanan Cihaz"
 
 #: netbox/ipam/forms/filtersets.py:352
 msgid "Assigned VM"
@@ -9605,12 +9607,12 @@ msgstr "servisler"
 #: netbox/ipam/models/services.py:117
 msgid ""
 "A service cannot be associated with both a device and a virtual machine."
-msgstr "Bir hizmet hem aygıt hem de sanal makine ile ilişkilendirilemez."
+msgstr "Bir hizmet hem cihaz hem de sanal makine ile ilişkilendirilemez."
 
 #: netbox/ipam/models/services.py:119
 msgid ""
 "A service must be associated with either a device or a virtual machine."
-msgstr "Bir hizmet, bir aygıt veya sanal makine ile ilişkilendirilmelidir."
+msgstr "Bir hizmet, bir cihaz veya sanal makine ile ilişkilendirilmelidir."
 
 #: netbox/ipam/models/vlans.py:49
 msgid "minimum VLAN ID"
@@ -9666,7 +9668,7 @@ msgid "The primary function of this VLAN"
 msgstr "Bu VLAN'ın birincil işlevi"
 
 #: netbox/ipam/models/vlans.py:215 netbox/ipam/tables/ip.py:175
-#: netbox/ipam/tables/vlans.py:78 netbox/ipam/views.py:961
+#: netbox/ipam/tables/vlans.py:78 netbox/ipam/views.py:971
 #: netbox/netbox/navigation/menu.py:180 netbox/netbox/navigation/menu.py:182
 msgid "VLANs"
 msgstr "VLAN'lar"
@@ -9741,7 +9743,7 @@ msgid "Added"
 msgstr "Eklendi"
 
 #: netbox/ipam/tables/ip.py:127 netbox/ipam/tables/ip.py:165
-#: netbox/ipam/tables/vlans.py:138 netbox/ipam/views.py:342
+#: netbox/ipam/tables/vlans.py:138 netbox/ipam/views.py:346
 #: netbox/netbox/navigation/menu.py:152 netbox/netbox/navigation/menu.py:154
 #: netbox/templates/ipam/vlan.html:84
 msgid "Prefixes"
@@ -9749,7 +9751,7 @@ msgstr "Önekler"
 
 #: netbox/ipam/tables/ip.py:130 netbox/ipam/tables/ip.py:267
 #: netbox/ipam/tables/ip.py:320 netbox/ipam/tables/vlans.py:82
-#: netbox/templates/dcim/device.html:253
+#: netbox/templates/dcim/device.html:260
 #: netbox/templates/ipam/aggregate.html:24
 #: netbox/templates/ipam/iprange.html:29 netbox/templates/ipam/prefix.html:106
 msgid "Utilization"
@@ -9844,23 +9846,23 @@ msgstr ""
 "DNS adlarında yalnızca alfanümerik karakterlere, yıldızlara, tirelere, "
 "noktalara ve alt çizgilere izin verilir"
 
-#: netbox/ipam/views.py:528
+#: netbox/ipam/views.py:533
 msgid "Child Prefixes"
 msgstr "Çocuk Önekleri"
 
-#: netbox/ipam/views.py:563
+#: netbox/ipam/views.py:569
 msgid "Child Ranges"
 msgstr "Çocuk Aralıkları"
 
-#: netbox/ipam/views.py:889
+#: netbox/ipam/views.py:898
 msgid "Related IPs"
 msgstr "İlgili IP'ler"
 
-#: netbox/ipam/views.py:1116
+#: netbox/ipam/views.py:1127
 msgid "Device Interfaces"
-msgstr "Aygıt Arayüzleri"
+msgstr "Cihaz Arayüzleri"
 
-#: netbox/ipam/views.py:1133
+#: netbox/ipam/views.py:1145
 msgid "VM Interfaces"
 msgstr "VM Arayüzleri"
 
@@ -10194,6 +10196,10 @@ msgstr "Regeks"
 msgid "Object type(s)"
 msgstr "Nesne türü (ler)"
 
+#: netbox/netbox/forms/__init__.py:40
+msgid "Lookup"
+msgstr ""
+
 #: netbox/netbox/forms/base.py:88
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. "
@@ -10298,10 +10304,10 @@ msgstr "İletişim Atamaları"
 msgid "Modules"
 msgstr "Modüller"
 
-#: netbox/netbox/navigation/menu.py:67 netbox/templates/dcim/device.html:158
+#: netbox/netbox/navigation/menu.py:67 netbox/templates/dcim/device.html:160
 #: netbox/templates/dcim/virtualdevicecontext.html:8
 msgid "Virtual Device Contexts"
-msgstr "Sanal Aygıt Bağlamları"
+msgstr "Sanal Cihaz Bağlamları"
 
 #: netbox/netbox/navigation/menu.py:75
 msgid "Manufacturers"
@@ -10309,7 +10315,7 @@ msgstr "İmalatçıları"
 
 #: netbox/netbox/navigation/menu.py:79
 msgid "Device Components"
-msgstr "Aygıt Bileşenleri"
+msgstr "Cihaz Bileşenleri"
 
 #: netbox/netbox/navigation/menu.py:91
 #: netbox/templates/dcim/inventoryitemrole.html:8
@@ -10360,7 +10366,7 @@ msgstr "VLAN Grupları"
 msgid "Service Templates"
 msgstr "Hizmet Şablonları"
 
-#: netbox/netbox/navigation/menu.py:191 netbox/templates/dcim/device.html:295
+#: netbox/netbox/navigation/menu.py:191 netbox/templates/dcim/device.html:302
 #: netbox/templates/ipam/ipaddress.html:118
 #: netbox/templates/virtualization/virtualmachine.html:150
 msgid "Services"
@@ -10427,7 +10433,7 @@ msgstr "Sanallaştırma"
 #: netbox/templates/virtualization/virtualmachine/base.html:32
 #: netbox/templates/virtualization/virtualmachine_list.html:21
 #: netbox/virtualization/tables/virtualmachines.py:103
-#: netbox/virtualization/views.py:380
+#: netbox/virtualization/views.py:385
 msgid "Virtual Disks"
 msgstr "Sanal Diskler"
 
@@ -10489,7 +10495,7 @@ msgstr "Özelleştirme"
 #: netbox/templates/htmx/form.html:19 netbox/templates/inc/filter_list.html:30
 #: netbox/templates/inc/panels/custom_fields.html:7
 #: netbox/templates/ipam/ipaddress_bulk_add.html:35
-#: netbox/templates/ipam/vlan_edit.html:63
+#: netbox/templates/ipam/vlan_edit.html:59
 msgid "Custom Fields"
 msgstr "Özel Alanlar"
 
@@ -10595,7 +10601,7 @@ msgstr "Yapılandırma Geçmişi"
 msgid "Background Tasks"
 msgstr "Arka Plan Görevleri"
 
-#: netbox/netbox/navigation/menu.py:483 netbox/templates/500.html:35
+#: netbox/netbox/navigation/menu.py:480 netbox/templates/500.html:35
 #: netbox/templates/account/preferences.html:22
 #: netbox/templates/core/system.html:80
 msgid "Plugins"
@@ -10735,43 +10741,43 @@ msgstr "Başlatıldıktan sonra kayıt defterine mağazalar eklenemiyor"
 msgid "Cannot delete stores from registry"
 msgstr "Mağazalar kayıt defterinden silinemiyor"
 
-#: netbox/netbox/settings.py:724
+#: netbox/netbox/settings.py:741
 msgid "German"
 msgstr "Alman"
 
-#: netbox/netbox/settings.py:725
+#: netbox/netbox/settings.py:742
 msgid "English"
 msgstr "İngilizce"
 
-#: netbox/netbox/settings.py:726
+#: netbox/netbox/settings.py:743
 msgid "Spanish"
 msgstr "İspanyolca"
 
-#: netbox/netbox/settings.py:727
+#: netbox/netbox/settings.py:744
 msgid "French"
 msgstr "Fransızca"
 
-#: netbox/netbox/settings.py:728
+#: netbox/netbox/settings.py:745
 msgid "Japanese"
 msgstr "Japonca"
 
-#: netbox/netbox/settings.py:729
+#: netbox/netbox/settings.py:746
 msgid "Portuguese"
 msgstr "Portekizce"
 
-#: netbox/netbox/settings.py:730
+#: netbox/netbox/settings.py:747
 msgid "Russian"
 msgstr "Rusça"
 
-#: netbox/netbox/settings.py:731
+#: netbox/netbox/settings.py:748
 msgid "Turkish"
 msgstr "Türkçe"
 
-#: netbox/netbox/settings.py:732
+#: netbox/netbox/settings.py:749
 msgid "Ukrainian"
 msgstr "Ukraynalı"
 
-#: netbox/netbox/settings.py:733
+#: netbox/netbox/settings.py:750
 msgid "Chinese"
 msgstr "Çince"
 
@@ -10818,7 +10824,7 @@ msgstr "Değişiklik Günlüğü"
 msgid "Journal"
 msgstr "dergi"
 
-#: netbox/netbox/views/generic/object_views.py:106
+#: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
 msgid "{class_name} must implement get_children()"
 msgstr "{class_name} get_children () uygulamasını uygulamalıdır"
@@ -11389,8 +11395,8 @@ msgstr "Arka Plan Kuyrukları"
 #: netbox/templates/core/rq_worker_list.html:45
 #: netbox/templates/extras/script_result.html:49
 #: netbox/templates/extras/script_result.html:51
-#: netbox/templates/inc/table_controls_htmx.html:28
-#: netbox/templates/inc/table_controls_htmx.html:31
+#: netbox/templates/inc/table_controls_htmx.html:30
+#: netbox/templates/inc/table_controls_htmx.html:33
 msgid "Configure Table"
 msgstr "Tabloyu Yapılandır"
 
@@ -11500,7 +11506,7 @@ msgstr "İçindeki işçiler "
 #: netbox/templates/core/system.html:11
 #: netbox/utilities/templates/buttons/export.html:4
 msgid "Export"
-msgstr "İhracat"
+msgstr "Dışa Aktar"
 
 #: netbox/templates/core/system.html:28
 msgid "System Status"
@@ -11628,11 +11634,11 @@ msgstr "Bağlı Değil"
 
 #: netbox/templates/dcim/device.html:34
 msgid "Highlight device in rack"
-msgstr "Raftaki cihazı vurgulayın"
+msgstr "Kabindeki cihazı vurgulayın"
 
 #: netbox/templates/dcim/device.html:55
 msgid "Not racked"
-msgstr "Rackli değil"
+msgstr "Kabine bağlı değil"
 
 #: netbox/templates/dcim/device.html:62 netbox/templates/dcim/site.html:94
 msgid "GPS Coordinates"
@@ -11653,56 +11659,58 @@ msgstr "Varlık Etiketi"
 msgid "View Virtual Chassis"
 msgstr "Sanal Kasayı Görüntüle"
 
-#: netbox/templates/dcim/device.html:162
+#: netbox/templates/dcim/device.html:164
 msgid "Create VDC"
 msgstr "VDC oluştur"
 
-#: netbox/templates/dcim/device.html:173
+#: netbox/templates/dcim/device.html:175
 #: netbox/templates/dcim/device_edit.html:64
 #: netbox/virtualization/forms/model_forms.py:223
 msgid "Management"
 msgstr "Yönetim"
 
-#: netbox/templates/dcim/device.html:193 netbox/templates/dcim/device.html:209
+#: netbox/templates/dcim/device.html:195 netbox/templates/dcim/device.html:211
+#: netbox/templates/dcim/device.html:227
 #: netbox/templates/virtualization/virtualmachine.html:53
 #: netbox/templates/virtualization/virtualmachine.html:69
 msgid "NAT for"
 msgstr "NAT için"
 
-#: netbox/templates/dcim/device.html:195 netbox/templates/dcim/device.html:211
+#: netbox/templates/dcim/device.html:197 netbox/templates/dcim/device.html:213
+#: netbox/templates/dcim/device.html:229
 #: netbox/templates/virtualization/virtualmachine.html:55
 #: netbox/templates/virtualization/virtualmachine.html:71
 msgid "NAT"
-msgstr "THE NİGHT"
+msgstr "NAT"
 
-#: netbox/templates/dcim/device.html:245 netbox/templates/dcim/rack.html:67
+#: netbox/templates/dcim/device.html:252 netbox/templates/dcim/rack.html:67
 msgid "Power Utilization"
 msgstr "Güç Kullanımı"
 
-#: netbox/templates/dcim/device.html:249
+#: netbox/templates/dcim/device.html:256
 msgid "Input"
 msgstr "Giriş"
 
-#: netbox/templates/dcim/device.html:250
+#: netbox/templates/dcim/device.html:257
 msgid "Outlets"
 msgstr "Satış noktaları"
 
-#: netbox/templates/dcim/device.html:251
+#: netbox/templates/dcim/device.html:258
 msgid "Allocated"
 msgstr "Tahsis edilmiş"
 
-#: netbox/templates/dcim/device.html:261 netbox/templates/dcim/device.html:263
-#: netbox/templates/dcim/device.html:279
+#: netbox/templates/dcim/device.html:268 netbox/templates/dcim/device.html:270
+#: netbox/templates/dcim/device.html:286
 #: netbox/templates/dcim/powerfeed.html:67
 msgid "VA"
 msgstr "İL"
 
-#: netbox/templates/dcim/device.html:273
+#: netbox/templates/dcim/device.html:280
 msgctxt "Leg of a power feed"
 msgid "Leg"
 msgstr "Bacak"
 
-#: netbox/templates/dcim/device.html:299
+#: netbox/templates/dcim/device.html:306
 #: netbox/templates/virtualization/virtualmachine.html:154
 msgid "Add a service"
 msgstr "Hizmet ekle"
@@ -11727,7 +11735,7 @@ msgstr "Konsol Sunucusu Bağlantı Noktaları Ekle"
 
 #: netbox/templates/dcim/device/devicebays.html:10
 msgid "Add Device Bays"
-msgstr "Aygıt Yuvaları Ekle"
+msgstr "Cihaz Yuvaları Ekle"
 
 #: netbox/templates/dcim/device/frontports.html:24
 msgid "Add Front Ports"
@@ -11828,11 +11836,11 @@ msgstr "Yeniden Adlandır"
 
 #: netbox/templates/dcim/devicebay.html:17
 msgid "Device Bay"
-msgstr "Aygıt Yuvası"
+msgstr "Cihaz Yuvası"
 
 #: netbox/templates/dcim/devicebay.html:43
 msgid "Installed Device"
-msgstr "Yüklü Aygıt"
+msgstr "Yüklü Cihaz"
 
 #: netbox/templates/dcim/devicebay_depopulate.html:6
 #, python-format
@@ -11859,7 +11867,7 @@ msgstr "Körfez"
 #: netbox/templates/dcim/devicerole.html:14
 #: netbox/templates/dcim/platform.html:17
 msgid "Add Device"
-msgstr "Aygıt Ekle"
+msgstr "Cihaz Ekle"
 
 #: netbox/templates/dcim/devicerole.html:40
 msgid "VM Role"
@@ -11910,7 +11918,7 @@ msgstr "Bağlantı Durumu"
 
 #: netbox/templates/dcim/htmx/cable_edit.html:10
 msgid "A Side"
-msgstr "Bir Taraf"
+msgstr "A Tarafı"
 
 #: netbox/templates/dcim/htmx/cable_edit.html:30
 msgid "B Side"
@@ -12029,7 +12037,7 @@ msgstr "Kanal Genişliği"
 #: netbox/wireless/forms/filtersets.py:80 netbox/wireless/models.py:81
 #: netbox/wireless/models.py:155 netbox/wireless/tables/wirelesslan.py:44
 msgid "SSID"
-msgstr "SSİD"
+msgstr "SSID"
 
 #: netbox/templates/dcim/interface.html:305
 msgid "LAG Members"
@@ -12073,11 +12081,11 @@ msgstr "Konum Ekle"
 
 #: netbox/templates/dcim/location.html:94 netbox/templates/dcim/site.html:144
 msgid "Add a Device"
-msgstr "Aygıt Ekle"
+msgstr "Cihaz Ekle"
 
 #: netbox/templates/dcim/manufacturer.html:16
 msgid "Add Device Type"
-msgstr "Aygıt Türü Ekle"
+msgstr "Cihaz Türü Ekle"
 
 #: netbox/templates/dcim/manufacturer.html:21
 msgid "Add Module Type"
@@ -12085,7 +12093,7 @@ msgstr "Modül Türü Ekle"
 
 #: netbox/templates/dcim/powerfeed.html:53
 msgid "Connected Device"
-msgstr "Bağlı Aygıt"
+msgstr "Bağlı Cihaz"
 
 #: netbox/templates/dcim/powerfeed.html:63
 msgid "Utilization (Allocated"
@@ -12103,7 +12111,7 @@ msgstr "V"
 #: netbox/templates/dcim/powerfeed.html:92
 msgctxt "Abbreviation for amperes"
 msgid "A"
-msgstr "BİR"
+msgstr "A"
 
 #: netbox/templates/dcim/poweroutlet.html:48
 msgid "Feed Leg"
@@ -12131,7 +12139,7 @@ msgstr "azalan"
 
 #: netbox/templates/dcim/rack.html:91
 msgid "ascending"
-msgstr "yükselen"
+msgstr "artan"
 
 #: netbox/templates/dcim/rack.html:94
 msgid "Starting Unit"
@@ -12825,11 +12833,11 @@ msgstr "Uygula"
 
 #: netbox/templates/generic/bulk_import.html:19
 msgid "Bulk Import"
-msgstr "Toplu İthalat"
+msgstr "Toplu İçe Aktar"
 
 #: netbox/templates/generic/bulk_import.html:25
 msgid "Direct Import"
-msgstr "Doğrudan İthalat"
+msgstr "Doğrudan İçe Aktar"
 
 #: netbox/templates/generic/bulk_import.html:30
 msgid "Upload File"
@@ -13077,7 +13085,7 @@ msgstr "Veriler yukarı akış dosyasıyla senkronize değil"
 msgid "Quick search"
 msgstr ""
 
-#: netbox/templates/inc/table_controls_htmx.html:19
+#: netbox/templates/inc/table_controls_htmx.html:20
 msgid "Saved filter"
 msgstr ""
 
@@ -13482,11 +13490,11 @@ msgstr "Kümeye Aygıt Ekle %(cluster)s"
 
 #: netbox/templates/virtualization/cluster_add_devices.html:23
 msgid "Device Selection"
-msgstr "Aygıt Seçimi"
+msgstr "Cihaz Seçimi"
 
 #: netbox/templates/virtualization/cluster_add_devices.html:31
 msgid "Add Devices"
-msgstr "Aygıt Ekle"
+msgstr "Cihaz Ekle"
 
 #: netbox/templates/virtualization/clustergroup.html:10
 #: netbox/templates/virtualization/clustertype.html:10
@@ -13710,7 +13718,7 @@ msgstr "Ebeveyn iletişim grubu (ID)"
 
 #: netbox/tenancy/filtersets.py:35
 msgid "Parent contact group (slug)"
-msgstr "Ebeveyn iletişim grubu (sümüklü böcek)"
+msgstr "Ebeveyn iletişim grubu (kısa ad)"
 
 #: netbox/tenancy/filtersets.py:41 netbox/tenancy/filtersets.py:68
 #: netbox/tenancy/filtersets.py:111
@@ -13744,7 +13752,7 @@ msgstr "Ana kiracı grubu (ID)"
 
 #: netbox/tenancy/filtersets.py:176
 msgid "Parent tenant group (slug)"
-msgstr "Ana kiracı grubu (sümüklü böcek)"
+msgstr "Ana kiracı grubu (kısa ad)"
 
 #: netbox/tenancy/filtersets.py:182 netbox/tenancy/filtersets.py:202
 msgid "Tenant group (ID)"
@@ -14153,7 +14161,11 @@ msgstr ""
 msgid "More than 50"
 msgstr "50'den fazla"
 
-#: netbox/utilities/fields.py:157
+#: netbox/utilities/fields.py:30
+msgid "RGB color in hexadecimal. Example: "
+msgstr ""
+
+#: netbox/utilities/fields.py:159
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_model parameter to CounterCacheField must be a string "
@@ -14162,7 +14174,7 @@ msgstr ""
 "%s(%r) geçersiz. counterCacheField için to_model parametresi 'app.model' "
 "biçiminde bir dize olmalıdır"
 
-#: netbox/utilities/fields.py:167
+#: netbox/utilities/fields.py:169
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_field parameter to CounterCacheField must be a string "
@@ -14433,7 +14445,7 @@ msgstr "Dışa aktarma şablonu ekle"
 
 #: netbox/utilities/templates/buttons/import.html:4
 msgid "Import"
-msgstr "İthalat"
+msgstr "İçe aktar"
 
 #: netbox/utilities/templates/form_helpers/render_field.html:39
 msgid "Copy to clipboard"
@@ -14463,6 +14475,14 @@ msgstr "Yukarı hareket et"
 msgid "Move Down"
 msgstr "Aşağı hareket et"
 
+#: netbox/utilities/templates/navigation/menu.html:14
+msgid "Search…"
+msgstr ""
+
+#: netbox/utilities/templates/navigation/menu.html:14
+msgid "Search NetBox"
+msgstr ""
+
 #: netbox/utilities/templates/widgets/apiselect.html:7
 msgid "Open selector"
 msgstr "Seçiciyi aç"
@@ -14484,19 +14504,19 @@ msgstr "Test csv_update_data tanımlamalıdır."
 msgid "{value} is not a valid regular expression."
 msgstr "{value} geçerli bir normal ifade değildir."
 
-#: netbox/utilities/views.py:44
+#: netbox/utilities/views.py:45
 #, python-brace-format
 msgid "{self.__class__.__name__} must implement get_required_permission()"
 msgstr ""
 "{self.__class__.__name__} get_required_permissions () uygulamasını "
 "uygulamalıdır"
 
-#: netbox/utilities/views.py:80
+#: netbox/utilities/views.py:81
 #, python-brace-format
 msgid "{class_name} must implement get_required_permission()"
 msgstr "{class_name} get_required_permissions () uygulamasını uygulamalıdır"
 
-#: netbox/utilities/views.py:104
+#: netbox/utilities/views.py:105
 #, python-brace-format
 msgid ""
 "{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only"
@@ -14517,10 +14537,6 @@ msgstr "Ebeveyn grubu (kısa ad)"
 #: netbox/virtualization/filtersets.py:141
 msgid "Cluster type (ID)"
 msgstr "Küme türü (ID)"
-
-#: netbox/virtualization/filtersets.py:130
-msgid "Cluster group (ID)"
-msgstr "Küme grubu (ID)"
 
 #: netbox/virtualization/filtersets.py:151
 #: netbox/virtualization/filtersets.py:267

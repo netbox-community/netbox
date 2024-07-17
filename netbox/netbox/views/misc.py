@@ -19,6 +19,7 @@ from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.views import ConditionalLoginRequiredMixin
 
 __all__ = (
     'HomeView',
@@ -28,7 +29,7 @@ __all__ = (
 Link = namedtuple('Link', ('label', 'viewname', 'permission', 'count'))
 
 
-class HomeView(View):
+class HomeView(ConditionalLoginRequiredMixin, View):
     template_name = 'home.html'
 
     def get(self, request):
@@ -62,7 +63,7 @@ class HomeView(View):
         })
 
 
-class SearchView(View):
+class SearchView(ConditionalLoginRequiredMixin, View):
 
     def get(self, request):
         results = []

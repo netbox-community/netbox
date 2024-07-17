@@ -9,6 +9,7 @@ from extras.models import *
 from netbox.forms.base import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
@@ -28,6 +29,7 @@ __all__ = (
     'ImageAttachmentFilterForm',
     'JournalEntryFilterForm',
     'LocalConfigContextFilterForm',
+    'NotificationGroupFilterForm',
     'SavedFilterFilterForm',
     'TagFilterForm',
     'WebhookFilterForm',
@@ -496,3 +498,16 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=get_user_model().objects.all(),
+        required=False,
+        label=_('User')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        label=_('Group')
+    )

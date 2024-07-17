@@ -11,7 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import add_blank_choice
+from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
@@ -57,6 +57,7 @@ __all__ = (
     'RackForm',
     'RackReservationForm',
     'RackRoleForm',
+    'RackTypeForm',
     'RearPortForm',
     'RearPortTemplateForm',
     'RegionForm',
@@ -201,6 +202,34 @@ class RackRoleForm(NetBoxModelForm):
         ]
 
 
+class RackTypeForm(NetBoxModelForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all()
+    )
+    comments = CommentField()
+    slug = SlugField()
+
+    fieldsets = (
+        FieldSet('manufacturer', 'name', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
+        FieldSet(
+            'width', 'u_height',
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            'mounting_depth', name=_('Dimensions')
+        ),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+    )
+
+    class Meta:
+        model = RackType
+        fields = [
+            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+            'description', 'comments', 'tags',
+        ]
+
+
 class RackForm(TenancyForm, NetBoxModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
@@ -220,27 +249,53 @@ class RackForm(TenancyForm, NetBoxModelForm):
         queryset=RackRole.objects.all(),
         required=False
     )
+    rack_type = DynamicModelChoiceField(
+        label=_('Rack Type'),
+        queryset=RackType.objects.all(),
+        required=False,
+        help_text=_("Select a pre-defined rack type, or set physical characteristics below.")
+    )
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('site', 'location', 'name', 'status', 'role', 'description', 'tags', name=_('Rack')),
+        FieldSet('site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'tags', name=_('Rack')),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
-        FieldSet(
-            'type', 'width', 'starting_unit', 'u_height',
-            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-            'mounting_depth', 'desc_units', name=_('Dimensions')
-        ),
     )
 
     class Meta:
         model = Rack
         fields = [
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Mimic HTMXSelect()
+        self.fields['rack_type'].widget.attrs.update({
+            'hx-get': '.',
+            'hx-include': '#form_fields',
+            'hx-target': '#form_fields',
+        })
+
+        # Omit RackType-defined fields if rack_type is set
+        if get_field_value(self, 'rack_type'):
+            for field_name in Rack.RACKTYPE_FIELDS:
+                del self.fields[field_name]
+        else:
+            self.fieldsets = (
+                *self.fieldsets,
+                FieldSet(
+                    'form_factor', 'width', 'starting_unit', 'u_height',
+                    InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+                    InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+                    'mounting_depth', 'desc_units', name=_('Dimensions')
+                ),
+            )
 
 
 class RackReservationForm(TenancyForm, NetBoxModelForm):

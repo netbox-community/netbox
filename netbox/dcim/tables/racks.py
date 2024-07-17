@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import WEIGHT
@@ -11,6 +11,7 @@ __all__ = (
     'RackTable',
     'RackReservationTable',
     'RackRoleTable',
+    'RackTypeTable',
 )
 
 
@@ -42,6 +43,61 @@ class RackRoleTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description')
+
+
+#
+# Rack Types
+#
+
+class RackTypeTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        order_by=('_name',),
+        linkify=True
+    )
+    manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
+        linkify=True
+    )
+    u_height = tables.TemplateColumn(
+        template_code="{{ value }}U",
+        verbose_name=_('Height')
+    )
+    outer_width = tables.TemplateColumn(
+        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Width')
+    )
+    outer_depth = tables.TemplateColumn(
+        template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Depth')
+    )
+    weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
+    max_weight = columns.TemplateColumn(
+        verbose_name=_('Max Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_max_weight', 'weight_unit')
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:rack_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = RackType
+        fields = (
+            'pk', 'id', 'name', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments', 'tags', 'created',
+            'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'manufacturer', 'type', 'u_height', 'description',
+        )
 
 
 #
@@ -114,9 +170,9 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
-            'asset_tag', 'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
-            'weight', 'max_weight', 'comments', 'device_count', 'get_utilization', 'get_power_utilization',
-            'description', 'contacts', 'tags', 'created', 'last_updated',
+            'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth',
+            'mounting_depth', 'weight', 'max_weight', 'comments', 'device_count', 'get_utilization',
+            'get_power_utilization', 'description', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',

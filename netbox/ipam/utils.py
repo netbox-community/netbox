@@ -90,12 +90,12 @@ def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     return output
 
 
-def add_available_vlans(vlans, vlan_group=None):
+def available_vlans_from_range(vlans, vlan_group, vlan_range):
     """
     Create fake records for all gaps between used VLANs
     """
-    min_vid = vlan_group.min_vid if vlan_group else VLAN_VID_MIN
-    max_vid = vlan_group.max_vid if vlan_group else VLAN_VID_MAX
+    min_vid = int(vlan_range.lower) if vlan_range else VLAN_VID_MIN
+    max_vid = int(vlan_range.upper) if vlan_range else VLAN_VID_MAX
 
     if not vlans:
         return [{
@@ -127,6 +127,17 @@ def add_available_vlans(vlans, vlan_group=None):
             'vlan_group': vlan_group,
             'available': max_vid - prev_vid,
         })
+
+    return new_vlans
+
+
+def add_available_vlans(vlans, vlan_group):
+    """
+    Create fake records for all gaps between used VLANs
+    """
+    new_vlans = []
+    for vlan_range in vlan_group.vid_ranges:
+        new_vlans.extend(available_vlans_from_range(vlans, vlan_group, vlan_range))
 
     vlans = list(vlans) + new_vlans
     vlans.sort(key=lambda v: v.vid if type(v) is VLAN else v['vid'])

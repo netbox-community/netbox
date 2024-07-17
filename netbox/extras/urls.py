@@ -53,6 +53,24 @@ urlpatterns = [
     path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
     path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
 
+    # Notification groups
+    path('notification-groups/', views.NotificationGroupListView.as_view(), name='notificationgroup_list'),
+    path('notification-groups/add/', views.NotificationGroupEditView.as_view(), name='notificationgroup_add'),
+    path('notification-groups/import/', views.NotificationGroupBulkImportView.as_view(), name='notificationgroup_import'),
+    path('notification-groups/edit/', views.NotificationGroupBulkEditView.as_view(), name='notificationgroup_bulk_edit'),
+    path('notification-groups/delete/', views.NotificationGroupBulkDeleteView.as_view(), name='notificationgroup_bulk_delete'),
+    path('notification-groups/<int:pk>/', include(get_model_urls('extras', 'notificationgroup'))),
+
+    # Notifications
+    path('notifications/', views.NotificationsView.as_view(), name='notifications'),
+    path('notifications/delete/', views.NotificationBulkDeleteView.as_view(), name='notification_bulk_delete'),
+    path('notifications/<int:pk>/', include(get_model_urls('extras', 'notification'))),
+
+    # Subscriptions
+    path('subscriptions/add/', views.SubscriptionCreateView.as_view(), name='subscription_add'),
+    path('subscriptions/delete/', views.SubscriptionBulkDeleteView.as_view(), name='subscription_bulk_delete'),
+    path('subscriptions/<int:pk>/', include(get_model_urls('extras', 'subscription'))),
+
     # Webhooks
     path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
     path('webhooks/add/', views.WebhookEditView.as_view(), name='webhook_add'),

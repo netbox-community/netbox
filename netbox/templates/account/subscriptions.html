@@ -1,0 +1,32 @@
+{% extends 'account/base.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block title %}{% trans "Subscriptions" %}{% endblock %}
+
+{% block content %}
+  <form method="post" class="form form-horizontal">
+    {% csrf_token %}
+    <input type="hidden" name="return_url" value="{% url 'account:subscriptions' %}" />
+
+    {# Table #}
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <div class="htmx-container table-responsive" id="object_list">
+            {% include 'htmx/table.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Form buttons #}
+    <div class="btn-list d-print-none mt-2">
+      {% if 'bulk_delete' in actions %}
+        {% bulk_delete_button model query_params=request.GET %}
+      {% endif %}
+    </div>
+  </form>
+{% endblock %}
