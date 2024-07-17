@@ -582,7 +582,7 @@ class WorkerView(BaseRQView):
 
 
 #
-# Plugins
+# System
 #
 
 class SystemView(UserPassesTestMixin, View):
@@ -652,19 +652,9 @@ class PluginListView(UserPassesTestMixin, View):
     def get(self, request):
         q = request.GET.get('q', None)
 
-        plugins = get_plugins()
-        plugins = plugins.values()
+        plugins = get_plugins().values()
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.name.casefold()]
-
-        # Sort order should be:
-        #   Installed plugins
-        #   Certified catalog plugins
-        #   Remaining catalog plugins
-        #   With alphabetical sort within each traunch.
-        plugins = sorted(plugins, key=lambda x: x.name, reverse=False)
-        plugins = sorted(plugins, key=lambda x: x.is_certified, reverse=True)
-        plugins = sorted(plugins, key=lambda x: x.is_installed, reverse=True)
 
         table = CatalogPluginTable(plugins, user=request.user)
         table.configure(request)

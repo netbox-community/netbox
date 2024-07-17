@@ -70,3 +70,6 @@ class CatalogPluginTable(BaseTable):
         default_columns = (
             'name', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
         )
+        # List installed plugins first, then certified plugins, then
+        # everything else (with each tranche ordered alphabetically)
+        order_by = ('-is_installed', '-is_certified', 'name')
