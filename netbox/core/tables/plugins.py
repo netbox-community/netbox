@@ -5,42 +5,9 @@ from django.utils.translation import gettext_lazy as _
 from netbox.tables import BaseTable
 
 __all__ = (
-    'CertifiedPluginTable',
-    'InstalledPluginTable',
+    'CatalogPluginTable',
     'PluginVersionTable',
 )
-
-
-class InstalledPluginTable(BaseTable):
-    name = tables.Column(
-        accessor=tables.A('verbose_name'),
-        verbose_name=_('Name')
-    )
-    version = tables.Column(
-        verbose_name=_('Version')
-    )
-    package = tables.Column(
-        accessor=tables.A('name'),
-        verbose_name=_('Package')
-    )
-    author = tables.Column(
-        verbose_name=_('Author')
-    )
-    author_email = tables.Column(
-        verbose_name=_('Author Email')
-    )
-    description = tables.Column(
-        verbose_name=_('Description')
-    )
-
-    class Meta(BaseTable.Meta):
-        empty_text = _('No plugins found')
-        fields = (
-            'name', 'version', 'package', 'author', 'author_email', 'description',
-        )
-        default_columns = (
-            'name', 'version', 'package', 'description',
-        )
 
 
 class PluginVersionTable(BaseTable):
@@ -71,10 +38,10 @@ class PluginVersionTable(BaseTable):
         orderable = False
 
     def render_last_updated(self, value, record):
-        return naturalday(datetime.fromisoformat(value))
+        return naturalday(value)
 
 
-class CertifiedPluginTable(BaseTable):
+class CatalogPluginTable(BaseTable):
     name = tables.Column(
         linkify=('core:plugin', [tables.A('slug')]),
         verbose_name=_('Name')

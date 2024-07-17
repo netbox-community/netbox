@@ -431,13 +431,13 @@ ADMIN_MENU = Menu(
             label=_('System'),
             items=(
                 MenuItem(
-                    link='core:plugin_list',
-                    link_text=_('Plugins'),
+                    link='core:system',
+                    link_text=_('System'),
                     auth_required=True
                 ),
                 MenuItem(
-                    link='core:system',
-                    link_text=_('System'),
+                    link='core:plugin_list',
+                    link_text=_('Plugins'),
                     auth_required=True
                 ),
                 MenuItem(

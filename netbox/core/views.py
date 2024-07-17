@@ -1,9 +1,11 @@
+import datetime
 import importlib
 import importlib.util
 import json
 import platform
 import requests
 
+from dataclasses import dataclass, field
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
@@ -41,7 +43,7 @@ from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
-from .tables import CertifiedPluginTable, PluginVersionTable
+from .tables import CatalogPluginTable, PluginVersionTable
 
 
 #
@@ -648,12 +650,8 @@ class SystemView(UserPassesTestMixin, View):
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
-        plugins_table = tables.InstalledPluginTable(plugins, orderable=False)
-        plugins_table.configure(request)
-
         return render(request, 'core/system.html', {
             'stats': stats,
-            'plugins_table': plugins_table,
             'config': config,
         })
 
@@ -661,6 +659,36 @@ class SystemView(UserPassesTestMixin, View):
 #
 # Plugins
 #
+
+@dataclass
+class PluginVersion:
+    date: datetime.datetime = None
+    version: str = ''
+    netbox_min_version: str = ''
+    netbox_max_version: str = ''
+    has_model: bool = False
+    is_certified: bool = False
+    is_feature: bool = False
+    is_integration: bool = False
+    is_netboxlabs_supported: bool = False
+
+
+@dataclass
+class Plugin:
+    slug: str = ''
+    config_name: str = ''
+    name: str = ''
+    tag_line: str = ''
+    description_short: str = ''
+    author: str = ''
+    created: datetime.datetime = None
+    updated: datetime.datetime = None
+    is_local: bool = False
+    is_installed: bool = False
+    is_certified: bool = False
+    is_community: bool = False
+    versions: list[PluginVersion] = field(default_factory=list)
+
 
 def get_local_plugins(plugins):
     for plugin_name in settings.PLUGINS:
@@ -692,7 +720,8 @@ def get_catalog_plugins(plugins):
     session = requests.Session()
 
     def get_pages():
-        payload = {'page': '1', 'per_page': '25'}
+        # TODO: pagintation is curently broken in API
+        payload = {'page': '1', 'per_page': '50'}
         first_page = session.get(url, params=payload).json()
         yield first_page
         num_pages = first_page['metadata']['pagination']['last_page']
@@ -706,7 +735,6 @@ def get_catalog_plugins(plugins):
         for data in page['data']:
 
             versions = []
-            versions.append(data['release_latest'])
             versions.extend(data['release_recent_history'])
             if data['slug'] in plugins:
                 plugins[data['slug']]['is_local'] = False
@@ -748,7 +776,7 @@ def get_plugins():
 class PluginListView(UserPassesTestMixin, View):
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_superuser
 
     def get(self, request):
         q = request.GET.get('q', None)
@@ -757,9 +785,9 @@ class PluginListView(UserPassesTestMixin, View):
         if q:
             plugins = [v for k, v in plugins.items() if q.casefold() in v['name'].casefold()]
         else:
-            plugins = [v for k, v in plugins.items()]
+            plugins = plugins.values()
 
-        table = CertifiedPluginTable(plugins, user=request.user)
+        table = CatalogPluginTable(plugins, user=request.user)
         table.configure(request)
 
         # If this is an HTMX request, return only the rendered table HTML
