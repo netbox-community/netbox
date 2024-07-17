@@ -1,11 +1,6 @@
-import datetime
-import importlib
-import importlib.util
 import json
 import platform
-import requests
 
-from dataclasses import dataclass, field
 from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
@@ -36,13 +31,13 @@ from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.data import shallow_compare_dict
-from utilities.datetime import datetime_from_timestamp
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .plugins import get_plugins
 from .tables import CatalogPluginTable, PluginVersionTable
 
 
@@ -659,119 +654,6 @@ class SystemView(UserPassesTestMixin, View):
 #
 # Plugins
 #
-
-@dataclass
-class PluginVersion:
-    date: datetime.datetime = None
-    version: str = ''
-    netbox_min_version: str = ''
-    netbox_max_version: str = ''
-    has_model: bool = False
-    is_certified: bool = False
-    is_feature: bool = False
-    is_integration: bool = False
-    is_netboxlabs_supported: bool = False
-
-
-@dataclass
-class Plugin:
-    slug: str = ''
-    config_name: str = ''
-    name: str = ''
-    tag_line: str = ''
-    description_short: str = ''
-    author: str = ''
-    created: datetime.datetime = None
-    updated: datetime.datetime = None
-    is_local: bool = False
-    is_installed: bool = False
-    is_certified: bool = False
-    is_community: bool = False
-    versions: list[PluginVersion] = field(default_factory=list)
-
-
-def get_local_plugins(plugins):
-    for plugin_name in settings.PLUGINS:
-        plugin = importlib.import_module(plugin_name)
-        plugin_config: PluginConfig = plugin.config
-
-        plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
-        plugins[plugin_config.name] = {
-            'slug': plugin_config.name,
-            'config_name': None,
-            'name': plugin_config.verbose_name,
-            'tag_line': plugin_config.description,
-            'description_short': plugin_config.description,
-            'author': plugin_config.author or _('Unknown Author'),
-            'created': None,
-            'updated': None,
-            'is_local': True,
-            'is_installed': True,
-            'is_certified': False,
-            'is_community': False,
-            'versions': [],
-        }
-
-    return plugins
-
-
-def get_catalog_plugins(plugins):
-    url = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
-    session = requests.Session()
-
-    def get_pages():
-        # TODO: pagintation is curently broken in API
-        payload = {'page': '1', 'per_page': '50'}
-        first_page = session.get(url, params=payload).json()
-        yield first_page
-        num_pages = first_page['metadata']['pagination']['last_page']
-
-        for page in range(2, num_pages + 1):
-            payload['page'] = page
-            next_page = session.get(url, params=payload).json()
-            yield next_page
-
-    for page in get_pages():
-        for data in page['data']:
-
-            versions = []
-            versions.extend(data['release_recent_history'])
-            if data['slug'] in plugins:
-                plugins[data['slug']]['is_local'] = False
-                plugins[data['slug']]['is_certified'] = data['release_latest']['is_certified']
-                plugins[data['slug']]['description_short'] = data['description_short']
-            else:
-                plugins[data['slug']] = {
-                    'slug': data['slug'],
-                    'config_name': data['config_name'],
-                    'name': data['title_short'],
-                    'title_long': data['title_long'],
-                    'tag_line': data['tag_line'],
-                    'description_short': data['description_short'],
-                    'author': data['author']['name'] or _('Unknown Author'),
-                    'created': datetime_from_timestamp(data['created_at']),
-                    'updated': datetime_from_timestamp(data['updated_at']),
-                    'is_local': False,
-                    'is_installed': False,
-                    'is_certified': data['release_latest']['is_certified'],
-                    'is_community': not data['release_latest']['is_certified'],
-                    'versions': versions,
-                }
-
-    return plugins
-
-
-def get_plugins():
-    if plugins := cache.get('plugins-catalog-feed'):
-        return plugins
-
-    plugins = {}
-    plugins = get_local_plugins(plugins)
-    plugins = get_catalog_plugins(plugins)
-
-    cache.set('plugins-catalog-feed', plugins, 3600)
-    return plugins
-
 
 class PluginListView(UserPassesTestMixin, View):
 
