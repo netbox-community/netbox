@@ -9,7 +9,7 @@ from netbox.tables import NetBoxTable, columns
 from .columns import CommitRateColumn
 
 __all__ = (
-    'CircuitRedundancyGroupTable',
+    'CircuitGroupTable',
     'CircuitTable',
     'CircuitTerminationTable',
     'CircuitTypeTable',
@@ -122,10 +122,10 @@ class CircuitTerminationTable(NetBoxTable):
         default_columns = ('pk', 'id', 'circuit', 'provider', 'term_side', 'description')
 
 
-class CircuitRedundancyGroupTable(NetBoxTable):
+class CircuitGroupTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
-        model = CircuitRedundancyGroup
+        model = CircuitGroup
         fields = (
             'pk', 'name', 'created', 'last_updated', 'actions',
         )

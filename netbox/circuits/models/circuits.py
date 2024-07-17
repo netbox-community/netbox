@@ -12,7 +12,7 @@ from utilities.fields import ColorField
 __all__ = (
     'Circuit',
     'CircuitGroupAssignment',
-    'CircuitRedundancyGroup',
+    'CircuitGroup',
     'CircuitTermination',
     'CircuitType',
 )
@@ -153,7 +153,7 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
             raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
 
 
-class CircuitRedundancyGroup(PrimaryModel):
+class CircuitGroup(PrimaryModel):
     """
     """
     name = models.CharField(
@@ -172,12 +172,12 @@ class CircuitRedundancyGroup(PrimaryModel):
         verbose_name_plural = _('Circuit redundancy group')
 
     def get_absolute_url(self):
-        return reverse('circuits:circuitredundancygroup', args=[self.pk])
+        return reverse('circuits:circuitgroup', args=[self.pk])
 
 
 class CircuitGroupAssignment(models.Model):
     circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
-    group = models.ForeignKey(CircuitRedundancyGroup, on_delete=models.CASCADE)
+    group = models.ForeignKey(CircuitGroup, on_delete=models.CASCADE)
     priority = models.CharField(
         verbose_name=_('priority'),
         max_length=50,

@@ -25,9 +25,9 @@ class CircuitsQuery:
     circuit_type_list: List[CircuitTypeType] = strawberry_django.field()
 
     @strawberry.field
-    def circuit_redundancy_group(self, id: int) -> CircuitRedundancyGroupType:
-        return models.CircuitRedundancyGroup.objects.get(pk=id)
-    circuit_redundancy_group_list: List[CircuitRedundancyGroupType] = strawberry_django.field()
+    def circuit_redundancy_group(self, id: int) -> CircuitGroupType:
+        return models.CircuitGroup.objects.get(pk=id)
+    circuit_redundancy_group_list: List[CircuitGroupType] = strawberry_django.field()
 
     @strawberry.field
     def provider(self, id: int) -> ProviderType:

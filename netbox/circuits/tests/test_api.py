@@ -206,8 +206,8 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class CircuitRedundancyGroupTest(APIViewTestCases.APIViewTestCase):
-    model = CircuitRedundancyGroup
+class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
+    model = CircuitGroup
     brief_fields = ['name', 'description', 'display', 'id', 'url']
     bulk_update_data = {
         'status': 'planned',

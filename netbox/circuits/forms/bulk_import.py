@@ -11,7 +11,7 @@ from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugFiel
 
 __all__ = (
     'CircuitImportForm',
-    'CircuitRedundancyGroupImportForm',
+    'CircuitGroupImportForm',
     'CircuitTerminationImportForm',
     'CircuitTerminationImportRelatedForm',
     'CircuitTypeImportForm',
@@ -153,8 +153,8 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
         ]
 
 
-class CircuitRedundancyGroupImportForm(NetBoxModelImportForm):
+class CircuitGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
-        model = CircuitRedundancyGroup
+        model = CircuitGroup
         fields = ('name', 'tags')

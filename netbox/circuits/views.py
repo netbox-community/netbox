@@ -446,35 +446,35 @@ register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermina
 # Circuit Redundacy Groups
 #
 
-class CircuitRedundancyGroupListView(generic.ObjectListView):
-    queryset = CircuitRedundancyGroup.objects.all()
-    filterset = filtersets.CircuitRedundancyGroupFilterSet
-    filterset_form = forms.CircuitRedundancyGroupFilterForm
-    table = tables.CircuitRedundancyGroupTable
+class CircuitGroupListView(generic.ObjectListView):
+    queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
+    filterset_form = forms.CircuitGroupFilterForm
+    table = tables.CircuitGroupTable
 
 
-@register_model_view(CircuitRedundancyGroup)
-class CircuitRedundancyGroupView(generic.ObjectView):
-    queryset = CircuitRedundancyGroup.objects.all()
+@register_model_view(CircuitGroup)
+class CircuitGroupView(generic.ObjectView):
+    queryset = CircuitGroup.objects.all()
 
 
-@register_model_view(CircuitRedundancyGroup, 'edit')
-class CircuitRedundancyGroupEditView(generic.ObjectEditView):
-    queryset = CircuitRedundancyGroup.objects.all()
-    form = forms.CircuitRedundancyGroupForm
+@register_model_view(CircuitGroup, 'edit')
+class CircuitGroupEditView(generic.ObjectEditView):
+    queryset = CircuitGroup.objects.all()
+    form = forms.CircuitGroupForm
 
 
-@register_model_view(CircuitRedundancyGroup, 'delete')
-class CircuitRedundancyGroupDeleteView(generic.ObjectDeleteView):
-    queryset = CircuitRedundancyGroup.objects.all()
+@register_model_view(CircuitGroup, 'delete')
+class CircuitGroupDeleteView(generic.ObjectDeleteView):
+    queryset = CircuitGroup.objects.all()
 
 
-class CircuitRedundancyGroupBulkImportView(generic.BulkImportView):
-    queryset = CircuitRedundancyGroup.objects.all()
-    model_form = forms.CircuitRedundancyGroupImportForm
+class CircuitGroupBulkImportView(generic.BulkImportView):
+    queryset = CircuitGroup.objects.all()
+    model_form = forms.CircuitGroupImportForm
 
 
-class CircuitRedundancyGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = CircuitRedundancyGroup.objects.all()
-    filterset = filtersets.CircuitRedundancyGroupFilterSet
-    table = tables.CircuitRedundancyGroupTable
+class CircuitGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
+    table = tables.CircuitGroupTable

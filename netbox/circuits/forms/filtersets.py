@@ -13,7 +13,7 @@ from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
-    'CircuitRedundancyGroupFilterForm',
+    'CircuitGroupFilterForm',
     'CircuitTerminationFilterForm',
     'CircuitTypeFilterForm',
     'ProviderFilterForm',
@@ -233,8 +233,8 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class CircuitRedundancyGroupFilterForm(NetBoxModelFilterSetForm):
-    model = CircuitRedundancyGroup
+class CircuitGroupFilterForm(NetBoxModelFilterSetForm):
+    model = CircuitGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
     )

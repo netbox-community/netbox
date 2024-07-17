@@ -451,9 +451,9 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
-class CircuitRedundancyGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
-    queryset = CircuitRedundancyGroup.objects.all()
-    filterset = CircuitRedundancyGroupFilterSet
+class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = CircuitGroup.objects.all()
+    filterset = CircuitGroupFilterSet
 
     @classmethod
     def setUpTestData(cls):

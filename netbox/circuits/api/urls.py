@@ -14,7 +14,7 @@ router.register('provider-networks', views.ProviderNetworkViewSet)
 router.register('circuit-types', views.CircuitTypeViewSet)
 router.register('circuits', views.CircuitViewSet)
 router.register('circuit-terminations', views.CircuitTerminationViewSet)
-router.register('circuit-redundancy-groups', views.CircuitRedundancyGroupViewSet)
+router.register('circuit-redundancy-groups', views.CircuitGroupViewSet)
 
 app_name = 'circuits-api'
 urlpatterns = router.urls

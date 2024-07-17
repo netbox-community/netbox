@@ -7,7 +7,7 @@ from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 __all__ = (
     'CircuitTerminationFilter',
     'CircuitFilter',
-    'CircuitRedundancyGroupFilter',
+    'CircuitGroupFilter',
     'CircuitTypeFilter',
     'ProviderFilter',
     'ProviderAccountFilter',
@@ -33,9 +33,9 @@ class CircuitTypeFilter(BaseFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.CircuitRedundancyGroup, lookups=True)
-@autotype_decorator(filtersets.CircuitRedundancyGroupFilterSet)
-class CircuitRedundancyGroupFilter(BaseFilterMixin):
+@strawberry_django.filter(models.CircuitGroup, lookups=True)
+@autotype_decorator(filtersets.CircuitGroupFilterSet)
+class CircuitGroupFilter(BaseFilterMixin):
     pass
 
 

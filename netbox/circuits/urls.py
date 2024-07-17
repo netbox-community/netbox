@@ -56,10 +56,10 @@ urlpatterns = [
     path('circuit-terminations/<int:pk>/', include(get_model_urls('circuits', 'circuittermination'))),
 
     # Circuit Redundacy Groups
-    path('circuit-redundancy-groups/', views.CircuitRedundancyGroupListView.as_view(), name='circuitredundancygroup_list'),
-    path('circuit-redundancy-groups/add/', views.CircuitRedundancyGroupEditView.as_view(), name='circuitredundancygroup_add'),
-    path('circuit-redundancy-groups/import/', views.CircuitRedundancyGroupBulkImportView.as_view(), name='circuitredundancygroup_import'),
-    # path('circuit-redundancy-groups/edit/', views.CircuitRedundancyGroupBulkEditView.as_view(), name='circuitredundancygroup_bulk_edit'),
-    path('circuit-redundancy-groups/delete/', views.CircuitRedundancyGroupBulkDeleteView.as_view(), name='circuitredundancygroup_bulk_delete'),
-    path('circuit-redundancy-groups/<int:pk>/', include(get_model_urls('circuits', 'circuitredundancygroup'))),
+    path('circuit-redundancy-groups/', views.CircuitGroupListView.as_view(), name='circuitgroup_list'),
+    path('circuit-redundancy-groups/add/', views.CircuitGroupEditView.as_view(), name='circuitgroup_add'),
+    path('circuit-redundancy-groups/import/', views.CircuitGroupBulkImportView.as_view(), name='circuitgroup_import'),
+    # path('circuit-redundancy-groups/edit/', views.CircuitGroupBulkEditView.as_view(), name='circuitgroup_bulk_edit'),
+    path('circuit-redundancy-groups/delete/', views.CircuitGroupBulkDeleteView.as_view(), name='circuitgroup_bulk_delete'),
+    path('circuit-redundancy-groups/<int:pk>/', include(get_model_urls('circuits', 'circuitgroup'))),
 ]
