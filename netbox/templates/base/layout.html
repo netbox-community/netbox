@@ -20,13 +20,12 @@ Blocks:
 
     {# Sidebar #}
     <aside class="navbar navbar-vertical navbar-expand-lg">
-      <div class="container-fluid">
 
-        {% if settings.RELEASE.edition != 'Community' %}
-          <div class="netbox-motif">
-            <img src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">
-          </div>
-        {% endif %}
+      {% if settings.RELEASE.edition != 'Community' %}
+        <img class="motif" src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">
+      {% endif %}
+
+      <div class="container-fluid">
 
         {# Menu toggle (mobile view) #}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,14 +35,9 @@ Blocks:
         {# Logo #}
         <h1 class="navbar-brand">
           <a href="{% url 'home' %}">
-            {% if settings.RELEASE.edition != 'Community' %}
-              <img src="{% static 'logo_netboxlabs_dark_teal.svg' %}" alt="{% trans "NetBox Labs Logo" %}" class="navbar-brand-image-edition hide-theme-dark">
-              <img src="{% static 'logo_netboxlabs_bright_teal.svg' %}" alt="{% trans "NetBox Labs Logo" %}" class="navbar-brand-image-edition hide-theme-light">
-              <div class="netbox-edition text-uppercase fw-semibold mt-2">{{ settings.RELEASE.edition }}</div>
-            {% else %}
-              <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
-              <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
-            {% endif %}
+            <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
+            <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
+            <div class="netbox-edition text-uppercase fw-semibold mt-2">{{ settings.RELEASE.edition }}</div>
           </a>
         </h1>
 
