@@ -617,12 +617,6 @@ class SystemView(UserPassesTestMixin, View):
             'rq_worker_count': Worker.count(get_connection('default')),
         }
 
-        # Plugins
-        plugins = [
-            # Look up app config by package name
-            apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
-        ]
-
         # Configuration
         try:
             config = ConfigRevision.objects.get(pk=cache.get('config_version'))
@@ -634,9 +628,6 @@ class SystemView(UserPassesTestMixin, View):
         if 'export' in request.GET:
             data = {
                 **stats,
-                'plugins': {
-                    plugin.name: plugin.version for plugin in plugins
-                },
                 'config': {
                     k: config.data[k] for k in sorted(config.data)
                 },
@@ -664,10 +655,18 @@ class PluginListView(UserPassesTestMixin, View):
         q = request.GET.get('q', None)
 
         plugins = get_plugins()
+        plugins = plugins.values()
         if q:
-            plugins = [v for k, v in plugins.items() if q.casefold() in v['name'].casefold()]
-        else:
-            plugins = plugins.values()
+            plugins = [obj for obj in plugins if q.casefold() in obj.name.casefold()]
+
+        # Sort order should be:
+        #   Installed plugins
+        #   Certified catalog plugins
+        #   Remaining catalog plugins
+        #   With alphabetical sort within each traunch.
+        plugins = sorted(plugins, key=lambda x: x.name, reverse=False)
+        plugins = sorted(plugins, key=lambda x: x.is_certified, reverse=True)
+        plugins = sorted(plugins, key=lambda x: x.is_installed, reverse=True)
 
         table = CatalogPluginTable(plugins, user=request.user)
         table.configure(request)

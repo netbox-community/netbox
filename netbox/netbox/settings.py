@@ -769,6 +769,8 @@ STRAWBERRY_DJANGO = {
 # Plugins
 #
 
+PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
+
 # Register any configured plugins
 for plugin_name in PLUGINS:
     try:

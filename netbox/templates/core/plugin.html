@@ -15,6 +15,8 @@
 {% block subtitle %}
   <div class="text-secondary fs-5">
     {{ plugin.tag_line }}
+    <a href="{{ plugin.homepage.url }}" target="_blank">Learn more <i class="mdi mdi-launch"></i></a><br />
+    <strong>License:</strong> {{ plugin.license_type }}
   </div>
 {% endblock subtitle %}
 
@@ -33,16 +35,18 @@ From
       </a>
     </li>
     {% if not plugin.is_local %}
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-        {% trans "Version history" %}
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-        {% trans "Install" %}
-      </button>
-    </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+          {% trans "Version history" %}
+        </button>
+      </li>
+      {% if plugin.is_community %}
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+            {% trans "Install" %}
+          </button>
+        </li>
+      {% endif %}
     {% endif %}
   </ul>
 
@@ -51,23 +55,24 @@ From
 {% block content %}
 
   <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-    {{ plugin.description_short }}
+    {{ plugin.description_short|markdown }}
   </div>
   {% if not plugin.is_local %}
-  <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
-    <div class="card">
+    <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
+      <div class="card">
 
-      <div class="htmx-container table-responsive" id="object_list">
-        {% include 'htmx/table.html' %}
+        <div class="htmx-container table-responsive" id="object_list">
+          {% include 'htmx/table.html' %}
+        </div>
       </div>
     </div>
-  </div>
-  <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
-    <p>You can install this plugin from the command line with PyPi.</p>
-    <p>The following commands may be helpful; always refer to the plugin's own documentation and the Installing a Plugin unit of the NetBox documentation.</p>
-    <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
+    {% if plugin.is_community %}
+      <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
+        <p>You can install this plugin from the command line with PyPi.</p>
+        <p>The following commands may be helpful; always refer to <a href="{{ plugin.homepage_url }}" target="_blank">the plugin's own documentation <i class="mdi mdi-launch"></i></a> and the <a href="https://netboxlabs.com/docs/netbox/en/stable/plugins/installation/" target="_blank">Installing a Plugin unit <i class="mdi mdi-launch"></i></a> of the NetBox documentation.</p>
+        <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
 
-    <pre class="block"><code>
+        <pre class="block"><code>
 source /opt/netbox/venv/bin/activate
 pip install {{ plugin.slug }}
     </code></pre>
@@ -76,16 +81,17 @@ pip install {{ plugin.slug }}
 PLUGINS=［
     "{{ plugin.config_name }}",
 ]
-    </code></pre>
-    <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
-    <pre class="block"><code>
-python3 /opt/netbox/netbox/netbox/manage.py migrate
-python3 /opt/netbox/netbox/netbox/manage.py collectstatic
-    </code></pre>
-    <p>4. Restart the NetBox services to complete the plugin installation:</p>
-    <pre class="block"><code>
-sudo systemctl restart netbox netbox-rq
-    </code></pre>
-  </div>
+        </code></pre>
+        <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
+        <pre class="block"><code>
+    python3 /opt/netbox/netbox/netbox/manage.py migrate
+    python3 /opt/netbox/netbox/netbox/manage.py collectstatic
+        </code></pre>
+        <p>4. Restart the NetBox services to complete the plugin installation:</p>
+        <pre class="block"><code>
+    sudo systemctl restart netbox netbox-rq
+        </code></pre>
+      </div>
+    {% endif %}
   {% endif %}
 {% endblock content %}
