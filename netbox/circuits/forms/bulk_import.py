@@ -154,7 +154,14 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
 
 
 class CircuitGroupImportForm(NetBoxModelImportForm):
+    tenant = CSVModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned tenant')
+    )
 
     class Meta:
         model = CircuitGroup
-        fields = ('name', 'tags')
+        fields = ('name', 'tenant', 'tags')

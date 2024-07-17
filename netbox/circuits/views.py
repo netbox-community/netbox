@@ -474,6 +474,13 @@ class CircuitGroupBulkImportView(generic.BulkImportView):
     model_form = forms.CircuitGroupImportForm
 
 
+class CircuitGroupBulkEditView(generic.BulkEditView):
+    queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
+    table = tables.CircuitGroupTable
+    form = forms.CircuitGroupBulkEditForm
+
+
 class CircuitGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitGroup.objects.all()
     filterset = filtersets.CircuitGroupFilterSet

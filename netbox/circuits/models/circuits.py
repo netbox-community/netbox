@@ -164,12 +164,19 @@ class CircuitGroup(PrimaryModel):
         verbose_name=_('slug'),
         max_length=100
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='circuitgroups',
+        blank=True,
+        null=True
+    )
     circuits = models.ManyToManyField(Circuit, through='CircuitGroupAssignment')
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
-        verbose_name = _('Circuit redundancy group')
-        verbose_name_plural = _('Circuit redundancy group')
+        verbose_name = _('Circuit group')
+        verbose_name_plural = _('Circuit group')
 
     def get_absolute_url(self):
         return reverse('circuits:circuitgroup', args=[self.pk])

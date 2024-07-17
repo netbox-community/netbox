@@ -233,10 +233,11 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class CircuitGroupFilterForm(NetBoxModelFilterSetForm):
+class CircuitGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = CircuitGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', )
     tag = TagFilterField(model)

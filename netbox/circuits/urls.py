@@ -59,7 +59,7 @@ urlpatterns = [
     path('circuit-redundancy-groups/', views.CircuitGroupListView.as_view(), name='circuitgroup_list'),
     path('circuit-redundancy-groups/add/', views.CircuitGroupEditView.as_view(), name='circuitgroup_add'),
     path('circuit-redundancy-groups/import/', views.CircuitGroupBulkImportView.as_view(), name='circuitgroup_import'),
-    # path('circuit-redundancy-groups/edit/', views.CircuitGroupBulkEditView.as_view(), name='circuitgroup_bulk_edit'),
+    path('circuit-redundancy-groups/edit/', views.CircuitGroupBulkEditView.as_view(), name='circuitgroup_bulk_edit'),
     path('circuit-redundancy-groups/delete/', views.CircuitGroupBulkDeleteView.as_view(), name='circuitgroup_bulk_delete'),
     path('circuit-redundancy-groups/<int:pk>/', include(get_model_urls('circuits', 'circuitgroup'))),
 ]

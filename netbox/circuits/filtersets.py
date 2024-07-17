@@ -306,7 +306,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         ).distinct()
 
 
-class CircuitGroupFilterSet(NetBoxModelFilterSet):
+class CircuitGroupFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = CircuitGroup

@@ -14,6 +14,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, Numbe
 
 __all__ = (
     'CircuitBulkEditForm',
+    'CircuitGroupBulkEditForm',
     'CircuitTerminationBulkEditForm',
     'CircuitTypeBulkEditForm',
     'ProviderBulkEditForm',
@@ -219,3 +220,20 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
     )
     nullable_fields = ('description')
+
+
+class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
+    tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    comments = CommentField()
+
+    model = CircuitGroup
+    fieldsets = (
+        FieldSet('tenant', name=_('Tenancy')),
+    )
+    nullable_fields = (
+        'tenant', 'comments',
+    )
