@@ -1,8 +1,7 @@
-from datetime import datetime
 import django_tables2 as tables
-from django.contrib.humanize.templatetags.humanize import naturalday
 from django.utils.translation import gettext_lazy as _
-from netbox.tables import BaseTable
+
+from netbox.tables import BaseTable, columns
 
 __all__ = (
     'CatalogPluginTable',
@@ -14,8 +13,9 @@ class PluginVersionTable(BaseTable):
     version = tables.Column(
         verbose_name=_('Version')
     )
-    last_updated = tables.Column(
+    last_updated = columns.DateTimeColumn(
         accessor=tables.A('date'),
+        timespec='minutes',
         verbose_name=_('Last Updated')
     )
     min_version = tables.Column(
@@ -37,9 +37,6 @@ class PluginVersionTable(BaseTable):
         )
         orderable = False
 
-    def render_last_updated(self, value, record):
-        return naturalday(value)
-
 
 class CatalogPluginTable(BaseTable):
     name = tables.Column(
@@ -49,19 +46,19 @@ class CatalogPluginTable(BaseTable):
     author = tables.Column(
         verbose_name=_('Author')
     )
-    is_local = tables.BooleanColumn(
+    is_local = columns.BooleanColumn(
         verbose_name=_('Local')
     )
-    is_installed = tables.BooleanColumn(
+    is_installed = columns.BooleanColumn(
         verbose_name=_('Installed')
     )
-    is_certified = tables.BooleanColumn(
+    is_certified = columns.BooleanColumn(
         verbose_name=_('Certified')
     )
-    created = tables.Column(
+    created = columns.DateTimeColumn(
         verbose_name=_('Published')
     )
-    updated = tables.Column(
+    updated = columns.DateTimeColumn(
         verbose_name=_('Updated')
     )
 
