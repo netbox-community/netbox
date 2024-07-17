@@ -2,7 +2,6 @@ import json
 import platform
 
 from django import __version__ as DJANGO_VERSION
-from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -26,7 +25,6 @@ from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
 from netbox.config import get_config, PARAMS
-from netbox.plugins import PluginConfig
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
@@ -649,7 +647,7 @@ class SystemView(UserPassesTestMixin, View):
 class PluginListView(UserPassesTestMixin, View):
 
     def test_func(self):
-        return self.request.user.is_superuser
+        return self.request.user.is_staff
 
     def get(self, request):
         q = request.GET.get('q', None)
