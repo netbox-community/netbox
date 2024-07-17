@@ -28,6 +28,7 @@ class Plugin:
     slug: str = ''
     config_name: str = ''
     name: str = ''
+    title_long: str = ''
     tag_line: str = ''
     description_short: str = ''
     author: str = ''
@@ -46,21 +47,17 @@ def get_local_plugins(plugins):
         plugin_config: PluginConfig = plugin.config
 
         plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
-        plugins[plugin_config.name] = {
-            'slug': plugin_config.name,
-            'config_name': None,
-            'name': plugin_config.verbose_name,
-            'tag_line': plugin_config.description,
-            'description_short': plugin_config.description,
-            'author': plugin_config.author or _('Unknown Author'),
-            'created': None,
-            'updated': None,
-            'is_local': True,
-            'is_installed': True,
-            'is_certified': False,
-            'is_community': False,
-            'versions': [],
-        }
+        plugins[plugin_config.name] = Plugin(
+            slug=plugin_config.name,
+            name=plugin_config.verbose_name,
+            tag_line=plugin_config.description,
+            description_short=plugin_config.description,
+            author=plugin_config.author or _('Unknown Author'),
+            is_local=True,
+            is_installed=True,
+            is_certified=False,
+            is_community=False,
+        )
 
     return plugins
 
@@ -85,28 +82,42 @@ def get_catalog_plugins(plugins):
         for data in page['data']:
 
             versions = []
-            versions.extend(data['release_recent_history'])
+            for version in data['release_recent_history']:
+                versions.append(
+                    PluginVersion(
+                        date=datetime_from_timestamp(version['date']),
+                        version=version['version'],
+                        netbox_min_version=version['netbox_min_version'],
+                        netbox_max_version=version['netbox_max_version'],
+                        has_model=version['has_model'],
+                        is_certified=version['is_certified'],
+                        is_feature=version['is_feature'],
+                        is_integration=version['is_integration'],
+                        is_netboxlabs_supported=version['is_netboxlabs_supported'],
+                    )
+                )
+
             if data['slug'] in plugins:
-                plugins[data['slug']]['is_local'] = False
-                plugins[data['slug']]['is_certified'] = data['release_latest']['is_certified']
-                plugins[data['slug']]['description_short'] = data['description_short']
+                plugins[data['slug']].is_local = False
+                plugins[data['slug']].is_certified = data['release_latest']['is_certified']
+                plugins[data['slug']].description_short = data['description_short']
             else:
-                plugins[data['slug']] = {
-                    'slug': data['slug'],
-                    'config_name': data['config_name'],
-                    'name': data['title_short'],
-                    'title_long': data['title_long'],
-                    'tag_line': data['tag_line'],
-                    'description_short': data['description_short'],
-                    'author': data['author']['name'] or _('Unknown Author'),
-                    'created': datetime_from_timestamp(data['created_at']),
-                    'updated': datetime_from_timestamp(data['updated_at']),
-                    'is_local': False,
-                    'is_installed': False,
-                    'is_certified': data['release_latest']['is_certified'],
-                    'is_community': not data['release_latest']['is_certified'],
-                    'versions': versions,
-                }
+                plugins[data['slug']] = Plugin(
+                    slug=data['slug'],
+                    config_name=data['config_name'],
+                    name=data['title_short'],
+                    title_long=data['title_long'],
+                    tag_line=data['tag_line'],
+                    description_short=data['description_short'],
+                    author=data['author']['name'] or _('Unknown Author'),
+                    created=datetime_from_timestamp(data['created_at']),
+                    updated=datetime_from_timestamp(data['updated_at']),
+                    is_local=False,
+                    is_installed=False,
+                    is_certified=data['release_latest']['is_certified'],
+                    is_community=not data['release_latest']['is_certified'],
+                    versions=versions,
+                )
 
     return plugins
 

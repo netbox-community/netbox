@@ -693,7 +693,7 @@ class PluginView(UserPassesTestMixin, View):
         plugins = get_plugins()
         plugin = plugins[name]
 
-        table = PluginVersionTable(plugin['versions'], user=request.user)
+        table = PluginVersionTable(plugin.versions, user=request.user)
         table.configure(request)
 
         return render(request, 'core/plugin.html', {
