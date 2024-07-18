@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
+from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Token
 from utilities.filters import ContentTypeFilter
@@ -31,6 +32,11 @@ class GroupFilterSet(BaseFilterSet):
         field_name='object_permissions',
         queryset=ObjectPermission.objects.all(),
         label=_('Permission (ID)'),
+    )
+    notification_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='notification_groups',
+        queryset=NotificationGroup.objects.all(),
+        label=_('Notification group (ID)'),
     )
 
     class Meta:
@@ -66,6 +72,11 @@ class UserFilterSet(BaseFilterSet):
         field_name='object_permissions',
         queryset=ObjectPermission.objects.all(),
         label=_('Permission (ID)'),
+    )
+    notification_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='notification_groups',
+        queryset=NotificationGroup.objects.all(),
+        label=_('Notification group (ID)'),
     )
 
     class Meta:

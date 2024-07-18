@@ -45,6 +45,7 @@ __all__ = (
     'RackImportForm',
     'RackReservationImportForm',
     'RackRoleImportForm',
+    'RackTypeImportForm',
     'RearPortImportForm',
     'RegionImportForm',
     'SiteImportForm',
@@ -174,9 +175,54 @@ class RackRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackRole
         fields = ('name', 'slug', 'color', 'description', 'tags')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
+
+
+class RackTypeImportForm(NetBoxModelImportForm):
+    manufacturer = forms.ModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        help_text=_('The manufacturer of this rack type')
+    )
+    form_factor = CSVChoiceField(
+        label=_('Type'),
+        choices=RackFormFactorChoices,
+        required=False,
+        help_text=_('Form factor')
+    )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text=_('The lowest-numbered position in the rack')
+    )
+    width = forms.ChoiceField(
+        label=_('Width'),
+        choices=RackWidthChoices,
+        help_text=_('Rail-to-rail width (in inches)')
+    )
+    outer_unit = CSVChoiceField(
+        label=_('Outer unit'),
+        choices=RackDimensionUnitChoices,
+        required=False,
+        help_text=_('Unit for outer dimensions')
+    )
+    weight_unit = CSVChoiceField(
+        label=_('Weight unit'),
+        choices=WeightUnitChoices,
+        required=False,
+        help_text=_('Unit for rack weights')
+    )
+
+    class Meta:
+        model = RackType
+        fields = (
+            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+            'description', 'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
 
 
 class RackImportForm(NetBoxModelImportForm):
@@ -210,11 +256,11 @@ class RackImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Name of assigned role')
     )
-    type = CSVChoiceField(
+    form_factor = CSVChoiceField(
         label=_('Type'),
-        choices=RackTypeChoices,
+        choices=RackFormFactorChoices,
         required=False,
-        help_text=_('Rack type')
+        help_text=_('Form factor')
     )
     width = forms.ChoiceField(
         label=_('Width'),
@@ -237,7 +283,7 @@ class RackImportForm(NetBoxModelImportForm):
     class Meta:
         model = Rack
         fields = (
-            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag',
+            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'form_factor', 'serial', 'asset_tag',
             'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
             'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
@@ -384,9 +430,6 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = DeviceRole
         fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 class PlatformImportForm(NetBoxModelImportForm):
@@ -1052,7 +1095,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
+            'device', 'name', 'label', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
             'description', 'tags', 'component_type', 'component_name',
         )
 
@@ -1104,9 +1147,6 @@ class InventoryItemRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItemRole
         fields = ('name', 'slug', 'color', 'description')
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
 
 #
@@ -1183,9 +1223,6 @@ class CableImportForm(NetBoxModelImportForm):
             'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
             'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
-        help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
-        }
 
     def _clean_side(self, side):
         """

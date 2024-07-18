@@ -625,7 +625,7 @@ class SystemView(UserPassesTestMixin, View):
             config = ConfigRevision.objects.get(pk=cache.get('config_version'))
         except ConfigRevision.DoesNotExist:
             # Fall back to using the active config data if no record is found
-            config = ConfigRevision(data=get_config().defaults)
+            config = get_config()
 
         # Raw data export
         if 'export' in request.GET:

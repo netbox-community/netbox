@@ -24,6 +24,7 @@ ORGANIZATION_MENU = Menu(
             label=_('Racks'),
             items=(
                 get_model_item('dcim', 'rack', _('Racks')),
+                get_model_item('dcim', 'racktype', _('Rack Types')),
                 get_model_item('dcim', 'rackrole', _('Rack Roles')),
                 get_model_item('dcim', 'rackreservation', _('Reservations')),
                 MenuItem(
@@ -355,6 +356,7 @@ OPERATIONS_MENU = Menu(
         MenuGroup(
             label=_('Logging'),
             items=(
+                get_model_item('extras', 'notificationgroup', _('Notification Groups')),
                 get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['import']),
                 get_model_item('core', 'objectchange', _('Change Log'), actions=[]),
             ),
@@ -462,16 +464,13 @@ MENUS = [
     PROVISIONING_MENU,
     CUSTOMIZATION_MENU,
     OPERATIONS_MENU,
-    ADMIN_MENU,
 ]
 
-#
-# Add plugin menus
-#
-
+# Add top-level plugin menus
 for menu in registry['plugins']['menus']:
     MENUS.append(menu)
 
+# Add the default "plugins" menu
 if registry['plugins']['menu_items']:
 
     # Build the default plugins menu
@@ -485,3 +484,6 @@ if registry['plugins']['menu_items']:
         groups=groups
     )
     MENUS.append(plugins_menu)
+
+# Add the admin menu last
+MENUS.append(ADMIN_MENU)

@@ -39,8 +39,8 @@
           <td>{{ object.scope|linkify|placeholder }}</td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Permitted VIDs" %}</th>
-          <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
+          <th scope="row">{% trans "VLAN IDs" %}</th>
+          <td>{{ object.vid_ranges_list }}</td>
         </tr>
         <tr>
           <th scope="row">Utilization</th>

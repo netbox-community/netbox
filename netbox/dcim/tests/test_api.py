@@ -274,6 +274,47 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
 
+class RackTypeTest(APIViewTestCases.APIViewTestCase):
+    model = RackType
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
+    bulk_update_data = {
+        'description': 'new description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], name='Rack Type 1', slug='rack-type-1'),
+            RackType(manufacturer=manufacturers[0], name='Rack Type 2', slug='rack-type-2'),
+            RackType(manufacturer=manufacturers[0], name='Rack Type 3', slug='rack-type-3'),
+        )
+        RackType.objects.bulk_create(rack_types)
+
+        cls.create_data = [
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 4',
+                'slug': 'rack-type-4',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 5',
+                'slug': 'rack-type-5',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Rack Type 6',
+                'slug': 'rack-type-6',
+            },
+        ]
+
+
 class RackTest(APIViewTestCases.APIViewTestCase):
     model = Rack
     brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'url']

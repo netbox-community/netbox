@@ -1,0 +1,33 @@
+{% load i18n %}
+<div class="list-group list-group-flush list-group-hoverable" style="min-width: 300px">
+  {% for notification in notifications %}
+    <div class="list-group-item p-2">
+      <div class="row align-items-center">
+        <div class="col-auto text-{{ notification.event.color }} fs-2 pe-0">
+          <i class="{{ notification.event.icon }}"></i>
+        </div>
+        <div class="col text-truncate">
+          <a href="{% url 'extras:notification_read' pk=notification.pk %}" class="text-body d-block">{{ notification.object }}</a>
+          <div class="d-block text-secondary fs-5">{{ notification.event }} {{ notification.created|timesince }} {% trans "ago" %}</div>
+        </div>
+        <div class="col-auto">
+          <a href="#" hx-get="{% url 'extras:notification_dismiss' pk=notification.pk %}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Dismiss" %}">
+            <i class="mdi mdi-close"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="dropdown-item text-muted">
+      {% trans "No unread notifications" %}
+    </div>
+  {% endfor %}
+  {% if total_count %}
+    <a href="{% url 'account:notifications' %}" class="list-group-item list-group-item-action d-flex justify-content-between p-2">
+      {% trans "All notifications" %}
+      {% badge total_count %}
+    </a>
+  {% endif %}
+</div>
+{% include 'inc/notification_bell.html' %}
+

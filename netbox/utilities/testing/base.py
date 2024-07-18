@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ManyToManyField, ManyToManyRel, JSONField
 from django.forms.models import model_to_dict
@@ -12,6 +12,7 @@ from taggit.managers import TaggableManager
 
 from core.models import ObjectType
 from users.models import ObjectPermission
+from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
 from utilities.permissions import resolve_permission_type
 from .utils import DUMMY_CF_DATA, extract_form_failures
@@ -139,6 +140,9 @@ class ModelTestCase(TestCase):
                     if type(field.base_field) is ArrayField:
                         # Handle nested arrays (e.g. choice sets)
                         model_dict[key] = '\n'.join([f'{k},{v}' for k, v in value])
+                    elif issubclass(type(field.base_field), RangeField):
+                        # Handle arrays of numeric ranges (e.g. VLANGroup VLAN ID ranges)
+                        model_dict[key] = ranges_to_string(value)
                     else:
                         model_dict[key] = ','.join([str(v) for v in value])
 

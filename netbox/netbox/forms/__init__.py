@@ -1,7 +1,7 @@
 import re
 
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
@@ -36,7 +36,8 @@ class SearchForm(forms.Form):
     lookup = forms.ChoiceField(
         choices=LOOKUP_CHOICES,
         initial=LookupTypes.PARTIAL,
-        required=False
+        required=False,
+        label=_('Lookup')
     )
 
     def __init__(self, *args, **kwargs):
