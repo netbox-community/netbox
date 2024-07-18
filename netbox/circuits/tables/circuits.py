@@ -123,6 +123,10 @@ class CircuitTerminationTable(NetBoxTable):
 
 
 class CircuitGroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CircuitGroup
