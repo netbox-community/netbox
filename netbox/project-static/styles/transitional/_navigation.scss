@@ -80,14 +80,14 @@
     left:0;
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.30) 100%);
     opacity: .5;
-    position: absolute;
+    position: fixed;
     user-drag: none;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-drag: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-    width:100%;
+    width:18rem;
 
     @include media-breakpoint-up(lg) {
       display: block;
