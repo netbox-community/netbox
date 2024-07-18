@@ -653,6 +653,9 @@ class PluginListView(UserPassesTestMixin, View):
         q = request.GET.get('q', None)
 
         plugins = get_plugins().values()
+        if settings.RELEASE.edition != 'Community':
+            plugins = [obj for obj in plugins if obj.is_local or obj.release_latest.is_netboxlabs_supported]
+
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.name.casefold()]
 

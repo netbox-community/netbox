@@ -150,7 +150,6 @@ def get_catalog_plugins():
 def get_plugins():
     local_plugins = get_local_plugins()
     catalog_plugins = cache.get('plugins-catalog-feed')
-    catalog_plugins = None
     if not catalog_plugins:
         catalog_plugins = get_catalog_plugins()
         cache.set('plugins-catalog-feed', catalog_plugins, 3600)
