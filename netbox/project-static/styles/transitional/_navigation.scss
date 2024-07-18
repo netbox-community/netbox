@@ -1,9 +1,6 @@
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
 
-  // Background Gradient
-  background: linear-gradient(180deg, rgba(0, 133, 125, 0.00) 0%, rgba(0, 133, 125, 0.10) 100%), #FFF;
-
   // Adjust hover color & style for menu items
   .navbar-collapse {
     .nav-link-icon {
@@ -93,6 +90,11 @@
       display: block;
     }
   }
+}
+
+// Light theme styling
+body[data-bs-theme=light] .navbar-vertical.navbar-expand-lg {
+  background: linear-gradient(180deg, rgba(0, 133, 125, 0.00) 0%, rgba(0, 133, 125, 0.10) 100%), #FFF;
 }
 
 // Dark theme styling
