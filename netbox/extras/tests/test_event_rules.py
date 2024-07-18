@@ -46,22 +46,22 @@ class EventRuleTest(APITestCase):
         webhook_type = ObjectType.objects.get(app_label='extras', model='webhook')
         event_rules = EventRule.objects.bulk_create((
             EventRule(
-                name='Webhook Event 1',
-                type_create=True,
+                name='Event Rule 1',
+                event_types=[OBJECT_CREATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
-                name='Webhook Event 2',
-                type_update=True,
+                name='Event Rule 2',
+                event_types=[OBJECT_UPDATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
-                name='Webhook Event 3',
-                type_delete=True,
+                name='Event Rule 3',
+                event_types=[OBJECT_DELETED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
@@ -82,8 +82,7 @@ class EventRuleTest(APITestCase):
         """
         event_rule = EventRule(
             name='Event Rule 1',
-            type_create=True,
-            type_update=True,
+            event_types=[OBJECT_CREATED, OBJECT_UPDATED],
             conditions={
                 'and': [
                     {
@@ -131,7 +130,7 @@ class EventRuleTest(APITestCase):
         # Verify that a background task was queued for the new object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 1'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
@@ -181,7 +180,7 @@ class EventRuleTest(APITestCase):
         # Verify that a background task was queued for each new object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 1'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
@@ -212,7 +211,7 @@ class EventRuleTest(APITestCase):
         # Verify that a background task was queued for the updated object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 2'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
@@ -268,7 +267,7 @@ class EventRuleTest(APITestCase):
         # Verify that a background task was queued for each updated object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 2'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
@@ -294,7 +293,7 @@ class EventRuleTest(APITestCase):
         # Verify that a task was queued for the deleted object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 3'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
@@ -327,7 +326,7 @@ class EventRuleTest(APITestCase):
         # Verify that a background task was queued for each deleted object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 3'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
@@ -342,7 +341,7 @@ class EventRuleTest(APITestCase):
             A dummy implementation of Session.send() to be used for testing.
             Always returns a 200 HTTP response.
             """
-            event = EventRule.objects.get(type_create=True)
+            event = EventRule.objects.get(name='Event Rule 1')
             webhook = event.action_object
             signature = generate_signature(request.body, webhook.secret)
 

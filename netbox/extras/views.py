@@ -19,6 +19,7 @@ from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
@@ -549,6 +550,14 @@ class EventRuleListView(generic.ObjectListView):
 @register_model_view(EventRule)
 class EventRuleView(generic.ObjectView):
     queryset = EventRule.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'event_types': [
+                event for name, event in registry['events'].items()
+                if name in instance.event_types
+            ]
+        }
 
 
 @register_model_view(EventRule, 'edit')

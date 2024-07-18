@@ -13,7 +13,26 @@ __all__ = (
     'EVENT_TYPE_SUCCESS',
     'EVENT_TYPE_WARNING',
     'Event',
+    'get_event',
+    'get_event_type_choices',
+    'get_event_text',
 )
+
+
+def get_event(name):
+    return registry['events'].get(name)
+
+
+def get_event_text(name):
+    if event := registry['events'].get(name):
+        return event.text
+    return ''
+
+
+def get_event_type_choices():
+    return [
+        (event.name, event.text) for event in registry['events'].values()
+    ]
 
 
 @dataclass
@@ -26,6 +45,8 @@ class Event:
         return self.text
 
     def register(self):
+        if self.name in registry['events']:
+            raise Exception(f"An event named {self.name} has already been registered!")
         registry['events'][self.name] = self
 
     def color(self):

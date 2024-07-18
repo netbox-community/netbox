@@ -176,7 +176,7 @@ def process_event_queue(events):
         # Cache applicable Event Rules
         if object_type not in events_cache[action_flag]:
             events_cache[action_flag][object_type] = EventRule.objects.filter(
-                **{action_flag: True},
+                event_types__contains=[event['event_type']],
                 object_types=object_type,
                 enabled=True
             )

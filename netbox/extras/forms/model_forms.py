@@ -2,6 +2,7 @@ import json
 import re
 
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -303,6 +304,10 @@ class EventRuleForm(NetBoxModelForm):
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
+    event_types = SimpleArrayField(
+        label=_('Event types'),
+        base_field=forms.CharField()
+    )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),
         choices=[]
@@ -319,7 +324,7 @@ class EventRuleForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
-        FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
+        FieldSet('event_types', name=_('Event Types')),
         FieldSet('conditions', name=_('Conditions')),
         FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
@@ -327,17 +332,9 @@ class EventRuleForm(NetBoxModelForm):
     class Meta:
         model = EventRule
         fields = (
-            'object_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
-            'action_data', 'comments', 'tags'
+            'object_types', 'name', 'description', 'enabled', 'event_types', 'conditions', 'action_type',
+            'action_object_type', 'action_object_id', 'action_data', 'comments', 'tags'
         )
-        labels = {
-            'type_create': _('Creations'),
-            'type_update': _('Updates'),
-            'type_delete': _('Deletions'),
-            'type_job_start': _('Job executions'),
-            'type_job_end': _('Job terminations'),
-        }
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
             'action_type': HTMXSelect(),

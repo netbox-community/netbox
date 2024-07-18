@@ -9,7 +9,7 @@ __all__ = (
     'CustomFieldFilter',
     'CustomFieldChoiceSetFilter',
     'CustomLinkFilter',
-    'EventRuleFilter',
+    # 'EventRuleFilter',
     'ExportTemplateFilter',
     'ImageAttachmentFilter',
     'JournalEntryFilter',
@@ -92,7 +92,7 @@ class WebhookFilter(BaseFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.EventRule, lookups=True)
-@autotype_decorator(filtersets.EventRuleFilterSet)
-class EventRuleFilter(BaseFilterMixin):
-    pass
+# @strawberry_django.filter(models.EventRule, lookups=True)
+# @autotype_decorator(filtersets.EventRuleFilterSet)
+# class EventRuleFilter(BaseFilterMixin):
+#     pass

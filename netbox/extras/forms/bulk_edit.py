@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
@@ -248,33 +249,18 @@ class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
-    type_create = forms.NullBooleanField(
-        label=_('On create'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
+    event_types = SimpleArrayField(
+        label=_('Event types'),
+        base_field=forms.CharField(),
+        required=False
     )
-    type_update = forms.NullBooleanField(
-        label=_('On update'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_delete = forms.NullBooleanField(
-        label=_('On delete'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_start = forms.NullBooleanField(
-        label=_('On job start'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_end = forms.NullBooleanField(
-        label=_('On job end'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
     )
 
-    nullable_fields = ('description', 'conditions',)
+    nullable_fields = ('description', 'conditions')
 
 
 class TagBulkEditForm(BulkEditForm):

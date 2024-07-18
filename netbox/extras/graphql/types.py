@@ -182,7 +182,8 @@ class WebhookType(OrganizationalObjectType):
 @strawberry_django.type(
     models.EventRule,
     exclude=['content_types',],
-    filters=EventRuleFilter
+    # TODO: Fix GraphQL filter
+    # filters=EventRuleFilter
 )
 class EventRuleType(OrganizationalObjectType):
     action_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None

@@ -196,8 +196,8 @@ class EventRuleImportForm(NetBoxModelImportForm):
     class Meta:
         model = EventRule
         fields = (
-            'name', 'description', 'enabled', 'conditions', 'object_types', 'type_create', 'type_update',
-            'type_delete', 'type_job_start', 'type_job_end', 'action_type', 'action_object', 'comments', 'tags'
+            'name', 'description', 'enabled', 'conditions', 'object_types', 'event_types', 'action_type',
+            'action_object', 'comments', 'tags'
         )
 
     def clean(self):

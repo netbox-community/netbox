@@ -3,6 +3,7 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -60,30 +61,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         max_length=200,
         blank=True
     )
-    type_create = models.BooleanField(
-        verbose_name=_('on create'),
-        default=False,
-        help_text=_("Triggers when a matching object is created.")
-    )
-    type_update = models.BooleanField(
-        verbose_name=_('on update'),
-        default=False,
-        help_text=_("Triggers when a matching object is updated.")
-    )
-    type_delete = models.BooleanField(
-        verbose_name=_('on delete'),
-        default=False,
-        help_text=_("Triggers when a matching object is deleted.")
-    )
-    type_job_start = models.BooleanField(
-        verbose_name=_('on job start'),
-        default=False,
-        help_text=_("Triggers when a job for a matching object is started.")
-    )
-    type_job_end = models.BooleanField(
-        verbose_name=_('on job end'),
-        default=False,
-        help_text=_("Triggers when a job for a matching object terminates.")
+    event_types = ArrayField(
+        base_field=models.CharField(max_length=50),
+        help_text=_("The types of event which will trigger this rule.")
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
@@ -145,9 +125,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         super().clean()
 
         # At least one action type must be selected
-        if not any([
-            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
-        ]):
+        if not self.event_types:
             raise ValidationError(
                 _("At least one event type must be selected: create, update, delete, job start, and/or job end.")
             )

@@ -12,16 +12,18 @@ __all__ = (
     'OBJECT_UPDATED',
 )
 
+NAMESPACE = 'netbox'
+
 # Object events
-OBJECT_CREATED = 'object_created'
-OBJECT_UPDATED = 'object_updated'
-OBJECT_DELETED = 'object_deleted'
+OBJECT_CREATED = f'{NAMESPACE}.object_created'
+OBJECT_UPDATED = f'{NAMESPACE}.object_updated'
+OBJECT_DELETED = f'{NAMESPACE}.object_deleted'
 
 # Job events
-JOB_STARTED = 'job_started'
-JOB_COMPLETED = 'job_completed'
-JOB_FAILED = 'job_failed'
-JOB_ERRORED = 'job_errored'
+JOB_STARTED = f'{NAMESPACE}.job_started'
+JOB_COMPLETED = f'{NAMESPACE}.job_completed'
+JOB_FAILED = f'{NAMESPACE}.job_failed'
+JOB_ERRORED = f'{NAMESPACE}.job_errored'
 
 # Register core events
 Event(name=OBJECT_CREATED, text=_('Object created')).register()
