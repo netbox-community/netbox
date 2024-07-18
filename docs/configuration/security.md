@@ -120,6 +120,17 @@ DEFAULT_PERMISSIONS = {
 
 ---
 
+## ESCAPE_BANNERS
+
+Default: True
+
+When disabled, banners will be displayed without first being HTML escaped for safety.
+
+!!! info "Changed in NetBox v4.0.8"
+    Prior to NetBox v4.0.8, this setting was disabled by default.
+
+---
+
 ## EXEMPT_VIEW_PERMISSIONS
 
 Default: Empty list
