@@ -10,7 +10,7 @@
   data-netbox-version="{{ settings.VERSION }}"
   {% if request.user.is_authenticated %}
     data-netbox-user-name="{{ request.user.username }}"
-    data-netbox-user-is="{{ request.user.pk }}"
+    data-netbox-user-id="{{ request.user.pk }}"
   {% endif %}
   >
   <head>
