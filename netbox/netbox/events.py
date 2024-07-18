@@ -37,6 +37,15 @@ def get_event_type_choices():
 
 @dataclass
 class Event:
+    """
+    A type of event which can occur in NetBox. Event rules can be defined to automatically
+    perform some action in response to an event.
+
+    Args:
+        name: The unique name under which the event is registered.
+        text: The human-friendly event name. This should support translation.
+        type: The event's classification (info, success, warning, or danger). The default type is info.
+    """
     name: str
     text: str
     type: str = EVENT_TYPE_INFO
