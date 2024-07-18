@@ -211,6 +211,7 @@ class InterfaceVLANTable(NetBoxTable):
     )
     tagged = columns.BooleanColumn(
         verbose_name=_('Tagged'),
+        false_mark=None
     )
     site = tables.Column(
         verbose_name=_('Site'),
