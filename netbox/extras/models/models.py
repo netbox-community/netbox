@@ -125,12 +125,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     def clean(self):
         super().clean()
 
-        # At least one action type must be selected
-        if not self.event_types:
-            raise ValidationError(
-                _("At least one event type must be selected: create, update, delete, job start, and/or job end.")
-            )
-
         # Validate that any conditions are in the correct format
         if self.conditions:
             try:

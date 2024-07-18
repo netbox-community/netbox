@@ -298,7 +298,7 @@ class ConditionSetTest(TestCase):
         webhook = Webhook.objects.create(name='Webhook 100', payload_url='http://example.com/?1', http_method='POST')
         form = EventRuleForm({
             "name": "Event Rule 1",
-            'event_types': [OBJECT_CREATED, OBJECT_UPDATED],
+            "event_types": [OBJECT_CREATED, OBJECT_UPDATED],
             "action_object_type": ct.pk,
             "action_type": "webhook",
             "action_choice": webhook.pk,
