@@ -664,7 +664,7 @@ class PluginListView(UserPassesTestMixin, View):
         #   Certified catalog plugins
         #   Remaining catalog plugins
         #   With alphabetical sort within each traunch.
-        plugins = sorted(plugins, key=lambda x: x.name, reverse=False)
+        plugins = sorted(plugins, key=lambda x: x.title_short, reverse=False)
         plugins = sorted(plugins, key=lambda x: x.is_certified, reverse=True)
         plugins = sorted(plugins, key=lambda x: x.is_installed, reverse=True)
 
@@ -692,10 +692,11 @@ class PluginView(UserPassesTestMixin, View):
         plugins = get_plugins()
         plugin = plugins[name]
 
-        table = PluginVersionTable(plugin.versions, user=request.user)
+        table = PluginVersionTable(plugin.release_recent_history, user=request.user)
         table.configure(request)
 
         return render(request, 'core/plugin.html', {
             'plugin': plugin,
             'table': table,
+            'show_install': settings.RELEASE.edition == 'Community'
         })

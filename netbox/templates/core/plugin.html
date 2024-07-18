@@ -3,7 +3,7 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{{ plugin.name }}{% endblock %}
+{% block title %}{{ plugin.title_short }}{% endblock %}
 
 {% block object_identifier %}
 {% endblock object_identifier %}
@@ -15,16 +15,11 @@
 {% block subtitle %}
   <div class="text-secondary fs-5">
     {{ plugin.tag_line }}
-    <a href="{{ plugin.homepage.url }}" target="_blank">Learn more <i class="mdi mdi-launch"></i></a><br />
-    <strong>License:</strong> {{ plugin.license_type }}
+    <a href="{{ plugin.homepage.url }}" target="_blank">Learn more <i class="mdi mdi-launch"></i></a>
   </div>
 {% endblock subtitle %}
 
 {% block controls %}
-<div class="text-secondary">
-From
-</div>
-{{ plugin.author }}
 {% endblock %}
 
 {% block tabs %}
@@ -40,7 +35,7 @@ From
           {% trans "Version history" %}
         </button>
       </li>
-      {% if plugin.is_community %}
+      {% if show_install %}
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
             {% trans "Install" %}
@@ -55,7 +50,29 @@ From
 {% block content %}
 
   <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-    {{ plugin.description_short|markdown }}
+
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Author" %}</th>
+            <td>{{ plugin.author.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "License" %}</th>
+            <td>{{ plugin.license_type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ plugin.description_short|markdown }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
   </div>
   {% if not plugin.is_local %}
     <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
@@ -66,7 +83,7 @@ From
         </div>
       </div>
     </div>
-    {% if plugin.is_community %}
+    {% if show_install %}
       <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
         <p>You can install this plugin from the command line with PyPi.</p>
         <p>The following commands may be helpful; always refer to <a href="{{ plugin.homepage_url }}" target="_blank">the plugin's own documentation <i class="mdi mdi-launch"></i></a> and the <a href="https://netboxlabs.com/docs/netbox/en/stable/plugins/installation/" target="_blank">Installing a Plugin unit <i class="mdi mdi-launch"></i></a> of the NetBox documentation.</p>

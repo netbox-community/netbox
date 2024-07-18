@@ -11,6 +11,13 @@ from utilities.datetime import datetime_from_timestamp
 
 
 @dataclass
+class PluginAuthor:
+    name: str = ''
+    org_id: str = ''
+    url: str = ''
+
+
+@dataclass
 class PluginVersion:
     date: datetime.datetime = None
     version: str = ''
@@ -25,22 +32,25 @@ class PluginVersion:
 
 @dataclass
 class Plugin:
-    slug: str = ''
-    config_name: str = ''
-    name: str = ''
+    id: str = ''
+    status: str = ''
+    title_short: str = ''
     title_long: str = ''
     tag_line: str = ''
     description_short: str = ''
-    author: str = ''
-    homepage_url: str = ''
+    slug: str = ''
+    author: PluginAuthor = field(default_factory=PluginAuthor)
+    created_at: datetime.datetime = None
+    updated_at: datetime.datetime = None
     license_type: str = ''
-    created: datetime.datetime = None
-    updated: datetime.datetime = None
-    is_local: bool = False
-    is_installed: bool = False
+    homepage_url: str = ''
+    package_name_pypi: str = ''
+    config_name: str = ''
     is_certified: bool = False
-    is_community: bool = False
-    versions: list[PluginVersion] = field(default_factory=list)
+    release_latest: PluginVersion = field(default_factory=PluginVersion)
+    release_recent_history: list[PluginVersion] = field(default_factory=list)
+    is_local: bool = False  # extra field for locall intsalled plugins
+    is_installed: bool = False
 
 
 def get_local_plugins():
@@ -52,15 +62,13 @@ def get_local_plugins():
         plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
         plugins[plugin_config.name] = Plugin(
             slug=plugin_config.name,
-            name=plugin_config.verbose_name,
+            title_short=plugin_config.verbose_name,
             tag_line=plugin_config.description,
             description_short=plugin_config.description,
-            author=plugin_config.author or _('Unknown Author'),
             is_local=True,
             is_installed=True,
-            is_certified=False,
-            is_community=False,
         )
+        plugins[plugin_config.name].author.name = plugin_config.author or _('Unknown Author')
 
     return plugins
 
@@ -100,24 +108,40 @@ def get_catalog_plugins():
                     )
                 )
             versions = sorted(versions, key=lambda x: x.date, reverse=True)
-
+            latest = PluginVersion(
+                date=datetime_from_timestamp(data['release_latest']['date']),
+                version=data['release_latest']['version'],
+                netbox_min_version=data['release_latest']['netbox_min_version'],
+                netbox_max_version=data['release_latest']['netbox_max_version'],
+                has_model=data['release_latest']['has_model'],
+                is_certified=data['release_latest']['is_certified'],
+                is_feature=data['release_latest']['is_feature'],
+                is_integration=data['release_latest']['is_integration'],
+                is_netboxlabs_supported=data['release_latest']['is_netboxlabs_supported'],
+            )
+            author = PluginAuthor(
+                name=data['author']['name'],
+                org_id=data['author']['org_id'],
+                url=data['author']['url'],
+            )
             plugins[data['slug']] = Plugin(
-                slug=data['slug'],
-                config_name=data['config_name'],
-                name=data['title_short'],
+                id=data['id'],
+                status=data['status'],
+                title_short=data['title_short'],
                 title_long=data['title_long'],
                 tag_line=data['tag_line'],
                 description_short=data['description_short'],
-                author=data['author']['name'] or _('Unknown Author'),
-                homepage_url=data['homepage_url'],
+                slug=data['slug'],
+                author=author,
+                created_at=datetime_from_timestamp(data['created_at']),
+                updated_at=datetime_from_timestamp(data['updated_at']),
                 license_type=data['license_type'],
-                created=datetime_from_timestamp(data['created_at']),
-                updated=datetime_from_timestamp(data['updated_at']),
-                is_local=False,
-                is_installed=False,
-                is_certified=data['release_latest']['is_certified'],
-                is_community=not data['release_latest']['is_certified'],
-                versions=versions,
+                homepage_url=data['homepage_url'],
+                package_name_pypi=data['package_name_pypi'],
+                config_name=data['config_name'],
+                is_certified=data['is_certified'],
+                release_latest=latest,
+                release_recent_history=versions,
             )
 
     return plugins
@@ -126,6 +150,7 @@ def get_catalog_plugins():
 def get_plugins():
     local_plugins = get_local_plugins()
     catalog_plugins = cache.get('plugins-catalog-feed')
+    catalog_plugins = None
     if not catalog_plugins:
         catalog_plugins = get_catalog_plugins()
         cache.set('plugins-catalog-feed', catalog_plugins, 3600)

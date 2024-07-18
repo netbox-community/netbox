@@ -42,11 +42,12 @@ class PluginVersionTable(BaseTable):
 
 
 class CatalogPluginTable(BaseTable):
-    name = tables.Column(
+    title_short = tables.Column(
         linkify=('core:plugin', [tables.A('slug')]),
         verbose_name=_('Name')
     )
     author = tables.Column(
+        accessor=tables.A('author.name'),
         verbose_name=_('Author')
     )
     is_local = tables.BooleanColumn(
@@ -58,18 +59,18 @@ class CatalogPluginTable(BaseTable):
     is_certified = tables.BooleanColumn(
         verbose_name=_('Certified')
     )
-    created = tables.Column(
+    created_at = tables.Column(
         verbose_name=_('Published')
     )
-    updated = tables.Column(
+    updated_at = tables.Column(
         verbose_name=_('Updated')
     )
 
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
-            'name', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
+            'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
         )
         default_columns = (
-            'name', 'author', 'is_local', 'is_installed', 'is_certified', 'created', 'updated',
+            'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
         )
