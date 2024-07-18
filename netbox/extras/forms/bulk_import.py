@@ -8,12 +8,13 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelImportForm
 from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleContentTypeField,
-    SlugField,
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
+    CSVMultipleContentTypeField, SlugField,
 )
 
 __all__ = (
@@ -186,6 +187,11 @@ class EventRuleImportForm(NetBoxModelImportForm):
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
+    )
+    event_types = CSVMultipleChoiceField(
+        choices=get_event_type_choices(),
+        label=_('Event types'),
+        help_text=_('The event type(s) which will trigger this rule')
     )
     action_object = forms.CharField(
         label=_('Action object'),
