@@ -407,7 +407,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Event X',
             'object_types': [site_type.pk],
-            'event_types': ','.join([OBJECT_UPDATED, OBJECT_DELETED]),
+            'event_types': [OBJECT_UPDATED, OBJECT_DELETED],
             'conditions': None,
             'action_type': 'webhook',
             'action_object_type': webhook_ct.pk,
@@ -418,7 +418,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             f'name,object_types,event_types,action_type,action_object',
-            f'Webhook 4,dcim.site,"{OBJECT_CREATED}",webhook,Webhook 1',
+            f'Webhook 4,dcim.site,"{OBJECT_CREATED},{OBJECT_UPDATED}",webhook,Webhook 1',
         )
 
         cls.csv_update_data = (

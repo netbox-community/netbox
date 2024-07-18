@@ -18,6 +18,7 @@ from extras.conditions import ConditionSet
 from extras.constants import *
 from extras.utils import image_upload
 from netbox.config import get_config
+from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
@@ -62,7 +63,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         blank=True
     )
     event_types = ArrayField(
-        base_field=models.CharField(max_length=50),
+        base_field=models.CharField(max_length=50, choices=get_event_type_choices),
         help_text=_("The types of event which will trigger this rule.")
     )
     enabled = models.BooleanField(
