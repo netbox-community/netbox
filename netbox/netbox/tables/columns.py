@@ -194,14 +194,23 @@ class BooleanColumn(tables.Column):
     Custom implementation of BooleanColumn to render a nicely-formatted checkmark or X icon instead of a Unicode
     character.
     """
+    TRUE_MARK = mark_safe('<span class="text-success"><i class="mdi mdi-check-bold"></i></span>')
+    FALSE_MARK = mark_safe('<span class="text-danger"><i class="mdi mdi-close-thick"></i></span>')
+    EMPTY_MARK = mark_safe('<span class="text-muted">&mdash;</span>')  # Placeholder
+
+    def __init__(self, *args, true_mark=TRUE_MARK, false_mark=FALSE_MARK, **kwargs):
+        self.true_mark = true_mark
+        self.false_mark = false_mark
+        super().__init__(*args, **kwargs)
+
     def render(self, value):
-        if value:
-            rendered = '<span class="text-success"><i class="mdi mdi-check-bold"></i></span>'
-        elif value is None:
-            rendered = '<span class="text-muted">&mdash;</span>'
-        else:
-            rendered = '<span class="text-danger"><i class="mdi mdi-close-thick"></i></span>'
-        return mark_safe(rendered)
+        if value is None:
+            return self.EMPTY_MARK
+        if value and self.true_mark:
+            return self.true_mark
+        if not value and self.false_mark:
+            return self.false_mark
+        return self.EMPTY_MARK
 
     def value(self, value):
         return str(value)
