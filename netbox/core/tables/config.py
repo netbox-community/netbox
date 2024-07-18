@@ -19,6 +19,7 @@ REVISION_BUTTONS = """
 class ConfigRevisionTable(NetBoxTable):
     is_active = columns.BooleanColumn(
         verbose_name=_('Is Active'),
+        false_mark=None
     )
     actions = columns.ActionsColumn(
         actions=('delete',),
