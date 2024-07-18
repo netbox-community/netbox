@@ -1,9 +1,9 @@
 from django import forms
-from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import BulkEditForm, add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
@@ -249,10 +249,10 @@ class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
-    event_types = SimpleArrayField(
-        label=_('Event types'),
-        base_field=forms.CharField(),
-        required=False
+    event_types = forms.MultipleChoiceField(
+        choices=get_event_type_choices(),
+        required=False,
+        label=_('Event types')
     )
     description = forms.CharField(
         label=_('Description'),

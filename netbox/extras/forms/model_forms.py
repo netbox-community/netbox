@@ -2,7 +2,6 @@ import json
 import re
 
 from django import forms
-from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -11,6 +10,7 @@ from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
@@ -304,9 +304,9 @@ class EventRuleForm(NetBoxModelForm):
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
-    event_types = SimpleArrayField(
-        label=_('Event types'),
-        base_field=forms.CharField()
+    event_types = forms.MultipleChoiceField(
+        choices=get_event_type_choices(),
+        label=_('Event types')
     )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),
@@ -324,8 +324,7 @@ class EventRuleForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
-        FieldSet('event_types', name=_('Event Types')),
-        FieldSet('conditions', name=_('Conditions')),
+        FieldSet('event_types', 'conditions', name=_('Triggers')),
         FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
 
