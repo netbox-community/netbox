@@ -69,6 +69,7 @@ __all__ = (
     'RackFilterSet',
     'RackReservationFilterSet',
     'RackRoleFilterSet',
+    'RackTypeFilterSet',
     'RearPortFilterSet',
     'RearPortTemplateFilterSet',
     'RegionFilterSet',
@@ -289,6 +290,41 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+class RackTypeFilterSet(NetBoxModelFilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
+    )
+    width = django_filters.MultipleChoiceFilter(
+        choices=RackWidthChoices
+    )
+
+    class Meta:
+        model = RackType
+        fields = (
+            'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -339,12 +375,22 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    rack_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__slug',
+        queryset=RackType.objects.all(),
+        to_field_name='slug',
+        label=_('Rack type (slug)'),
+    )
+    rack_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackType.objects.all(),
+        label=_('Rack type (ID)'),
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
         null_value=None
     )
-    type = django_filters.MultipleChoiceFilter(
-        choices=RackTypeChoices
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
     )
     width = django_filters.MultipleChoiceFilter(
         choices=RackWidthChoices

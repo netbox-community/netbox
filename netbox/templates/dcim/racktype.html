@@ -1,0 +1,71 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load static %}
+{% load plugins %}
+{% load i18n %}
+{% load mptt %}
+
+{% block content %}
+  <div class="row">
+	  <div class="col col-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Rack Type" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Manufacturer" %}</th>
+            <td>{{ object.manufacturer|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'dcim/inc/panels/racktype_dimensions.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_left_page object %}
+	  </div>
+    <div class="col col-6">
+      {% include 'dcim/inc/panels/racktype_numbering.html' %}
+      <div class="card">
+        <h5 class="card-header">{% trans "Weight" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Rack Weight" %}</th>
+            <td>
+              {% if object.weight %}
+                {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Maximum Weight" %}</th>
+            <td>
+              {% if object.max_weight %}
+                {{ object.max_weight }} {{ object.get_weight_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/related_objects.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

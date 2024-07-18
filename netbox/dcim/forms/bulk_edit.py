@@ -13,7 +13,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from wireless.models import WirelessLAN, WirelessLANGroup
 from wireless.choices import WirelessRoleChoices
@@ -52,6 +52,7 @@ __all__ = (
     'RackBulkEditForm',
     'RackReservationBulkEditForm',
     'RackRoleBulkEditForm',
+    'RackTypeBulkEditForm',
     'RearPortBulkEditForm',
     'RearPortTemplateBulkEditForm',
     'RegionBulkEditForm',
@@ -218,6 +219,97 @@ class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('color', 'description')
 
 
+class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    form_factor = forms.ChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
+        required=False
+    )
+    width = forms.ChoiceField(
+        label=_('Width'),
+        choices=add_blank_choice(RackWidthChoices),
+        required=False
+    )
+    u_height = forms.IntegerField(
+        required=False,
+        label=_('Height (U)')
+    )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    desc_units = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label=_('Descending units')
+    )
+    outer_width = forms.IntegerField(
+        label=_('Outer width'),
+        required=False,
+        min_value=1
+    )
+    outer_depth = forms.IntegerField(
+        label=_('Outer depth'),
+        required=False,
+        min_value=1
+    )
+    outer_unit = forms.ChoiceField(
+        label=_('Outer unit'),
+        choices=add_blank_choice(RackDimensionUnitChoices),
+        required=False
+    )
+    mounting_depth = forms.IntegerField(
+        label=_('Mounting depth'),
+        required=False,
+        min_value=1
+    )
+    weight = forms.DecimalField(
+        label=_('Weight'),
+        min_value=0,
+        required=False
+    )
+    max_weight = forms.IntegerField(
+        label=_('Max weight'),
+        min_value=0,
+        required=False
+    )
+    weight_unit = forms.ChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+        initial=''
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = RackType
+    fieldsets = (
+        FieldSet('manufacturer', 'description', 'form_factor', name=_('Rack Type')),
+        FieldSet(
+            'width',
+            'u_height',
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            'mounting_depth',
+            name=_('Dimensions')
+        ),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+    )
+    nullable_fields = (
+        'outer_width', 'outer_depth', 'outer_unit', 'weight',
+        'max_weight', 'weight_unit', 'description', 'comments',
+    )
+
+
 class RackBulkEditForm(NetBoxModelBulkEditForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
@@ -278,9 +370,9 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         max_length=50,
         required=False
     )
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(RackTypeChoices),
+    form_factor = forms.ChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
         required=False
     )
     width = forms.ChoiceField(
@@ -345,8 +437,8 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet(
-            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
-            name=_('Hardware')
+            'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', name=_('Hardware')
         ),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )

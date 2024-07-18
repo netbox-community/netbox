@@ -29,7 +29,179 @@ __all__ = (
     'Rack',
     'RackReservation',
     'RackRole',
+    'RackType',
 )
+
+
+#
+# Rack Types
+#
+
+class RackBase(WeightMixin, PrimaryModel):
+    """
+    Base class for RackType & Rack. Holds
+    """
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
+        max_length=50,
+        blank=True,
+        verbose_name=_('form factor')
+    )
+    width = models.PositiveSmallIntegerField(
+        choices=RackWidthChoices,
+        default=RackWidthChoices.WIDTH_19IN,
+        verbose_name=_('width'),
+        help_text=_('Rail-to-rail width')
+    )
+
+    # Numbering
+    u_height = models.PositiveSmallIntegerField(
+        default=RACK_U_HEIGHT_DEFAULT,
+        verbose_name=_('height (U)'),
+        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
+        help_text=_('Height in rack units')
+    )
+    starting_unit = models.PositiveSmallIntegerField(
+        default=RACK_STARTING_UNIT_DEFAULT,
+        verbose_name=_('starting unit'),
+        validators=[MinValueValidator(1)],
+        help_text=_('Starting unit for rack')
+    )
+    desc_units = models.BooleanField(
+        default=False,
+        verbose_name=_('descending units'),
+        help_text=_('Units are numbered top-to-bottom')
+    )
+
+    # Dimensions
+    outer_width = models.PositiveSmallIntegerField(
+        verbose_name=_('outer width'),
+        blank=True,
+        null=True,
+        help_text=_('Outer dimension of rack (width)')
+    )
+    outer_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('outer depth'),
+        blank=True,
+        null=True,
+        help_text=_('Outer dimension of rack (depth)')
+    )
+    outer_unit = models.CharField(
+        verbose_name=_('outer unit'),
+        max_length=50,
+        choices=RackDimensionUnitChoices,
+        blank=True
+    )
+    mounting_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('mounting depth'),
+        blank=True,
+        null=True,
+        help_text=(_(
+            'Maximum depth of a mounted device, in millimeters. For four-post racks, this is the distance between the '
+            'front and rear rails.'
+        ))
+    )
+
+    # Weight
+    # WeightMixin provides weight, weight_unit, and _abs_weight
+    max_weight = models.PositiveIntegerField(
+        verbose_name=_('max weight'),
+        blank=True,
+        null=True,
+        help_text=_('Maximum load capacity for the rack')
+    )
+    # Stores the normalized max weight (in grams) for database ordering
+    _abs_max_weight = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+class RackType(RackBase):
+    """
+    Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
+    Each Rack is assigned to a Site and (optionally) a Location.
+    """
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='rack_types'
+    )
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        max_length=100,
+        blank=True
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+        unique=True
+    )
+
+    clone_fields = (
+        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+        'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+    )
+    prerequisite_models = (
+        'dcim.Manufacturer',
+    )
+
+    class Meta:
+        ordering = ('_name', 'pk')  # (site, location, name) may be non-unique
+        verbose_name = _('rack type')
+        verbose_name_plural = _('rack types')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:racktype', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Validate outer dimensions and unit
+        if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
+            raise ValidationError(_("Must specify a unit when setting an outer width/depth"))
+
+        # Validate max_weight and weight_unit
+        if self.max_weight and not self.weight_unit:
+            raise ValidationError(_("Must specify a unit when setting a maximum weight"))
+
+    def save(self, *args, **kwargs):
+        # Store the given max weight (if any) in grams for use in database ordering
+        if self.max_weight and self.weight_unit:
+            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
+        else:
+            self._abs_max_weight = None
+
+        # Clear unit if outer width & depth are not set
+        if self.outer_width is None and self.outer_depth is None:
+            self.outer_unit = ''
+
+        super().save(*args, **kwargs)
+
+        # Update all Racks associated with this RackType
+        for rack in self.racks.all():
+            rack.snapshot()
+            rack.copy_racktype_attrs()
+            rack.save()
+
+    @property
+    def units(self):
+        """
+        Return a list of unit numbers, top to bottom.
+        """
+        if self.desc_units:
+            return drange(decimal.Decimal(self.starting_unit), self.u_height + self.starting_unit, 0.5)
+        return drange(self.u_height + decimal.Decimal(0.5) + self.starting_unit - 1, 0.5 + self.starting_unit - 1, -0.5)
 
 
 #
@@ -54,11 +226,24 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
+    # Fields which cannot be set locally if a RackType is assigned
+    RACKTYPE_FIELDS = [
+        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+        'mounting_depth', 'weight', 'weight_unit', 'max_weight'
+    ]
+
+    rack_type = models.ForeignKey(
+        to='dcim.RackType',
+        on_delete=models.PROTECT,
+        related_name='racks',
+        blank=True,
+        null=True,
+    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -121,73 +306,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
     )
-    type = models.CharField(
-        choices=RackTypeChoices,
-        max_length=50,
-        blank=True,
-        verbose_name=_('type')
-    )
-    width = models.PositiveSmallIntegerField(
-        choices=RackWidthChoices,
-        default=RackWidthChoices.WIDTH_19IN,
-        verbose_name=_('width'),
-        help_text=_('Rail-to-rail width')
-    )
-    u_height = models.PositiveSmallIntegerField(
-        default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name=_('height (U)'),
-        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
-        help_text=_('Height in rack units')
-    )
-    starting_unit = models.PositiveSmallIntegerField(
-        default=RACK_STARTING_UNIT_DEFAULT,
-        verbose_name=_('starting unit'),
-        validators=[MinValueValidator(1),],
-        help_text=_('Starting unit for rack')
-    )
-    desc_units = models.BooleanField(
-        default=False,
-        verbose_name=_('descending units'),
-        help_text=_('Units are numbered top-to-bottom')
-    )
-    outer_width = models.PositiveSmallIntegerField(
-        verbose_name=_('outer width'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (width)')
-    )
-    outer_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('outer depth'),
-        blank=True,
-        null=True,
-        help_text=_('Outer dimension of rack (depth)')
-    )
-    outer_unit = models.CharField(
-        verbose_name=_('outer unit'),
-        max_length=50,
-        choices=RackDimensionUnitChoices,
-        blank=True,
-    )
-    max_weight = models.PositiveIntegerField(
-        verbose_name=_('max weight'),
-        blank=True,
-        null=True,
-        help_text=_('Maximum load capacity for the rack')
-    )
-    # Stores the normalized max weight (in grams) for database ordering
-    _abs_max_weight = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    mounting_depth = models.PositiveSmallIntegerField(
-        verbose_name=_('mounting depth'),
-        blank=True,
-        null=True,
-        help_text=(
-            _('Maximum depth of a mounted device, in millimeters. For four-post racks, this is the '
-              'distance between the front and rear rails.')
-        )
-    )
 
     # Generic relations
     vlan_groups = GenericRelation(
@@ -198,7 +316,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'site', 'location', 'tenant', 'status', 'role', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width',
         'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -271,6 +389,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                     })
 
     def save(self, *args, **kwargs):
+        self.copy_racktype_attrs()
 
         # Store the given max weight (if any) in grams for use in database ordering
         if self.max_weight and self.weight_unit:
@@ -283,6 +402,14 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             self.outer_unit = ''
 
         super().save(*args, **kwargs)
+
+    def copy_racktype_attrs(self):
+        """
+        Copy physical attributes from the assigned RackType (if any).
+        """
+        if self.rack_type:
+            for field_name in self.RACKTYPE_FIELDS:
+                setattr(self, field_name, getattr(self.rack_type, field_name))
 
     @property
     def units(self):

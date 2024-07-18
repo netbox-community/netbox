@@ -468,6 +468,152 @@ class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = RackType.objects.all()
+    filterset = RackTypeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        racks = (
+            RackType(
+                manufacturer=manufacturers[0],
+                name='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_2POST,
+                width=RackWidthChoices.WIDTH_19IN,
+                u_height=42,
+                starting_unit=1,
+                desc_units=False,
+                outer_width=100,
+                outer_depth=100,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=100,
+                weight=10,
+                max_weight=1000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar1'
+            ),
+            RackType(
+                manufacturer=manufacturers[1],
+                name='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_4POST,
+                width=RackWidthChoices.WIDTH_21IN,
+                u_height=43,
+                starting_unit=2,
+                desc_units=False,
+                outer_width=200,
+                outer_depth=200,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=200,
+                weight=20,
+                max_weight=2000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar2'
+            ),
+            RackType(
+                manufacturer=manufacturers[2],
+                name='RackType 3',
+                slug='rack-type-3',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+                width=RackWidthChoices.WIDTH_23IN,
+                u_height=44,
+                starting_unit=3,
+                desc_units=True,
+                outer_width=300,
+                outer_depth=300,
+                outer_unit=RackDimensionUnitChoices.UNIT_INCH,
+                mounting_depth=300,
+                weight=30,
+                max_weight=3000,
+                weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
+                description='foobar3'
+            ),
+        )
+        RackType.objects.bulk_create(racks)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['RackType 1', 'RackType 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['rack-type-1', 'rack-type-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_width(self):
+        params = {'width': [RackWidthChoices.WIDTH_19IN, RackWidthChoices.WIDTH_21IN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_u_height(self):
+        params = {'u_height': [42, 43]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_starting_unit(self):
+        params = {'starting_unit': [1, 2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_desc_units(self):
+        params = {'desc_units': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'desc_units': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_width(self):
+        params = {'outer_width': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_depth(self):
+        params = {'outer_depth': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_unit(self):
+        self.assertEqual(RackType.objects.filter(outer_unit__isnull=False).count(), 3)
+        params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mounting_depth(self):
+        params = {'mounting_depth': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_max_weight(self):
+        params = {'max_weight': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Rack.objects.all()
     filterset = RackFilterSet
@@ -540,7 +686,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[0],
                 serial='ABC',
                 asset_tag='1001',
-                type=RackTypeChoices.TYPE_2POST,
+                form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
                 u_height=42,
                 desc_units=False,
@@ -562,7 +708,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[1],
                 serial='DEF',
                 asset_tag='1002',
-                type=RackTypeChoices.TYPE_4POST,
+                form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
                 u_height=43,
                 desc_units=False,
@@ -584,7 +730,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[2],
                 serial='GHI',
                 asset_tag='1003',
-                type=RackTypeChoices.TYPE_CABINET,
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
                 u_height=44,
                 desc_units=True,
@@ -619,8 +765,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [RackTypeChoices.TYPE_2POST, RackTypeChoices.TYPE_4POST]}
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_width(self):
