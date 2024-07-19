@@ -447,15 +447,22 @@ register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermina
 #
 
 class CircuitGroupListView(generic.ObjectListView):
-    queryset = CircuitGroup.objects.all()
+    queryset = CircuitGroup.objects.annotate(
+        circuit_group_assignment_count=count_related(CircuitGroupAssignment, 'group')
+    )
     filterset = filtersets.CircuitGroupFilterSet
     filterset_form = forms.CircuitGroupFilterForm
     table = tables.CircuitGroupTable
 
 
 @register_model_view(CircuitGroup)
-class CircuitGroupView(generic.ObjectView):
+class CircuitGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CircuitGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
 
 
 @register_model_view(CircuitGroup, 'edit')

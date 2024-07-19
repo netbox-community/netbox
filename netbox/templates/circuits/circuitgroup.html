@@ -10,6 +10,14 @@
   <li class="breadcrumb-item"><a href="{% url 'circuits:circuitgroup_list' %}?circuitgroup_id={{ object.id }}">{{ object.name }}</a></li>
 {% endblock %}
 
+{% block extra_controls %}
+  {% if perms.circuit.add_circuitgroupassignment %}
+    <a href="{% url 'circuits:circuitgroupassignment_add' %}?group={{ object.pk }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Circuit Assignment" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
 {% block content %}
   <div class="row mb-3">
     <div class="col col-md-6">

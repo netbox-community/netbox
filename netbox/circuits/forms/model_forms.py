@@ -190,16 +190,10 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=CircuitGroup.objects.all(),
-        initial_params={
-            'groups': '$group'
-        }
     )
     circuit = DynamicModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
-        initial_params={
-            'circuits': '$circuit'
-        }
     )
 
     class Meta:

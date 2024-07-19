@@ -128,13 +128,22 @@ class CircuitGroupTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    circuit_group_assignment_count = columns.LinkedCountColumn(
+        viewname='circuits:circuitgroupassignment_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Circuits')
+    )
+    tags = columns.TagColumn(
+        url_name='circuits:circuitgroup_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CircuitGroup
         fields = (
-            'pk', 'name', 'created', 'last_updated', 'actions',
+            'pk', 'name', 'circuit_group_assignment_count', 'tags',
+            'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'name',)
+        default_columns = ('pk', 'name', 'circuit_group_assignment_count')
 
 
 class CircuitGroupAssignmentTable(NetBoxTable):
