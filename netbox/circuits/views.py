@@ -498,18 +498,18 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
     table = tables.CircuitGroupAssignmentTable
 
 
-@register_model_view(CircuitGroup)
+@register_model_view(CircuitGroupAssignment)
 class CircuitGroupAssignmentView(generic.ObjectView):
     queryset = CircuitGroupAssignment.objects.all()
 
 
-@register_model_view(CircuitGroup, 'edit')
+@register_model_view(CircuitGroupAssignment, 'edit')
 class CircuitGroupAssignmentEditView(generic.ObjectEditView):
     queryset = CircuitGroupAssignment.objects.all()
     form = forms.CircuitGroupAssignmentForm
 
 
-@register_model_view(CircuitGroup, 'delete')
+@register_model_view(CircuitGroupAssignment, 'delete')
 class CircuitGroupAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = CircuitGroupAssignment.objects.all()
 

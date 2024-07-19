@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from circuits.choices import CircuitStatusChoices
-from circuits.models import Circuit, CircuitGroup, CircuitTermination, CircuitType
+from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices
+from circuits.models import Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
@@ -12,6 +12,7 @@ from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, Pro
 
 __all__ = (
     'CircuitSerializer',
+    'CircuitGroupAssignmentSerializer',
     'CircuitGroupSerializer',
     'CircuitTerminationSerializer',
     'CircuitTypeSerializer',
@@ -87,3 +88,17 @@ class CircuitGroupSerializer(NetBoxModelSerializer):
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name',)
+
+
+class CircuitGroupAssignmentSerializer(NetBoxModelSerializer):
+    group = CircuitGroupSerializer(nested=True)
+    circuit = CircuitSerializer(nested=True)
+    priority = ChoiceField(choices=CircuitPriorityChoices, allow_blank=True, required=False, default=lambda: '')
+
+    class Meta:
+        model = CircuitGroupAssignment
+        fields = [
+            'id', 'url', 'display_url', 'display', 'group', 'circuit', 'priority',
+            'tags', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'group', 'circuit', 'priority')

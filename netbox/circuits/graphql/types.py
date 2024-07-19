@@ -13,6 +13,7 @@ from .filters import *
 __all__ = (
     'CircuitTerminationType',
     'CircuitType',
+    'CircuitGroupAssignmentType',
     'CircuitGroupType',
     'CircuitTypeType',
     'ProviderType',
@@ -100,4 +101,13 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     filters=CircuitGroupFilter
 )
 class CircuitGroupType(CustomFieldsMixin, TagsMixin, ObjectType):
+    pass
+
+
+@strawberry_django.type(
+    models.CircuitGroupAssignment,
+    fields='__all__',
+    filters=CircuitGroupAssignmentFilter
+)
+class CircuitGroupAssignmentType(TagsMixin, ObjectType):
     pass

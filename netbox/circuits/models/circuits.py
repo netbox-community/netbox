@@ -178,6 +178,9 @@ class CircuitGroup(PrimaryModel):
         verbose_name = _('Circuit group')
         verbose_name_plural = _('Circuit group')
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('circuits:circuitgroup', args=[self.pk])
 
@@ -197,6 +200,10 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         max_length=50,
         choices=CircuitPriorityChoices,
         blank=True
+    )
+    prerequisite_models = (
+        'circuits.Circuit',
+        'circuits.CircuitGroup',
     )
 
     class Meta:

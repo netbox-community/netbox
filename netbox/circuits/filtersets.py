@@ -335,6 +335,12 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         queryset=CircuitGroup.objects.all(),
         label=_('Circuit group (ID)'),
     )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__slug',
+        queryset=CircuitGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Circuit group (slug)'),
+    )
 
     class Meta:
         model = CircuitGroupAssignment
