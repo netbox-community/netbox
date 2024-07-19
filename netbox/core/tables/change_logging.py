@@ -48,6 +48,6 @@ class ObjectChangeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ObjectChange
         fields = (
-            'pk', 'id', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id',
+            'pk', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id',
             'actions',
         )
