@@ -17,7 +17,11 @@
       {# Login banner #}
       {% if config.BANNER_LOGIN %}
         <div class="mb-5 text-center">
-          {{ config.BANNER_LOGIN|safe }}
+          {% if not settings.ESCAPE_BANNERS %}
+            {{ config.BANNER_LOGIN|safe }}
+          {% else %}
+            {{ config.BANNER_LOGIN|escape }}
+          {% endif %}
         </div>
       {% endif %}
 

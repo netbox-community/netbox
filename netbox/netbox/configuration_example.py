@@ -131,6 +131,9 @@ EMAIL = {
     'FROM_EMAIL': '',
 }
 
+# Setting this to False will allow banners to be rendered without HTML escaping for safety
+ESCAPE_BANNERS = True
+
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
 EXEMPT_VIEW_PERMISSIONS = [

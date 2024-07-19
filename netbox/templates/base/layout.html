@@ -83,7 +83,11 @@ Blocks:
 
         {# Top banner #}
         {% if config.BANNER_TOP %}
-          {% include 'inc/banner.html' with content=config.BANNER_TOP %}
+          {% if not settings.ESCAPE_BANNERS %}
+            {% include 'inc/banner.html' with content=config.BANNER_TOP %}
+          {% else %}
+            {% include 'inc/banner.html' with content=config.BANNER_TOP|escape %}
+          {% endif %}
         {% endif %}
         {# /Top banner #}
 
@@ -93,7 +97,11 @@ Blocks:
         {% endif %}
 
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|safe %}
+          {% if not settings.ESCAPE_BANNERS %}
+            {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|safe %}
+          {% else %}
+            {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|escape %}
+          {% endif %}
         {% endif %}
         {# /Alerts #}
 
@@ -116,7 +124,11 @@ Blocks:
 
       {# Bottom banner #}
       {% if config.BANNER_BOTTOM %}
-        {% include 'inc/banner.html' with content=config.BANNER_BOTTOM %}
+        {% if not settings.ESCAPE_BANNERS %}
+          {% include 'inc/banner.html' with content=config.BANNER_BOTTOM %}
+        {% else %}
+          {% include 'inc/banner.html' with content=config.BANNER_BOTTOM|escape %}
+        {% endif %}
       {% endif %}
       {# /Bottom banner #}
 
