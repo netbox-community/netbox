@@ -1,3 +1,4 @@
+// Alter width size of navigation and page content
 body {
   &[data-sidenav-hidden] {
     .navbar-vertical.navbar-expand-lg {
@@ -26,7 +27,7 @@ body {
 
   transition: ease-in-out 100ms;
 
-  // Overrides default side nav settings
+  // Allows header to sit on top of side nav
   @include media-breakpoint-up(lg) {
     padding-top: 56px;
     z-index: 1020;
@@ -46,6 +47,7 @@ body {
     .text-secondary {
       color: $dark-teal!important;
 
+      // Aligns icon and text with the menu toggle and logo
       @include media-breakpoint-up(lg) {
         padding-left: 1.25rem !important;
       }
@@ -120,6 +122,7 @@ body {
   }
 }
 
+// Styling for the side nav toggle button
 .collapse-menu-toggle {
   height: 24px;
   width: 24px;
