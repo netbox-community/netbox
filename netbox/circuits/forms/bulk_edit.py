@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
@@ -14,6 +14,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, Numbe
 
 __all__ = (
     'CircuitBulkEditForm',
+    'CircuitGroupAssignmentBulkEditForm',
     'CircuitGroupBulkEditForm',
     'CircuitTerminationBulkEditForm',
     'CircuitTypeBulkEditForm',
@@ -237,3 +238,22 @@ class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'tenant', 'comments',
     )
+
+
+class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
+    circuit = DynamicModelChoiceField(
+        label=_('Circuit'),
+        queryset=Circuit.objects.all(),
+        required=False
+    )
+    priority = forms.ChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(CircuitPriorityChoices),
+        required=False
+    )
+
+    model = CircuitGroupAssignment
+    fieldsets = (
+        FieldSet('circuit', 'priority'),
+    )
+    nullable_fields = ('priority',)

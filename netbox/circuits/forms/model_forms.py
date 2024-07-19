@@ -12,6 +12,7 @@ from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
+    'CircuitGroupAssignmentForm',
     'CircuitGroupForm',
     'CircuitTerminationForm',
     'CircuitTypeForm',
@@ -182,4 +183,30 @@ class CircuitGroupForm(TenancyForm, NetBoxModelForm):
         fields = [
             'name', 'tenant_group', 'tenant',
             'comments', 'tags',
+        ]
+
+
+class CircuitGroupAssignmentForm(NetBoxModelForm):
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=CircuitGroup.objects.all(),
+        required=False,
+        initial_params={
+            'groups': '$group'
+        }
+    )
+    circuit = DynamicModelChoiceField(
+        label=_('Circuit'),
+        queryset=Circuit.objects.all(),
+        required=False,
+        initial_params={
+            'circuits': '$circuit'
+        }
+    )
+
+    class Meta:
+        model = CircuitGroupAssignment
+        fields = [
+            'group', 'circuit', 'priority',
+            'tags',
         ]

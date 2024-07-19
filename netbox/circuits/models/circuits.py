@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, ImageAttachmentsMixin, TagsMixin
 from utilities.fields import ColorField
 
 __all__ = (
@@ -182,15 +182,41 @@ class CircuitGroup(PrimaryModel):
         return reverse('circuits:circuitgroup', args=[self.pk])
 
 
-class CircuitGroupAssignment(models.Model):
-    circuit = models.ForeignKey(Circuit, on_delete=models.CASCADE)
-    group = models.ForeignKey(CircuitGroup, on_delete=models.CASCADE)
+class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+    circuit = models.ForeignKey(
+        Circuit,
+        on_delete=models.CASCADE,
+        related_name='circuit_group_assignments'
+    )
+    group = models.ForeignKey(
+        CircuitGroup,
+        on_delete=models.CASCADE,
+    )
     priority = models.CharField(
         verbose_name=_('priority'),
         max_length=50,
         choices=CircuitPriorityChoices,
         blank=True
     )
+
+    class Meta:
+        ordering = ('circuit', 'priority', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('circuit', 'group',),
+                name='%(app_label)s_%(class)s_unique_circuit_assignment'
+            ),
+        )
+        verbose_name = _('Circuit group assignment')
+        verbose_name_plural = _('Circuit group assignments')
+
+    def __str__(self):
+        if self.priority:
+            return f"{self.group} ({self.priority}) -> {self.circuit}"
+        return str(f"{self.group} -> {self.circuit}")
+
+    def get_absolute_url(self):
+        return reverse('circuits:circuitgroupassignment', args=[self.pk])
 
 
 class CircuitTermination(

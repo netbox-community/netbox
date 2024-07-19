@@ -13,6 +13,7 @@ from .models import *
 
 __all__ = (
     'CircuitFilterSet',
+    'CircuitGroupAssignmentFilterSet',
     'CircuitGroupFilterSet',
     'CircuitTerminationFilterSet',
     'CircuitTypeFilterSet',
@@ -319,3 +320,30 @@ class CircuitGroupFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             Q(name__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
+
+
+class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    circuit_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Circuit.objects.all(),
+        label=_('Circuit'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CircuitGroup.objects.all(),
+        label=_('Circuit group (ID)'),
+    )
+
+    class Meta:
+        model = CircuitGroupAssignment
+        fields = ('id', 'circuit', 'group', 'priority')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(circuit__cid__icontains=value) |
+            Q(group__name__icontains=value)
+        )

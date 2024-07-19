@@ -9,6 +9,7 @@ from netbox.tables import NetBoxTable, columns
 from .columns import CommitRateColumn
 
 __all__ = (
+    'CircuitGroupAssignmentTable',
     'CircuitGroupTable',
     'CircuitTable',
     'CircuitTerminationTable',
@@ -134,3 +135,24 @@ class CircuitGroupTable(NetBoxTable):
             'pk', 'name', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name',)
+
+
+class CircuitGroupAssignmentTable(NetBoxTable):
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True
+    )
+    circuit = tables.Column(
+        verbose_name=_('Circuit'),
+        linkify=True
+    )
+    priority = tables.Column(
+        verbose_name=_('Priority'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CircuitGroupAssignment
+        fields = (
+            'pk', 'id', 'group', 'circuit', 'priority', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'group', 'circuit', 'priority')

@@ -443,7 +443,7 @@ register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermina
 
 
 #
-# Circuit Redundacy Groups
+# Circuit Groups
 #
 
 class CircuitGroupListView(generic.ObjectListView):
@@ -485,3 +485,48 @@ class CircuitGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitGroup.objects.all()
     filterset = filtersets.CircuitGroupFilterSet
     table = tables.CircuitGroupTable
+
+
+#
+# Circuit Groups
+#
+
+class CircuitGroupAssignmentListView(generic.ObjectListView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    filterset_form = forms.CircuitGroupAssignmentFilterForm
+    table = tables.CircuitGroupAssignmentTable
+
+
+@register_model_view(CircuitGroup)
+class CircuitGroupAssignmentView(generic.ObjectView):
+    queryset = CircuitGroupAssignment.objects.all()
+
+
+@register_model_view(CircuitGroup, 'edit')
+class CircuitGroupAssignmentEditView(generic.ObjectEditView):
+    queryset = CircuitGroupAssignment.objects.all()
+    form = forms.CircuitGroupAssignmentForm
+
+
+@register_model_view(CircuitGroup, 'delete')
+class CircuitGroupAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = CircuitGroupAssignment.objects.all()
+
+
+class CircuitGroupAssignmentBulkImportView(generic.BulkImportView):
+    queryset = CircuitGroupAssignment.objects.all()
+    model_form = forms.CircuitGroupAssignmentImportForm
+
+
+class CircuitGroupAssignmentBulkEditView(generic.BulkEditView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    table = tables.CircuitGroupAssignmentTable
+    form = forms.CircuitGroupAssignmentBulkEditForm
+
+
+class CircuitGroupAssignmentBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    table = tables.CircuitGroupAssignmentTable

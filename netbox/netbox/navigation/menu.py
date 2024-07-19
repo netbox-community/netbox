@@ -261,6 +261,7 @@ CIRCUITS_MENU = Menu(
                 get_model_item('circuits', 'circuittype', _('Circuit Types')),
                 get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
                 get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
+                get_model_item('circuits', 'circuitgroupassignment', _('Circuit Group Assignments')),
             ),
         ),
         MenuGroup(
