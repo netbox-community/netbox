@@ -1,8 +1,8 @@
 import datetime
 import os
 import yaml
-from dataclasses import dataclass
-from typing import Union
+from dataclasses import dataclass, field
+from typing import List, Union
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -15,9 +15,10 @@ LOCAL_RELEASE_PATH = 'local/release.yaml'
 @dataclass
 class ReleaseInfo:
     version: str
-    edition: str = 'Community'
+    edition: str
     published: Union[datetime.date, None] = None
     designation: Union[str, None] = None
+    features: List = field(default_factory=list)
 
     @property
     def full_version(self):
@@ -46,11 +47,12 @@ def load_release_data():
             local_data = yaml.safe_load(release_file)
     except FileNotFoundError:
         local_data = {}
-    if type(local_data) is not dict:
-        raise ImproperlyConfigured(
-            f"{LOCAL_RELEASE_PATH}: Local release data must be defined as a dictionary."
-        )
-    data.update(local_data)
+    if local_data is not None:
+        if type(local_data) is not dict:
+            raise ImproperlyConfigured(
+                f"{LOCAL_RELEASE_PATH}: Local release data must be defined as a dictionary."
+            )
+        data.update(local_data)
 
     # Convert the published date to a date object
     if 'published' in data:
