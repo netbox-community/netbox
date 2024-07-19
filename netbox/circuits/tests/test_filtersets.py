@@ -509,6 +509,62 @@ class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
+class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = CircuitGroupAssignmentFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        circuit_groups = (
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
+            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
+            CircuitGroup(name='Circuit Group 4', slug='circuit-group-4'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+        circuits = (
+            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 4', provider=provider, type=circuittype),
+        )
+        Circuit.objects.bulk_create(circuits)
+
+        assignments = (
+            CircuitGroupAssignment(
+                group=circuit_groups[0],
+                circuit=circuits[0],
+                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[1],
+                circuit=circuits[1],
+                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[2],
+                circuit=circuits[2],
+                priority=CircuitPriorityChoices.PRIORITY_TERTIARY
+            ),
+        )
+        CircuitGroupAssignment.objects.bulk_create(assignments)
+
+    def test_group_id(self):
+        groups = CircuitGroup.objects.filter(name__in=['Circuit Group 1', 'Circuit Group 2'])
+        params = {'goup_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_circuit_id(self):
+        circuits = Circuit.objects.filter(cid__in=['Circuit 1', 'Circuit 2'])
+        params = {'circuit_id': [circuits[0].pk, circuits[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ProviderNetwork.objects.all()
     filterset = ProviderNetworkFilterSet

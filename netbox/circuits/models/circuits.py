@@ -211,7 +211,7 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
 
     def __str__(self):
         if self.priority:
-            return f"{self.group} ({self.priority}) -> {self.circuit}"
+            return f"{self.group} ({self.get_priority_display()}) -> {self.circuit}"
         return str(f"{self.group} -> {self.circuit}")
 
     def get_absolute_url(self):
