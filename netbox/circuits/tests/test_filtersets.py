@@ -457,30 +457,6 @@ class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-
-        regions = (
-            Region(name='Test Region 1', slug='test-region-1'),
-            Region(name='Test Region 2', slug='test-region-2'),
-            Region(name='Test Region 3', slug='test-region-3'),
-        )
-        for r in regions:
-            r.save()
-
-        site_groups = (
-            SiteGroup(name='Site Group 1', slug='site-group-1'),
-            SiteGroup(name='Site Group 2', slug='site-group-2'),
-            SiteGroup(name='Site Group 3', slug='site-group-3'),
-        )
-        for site_group in site_groups:
-            site_group.save()
-
-        sites = (
-            Site(name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
-            Site(name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
-            Site(name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
-        )
-        Site.objects.bulk_create(sites)
-
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
             TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
@@ -496,46 +472,41 @@ class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
-        circuit_types = (
-            CircuitType(name='Test Circuit Type 1', slug='test-circuit-type-1'),
-            CircuitType(name='Test Circuit Type 2', slug='test-circuit-type-2'),
-        )
-        CircuitType.objects.bulk_create(circuit_types)
-
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
-            Provider(name='Provider 3', slug='provider-3'),
-        )
-        Provider.objects.bulk_create(providers)
-
-        provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='A'),
-            ProviderAccount(name='Provider Account 2', provider=providers[1], account='B'),
-            ProviderAccount(name='Provider Account 3', provider=providers[2], account='C'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
-        provider_networks = (
-            ProviderNetwork(name='Provider Network 1', provider=providers[1]),
-            ProviderNetwork(name='Provider Network 2', provider=providers[1]),
-            ProviderNetwork(name='Provider Network 3', provider=providers[1]),
-        )
-        ProviderNetwork.objects.bulk_create(provider_networks)
-
-        circuits = (
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
-            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
-        )
-        Circuit.objects.bulk_create(circuits)
+        CircuitGroup.objects.bulk_create((
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1', description='foobar1', tenant=tenants[0]),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2', description='foobar2', tenant=tenants[1]),
+            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3', tenant=tenants[1]),
+        ))
 
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Circuit Group 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_slug(self):
+        params = {'slug': ['circuit-group-1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):

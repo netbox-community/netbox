@@ -307,19 +307,11 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         ).distinct()
 
 
-class CircuitGroupFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class CircuitGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = CircuitGroup
-        fields = ('id', 'name',)
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(comments__icontains=value)
-        ).distinct()
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
