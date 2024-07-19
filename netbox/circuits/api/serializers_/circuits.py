@@ -84,10 +84,10 @@ class CircuitGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = CircuitGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name',)
+        brief_fields = ('id', 'url', 'display', 'name', 'slug',)
 
 
 class CircuitGroupAssignmentSerializer(NetBoxModelSerializer):

@@ -176,13 +176,12 @@ class CircuitTerminationForm(NetBoxModelForm):
 
 
 class CircuitGroupForm(TenancyForm, NetBoxModelForm):
-    comments = CommentField()
+    slug = SlugField()
 
     class Meta:
         model = CircuitGroup
         fields = [
-            'name', 'tenant_group', 'tenant',
-            'comments', 'tags',
+            'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
         ]
 
 

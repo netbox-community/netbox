@@ -208,57 +208,32 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
     model = CircuitGroup
-    brief_fields = ['name', 'description', 'display', 'id', 'url']
+    brief_fields = ['id', 'url', 'display', 'name']
     bulk_update_data = {
-        'status': 'planned',
+        'comments': 'New comments',
     }
 
     @classmethod
     def setUpTestData(cls):
-
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
+        circuit_groups = (
+            CircuitGroup(name="Circuit Group 1", slug='circuit-group-1'),
+            CircuitGroup(name="Circuit Group 2", slug='circuit-group-2'),
+            CircuitGroup(name="Circuit Group 3", slug='circuit-group-3'),
         )
-        Provider.objects.bulk_create(providers)
-
-        provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
-            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
-        circuit_types = (
-            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
-            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
-        )
-        CircuitType.objects.bulk_create(circuit_types)
-
-        circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
-        )
-        Circuit.objects.bulk_create(circuits)
+        CircuitGroup.objects.bulk_create(circuit_groups)
 
         cls.create_data = [
             {
-                'cid': 'Circuit 4',
-                'provider': providers[1].pk,
-                'provider_account': provider_accounts[1].pk,
-                'type': circuit_types[1].pk,
+                'name': 'Circuit Group 4',
+                'slug': 'circuit-group-4',
             },
             {
-                'cid': 'Circuit 5',
-                'provider': providers[1].pk,
-                'provider_account': provider_accounts[1].pk,
-                'type': circuit_types[1].pk,
+                'name': 'Circuit Group 5',
+                'slug': 'circuit-group-5',
             },
             {
-                'cid': 'Circuit 6',
-                'provider': providers[1].pk,
-                # Omit provider account to test uniqueness constraint
-                'type': circuit_types[1].pk,
+                'name': 'Circuit Group 6',
+                'slug': 'circuit-group-6',
             },
         ]
 

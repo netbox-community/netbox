@@ -100,7 +100,7 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     fields='__all__',
     filters=CircuitGroupFilter
 )
-class CircuitGroupType(CustomFieldsMixin, TagsMixin, ObjectType):
+class CircuitGroupType(NetBoxObjectType):
     pass
 
 

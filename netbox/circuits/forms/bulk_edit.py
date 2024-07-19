@@ -224,19 +224,26 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    priority = forms.ChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(CircuitPriorityChoices),
+        required=False
+    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     model = CircuitGroup
-    fieldsets = (
-        FieldSet('tenant', name=_('Tenancy')),
-    )
     nullable_fields = (
-        'tenant', 'comments',
+        'priority', 'description', 'tenant',
     )
 
 

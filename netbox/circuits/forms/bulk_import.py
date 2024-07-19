@@ -165,7 +165,7 @@ class CircuitGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = CircuitGroup
-        fields = ('name', 'tenant', 'tags')
+        fields = ('name', 'slug', 'description', 'tenant', 'tags')
 
 
 class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):

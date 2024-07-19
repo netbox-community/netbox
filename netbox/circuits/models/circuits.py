@@ -153,17 +153,9 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
             raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
 
 
-class CircuitGroup(PrimaryModel):
+class CircuitGroup(OrganizationalModel):
     """
     """
-    name = models.CharField(
-        verbose_name=_('name'),
-        max_length=100
-    )
-    slug = models.SlugField(
-        verbose_name=_('slug'),
-        max_length=100
-    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
