@@ -68,7 +68,7 @@ class SideNav {
    * Set initial values & add event listeners.
    */
   private init() {
-    for (const toggler of this.base.querySelectorAll('.sidenav-toggle')) {
+    for (const toggler of getElements<HTMLButtonElement>('.sidenav-toggle')) {
       toggler.addEventListener('click', event => this.onToggle(event));
     }
 
@@ -221,7 +221,6 @@ class SideNav {
             break;
           case 'collapse':
             groupLink.setAttribute('aria-expanded', 'false');
-            groupItem.classList.remove('active');
             dropdownMenu.classList.remove('show');
             link.classList.remove('active');
             break;
@@ -314,7 +313,7 @@ class SideNav {
 }
 
 export function initSideNav(): void {
-  for (const sidenav of getElements<HTMLDivElement>('.navbar')) {
+  for (const sidenav of getElements<HTMLDivElement>('.navbar-vertical')) {
     new SideNav(sidenav);
   }
 }

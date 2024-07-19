@@ -1,19 +1,65 @@
+body {
+  &[data-sidenav-hidden] {
+    .navbar-vertical.navbar-expand-lg {
+      @include media-breakpoint-up(lg) {
+        width: 3.2rem;
+      }
+
+      .nav-link-title {
+        opacity: 0;
+        transition: ease-in-out 100ms;
+      }
+    }
+  }
+
+  &:not([data-sidenav-pinned]) {
+    .page-wrapper {
+      @include media-breakpoint-up(lg) {
+        margin-left: 3.2rem!important;
+      }
+    }
+  }
+}
+
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
+
+  transition: ease-in-out 100ms;
+
+  // Overrides default side nav settings
+  @include media-breakpoint-up(lg) {
+    padding-top: 56px;
+    z-index: 1020;
+  }
 
   // Adjust hover color & style for menu items
   .navbar-collapse {
     .nav-link-icon {
       color: var(--tblr-nav-link-color)!important;
+
+      // Aligns icon and text with the menu toggle and logo
+      @include media-breakpoint-up(lg) {
+        margin-right: .7rem;
+        margin-left: .3rem;
+      }
     }
     .text-secondary {
       color: $dark-teal!important;
+
+      @include media-breakpoint-up(lg) {
+        padding-left: 1.25rem !important;
+      }
     }
 
     .dropdown-menu {
 
       // Adjust hover color & style for menu items
       .dropdown-item {
+
+        @include media-breakpoint-up(lg) {
+          padding-left: 1.25rem !important;
+        }
+
         a {
           color: $rich-black;
         }
@@ -52,24 +98,6 @@
     z-index: 1;
   }
 
-  // Logo text for non-community editions
-  .navbar-brand {
-
-    // Reduce logo padding on mobile view
-    @include media-breakpoint-down(lg) {
-      padding: 0.2rem 0;
-    }
-
-    a:hover {
-      text-decoration: none;
-    }
-    .netbox-edition {
-      font-size: .7rem;
-      letter-spacing: .15rem;
-      text-align: center;
-    }
-  }
-
   // Navigation geometric graphic for non-community editions
   img.motif {
     bottom: 0;
@@ -89,6 +117,42 @@
     @include media-breakpoint-up(lg) {
       display: block;
     }
+  }
+}
+
+.collapse-menu-toggle {
+  height: 24px;
+  width: 24px;
+  padding: 0;
+}
+
+// Logo text for non-community editions
+.navbar-brand {
+
+  &-image {
+    height: 1.8rem;
+  }
+
+  // Reduce logo padding on mobile view
+  @include media-breakpoint-down(lg) {
+    padding: 0.2rem 0;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+  .netbox-edition {
+    font-size: .7rem;
+    letter-spacing: .15rem;
+    text-align: center;
+  }
+}
+
+// Controls desktop navbar search box width
+#navbar-menu {
+  form {
+    max-width: 500px;
+    width: 100%;
   }
 }
 

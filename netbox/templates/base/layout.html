@@ -33,11 +33,11 @@ Blocks:
         </button>
 
         {# Logo #}
-        <h1 class="navbar-brand">
+        <h1 class="navbar-brand d-lg-none py-0">
           <a href="{% url 'home' %}">
             <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
             <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
-            <div class="netbox-edition fw-semibold mt-2">{{ settings.RELEASE.edition }}</div>
+            <div class="netbox-edition fw-semibold mt-1">{{ settings.RELEASE.edition }}</div>
           </a>
         </h1>
 
@@ -56,7 +56,7 @@ Blocks:
     </aside>
 
     {# Top menu #}
-    <header class="navbar navbar-expand-md sticky-top d-none d-lg-flex d-print-none">
+    <header class="navbar navbar-expand-md sticky-top d-none d-lg-flex d-print-none ms-0">
       <div class="container-fluid">
 
         <div class="navbar-nav flex-row align-items-center order-md-last">
@@ -71,9 +71,22 @@ Blocks:
           {% include 'inc/user_menu.html' %}
         </div>
 
+        <button class="btn collapse-menu-toggle sidenav-toggle me-3 rounded-circle" aria-expanded="true" aria-label="Toggle navigation">
+          <i class="mdi mdi-menu"></i>
+        </button>
+
+        {# Logo #}
+        <h1 class="navbar-brand py-0">
+          <a href="{% url 'home' %}">
+            <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
+            <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
+            <div class="netbox-edition fw-semibold mt-1">{{ settings.RELEASE.edition }}</div>
+          </a>
+        </h1>
+
         {# Search box #}
         <div class="collapse navbar-collapse" id="navbar-menu">
-          <form action="{% url 'search' %}" method="get" autocomplete="off" novalidate>
+          <form action="{% url 'search' %}" method="get" autocomplete="off" novalidate class="mx-auto px-4">
             <div class="input-icon">
               <span class="input-icon-addon">
                 <i class="mdi mdi-magnify"></i>
