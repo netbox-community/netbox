@@ -501,8 +501,8 @@ class CircuitGroupAssignmentTestCase(
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'group': circuit_groups[3],
-            'circuit': circuits[3],
+            'group': circuit_groups[3].pk,
+            'circuit': circuits[3].pk,
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
             'tags': [t.pk for t in tags],
         }
