@@ -100,8 +100,8 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     fields='__all__',
     filters=CircuitGroupFilter
 )
-class CircuitGroupType(NetBoxObjectType):
-    pass
+class CircuitGroupType(OrganizationalObjectType):
+    tenant: TenantType | None
 
 
 @strawberry_django.type(
