@@ -556,7 +556,7 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_group_id(self):
         groups = CircuitGroup.objects.filter(name__in=['Circuit Group 1', 'Circuit Group 2'])
-        params = {'goup_id': [groups[0].pk, groups[1].pk]}
+        params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_circuit_id(self):
