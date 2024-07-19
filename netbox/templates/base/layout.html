@@ -19,7 +19,7 @@ Blocks:
   <div class="page">
 
     {# Sidebar #}
-    <aside class="navbar navbar-vertical navbar-expand-lg pb-5">
+    <aside class="navbar navbar-vertical navbar-expand-lg">
 
       {% if settings.RELEASE.edition != 'Community' %}
         <img class="motif" src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">
@@ -80,7 +80,7 @@ Blocks:
           <a href="{% url 'home' %}">
             <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
             <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
-            <div class="netbox-edition fw-semibold mt-1">{{ settings.RELEASE.edition }}</div>
+            <div class="netbox-edition fw-semibold mt-1 text-secondary">{{ settings.RELEASE.edition }}</div>
           </a>
         </h1>
 

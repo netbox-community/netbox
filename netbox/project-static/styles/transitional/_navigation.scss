@@ -29,6 +29,7 @@ body {
 
   // Allows header to sit on top of side nav
   @include media-breakpoint-up(lg) {
+    padding-bottom: 2rem;
     padding-top: 56px;
     z-index: 1020;
   }
@@ -146,7 +147,7 @@ body {
   }
   .netbox-edition {
     font-size: .7rem;
-    letter-spacing: .15rem;
+    letter-spacing: .05rem;
     text-align: center;
   }
 }
