@@ -6,7 +6,7 @@ import strawberry_django
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType
+from netbox.graphql.types import BaseObjectType, NetBoxObjectType, ObjectType, OrganizationalObjectType
 from tenancy.graphql.types import TenantType
 from .filters import *
 
@@ -109,5 +109,6 @@ class CircuitGroupType(OrganizationalObjectType):
     fields='__all__',
     filters=CircuitGroupAssignmentFilter
 )
-class CircuitGroupAssignmentType(TagsMixin, ObjectType):
-    pass
+class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
+    group: Annotated["CircuitGroupType", strawberry.lazy('circuits.graphql.types')]
+    circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]

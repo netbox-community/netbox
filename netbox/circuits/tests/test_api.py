@@ -283,7 +283,7 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     model = CircuitGroupAssignment
-    brief_fields = ['group', 'circuit', 'display', 'id', 'priority', 'url']
+    brief_fields = ['circuit', 'display', 'group', 'id', 'priority', 'url']
     bulk_update_data = {
         'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
     }
@@ -335,18 +335,18 @@ class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'group_id': groups[3].pk,
-                'circuit_id': circuits[3].pk
+                'group': circuit_groups[3].pk,
+                'circuit': circuits[3].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_PRIMARY,
             },
             {
-                'group_id': groups[4].pk,
-                'circuit_id': circuits[4].pk
+                'group': circuit_groups[4].pk,
+                'circuit': circuits[4].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_SECONDARY,
             },
             {
-                'group_id': groups[5].pk,
-                'circuit_id': circuits[5].pk
+                'group': circuit_groups[5].pk,
+                'circuit': circuits[5].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_TERTIARY,
             },
         ]
