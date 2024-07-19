@@ -21,7 +21,7 @@ Blocks:
     {# Sidebar #}
     <aside class="navbar navbar-vertical navbar-expand-lg">
 
-      {% if settings.RELEASE.edition != 'Community' %}
+      {% if 'commercial' in settings.RELEASE.features %}
         <img class="motif" src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">
       {% endif %}
 
