@@ -126,8 +126,8 @@ Default: True
 
 When disabled, banners will be displayed without first being HTML escaped for safety.
 
-!!! info "Changed in NetBox v4.0.8"
-    Prior to NetBox v4.0.8, this setting was disabled by default.
+!!! info "New in NetBox v4.0.8"
+    This setting was introduced in NetBox v4.0.8.
 
 ---
 
