@@ -35,7 +35,8 @@ Blocks:
         </h1>
 
         {# User menu (mobile view) #}
-        <div class="navbar-nav flex-row d-lg-none">
+        <div class="navbar-nav flex-row align-items-center d-lg-none">
+          {% plugin_navbar %}
           {% include 'inc/light_toggle.html' %}
           {% include 'inc/user_menu.html' %}
         </div>
@@ -52,15 +53,10 @@ Blocks:
     <header class="navbar navbar-expand-md sticky-top d-none d-lg-flex d-print-none">
       <div class="container-fluid">
 
+        {# User menu (desktop view) #}
         <div class="navbar-nav flex-row align-items-center order-md-last">
-
-          {# Plugin content #}
           {% plugin_navbar %}
-
-          {# Dark/light mode toggle #}
           {% include 'inc/light_toggle.html' %}
-
-          {# User menu #}
           {% include 'inc/user_menu.html' %}
         </div>
 

@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
+from netbox.events import get_event_text
 from netbox.tables import BaseTable, NetBoxTable, columns
 from .columns import NotificationActionsColumn
 
@@ -399,20 +400,10 @@ class EventRuleTable(NetBoxTable):
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
-    type_create = columns.BooleanColumn(
-        verbose_name=_('Create')
-    )
-    type_update = columns.BooleanColumn(
-        verbose_name=_('Update')
-    )
-    type_delete = columns.BooleanColumn(
-        verbose_name=_('Delete')
-    )
-    type_job_start = columns.BooleanColumn(
-        verbose_name=_('Job Start')
-    )
-    type_job_end = columns.BooleanColumn(
-        verbose_name=_('Job End')
+    event_types = columns.ArrayColumn(
+        verbose_name=_('Event Types'),
+        func=get_event_text,
+        orderable=False
     )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
@@ -422,12 +413,10 @@ class EventRuleTable(NetBoxTable):
         model = EventRule
         fields = (
             'pk', 'id', 'name', 'enabled', 'description', 'action_type', 'action_object', 'object_types',
-            'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'tags', 'created',
-            'last_updated',
+            'event_types', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'type_create', 'type_update',
-            'type_delete', 'type_job_start', 'type_job_end',
+            'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'event_types',
         )
 
 

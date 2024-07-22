@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from core.events import *
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.conditions import Condition, ConditionSet
@@ -230,8 +231,7 @@ class ConditionSetTest(TestCase):
         """
         event_rule = EventRule(
             name='Event Rule 1',
-            type_create=True,
-            type_update=True,
+            event_types=[OBJECT_CREATED, OBJECT_UPDATED],
             conditions={
                 'attr': 'status.value',
                 'value': 'active',
@@ -251,8 +251,7 @@ class ConditionSetTest(TestCase):
         """
         event_rule = EventRule(
             name='Event Rule 1',
-            type_create=True,
-            type_update=True,
+            event_types=[OBJECT_CREATED, OBJECT_UPDATED],
             conditions={
                 "attr": "status.value",
                 "value": ["planned", "staging"],
@@ -273,8 +272,7 @@ class ConditionSetTest(TestCase):
         """
         event_rule = EventRule(
             name='Event Rule 1',
-            type_create=True,
-            type_update=True,
+            event_types=[OBJECT_CREATED, OBJECT_UPDATED],
             conditions={
                 "attr": "status.value",
                 "value": ["planned", "staging"],
@@ -300,8 +298,7 @@ class ConditionSetTest(TestCase):
         webhook = Webhook.objects.create(name='Webhook 100', payload_url='http://example.com/?1', http_method='POST')
         form = EventRuleForm({
             "name": "Event Rule 1",
-            "type_create": True,
-            "type_update": True,
+            "event_types": [OBJECT_CREATED, OBJECT_UPDATED],
             "action_object_type": ct.pk,
             "action_type": "webhook",
             "action_choice": webhook.pk,
