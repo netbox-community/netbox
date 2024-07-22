@@ -1,24 +1,33 @@
+import datetime
 import importlib
 import importlib.util
-import datetime
-import requests
-
 from dataclasses import dataclass, field
+from typing import Optional
+
+import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
+
+from netbox.plugins import PluginConfig
 from utilities.datetime import datetime_from_timestamp
 
 
 @dataclass
 class PluginAuthor:
-    name: str = ''
+    """
+    Identifying information for the author of a plugin.
+    """
+    name: str
     org_id: str = ''
     url: str = ''
 
 
 @dataclass
 class PluginVersion:
+    """
+    Details for a specific versioned release of a plugin.
+    """
     date: datetime.datetime = None
     version: str = ''
     netbox_min_version: str = ''
@@ -32,6 +41,9 @@ class PluginVersion:
 
 @dataclass
 class Plugin:
+    """
+    The representation of a NetBox plugin in the catalog API.
+    """
     id: str = ''
     status: str = ''
     title_short: str = ''
@@ -39,7 +51,7 @@ class Plugin:
     tag_line: str = ''
     description_short: str = ''
     slug: str = ''
-    author: PluginAuthor = field(default_factory=PluginAuthor)
+    author: Optional[PluginAuthor] = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None
     license_type: str = ''
@@ -49,17 +61,19 @@ class Plugin:
     is_certified: bool = False
     release_latest: PluginVersion = field(default_factory=PluginVersion)
     release_recent_history: list[PluginVersion] = field(default_factory=list)
-    is_local: bool = False  # extra field for locall intsalled plugins
+    is_local: bool = False  # extra field for locally installed plugins
     is_installed: bool = False
 
 
 def get_local_plugins():
+    """
+    Return a dictionary of all locally-installed plugins, mapped by name.
+    """
     plugins = {}
     for plugin_name in settings.PLUGINS:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
 
-        plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
         plugins[plugin_config.name] = Plugin(
             slug=plugin_config.name,
             title_short=plugin_config.verbose_name,
@@ -68,17 +82,19 @@ def get_local_plugins():
             is_local=True,
             is_installed=True,
         )
-        plugins[plugin_config.name].author.name = plugin_config.author or _('Unknown Author')
 
     return plugins
 
 
 def get_catalog_plugins():
+    """
+    Return a dictionary of all entries in the plugins catalog, mapped by name.
+    """
     session = requests.Session()
     plugins = {}
 
     def get_pages():
-        # TODO: pagintation is curently broken in API
+        # TODO: pagination is currently broken in API
         payload = {'page': '1', 'per_page': '50'}
         first_page = session.get(settings.PLUGIN_CATALOG_URL, params=payload).json()
         yield first_page
@@ -92,9 +108,10 @@ def get_catalog_plugins():
     for page in get_pages():
         for data in page['data']:
 
-            versions = []
+            # Populate releases
+            releases = []
             for version in data['release_recent_history']:
-                versions.append(
+                releases.append(
                     PluginVersion(
                         date=datetime_from_timestamp(version['date']),
                         version=version['version'],
@@ -107,8 +124,8 @@ def get_catalog_plugins():
                         is_netboxlabs_supported=version['is_netboxlabs_supported'],
                     )
                 )
-            versions = sorted(versions, key=lambda x: x.date, reverse=True)
-            latest = PluginVersion(
+            releases = sorted(releases, key=lambda x: x.date, reverse=True)
+            latest_release = PluginVersion(
                 date=datetime_from_timestamp(data['release_latest']['date']),
                 version=data['release_latest']['version'],
                 netbox_min_version=data['release_latest']['netbox_min_version'],
@@ -119,11 +136,19 @@ def get_catalog_plugins():
                 is_integration=data['release_latest']['is_integration'],
                 is_netboxlabs_supported=data['release_latest']['is_netboxlabs_supported'],
             )
-            author = PluginAuthor(
-                name=data['author']['name'],
-                org_id=data['author']['org_id'],
-                url=data['author']['url'],
-            )
+
+            # Populate author (if any)
+            if data['author']:
+                print(data['author'])
+                author = PluginAuthor(
+                    name=data['author']['name'],
+                    org_id=data['author']['org_id'],
+                    url=data['author']['url'],
+                )
+            else:
+                author = None
+
+            # Populate plugin data
             plugins[data['slug']] = Plugin(
                 id=data['id'],
                 status=data['status'],
@@ -140,14 +165,17 @@ def get_catalog_plugins():
                 package_name_pypi=data['package_name_pypi'],
                 config_name=data['config_name'],
                 is_certified=data['is_certified'],
-                release_latest=latest,
-                release_recent_history=versions,
+                release_latest=latest_release,
+                release_recent_history=releases,
             )
 
     return plugins
 
 
 def get_plugins():
+    """
+    Return a dictionary of all plugins (both catalog and locally installed), mapped by name.
+    """
     local_plugins = get_local_plugins()
     catalog_plugins = cache.get('plugins-catalog-feed')
     if not catalog_plugins:
