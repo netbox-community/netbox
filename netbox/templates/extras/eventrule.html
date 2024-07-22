@@ -34,29 +34,25 @@
         </table>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Events" %}</h5>
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Create" %}</th>
-            <td>{% checkmark object.type_create %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Update" %}</th>
-            <td>{% checkmark object.type_update %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Delete" %}</th>
-            <td>{% checkmark object.type_delete %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Job start" %}</th>
-            <td>{% checkmark object.type_job_start %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Job end" %}</th>
-            <td>{% checkmark object.type_job_end %}</td>
-          </tr>
-        </table>
+        <h5 class="card-header">{% trans "Event Types" %}</h5>
+        <ul class="list-group list-group-flush">
+          {% for name, event in registry.events.items %}
+            <li class="list-group-item">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  {% if name in object.event_types %}
+                    {% checkmark True %}
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </div>
+                <div class="col">
+                  {{ event }}
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
       {% plugin_left_page object %}
     </div>
