@@ -80,14 +80,16 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
 
 
 class CircuitGroupSerializer(NetBoxModelSerializer):
+    # Related object counts
+    circuit_group_assignment_count = RelatedObjectCountField('circuit_group_assignments')
 
     class Meta:
         model = CircuitGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tenant',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'tags', 'custom_fields', 'created', 'last_updated', 'circuit_group_assignment_count'
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_group_assignment_count')
 
 
 class CircuitGroupAssignmentSerializer(NetBoxModelSerializer):
