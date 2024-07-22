@@ -35,7 +35,7 @@
           {% trans "Version history" %}
         </button>
       </li>
-      {% if show_install %}
+      {% if 'commercial' not in settings.RELEASE.features %}
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
             {% trans "Install" %}
@@ -83,7 +83,7 @@
         </div>
       </div>
     </div>
-    {% if show_install %}
+    {% if 'commercial' not in settings.RELEASE.features %}
       <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
         <p>You can install this plugin from the command line with PyPi.</p>
         <p>The following commands may be helpful; always refer to <a href="{{ plugin.homepage_url }}" target="_blank">the plugin's own documentation <i class="mdi mdi-launch"></i></a> and the <a href="https://netboxlabs.com/docs/netbox/en/stable/plugins/installation/" target="_blank">Installing a Plugin unit <i class="mdi mdi-launch"></i></a> of the NetBox documentation.</p>

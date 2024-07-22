@@ -686,5 +686,4 @@ class PluginView(UserPassesTestMixin, View):
         return render(request, 'core/plugin.html', {
             'plugin': plugin,
             'table': table,
-            'show_install': settings.RELEASE.edition == 'Community'
         })
