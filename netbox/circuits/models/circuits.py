@@ -163,7 +163,6 @@ class CircuitGroup(OrganizationalModel):
         blank=True,
         null=True
     )
-    circuits = models.ManyToManyField(Circuit, through='CircuitGroupAssignment')
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
@@ -186,6 +185,7 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
     group = models.ForeignKey(
         CircuitGroup,
         on_delete=models.CASCADE,
+        related_name='circuit_group_assignments'
     )
     priority = models.CharField(
         verbose_name=_('priority'),
