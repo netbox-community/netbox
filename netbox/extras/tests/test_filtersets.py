@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from circuits.models import Provider
 from core.choices import ManagedFileRootPathChoices, ObjectChangeActionChoices
+from core.events import *
 from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
@@ -251,7 +252,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 class EventRuleTestCase(TestCase, BaseFilterSetTests):
     queryset = EventRule.objects.all()
     filterset = EventRuleFilterSet
-    ignore_fields = ('action_data', 'conditions')
+    ignore_fields = ('action_data', 'conditions', 'event_types')
 
     @classmethod
     def setUpTestData(cls):
@@ -292,11 +293,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 1',
                 action_object=webhooks[0],
                 enabled=True,
-                type_create=True,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_CREATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar1'
             ),
@@ -304,11 +301,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 2',
                 action_object=webhooks[1],
                 enabled=True,
-                type_create=False,
-                type_update=True,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_UPDATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar2'
             ),
@@ -316,11 +309,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 3',
                 action_object=webhooks[2],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=True,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_DELETED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar3'
             ),
@@ -328,22 +317,14 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 4',
                 action_object=scripts[0],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=True,
-                type_job_end=False,
+                event_types=[JOB_STARTED],
                 action_type=EventRuleActionChoices.SCRIPT,
             ),
             EventRule(
                 name='Event Rule 5',
                 action_object=scripts[1],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=True,
+                event_types=[JOB_COMPLETED],
                 action_type=EventRuleActionChoices.SCRIPT,
             ),
         )
@@ -384,25 +365,9 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_type_create(self):
-        params = {'type_create': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_update(self):
-        params = {'type_update': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_delete(self):
-        params = {'type_delete': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_start(self):
-        params = {'type_job_start': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_end(self):
-        params = {'type_job_end': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+    def test_event_type(self):
+        params = {'event_type': [OBJECT_CREATED, OBJECT_UPDATED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):

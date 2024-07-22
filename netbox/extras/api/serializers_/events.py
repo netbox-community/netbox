@@ -34,9 +34,9 @@ class EventRuleSerializer(NetBoxModelSerializer):
     class Meta:
         model = EventRule
         fields = [
-            'id', 'url', 'display_url', 'display', 'object_types', 'name', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
-            'action_object_id', 'action_object', 'description', 'custom_fields', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'object_types', 'name', 'enabled', 'event_types', 'conditions',
+            'action_type', 'action_object_type', 'action_object_id', 'action_object', 'description', 'custom_fields',
+            'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
