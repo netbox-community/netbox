@@ -1133,6 +1133,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'asnrange',
         'cable',
         'circuit',
+        'circuitgroup',
+        'circuitgroupassignment',
         'circuittermination',
         'circuittype',
         'cluster',
