@@ -1400,6 +1400,12 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='slug',
         label=_('Device role (slug)'),
     )
+    device_status = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__status',
+        queryset=Device.objects.all(),
+        to_field_name='status',
+        label=_('Device (status)')
+    )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis',
         queryset=VirtualChassis.objects.all(),

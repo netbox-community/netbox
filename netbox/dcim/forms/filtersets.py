@@ -129,6 +129,11 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Device')
     )
+    device_status = forms.MultipleChoiceField(
+        choices=DeviceStatusChoices,
+        label=_('Device status'),
+        required=False
+    )
 
 
 class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
