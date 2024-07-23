@@ -84,10 +84,6 @@
             <td>{{ plugin.tag_line|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Status" %}</th>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
             <th scope="row">{% trans "License" %}</th>
             <td>{{ plugin.license_type }}</td>
           </tr>
