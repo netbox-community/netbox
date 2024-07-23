@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
+from core.events import *
 from core.models import ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
@@ -394,9 +395,9 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         site_type = ObjectType.objects.get_for_model(Site)
         event_rules = (
-            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
-            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
-            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+            EventRule(name='EventRule 1', event_types=[OBJECT_CREATED], action_object=webhooks[0]),
+            EventRule(name='EventRule 2', event_types=[OBJECT_CREATED], action_object=webhooks[1]),
+            EventRule(name='EventRule 3', event_types=[OBJECT_CREATED], action_object=webhooks[2]),
         )
         for event in event_rules:
             event.save()
@@ -406,9 +407,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Event X',
             'object_types': [site_type.pk],
-            'type_create': False,
-            'type_update': True,
-            'type_delete': True,
+            'event_types': [OBJECT_UPDATED, OBJECT_DELETED],
             'conditions': None,
             'action_type': 'webhook',
             'action_object_type': webhook_ct.pk,
@@ -418,8 +417,8 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,object_types,type_create,action_type,action_object",
-            "Webhook 4,dcim.site,True,webhook,Webhook 1",
+            f'name,object_types,event_types,action_type,action_object',
+            f'Webhook 4,dcim.site,"{OBJECT_CREATED},{OBJECT_UPDATED}",webhook,Webhook 1',
         )
 
         cls.csv_update_data = (
@@ -430,7 +429,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'type_update': True,
+            'description': 'New description',
         }
 
 
