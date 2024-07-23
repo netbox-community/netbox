@@ -1033,13 +1033,13 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 class ModuleBayTemplateForm(ComponentTemplateForm):
     fieldsets = (
-        FieldSet('device_type', 'name', 'label', 'position', 'description'),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'position', 'description'),
     )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'name', 'label', 'position', 'description',
+            'device_type', 'module_type', 'name', 'label', 'position', 'description',
         ]
 
 
@@ -1453,13 +1453,13 @@ class RearPortForm(ModularDeviceComponentForm):
 
 class ModuleBayForm(DeviceComponentForm):
     fieldsets = (
-        FieldSet('device', 'name', 'label', 'position', 'description', 'tags',),
+        FieldSet('device', 'module', 'name', 'label', 'position', 'description', 'tags',),
     )
 
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'name', 'label', 'position', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'description', 'tags',
         ]
 
 
