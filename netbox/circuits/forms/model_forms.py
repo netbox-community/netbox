@@ -178,6 +178,11 @@ class CircuitTerminationForm(NetBoxModelForm):
 class CircuitGroupForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
 
+    fieldsets = (
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Circuit Group')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
     class Meta:
         model = CircuitGroup
         fields = [
@@ -198,6 +203,5 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     class Meta:
         model = CircuitGroupAssignment
         fields = [
-            'group', 'circuit', 'priority',
-            'tags',
+            'group', 'circuit', 'priority', 'tags',
         ]

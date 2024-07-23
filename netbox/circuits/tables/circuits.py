@@ -140,10 +140,10 @@ class CircuitGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CircuitGroup
         fields = (
-            'pk', 'name', 'circuit_group_assignment_count', 'tags',
+            'pk', 'name', 'description', 'circuit_group_assignment_count', 'tags',
             'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'name', 'circuit_group_assignment_count')
+        default_columns = ('pk', 'name', 'description', 'circuit_group_assignment_count')
 
 
 class CircuitGroupAssignmentTable(NetBoxTable):
@@ -162,6 +162,6 @@ class CircuitGroupAssignmentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CircuitGroupAssignment
         fields = (
-            'pk', 'id', 'group', 'circuit', 'priority', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'group', 'circuit', 'priority', 'created', 'last_updated', 'actions', 'tags',
         )
         default_columns = ('pk', 'group', 'circuit', 'priority')

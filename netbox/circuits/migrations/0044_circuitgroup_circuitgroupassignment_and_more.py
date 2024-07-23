@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
-                        related_name='circuitgroups',
+                        related_name='circuit_groups',
                         to='tenancy.tenant',
                     ),
                 ),
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Circuit group',
                 'verbose_name_plural': 'Circuit group',
-                'ordering': ('name', 'pk'),
+                'ordering': ('name',),
             },
         ),
         migrations.CreateModel(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                     'circuit',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name='circuit_group_assignments',
+                        related_name='assignments',
                         to='circuits.circuit',
                     ),
                 ),
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
                     'group',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name='circuit_group_assignments',
+                        related_name='assignments',
                         to='circuits.circuitgroup',
                     ),
                 ),

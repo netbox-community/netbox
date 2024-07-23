@@ -155,17 +155,18 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
 class CircuitGroup(OrganizationalModel):
     """
+    An arbitrary collection of Circuits.
     """
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
-        related_name='circuitgroups',
+        related_name='circuit_groups',
         blank=True,
         null=True
     )
 
     class Meta:
-        ordering = ('name', 'pk')  # Name may be non-unique
+        ordering = ('name',)
         verbose_name = _('Circuit group')
         verbose_name_plural = _('Circuit group')
 
@@ -177,15 +178,18 @@ class CircuitGroup(OrganizationalModel):
 
 
 class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+    """
+    Assignment of a Circuit to a CircuitGroup with an optional priority.
+    """
     circuit = models.ForeignKey(
         Circuit,
         on_delete=models.CASCADE,
-        related_name='circuit_group_assignments'
+        related_name='assignments'
     )
     group = models.ForeignKey(
         CircuitGroup,
         on_delete=models.CASCADE,
-        related_name='circuit_group_assignments'
+        related_name='assignments'
     )
     priority = models.CharField(
         verbose_name=_('priority'),

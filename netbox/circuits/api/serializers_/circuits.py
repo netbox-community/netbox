@@ -81,7 +81,8 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
 
 class CircuitGroupSerializer(NetBoxModelSerializer):
     # Related object counts
-    circuit_group_assignment_count = RelatedObjectCountField('circuit_group_assignments')
+    circuit_group_assignment_count = RelatedObjectCountField('assignments')
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = CircuitGroup
@@ -95,7 +96,7 @@ class CircuitGroupSerializer(NetBoxModelSerializer):
 class CircuitGroupAssignmentSerializer(NetBoxModelSerializer):
     group = CircuitGroupSerializer(nested=True)
     circuit = CircuitSerializer(nested=True)
-    priority = ChoiceField(choices=CircuitPriorityChoices, allow_blank=True, required=False, default=lambda: '')
+    priority = ChoiceField(choices=CircuitPriorityChoices, allow_blank=True, required=False)
 
     class Meta:
         model = CircuitGroupAssignment

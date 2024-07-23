@@ -229,12 +229,6 @@ class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-
-    priority = forms.ChoiceField(
-        label=_('Priority'),
-        choices=add_blank_choice(CircuitPriorityChoices),
-        required=False
-    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -243,7 +237,7 @@ class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitGroup
     nullable_fields = (
-        'priority', 'description', 'tenant',
+        'description', 'tenant',
     )
 
 

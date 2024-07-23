@@ -16,4 +16,4 @@ The [Circuit](./circuit.md) that is being assigned to the group.
 
 ### Priority
 
-A value between 0 and 255 indicating the circuit's priority for being elected as the master/primary node in the group.
+A selection (Primary, Secondary, Tertiary) indicating the circuit's priority for being elected as the master/primary node in the group.
