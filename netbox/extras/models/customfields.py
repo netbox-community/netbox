@@ -153,6 +153,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'Default value for the field (must be a JSON value). Encapsulate strings with double quotes (e.g. "Foo").'
         )
     )
+    related_object_filter = models.JSONField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'Filter the object selection choices using a query_params dict (must be a JSON value).'
+            'Encapsulate strings with double quotes (e.g. "Foo").'
+        )
+    )
     weight = models.PositiveSmallIntegerField(
         default=100,
         verbose_name=_('display weight'),
@@ -499,7 +507,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             field = field_class(
                 queryset=model.objects.all(),
                 required=required,
-                initial=initial
+                initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Multiple objects
@@ -510,6 +519,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 queryset=model.objects.all(),
                 required=required,
                 initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Text
