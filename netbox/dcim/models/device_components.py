@@ -1087,7 +1087,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ComponentModel, TrackingModelMixin):
+class ModuleBay(ModularComponentModel, TrackingModelMixin):
     """
     An empty space within a Device which can house a child device
     """
@@ -1108,7 +1108,7 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
 
-class DeviceBay(ModularComponentModel, TrackingModelMixin):
+class DeviceBay(ComponentModel, TrackingModelMixin):
     """
     An empty space within a Device which can house a child device
     """

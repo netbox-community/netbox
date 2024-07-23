@@ -628,7 +628,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         }
 
 
-class ModuleBayTemplate(ComponentTemplateModel):
+class ModuleBayTemplate(ModularComponentTemplateModel):
     """
     A template for a ModuleBay to be created for a new parent Device.
     """
@@ -663,7 +663,7 @@ class ModuleBayTemplate(ComponentTemplateModel):
         }
 
 
-class DeviceBayTemplate(ModularComponentTemplateModel):
+class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
