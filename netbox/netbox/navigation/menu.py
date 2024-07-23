@@ -1,6 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 
-from netbox.registry import registry
 from . import *
 
 #
@@ -464,24 +463,38 @@ MENUS = [
     OPERATIONS_MENU,
 ]
 
-# Add top-level plugin menus
-for menu in registry['plugins']['menus']:
-    MENUS.append(menu)
+has_initialized_function_menus = False
 
-# Add the default "plugins" menu
-if registry['plugins']['menu_items']:
 
-    # Build the default plugins menu
-    groups = [
-        MenuGroup(label=label, items=items)
-        for label, items in registry['plugins']['menu_items'].items()
-    ]
-    plugins_menu = Menu(
-        label=_("Plugins"),
-        icon_class="mdi mdi-puzzle",
-        groups=groups
-    )
-    MENUS.append(plugins_menu)
+def add_plugin_menus():
+    """
+    Build the plugin navigation menu and add plugin defined
+    menus to the global context.
+    """
 
-# Add the admin menu last
-MENUS.append(ADMIN_MENU)
+    global has_initialized_function_menus
+    if has_initialized_function_menus:
+        return
+    else:
+        has_initialized_function_menus = True
+
+    from netbox.registry import registry
+
+    for menu in registry['plugins']['menus']:
+        MENUS.append(menu)
+
+    if registry['plugins']['menu_items']:
+        # Build the default plugins menu
+        groups = [
+            MenuGroup(label=label, items=items)
+            for label, items in registry['plugins']['menu_items'].items()
+        ]
+        plugins_menu = Menu(
+            label=_("Plugins"),
+            icon_class="mdi mdi-puzzle",
+            groups=groups
+        )
+        MENUS.append(plugins_menu)
+
+    # Add the admin menu last
+    MENUS.append(ADMIN_MENU)

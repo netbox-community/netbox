@@ -1,7 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from netbox.navigation.menu import MENUS
+from netbox.navigation.menu import MENUS, add_plugin_menus
 
 __all__ = (
     'nav',
@@ -14,6 +14,8 @@ register = template.Library()
 
 @register.inclusion_tag("navigation/menu.html", takes_context=True)
 def nav(context):
+    add_plugin_menus()
+
     """
     Render the navigation menu.
     """
