@@ -1108,7 +1108,7 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
 
-class DeviceBay(ComponentModel, TrackingModelMixin):
+class DeviceBay(ModularComponentModel, TrackingModelMixin):
     """
     An empty space within a Device which can house a child device
     """

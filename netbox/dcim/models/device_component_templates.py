@@ -663,7 +663,7 @@ class ModuleBayTemplate(ComponentTemplateModel):
         }
 
 
-class DeviceBayTemplate(ComponentTemplateModel):
+class DeviceBayTemplate(ModularComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
