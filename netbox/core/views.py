@@ -654,7 +654,7 @@ class PluginListView(UserPassesTestMixin, View):
 
         plugins = get_plugins().values()
         if q:
-            plugins = [obj for obj in plugins if q.casefold() in obj.name.casefold()]
+            plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
 
         table = CatalogPluginTable(plugins, user=request.user)
         table.configure(request)
@@ -678,6 +678,8 @@ class PluginView(UserPassesTestMixin, View):
     def get(self, request, name):
 
         plugins = get_plugins()
+        if name not in plugins:
+            raise Http404(_("Plugin {name} not found").format(name=name))
         plugin = plugins[name]
 
         table = PluginVersionTable(plugin.release_recent_history, user=request.user)

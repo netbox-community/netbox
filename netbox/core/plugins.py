@@ -63,6 +63,7 @@ class Plugin:
     release_recent_history: list[PluginVersion] = field(default_factory=list)
     is_local: bool = False  # extra field for locally installed plugins
     is_installed: bool = False
+    installed_version: str = ''
 
 
 def get_local_plugins():
@@ -81,6 +82,7 @@ def get_local_plugins():
             description_short=plugin_config.description,
             is_local=True,
             is_installed=True,
+            installed_version=plugin_config.version,
         )
 
     return plugins

@@ -62,11 +62,15 @@ class CatalogPluginTable(BaseTable):
     updated_at = columns.DateTimeColumn(
         verbose_name=_('Updated')
     )
+    installed_version = tables.Column(
+        verbose_name=_('Installed version')
+    )
 
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
             'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
+            'installed_version',
         )
         default_columns = (
             'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
