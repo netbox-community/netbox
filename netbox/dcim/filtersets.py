@@ -846,7 +846,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
-class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = ModuleBayTemplate
@@ -1781,7 +1781,7 @@ class RearPortFilterSet(
         )
 
 
-class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
+class ModuleBayFilterSet(ModularDeviceComponentFilterSet, NetBoxModelFilterSet):
     installed_module_id = django_filters.ModelMultipleChoiceFilter(
         field_name='installed_module',
         queryset=ModuleBay.objects.all(),

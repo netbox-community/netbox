@@ -839,7 +839,7 @@ class DeviceDeviceBayTable(DeviceBayTable):
         default_columns = ('pk', 'name', 'label', 'status', 'installed_device', 'description')
 
 
-class ModuleBayTable(DeviceComponentTable):
+class ModuleBayTable(ModularDeviceComponentTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={

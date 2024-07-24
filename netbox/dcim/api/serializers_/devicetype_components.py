@@ -259,7 +259,7 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'position', 'description',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'description',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
