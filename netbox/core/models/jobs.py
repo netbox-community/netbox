@@ -31,6 +31,8 @@ class Job(models.Model):
         to='contenttypes.ContentType',
         related_name='jobs',
         on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
     object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -197,13 +199,13 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, run_now=False, **kwargs):
+    def enqueue(cls, func, instance=None, name='', user=None, schedule_at=None, interval=None, run_now=False, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
         Args:
             func: The callable object to be enqueued for execution
-            instance: The NetBox object to which this job pertains
+            instance: The NetBox object to which this job pertains (optional)
             name: Name for the job (optional)
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
@@ -211,13 +213,17 @@ class Job(models.Model):
             run_now: Run the job immediately without scheduling it in the background. Should be used for interactive
                 management commands only.
         """
-        object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
+        if instance:
+            object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
+            object_id = instance.pk
+        else:
+            object_type = object_id = None
         rq_queue_name = get_queue_for_model(object_type.model)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
             object_type=object_type,
-            object_id=instance.pk,
+            object_id=object_id,
             name=name,
             status=status,
             scheduled=schedule_at,
