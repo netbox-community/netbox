@@ -92,12 +92,6 @@ class ScheduledJob(BackgroundJob):
     method is called.
     """
 
-    ENQUEUED_STATUS = [
-        JobStatusChoices.STATUS_PENDING,
-        JobStatusChoices.STATUS_SCHEDULED,
-        JobStatusChoices.STATUS_RUNNING,
-    ]
-
     @classmethod
     def get_jobs(cls, instance):
         """
@@ -139,7 +133,7 @@ class ScheduledJob(BackgroundJob):
             instance: The NetBox object to which this `ScheduledJob` pertains
             interval: Recurrence interval (in minutes)
         """
-        job = cls.get_jobs(instance).filter(status__in=cls.ENQUEUED_STATUS).first()
+        job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
             # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
             # delete the existing job and schedule a new job instead.
