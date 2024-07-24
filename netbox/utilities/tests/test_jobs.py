@@ -56,20 +56,3 @@ class ScheduledJobTest(BackgroundJobTestCase):
         self.assertEqual(job1.interval, None)
         self.assertEqual(job2.interval, 60)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
-
-
-class SystemJobTest(BackgroundJobTestCase):
-    """
-    Test internal logic of `SystemJob`.
-    """
-
-    class TestSystemJob(SystemJob):
-        @classmethod
-        def run(cls, *args, **kwargs):
-            pass
-
-    def test_schedule(self):
-        job = self.TestSystemJob.schedule(schedule_at=self.get_schedule_at())
-
-        self.assertIsInstance(job, Job)
-        self.assertEqual(job.object, None)
