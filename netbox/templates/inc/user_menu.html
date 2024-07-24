@@ -1,11 +1,18 @@
 {% load i18n %}
 {% load navigation %}
 
+{% if 'help-center' in settings.RELEASE.features %}
+  {# Help center control #}
+  <a href="#" class="nav-link px-1" aria-label="{% trans "Help center" %}">
+    <i class="mdi mdi-forum-outline"></i>
+  </a>
+{% endif %}
+
 {% if request.user.is_authenticated %}
   {# Notifications #}
   {% with notifications=request.user.notifications.unread.exists %}
-    <div class="nav-item dropdown">
-      <a href="#" class="nav-link" data-bs-toggle="dropdown" hx-get="{% url 'extras:notifications' %}" hx-target="next .notifications" aria-label="Notifications">
+    <div class="dropdown">
+      <a href="#" class="nav-link px-1" data-bs-toggle="dropdown" hx-get="{% url 'extras:notifications' %}" hx-target="next .notifications" aria-label="{% trans "Notifications" %}">
         {% include 'inc/notification_bell.html' %}
       </a>
       <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications"></div>
