@@ -14,6 +14,9 @@ class SyncDataSourceJob(BackgroundJob):
     Call sync() on a DataSource.
     """
 
+    class Meta:
+        name = 'Synchronization'
+
     @classmethod
     def run(cls, job, *args, **kwargs):
         datasource = DataSource.objects.get(pk=job.object_id)

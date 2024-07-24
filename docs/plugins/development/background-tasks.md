@@ -17,19 +17,30 @@ A background job implements a basic [Job](../../models/core/job.md) executor for
 from utilities.jobs import BackgroundJob
 
 class MyTestJob(BackgroundJob):
+    class Meta:
+        name = "My Test Job"
+
     @classmethod
     def run(cls, job, *args, **kwargs):
         obj = job.object
         # your logic goes here
 ```
 
-You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`.
+You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
 ::: core.models.Job.enqueue
 
+#### Job Attributes
+
+Background job attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
+
+##### `name`
+
+This is the human-friendly names of your background job. If omitted, the class name will be used.
+
 #### Scheduled Jobs
 
-As described above, jobs can be scheduled for immediate execution or at any later time using the `enqueue()` method. However, for management purposes, the `enqueue_once()` method allows a job to be scheduled exactly once avoiding duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `enqueue_once()` method are identical to those of `enqueue()`. Note that this class doesn't allow you to pass the `name` parameter, but uses a generic name instead.
+As described above, jobs can be scheduled for immediate execution or at any later time using the `enqueue()` method. However, for management purposes, the `enqueue_once()` method allows a job to be scheduled exactly once avoiding duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `enqueue_once()` method are identical to those of `enqueue()`.
 
 !!! tip
     It is not forbidden to `enqueue()` additional jobs while an interval schedule is active. An example use of this would be to schedule a periodic daily synchronization, but also trigger additional synchronizations on demand when the user presses a button.

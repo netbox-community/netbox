@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 
 from django.db.backends.signals import connection_created
+from django.utils.functional import classproperty
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -23,6 +24,13 @@ class BackgroundJob(ABC):
     This class handles the execution of a background job. It is responsible for maintaining its state, reporting errors,
     and scheduling recurring jobs.
     """
+
+    class Meta:
+        pass
+
+    @classproperty
+    def name(cls):
+        return getattr(cls.Meta, 'name', cls.__name__)
 
     @classmethod
     @abstractmethod
@@ -74,7 +82,7 @@ class BackgroundJob(ABC):
         return Job.objects.filter(
             object_type=object_type,
             object_id=instance.pk,
-            name=cls.__name__,
+            name=cls.name,
         )
 
     @classmethod
@@ -85,7 +93,7 @@ class BackgroundJob(ABC):
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
-        return Job.enqueue(cls.handle, *args, **kwargs)
+        return Job.enqueue(cls.handle, name=cls.name, *args, **kwargs)
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
@@ -115,7 +123,7 @@ class BackgroundJob(ABC):
                 return job
             job.delete()
 
-        return cls.enqueue(instance=instance, name=cls.__name__, interval=interval, *args, **kwargs)
+        return cls.enqueue(instance=instance, interval=interval, *args, **kwargs)
 
 
 class SystemJob(BackgroundJob):

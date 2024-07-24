@@ -21,6 +21,11 @@ class ScriptJob(BackgroundJob):
     exists outside the Script class to ensure it cannot be overridden by a script author.
     """
 
+    class Meta:
+        # An explicit job name is not set because it doesn't make sense in this context. Currently, there's no scenario
+        # where jobs other than this one are used. Therefore, it is hidden, resulting in a cleaner job table overview.
+        name = ''
+
     @staticmethod
     def run_script(script, job, request, data, commit):
         """

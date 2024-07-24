@@ -29,6 +29,22 @@ class BackgroundJobTestCase(TestCase):
         return timezone.now() + timedelta(weeks=1)
 
 
+class BackgroundJobTest(BackgroundJobTestCase):
+    """
+    Test internal logic of `BackgroundJob`.
+    """
+
+    def test_name_default(self):
+        self.assertEqual(TestBackgroundJob.name, TestBackgroundJob.__name__)
+
+    def test_name_set(self):
+        class NamedBackgroundJob(TestBackgroundJob):
+            class Meta:
+                name = 'TestName'
+
+        self.assertEqual(NamedBackgroundJob.name, 'TestName')
+
+
 class EnqueueTest(BackgroundJobTestCase):
     """
     Test enqueuing of `BackgroundJob`.
@@ -40,7 +56,7 @@ class EnqueueTest(BackgroundJobTestCase):
             job = TestBackgroundJob.enqueue(instance, schedule_at=self.get_schedule_at())
 
             self.assertIsInstance(job, Job)
-            self.assertEqual(Job.objects.count(), i)
+            self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), i)
 
     def test_enqueue_once(self):
         job = TestBackgroundJob.enqueue_once(instance=Job(), schedule_at=self.get_schedule_at())
