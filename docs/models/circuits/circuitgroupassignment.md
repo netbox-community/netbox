@@ -1,19 +1,25 @@
 # Circuit Group Assignments
 
-Circuits can be assigned to [Circuit groups](./circuitgroup.md) to indicate Fallback Circuits. For instance, three circuits, each belonging to a different provider, may each be assigned to the same Circuit group. Each of these assignments would typically receive a different priority.
-
-Circuits are assigned to Circuit groups under the Circuit Group detail view.
+Circuits can be assigned to [circuit groups](./circuitgroup.md) for correlation purposes. For instance, three circuits, each belonging to a different provider, may each be assigned to the same circuit group. Each assignment may optionally include a priority designation.
 
 ## Fields
 
 ### Group
 
-The [Circuit group](./circuitgroup.md) being assigned.
+The [circuit group](./circuitgroup.md) being assigned.
 
 ### Circuit
 
-The [Circuit](./circuit.md) that is being assigned to the group.
+The [circuit](./circuit.md) that is being assigned to the group.
 
 ### Priority
 
-A selection (Primary, Secondary, Tertiary) indicating the circuit's priority for being elected as the master/primary node in the group.
+The circuit's operation priority relative to its peers within the group. The assignment of a priority is optional. Choices include:
+
+* Primary
+* Secondary
+* Tertiary
+* Inactive
+
+!!! tip
+    Additional priority choices may be defined by setting `CircuitGroupAssignment.priority` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.

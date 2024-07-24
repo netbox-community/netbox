@@ -79,14 +79,16 @@ class CircuitTerminationPortSpeedChoices(ChoiceSet):
 
 
 class CircuitPriorityChoices(ChoiceSet):
+    key = 'CircuitGroupAssignment.priority'
+
     PRIORITY_PRIMARY = 'primary'
     PRIORITY_SECONDARY = 'secondary'
     PRIORITY_TERTIARY = 'tertiary'
     PRIORITY_INACTIVE = 'inactive'
 
-    CHOICES = (
+    CHOICES = [
         (PRIORITY_PRIMARY, _('Primary')),
         (PRIORITY_SECONDARY, _('Secondary')),
         (PRIORITY_TERTIARY, _('Tertiary')),
         (PRIORITY_INACTIVE, _('Inactive')),
-    )
+    ]
