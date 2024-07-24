@@ -161,29 +161,10 @@ class SystemJob(ScheduledJob):
     for system background tasks.
 
     The main use case for this method is to schedule jobs programmatically instead of using user events, e.g. to start
-    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to setup a new schedule
-    outside of the request-response cycle. It will register the new schedule right after all plugins are loaded and the
-    database is connected. Then `schedule()` will take care of scheduling a single job at a time.
+    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to set up a new
+    schedule outside the request-response cycle. It will register the new schedule right after all plugins are loaded
+    and the database is connected. Then `schedule()` will take care of scheduling a single job at a time.
     """
-
-    @classmethod
-    def enqueue(cls, *args, **kwargs):
-        kwargs.pop('instance', None)
-        return super().enqueue(instance=Job(), *args, **kwargs)
-
-    @classmethod
-    def schedule(cls, *args, **kwargs):
-        kwargs.pop('instance', None)
-        return super().schedule(instance=Job(), *args, **kwargs)
-
-    @classmethod
-    def handle(cls, job, *args, **kwargs):
-        # A job requires a related object to be handled, or internal methods will fail. To avoid adding an extra model
-        # for this, the existing job object is used as a reference. This is not ideal, but it works for this purpose.
-        job.object = job
-        job.object_id = None  # Hide changes from UI
-
-        super().handle(job, *args, **kwargs)
 
     @classmethod
     def setup(cls, *args, **kwargs):
