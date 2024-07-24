@@ -147,40 +147,40 @@ Blocks:
               {% block footer_links %}
                 {# Documentation #}
                 <li class="list-inline-item">
-                  <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Docs" %}">
+                    <i class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>
                 </li>
                 {# REST API #}
                 <li class="list-inline-item">
-                  <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "REST API" %}">
+                    <i class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>
                 </li>
                 {# API docs #}
                 <li class="list-inline-item">
-                  <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "REST API documentation" %}">
+                    <i class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>
                 </li>
                 {# GraphQL API #}
                 {% if config.GRAPHQL_ENABLED %}
                   <li class="list-inline-item">
-                    <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener">
-                      <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "GraphQL API" %}">
+                      <i class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                     </a>
                   </li>
                 {% endif %}
                 {# GitHub #}
                 <li class="list-inline-item">
-                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
+                    <i class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>
                 </li>
                 {# NetDev Slack #}
                 <li class="list-inline-item">
-                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
+                    <i class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                   </a>
                 </li>
               {% endblock footer_links %}

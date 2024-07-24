@@ -15,6 +15,7 @@
         hx-target="#htmx-modal-content"
         data-bs-toggle="modal"
         data-bs-target="#htmx-modal"
+        aria-label="{{ widget.title }} widget configuration"
       >
         <i class="mdi mdi-cog {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
       </a>
@@ -28,6 +29,7 @@
         hx-target="#htmx-modal-content"
         data-bs-toggle="modal"
         data-bs-target="#htmx-modal"
+        aria-label="Close {{ widget.title }} widget"
       >
         <i class="mdi mdi-close {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
       </a>
