@@ -1,2 +1,3 @@
 version: "4.1.0"
-designation: "dev"
+edition: Community
+designation: dev

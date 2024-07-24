@@ -1,0 +1,48 @@
+{% extends 'generic/object.html' %}
+{% load static %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'circuits:circuitgroupassignment_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Circuit Group Assignment" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Group" %}</th>
+            <td>{{ object.group }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Circuit" %}</th>
+            <td>{{ object.circuit }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Priority" %}</th>
+            <td>{{ object.priority }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

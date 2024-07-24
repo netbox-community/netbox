@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import BulkEditForm, add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
@@ -248,33 +249,18 @@ class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
-    type_create = forms.NullBooleanField(
-        label=_('On create'),
+    event_types = forms.MultipleChoiceField(
+        choices=get_event_type_choices(),
         required=False,
-        widget=BulkEditNullBooleanSelect()
+        label=_('Event types')
     )
-    type_update = forms.NullBooleanField(
-        label=_('On update'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_delete = forms.NullBooleanField(
-        label=_('On delete'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_start = forms.NullBooleanField(
-        label=_('On job start'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_end = forms.NullBooleanField(
-        label=_('On job end'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
     )
 
-    nullable_fields = ('description', 'conditions',)
+    nullable_fields = ('description', 'conditions')
 
 
 class TagBulkEditForm(BulkEditForm):
