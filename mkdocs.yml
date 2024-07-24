@@ -164,6 +164,8 @@ nav:
     - Data Model:
         - Circuits:
             - Circuit: 'models/circuits/circuit.md'
+            - CircuitGroup: 'models/circuits/circuitgroup.md'
+            - CircuitGroupAssignment: 'models/circuits/circuitgroupassignment.md'
             - Circuit Termination: 'models/circuits/circuittermination.md'
             - Circuit Type: 'models/circuits/circuittype.md'
             - Provider: 'models/circuits/provider.md'

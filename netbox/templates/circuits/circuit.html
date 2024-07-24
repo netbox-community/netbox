@@ -61,6 +61,19 @@
           </tr>
         </table>
       </div>
+      <div class="card">
+        <h5 class="card-header">
+          {% trans "Group Assignments" %}
+          {% if perms.circuits.add_circuitgroupassignment %}
+            <div class="card-actions">
+              <a href="{% url 'circuits:circuitgroupassignment_add' %}?circuit={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Assign Group" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
+        {% htmx_table 'circuits:circuitgroupassignment_list' circuit_id=object.pk %}
+      </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}
