@@ -12,7 +12,6 @@ from netbox.constants import ADVISORY_LOCK_KEYS
 
 __all__ = (
     'BackgroundJob',
-    'ScheduledJob',
     'SystemJob',
 )
 
@@ -67,35 +66,9 @@ class BackgroundJob(ABC):
                 )
 
     @classmethod
-    def enqueue(cls, *args, **kwargs):
-        """
-        Enqueue a new `BackgroundJob`.
-
-        This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
-        parameters.
-        """
-        return Job.enqueue(cls.handle, *args, **kwargs)
-
-
-class ScheduledJob(BackgroundJob):
-    """
-    A periodic `BackgroundJob` that is scheduled only once for each configuration.
-
-    This class can be used to schedule a `BackgroundJob` with a specific configuration. However, it will ensure that
-    this job is scheduled exactly once in the queue of scheduled jobs, i.e. it will be skipped if an instance of this
-    job is already scheduled. Like a regular `BackgroundJob`, this class also accepts intervals.
-
-    The purpose of this class is to decouple jobs from the usual request-based approach. A practical example of this is
-    to schedule a periodic synchronization job for a particular object. All that matters is that the job is scheduled
-    and executed periodically. However, a new periodic job does not need to be scheduled every time the object is saved.
-    Calling the `schedule()` method of this class will ensure that the job's schedule is set up no matter how often the
-    method is called.
-    """
-
-    @classmethod
     def get_jobs(cls, instance):
         """
-        Get all jobs of this schedule related to a specific instance.
+        Get all jobs of this `BackgroundJob` related to a specific instance.
         """
         object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
         return Job.objects.filter(
@@ -110,27 +83,28 @@ class ScheduledJob(BackgroundJob):
         Enqueue a new `BackgroundJob`.
 
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
-        parameters. Note that specifying a custom `name` is not supported, as a `ScheduledJob` is identified by the job
-        class `__name__` automatically.
+        parameters.
         """
-        kwargs.pop('name', None)
-        return super().enqueue(name=cls.__name__, *args, **kwargs)
+        return Job.enqueue(cls.handle, *args, **kwargs)
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
-    def schedule(cls, instance, interval=None, *args, **kwargs):
+    def enqueue_once(cls, instance, interval=None, *args, **kwargs):
         """
-        Schedule a `ScheduledJob`.
+        Enqueue a new `BackgroundJob` once, i.e. skip duplicate jobs.
 
-        This method adds a new `ScheduledJob` to the job queue. If the job schedule identified by its `instance` and
-        name is already active, the existing job will be updated if needed. However, this doesn't forbid running
-        additional jobs using the `enqueue()` method, e.g. to schedule an immediate synchronization job in addition to
-        periodic synchronization scheduled by this method.
+        Like `enqueue()`, this method adds a new `BackgroundJob` to the job queue. However, if there's already a
+        `BackgroundJob` of this class scheduled for `instance`, the existing job will be updated if necessary. This
+        ensures that a particular schedule is only set up once at any given time, i.e. multiple calls to this method are
+        idempotent.
+
+        Note that this does not forbid running additional jobs with the `enqueue()` method, e.g. to schedule an
+        immediate synchronization job in addition to a periodic synchronization schedule.
 
         For additional parameters see `enqueue()`.
 
         Args:
-            instance: The NetBox object to which this `ScheduledJob` pertains
+            instance: The NetBox object to which this `BackgroundJob` pertains
             interval: Recurrence interval (in minutes)
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
@@ -141,10 +115,10 @@ class ScheduledJob(BackgroundJob):
                 return job
             job.delete()
 
-        return cls.enqueue(instance=instance, interval=interval, *args, **kwargs)
+        return cls.enqueue(instance=instance, name=cls.__name__, interval=interval, *args, **kwargs)
 
 
-class SystemJob(ScheduledJob):
+class SystemJob(BackgroundJob):
     """
     A `ScheduledJob` not being bound to any particular NetBox object.
 
@@ -166,9 +140,9 @@ class SystemJob(ScheduledJob):
         return super().enqueue(instance=Job(), *args, **kwargs)
 
     @classmethod
-    def schedule(cls, *args, **kwargs):
+    def enqueue_once(cls, *args, **kwargs):
         kwargs.pop('instance', None)
-        return super().schedule(instance=Job(), *args, **kwargs)
+        return super().enqueue_once(instance=Job(), *args, **kwargs)
 
     @classmethod
     def handle(cls, job, *args, **kwargs):
@@ -185,6 +159,6 @@ class SystemJob(ScheduledJob):
         Setup a new `SystemJob` during plugin initialization.
 
         This method should be called from the plugins `ready()` function to setup the schedule as early as possible. For
-        interactive setup of schedules (e.g. on user requests), either use `schedule()` or `enqueue()` instead.
+        interactive setup of schedules (e.g. on user requests), either use `enqueue()` or `enqueue_once()` instead.
         """
-        connection_created.connect(lambda sender, **signal_kwargs: cls.schedule(*args, **kwargs))
+        connection_created.connect(lambda sender, **signal_kwargs: cls.enqueue_once(*args, **kwargs))

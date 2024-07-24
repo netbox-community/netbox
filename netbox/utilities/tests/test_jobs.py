@@ -8,6 +8,12 @@ from ..jobs import *
 from core.models import Job
 
 
+class TestBackgroundJob(BackgroundJob):
+    @classmethod
+    def run(cls, *args, **kwargs):
+        pass
+
+
 class BackgroundJobTestCase(TestCase):
     def tearDown(self):
         super().tearDown()
@@ -23,34 +29,37 @@ class BackgroundJobTestCase(TestCase):
         return timezone.now() + timedelta(weeks=1)
 
 
-class ScheduledJobTest(BackgroundJobTestCase):
+class EnqueueTest(BackgroundJobTestCase):
     """
-    Test internal logic of `ScheduledJob`.
+    Test enqueuing of `BackgroundJob`.
     """
 
-    class TestScheduledJob(ScheduledJob):
-        @classmethod
-        def run(cls, *args, **kwargs):
-            pass
+    def test_enqueue(self):
+        instance = Job()
+        for i in range(1, 3):
+            job = TestBackgroundJob.enqueue(instance, schedule_at=self.get_schedule_at())
 
-    def test_schedule(self):
-        job = self.TestScheduledJob.schedule(instance=Job(), schedule_at=self.get_schedule_at())
+            self.assertIsInstance(job, Job)
+            self.assertEqual(Job.objects.count(), i)
+
+    def test_enqueue_once(self):
+        job = TestBackgroundJob.enqueue_once(instance=Job(), schedule_at=self.get_schedule_at())
 
         self.assertIsInstance(job, Job)
-        self.assertEqual(job.name, self.TestScheduledJob.__name__)
+        self.assertEqual(job.name, TestBackgroundJob.__name__)
 
-    def test_schedule_twice_same(self):
+    def test_enqueue_once_twice_same(self):
         instance = Job()
-        job1 = self.TestScheduledJob.schedule(instance, schedule_at=self.get_schedule_at())
-        job2 = self.TestScheduledJob.schedule(instance, schedule_at=self.get_schedule_at())
+        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
 
         self.assertEqual(job1, job2)
-        self.assertEqual(self.TestScheduledJob.get_jobs(instance).count(), 1)
+        self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
 
-    def test_schedule_twice_different(self):
+    def test_enqueue_once_twice_different(self):
         instance = Job()
-        job1 = self.TestScheduledJob.schedule(instance, schedule_at=self.get_schedule_at())
-        job2 = self.TestScheduledJob.schedule(instance, schedule_at=self.get_schedule_at(), interval=60)
+        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at(), interval=60)
 
         self.assertNotEqual(job1, job2)
         self.assertEqual(job1.interval, None)
@@ -68,8 +77,8 @@ class SystemJobTest(BackgroundJobTestCase):
         def run(cls, *args, **kwargs):
             pass
 
-    def test_schedule(self):
-        job = self.TestSystemJob.schedule(schedule_at=self.get_schedule_at())
+    def test_enqueue_once(self):
+        job = self.TestSystemJob.enqueue_once(schedule_at=self.get_schedule_at())
 
         self.assertIsInstance(job, Job)
         self.assertEqual(job.object, None)

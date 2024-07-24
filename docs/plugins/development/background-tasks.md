@@ -27,11 +27,9 @@ You can schedule the background job from within your code (e.g. from a model's `
 
 ::: core.models.Job.enqueue
 
-### Scheduled Job
+#### Scheduled Jobs
 
-During execution, a scheduled job behaves like a background job and is therefore implemented in the same way, but must be subclassed from NetBox's `ScheduledJob` class.
-
-However, for management purposes, a `schedule()` method allows a schedule to be set exactly once to avoid duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `schedule()` method are identical to those of `enqueue()`. Note that this class doesn't allow you to pass the `name` parameter for both methods, but uses a generic name instead.
+As described above, jobs can be scheduled for immediate execution or at any later time using the `enqueue()` method. However, for management purposes, the `enqueue_once()` method allows a job to be scheduled exactly once avoiding duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `enqueue_once()` method are identical to those of `enqueue()`. Note that this class doesn't allow you to pass the `name` parameter, but uses a generic name instead.
 
 !!! tip
     It is not forbidden to `enqueue()` additional jobs while an interval schedule is active. An example use of this would be to schedule a periodic daily synchronization, but also trigger additional synchronizations on demand when the user presses a button.
