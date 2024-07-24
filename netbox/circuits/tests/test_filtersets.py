@@ -558,10 +558,7 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         groups = CircuitGroup.objects.filter(name__in=['Circuit Group 1', 'Circuit Group 2'])
         params = {'group_id': [groups[0].pk, groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_circuit_group_slug(self):
-        groups = CircuitGroup.objects.filter(slug__in=['circuit-group-1', 'circuit-group-2'])
-        params = {'group_id': [groups[0].pk, groups[1].pk]}
+        params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_circuit_id(self):

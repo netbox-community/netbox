@@ -208,7 +208,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
     model = CircuitGroup
-    brief_fields = ['circuit_group_assignment_count', 'description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }

@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name='circuitgroupassignment',
             constraint=models.UniqueConstraint(
-                fields=('circuit', 'group'), name='circuits_circuitgroupassignment_unique_circuit_assignment'
+                fields=('circuit', 'group'), name='circuits_circuitgroupassignment_unique_circuit_group'
             ),
         ),
     ]

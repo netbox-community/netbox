@@ -11,8 +11,8 @@ from utilities.fields import ColorField
 
 __all__ = (
     'Circuit',
-    'CircuitGroupAssignment',
     'CircuitGroup',
+    'CircuitGroupAssignment',
     'CircuitTermination',
     'CircuitType',
 )
@@ -155,7 +155,7 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
 class CircuitGroup(OrganizationalModel):
     """
-    An arbitrary collection of Circuits.
+    An administrative grouping of Circuits.
     """
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -167,8 +167,8 @@ class CircuitGroup(OrganizationalModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('Circuit group')
-        verbose_name_plural = _('Circuit group')
+        verbose_name = _('circuit group')
+        verbose_name_plural = _('circuit groups')
 
     def __str__(self):
         return self.name
@@ -206,8 +206,8 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         ordering = ('circuit', 'priority', 'pk')
         constraints = (
             models.UniqueConstraint(
-                fields=('circuit', 'group',),
-                name='%(app_label)s_%(class)s_unique_circuit_assignment'
+                fields=('circuit', 'group'),
+                name='%(app_label)s_%(class)s_unique_circuit_group'
             ),
         )
         verbose_name = _('Circuit group assignment')
@@ -215,8 +215,8 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
 
     def __str__(self):
         if self.priority:
-            return f"{self.group} ({self.get_priority_display()}) -> {self.circuit}"
-        return str(f"{self.group} -> {self.circuit}")
+            return f"{self.group} ({self.get_priority_display()})"
+        return str(self.group)
 
     def get_absolute_url(self):
         return reverse('circuits:circuitgroupassignment', args=[self.pk])

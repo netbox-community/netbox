@@ -158,6 +158,9 @@ class CircuitGroupAssignmentTable(NetBoxTable):
     priority = tables.Column(
         verbose_name=_('Priority'),
     )
+    tags = columns.TagColumn(
+        url_name='circuits:circuitgroupassignment_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CircuitGroupAssignment

@@ -7,7 +7,9 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'circuits:circuitgroup_list' %}?circuitgroup_id={{ object.id }}">{{ object.name }}</a></li>
+  <li class="breadcrumb-item">
+    <a href="{% url 'circuits:circuitgroupassignment_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
+  </li>
 {% endblock %}
 
 {% block content %}
@@ -33,6 +35,14 @@
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
     </div>
   </div>
 {% endblock %}
