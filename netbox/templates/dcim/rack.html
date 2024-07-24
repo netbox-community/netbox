@@ -69,6 +69,12 @@
             <th scope="row">{% trans "Power Utilization" %}</th>
             <td>{% utilization_graph object.get_power_utilization %}</td>
           </tr>
+          <tr>
+              <th scope="row">{% trans "Airflow" %}</th>
+              <td>
+                  {{ object.get_airflow_display|placeholder }}
+              </td>
+          </tr>
         </table>
       </div>
       {% include 'dcim/inc/panels/racktype_dimensions.html' %}

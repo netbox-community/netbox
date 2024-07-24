@@ -360,7 +360,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin)
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -1120,7 +1120,7 @@ class Device(
         return round(total_weight / 1000, 2)
 
 
-class Module(PrimaryModel, ConfigContextModel, AirflowMixin):
+class Module(PrimaryModel, ConfigContextModel):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.

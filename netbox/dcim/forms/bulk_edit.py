@@ -268,6 +268,11 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         min_value=1
     )
+    airflow = forms.ChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         min_value=0,
@@ -298,7 +303,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
             'width',
             'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            InlineFields('airflow', 'weight', 'max_weight', 'weight_unit', label=_('Chassis')),
             'mounting_depth',
             name=_('Dimensions')
         ),
@@ -409,6 +414,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         min_value=1
     )
+    airflow = forms.ChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         min_value=0,
@@ -440,7 +450,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
             'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
             'mounting_depth', name=_('Hardware')
         ),
-        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+        FieldSet('airflow', 'weight', 'max_weight', 'weight_unit', name=_('Chassis')),
     )
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
@@ -563,6 +573,11 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Part number'),
         required=False
     )
+    airflow = forms.ChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         min_value=0,
@@ -584,7 +599,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     model = ModuleType
     fieldsets = (
         FieldSet('manufacturer', 'part_number', 'description', name=_('Module Type')),
-        FieldSet('weight', 'weight_unit', name=_('Weight')),
+        FieldSet('airflow', 'weight', 'weight_unit', name=_('Chassis')),
     )
     nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
 
