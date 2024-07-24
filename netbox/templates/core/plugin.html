@@ -55,33 +55,14 @@
     <div class="col col-md-12">
 
       <div class="card">
-        <h5 class="card-header">{% trans "Author" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Author" %}</th>
             <td>{{ plugin.author.name }}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Org id" %}</th>
-            <td>{{ plugin.author.org_id|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "URL" %}</th>
-            <td>{{ plugin.author.url|urlize|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h5 class="card-header">{% trans "Plugin" %}</h5>
-        <table class="table table-hover attr-table">
-          <tr>
             <th scope="row">{% trans "Name" %}</th>
             <td>{{ plugin.title_short }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Tag line" %}</th>
-            <td>{{ plugin.tag_line|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "License" %}</th>
@@ -90,10 +71,6 @@
           <tr>
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ plugin.description_short|markdown }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "URL" %}</th>
-            <td>{{ plugin.homepage_url|urlize|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Certified" %}</th>
