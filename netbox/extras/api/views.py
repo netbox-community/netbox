@@ -276,7 +276,6 @@ class ScriptViewSet(ModelViewSet):
             ScriptJob = import_string("extras.jobs.ScriptJob")
             ScriptJob.enqueue(
                 instance=script,
-                name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],
                 request=copy_safe_request(request),

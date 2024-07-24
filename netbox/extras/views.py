@@ -1169,7 +1169,6 @@ class ScriptView(BaseScriptView):
             ScriptJob = import_string("extras.jobs.ScriptJob")
             job = ScriptJob.enqueue(
                 instance=script,
-                name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
