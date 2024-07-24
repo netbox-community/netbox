@@ -25,7 +25,7 @@ from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
-from .mixins import RenderConfigMixin, WeightMixin
+from .mixins import AirflowMixin, RenderConfigMixin, WeightMixin
 
 
 __all__ = (
@@ -58,7 +58,7 @@ class Manufacturer(ContactsMixin, OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -123,12 +123,6 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         verbose_name=_('parent/child status'),
         help_text=_('Parent devices house child devices in device bays. Leave blank '
                     'if this device type is neither a parent nor a child.')
-    )
-    airflow = models.CharField(
-        verbose_name=_('airflow'),
-        max_length=50,
-        choices=DeviceAirflowChoices,
-        blank=True
     )
     front_image = models.ImageField(
         upload_to='devicetype-images',
@@ -541,6 +535,7 @@ class Device(
     RenderConfigMixin,
     ConfigContextModel,
     TrackingModelMixin,
+    AirflowMixin,
     PrimaryModel
 ):
     """
@@ -644,12 +639,6 @@ class Device(
         max_length=50,
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
-    )
-    airflow = models.CharField(
-        verbose_name=_('airflow'),
-        max_length=50,
-        choices=DeviceAirflowChoices,
-        blank=True
     )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -1131,7 +1120,7 @@ class Device(
         return round(total_weight / 1000, 2)
 
 
-class Module(PrimaryModel, ConfigContextModel):
+class Module(PrimaryModel, ConfigContextModel, AirflowMixin):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
@@ -1171,7 +1160,7 @@ class Module(PrimaryModel, ConfigContextModel):
         help_text=_('A unique tag used to identify this device')
     )
 
-    clone_fields = ('device', 'module_type', 'status')
+    clone_fields = ('device', 'module_type', 'status', 'airflow')
 
     class Meta:
         ordering = ('module_bay',)

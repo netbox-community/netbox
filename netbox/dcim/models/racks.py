@@ -22,7 +22,7 @@ from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import PowerPort
 from .devices import Device, Module
-from .mixins import WeightMixin
+from .mixins import AirflowMixin, WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -37,7 +37,7 @@ __all__ = (
 # Rack Types
 #
 
-class RackBase(WeightMixin, PrimaryModel):
+class RackBase(WeightMixin, PrimaryModel, AirflowMixin):
     """
     Base class for RackType & Rack. Holds
     """
@@ -317,7 +317,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'airflow',
     )
     prerequisite_models = (
         'dcim.Site',
