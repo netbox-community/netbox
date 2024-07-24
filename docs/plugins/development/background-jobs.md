@@ -1,16 +1,16 @@
-# Background Tasks
+# Background Jobs
 
-NetBox supports the queuing of tasks that need to be performed in the background, decoupled from the request-response cycle.
+NetBox plugins can defer certain operations by enqueuing [background jobs](../../features/background-jobs.md), which are executed asynchronously by background workers. This is helpful for decoupling long-running processes from the user-facing request-response cycle.
 
-## High level API
+For example, your plugin might need to fetch data from a remote system. Depending on the amount of data and the responsiveness of the remote server, this could take a few minutes. Deferring this task to a background job ensures that it can be completed in the background, without interrupting the user. The data it fetches can be made available once the job has completed.
 
-NetBox provides an easy-to-use interface for programming and managing different types of jobs. In general, there are different types of jobs that can be used to perform any kind of background task. Due to inheritance, the general job logic remains the same, but each of them fulfills a specific task and has its own management logic around it.
-
-### Background Job
+## Background Job
 
 A background job implements a basic [Job](../../models/core/job.md) executor for all kinds of tasks. It has logic implemented to handle the management of the associated job object, rescheduling of periodic jobs in the given interval and error handling. Adding custom jobs is done by subclassing NetBox's `BackgroundJob` class.
 
-**Example:**
+::: utilities.jobs.BackgroundJob
+
+### Example
 
 ```python title="jobs.py"
 from utilities.jobs import BackgroundJob
@@ -24,9 +24,7 @@ class MyTestJob(BackgroundJob):
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`.
 
-::: core.models.Job.enqueue
-
-### Scheduled Job
+## Scheduled Job
 
 During execution, a scheduled job behaves like a background job and is therefore implemented in the same way, but must be subclassed from NetBox's `ScheduledJob` class.
 
@@ -37,7 +35,9 @@ However, for management purposes, a `schedule()` method allows a schedule to be 
 
 The `setup()` method can be used to set up a new scheduled job outside the request-response cycle. It can be safely called from the plugin's ready function and will register the new schedule right after all plugins are loaded and the database is connected.
 
-#### Example
+::: utilities.jobs.ScheduledJob
+
+### Example
 
 ```python title="jobs.py"
 from utilities.jobs import SystemJob

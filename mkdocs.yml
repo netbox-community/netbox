@@ -146,7 +146,7 @@ nav:
             - Data Backends: 'plugins/development/data-backends.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
-            - Background Tasks: 'plugins/development/background-tasks.md'
+            - Background Jobs: 'plugins/development/background-jobs.md'
             - Dashboard Widgets: 'plugins/development/dashboard-widgets.md'
             - Staged Changes: 'plugins/development/staged-changes.md'
             - Exceptions: 'plugins/development/exceptions.md'
