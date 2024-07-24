@@ -33,6 +33,9 @@ class ScriptJob(BackgroundJob):
             data: A dictionary of data to be passed to the script upon execution
             commit: Passed through to Script.run()
         """
+        logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
+        logger.info(f"Running script (commit={commit})")
+
         try:
             try:
                 with transaction.atomic():
@@ -86,9 +89,6 @@ class ScriptJob(BackgroundJob):
             commit: Passed through to Script.run()
         """
         script = ScriptModel.objects.get(pk=job.object_id).python_class()
-
-        logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
-        logger.info(f"Running script (commit={commit})")
 
         # Add files to form data
         if request:
