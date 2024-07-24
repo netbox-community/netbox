@@ -2,7 +2,6 @@
 
 NetBox supports the queuing of tasks that need to be performed in the background, decoupled from the request-response cycle.
 
-
 ## High level API
 
 NetBox provides an easy-to-use interface for programming and managing different types of jobs. In general, there are different types of jobs that can be used to perform any kind of background task. Due to inheritance, the general job logic remains the same, but each of them fulfills a specific task and has its own management logic around it.
@@ -36,13 +35,9 @@ However, for management purposes, a `schedule()` method allows a schedule to be 
 !!! tip
     It is not forbidden to `enqueue()` additional jobs while an interval schedule is active. An example use of this would be to schedule a periodic daily synchronization, but also trigger additional synchronizations on demand when the user presses a button.
 
-### System Job
+The `setup()` method can be used to set up a new scheduled job outside the request-response cycle. It can be safely called from the plugin's ready function and will register the new schedule right after all plugins are loaded and the database is connected.
 
-The last type of job is a system job that is not bound to any particular instance. A typical use case for these jobs is a general synchronization of NetBox objects from another system or housekeeping. The implementation of system jobs is the same as for background and scheduled jobs, but they must be subclassed from NetBox's `SystemJob` class. In addition to avoiding the `name` parameter, no `instance` parameter may be passed to `enqueue()`, as a placeholder will be used instead.
-
-Typically, a system job is set up during NetBox startup when the plugin is loaded. This ensures that the job is running in the background even when no requests are being processed. For this purpose, the `setup()` method can be used to setup a new schedule outside of the request-response cycle. It can be safely called from the plugin's ready function and will register the new schedule right after all plugins are loaded and the database is connected.
-
-**Example:**
+#### Example
 
 ```python title="jobs.py"
 from utilities.jobs import SystemJob
@@ -62,11 +57,9 @@ class MyPluginConfig(PluginConfig):
         MyHousekeepingJob.setup(interval=60)
 ```
 
-
 ## Low Level API
 
 Instead of using the high-level APIs provided by NetBox, plugins may access the task scheduler directly using the [Python RQ](https://python-rq.org/) library. This allows scheduling background tasks without the need to add [Job](../../models/core/job.md) to the database or implementing custom job handling.
-
 
 ## Task queues
 
