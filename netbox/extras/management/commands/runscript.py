@@ -89,7 +89,7 @@ class Command(BaseCommand):
             instance=script_obj,
             name=script.name,
             user=user,
-            run_now=True,
+            immediate=True,
             data=data,
             request=NetBoxFakeRequest({
                 'META': {},

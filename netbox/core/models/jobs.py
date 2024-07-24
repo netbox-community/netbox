@@ -199,7 +199,7 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance=None, name='', user=None, schedule_at=None, interval=None, run_now=False, **kwargs):
+    def enqueue(cls, func, instance=None, name='', user=None, schedule_at=None, interval=None, immediate=False, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
@@ -210,9 +210,12 @@ class Job(models.Model):
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
-            run_now: Run the job immediately without scheduling it in the background. Should be used for interactive
+            immediate: Run the job immediately without scheduling it in the background. Should be used for interactive
                 management commands only.
         """
+        if schedule_at and immediate:
+            raise ValueError("enqueue() cannot be called with values for both schedule_at and immediate.")
+
         if instance:
             object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
             object_id = instance.pk
@@ -232,14 +235,16 @@ class Job(models.Model):
             job_id=uuid.uuid4()
         )
 
-        # Optionally, the job can be run immediately without being scheduled to run in the background.
-        if run_now:
+        # Run the job immediately, rather than enqueuing it as a background task. Note that this is a synchronous
+        # (blocking) operation, and execution will pause until the job completes.
+        if immediate:
             func(job_id=str(job.job_id), job=job, **kwargs)
-            return job
 
-        # Schedule the job to run asynchronously in the background.
-        if schedule_at:
+        # Schedule the job to run at a specific date & time.
+        elif schedule_at:
             queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
+
+        # Schedule the job to run asynchronously at this first available opportunity.
         else:
             queue.enqueue(func, job_id=str(job.job_id), job=job, **kwargs)
 
