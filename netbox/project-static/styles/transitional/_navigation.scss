@@ -1,6 +1,11 @@
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
 
+  // Adds spacing to the bottom of the side navigation to avoid hidden nav items
+  @include media-breakpoint-up(lg) {
+    padding-bottom: 2rem;
+  }
+
   // Adjust hover color & style for menu items
   .navbar-collapse {
     .nav-link-icon {
