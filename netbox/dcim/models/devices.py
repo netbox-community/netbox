@@ -395,7 +395,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True
     )
 
-    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
@@ -1177,7 +1177,7 @@ class Module(PrimaryModel, ConfigContextModel):
         help_text=_('A unique tag used to identify this device')
     )
 
-    clone_fields = ('device', 'module_type', 'status', 'airflow')
+    clone_fields = ('device', 'module_type', 'status')
 
     class Meta:
         ordering = ('module_bay',)
