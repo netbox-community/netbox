@@ -13,7 +13,6 @@ from netbox.constants import ADVISORY_LOCK_KEYS
 
 __all__ = (
     'BackgroundJob',
-    'SystemJob',
 )
 
 
@@ -129,29 +128,12 @@ class BackgroundJob(ABC):
 
         return cls.enqueue(instance=instance, interval=interval, *args, **kwargs)
 
-
-class SystemJob(BackgroundJob):
-    """
-    A `ScheduledJob` not being bound to any particular NetBox object.
-
-    This class can be used to schedule system background tasks that are not specific to a particular NetBox object, but
-    a general task. A typical use case for this class is to implement a general synchronization of NetBox objects from
-    another system. If the configuration of the other system isn't stored in the database, but the NetBox configuration
-    instead, there is no object to bind the `Job` object to. This class therefore allows unbound jobs to be scheduled
-    for system background tasks.
-
-    The main use case for this method is to schedule jobs programmatically instead of using user events, e.g. to start
-    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to set up a new
-    schedule outside the request-response cycle. It will register the new schedule right after all plugins are loaded
-    and the database is connected. Then `schedule()` will take care of scheduling a single job at a time.
-    """
-
     @classmethod
     def setup(cls, *args, **kwargs):
         """
-        Setup a new `SystemJob` during plugin initialization.
+        Setup a new `BackgroundJob` during plugin initialization.
 
-        This method should be called from the plugins `ready()` function to setup the schedule as early as possible. For
-        interactive setup of schedules (e.g. on user requests), either use `enqueue()` or `enqueue_once()` instead.
+        This method should be called from the plugins `ready()` function to set up the schedule as early as possible.
+        For interactive setup of schedules (e.g. on user requests), use either `enqueue()` or `enqueue_once()` instead.
         """
         connection_created.connect(lambda sender, **signal_kwargs: cls.enqueue_once(*args, **kwargs))

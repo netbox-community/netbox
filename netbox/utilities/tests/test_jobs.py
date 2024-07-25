@@ -82,19 +82,7 @@ class EnqueueTest(BackgroundJobTestCase):
         self.assertEqual(job2.interval, 60)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
 
+    def test_enqueue_system(self):
+        job = TestBackgroundJob.enqueue_once(schedule_at=self.get_schedule_at())
 
-class SystemJobTest(BackgroundJobTestCase):
-    """
-    Test internal logic of `SystemJob`.
-    """
-
-    class TestSystemJob(SystemJob):
-        @classmethod
-        def run(cls, *args, **kwargs):
-            pass
-
-    def test_enqueue_once(self):
-        job = self.TestSystemJob.enqueue_once(schedule_at=self.get_schedule_at())
-
-        self.assertIsInstance(job, Job)
         self.assertEqual(job.object, None)
