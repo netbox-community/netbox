@@ -13,14 +13,17 @@
 {% endblock breadcrumbs %}
 
 {% block subtitle %}
-  <div class="text-secondary fs-5">
-    {{ plugin.tag_line }}
-    <a href="{{ plugin.homepage_url }}" target="_blank">Learn more <i class="mdi mdi-launch"></i></a>
-  </div>
-{% endblock subtitle %}
-
-{% block controls %}
+  <span class="text-secondary fs-5">
+    {% checkmark plugin.is_installed %}
+    {% if plugin.is_installed %}
+      v{{ plugin.installed_version }} {% trans "installed" %}
+    {% else %}
+      {% trans "Not installed" %}
+    {% endif %}
+  </span>
 {% endblock %}
+
+{% block controls %}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs" role="tablist">
@@ -29,103 +32,82 @@
         {% trans "Overview" %}
       </a>
     </li>
-    {% if not plugin.is_local %}
+    {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="version-history-tab" data-bs-toggle="tab" data-bs-target="#version-history" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-          {% trans "Version history" %}
+        <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+          {% trans "Install" %}
         </button>
       </li>
-      {% if 'commercial' not in settings.RELEASE.features %}
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-            {% trans "Install" %}
-          </button>
-        </li>
-      {% endif %}
     {% endif %}
   </ul>
-
 {% endblock tabs %}
 
 {% block content %}
-
   <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-
-  <div class="row">
-    <div class="col col-md-12">
-
-      <div class="card">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Author" %}</th>
-            <td>{{ plugin.author.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ plugin.title_short }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "License" %}</th>
-            <td>{{ plugin.license_type }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ plugin.description_short|markdown }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Certified" %}</th>
-            <td>{% checkmark plugin.is_certified %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Local" %}</th>
-            <td>{% checkmark plugin.is_local %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Installed" %}</th>
-            <td>{% checkmark plugin.is_installed %}</td>
-          </tr>
-        </table>
+    <div class="row">
+      <div class="col col-6">
+        <div class="card">
+          <h5 class="card-header">{% trans "Plugin Details" %}</h5>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ plugin.title_short }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Summary" %}</th>
+              <td>{{ plugin.tag_line|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Author" %}</th>
+              <td>{{ plugin.author.name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "URL" %}</th>
+              <td>
+                {% if plugin.homepage_url %}
+                  <a href="{{ plugin.homepage_url }}">{{ plugin.homepage_url }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "License" %}</th>
+              <td>{{ plugin.license_type|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ plugin.description_short|markdown }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Certified" %}</th>
+              <td>{% checkmark plugin.is_certified %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Local" %}</th>
+              <td>{% checkmark plugin.is_local %}</td>
+            </tr>
+          </table>
+        </div>
       </div>
-    </div>
-  </div>
-
-
-  </div>
-  {% if not plugin.is_local %}
-    <div class="tab-pane" id="version-history" role="tabpanel" aria-labelledby="version-history-tab">
-      <div class="card">
-
-        <div class="htmx-container table-responsive" id="object_list">
-          {% include 'htmx/table.html' %}
+      <div class="col col-6">
+        <div class="card">
+          <h5 class="card-header">{% trans "Version History" %}</h5>
+          <div class="htmx-container table-responsive" id="object_list">
+            {% include 'htmx/table.html' %}
+          </div>
         </div>
       </div>
     </div>
-    {% if 'commercial' not in settings.RELEASE.features %}
-      <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
-        <p>You can install this plugin from the command line with PyPi.</p>
-        <p>The following commands may be helpful; always refer to <a href="{{ plugin.homepage_url }}" target="_blank">the plugin's own documentation <i class="mdi mdi-launch"></i></a> and the <a href="https://netboxlabs.com/docs/netbox/en/stable/plugins/installation/" target="_blank">Installing a Plugin unit <i class="mdi mdi-launch"></i></a> of the NetBox documentation.</p>
-        <p>1. Enter the NetBox virtual environment and install the plugin package:</p>
-
-        <pre class="block"><code>
-source /opt/netbox/venv/bin/activate
-pip install {{ plugin.slug }}
-    </code></pre>
-    <p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
-    <pre class="block"><code>
-PLUGINS=［
-    "{{ plugin.config_name }}",
-]
-        </code></pre>
-        <p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
-        <pre class="block"><code>
-    python3 /opt/netbox/netbox/netbox/manage.py migrate
-    python3 /opt/netbox/netbox/netbox/manage.py collectstatic
-        </code></pre>
-        <p>4. Restart the NetBox services to complete the plugin installation:</p>
-        <pre class="block"><code>
-    sudo systemctl restart netbox netbox-rq
-        </code></pre>
+  </div>
+  {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
+    <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
+      <div class="card">
+        <h5 class="card-header">{% trans "Local Installation Instructions" %}</h5>
+        <div class="card-body">
+          {% include 'core/inc/plugin_installation.html' %}
+        </div>
       </div>
-    {% endif %}
+    </div>
   {% endif %}
 {% endblock content %}
