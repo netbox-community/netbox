@@ -64,7 +64,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
 class ModuleTypeSerializer(NetBoxModelSerializer):
     manufacturer = ManufacturerSerializer(nested=True)
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
-    airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False, allow_null=True)
+    airflow = ChoiceField(choices=ModuleAirflowChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = ModuleType

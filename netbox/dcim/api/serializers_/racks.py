@@ -65,7 +65,7 @@ class RackTypeSerializer(RackBaseSerializer):
         nested=True
     )
     airflow = ChoiceField(
-        choices=DeviceAirflowChoices,
+        choices=RackAirflowChoices,
         allow_blank=True,
         required=False
     )
@@ -101,7 +101,7 @@ class RackSerializer(RackBaseSerializer):
         required=False
     )
     airflow = ChoiceField(
-        choices=DeviceAirflowChoices,
+        choices=RackAirflowChoices,
         allow_blank=True,
         required=False
     )

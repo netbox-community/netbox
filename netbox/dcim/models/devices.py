@@ -25,7 +25,7 @@ from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
-from .mixins import AirflowMixin, RenderConfigMixin, WeightMixin
+from .mixins import RenderConfigMixin, WeightMixin
 
 
 __all__ = (
@@ -58,7 +58,7 @@ class Manufacturer(ContactsMixin, OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin):
+class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -123,6 +123,12 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin)
         verbose_name=_('parent/child status'),
         help_text=_('Parent devices house child devices in device bays. Leave blank '
                     'if this device type is neither a parent nor a child.')
+    )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
     )
     front_image = models.ImageField(
         upload_to='devicetype-images',
@@ -360,7 +366,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin)
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin):
+class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -381,6 +387,12 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin, AirflowMixin)
         max_length=50,
         blank=True,
         help_text=_('Discrete part number (optional)')
+    )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=ModuleAirflowChoices,
+        blank=True
     )
 
     clone_fields = ('manufacturer', 'weight', 'weight_unit',)
@@ -535,7 +547,6 @@ class Device(
     RenderConfigMixin,
     ConfigContextModel,
     TrackingModelMixin,
-    AirflowMixin,
     PrimaryModel
 ):
     """
@@ -639,6 +650,12 @@ class Device(
         max_length=50,
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
+    )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=DeviceAirflowChoices,
+        blank=True
     )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',

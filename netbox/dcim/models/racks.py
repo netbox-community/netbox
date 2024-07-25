@@ -22,7 +22,7 @@ from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, NaturalOrderingField
 from .device_components import PowerPort
 from .devices import Device, Module
-from .mixins import AirflowMixin, WeightMixin
+from .mixins import WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -37,7 +37,7 @@ __all__ = (
 # Rack Types
 #
 
-class RackBase(WeightMixin, PrimaryModel, AirflowMixin):
+class RackBase(WeightMixin, PrimaryModel):
     """
     Base class for RackType & Rack. Holds
     """
@@ -114,6 +114,14 @@ class RackBase(WeightMixin, PrimaryModel, AirflowMixin):
     _abs_max_weight = models.PositiveBigIntegerField(
         blank=True,
         null=True
+    )
+
+    # Airflow
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=RackAirflowChoices,
+        blank=True
     )
 
     class Meta:

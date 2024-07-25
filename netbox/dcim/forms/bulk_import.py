@@ -208,7 +208,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
     )
     airflow = CSVChoiceField(
         label=_('Airflow'),
-        choices=DeviceAirflowChoices,
+        choices=RackAirflowChoices,
         required=False,
         help_text=_('Airflow direction')
     )
@@ -281,7 +281,7 @@ class RackImportForm(NetBoxModelImportForm):
     )
     airflow = CSVChoiceField(
         label=_('Airflow'),
-        choices=DeviceAirflowChoices,
+        choices=RackAirflowChoices,
         required=False,
         help_text=_('Airflow direction')
     )
@@ -414,7 +414,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
     )
     airflow = CSVChoiceField(
         label=_('Airflow'),
-        choices=DeviceAirflowChoices,
+        choices=ModuleAirflowChoices,
         required=False,
         help_text=_('Airflow direction')
     )

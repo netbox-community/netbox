@@ -73,15 +73,3 @@ class RenderConfigMixin(models.Model):
             return self.role.config_template
         if self.platform and self.platform.config_template:
             return self.platform.config_template
-
-
-class AirflowMixin(models.Model):
-    airflow = models.CharField(
-        verbose_name=_('airflow'),
-        max_length=50,
-        choices=DeviceAirflowChoices,
-        blank=True
-    )
-
-    class Meta:
-        abstract = True

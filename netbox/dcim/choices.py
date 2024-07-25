@@ -127,6 +127,17 @@ class RackElevationDetailRenderChoices(ChoiceSet):
     )
 
 
+class RackAirflowChoices(ChoiceSet):
+
+    AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
+    AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
+
+    CHOICES = (
+        (AIRFLOW_FRONT_TO_REAR, _('Front to rear')),
+        (AIRFLOW_REAR_TO_FRONT, _('Rear to front')),
+    )
+
+
 #
 # DeviceTypes
 #
@@ -222,6 +233,25 @@ class ModuleStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
+
+
+class ModuleAirflowChoices(ChoiceSet):
+
+    AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
+    AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
+    AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
+    AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
+    AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_PASSIVE = 'passive'
+
+    CHOICES = (
+        (AIRFLOW_FRONT_TO_REAR, _('Front to rear')),
+        (AIRFLOW_REAR_TO_FRONT, _('Rear to front')),
+        (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
+        (AIRFLOW_RIGHT_TO_LEFT, _('Right to left')),
+        (AIRFLOW_SIDE_TO_REAR, _('Side to rear')),
+        (AIRFLOW_PASSIVE, _('Passive')),
+    )
 
 
 #

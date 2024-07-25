@@ -270,7 +270,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
     airflow = forms.ChoiceField(
         label=_('Airflow'),
-        choices=add_blank_choice(DeviceAirflowChoices),
+        choices=add_blank_choice(RackAirflowChoices),
         required=False
     )
     weight = forms.DecimalField(
@@ -416,7 +416,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     )
     airflow = forms.ChoiceField(
         label=_('Airflow'),
-        choices=add_blank_choice(DeviceAirflowChoices),
+        choices=add_blank_choice(RackAirflowChoices),
         required=False
     )
     weight = forms.DecimalField(
@@ -575,7 +575,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
     airflow = forms.ChoiceField(
         label=_('Airflow'),
-        choices=add_blank_choice(DeviceAirflowChoices),
+        choices=add_blank_choice(ModuleAirflowChoices),
         required=False
     )
     weight = forms.DecimalField(

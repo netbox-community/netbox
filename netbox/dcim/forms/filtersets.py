@@ -269,7 +269,7 @@ class RackBaseFilterForm(NetBoxModelFilterSetForm):
     )
     airflow = forms.MultipleChoiceField(
         label=_('Airflow'),
-        choices=add_blank_choice(DeviceAirflowChoices),
+        choices=add_blank_choice(RackAirflowChoices),
         required=False
     )
     weight = forms.DecimalField(
@@ -645,7 +645,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
     airflow = forms.MultipleChoiceField(
         label=_('Airflow'),
-        choices=add_blank_choice(DeviceAirflowChoices),
+        choices=add_blank_choice(ModuleAirflowChoices),
         required=False
     )
     weight = forms.DecimalField(
