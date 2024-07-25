@@ -1107,6 +1107,23 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin):
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
+    def clean(self):
+        super().clean()
+
+        # Check for recursion of moduleX -> module bay -> modulex
+        if module := self.module:
+            all_module_bays = self.device.modulebays.all().select_related('module')
+            found = []
+            while module:
+                if module.id in found:
+                    raise ValidationError(_("Cannot have a recursion in Module Bay -> Module relationships."))
+
+                found.append(module.id)
+                if module.module_bay:
+                    module = module.module_bay.module
+                else:
+                    module = None
+
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
     """
