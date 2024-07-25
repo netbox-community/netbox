@@ -4,7 +4,7 @@ NetBox supports the queuing of tasks that need to be performed in the background
 
 ## High level API
 
-NetBox provides an easy-to-use interface for programming and managing different types of jobs. In general, there are different types of jobs that can be used to perform any kind of background task. Due to inheritance, the general job logic remains the same, but each of them fulfills a specific task and has its own management logic around it.
+NetBox provides an easy-to-use interface for programming and managing different types of jobs. In general, there is a central `BackgroundJob` class that can be used to execute any kind of background task, depending on the way it is used to schedule the task. The main usage scenarios are described below.
 
 ### Background Job
 
@@ -75,7 +75,7 @@ class MyPluginConfig(PluginConfig):
 
 ## Low Level API
 
-Instead of using the high-level APIs provided by NetBox, plugins may access the task scheduler directly using the [Python RQ](https://python-rq.org/) library. This allows scheduling background tasks without the need to add [Job](../../models/core/job.md) to the database or implementing custom job handling.
+Instead of using the high-level APIs provided by NetBox, plugins may access the task scheduler directly using the [Python RQ](https://python-rq.org/) library. This allows scheduling background tasks without the need to add a [Job](../../models/core/job.md) to the database or implementing custom job handling.
 
 ## Task queues
 
@@ -99,7 +99,7 @@ class MyPluginConfig(PluginConfig):
     ]
 ```
 
-The PluginConfig above creates two custom queues with the following names `my_plugin.foo` and `my_plugin.bar`. (The plugin's name is prepended to each queue to avoid conflicts between plugins.)
+The `PluginConfig` above creates two custom queues with the following names `my_plugin.foo` and `my_plugin.bar`. (The plugin's name is prepended to each queue to avoid conflicts between plugins.)
 
 !!! warning "Configuring the RQ worker process"
     By default, NetBox's RQ worker process only services the high, default, and low queues. Plugins which introduce custom queues should advise users to either reconfigure the default worker, or run a dedicated worker specifying the necessary queues. For example:
