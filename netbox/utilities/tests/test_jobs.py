@@ -6,6 +6,7 @@ from django_rq import get_queue
 
 from ..jobs import *
 from core.models import Job
+from core.choices import JobStatusChoices
 
 
 class TestBackgroundJob(BackgroundJob):
@@ -43,6 +44,24 @@ class BackgroundJobTest(BackgroundJobTestCase):
                 name = 'TestName'
 
         self.assertEqual(NamedBackgroundJob.name, 'TestName')
+
+    def test_handle(self):
+        job = TestBackgroundJob.enqueue(immediate=True)
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_handle_errored(self):
+        class ErroredBackgroundJob(TestBackgroundJob):
+            EXP = Exception('Test error')
+
+            @classmethod
+            def run(cls, *args, **kwargs):
+                raise cls.EXP
+
+        job = ErroredBackgroundJob.enqueue(immediate=True)
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertEqual(job.error, repr(ErroredBackgroundJob.EXP))
 
 
 class EnqueueTest(BackgroundJobTestCase):
