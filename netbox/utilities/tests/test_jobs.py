@@ -111,6 +111,23 @@ class EnqueueTest(BackgroundJobTestCase):
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
 
+    def test_enqueue_once_with_enqueue(self):
+        instance = Job()
+        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
+        job2 = TestBackgroundJob.enqueue(instance, schedule_at=self.get_schedule_at())
+
+        self.assertNotEqual(job1, job2)
+        self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 2)
+
+    def test_enqueue_once_after_enqueue(self):
+        instance = Job()
+        job1 = TestBackgroundJob.enqueue(instance, schedule_at=self.get_schedule_at())
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
+
+        self.assertNotEqual(job1, job2)
+        self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
+        self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
+
     def test_enqueue_system(self):
         job = TestBackgroundJob.enqueue_once(schedule_at=self.get_schedule_at())
 
