@@ -74,16 +74,20 @@ class BackgroundJob(ABC):
                 )
 
     @classmethod
-    def get_jobs(cls, instance):
+    def get_jobs(cls, instance=None):
         """
         Get all jobs of this `BackgroundJob` related to a specific instance.
         """
-        object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
-        return Job.objects.filter(
-            object_type=object_type,
-            object_id=instance.pk,
-            name=cls.name,
-        )
+        jobs = Job.objects.filter(name=cls.name)
+
+        if instance:
+            object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
+            jobs = jobs.filter(
+                object_type=object_type,
+                object_id=instance.pk,
+            )
+
+        return jobs
 
     @classmethod
     def enqueue(cls, *args, **kwargs):
@@ -97,7 +101,7 @@ class BackgroundJob(ABC):
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
-    def enqueue_once(cls, instance, interval=None, *args, **kwargs):
+    def enqueue_once(cls, instance=None, interval=None, *args, **kwargs):
         """
         Enqueue a new `BackgroundJob` once, i.e. skip duplicate jobs.
 
@@ -112,7 +116,7 @@ class BackgroundJob(ABC):
         For additional parameters see `enqueue()`.
 
         Args:
-            instance: The NetBox object to which this `BackgroundJob` pertains
+            instance: The NetBox object to which this `BackgroundJob` pertains (optional)
             interval: Recurrence interval (in minutes)
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
@@ -137,29 +141,10 @@ class SystemJob(BackgroundJob):
     for system background tasks.
 
     The main use case for this method is to schedule jobs programmatically instead of using user events, e.g. to start
-    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to setup a new schedule
-    outside of the request-response cycle. It will register the new schedule right after all plugins are loaded and the
-    database is connected. Then `schedule()` will take care of scheduling a single job at a time.
+    jobs when the plugin is loaded in NetBox. For this purpose, the `setup()` method can be used to set up a new
+    schedule outside the request-response cycle. It will register the new schedule right after all plugins are loaded
+    and the database is connected. Then `schedule()` will take care of scheduling a single job at a time.
     """
-
-    @classmethod
-    def enqueue(cls, *args, **kwargs):
-        kwargs.pop('instance', None)
-        return super().enqueue(instance=Job(), *args, **kwargs)
-
-    @classmethod
-    def enqueue_once(cls, *args, **kwargs):
-        kwargs.pop('instance', None)
-        return super().enqueue_once(instance=Job(), *args, **kwargs)
-
-    @classmethod
-    def handle(cls, job, *args, **kwargs):
-        # A job requires a related object to be handled, or internal methods will fail. To avoid adding an extra model
-        # for this, the existing job object is used as a reference. This is not ideal, but it works for this purpose.
-        job.object = job
-        job.object_id = None  # Hide changes from UI
-
-        super().handle(job, *args, **kwargs)
 
     @classmethod
     def setup(cls, *args, **kwargs):
