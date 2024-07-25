@@ -25,3 +25,7 @@ An alternative physical label identifying the module bay.
 ### Position
 
 The numeric position in which this module bay is situated. For example, this would be the number assigned to a slot within a chassis-based switch.
+
+### Module
+
+The installed module within the assigned device to which this port belongs (optional).
