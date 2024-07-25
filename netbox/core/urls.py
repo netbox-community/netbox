@@ -49,4 +49,8 @@ urlpatterns = (
 
     # System
     path('system/', views.SystemView.as_view(), name='system'),
+
+    # Plugins
+    path('plugins/', views.PluginListView.as_view(), name='plugin_list'),
+    path('plugins/<str:name>/', views.PluginView.as_view(), name='plugin'),
 )

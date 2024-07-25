@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -13,6 +12,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Loca
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
+from netbox.events import *
 from users.models import Group, User
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -113,9 +113,9 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         Webhook.objects.bulk_create(webhooks)
 
         event_rules = (
-            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
-            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
-            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+            EventRule(name='EventRule 1', event_types=[OBJECT_CREATED], action_object=webhooks[0]),
+            EventRule(name='EventRule 2', event_types=[OBJECT_CREATED], action_object=webhooks[1]),
+            EventRule(name='EventRule 3', event_types=[OBJECT_CREATED], action_object=webhooks[2]),
         )
         EventRule.objects.bulk_create(event_rules)
 
@@ -123,7 +123,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 4',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[3].pk,
@@ -131,7 +131,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 5',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[4].pk,
@@ -139,7 +139,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 6',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[5].pk,

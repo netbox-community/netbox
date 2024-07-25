@@ -99,6 +99,9 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
     object_type = ContentTypeFilter(
         field_name='object_types'
     )
+    event_type = MultiValueCharFilter(
+        method='filter_event_type'
+    )
     action_type = django_filters.MultipleChoiceFilter(
         choices=EventRuleActionChoices
     )
@@ -108,8 +111,7 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = EventRule
         fields = (
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
-            'action_type', 'description',
+            'id', 'name', 'enabled', 'action_type', 'description',
         )
 
     def search(self, queryset, name, value):
@@ -120,6 +122,9 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def filter_event_type(self, queryset, name, value):
+        return queryset.filter(event_types__overlap=value)
 
 
 class CustomFieldFilterSet(ChangeLoggedModelFilterSet):

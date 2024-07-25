@@ -142,6 +142,7 @@ nav:
             - Forms: 'plugins/development/forms.md'
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
             - Search: 'plugins/development/search.md'
+            - Events: 'plugins/development/events.md'
             - Data Backends: 'plugins/development/data-backends.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
@@ -163,6 +164,8 @@ nav:
     - Data Model:
         - Circuits:
             - Circuit: 'models/circuits/circuit.md'
+            - CircuitGroup: 'models/circuits/circuitgroup.md'
+            - CircuitGroupAssignment: 'models/circuits/circuitgroupassignment.md'
             - Circuit Termination: 'models/circuits/circuittermination.md'
             - Circuit Type: 'models/circuits/circuittype.md'
             - Provider: 'models/circuits/provider.md'

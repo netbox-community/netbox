@@ -62,13 +62,27 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
 
 
 class ModuleTypeSerializer(NetBoxModelSerializer):
-    manufacturer = ManufacturerSerializer(nested=True)
-    weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
+    manufacturer = ManufacturerSerializer(
+        nested=True
+    )
+    weight_unit = ChoiceField(
+        choices=WeightUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    airflow = ChoiceField(
+        choices=ModuleAirflowChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = ModuleType
         fields = [
-            'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'part_number', 'weight', 'weight_unit',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'part_number', 'airflow',
+            'weight', 'weight_unit', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'description')

@@ -259,6 +259,8 @@ CIRCUITS_MENU = Menu(
             items=(
                 get_model_item('circuits', 'circuit', _('Circuits')),
                 get_model_item('circuits', 'circuittype', _('Circuit Types')),
+                get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
+                get_model_item('circuits', 'circuitgroupassignment', _('Group Assignments')),
                 get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
             ),
         ),
@@ -433,6 +435,11 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='core:system',
                     link_text=_('System'),
+                    auth_required=True
+                ),
+                MenuItem(
+                    link='core:plugin_list',
+                    link_text=_('Plugins'),
                     auth_required=True
                 ),
                 MenuItem(

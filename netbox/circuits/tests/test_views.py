@@ -404,3 +404,109 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         response = self.client.get(reverse('circuits:circuittermination_trace', kwargs={'pk': circuittermination.pk}))
         self.assertHttpStatus(response, 200)
+
+
+class CircuitGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = CircuitGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        circuit_groups = (
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
+            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Circuit Group X',
+            'slug': 'circuit-group-x',
+            'description': 'A new Circuit Group',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug",
+            "Circuit Group 4,circuit-group-4",
+            "Circuit Group 5,circuit-group-5",
+            "Circuit Group 6,circuit-group-6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{circuit_groups[0].pk},Circuit Group 7,New description7",
+            f"{circuit_groups[1].pk},Circuit Group 8,New description8",
+            f"{circuit_groups[2].pk},Circuit Group 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'Foo',
+        }
+
+
+class CircuitGroupAssignmentTestCase(
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = CircuitGroupAssignment
+
+    @classmethod
+    def setUpTestData(cls):
+
+        circuit_groups = (
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
+            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
+            CircuitGroup(name='Circuit Group 4', slug='circuit-group-4'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+        circuits = (
+            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 4', provider=provider, type=circuittype),
+        )
+        Circuit.objects.bulk_create(circuits)
+
+        assignments = (
+            CircuitGroupAssignment(
+                group=circuit_groups[0],
+                circuit=circuits[0],
+                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[1],
+                circuit=circuits[1],
+                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[2],
+                circuit=circuits[2],
+                priority=CircuitPriorityChoices.PRIORITY_TERTIARY
+            ),
+        )
+        CircuitGroupAssignment.objects.bulk_create(assignments)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'group': circuit_groups[3].pk,
+            'circuit': circuits[3].pk,
+            'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
+        }
