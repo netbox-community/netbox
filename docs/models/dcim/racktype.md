@@ -56,5 +56,5 @@ If selected, the rack's elevation will display unit 1 at the top of the rack. (M
 
 ### Airflow
 
-The direction in which air circulates through the device chassis for cooling.
+The direction in which air circulates through the rack for cooling.
 
