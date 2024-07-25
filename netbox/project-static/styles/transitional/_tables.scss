@@ -77,6 +77,11 @@ body[data-bs-theme=dark] {
   table.object-list {
     a {
       color: var(--#{$prefix}body-color)!important;
+
+      // Ensures primary button color remains legible
+      &.btn-primary {
+        color: $rich-black!important;
+      }
     }
   }
 }

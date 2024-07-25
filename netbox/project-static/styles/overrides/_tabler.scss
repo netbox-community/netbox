@@ -91,6 +91,10 @@ pre {
 // Dark mode overrides
 body[data-bs-theme=dark] {
 
+  .btn-primary {
+    color: $rich-black!important;
+  }
+
   // Change content color when primary teal changes with theme
   .bg-primary {
     .card-title,a,i {
@@ -113,6 +117,10 @@ body[data-bs-theme=dark] {
   }
   .page, .page-tabs .nav-tabs .nav-link.active {
     background-color: $rich-black-light!important;
+  }
+
+  .page-link.active, .active>.page-link {
+    color: $rich-black;
   }
 
   // Adjusting text colors
