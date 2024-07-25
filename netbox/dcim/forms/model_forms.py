@@ -211,11 +211,11 @@ class RackTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        FieldSet('manufacturer', 'name', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
+        FieldSet('manufacturer', 'name', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-            InlineFields('airflow', 'weight', 'max_weight', 'weight_unit', label=_('Chassis')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth', name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
@@ -290,9 +290,9 @@ class RackForm(TenancyForm, NetBoxModelForm):
             self.fieldsets = (
                 *self.fieldsets,
                 FieldSet(
-                    'form_factor', 'width', 'starting_unit', 'u_height',
+                    'form_factor', 'width', 'starting_unit', 'u_height', 'airflow',
                     InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-                    InlineFields('airflow', 'weight', 'max_weight', 'weight_unit', label=_('Chassis')),
+                    InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
                     'mounting_depth', 'desc_units', name=_('Dimensions')
                 ),
             )

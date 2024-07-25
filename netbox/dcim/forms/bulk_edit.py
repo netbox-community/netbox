@@ -298,12 +298,10 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackType
     fieldsets = (
-        FieldSet('manufacturer', 'description', 'form_factor', name=_('Rack Type')),
+        FieldSet('manufacturer', 'description', 'form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
         FieldSet(
-            'width',
-            'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-            InlineFields('airflow', 'weight', 'max_weight', 'weight_unit', label=_('Chassis')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth',
             name=_('Dimensions')
         ),
@@ -447,10 +445,10 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet(
-            'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'outer_width', 'outer_depth', 'outer_unit',
             'mounting_depth', name=_('Hardware')
         ),
-        FieldSet('airflow', 'weight', 'max_weight', 'weight_unit', name=_('Chassis')),
+        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (
         'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
@@ -599,7 +597,11 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     model = ModuleType
     fieldsets = (
         FieldSet('manufacturer', 'part_number', 'description', name=_('Module Type')),
-        FieldSet('airflow', 'weight', 'weight_unit', name=_('Chassis')),
+        FieldSet(
+            'airflow',
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            name=_('Chassis')
+        ),
     )
     nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
 
