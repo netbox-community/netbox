@@ -12,6 +12,8 @@ from django.utils.translation import gettext_lazy as _
 from netbox.plugins import PluginConfig
 from utilities.datetime import datetime_from_timestamp
 
+USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
+
 
 @dataclass
 class PluginAuthor:
@@ -98,13 +100,25 @@ def get_catalog_plugins():
     def get_pages():
         # TODO: pagination is currently broken in API
         payload = {'page': '1', 'per_page': '50'}
-        first_page = session.get(settings.PLUGIN_CATALOG_URL, params=payload).json()
+        first_page = session.get(
+            settings.PLUGIN_CATALOG_URL,
+            headers={'User-Agent': USER_AGENT_STRING},
+            proxies=settings.HTTP_PROXIES,
+            timeout=3,
+            params=payload
+        ).json()
         yield first_page
         num_pages = first_page['metadata']['pagination']['last_page']
 
         for page in range(2, num_pages + 1):
             payload['page'] = page
-            next_page = session.get(settings.PLUGIN_CATALOG_URL, params=payload).json()
+            next_page = session.get(
+                settings.PLUGIN_CATALOG_URL,
+                headers={'User-Agent': USER_AGENT_STRING},
+                proxies=settings.HTTP_PROXIES,
+                timeout=3,
+                params=payload
+            ).json()
             yield next_page
 
     for page in get_pages():
