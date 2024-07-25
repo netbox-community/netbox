@@ -9,6 +9,8 @@ from netbox.tables import NetBoxTable, columns
 from .columns import CommitRateColumn
 
 __all__ = (
+    'CircuitGroupAssignmentTable',
+    'CircuitGroupTable',
     'CircuitTable',
     'CircuitTerminationTable',
     'CircuitTypeTable',
@@ -119,3 +121,50 @@ class CircuitTerminationTable(NetBoxTable):
             'xconnect_id', 'pp_info', 'description', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'id', 'circuit', 'provider', 'term_side', 'description')
+
+
+class CircuitGroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    circuit_group_assignment_count = columns.LinkedCountColumn(
+        viewname='circuits:circuitgroupassignment_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Circuits')
+    )
+    tags = columns.TagColumn(
+        url_name='circuits:circuitgroup_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CircuitGroup
+        fields = (
+            'pk', 'name', 'description', 'circuit_group_assignment_count', 'tags',
+            'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'description', 'circuit_group_assignment_count')
+
+
+class CircuitGroupAssignmentTable(NetBoxTable):
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True
+    )
+    circuit = tables.Column(
+        verbose_name=_('Circuit'),
+        linkify=True
+    )
+    priority = tables.Column(
+        verbose_name=_('Priority'),
+    )
+    tags = columns.TagColumn(
+        url_name='circuits:circuitgroupassignment_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CircuitGroupAssignment
+        fields = (
+            'pk', 'id', 'group', 'circuit', 'priority', 'created', 'last_updated', 'actions', 'tags',
+        )
+        default_columns = ('pk', 'group', 'circuit', 'priority')

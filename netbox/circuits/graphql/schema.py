@@ -25,6 +25,16 @@ class CircuitsQuery:
     circuit_type_list: List[CircuitTypeType] = strawberry_django.field()
 
     @strawberry.field
+    def circuit_group(self, id: int) -> CircuitGroupType:
+        return models.CircuitGroup.objects.get(pk=id)
+    circuit_group_list: List[CircuitGroupType] = strawberry_django.field()
+
+    @strawberry.field
+    def circuit_group_assignment(self, id: int) -> CircuitGroupAssignmentType:
+        return models.CircuitGroupAssignment.objects.get(pk=id)
+    circuit_group_assignment_list: List[CircuitGroupAssignmentType] = strawberry_django.field()
+
+    @strawberry.field
     def provider(self, id: int) -> ProviderType:
         return models.Provider.objects.get(pk=id)
     provider_list: List[ProviderType] = strawberry_django.field()

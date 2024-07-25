@@ -14,6 +14,17 @@ class CircuitIndex(SearchIndex):
 
 
 @register_search
+class CircuitGroupIndex(SearchIndex):
+    model = models.CircuitGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class CircuitTerminationIndex(SearchIndex):
     model = models.CircuitTermination
     fields = (
