@@ -21,20 +21,6 @@ ORGANIZATION_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Racks'),
-            items=(
-                get_model_item('dcim', 'rack', _('Racks')),
-                get_model_item('dcim', 'racktype', _('Rack Types')),
-                get_model_item('dcim', 'rackrole', _('Rack Roles')),
-                get_model_item('dcim', 'rackreservation', _('Reservations')),
-                MenuItem(
-                    link='dcim:rack_elevation_list',
-                    link_text=_('Elevations'),
-                    permissions=['dcim.view_rack']
-                ),
-            ),
-        ),
-        MenuGroup(
             label=_('Tenancy'),
             items=(
                 get_model_item('tenancy', 'tenant', _('Tenants')),
@@ -48,6 +34,32 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
                 get_model_item('tenancy', 'contactrole', _('Contact Roles')),
                 get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['import']),
+            ),
+        ),
+    ),
+)
+
+RACKS_MENU = Menu(
+    label=_('Racks'),
+    icon_class='mdi mdi-door-sliding',
+    groups=(
+        MenuGroup(
+            label=_('Racks'),
+            items=(
+                get_model_item('dcim', 'rack', _('Racks')),
+                get_model_item('dcim', 'rackrole', _('Rack Roles')),
+                get_model_item('dcim', 'rackreservation', _('Reservations')),
+                MenuItem(
+                    link='dcim:rack_elevation_list',
+                    link_text=_('Elevations'),
+                    permissions=['dcim.view_rack']
+                ),
+            ),
+        ),
+        MenuGroup(
+            label=_('Rack Types'),
+            items=(
+                get_model_item('dcim', 'racktype', _('Rack Types')),
             ),
         ),
     ),
@@ -460,6 +472,7 @@ ADMIN_MENU = Menu(
 
 MENUS = [
     ORGANIZATION_MENU,
+    RACKS_MENU,
     DEVICES_MENU,
     CONNECTIONS_MENU,
     WIRELESS_MENU,
