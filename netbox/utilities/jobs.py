@@ -99,7 +99,7 @@ class BackgroundJob(ABC):
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
-    def enqueue_once(cls, instance=None, interval=None, *args, **kwargs):
+    def enqueue_once(cls, instance=None, schedule_at=None, interval=None, *args, **kwargs):
         """
         Enqueue a new `BackgroundJob` once, i.e. skip duplicate jobs.
 
@@ -115,17 +115,18 @@ class BackgroundJob(ABC):
 
         Args:
             instance: The NetBox object to which this `BackgroundJob` pertains (optional)
+            schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
             # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
             # delete the existing job and schedule a new job instead.
-            if job.interval == interval:
+            if (schedule_at and job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 
-        return cls.enqueue(instance=instance, interval=interval, *args, **kwargs)
+        return cls.enqueue(instance=instance, schedule_at=schedule_at, interval=interval, *args, **kwargs)
 
     @classmethod
     def setup(cls, *args, **kwargs):

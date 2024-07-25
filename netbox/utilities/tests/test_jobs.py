@@ -25,9 +25,9 @@ class BackgroundJobTestCase(TestCase):
         get_queue('low').connection.flushall()
 
     @staticmethod
-    def get_schedule_at():
+    def get_schedule_at(offset=1):
         # Schedule jobs a week in advance to avoid accidentally running jobs on worker nodes used for testing.
-        return timezone.now() + timedelta(weeks=1)
+        return timezone.now() + timedelta(weeks=offset)
 
 
 class BackgroundJobTest(BackgroundJobTestCase):
@@ -85,21 +85,33 @@ class EnqueueTest(BackgroundJobTestCase):
 
     def test_enqueue_once_twice_same(self):
         instance = Job()
-        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
-        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
+        schedule_at = self.get_schedule_at()
+        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=schedule_at)
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=schedule_at)
 
         self.assertEqual(job1, job2)
         self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
 
-    def test_enqueue_once_twice_different(self):
+    def test_enqueue_once_twice_different_schedule_at(self):
         instance = Job()
         job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at())
-        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at(), interval=60)
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
+
+        self.assertNotEqual(job1, job2)
+        self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
+        self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
+
+    def test_enqueue_once_twice_different_interval(self):
+        instance = Job()
+        schedule_at = self.get_schedule_at()
+        job1 = TestBackgroundJob.enqueue_once(instance, schedule_at=schedule_at)
+        job2 = TestBackgroundJob.enqueue_once(instance, schedule_at=schedule_at, interval=60)
 
         self.assertNotEqual(job1, job2)
         self.assertEqual(job1.interval, None)
         self.assertEqual(job2.interval, 60)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
+        self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
 
     def test_enqueue_system(self):
         job = TestBackgroundJob.enqueue_once(schedule_at=self.get_schedule_at())
