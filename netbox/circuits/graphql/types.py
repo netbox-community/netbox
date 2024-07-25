@@ -6,13 +6,15 @@ import strawberry_django
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType
+from netbox.graphql.types import BaseObjectType, NetBoxObjectType, ObjectType, OrganizationalObjectType
 from tenancy.graphql.types import TenantType
 from .filters import *
 
 __all__ = (
     'CircuitTerminationType',
     'CircuitType',
+    'CircuitGroupAssignmentType',
+    'CircuitGroupType',
     'CircuitTypeType',
     'ProviderType',
     'ProviderAccountType',
@@ -91,3 +93,22 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     tenant: TenantType | None
 
     terminations: List[CircuitTerminationType]
+
+
+@strawberry_django.type(
+    models.CircuitGroup,
+    fields='__all__',
+    filters=CircuitGroupFilter
+)
+class CircuitGroupType(OrganizationalObjectType):
+    tenant: TenantType | None
+
+
+@strawberry_django.type(
+    models.CircuitGroupAssignment,
+    fields='__all__',
+    filters=CircuitGroupAssignmentFilter
+)
+class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
+    group: Annotated["CircuitGroupType", strawberry.lazy('circuits.graphql.types')]
+    circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]

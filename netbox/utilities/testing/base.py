@@ -137,7 +137,10 @@ class ModelTestCase(TestCase):
 
                 # Convert ArrayFields to CSV strings
                 if type(field) is ArrayField:
-                    if type(field.base_field) is ArrayField:
+                    if getattr(field.base_field, 'choices', None):
+                        # Values for fields with pre-defined choices can be returned as lists
+                        model_dict[key] = value
+                    elif type(field.base_field) is ArrayField:
                         # Handle nested arrays (e.g. choice sets)
                         model_dict[key] = '\n'.join([f'{k},{v}' for k, v in value])
                     elif issubclass(type(field.base_field), RangeField):

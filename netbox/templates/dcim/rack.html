@@ -62,6 +62,10 @@
             <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Airflow" %}</th>
+            <td>{{ object.get_airflow_display|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Space Utilization" %}</th>
             <td>{% utilization_graph object.get_utilization %}</td>
           </tr>

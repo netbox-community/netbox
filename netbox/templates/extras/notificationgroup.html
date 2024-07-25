@@ -8,7 +8,7 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Notification Group" %}</h5>
+        <h2 class="card-header">{% trans "Notification Group" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -28,7 +28,7 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Groups" %}</h5>
+        <h2 class="card-header">{% trans "Groups" %}</h2>
         <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
             <a href="{{ group.get_absolute_url }}" class="list-group-item list-group-item-action">{{ group }}</a>
@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Users" %}</h5>
+        <h2 class="card-header">{% trans "Users" %}</h2>
         <div class="list-group list-group-flush">
           {% for user in object.users.all %}
             <a href="{{ user.get_absolute_url }}" class="list-group-item list-group-item-action">{{ user }}</a>

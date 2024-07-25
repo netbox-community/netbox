@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 
 from django.conf import settings
@@ -152,35 +153,20 @@ def process_event_queue(events):
     """
     Flush a list of object representation to RQ for EventRule processing.
     """
-    events_cache = {
-        'type_create': {},
-        'type_update': {},
-        'type_delete': {},
-    }
-    event_actions = {
-        # TODO: Add EventRule support for dynamically registered event types
-        OBJECT_CREATED: 'type_create',
-        OBJECT_UPDATED: 'type_update',
-        OBJECT_DELETED: 'type_delete',
-        JOB_STARTED: 'type_job_start',
-        JOB_COMPLETED: 'type_job_end',
-        # Map failed & errored jobs to type_job_end
-        JOB_FAILED: 'type_job_end',
-        JOB_ERRORED: 'type_job_end',
-    }
+    events_cache = defaultdict(dict)
 
     for event in events:
-        action_flag = event_actions[event['event_type']]
+        event_type = event['event_type']
         object_type = event['object_type']
 
         # Cache applicable Event Rules
-        if object_type not in events_cache[action_flag]:
-            events_cache[action_flag][object_type] = EventRule.objects.filter(
-                **{action_flag: True},
+        if object_type not in events_cache[event_type]:
+            events_cache[event_type][object_type] = EventRule.objects.filter(
+                event_types__contains=[event['event_type']],
                 object_types=object_type,
                 enabled=True
             )
-        event_rules = events_cache[action_flag][object_type]
+        event_rules = events_cache[event_type][object_type]
 
         process_event_rules(
             event_rules=event_rules,
