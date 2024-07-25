@@ -124,7 +124,9 @@ MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media'
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
-QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
+QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {
+    None: 'low',
+})
 REDIS = getattr(configuration, 'REDIS')  # Required
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_GROUPS', False)

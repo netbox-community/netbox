@@ -50,6 +50,9 @@ A system background job is not bound to any particular NetBox object. A typical 
 
 The `setup()` method can be used to set up a new scheduled job outside the request-response cycle. It can be safely called from the plugin's ready function and will register the new schedule right after all plugins are loaded and the database is connected.
 
+!!! note
+    The default system background job queue is `low`. It can be changed using the [`QUEUE_MAPPINGS`](../../configuration/miscellaneous.md#queue_mappings) setting when using `None` as model.
+
 #### Example
 
 ```python title="jobs.py"
