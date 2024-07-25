@@ -2,7 +2,6 @@ import json
 import platform
 
 from django import __version__ as DJANGO_VERSION
-from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -36,6 +35,8 @@ from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .plugins import get_plugins
+from .tables import CatalogPluginTable, PluginVersionTable
 
 
 #
@@ -581,7 +582,7 @@ class WorkerView(BaseRQView):
 
 
 #
-# Plugins
+# System
 #
 
 class SystemView(UserPassesTestMixin, View):
@@ -614,12 +615,6 @@ class SystemView(UserPassesTestMixin, View):
             'rq_worker_count': Worker.count(get_connection('default')),
         }
 
-        # Plugins
-        plugins = [
-            # Look up app config by package name
-            apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
-        ]
-
         # Configuration
         try:
             config = ConfigRevision.objects.get(pk=cache.get('config_version'))
@@ -631,9 +626,6 @@ class SystemView(UserPassesTestMixin, View):
         if 'export' in request.GET:
             data = {
                 **stats,
-                'plugins': {
-                    plugin.name: plugin.version for plugin in plugins
-                },
                 'config': {
                     k: config.data[k] for k in sorted(config.data)
                 },
@@ -642,11 +634,58 @@ class SystemView(UserPassesTestMixin, View):
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
-        plugins_table = tables.PluginTable(plugins, orderable=False)
-        plugins_table.configure(request)
-
         return render(request, 'core/system.html', {
             'stats': stats,
-            'plugins_table': plugins_table,
             'config': config,
+        })
+
+
+#
+# Plugins
+#
+
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+        q = request.GET.get('q', None)
+
+        plugins = get_plugins().values()
+        if q:
+            plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
+
+        table = CatalogPluginTable(plugins, user=request.user)
+        table.configure(request)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if htmx_partial(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
+
+        return render(request, 'core/plugin_list.html', {
+            'table': table,
+        })
+
+
+class PluginView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, name):
+
+        plugins = get_plugins()
+        if name not in plugins:
+            raise Http404(_("Plugin {name} not found").format(name=name))
+        plugin = plugins[name]
+
+        table = PluginVersionTable(plugin.release_recent_history, user=request.user)
+        table.configure(request)
+
+        return render(request, 'core/plugin.html', {
+            'plugin': plugin,
+            'table': table,
         })
