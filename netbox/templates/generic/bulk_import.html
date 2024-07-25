@@ -145,7 +145,7 @@ Context:
                     {{ field.label }}
                   {% endif %}
                   {% if field.STATIC_CHOICES %}
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices" aria-label="{{ name }} choices"><i class="mdi mdi-help-circle"></i></a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices" aria-label="{{ name }} {% trans "choices" %}"><i class="mdi mdi-help-circle"></i></a>
                     <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">
