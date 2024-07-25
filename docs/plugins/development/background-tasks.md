@@ -19,9 +19,8 @@ class MyTestJob(BackgroundJob):
     class Meta:
         name = "My Test Job"
 
-    @classmethod
-    def run(cls, job, *args, **kwargs):
-        obj = job.object
+    def run(self, *args, **kwargs):
+        obj = self.job.object
         # your logic goes here
 ```
 
@@ -62,8 +61,7 @@ class MyHousekeepingJob(BackgroundJob):
     class Meta:
         name = "Housekeeping"
 
-    @classmethod
-    def run(cls, job, *args, **kwargs):
+    def run(self, *args, **kwargs):
         # your logic goes here
 ```
 ```python title="__init__.py"

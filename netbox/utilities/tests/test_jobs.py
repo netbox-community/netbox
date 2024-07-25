@@ -10,8 +10,7 @@ from core.choices import JobStatusChoices
 
 
 class TestBackgroundJob(BackgroundJob):
-    @classmethod
-    def run(cls, *args, **kwargs):
+    def run(self, *args, **kwargs):
         pass
 
 
@@ -54,9 +53,8 @@ class BackgroundJobTest(BackgroundJobTestCase):
         class ErroredBackgroundJob(TestBackgroundJob):
             EXP = Exception('Test error')
 
-            @classmethod
-            def run(cls, *args, **kwargs):
-                raise cls.EXP
+            def run(self, *args, **kwargs):
+                raise self.EXP
 
         job = ErroredBackgroundJob.enqueue(immediate=True)
 

@@ -17,9 +17,8 @@ class SyncDataSourceJob(BackgroundJob):
     class Meta:
         name = 'Synchronization'
 
-    @classmethod
-    def run(cls, job, *args, **kwargs):
-        datasource = DataSource.objects.get(pk=job.object_id)
+    def run(self, *args, **kwargs):
+        datasource = DataSource.objects.get(pk=self.job.object_id)
 
         try:
             datasource.sync()

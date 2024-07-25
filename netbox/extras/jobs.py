@@ -26,14 +26,12 @@ class ScriptJob(BackgroundJob):
         # where jobs other than this one are used. Therefore, it is hidden, resulting in a cleaner job table overview.
         name = ''
 
-    @staticmethod
-    def run_script(script, job, request, data, commit):
+    def run_script(self, script, request, data, commit):
         """
         Core script execution task. We capture this within a method to allow for conditionally wrapping it with the
         event_tracking context manager (which is bypassed if commit == False).
 
         Args:
-            job: The Job associated with this execution
             request: The WSGI request associated with this execution (if any)
             data: A dictionary of data to be passed to the script upon execution
             commit: Passed through to Script.run()
@@ -80,10 +78,9 @@ class ScriptJob(BackgroundJob):
         # Update the job data regardless of the execution status of the job. Successes should be reported as well as
         # failures.
         finally:
-            job.data = script.get_job_data()
+            self.job.data = script.get_job_data()
 
-    @classmethod
-    def run(cls, job, data, request=None, commit=True, **kwargs):
+    def run(self, data, request=None, commit=True, **kwargs):
         """
         Run the script.
 
@@ -93,7 +90,7 @@ class ScriptJob(BackgroundJob):
             request: The WSGI request associated with this execution (if any)
             commit: Passed through to Script.run()
         """
-        script = ScriptModel.objects.get(pk=job.object_id).python_class()
+        script = ScriptModel.objects.get(pk=self.job.object_id).python_class()
 
         # Add files to form data
         if request:
@@ -107,4 +104,4 @@ class ScriptJob(BackgroundJob):
         # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
         # change logging, event rules, etc.
         with event_tracking(request) if commit else nullcontext():
-            cls.run_script(script, job, request, data, commit)
+            self.run_script(script, request, data, commit)

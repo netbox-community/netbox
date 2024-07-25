@@ -27,13 +27,19 @@ class BackgroundJob(ABC):
     class Meta:
         pass
 
+    def __init__(self, job):
+        """
+        Args:
+            job: The specific `Job` this `BackgroundJob` helper class is executing.
+        """
+        self.job = job
+
     @classproperty
     def name(cls):
         return getattr(cls.Meta, 'name', cls.__name__)
 
-    @classmethod
     @abstractmethod
-    def run(cls, *args, **kwargs):
+    def run(self, *args, **kwargs):
         """
         Run the job.
 
@@ -51,7 +57,7 @@ class BackgroundJob(ABC):
         """
         try:
             job.start()
-            cls.run(job, *args, **kwargs)
+            cls(job).run(*args, **kwargs)
             job.terminate()
 
         except Exception as e:
