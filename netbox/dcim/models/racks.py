@@ -53,6 +53,12 @@ class RackBase(WeightMixin, PrimaryModel):
         verbose_name=_('width'),
         help_text=_('Rail-to-rail width')
     )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=RackAirflowChoices,
+        blank=True
+    )
 
     # Numbering
     u_height = models.PositiveSmallIntegerField(
@@ -232,10 +238,10 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     Each Rack is assigned to a Site and (optionally) a Location.
     """
     # Fields which cannot be set locally if a RackType is assigned
-    RACKTYPE_FIELDS = [
-        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-        'mounting_depth', 'weight', 'weight_unit', 'max_weight'
-    ]
+    RACKTYPE_FIELDS = (
+        'form_factor', 'width', 'airflow', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+        'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
+    )
 
     rack_type = models.ForeignKey(
         to='dcim.RackType',
@@ -316,8 +322,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     )
 
     clone_fields = (
-        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width',
-        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'u_height', 'desc_units',
+        'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Site',

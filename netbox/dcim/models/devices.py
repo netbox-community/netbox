@@ -388,8 +388,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         help_text=_('Discrete part number (optional)')
     )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=ModuleAirflowChoices,
+        blank=True
+    )
 
-    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
     prerequisite_models = (
         'dcim.Manufacturer',
     )

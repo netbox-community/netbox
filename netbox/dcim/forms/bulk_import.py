@@ -206,6 +206,12 @@ class RackTypeImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for outer dimensions')
     )
+    airflow = CSVChoiceField(
+        label=_('Airflow'),
+        choices=RackAirflowChoices,
+        required=False,
+        help_text=_('Airflow direction')
+    )
     weight_unit = CSVChoiceField(
         label=_('Weight unit'),
         choices=WeightUnitChoices,
@@ -217,8 +223,8 @@ class RackTypeImportForm(NetBoxModelImportForm):
         model = RackType
         fields = (
             'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
-            'description', 'comments', 'tags',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
+            'weight_unit', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -273,6 +279,12 @@ class RackImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for outer dimensions')
     )
+    airflow = CSVChoiceField(
+        label=_('Airflow'),
+        choices=RackAirflowChoices,
+        required=False,
+        help_text=_('Airflow direction')
+    )
     weight_unit = CSVChoiceField(
         label=_('Weight unit'),
         choices=WeightUnitChoices,
@@ -284,8 +296,8 @@ class RackImportForm(NetBoxModelImportForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'form_factor', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight',
-            'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow',
+            'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -400,6 +412,12 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
     )
+    airflow = CSVChoiceField(
+        label=_('Airflow'),
+        choices=ModuleAirflowChoices,
+        required=False,
+        help_text=_('Airflow direction')
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -414,7 +432,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments', 'tags']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments', 'tags']
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
