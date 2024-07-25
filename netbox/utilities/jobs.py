@@ -65,7 +65,6 @@ class BackgroundJob(ABC):
                 new_scheduled_time = (job.scheduled or job.started) + timedelta(minutes=job.interval)
                 cls.enqueue(
                     instance=job.object,
-                    name=job.name,
                     user=job.user,
                     schedule_at=new_scheduled_time,
                     interval=job.interval,
