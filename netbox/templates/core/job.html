@@ -4,6 +4,18 @@
 {% load perms %}
 {% load i18n %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
+  </li>
+  {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
+    <li class="breadcrumb-item">
+      <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
+    </li>
+  {% endwith %}
+{% endblock breadcrumbs %}
+
 {% block control-buttons %}
   {% if request.user|can_delete:object %}
     {% delete_button object %}

@@ -123,13 +123,7 @@ class CustomValidator:
                     )
 
         # Execute custom validation logic (if any)
-        # TODO: Remove in v4.1
-        # Inspect the validate() method, which may have been overridden, to determine
-        # whether we should pass the request (maintains backward compatibility for pre-v4.0)
-        if 'request' in inspect.signature(self.validate).parameters:
-            self.validate(instance, request)
-        else:
-            self.validate(instance)
+        self.validate(instance, request)
 
     @staticmethod
     def _get_request_attr(request, name):

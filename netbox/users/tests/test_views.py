@@ -1,6 +1,8 @@
+from django.test import override_settings
+
 from core.models import ObjectType
 from users.models import *
-from utilities.testing import ViewTestCases, create_test_user
+from utilities.testing import ViewTestCases, create_test_user, extract_form_failures
 
 
 class UserTestCase(
@@ -57,6 +59,34 @@ class UserTestCase(
         cls.bulk_edit_data = {
             'last_name': 'newlastname',
         }
+
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8}
+    }])
+    def test_password_validation_enforced(self):
+        """
+        Test that any configured password validation rules (AUTH_PASSWORD_VALIDATORS) are enforced.
+        """
+        self.add_permissions('users.add_user')
+        data = {
+            'username': 'new_user',
+            'password': 'foo',
+            'confirm_password': 'foo',
+        }
+
+        # Password too short
+        request = {
+            'path': self._get_url('add'),
+            'data': data,
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+
+        # Password long enough
+        data['password'] = 'foobar123'
+        data['confirm_password'] = 'foobar123'
+        self.assertHttpStatus(self.client.post(**request), 302)
 
 
 class GroupTestCase(

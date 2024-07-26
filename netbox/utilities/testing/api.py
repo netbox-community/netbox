@@ -9,9 +9,9 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from strawberry.lazy_type import LazyType
-from strawberry.type import StrawberryList, StrawberryOptional
-from strawberry.union import StrawberryUnion
+from strawberry.types.base import StrawberryList, StrawberryOptional
+from strawberry.types.lazy_type import LazyType
+from strawberry.types.union import StrawberryUnion
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType

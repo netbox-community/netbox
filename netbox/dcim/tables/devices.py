@@ -63,7 +63,10 @@ class DeviceRoleTable(NetBoxTable):
         verbose_name=_('VMs')
     )
     color = columns.ColorColumn()
-    vm_role = columns.BooleanColumn()
+    vm_role = columns.BooleanColumn(
+        verbose_name=_('VM role'),
+        false_mark=None
+    )
     config_template = tables.Column(
         linkify=True
     )
@@ -329,6 +332,7 @@ class CableTerminationTable(NetBoxTable):
     )
     mark_connected = columns.BooleanColumn(
         verbose_name=_('Mark Connected'),
+        false_mark=None
     )
 
     class Meta:
@@ -586,7 +590,8 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         }
     )
     mgmt_only = columns.BooleanColumn(
-        verbose_name=_('Management Only')
+        verbose_name=_('Management Only'),
+        false_mark=None
     )
     speed_formatted = columns.TemplateColumn(
         template_code='{% load helpers %}{{ value|humanize_speed }}',
@@ -913,6 +918,7 @@ class InventoryItemTable(DeviceComponentTable):
     )
     discovered = columns.BooleanColumn(
         verbose_name=_('Discovered'),
+        false_mark=None
     )
     parent = tables.Column(
         linkify=True,

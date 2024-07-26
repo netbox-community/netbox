@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
@@ -92,6 +93,31 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 200)
         user.refresh_from_db()
         self.assertTrue(user.check_password(data['password']))
+
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8}
+    }])
+    def test_password_validation_enforced(self):
+        """
+        Test that any configured password validation rules (AUTH_PASSWORD_VALIDATORS) are enforced.
+        """
+        self.add_permissions('users.add_user')
+
+        data = {
+            'username': 'new_user',
+            'password': 'foo',
+        }
+        url = reverse('users-api:user-list')
+
+        # Password too short
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+        # Password long enough
+        data['password'] = 'foobar123'
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
 
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
