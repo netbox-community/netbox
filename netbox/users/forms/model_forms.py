@@ -226,8 +226,10 @@ class UserForm(forms.ModelForm):
         # Check that password confirmation matches if password is set
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
-        if self.cleaned_data['password'] and self.cleaned_data['confirm_password']:
-            password_validation.validate_password(self.cleaned_data['confirm_password'], self.instance)
+
+        # Enforce password validation rules (if configured)
+        if self.cleaned_data['password']:
+            password_validation.validate_password(self.cleaned_data['password'], self.instance)
 
 
 class GroupForm(forms.ModelForm):
