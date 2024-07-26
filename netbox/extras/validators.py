@@ -123,7 +123,7 @@ class CustomValidator:
                     )
 
         # Execute custom validation logic (if any)
-        self.validate(instance)
+        self.validate(instance, request)
 
     @staticmethod
     def _get_request_attr(request, name):
