@@ -54,4 +54,7 @@ The maximum total weight capacity for all installed devices, inclusive of the ra
 
 If selected, the rack's elevation will display unit 1 at the top of the rack. (Most racks use ascending numbering, with unit 1 assigned to the bottommost position.)
 
+### Airflow
+
+The direction in which air circulates through the rack for cooling.
 

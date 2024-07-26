@@ -1,0 +1,113 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% block title %}{{ plugin.title_short }}{% endblock %}
+
+{% block object_identifier %}
+{% endblock object_identifier %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'core:plugin_list' %}">{% trans "Plugins" %}</a></li>
+{% endblock breadcrumbs %}
+
+{% block subtitle %}
+  <span class="text-secondary fs-5">
+    {% checkmark plugin.is_installed %}
+    {% if plugin.is_installed %}
+      v{{ plugin.installed_version }} {% trans "installed" %}
+    {% else %}
+      {% trans "Not installed" %}
+    {% endif %}
+  </span>
+{% endblock %}
+
+{% block controls %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        {% trans "Overview" %}
+      </a>
+    </li>
+    {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+          {% trans "Install" %}
+        </button>
+      </li>
+    {% endif %}
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="tab-pane show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+    <div class="row">
+      <div class="col col-6">
+        <div class="card">
+          <h5 class="card-header">{% trans "Plugin Details" %}</h5>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ plugin.title_short }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Summary" %}</th>
+              <td>{{ plugin.tag_line|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Author" %}</th>
+              <td>{{ plugin.author.name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "URL" %}</th>
+              <td>
+                {% if plugin.homepage_url %}
+                  <a href="{{ plugin.homepage_url }}">{{ plugin.homepage_url }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "License" %}</th>
+              <td>{{ plugin.license_type|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ plugin.description_short|markdown }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Certified" %}</th>
+              <td>{% checkmark plugin.is_certified %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Local" %}</th>
+              <td>{% checkmark plugin.is_local %}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="col col-6">
+        <div class="card">
+          <h5 class="card-header">{% trans "Version History" %}</h5>
+          <div class="htmx-container table-responsive" id="object_list">
+            {% include 'htmx/table.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
+    <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
+      <div class="card">
+        <h5 class="card-header">{% trans "Local Installation Instructions" %}</h5>
+        <div class="card-body">
+          {% include 'core/inc/plugin_installation.html' %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock content %}

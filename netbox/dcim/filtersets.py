@@ -312,7 +312,7 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
         model = RackType
         fields = (
             'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 
     def search(self, queryset, name, value):
@@ -413,7 +413,8 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = (
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit',
+            'description',
         )
 
     def search(self, queryset, name, value):
@@ -698,7 +699,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ('id', 'model', 'part_number', 'weight', 'weight_unit', 'description')
+        fields = ('id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

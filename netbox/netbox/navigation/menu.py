@@ -438,6 +438,11 @@ ADMIN_MENU = Menu(
                     auth_required=True
                 ),
                 MenuItem(
+                    link='core:plugin_list',
+                    link_text=_('Plugins'),
+                    auth_required=True
+                ),
+                MenuItem(
                     link='core:configrevision_list',
                     link_text=_('Configuration History'),
                     auth_required=True,

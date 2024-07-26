@@ -267,6 +267,11 @@ class RackBaseFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -288,7 +293,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('form_factor', 'width', 'u_height', name=_('Rack Type')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
@@ -308,7 +313,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('status', 'role_id', 'serial', 'asset_tag', name=_('Rack')),
-        FieldSet('form_factor', 'width', 'u_height', name=_('Rack Type')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -578,7 +583,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('manufacturer_id', 'part_number', name=_('Hardware')),
+        FieldSet('manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -638,6 +643,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(ModuleAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False
