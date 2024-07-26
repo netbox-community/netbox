@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0188_racktype'),
+        ('dcim', '0189_moduletype_airflow_rack_airflow_racktype_airflow'),
     ]
 
     operations = [
