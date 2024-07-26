@@ -19,10 +19,9 @@ from .base import ModelTestCase
 from .utils import disable_warnings
 
 from ipam.graphql.types import IPAddressFamilyType
-from strawberry.field import StrawberryField
-from strawberry.lazy_type import LazyType
-from strawberry.type import StrawberryList, StrawberryOptional
-from strawberry.union import StrawberryUnion
+from strawberry.types.lazy_type import LazyType
+from strawberry.types.base import StrawberryList, StrawberryOptional
+from strawberry.types.union import StrawberryUnion
 
 __all__ = (
     'APITestCase',
