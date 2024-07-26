@@ -46,10 +46,20 @@ class LoginView(View):
         return super().dispatch(*args, **kwargs)
 
     def gen_auth_data(self, name, url, params):
-        display_name, icon_name = get_auth_backend_display(name)
+        display_name, icon_source = get_auth_backend_display(name)
+
+        icon_name = None
+        icon_img = None
+        if icon_source:
+            if '://' in icon_source:
+                icon_img = icon_source
+            else:
+                icon_name = icon_source
+
         return {
             'display_name': display_name,
             'icon_name': icon_name,
+            'icon_img': icon_img,
             'url': f'{url}?{urlencode(params)}',
         }
 

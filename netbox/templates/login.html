@@ -78,7 +78,8 @@
               {% for backend in auth_backends %}
                 <div class="col">
                   <a href="{{ backend.url }}" class="btn w-100">
-                    {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
+                    {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>
+                    {% elif backend.icon_img %}<img src="{{ backend.icon_img }}" height="24" class="me-2" />{% endif %}
                     {{ backend.display_name }}
                   </a>
                 </div>

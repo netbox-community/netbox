@@ -251,6 +251,10 @@ class ObjectListWidget(DashboardWidget):
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
         model = ObjectType.objects.get_by_natural_key(app_label, model_name).model_class()
+        if not model:
+            logger.debug(f"Dashboard Widget model_class not found: {app_label}:{model_name}")
+            return
+
         viewname = get_viewname(model, action='list')
 
         # Evaluate user's permission. Note that this controls only whether the HTMX element is
