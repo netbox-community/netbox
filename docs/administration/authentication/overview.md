@@ -40,3 +40,22 @@ REMOTE_AUTH_BACKEND = 'social_core.backends.google.GoogleOAuth2'
 NetBox supports single sign-on authentication via the [python-social-auth](https://github.com/python-social-auth) library. To enable SSO, specify the path to the desired authentication backend within the `social_core` Python package. Please see the complete list of [supported authentication backends](https://github.com/python-social-auth/social-core/tree/master/social_core/backends) for the available options.
 
 Most remote authentication backends require some additional configuration through settings prefixed with `SOCIAL_AUTH_`. These will be automatically imported from NetBox's `configuration.py` file. Additionally, the [authentication pipeline](https://python-social-auth.readthedocs.io/en/latest/pipeline.html) can be customized via the `SOCIAL_AUTH_PIPELINE` parameter. (NetBox's default pipeline is defined in `netbox/settings.py` for your reference.)
+
+#### Configuring the SSO module's appearance
+
+The way a remote authentication backend is displayed to the user on the login
+page may be adjusted via the `SOCIAL_AUTH_BACKEND_ATTRS` parameter, defaulting
+to an empty dictionary. This dictionary maps a `social_core` module's name (ie.
+`REMOTE_AUTH_BACKEND.name`) to a couple of parameters, `(display_name, icon)`.
+
+The `display_name` is the name displayed to the user on the login page. The
+icon may either be the URL of an icon; refer to a [Material Design
+Icons](https://github.com/google/material-design-icons) icon's name; or be
+`None` for no icon.
+
+For instance, the OIDC backend may be customized with
+```python
+SOCIAL_AUTH_BACKEND_ATTRS = {
+    'oidc': ("My awesome SSO", "login"),
+}
+```

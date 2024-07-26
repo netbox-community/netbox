@@ -20,6 +20,8 @@ Then, commit the change and push to the `develop` branch on GitHub. Any new stri
 
 Typically, translated strings need to be updated only as part of the NetBox [release process](./release-checklist.md).
 
+Check the Transifex dashboard for languages that are not marked _ready for use_, being sure to click _Show all languages_ if it appears at the bottom of the list. Use machine translation to round out any not-ready languages. It's not necessary to review the machine translation immediately as the translation teams will handle that aspect; the goal at this stage is to get translations included in the Transifex pull request.
+
 To update translated strings, start by initiating a sync from Transifex. From the Transifex dashboard, navigate to Settings > Integrations > GitHub > Manage, and click the **Manual Sync** button at top right.
 
 ![Transifex manual sync](../media/development/transifex_sync.png)

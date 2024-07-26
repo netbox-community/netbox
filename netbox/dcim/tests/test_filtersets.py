@@ -32,11 +32,11 @@ class DeviceComponentFilterSetTests:
         params = {'device_type': [device_types[0].model, device_types[1].model]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_role(self):
+    def test_device_role(self):
         role = DeviceRole.objects.all()[:2]
-        params = {'role_id': [role[0].pk, role[1].pk]}
+        params = {'device_role_id': [role[0].pk, role[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'role': [role[0].slug, role[1].slug]}
+        params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -4691,6 +4691,13 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'device_type': [device_types[0].model, device_types[1].model]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_device_role(self):
+        role = DeviceRole.objects.all()[:2]
+        params = {'device_role_id': [role[0].pk, role[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):

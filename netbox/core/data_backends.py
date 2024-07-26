@@ -84,9 +84,7 @@ class GitBackend(DataBackend):
         clone_args = {
             "branch": self.params.get('branch'),
             "config": self.config,
-            "depth": 1,
             "errstream": porcelain.NoneStream(),
-            "quiet": True,
         }
 
         if self.url_scheme in ('http', 'https'):
@@ -97,6 +95,9 @@ class GitBackend(DataBackend):
                         "password": self.params.get('password'),
                     }
                 )
+        if self.url_scheme:
+            clone_args["quiet"] = True
+            clone_args["depth"] = 1
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:

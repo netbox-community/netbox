@@ -6,21 +6,21 @@
 # Translators:
 # Quentin Laurent, 2024
 # Xavier W, 2024
-# Jeremy Stretch, 2024
 # Jonathan Senecal, 2024
 # Lou Lecrivain, 2024
 # Jean Benoit <jean@unistra.fr>, 2024
 # thomas rivemale, 2024
 # Jeff Gehlbach, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-09 05:02+0000\n"
+"POT-Creation-Date: 2024-07-11 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeff Gehlbach, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: French (https://app.transifex.com/netbox-community/teams/178115/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -69,7 +69,7 @@ msgstr "Dernière utilisation"
 msgid "Allowed IPs"
 msgstr "IP autorisées"
 
-#: netbox/account/views.py:204
+#: netbox/account/views.py:214
 msgid "Your preferences have been updated."
 msgstr "Vos préférences ont été mises à jour."
 
@@ -1519,16 +1519,16 @@ msgstr "Mot de passe"
 msgid "Branch"
 msgstr "Branche"
 
-#: netbox/core/data_backends.py:105
+#: netbox/core/data_backends.py:106
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr "La récupération des données distantes a échoué ({name}) : {error}"
 
-#: netbox/core/data_backends.py:118
+#: netbox/core/data_backends.py:119
 msgid "AWS access key ID"
 msgstr "ID de clé d'accès AWS"
 
-#: netbox/core/data_backends.py:122
+#: netbox/core/data_backends.py:123
 msgid "AWS secret access key"
 msgstr "Clé d'accès secrète AWS"
 
@@ -1877,7 +1877,7 @@ msgstr ""
 msgid "last updated"
 msgstr "dernière mise à jour"
 
-#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:442
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:444
 msgid "path"
 msgstr "chemin"
 
@@ -4656,53 +4656,53 @@ msgstr "longueur"
 msgid "length unit"
 msgstr "unité de longueur"
 
-#: netbox/dcim/models/cables.py:93
+#: netbox/dcim/models/cables.py:95
 msgid "cable"
 msgstr "câble"
 
-#: netbox/dcim/models/cables.py:94
+#: netbox/dcim/models/cables.py:96
 msgid "cables"
 msgstr "câbles"
 
-#: netbox/dcim/models/cables.py:163
+#: netbox/dcim/models/cables.py:165
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 "Vous devez spécifier une unité lors du réglage de la longueur du câble"
 
-#: netbox/dcim/models/cables.py:166
+#: netbox/dcim/models/cables.py:168
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 "Vous devez définir les terminaisons A et B lors de la création d'un nouveau "
 "câble."
 
-#: netbox/dcim/models/cables.py:173
+#: netbox/dcim/models/cables.py:175
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 "Impossible de connecter différents types de terminaisons à la même extrémité"
 " du câble."
 
-#: netbox/dcim/models/cables.py:181
+#: netbox/dcim/models/cables.py:183
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "Types de terminaison incompatibles : {type_a} et {type_b}"
 
-#: netbox/dcim/models/cables.py:191
+#: netbox/dcim/models/cables.py:193
 msgid "A and B terminations cannot connect to the same object."
 msgstr "Les terminaisons A et B ne peuvent pas se connecter au même objet."
 
-#: netbox/dcim/models/cables.py:258 netbox/ipam/models/asns.py:37
+#: netbox/dcim/models/cables.py:260 netbox/ipam/models/asns.py:37
 msgid "end"
 msgstr "fin"
 
-#: netbox/dcim/models/cables.py:311
+#: netbox/dcim/models/cables.py:313
 msgid "cable termination"
 msgstr "terminaison de câble"
 
-#: netbox/dcim/models/cables.py:312
+#: netbox/dcim/models/cables.py:314
 msgid "cable terminations"
 msgstr "terminaisons de câble"
 
-#: netbox/dcim/models/cables.py:331
+#: netbox/dcim/models/cables.py:333
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -4711,34 +4711,34 @@ msgstr ""
 "Un doublon de terminaison a été trouvé pour {app_label}.{model} "
 "{termination_id}: câble {cable_pk}"
 
-#: netbox/dcim/models/cables.py:341
+#: netbox/dcim/models/cables.py:343
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Les câbles ne peuvent pas être raccordés à {type_display} interfaces"
 
-#: netbox/dcim/models/cables.py:348
+#: netbox/dcim/models/cables.py:350
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 "Les terminaisons de circuit connectées au réseau d'un fournisseur peuvent ne"
 " pas être câblées."
 
-#: netbox/dcim/models/cables.py:446 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/cables.py:448 netbox/extras/models/configs.py:50
 msgid "is active"
 msgstr "est actif"
 
-#: netbox/dcim/models/cables.py:450
+#: netbox/dcim/models/cables.py:452
 msgid "is complete"
 msgstr "est terminé"
 
-#: netbox/dcim/models/cables.py:454
+#: netbox/dcim/models/cables.py:456
 msgid "is split"
 msgstr "est divisé"
 
-#: netbox/dcim/models/cables.py:462
+#: netbox/dcim/models/cables.py:464
 msgid "cable path"
 msgstr "chemin de câble"
 
-#: netbox/dcim/models/cables.py:463
+#: netbox/dcim/models/cables.py:465
 msgid "cable paths"
 msgstr "chemins de câbles"
 
@@ -6983,43 +6983,43 @@ msgstr ""
 "Format non valide. Les paramètres d'URL doivent être transmis sous forme de "
 "dictionnaire."
 
-#: netbox/extras/dashboard/widgets.py:284
+#: netbox/extras/dashboard/widgets.py:288
 msgid "RSS Feed"
 msgstr "Fil RSS"
 
-#: netbox/extras/dashboard/widgets.py:289
+#: netbox/extras/dashboard/widgets.py:293
 msgid "Embed an RSS feed from an external website."
 msgstr "Intégrez un flux RSS provenant d'un site Web externe."
 
-#: netbox/extras/dashboard/widgets.py:296
+#: netbox/extras/dashboard/widgets.py:300
 msgid "Feed URL"
 msgstr "URL du flux"
 
-#: netbox/extras/dashboard/widgets.py:301
+#: netbox/extras/dashboard/widgets.py:305
 msgid "The maximum number of objects to display"
 msgstr "Le nombre maximum d'objets à afficher"
 
-#: netbox/extras/dashboard/widgets.py:306
+#: netbox/extras/dashboard/widgets.py:310
 msgid "How long to stored the cached content (in seconds)"
 msgstr "Durée de conservation du contenu mis en cache (en secondes)"
 
-#: netbox/extras/dashboard/widgets.py:358
+#: netbox/extras/dashboard/widgets.py:362
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr "Signets"
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:366
 msgid "Show your personal bookmarks"
 msgstr "Afficher vos favoris personnels"
 
-#: netbox/extras/events.py:134
+#: netbox/extras/events.py:137
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "Type d'action inconnu pour une règle d'événement : {action_type}"
 
-#: netbox/extras/events.py:182
+#: netbox/extras/events.py:185
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -10048,7 +10048,7 @@ msgstr ""
 "Valeur non valide. Spécifiez un type de contenu comme "
 "«<app_label>.<model_name>'."
 
-#: netbox/netbox/authentication/__init__.py:138
+#: netbox/netbox/authentication/__init__.py:141
 #, python-brace-format
 msgid "Invalid permission {permission} for model {model}"
 msgstr "Autorisation non valide {permission} pour modèle {model}"
@@ -10357,7 +10357,7 @@ msgstr "Type (s) d'objet"
 
 #: netbox/netbox/forms/__init__.py:40
 msgid "Lookup"
-msgstr ""
+msgstr "Chercher"
 
 #: netbox/netbox/forms/base.py:88
 msgid ""
@@ -10906,43 +10906,43 @@ msgstr "Impossible d'ajouter des magasins au registre après l'initialisation"
 msgid "Cannot delete stores from registry"
 msgstr "Impossible de supprimer des magasins du registre"
 
-#: netbox/netbox/settings.py:741
+#: netbox/netbox/settings.py:742
 msgid "German"
 msgstr "allemand"
 
-#: netbox/netbox/settings.py:742
+#: netbox/netbox/settings.py:743
 msgid "English"
 msgstr "Anglais"
 
-#: netbox/netbox/settings.py:743
+#: netbox/netbox/settings.py:744
 msgid "Spanish"
 msgstr "espagnol"
 
-#: netbox/netbox/settings.py:744
+#: netbox/netbox/settings.py:745
 msgid "French"
 msgstr "français"
 
-#: netbox/netbox/settings.py:745
+#: netbox/netbox/settings.py:746
 msgid "Japanese"
 msgstr "japonais"
 
-#: netbox/netbox/settings.py:746
+#: netbox/netbox/settings.py:747
 msgid "Portuguese"
 msgstr "portugais"
 
-#: netbox/netbox/settings.py:747
+#: netbox/netbox/settings.py:748
 msgid "Russian"
 msgstr "russe"
 
-#: netbox/netbox/settings.py:748
+#: netbox/netbox/settings.py:749
 msgid "Turkish"
 msgstr "Turc"
 
-#: netbox/netbox/settings.py:749
+#: netbox/netbox/settings.py:750
 msgid "Ukrainian"
 msgstr "Ukrainien"
 
-#: netbox/netbox/settings.py:750
+#: netbox/netbox/settings.py:751
 msgid "Chinese"
 msgstr "chinois"
 

@@ -30,7 +30,8 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('RD')
     )
     enforce_unique = columns.BooleanColumn(
-        verbose_name=_('Unique')
+        verbose_name=_('Unique'),
+        false_mark=None
     )
     import_targets = columns.TemplateColumn(
         verbose_name=_('Import Targets'),
