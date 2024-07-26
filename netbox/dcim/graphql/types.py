@@ -499,7 +499,7 @@ class ModuleType(NetBoxObjectType):
     fields='__all__',
     filters=ModuleBayFilter
 )
-class ModuleBayType(ComponentType):
+class ModuleBayType(ModularComponentType):
 
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
 
@@ -509,7 +509,7 @@ class ModuleBayType(ComponentType):
     fields='__all__',
     filters=ModuleBayTemplateFilter
 )
-class ModuleBayTemplateType(ComponentTemplateType):
+class ModuleBayTemplateType(ModularComponentTemplateType):
     _name: str
 
 
