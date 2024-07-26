@@ -10,6 +10,8 @@
 * [#15660](https://github.com/netbox-community/netbox/issues/15660) - Add Czech language support
 * [#15696](https://github.com/netbox-community/netbox/issues/15696) - Add Danish language support
 * [#16793](https://github.com/netbox-community/netbox/issues/16793) - Add Italian language support
+* [#16933](https://github.com/netbox-community/netbox/issues/16933) - Enable toggling true/false marks on BooleanColumn
+* [#16943](https://github.com/netbox-community/netbox/issues/16943) - Expand navigation breadcrumbs on job view to include the parent object
 
 ### Bug Fixes
 
@@ -21,6 +23,7 @@
 * [#16819](https://github.com/netbox-community/netbox/issues/16819) - Highlight parent device in rack when viewing child device
 * [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
 * [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
+* [#16964](https://github.com/netbox-community/netbox/issues/16964) - Ensure configured password validators are enforced
 
 ---
 
