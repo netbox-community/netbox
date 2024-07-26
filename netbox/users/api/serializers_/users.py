@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -60,6 +60,14 @@ class UserSerializer(ValidatedModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
+
+    def validate(self, data):
+
+        # Enforce password validation rules (if configured)
+        if not self.nested and data.get('password'):
+            password_validation.validate_password(data['password'], self.instance)
+
+        return super().validate(data)
 
     def create(self, validated_data):
         """
