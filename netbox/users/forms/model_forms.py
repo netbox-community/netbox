@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
 from django.utils.safestring import mark_safe
@@ -226,6 +226,10 @@ class UserForm(forms.ModelForm):
         # Check that password confirmation matches if password is set
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
+
+        # Enforce password validation rules (if configured)
+        if self.cleaned_data['password']:
+            password_validation.validate_password(self.cleaned_data['password'], self.instance)
 
 
 class GroupForm(forms.ModelForm):
