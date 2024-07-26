@@ -1,6 +1,6 @@
 # NetBox v4.0
 
-## v4.0.8 (FUTURE)
+## v4.0.8 (2024-07-26)
 
 ### Enhancements
 
@@ -23,6 +23,7 @@
 * [#16819](https://github.com/netbox-community/netbox/issues/16819) - Highlight parent device in rack when viewing child device
 * [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
 * [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
+* [#16963](https://github.com/netbox-community/netbox/issues/16963) - Fix filtering of "accounts" link under providers list
 * [#16964](https://github.com/netbox-community/netbox/issues/16964) - Ensure configured password validators are enforced
 
 ---
