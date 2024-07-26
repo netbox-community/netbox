@@ -70,6 +70,18 @@ class InterfaceCommonForm(forms.Form):
 
 class ModuleCommonForm(forms.Form):
 
+    def _get_module_bay_tree(self, module_bay):
+        module_bays = []
+        all_module_bays = module.device.modulebays.all().select_related('module')
+        while module_bay:
+            module_bays.append(module_bay)
+            if module_bay.module:
+                module_bay = module_bay.module.module_bay
+            else:
+                module_bay = None
+
+        return module_bays.reverse()
+
     def clean(self):
         super().clean()
 
@@ -104,13 +116,25 @@ class ModuleCommonForm(forms.Form):
 
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
+                resolved_name = template.name
                 # Installing modules with placeholders require that the bay has a position value
-                if MODULE_TOKEN in template.name and not module_bay.position:
-                    raise forms.ValidationError(
-                        _("Cannot install module with placeholder values in a module bay with no position defined.")
-                    )
+                if MODULE_TOKEN in template.name:
+                    if not module_bay.position:
+                        raise forms.ValidationError(
+                            _("Cannot install module with placeholder values in a module bay with no position defined.")
+                        )
 
-                resolved_name = template.name.replace(MODULE_TOKEN, module_bay.position)
+                    module_bays = self._get_module_bay_tree(template)
+                    if len(module_bays) != template.name.count(MODULE_TOKEN):
+                        raise forms.ValidationError(
+                            _("Cannot install module with placeholder values in a module bay tree {level} in tree but {tokens} placeholders given.").format(
+                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
+                            )
+                        )
+
+                    for module_bay in module_bays:
+                        resolved_name = resolved_name.replace(MODULE_TOKEN, module_bay.position, 1)
+
                 existing_item = installed_components.get(resolved_name)
 
                 # It is not possible to adopt components already belonging to a module

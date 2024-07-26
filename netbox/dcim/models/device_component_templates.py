@@ -158,14 +158,34 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 _("A component template must be associated with either a device type or a module type.")
             )
 
+    def _get_module_tree(self, module):
+        modules = []
+        all_module_bays = module.device.modulebays.all().select_related('module')
+        while module:
+            modules.append(module)
+            if module.module_bay:
+                module = module.module_bay.module
+            else:
+                module = None
+
+        return modules.reverse()
+
     def resolve_name(self, module):
         if module:
-            return self.name.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            name = self.name
+            for module in modules:
+                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return name
         return self.name
 
     def resolve_label(self, module):
         if module:
-            return self.label.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            label = self.label
+            for module in modules:
+                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return label
         return self.label
 
 
