@@ -113,11 +113,6 @@ class DynamicModelChoiceMixin:
         for var, accessor in self.context.items():
             attrs[f'ts-{var}-field'] = accessor
 
-        # TODO: Remove in v4.1
-        # Legacy means of specifying the disabled indicator
-        if self.disabled_indicator is not None:
-            attrs['ts-disabled-field'] = self.disabled_indicator
-
         # Attach any static query parameters
         if len(self.query_params) > 0:
             widget.add_query_params(self.query_params)

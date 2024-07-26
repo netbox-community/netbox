@@ -139,11 +139,6 @@ urlpatterns = [
     path('scripts/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
     path('script-modules/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
 
-    # Redirects for legacy script URLs
-    # TODO: Remove in NetBox v4.1
-    path('scripts/<str:module>/<str:name>/', views.LegacyScriptRedirectView.as_view()),
-    path('scripts/<str:module>/<str:name>/<path:path>/', views.LegacyScriptRedirectView.as_view()),
-
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
 ]
