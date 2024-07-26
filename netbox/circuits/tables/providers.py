@@ -25,7 +25,7 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
     account_count = columns.LinkedCountColumn(
         accessor=tables.A('accounts__count'),
         viewname='circuits:provideraccount_list',
-        url_params={'account_id': 'pk'},
+        url_params={'provider_id': 'pk'},
         verbose_name=_('Account Count')
     )
     asns = columns.ManyToManyColumn(
