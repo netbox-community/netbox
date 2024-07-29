@@ -168,7 +168,8 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             else:
                 module = None
 
-        return modules.reverse()
+        modules.reverse()
+        return modules
 
     def resolve_name(self, module):
         if module:
