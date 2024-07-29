@@ -86,7 +86,8 @@ class DeviceTypeTable(NetBoxTable):
         linkify=True
     )
     is_full_depth = columns.BooleanColumn(
-        verbose_name=_('Full Depth')
+        verbose_name=_('Full Depth'),
+        false_mark=None
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
@@ -98,7 +99,10 @@ class DeviceTypeTable(NetBoxTable):
         verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )
-    exclude_from_utilization = columns.BooleanColumn()
+    exclude_from_utilization = columns.BooleanColumn(
+        verbose_name=_('Exclude from utilization'),
+        false_mark=None
+    )
     weight = columns.TemplateColumn(
         verbose_name=_('Weight'),
         template_code=WEIGHT,
@@ -221,7 +225,8 @@ class InterfaceTemplateTable(ComponentTemplateTable):
         verbose_name=_('Enabled'),
     )
     mgmt_only = columns.BooleanColumn(
-        verbose_name=_('Management Only')
+        verbose_name=_('Management Only'),
+        false_mark=None
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),

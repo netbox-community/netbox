@@ -1234,25 +1234,6 @@ class ScriptJobsView(BaseScriptView):
         })
 
 
-class LegacyScriptRedirectView(ContentTypePermissionRequiredMixin, View):
-    """
-    Redirect legacy (pre-v4.0) script URLs. Examples:
-        /extras/scripts/<module>/<name>/         -->  /extras/scripts/<id>/
-        /extras/scripts/<module>/<name>/source/  -->  /extras/scripts/<id>/source/
-        /extras/scripts/<module>/<name>/jobs/    -->  /extras/scripts/<id>/jobs/
-    """
-    def get_required_permission(self):
-        return 'extras.view_script'
-
-    def get(self, request, module, name, path=''):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
-        script = get_object_or_404(Script.objects.all(), module=module, name=name)
-
-        url = reverse('extras:script', kwargs={'pk': script.pk})
-
-        return redirect(f'{url}{path}')
-
-
 class ScriptResultView(TableMixin, generic.ObjectView):
     queryset = Job.objects.all()
 

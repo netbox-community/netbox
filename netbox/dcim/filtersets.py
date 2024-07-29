@@ -1430,12 +1430,12 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='model',
         label=_('Device type (model)'),
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role',
         queryset=DeviceRole.objects.all(),
         label=_('Device role (ID)'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
+    device_role = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',

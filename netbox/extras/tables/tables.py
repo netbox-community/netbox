@@ -54,7 +54,8 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Object Types')
     )
     required = columns.BooleanColumn(
-        verbose_name=_('Required')
+        verbose_name=_('Required'),
+        false_mark=None
     )
     ui_visible = columns.ChoiceFieldColumn(
         verbose_name=_('Visible')
@@ -79,6 +80,7 @@ class CustomFieldTable(NetBoxTable):
     )
     is_cloneable = columns.BooleanColumn(
         verbose_name=_('Is Cloneable'),
+        false_mark=None
     )
     validation_minimum = tables.Column(
         verbose_name=_('Minimum Value'),
@@ -125,6 +127,7 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     )
     order_alphabetically = columns.BooleanColumn(
         verbose_name=_('Order Alphabetically'),
+        false_mark=None
     )
 
     class Meta(NetBoxTable.Meta):
@@ -149,6 +152,7 @@ class CustomLinkTable(NetBoxTable):
     )
     new_window = columns.BooleanColumn(
         verbose_name=_('New Window'),
+        false_mark=None
     )
 
     class Meta(NetBoxTable.Meta):
@@ -170,6 +174,7 @@ class ExportTemplateTable(NetBoxTable):
     )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
+        false_mark=None
     )
     data_source = tables.Column(
         verbose_name=_('Data Source'),
@@ -238,6 +243,7 @@ class SavedFilterTable(NetBoxTable):
     )
     shared = columns.BooleanColumn(
         verbose_name=_('Shared'),
+        false_mark=None
     )
 
     def value_parameters(self, value):
