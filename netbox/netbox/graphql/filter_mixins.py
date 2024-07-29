@@ -201,4 +201,10 @@ def autotype_decorator(filterset):
 class BaseFilterMixin:
 
     def filter_by_filterset(self, queryset, key):
-        return self.filterset(data={key: getattr(self, key)}, queryset=queryset).qs
+        filterset = self.filterset(data={key: getattr(self, key)}, queryset=queryset)
+        if not filterset.is_valid():
+            # filterset.errors is errorDict - return first error as exception
+            k, v = next(iter(filterset.errors.items()))
+            raise Exception(f"{k}: {v[0]}")
+        qs = filterset.qs
+        return qs
