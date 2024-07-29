@@ -88,6 +88,8 @@ class Cable(PrimaryModel):
         null=True
     )
 
+    clone_fields = ('tenant', 'type',)
+
     class Meta:
         ordering = ('pk',)
         verbose_name = _('cable')

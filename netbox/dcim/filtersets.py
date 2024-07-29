@@ -20,7 +20,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import Cluster
+from virtualization.models import Cluster, ClusterGroup
 from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from wireless.models import WirelessLAN, WirelessLink
@@ -1018,6 +1018,17 @@ class DeviceFilterSet(
         queryset=Cluster.objects.all(),
         label=_('VM cluster (ID)'),
     )
+    cluster_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster__group__slug',
+        queryset=ClusterGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Cluster group (slug)'),
+    )
+    cluster_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cluster__group',
+        queryset=ClusterGroup.objects.all(),
+        label=_('Cluster group (ID)'),
+    )
     model = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
@@ -1378,12 +1389,12 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='model',
         label=_('Device type (model)'),
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role',
         queryset=DeviceRole.objects.all(),
         label=_('Device role (ID)'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
+    device_role = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',

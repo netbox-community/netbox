@@ -9,7 +9,7 @@ from ipam.models import ASN, IPAddress, RIR, VRF
 from netbox.choices import ColorChoices
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
-from virtualization.models import Cluster, ClusterType
+from virtualization.models import Cluster, ClusterType, ClusterGroup
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
 User = get_user_model()
@@ -32,11 +32,11 @@ class DeviceComponentFilterSetTests:
         params = {'device_type': [device_types[0].model, device_types[1].model]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_role(self):
+    def test_device_role(self):
         role = DeviceRole.objects.all()[:2]
-        params = {'role_id': [role[0].pk, role[1].pk]}
+        params = {'device_role_id': [role[0].pk, role[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'role': [role[0].slug, role[1].slug]}
+        params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1959,10 +1959,16 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster_groups = (
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
+            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3'),
+        )
+        ClusterGroup.objects.bulk_create(cluster_groups)
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type),
-            Cluster(name='Cluster 2', type=cluster_type),
-            Cluster(name='Cluster 3', type=cluster_type),
+            Cluster(name='Cluster 1', type=cluster_type, group=cluster_groups[0]),
+            Cluster(name='Cluster 2', type=cluster_type, group=cluster_groups[1]),
+            Cluster(name='Cluster 3', type=cluster_type, group=cluster_groups[2]),
         )
         Cluster.objects.bulk_create(clusters)
 
@@ -2211,6 +2217,13 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_cluster(self):
         clusters = Cluster.objects.all()[:2]
         params = {'cluster_id': [clusters[0].pk, clusters[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cluster_group(self):
+        cluster_groups = ClusterGroup.objects.all()[:2]
+        params = {'cluster_group_id': [cluster_groups[0].pk, cluster_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cluster_group': [cluster_groups[0].slug, cluster_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_model(self):
@@ -4532,6 +4545,13 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'device_type': [device_types[0].model, device_types[1].model]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_device_role(self):
+        role = DeviceRole.objects.all()[:2]
+        params = {'device_role_id': [role[0].pk, role[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):

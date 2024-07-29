@@ -44,10 +44,20 @@ class LoginView(View):
         return super().dispatch(*args, **kwargs)
 
     def gen_auth_data(self, name, url, params):
-        display_name, icon_name = get_auth_backend_display(name)
+        display_name, icon_source = get_auth_backend_display(name)
+
+        icon_name = None
+        icon_img = None
+        if icon_source:
+            if '://' in icon_source:
+                icon_img = icon_source
+            else:
+                icon_name = icon_source
+
         return {
             'display_name': display_name,
             'icon_name': icon_name,
+            'icon_img': icon_img,
             'url': f'{url}?{urlencode(params)}',
         }
 
@@ -111,7 +121,7 @@ class LoginView(View):
 
             # Set the user's preferred language (if any)
             if language := request.user.config.get('locale.language'):
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
 
             return response
 
@@ -206,7 +216,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
             # Set/clear language cookie
             if language := form.cleaned_data['locale.language']:
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
             else:
                 response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 

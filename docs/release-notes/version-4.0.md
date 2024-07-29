@@ -1,6 +1,70 @@
 # NetBox v4.0
 
-## v4.0.7 (FUTURE)
+## v4.0.9 (FUTURE)
+
+---
+
+## v4.0.8 (2024-07-26)
+
+### Enhancements
+
+* [#14640](https://github.com/netbox-community/netbox/issues/14640) - Add Dutch language support
+* [#14792](https://github.com/netbox-community/netbox/issues/14792) - Add Polish language support
+* [#15375](https://github.com/netbox-community/netbox/issues/15375) - Enable customization of SSO backend name & icon
+* [#15660](https://github.com/netbox-community/netbox/issues/15660) - Add Czech language support
+* [#15696](https://github.com/netbox-community/netbox/issues/15696) - Add Danish language support
+* [#16793](https://github.com/netbox-community/netbox/issues/16793) - Add Italian language support
+* [#16933](https://github.com/netbox-community/netbox/issues/16933) - Enable toggling true/false marks on BooleanColumn
+* [#16943](https://github.com/netbox-community/netbox/issues/16943) - Expand navigation breadcrumbs on job view to include the parent object
+
+### Bug Fixes
+
+* [#16357](https://github.com/netbox-community/netbox/issues/16357) - Replicate assigned type & tenant for cable when clicking "create an add another"
+* [#16402](https://github.com/netbox-community/netbox/issues/16402) - Remove inoperative links from report result view
+* [#16536](https://github.com/netbox-community/netbox/issues/16536) - Revert `role` & `role_id` filters for device components to `device_role` & `device_role_id` to avoid conflict with inventory item `role` field
+* [#16624](https://github.com/netbox-community/netbox/issues/16624) - Correct OpenAPI schema definitions for several fields
+* [#16760](https://github.com/netbox-community/netbox/issues/16760) - Fix data source syncing using git via a local path
+* [#16819](https://github.com/netbox-community/netbox/issues/16819) - Highlight parent device in rack when viewing child device
+* [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
+* [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
+* [#16963](https://github.com/netbox-community/netbox/issues/16963) - Fix filtering of "accounts" link under providers list
+* [#16964](https://github.com/netbox-community/netbox/issues/16964) - Ensure configured password validators are enforced
+
+---
+
+## v4.0.7 (2024-07-09)
+
+### Enhancements
+
+* [#14554](https://github.com/netbox-community/netbox/issues/14554) - Add support for [django-storage-swift](https://github.com/dennisv/django-storage-swift) storage backend
+* [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
+* [#16716](https://github.com/netbox-community/netbox/issues/16716) - Display NAT address (if any) for OOB IP address under device view
+* [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#16791](https://github.com/netbox-community/netbox/issues/16791) - Add 200 & 400 Gbps selections for circuit termination port speed
+* [#16802](https://github.com/netbox-community/netbox/issues/16802) - Introduce `SENTRY_SEND_DEFAULT_PII` configuration parameter and disable PII export by default
+* [#16817](https://github.com/netbox-community/netbox/issues/16817) - Add 200 & 400 Gbps selections for circuit commit rate
+
+### Bug Fixes
+
+* [#16523](https://github.com/netbox-community/netbox/issues/16523) - Restore highlighting of current device in virtual chassis members panel
+* [#16654](https://github.com/netbox-community/netbox/issues/16654) - Fix parent item assignment for inventory item bulk import
+* [#16657](https://github.com/netbox-community/netbox/issues/16657) - Fix translation of object types in global search
+* [#16679](https://github.com/netbox-community/netbox/issues/16679) - Avoid overwriting custom JSON fields during bulk edit
+* [#16689](https://github.com/netbox-community/netbox/issues/16689) - System configuration view should reflect static parameters when no config revisions exist
+* [#16714](https://github.com/netbox-community/netbox/issues/16714) - Fix cloning of device types with 0U height
+* [#16721](https://github.com/netbox-community/netbox/issues/16721) - Fix errant API request after deselecting a rack in device edit form
+* [#16723](https://github.com/netbox-community/netbox/issues/16723) - Fix escaping of path to virtual environment in `upgrade.sh`
+* [#16735](https://github.com/netbox-community/netbox/issues/16735) - Object list "results" tab should show a count of zero when empty
+* [#16747](https://github.com/netbox-community/netbox/issues/16747) - Avoid clearing entire search cache when manually reindexing specific apps/models
+* [#16758](https://github.com/netbox-community/netbox/issues/16758) - Ensure manually selected lagnuage persists across browser sessions
+* [#16779](https://github.com/netbox-community/netbox/issues/16779) - Fix saved filter selection for child object lists
+* [#16780](https://github.com/netbox-community/netbox/issues/16780) - IKE proposal created via REST API should not require authentication_algorithm
+* [#16796](https://github.com/netbox-community/netbox/issues/16796) - Allow assignment of VM with no site to a cluster with a site
+* [#16806](https://github.com/netbox-community/netbox/issues/16806) - Fix redirect URL when creating contact assignments with "add another" button
+* [#16807](https://github.com/netbox-community/netbox/issues/16807) - Fix layout of VLAN edit form when custom fields are present
+* [#16808](https://github.com/netbox-community/netbox/issues/16808) - Fix event rule triggering in scenario where objects are updated immediately prior to deletion
+* [#16813](https://github.com/netbox-community/netbox/issues/16813) - Fix AttributeError exception when filtering bookmarks in dashboard widget by object type
+* [#16843](https://github.com/netbox-community/netbox/issues/16843) - Permit creation of IKE policies via REST API without specifying an IKE mode
 
 ---
 
