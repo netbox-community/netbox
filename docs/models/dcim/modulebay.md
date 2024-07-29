@@ -14,6 +14,10 @@ Module bays represent a space or slot within a device in which a field-replaceab
 
 The device to which this module bay belongs.
 
+### Module
+
+The module to which this bay belongs (optional).
+
 ### Name
 
 The module bay's name. Must be unique to the parent device.
@@ -25,7 +29,3 @@ An alternative physical label identifying the module bay.
 ### Position
 
 The numeric position in which this module bay is situated. For example, this would be the number assigned to a slot within a chassis-based switch.
-
-### Module
-
-The installed module within the assigned device to which this port belongs (optional).
