@@ -852,6 +852,11 @@ class ModuleBayTable(ModularDeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    parent_bay = tables.Column(
+        accessor=tables.A('module__module_bay'),
+        linkify=True,
+        verbose_name=_('Parent Bay')
+    )
     installed_module = tables.Column(
         linkify=True,
         verbose_name=_('Installed Module')
@@ -876,10 +881,18 @@ class ModuleBayTable(ModularDeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
-            'module_asset_tag', 'description', 'tags',
+            'pk', 'id', 'name', 'device', 'parent_bay', 'label', 'position', 'installed_module', 'module_status',
+            'module_serial', 'module_asset_tag', 'description', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'module_status', 'description')
+        default_columns = (
+            'pk', 'name', 'device', 'parent_bay', 'label', 'installed_module', 'module_status', 'description',
+        )
+
+    def render_parent_bay(self, value):
+        return value.name if value else ''
+
+    def render_installed_module(self, value):
+        return value.module_type if value else ''
 
 
 class DeviceModuleBayTable(ModuleBayTable):
@@ -890,10 +903,10 @@ class DeviceModuleBayTable(ModuleBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial', 'module_asset_tag',
-            'description', 'tags', 'actions',
+            'pk', 'id', 'parent_bay', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
+            'module_asset_tag', 'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'installed_module', 'module_status', 'description')
+        default_columns = ('pk', 'parent_bay', 'name', 'label', 'installed_module', 'module_status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):

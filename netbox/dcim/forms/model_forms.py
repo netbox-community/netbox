@@ -1032,7 +1032,7 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
         ]
 
 
-class ModuleBayTemplateForm(ComponentTemplateForm):
+class ModuleBayTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
         FieldSet('device_type', 'module_type', 'name', 'label', 'position', 'description'),
     )
@@ -1452,7 +1452,7 @@ class RearPortForm(ModularDeviceComponentForm):
         ]
 
 
-class ModuleBayForm(DeviceComponentForm):
+class ModuleBayForm(ModularDeviceComponentForm):
     fieldsets = (
         FieldSet('device', 'module', 'name', 'label', 'position', 'description', 'tags',),
     )
