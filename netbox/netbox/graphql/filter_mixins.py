@@ -206,5 +206,4 @@ class BaseFilterMixin:
             # filterset.errors is errorDict - return first error as exception
             k, v = next(iter(filterset.errors.items()))
             raise Exception(f"{k}: {v[0]}")
-        qs = filterset.qs
-        return qs
+        return filterset.qs
