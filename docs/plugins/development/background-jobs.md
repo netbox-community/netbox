@@ -1,4 +1,4 @@
-# Background Tasks
+# Background Jobs
 
 NetBox supports the queuing of tasks that need to be performed in the background, decoupled from the request-response cycle.
 
