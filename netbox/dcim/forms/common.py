@@ -80,7 +80,8 @@ class ModuleCommonForm(forms.Form):
             else:
                 module_bay = None
 
-        return module_bays.reverse()
+        module_bays.reverse()
+        return module_bays
 
     def clean(self):
         super().clean()

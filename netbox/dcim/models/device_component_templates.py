@@ -172,6 +172,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return modules
 
     def resolve_name(self, module):
+        if MODULE_TOKEN not in self.name:
+            return self.name
+
         if module:
             modules = self._get_module_tree(module)
             name = self.name
@@ -181,6 +184,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return self.name
 
     def resolve_label(self, module):
+        if MODULE_TOKEN not in self.label:
+            return self.label
+
         if module:
             modules = self._get_module_tree(module)
             label = self.label
