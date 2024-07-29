@@ -253,7 +253,16 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
 
 class ModuleBayTemplateSerializer(ValidatedModelSerializer):
     device_type = DeviceTypeSerializer(
-        nested=True
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
     )
 
     class Meta:
