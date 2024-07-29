@@ -381,6 +381,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 .format(type=self.get_type_display())
             })
 
+        # Related object filter can be set only for object-type fields, and must contain a dictionary mapping (if set)
+        if self.related_object_filter is not None:
+            if self.type not in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+                raise ValidationError({
+                    'related_object_filter': _("A related object filter can be defined only for object fields.")
+                })
+            if type(self.related_object_filter) is not dict:
+                raise ValidationError({
+                    'related_object_filter': _("Filter must be defined as a dictionary mapping attributes to values.")
+                })
+
     def serialize(self, value):
         """
         Prepare a value for storage as JSON data.
