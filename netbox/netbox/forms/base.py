@@ -39,10 +39,7 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
             form_field = customfield.to_form_field(set_initial=False)
             initial = self.instance.custom_field_data.get(customfield.name)
             if customfield.type == CustomFieldTypeChoices.TYPE_JSON:
-                if initial is not None:
-                    form_field.initial = json.dumps(initial)
-                else:
-                    form_field.initial = ''
+                form_field.initial = json.dumps(initial)
             else:
                 form_field.initial = initial
             return form_field
@@ -63,6 +60,8 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
             if value in self.fields[cf_name].empty_values:
                 self.instance.custom_field_data[key] = None
             else:
+                if customfield.type == CustomFieldTypeChoices.TYPE_JSON and type(value) is str:
+                    value = json.loads(value)
                 self.instance.custom_field_data[key] = customfield.serialize(value)
 
         return super().clean()
