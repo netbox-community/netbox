@@ -1224,7 +1224,8 @@ class Module(PrimaryModel, ConfigContextModel):
             ("powerporttemplates", "powerports", PowerPort),
             ("poweroutlettemplates", "poweroutlets", PowerOutlet),
             ("rearporttemplates", "rearports", RearPort),
-            ("frontporttemplates", "frontports", FrontPort)
+            ("frontporttemplates", "frontports", FrontPort),
+            ("modulebaytemplates", "modulebays", ModuleBay),
         ]:
             create_instances = []
             update_instances = []

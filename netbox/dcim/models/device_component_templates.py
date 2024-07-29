@@ -672,12 +672,12 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return self.component_model(
-            device=device,
             name=self.name,
             label=self.label,
-            position=self.position
+            position=self.position,
+            **kwargs
         )
     instantiate.do_not_call_in_templates = True
 
