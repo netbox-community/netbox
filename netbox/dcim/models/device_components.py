@@ -1100,7 +1100,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin):
 
     clone_fields = ('device',)
 
-    class Meta(ComponentModel.Meta):
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'module', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_module_name'
+            ),
+        )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
 

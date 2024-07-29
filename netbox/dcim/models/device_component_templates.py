@@ -668,7 +668,7 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
 
     component_model = ModuleBay
 
-    class Meta(ComponentTemplateModel.Meta):
+    class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
