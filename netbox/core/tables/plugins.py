@@ -44,7 +44,7 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Name')
     )
     author = tables.Column(
-        accessor=tables.A('author.name'),
+        accessor=tables.A('author__name'),
         verbose_name=_('Author')
     )
     is_local = columns.BooleanColumn(
