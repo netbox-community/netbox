@@ -1,7 +1,7 @@
 import logging
 
 from netbox.search.backends import search_backend
-from utilities.jobs import BackgroundJob
+from utilities.jobs import JobRunner
 from .choices import DataSourceStatusChoices
 from .exceptions import SyncError
 from .models import DataSource
@@ -9,7 +9,7 @@ from .models import DataSource
 logger = logging.getLogger(__name__)
 
 
-class SyncDataSourceJob(BackgroundJob):
+class SyncDataSourceJob(JobRunner):
     """
     Call sync() on a DataSource.
     """

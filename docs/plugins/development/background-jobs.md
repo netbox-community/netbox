@@ -2,20 +2,21 @@
 
 NetBox plugins can defer certain operations by enqueuing [background jobs](../../features/background-jobs.md), which are executed asynchronously by background workers. This is helpful for decoupling long-running processes from the user-facing request-response cycle.
 
-For example, your plugin might need to fetch data from a remote system. Depending on the amount of data and the responsiveness of the remote server, this could take a few minutes. Deferring this task to a background job ensures that it can be completed in the background, without interrupting the user. The data it fetches can be made available once the job has completed.
+For example, your plugin might need to fetch data from a remote system. Depending on the amount of data and the responsiveness of the remote server, this could take a few minutes. Deferring this task to a queued job ensures that it can be completed in the background, without interrupting the user. The data it fetches can be made available once the job has completed.
 
-## Background Job
+## Job Runners
 
-A background job implements a basic [Job](../../models/core/job.md) executor for all kinds of tasks. It has logic implemented to handle the management of the associated job object, rescheduling of periodic jobs in the given interval and error handling. Adding custom jobs is done by subclassing NetBox's `BackgroundJob` class.
+A background job implements a basic [Job](../../models/core/job.md) executor for all kinds of tasks. It has logic implemented to handle the management of the associated job object, rescheduling of periodic jobs in the given interval and error handling. Adding custom jobs is done by subclassing NetBox's `JobRunner` class.
 
-::: utilities.jobs.BackgroundJob
+::: utilities.jobs.JobRunner
 
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import BackgroundJob
+from utilities.jobs import JobRunner
 
-class MyTestJob(BackgroundJob):
+
+class MyTestJob(JobRunner):
     class Meta:
         name = "My Test Job"
 
@@ -26,9 +27,9 @@ class MyTestJob(BackgroundJob):
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
-### Job Attributes
+### Attributes
 
-Background job attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
+`JobRunner` attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
 
 #### `name`
 
@@ -44,15 +45,17 @@ As described above, jobs can be scheduled for immediate execution or at any late
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import BackgroundJob
+from utilities.jobs import JobRunner
 
-class MyHousekeepingJob(BackgroundJob):
+
+class MyHousekeepingJob(JobRunner):
     class Meta:
         name = "Housekeeping"
 
     def run(self, *args, **kwargs):
         # your logic goes here
 ```
+
 ```python title="__init__.py"
 from netbox.plugins import PluginConfig
 
