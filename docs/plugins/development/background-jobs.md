@@ -41,15 +41,6 @@ As described above, jobs can be scheduled for immediate execution or at any late
 !!! tip
     It is not forbidden to `enqueue()` additional jobs while an interval schedule is active. An example use of this would be to schedule a periodic daily synchronization, but also trigger additional synchronizations on demand when the user presses a button.
 
-### System Jobs
-
-A system background job is not bound to any particular NetBox object. A typical use case for these jobs is a general synchronization of NetBox objects from another system or housekeeping.
-
-The `setup()` method can be used to set up a new scheduled job outside the request-response cycle. It can be safely called from the plugin's ready function and will register the new schedule right after all plugins are loaded and the database is connected.
-
-!!! note
-    Unless otherwise configured, system background jobs use the `default` queue for scheduling. This can be changed using the [`QUEUE_MAPPINGS`](../../configuration/miscellaneous.md#queue_mappings) setting when using `None` as model.
-
 #### Example
 
 ```python title="jobs.py"

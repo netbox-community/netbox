@@ -127,8 +127,3 @@ class EnqueueTest(BackgroundJobTestCase):
         self.assertNotEqual(job1, job2)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestBackgroundJob.get_jobs(instance).count(), 1)
-
-    def test_enqueue_system(self):
-        job = TestBackgroundJob.enqueue_once(schedule_at=self.get_schedule_at())
-
-        self.assertEqual(job.object, None)

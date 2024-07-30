@@ -2,7 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
-from django.db.backends.signals import connection_created
 from django.utils.functional import classproperty
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
@@ -133,13 +132,3 @@ class BackgroundJob(ABC):
             job.delete()
 
         return cls.enqueue(instance=instance, schedule_at=schedule_at, interval=interval, *args, **kwargs)
-
-    @classmethod
-    def setup(cls, *args, **kwargs):
-        """
-        Setup a new `BackgroundJob` during plugin initialization.
-
-        This method should be called from the plugins `ready()` function to set up the schedule as early as possible.
-        For interactive setup of schedules (e.g. on user requests), use either `enqueue()` or `enqueue_once()` instead.
-        """
-        connection_created.connect(lambda sender, **signal_kwargs: cls.enqueue_once(*args, **kwargs))
