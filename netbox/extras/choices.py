@@ -156,16 +156,16 @@ class LogLevelChoices(ChoiceSet):
 
     LOG_DEBUG = 'debug'
     LOG_DEFAULT = 'default'
-    LOG_SUCCESS = 'success'
     LOG_INFO = 'info'
+    LOG_SUCCESS = 'success'
     LOG_WARNING = 'warning'
     LOG_FAILURE = 'failure'
 
     CHOICES = (
         (LOG_DEBUG, _('Debug'), 'teal'),
         (LOG_DEFAULT, _('Default'), 'gray'),
-        (LOG_SUCCESS, _('Success'), 'green'),
         (LOG_INFO, _('Info'), 'cyan'),
+        (LOG_SUCCESS, _('Success'), 'green'),
         (LOG_WARNING, _('Warning'), 'yellow'),
         (LOG_FAILURE, _('Failure'), 'red'),
     )
@@ -173,8 +173,8 @@ class LogLevelChoices(ChoiceSet):
     SYSTEM_LEVELS = {
         LOG_DEBUG: logging.DEBUG,
         LOG_DEFAULT: logging.INFO,
-        LOG_SUCCESS: logging.INFO,
         LOG_INFO: logging.INFO,
+        LOG_SUCCESS: logging.INFO,
         LOG_WARNING: logging.WARNING,
         LOG_FAILURE: logging.ERROR,
     }
