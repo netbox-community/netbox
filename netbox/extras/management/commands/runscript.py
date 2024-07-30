@@ -87,7 +87,6 @@ class Command(BaseCommand):
         ScriptJob = import_string("extras.jobs.ScriptJob")
         job = ScriptJob.enqueue(
             instance=script_obj,
-            name=script.name,
             user=user,
             immediate=True,
             data=data,
