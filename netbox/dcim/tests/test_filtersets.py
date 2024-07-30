@@ -1790,14 +1790,25 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         DeviceType.objects.bulk_create(device_types)
 
+        module_types = (
+            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
         ModuleBayTemplate.objects.bulk_create((
             ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1', description='foobar1'),
-            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2', description='foobar2'),
-            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3', description='foobar3'),
+            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]),
+            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]),
         ))
 
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_module_type(self):
+        module_types = ModuleType.objects.all()[:2]
+        params = {'module_type_id': [module_types[0].pk, module_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -4340,8 +4351,21 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[0], name='Module Bay 1', label='A', description='First'),
             ModuleBay(device=devices[1], name='Module Bay 2', label='B', description='Second'),
             ModuleBay(device=devices[2], name='Module Bay 3', label='C', description='Third'),
+            ModuleBay(device=devices[2], name='Module Bay 4', label='D', description='Fourth'),
+            ModuleBay(device=devices[2], name='Module Bay 5', label='E', description='Fifth'),
         )
         ModuleBay.objects.bulk_create(module_bays)
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+        module_bays[3].module = modules[0]
+        module_bays[3].save()
+        module_bays[4].module = modules[1]
+        module_bays[4].save()
 
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
@@ -4395,6 +4419,11 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
