@@ -13,12 +13,24 @@ LOCAL_RELEASE_PATH = 'local/release.yaml'
 
 
 @dataclass
+class FeatureSet:
+    """
+    A map of all available NetBox features.
+    """
+    # Commercial support is provided by NetBox Labs
+    commercial: bool = False
+
+    # Live help center is enabled
+    help_center: bool = False
+
+
+@dataclass
 class ReleaseInfo:
     version: str
     edition: str
     published: Union[datetime.date, None] = None
     designation: Union[str, None] = None
-    features: List = field(default_factory=list)
+    features: FeatureSet = field(default_factory=FeatureSet)
 
     @property
     def full_version(self):

@@ -32,7 +32,7 @@
         {% trans "Overview" %}
       </a>
     </li>
-    {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
+    {% if not plugin.is_local and not settings.RELEASE.features.commercial %}
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="install-tab" data-bs-toggle="tab" data-bs-target="#install" type="button" role="tab" aria-controls="object-list" aria-selected="false">
           {% trans "Install" %}
@@ -100,7 +100,7 @@
       </div>
     </div>
   </div>
-  {% if True or not plugin.is_local and 'commercial' not in settings.RELEASE.features %}
+  {% if not plugin.is_local and not settings.RELEASE.features.commercial %}
     <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
       <div class="card">
         <h5 class="card-header">{% trans "Local Installation Instructions" %}</h5>
