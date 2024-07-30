@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.module_loading import import_string
 
+from extras.jobs import ScriptJob
 from extras.scripts import get_module_and_script
 from utilities.request import NetBoxFakeRequest
 
@@ -84,7 +85,6 @@ class Command(BaseCommand):
             raise CommandError()
 
         # Execute the script.
-        ScriptJob = import_string("extras.jobs.ScriptJob")
         job = ScriptJob.enqueue(
             instance=script_obj,
             user=user,

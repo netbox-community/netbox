@@ -12,9 +12,10 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.models import Job, ObjectType
+from core.models import ObjectType
 from extras import filtersets
 from extras.models import *
+from extras.jobs import ScriptJob
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -273,7 +274,6 @@ class ScriptViewSet(ModelViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            ScriptJob = import_string("extras.jobs.ScriptJob")
             ScriptJob.enqueue(
                 instance=script,
                 user=request.user,
