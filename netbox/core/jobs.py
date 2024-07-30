@@ -1,33 +1,33 @@
 import logging
 
 from netbox.search.backends import search_backend
-from .choices import *
+from utilities.jobs import JobRunner
+from .choices import DataSourceStatusChoices
 from .exceptions import SyncError
 from .models import DataSource
-from rq.timeouts import JobTimeoutException
 
 logger = logging.getLogger(__name__)
 
 
-def sync_datasource(job, *args, **kwargs):
+class SyncDataSourceJob(JobRunner):
     """
     Call sync() on a DataSource.
     """
-    datasource = DataSource.objects.get(pk=job.object_id)
 
-    try:
-        job.start()
-        datasource.sync()
+    class Meta:
+        name = 'Synchronization'
 
-        # Update the search cache for DataFiles belonging to this source
-        search_backend.cache(datasource.datafiles.iterator())
+    def run(self, *args, **kwargs):
+        datasource = DataSource.objects.get(pk=self.job.object_id)
 
-        job.terminate()
+        try:
+            datasource.sync()
 
-    except Exception as e:
-        job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
-        DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
-        if type(e) in (SyncError, JobTimeoutException):
-            logging.error(e)
-        else:
+            # Update the search cache for DataFiles belonging to this source
+            search_backend.cache(datasource.datafiles.iterator())
+
+        except Exception as e:
+            DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
+            if type(e) is SyncError:
+                logging.error(e)
             raise e

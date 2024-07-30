@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -10,7 +11,6 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.events import *
-from core.models import Job
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
@@ -126,8 +126,8 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
-            Job.enqueue(
-                "extras.scripts.run_script",
+            from extras.jobs import ScriptJob
+            ScriptJob.enqueue(
                 instance=event_rule.action_object,
                 name=script.name,
                 user=user,
