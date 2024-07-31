@@ -76,7 +76,7 @@ class DataSourceSyncView(BaseObjectView):
         datasource = get_object_or_404(self.queryset, pk=pk)
         job = datasource.enqueue_sync_job(request)
 
-        messages.success(request, f"Queued job #{job.pk} to sync {datasource}")
+        messages.success(request, _("Queued job #{job_id} to sync {datasource}").format(job_id=job.pk, datasource=datasource))
         return redirect(datasource.get_absolute_url())
 
 
@@ -235,7 +235,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
         candidate_config = get_object_or_404(ConfigRevision, pk=pk)
         candidate_config.activate()
-        messages.success(request, f"Restored configuration revision #{pk}")
+        messages.success(request, _("Restored configuration revision #{pk}").format(pk=pk))
 
         return redirect(candidate_config.get_absolute_url())
 
@@ -379,9 +379,9 @@ class BackgroundTaskDeleteView(BaseRQView):
             # Remove job id from queue and delete the actual job
             queue.connection.lrem(queue.key, 0, job.id)
             job.delete()
-            messages.success(request, f'Deleted job {job_id}')
+            messages.success(request, _('Deleted job {job_id}').format(job_id=job_id))
         else:
-            messages.error(request, f'Error deleting job: {form.errors[0]}')
+            messages.error(request, _('Error deleting job: {error}').format(error=job.errors[0]))
 
         return redirect(reverse('core:background_queue_list'))
 
@@ -400,7 +400,7 @@ class BackgroundTaskRequeueView(BaseRQView):
         queue = get_queue_by_index(queue_index)
 
         requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
-        messages.success(request, f'You have successfully requeued: {job_id}')
+        messages.success(request, _('You have successfully requeued: {job_id}').format(job_id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
@@ -435,7 +435,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
             registry = ScheduledJobRegistry(queue.name, queue.connection)
             registry.remove(job)
 
-        messages.success(request, f'You have successfully enqueued: {job_id}')
+        messages.success(request, _('You have successfully enqueued: {job_id}').format(job_id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
@@ -454,9 +454,9 @@ class BackgroundTaskStopView(BaseRQView):
 
         stopped, _ = stop_jobs(queue, job_id)
         if len(stopped) == 1:
-            messages.success(request, f'You have successfully stopped {job_id}')
+            messages.success(request, _('You have successfully stopped {job_id}').format(job_id=job_id))
         else:
-            messages.error(request, f'Failed to stop {job_id}')
+            messages.error(request, _('Failed to stop {job_id}').format(job_id=job_id))
 
         return redirect(reverse('core:background_task', args=[job_id]))
 
