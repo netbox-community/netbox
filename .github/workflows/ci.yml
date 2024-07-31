@@ -97,5 +97,5 @@ jobs:
       run: scripts/verify-bundles.sh
 
     - name: Run tests
-      run: ddtrace-run netbox/manage.py test netbox/ --parallel --pattern --pattern "test_models.py"
+      run: ddtrace-run netbox/manage.py test netbox/ --pattern "test_models.py"
 
