@@ -208,6 +208,9 @@ class VirtualDiskTable(NetBoxTable):
             'data-name': lambda record: record.name,
         }
 
+    def render_size(self, value):
+        return humanize_megabytes(value)
+
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):
     actions = columns.ActionsColumn(
@@ -219,3 +222,6 @@ class VirtualMachineVirtualDiskTable(VirtualDiskTable):
             'pk', 'id', 'name', 'size', 'description', 'tags', 'actions',
         )
         default_columns = ('pk', 'name', 'size', 'description')
+
+    def render_size(self, value):
+        return humanize_megabytes(value)
