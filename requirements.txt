@@ -1,3 +1,4 @@
+ddtrace==2.9.2
 Django==5.0.7
 django-cors-headers==4.4.0
 django-debug-toolbar==4.3.0

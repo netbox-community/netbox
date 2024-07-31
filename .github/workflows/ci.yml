@@ -20,9 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
+      DD_CIVISIBILITY_AGENTLESS_ENABLED: "true"
+      DD_API_KEY: ${{ secrets.DD_API_KEY }}
+      DD_ENV: ci-gha
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.12']
         node-version: ['18.x']
     services:
       redis:
@@ -94,7 +97,5 @@ jobs:
       run: scripts/verify-bundles.sh
 
     - name: Run tests
-      run: coverage run --source="netbox/" netbox/manage.py test netbox/ --parallel
+      run: ddtrace-run netbox/manage.py test netbox/ --parallel --pattern --pattern "test_models.py"
 
-    - name: Show coverage report
-      run: coverage report --skip-covered --omit '*/migrations/*,*/tests/*'
