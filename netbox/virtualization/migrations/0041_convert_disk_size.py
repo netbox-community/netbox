@@ -9,8 +9,9 @@ def convert_disk_size(apps, schema_editor):
     VirtualDisk.objects.filter(size__isnull=False).update(size=F('size') * 1000)
 
     # Need to save all Vms to recalc disk size
+    id_list = VirtualDisk.objects.values_list('virtual_machine_id').distinct()
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
-    vms = VirtualMachine.objects.filter(disk__isnull=False)
+    vms = VirtualMachine.objects.filter(id__in=id_list)
     for vm in vms:
         vm.save()
 
