@@ -1203,6 +1203,20 @@ class Module(PrimaryModel, ConfigContextModel):
                 )
             )
 
+        # Check for recursion of moduleX -> module bay -> modulex
+        module = self
+        all_module_bays = self.device.modulebays.all().select_related('module')
+        found = []
+        while module:
+            if module.id in found:
+                raise ValidationError(_("Cannot have a recursion in Module Bay -> Module relationships."))
+
+            found.append(module.id)
+            if module.module_bay:
+                module = module.module_bay.module
+            else:
+                module = None
+
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
