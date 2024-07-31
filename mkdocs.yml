@@ -143,7 +143,7 @@ nav:
             - Forms: 'plugins/development/forms.md'
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
             - Search: 'plugins/development/search.md'
-            - Events: 'plugins/development/events.md'
+            - Event Types: 'plugins/development/event-types.md'
             - Data Backends: 'plugins/development/data-backends.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
