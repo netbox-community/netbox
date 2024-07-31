@@ -44,6 +44,8 @@ For object and multiple-object fields only. Designates the type of NetBox object
 
 ### Related Object Filter
 
+!!! info "This field was introduced in NetBox v4.1."
+
 For object and multi-object custom fields, a filter may be defined to limit the available objects when populating a field value. This filter maps object attributes to values. For example, `{"status": "active"}` will include only objects with a status of "active."
 
 !!! warning

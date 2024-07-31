@@ -20,6 +20,12 @@ The operational status of the link. Options include:
 
 The service set identifier (SSID) for the wireless link (optional).
 
+### Distance
+
+!!! info "This field was introduced in NetBox v4.1."
+
+The distance between the link's two endpoints, including a unit designation (e.g. 100 meters or 25 feet).
+
 ### Authentication Type
 
 The type of wireless authentication in use. Options include:
@@ -40,7 +46,3 @@ The security cipher used to apply wireless authentication. Options include:
 ### Pre-Shared Key
 
 The security key configured on each client to grant access to the secured wireless LAN. This applies only to certain authentication types.
-
-### Distance
-
-The numeric distance of the link, including a unit designation (e.g. 100 meters or 25 feet).
