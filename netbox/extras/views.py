@@ -554,7 +554,7 @@ class EventRuleView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         return {
             'event_types': [
-                event for name, event in registry['events'].items()
+                event for name, event in registry['event_types'].items()
                 if name in instance.event_types
             ]
         }

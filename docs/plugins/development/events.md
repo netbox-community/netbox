@@ -4,12 +4,12 @@ Plugins can register their own custom event types for use with NetBox [event rul
 
 ```python
 from django.utils.translation import gettext_lazy as _
-from netbox.events import Event, EVENT_TYPE_SUCCESS
+from netbox.events import EventType, EVENT_TYPE_KIND_SUCCESS
 
-Event(
+EventType(
     name='ticket_opened',
     text=_('Ticket opened'),
-    type=EVENT_TYPE_SUCCESS
+    type=EVENT_TYPE_KIND_SUCCESS
 ).register()
 ```
 
