@@ -69,7 +69,7 @@ class Plugin:
     installed_version: str = ''
 
 
-def get_local_plugins(plugins):
+def get_local_plugins(plugins={}):
     """
     Return a dictionary of all locally-installed plugins, mapped by name.
     """
