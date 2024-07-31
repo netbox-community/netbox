@@ -6,7 +6,13 @@ from django.db.models import F
 
 def convert_disk_size(apps, schema_editor):
     VirtualDisk = apps.get_model('virtualization', 'VirtualDisk')
-    VirtualDisk.objects.filter(disk__isnull=False).update(disk=F('size') * 1000)
+    VirtualDisk.objects.filter(size__isnull=False).update(size=F('size') * 1000)
+
+    # Need to save all Vms to recalc disk size
+    VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
+    vms = VirtualMachine.objects.filter(disk__isnull=False)
+    for vm in vms:
+        vm.save()
 
 
 class Migration(migrations.Migration):
