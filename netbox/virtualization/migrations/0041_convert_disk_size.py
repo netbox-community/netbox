@@ -13,6 +13,7 @@ def convert_disk_size(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
     vms = VirtualMachine.objects.filter(id__in=id_list)
     for vm in vms:
+        vm.disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
         vm.save()
 
 
