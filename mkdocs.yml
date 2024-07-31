@@ -86,6 +86,7 @@ nav:
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
         - Event Rules: 'features/event-rules.md'
+        - Notifications: 'features/notifications.md'
         - Background Jobs: 'features/background-jobs.md'
         - Auth & Permissions: 'features/authentication-permissions.md'
         - API & Integration: 'features/api-integration.md'
