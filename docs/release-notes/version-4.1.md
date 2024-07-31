@@ -7,6 +7,7 @@
 * Several filters deprecated in v4.0 have been removed (see [#15410](https://github.com/netbox-community/netbox/issues/15410)).
 * The unit size for virtual disk size has been changed from 1 gigabyte to 1 megabyte. Existing values have been updated accordingly.
 * The `min_vid` and `max_vid` fields on the VLAN group model have been replaced with `vid_ranges`, an array of starting and ending integer pairs.
+* The five individual event type fields on the EventRule model have been replaced by a single `event_types` array field, indicating each assigned event type by name.
 * The `validate()` method on CustomValidator subclasses now **must** accept the request argument (deprecated in v4.0 by #14279).
 
 ### New Features
@@ -72,6 +73,9 @@ NetBox now includes a user notification system. Users can subscribe to individua
     * Added the optional `airflow` choice field
 * extras.CustomField
     * Added the `related_object_filter` JSON field for object and multi-object custom fields
+* extras.EventRule
+    * Removed the `type_create`, `type_update`, `type_delete`, `type_job_start`, and `type_job_end` boolean fields
+    * Added the `event_types` array field
 * ipam.VLANGroup
     * Removed the `min_vid` and `max_vid` fields
     * Added the `vid_ranges` field, and array of starting & ending VLAN IDs
