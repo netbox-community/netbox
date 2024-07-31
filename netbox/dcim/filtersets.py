@@ -1,5 +1,4 @@
 import django_filters
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
@@ -16,6 +15,7 @@ from netbox.filtersets import (
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
+from users.models import User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
@@ -497,12 +497,12 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         label=_('Location (slug)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )

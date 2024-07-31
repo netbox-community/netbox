@@ -1,9 +1,7 @@
-from collections import defaultdict
 import logging
 from collections import defaultdict
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -14,6 +12,7 @@ from core.events import *
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
+from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
@@ -83,7 +82,7 @@ def enqueue_event(queue, instance, user, request_id, event_type):
 
 
 def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request_id=None):
-    user = get_user_model().objects.get(username=username) if username else None
+    user = User.objects.get(username=username) if username else None
 
     for event_rule in event_rules:
 

@@ -3,12 +3,11 @@ import logging
 import sys
 import uuid
 
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.module_loading import import_string
 
 from extras.jobs import ScriptJob
 from extras.scripts import get_module_and_script
+from users.models import User
 from utilities.request import NetBoxFakeRequest
 
 
@@ -28,8 +27,6 @@ class Command(BaseCommand):
         parser.add_argument('script', help="Script to run")
 
     def handle(self, *args, **options):
-        User = get_user_model()
-
         # Params
         script = options['script']
         loglevel = options['loglevel']

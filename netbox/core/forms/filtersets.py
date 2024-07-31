@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
@@ -7,6 +6,7 @@ from core.models import *
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
+from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField,
@@ -121,7 +121,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         widget=DateTimePicker()
     )
     user = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )
@@ -150,7 +150,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )

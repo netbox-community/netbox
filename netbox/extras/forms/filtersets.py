@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType, DataFile, DataSource
@@ -10,7 +9,7 @@ from netbox.events import get_event_type_choices
 from netbox.forms.base import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
-from users.models import Group
+from users.models import Group, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
@@ -453,7 +452,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         widget=DateTimePicker()
     )
     created_by_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )
@@ -472,7 +471,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
 
 class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )

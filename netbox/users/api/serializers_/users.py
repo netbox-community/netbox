@@ -1,11 +1,11 @@
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
-from users.models import Group, ObjectPermission
+from users.models import Group, ObjectPermission, User
 from .permissions import ObjectPermissionSerializer
 
 __all__ = (
@@ -49,7 +49,7 @@ class UserSerializer(ValidatedModelSerializer):
     )
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = (
             'id', 'url', 'display_url', 'display', 'username', 'password', 'first_name', 'last_name', 'email',
             'is_staff', 'is_active', 'date_joined', 'last_login', 'groups', 'permissions',

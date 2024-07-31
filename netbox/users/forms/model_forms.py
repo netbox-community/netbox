@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
 from django.utils.safestring import mark_safe
@@ -152,7 +152,7 @@ class UserTokenForm(forms.ModelForm):
 
 class TokenForm(UserTokenForm):
     user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.order_by('username'),
+        queryset=User.objects.order_by('username'),
         label=_('User')
     )
 
@@ -236,7 +236,7 @@ class GroupForm(forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
-        queryset=get_user_model().objects.all()
+        queryset=User.objects.all()
     )
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
@@ -300,7 +300,7 @@ class ObjectPermissionForm(forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
-        queryset=get_user_model().objects.all()
+        queryset=User.objects.all()
     )
     groups = DynamicModelMultipleChoiceField(
         label=_('Groups'),
