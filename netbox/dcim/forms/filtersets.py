@@ -312,8 +312,8 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('status', 'role_id', 'serial', 'asset_tag', name=_('Rack')),
-        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
+        FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -356,6 +356,19 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         required=False,
         null_option='None',
         label=_('Role')
+    )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    rack_type_id = DynamicModelMultipleChoiceField(
+        queryset=RackType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Rack type')
     )
     serial = forms.CharField(
         label=_('Serial'),
