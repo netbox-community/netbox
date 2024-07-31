@@ -194,6 +194,9 @@ class VirtualDiskTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    size = tables.Column(
+        verbose_name=_('Size')
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualdisk_list'
     )
@@ -207,6 +210,9 @@ class VirtualDiskTable(NetBoxTable):
         row_attrs = {
             'data-name': lambda record: record.name,
         }
+
+    def render_size(self, value):
+        return humanize_megabytes(value)
 
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):
