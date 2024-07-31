@@ -431,7 +431,7 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
 
 class VirtualDisk(ComponentModel, TrackingModelMixin):
     size = models.PositiveIntegerField(
-        verbose_name=_('size (GB)'),
+        verbose_name=_('size (MB)'),
     )
 
     class Meta(ComponentModel.Meta):
