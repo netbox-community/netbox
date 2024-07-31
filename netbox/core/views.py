@@ -658,7 +658,7 @@ class PluginListView(UserPassesTestMixin, View):
     def get(self, request):
         q = request.GET.get('q', None)
 
-        plugins = get_plugins().values()
+        plugins = get_plugins(request).values()
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
 
@@ -683,7 +683,7 @@ class PluginView(UserPassesTestMixin, View):
 
     def get(self, request, name):
 
-        plugins = get_plugins()
+        plugins = get_plugins(request)
         if name not in plugins:
             raise Http404(_("Plugin {name} not found").format(name=name))
         plugin = plugins[name]

@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import requests
+from django.contrib import messages
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
@@ -187,15 +188,21 @@ def get_catalog_plugins():
     return plugins
 
 
-def get_plugins():
+def get_plugins(request):
     """
     Return a dictionary of all plugins (both catalog and locally installed), mapped by name.
     """
     local_plugins = get_local_plugins()
-    catalog_plugins = cache.get('plugins-catalog-feed')
-    if not catalog_plugins:
-        catalog_plugins = get_catalog_plugins()
-        cache.set('plugins-catalog-feed', catalog_plugins, 3600)
+    catalog_plugins = cache.get('plugins-catalog-feed', default={})
+    catalog_plugins_error = cache.get('plugins-catalog-error', default=False)
+    if not catalog_plugins and not catalog_plugins_error:
+        try:
+            catalog_plugins = get_catalog_plugins()
+            cache.set('plugins-catalog-feed', catalog_plugins, 3600)
+        except requests.exceptions.RequestException:
+            # Cache for 15 minutes to avoid spamming connection
+            cache.set('plugins-catalog-error', True, 900)
+            messages.warning(request, _("Plugins catalog could not be loaded"))
 
     plugins = catalog_plugins
     for k, v in local_plugins.items():
