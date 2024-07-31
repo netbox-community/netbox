@@ -152,8 +152,8 @@ class RackType(RackBase):
     )
 
     clone_fields = (
-        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-        'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'manufacturer', 'form_factor', 'width', 'u_height', 'airflow', 'desc_units', 'outer_width', 'outer_depth',
+        'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -169,6 +169,10 @@ class RackType(RackBase):
 
     def get_absolute_url(self):
         return reverse('dcim:racktype', args=[self.pk])
+
+    @property
+    def full_name(self):
+        return f"{self.manufacturer} {self.name}"
 
     def clean(self):
         super().clean()
