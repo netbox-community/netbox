@@ -1,5 +1,4 @@
 import django_filters
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -284,12 +283,12 @@ class SavedFilterFilterSet(ChangeLoggedModelFilterSet):
         field_name='object_types'
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -328,12 +327,12 @@ class BookmarkFilterSet(BaseFilterSet):
     object_type_id = MultiValueNumberFilter()
     object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -410,12 +409,12 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
         queryset=ContentType.objects.all()
     )
     created_by_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     created_by = django_filters.ModelMultipleChoiceFilter(
         field_name='created_by__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )

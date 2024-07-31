@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -11,13 +10,11 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
-
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):

@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -11,6 +10,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
+from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet, InlineFields
@@ -459,9 +459,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     user = forms.ModelChoiceField(
         label=_('User'),
-        queryset=get_user_model().objects.order_by(
-            'username'
-        ),
+        queryset=User.objects.order_by('username'),
         required=False
     )
     tenant = DynamicModelChoiceField(

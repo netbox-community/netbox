@@ -1,10 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 
 from dcim.models import Site
 from dcim.tables import SiteTable
+from users.models import User
 from users.preferences import UserPreference
 from utilities.testing import TestCase
 
@@ -14,9 +14,6 @@ DEFAULT_USER_PREFERENCES = {
         'per_page': 250,
     }
 }
-
-
-User = get_user_model()
 
 
 class UserPreferencesTest(TestCase):

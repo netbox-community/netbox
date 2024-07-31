@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelFilterSetForm
@@ -80,7 +79,7 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
         label=_('Group')
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )
@@ -121,7 +120,7 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('user_id', 'write_enabled', 'expires', 'last_used', name=_('Token')),
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )

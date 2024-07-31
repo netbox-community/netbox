@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -8,11 +7,10 @@ from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR, VRF
 from netbox.choices import ColorChoices
 from tenancy.models import Tenant, TenantGroup
+from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.models import Cluster, ClusterType, ClusterGroup
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
-
-User = get_user_model()
 
 
 class DeviceComponentFilterSetTests:

@@ -1,14 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.data import deepmerge
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
-
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):

@@ -1,15 +1,12 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import ObjectType
 from users import filtersets
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import BaseFilterSetTests
-
-User = get_user_model()
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):

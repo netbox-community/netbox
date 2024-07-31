@@ -2,7 +2,6 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -13,10 +12,9 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
-
-User = get_user_model()
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

@@ -5,10 +5,10 @@ import sys
 from django import get_version
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from core.models import ObjectType
+from users.models import User
 
 APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
 
@@ -61,7 +61,7 @@ class Command(BaseCommand):
 
         # Additional objects to include
         namespace['ObjectType'] = ObjectType
-        namespace['User'] = get_user_model()
+        namespace['User'] = User
 
         # Load convenience commands
         namespace.update({

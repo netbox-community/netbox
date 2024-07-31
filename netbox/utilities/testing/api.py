@@ -3,7 +3,6 @@ import json
 
 import strawberry_django
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -16,7 +15,7 @@ from strawberry.types.union import StrawberryUnion
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from ipam.graphql.types import IPAddressFamilyType
-from users.models import ObjectPermission, Token
+from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
 from .utils import disable_warnings
@@ -25,9 +24,6 @@ __all__ = (
     'APITestCase',
     'APIViewTestCases',
 )
-
-
-User = get_user_model()
 
 
 #

@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -10,6 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
@@ -448,7 +448,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Rack')
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )

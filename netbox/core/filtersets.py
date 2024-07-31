@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -7,6 +6,7 @@ import django_filters
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from netbox.utils import get_data_backend_choices
+from users.models import User
 from utilities.filters import ContentTypeFilter
 from .choices import *
 from .models import *
@@ -141,12 +141,12 @@ class ObjectChangeFilterSet(BaseFilterSet):
         queryset=ContentType.objects.all()
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User name'),
     )
