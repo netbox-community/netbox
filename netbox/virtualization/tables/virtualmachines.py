@@ -194,6 +194,9 @@ class VirtualDiskTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    size = tables.Column(
+        verbose_name=_('Size')
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualdisk_list'
     )
