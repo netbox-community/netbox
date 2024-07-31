@@ -6,6 +6,7 @@ from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
@@ -35,7 +36,6 @@ from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
 from .models import *
-from .scripts import run_script
 from .tables import ReportResultsTable, ScriptResultsTable
 
 
@@ -1175,10 +1175,9 @@ class ScriptView(BaseScriptView):
         if not get_workers_for_queue('default'):
             messages.error(request, _("Unable to run script: RQ worker process not running."))
         elif form.is_valid():
-            job = Job.enqueue(
-                run_script,
+            ScriptJob = import_string("extras.jobs.ScriptJob")
+            job = ScriptJob.enqueue(
                 instance=script,
-                name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
@@ -1246,7 +1245,10 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         table = None
         index = 0
 
-        log_threshold = LOG_LEVEL_RANK.get(request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT))
+        try:
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+        except KeyError:
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
         if job.data:
 
             if 'log' in job.data:
@@ -1303,12 +1305,16 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        if log_threshold not in LOG_LEVEL_RANK:
+            log_threshold = LogLevelChoices.LOG_DEBUG
+
         context = {
             'script': job.object,
             'job': job,
             'table': table,
             'log_levels': dict(LogLevelChoices),
-            'log_threshold': request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)
+            'log_threshold': log_threshold,
         }
 
         if job.data and 'log' in job.data:

@@ -198,6 +198,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     circuit = DynamicModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
+        selector=True
     )
 
     class Meta:

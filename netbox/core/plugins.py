@@ -155,7 +155,6 @@ def get_catalog_plugins():
 
             # Populate author (if any)
             if data['author']:
-                print(data['author'])
                 author = PluginAuthor(
                     name=data['author']['name'],
                     org_id=data['author']['org_id'],

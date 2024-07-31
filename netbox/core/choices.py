@@ -59,6 +59,12 @@ class JobStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
     )
 
+    ENQUEUED_STATE_CHOICES = (
+        STATUS_PENDING,
+        STATUS_SCHEDULED,
+        STATUS_RUNNING,
+    )
+
     TERMINAL_STATE_CHOICES = (
         STATUS_COMPLETED,
         STATUS_ERRORED,

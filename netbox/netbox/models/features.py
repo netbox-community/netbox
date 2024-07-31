@@ -289,7 +289,7 @@ class CustomFieldsMixin(models.Model):
 
             # Validate uniqueness if enforced
             if custom_fields[field_name].validation_unique and value not in CUSTOMFIELD_EMPTY_VALUES:
-                if self._meta.model.objects.filter(**{
+                if self._meta.model.objects.exclude(pk=self.pk).filter(**{
                     f'custom_field_data__{field_name}': value
                 }).exists():
                     raise ValidationError(_("Custom field '{name}' must have a unique value.").format(

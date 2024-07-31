@@ -23,6 +23,9 @@ ADVISORY_LOCK_KEYS = {
     'wirelesslangroup': 105600,
     'inventoryitem': 105700,
     'inventoryitemtemplate': 105800,
+
+    # Jobs
+    'job-schedules': 110100,
 }
 
 # Default view action permission mapping

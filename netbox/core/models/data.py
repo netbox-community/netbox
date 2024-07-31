@@ -1,10 +1,10 @@
 import hashlib
 import logging
 import os
-import yaml
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
+import yaml
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -12,7 +12,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
@@ -23,7 +22,6 @@ from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
 from ..signals import post_sync, pre_sync
-from .jobs import Job
 
 __all__ = (
     'AutoSyncRecord',
@@ -152,21 +150,6 @@ class DataSource(JobsMixin, PrimaryModel):
                 pre_change_params[param] = CENSOR_TOKEN
 
         return objectchange
-
-    def enqueue_sync_job(self, request):
-        """
-        Enqueue a background job to synchronize the DataSource by calling sync().
-        """
-        # Set the status to "syncing"
-        self.status = DataSourceStatusChoices.QUEUED
-        DataSource.objects.filter(pk=self.pk).update(status=self.status)
-
-        # Enqueue a sync job
-        return Job.enqueue(
-            import_string('core.jobs.sync_datasource'),
-            instance=self,
-            user=request.user
-        )
 
     def get_backend(self):
         backend_params = self.parameters or {}

@@ -203,7 +203,7 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
     )
 
     class Meta:
-        ordering = ('circuit', 'priority', 'pk')
+        ordering = ('group', 'circuit', 'priority', 'pk')
         constraints = (
             models.UniqueConstraint(
                 fields=('circuit', 'group'),
