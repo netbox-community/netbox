@@ -37,7 +37,7 @@ from . import filtersets, forms, tables
 from .choices import DataSourceStatusChoices
 from .jobs import SyncDataSourceJob
 from .models import *
-from .plugins import get_plugins
+from .plugins import get_catalog_plugins, get_local_plugins
 from .tables import CatalogPluginTable, PluginVersionTable
 
 
@@ -650,15 +650,30 @@ class SystemView(UserPassesTestMixin, View):
 # Plugins
 #
 
-class PluginListView(UserPassesTestMixin, View):
+class BasePluginView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_staff
 
+    def get_cached_plugins(self, request):
+        catalog_plugins = {}
+        catalog_plugins_error = cache.get('plugins-catalog-error', default=False)
+        if not catalog_plugins_error:
+            catalog_plugins = get_catalog_plugins()
+            if not catalog_plugins:
+                # Cache for 5 minutes to avoid spamming connection
+                cache.set('plugins-catalog-error', True, 300)
+                messages.warning(request, _("Plugins catalog could not be loaded"))
+
+        return get_local_plugins(catalog_plugins)
+
+
+class PluginListView(BasePluginView):
+
     def get(self, request):
         q = request.GET.get('q', None)
 
-        plugins = get_plugins(request).values()
+        plugins = self.get_cached_plugins(request).values()
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
 
@@ -676,14 +691,11 @@ class PluginListView(UserPassesTestMixin, View):
         })
 
 
-class PluginView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class PluginView(BasePluginView):
 
     def get(self, request, name):
 
-        plugins = get_plugins(request)
+        plugins = self.get_cached_plugins(request)
         if name not in plugins:
             raise Http404(_("Plugin {name} not found").format(name=name))
         plugin = plugins[name]
