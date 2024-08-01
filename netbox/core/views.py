@@ -651,18 +651,19 @@ class SystemView(UserPassesTestMixin, View):
 #
 
 class BasePluginView(UserPassesTestMixin, View):
+    CACHE_KEY_CATALOG_ERROR = 'plugins-catalog-error'
 
     def test_func(self):
         return self.request.user.is_staff
 
     def get_cached_plugins(self, request):
         catalog_plugins = {}
-        catalog_plugins_error = cache.get('plugins-catalog-error', default=False)
+        catalog_plugins_error = cache.get(self.CACHE_KEY_CATALOG_ERROR, default=False)
         if not catalog_plugins_error:
             catalog_plugins = get_catalog_plugins()
             if not catalog_plugins:
                 # Cache for 5 minutes to avoid spamming connection
-                cache.set('plugins-catalog-error', True, 300)
+                cache.set(self.CACHE_KEY_CATALOG_ERROR, True, 300)
                 messages.warning(request, _("Plugins catalog could not be loaded"))
 
         return get_local_plugins(catalog_plugins)

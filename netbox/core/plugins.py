@@ -5,15 +5,14 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import requests
-from django.contrib import messages
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins import PluginConfig
 from utilities.datetime import datetime_from_timestamp
 
 USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
+CACHE_KEY_CATALOG_FEED = 'plugins-catalog-feed'
 
 
 @dataclass
@@ -69,11 +68,14 @@ class Plugin:
     installed_version: str = ''
 
 
-def get_local_plugins(plugins={}):
+def get_local_plugins(plugins=None):
     """
     Return a dictionary of all locally-installed plugins, mapped by name.
     """
+    plugins = plugins or {}
     local_plugins = {}
+
+    # Gather all locally-installed plugins
     for plugin_name in settings.PLUGINS:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
@@ -88,6 +90,7 @@ def get_local_plugins(plugins={}):
             installed_version=plugin_config.version,
         )
 
+    # Update catalog entries for local plugins, or add them to the list if not listed
     for k, v in local_plugins.items():
         if k in plugins:
             plugins[k].is_local = True
@@ -196,11 +199,11 @@ def get_catalog_plugins():
 
         return plugins
 
-    catalog_plugins = cache.get('plugins-catalog-feed', default={})
+    catalog_plugins = cache.get(CACHE_KEY_CATALOG_FEED, default={})
     if not catalog_plugins:
         try:
             catalog_plugins = make_plugin_dict()
-            cache.set('plugins-catalog-feed', catalog_plugins, 3600)
+            cache.set(CACHE_KEY_CATALOG_FEED, catalog_plugins, 3600)
         except requests.exceptions.RequestException:
             pass
 
