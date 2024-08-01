@@ -173,6 +173,7 @@ class ToggleColumn(tables.CheckBoxColumn):
             kwargs['attrs'] = {
                 'th': {
                     'class': 'w-1',
+                    'aria-label': _('Select all'),
                 },
                 'td': {
                     'class': 'w-1',

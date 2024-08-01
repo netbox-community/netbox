@@ -1,4 +1,5 @@
 {% load django_tables2 %}
+{% load i18n %}
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %} hx-disinherit="hx-target hx-select" hx-swap="outerHTML">
   {% if table.show_header %}
     <thead
@@ -14,6 +15,7 @@
                   <a href="#"
                      hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field='' %}"
                      class="text-danger"
+                     title="{% trans "Clear ordering" %}"
                   ><i class="mdi mdi-close"></i></a>
                 </div>
               {% endif %}
