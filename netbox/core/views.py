@@ -2,6 +2,7 @@ import json
 import platform
 
 from django import __version__ as DJANGO_VERSION
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -630,9 +631,11 @@ class SystemView(UserPassesTestMixin, View):
 
         # Raw data export
         if 'export' in request.GET:
+            stats['netbox_release'] = stats['netbox_release'].asdict()
             params = [param.name for param in PARAMS]
             data = {
                 **stats,
+                'plugins': settings.PLUGINS,
                 'config': {
                     k: getattr(config, k) for k in sorted(params)
                 },
