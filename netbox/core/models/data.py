@@ -21,7 +21,6 @@ from netbox.registry import registry
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
-from ..signals import post_sync, pre_sync
 
 __all__ = (
     'AutoSyncRecord',
@@ -159,6 +158,8 @@ class DataSource(JobsMixin, PrimaryModel):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
+        from core.signals import post_sync, pre_sync
+
         if self.status == DataSourceStatusChoices.SYNCING:
             raise SyncError(_("Cannot initiate sync; syncing already in progress."))
 
