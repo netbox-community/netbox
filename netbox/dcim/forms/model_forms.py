@@ -208,7 +208,10 @@ class RackTypeForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all()
     )
     comments = CommentField()
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+        slug_source='model'
+    )
 
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),

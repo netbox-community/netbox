@@ -246,7 +246,7 @@ class PowerPortIndex(SearchIndex):
 class RackTypeIndex(SearchIndex):
     model = models.RackType
     fields = (
-        ('name', 100),
+        ('model', 100),
         ('description', 500),
         ('comments', 5000),
     )
