@@ -221,7 +221,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         return reverse('dcim:devicetype', args=[self.pk])
 
     @property
-    def get_full_name(self):
+    def full_name(self):
         return f"{self.manufacturer} {self.model}"
 
     def to_yaml(self):
