@@ -630,10 +630,11 @@ class SystemView(UserPassesTestMixin, View):
 
         # Raw data export
         if 'export' in request.GET:
+            params = [param.name for param in PARAMS]
             data = {
                 **stats,
                 'config': {
-                    k: config.data[k] for k in sorted(config.data)
+                    k: getattr(config, k) for k in sorted(params)
                 },
             }
             response = HttpResponse(json.dumps(data, indent=4), content_type='text/json')
