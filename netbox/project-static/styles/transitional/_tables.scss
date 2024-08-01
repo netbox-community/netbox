@@ -28,7 +28,7 @@ table.attr-table {
 
   // Restyle row header
   th {
-    font-weight: normal;
+    font-weight: $font-weight-base;
     width: min-content;
   }
 

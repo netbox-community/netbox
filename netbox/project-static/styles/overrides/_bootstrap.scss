@@ -20,3 +20,8 @@ hr.dropdown-divider {
   margin-bottom: 0.25rem;
   margin-top: 0.25rem;
 }
+
+// Bootstrap forces the font weight for dropdown items to $font-weight-normal
+.dropdown-item {
+  font-weight: $font-weight-base;
+}
