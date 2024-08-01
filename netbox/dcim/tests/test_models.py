@@ -82,7 +82,7 @@ class RackTypeTestCase(TestCase):
 
         RackType.objects.create(
             manufacturer=manufacturer,
-            name='RackType 1',
+            model='RackType 1',
             slug='rack-type-1',
             width=11,
             u_height=22,

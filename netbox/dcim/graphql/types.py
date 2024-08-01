@@ -613,7 +613,6 @@ class PowerPortTemplateType(ModularComponentTemplateType):
     filters=RackTypeFilter
 )
 class RackTypeType(NetBoxObjectType):
-    _name: str
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
 

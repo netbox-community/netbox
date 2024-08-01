@@ -663,7 +663,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         rack_types = (
             RackType(
                 manufacturer=manufacturers[0],
-                name='RackType 1',
+                model='RackType 1',
                 slug='rack-type-1',
                 form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
@@ -681,7 +681,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackType(
                 manufacturer=manufacturers[1],
-                name='RackType 2',
+                model='RackType 2',
                 slug='rack-type-2',
                 form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
