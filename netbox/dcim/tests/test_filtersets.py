@@ -653,6 +653,53 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(
+                manufacturer=manufacturers[0],
+                name='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_2POST,
+                width=RackWidthChoices.WIDTH_19IN,
+                u_height=42,
+                starting_unit=1,
+                desc_units=False,
+                outer_width=100,
+                outer_depth=100,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=100,
+                weight=10,
+                max_weight=1000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar1'
+            ),
+            RackType(
+                manufacturer=manufacturers[1],
+                name='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_4POST,
+                width=RackWidthChoices.WIDTH_21IN,
+                u_height=43,
+                starting_unit=2,
+                desc_units=False,
+                outer_width=200,
+                outer_depth=200,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=200,
+                weight=20,
+                max_weight=2000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar2'
+            ),
+        )
+        RackType.objects.bulk_create(rack_types)
+
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -742,6 +789,28 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
                 description='foobar3'
             ),
+            Rack(
+                name='Rack 4',
+                facility_id='rack-4',
+                site=sites[2],
+                location=locations[2],
+                tenant=tenants[2],
+                status=RackStatusChoices.STATUS_PLANNED,
+                role=rack_roles[2],
+                rack_type=rack_types[0],
+                description='foobar4'
+            ),
+            Rack(
+                name='Rack 5',
+                facility_id='rack-5',
+                site=sites[2],
+                location=locations[2],
+                tenant=tenants[2],
+                status=RackStatusChoices.STATUS_PLANNED,
+                role=rack_roles[2],
+                rack_type=rack_types[1],
+                description='foobar5'
+            ),
         )
         Rack.objects.bulk_create(racks)
 
@@ -771,15 +840,15 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_width(self):
         params = {'width': [RackWidthChoices.WIDTH_19IN, RackWidthChoices.WIDTH_21IN]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_u_height(self):
         params = {'u_height': [42, 43]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_starting_unit(self):
         params = {'starting_unit': [1]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'starting_unit': [2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
@@ -787,7 +856,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'desc_units': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'desc_units': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_outer_width(self):
         params = {'outer_width': [100, 200]}
@@ -798,7 +867,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_unit(self):
-        self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 3)
+        self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 5)
         params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
@@ -832,7 +901,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [RackStatusChoices.STATUS_ACTIVE, RackStatusChoices.STATUS_PLANNED]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):
         roles = RackRole.objects.all()[:2]
@@ -871,6 +940,20 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack_type(self):
+        rack_types = RackType.objects.all()[:2]
+        params = {'rack_type_id': [rack_types[0].pk, rack_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack_type': [rack_types[0].slug, rack_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
