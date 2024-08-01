@@ -273,7 +273,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
@@ -287,26 +287,26 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], name='Rack Type 1', slug='rack-type-1'),
-            RackType(manufacturer=manufacturers[0], name='Rack Type 2', slug='rack-type-2'),
-            RackType(manufacturer=manufacturers[0], name='Rack Type 3', slug='rack-type-3'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3'),
         )
         RackType.objects.bulk_create(rack_types)
 
         cls.create_data = [
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 4',
+                'model': 'Rack Type 4',
                 'slug': 'rack-type-4',
             },
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 5',
+                'model': 'Rack Type 5',
                 'slug': 'rack-type-5',
             },
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 6',
+                'model': 'Rack Type 6',
                 'slug': 'rack-type-6',
             },
         ]

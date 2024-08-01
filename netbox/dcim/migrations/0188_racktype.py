@@ -37,14 +37,7 @@ class Migration(migrations.Migration):
                     related_name='rack_types',
                     to='dcim.manufacturer'
                 )),
-                ('name', models.CharField(max_length=100)),
-                ('_name', utilities.fields.NaturalOrderingField(
-                    'name',
-                    blank=True,
-                    max_length=100,
-                    naturalize_function=utilities.ordering.naturalize
-                ),
-                ),
+                ('model', models.CharField(max_length=100)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
                 ('form_factor', models.CharField(blank=True, max_length=50)),
                 ('width', models.PositiveSmallIntegerField(default=19)),
@@ -71,7 +64,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'racktype',
                 'verbose_name_plural': 'racktypes',
-                'ordering': ('_name', 'pk'),
+                'ordering': ('manufacturer', 'model'),
             },
         ),
         migrations.RenameField(
@@ -88,6 +81,18 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='racks',
                 to='dcim.racktype',
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name='racktype',
+            constraint=models.UniqueConstraint(
+                fields=('manufacturer', 'model'), name='dcim_racktype_unique_manufacturer_model'
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name='racktype',
+            constraint=models.UniqueConstraint(
+                fields=('manufacturer', 'slug'), name='dcim_racktype_unique_manufacturer_slug'
             ),
         ),
     ]

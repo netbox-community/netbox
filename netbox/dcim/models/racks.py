@@ -136,14 +136,9 @@ class RackType(RackBase):
         on_delete=models.PROTECT,
         related_name='rack_types'
     )
-    name = models.CharField(
-        verbose_name=_('name'),
+    model = models.CharField(
+        verbose_name=_('model'),
         max_length=100
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -160,19 +155,29 @@ class RackType(RackBase):
     )
 
     class Meta:
-        ordering = ('_name', 'pk')  # (site, location, name) may be non-unique
+        ordering = ('manufacturer', 'model')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'model'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_model'
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug'
+            ),
+        )
         verbose_name = _('rack type')
         verbose_name_plural = _('rack types')
 
     def __str__(self):
-        return self.name
+        return self.model
 
     def get_absolute_url(self):
         return reverse('dcim:racktype', args=[self.pk])
 
     @property
     def full_name(self):
-        return f"{self.manufacturer} {self.name}"
+        return f"{self.manufacturer} {self.model}"
 
     def clean(self):
         super().clean()

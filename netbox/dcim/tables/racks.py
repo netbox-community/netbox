@@ -50,9 +50,8 @@ class RackRoleTable(NetBoxTable):
 #
 
 class RackTypeTable(NetBoxTable):
-    name = tables.Column(
-        verbose_name=_('Name'),
-        order_by=('_name',),
+    model = tables.Column(
+        verbose_name=_('Model'),
         linkify=True
     )
     manufacturer = tables.Column(
@@ -96,12 +95,12 @@ class RackTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackType
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
             'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description', 'comments',
             'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
+            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
         )
 
 

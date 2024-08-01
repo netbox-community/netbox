@@ -311,7 +311,7 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = RackType
         fields = (
-            'id', 'name', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
             'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 
@@ -319,7 +319,7 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value) |
+            Q(model__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )

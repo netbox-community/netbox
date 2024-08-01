@@ -10,9 +10,13 @@ A rack type defines the physical characteristics of a particular model of [rack]
 
 The [manufacturer](./manufacturer.md) which produces this type of rack.
 
-### Name
+### Model
 
-The unique name of the rack type.
+The model number assigned to this rack type by its manufacturer. Must be unique to the manufacturer.
+
+### Slug
+
+A unique URL-friendly representation of the model identifier. (This value can be used for filtering.)
 
 ### Form Factor
 

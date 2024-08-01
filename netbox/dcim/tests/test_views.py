@@ -346,9 +346,9 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], name='RackType 1', slug='rack-type-1',),
-            RackType(manufacturer=manufacturers[0], name='RackType 2', slug='rack-type-2',),
-            RackType(manufacturer=manufacturers[0], name='RackType 3', slug='rack-type-3',),
+            RackType(manufacturer=manufacturers[0], model='RackType 1', slug='rack-type-1',),
+            RackType(manufacturer=manufacturers[0], model='RackType 2', slug='rack-type-2',),
+            RackType(manufacturer=manufacturers[0], model='RackType 3', slug='rack-type-3',),
         )
         RackType.objects.bulk_create(rack_types)
 
@@ -356,7 +356,7 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
-            'name': 'RackType X',
+            'model': 'RackType X',
             'slug': 'rack-type-x',
             'type': RackFormFactorChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
@@ -374,14 +374,14 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "manufacturer,name,slug,width,u_height,weight,max_weight,weight_unit",
+            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
             "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
             "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
             "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
-            "id,name",
+            "id,model",
             f"{rack_types[0].pk},RackType 7",
             f"{rack_types[1].pk},RackType 8",
             f"{rack_types[2].pk},RackType 9",
