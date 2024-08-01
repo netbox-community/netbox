@@ -8,8 +8,8 @@ from django.utils.translation import gettext as _
 from core.signals import clear_events
 from extras.models import Script as ScriptModel
 from netbox.context_managers import event_tracking
+from netbox.jobs import JobRunner
 from utilities.exceptions import AbortScript, AbortTransaction
-from utilities.jobs import JobRunner
 from .utils import is_report
 
 

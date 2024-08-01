@@ -10,12 +10,12 @@ For example, your plugin might need to fetch data from a remote system. Dependin
 
 A background job implements a basic [Job](../../models/core/job.md) executor for all kinds of tasks. It has logic implemented to handle the management of the associated job object, rescheduling of periodic jobs in the given interval and error handling. Adding custom jobs is done by subclassing NetBox's `JobRunner` class.
 
-::: utilities.jobs.JobRunner
+::: netbox.jobs.JobRunner
 
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import JobRunner
+from netbox.jobs import JobRunner
 
 
 class MyTestJob(JobRunner):
@@ -47,7 +47,7 @@ As described above, jobs can be scheduled for immediate execution or at any late
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import JobRunner
+from netbox.jobs import JobRunner
 
 
 class MyHousekeepingJob(JobRunner):
