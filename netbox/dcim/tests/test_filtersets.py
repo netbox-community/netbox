@@ -484,7 +484,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         racks = (
             RackType(
                 manufacturer=manufacturers[0],
-                name='RackType 1',
+                model='RackType 1',
                 slug='rack-type-1',
                 form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
@@ -502,7 +502,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackType(
                 manufacturer=manufacturers[1],
-                name='RackType 2',
+                model='RackType 2',
                 slug='rack-type-2',
                 form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
@@ -520,7 +520,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackType(
                 manufacturer=manufacturers[2],
-                name='RackType 3',
+                model='RackType 3',
                 slug='rack-type-3',
                 form_factor=RackFormFactorChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
@@ -550,8 +550,8 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_name(self):
-        params = {'name': ['RackType 1', 'RackType 2']}
+    def test_model(self):
+        params = {'model': ['RackType 1', 'RackType 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
