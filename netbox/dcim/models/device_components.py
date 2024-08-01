@@ -1116,19 +1116,14 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        # Check for recursion of moduleX -> module bay -> modulex
+        # Check for recursion
         if module := self.module:
-            all_module_bays = self.device.modulebays.all().select_related('module')
-            found = []
+            tree = []
             while module:
-                if module.id in found:
-                    raise ValidationError(_("Cannot have a recursion in Module Bay -> Module relationships."))
-
-                found.append(module.id)
-                if module.module_bay:
-                    module = module.module_bay.module
-                else:
-                    module = None
+                if module.pk in tree:
+                    raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+                tree.append(module.pk)
+                module = module.module_bay.module if module.module_bay else None
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):

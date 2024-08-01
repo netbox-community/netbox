@@ -72,7 +72,6 @@ class ModuleCommonForm(forms.Form):
 
     def _get_module_bay_tree(self, module_bay):
         module_bays = []
-        all_module_bays = module.device.modulebays.all().select_related('module')
         while module_bay:
             module_bays.append(module_bay)
             if module_bay.module:

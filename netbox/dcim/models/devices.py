@@ -1203,19 +1203,14 @@ class Module(PrimaryModel, ConfigContextModel):
                 )
             )
 
-        # Check for recursion of moduleX -> module bay -> modulex
+        # Check for recursion
         module = self
-        all_module_bays = self.device.modulebays.all().select_related('module')
-        found = []
+        tree = []
         while module:
-            if module.id in found:
-                raise ValidationError(_("Cannot have a recursion in Module Bay -> Module relationships."))
-
-            found.append(module.id)
-            if module.module_bay:
-                module = module.module_bay.module
-            else:
-                module = None
+            if module.pk in tree:
+                raise ValidationError(_("A module cannot be installed in a bay which depends on itself."))
+            tree.append(module.pk)
+            module = module.module_bay.module if module.module_bay else None
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
