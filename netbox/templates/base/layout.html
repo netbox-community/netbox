@@ -171,18 +171,37 @@ Blocks:
                     </a>
                   </li>
                 {% endif %}
-                {# GitHub #}
-                <li class="list-inline-item">
-                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
-                    <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                  </a>
-                </li>
-                {# NetDev Slack #}
-                <li class="list-inline-item">
-                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
-                    <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                  </a>
-                </li>
+
+                {# Commercial links #}
+                {% if settings.RELEASE.features.commercial %}
+                  {# LinkedIn #}
+                  <li class="list-inline-item">
+                    <a href="https://www.linkedin.com/company/netboxlabs/" target="_blank" class="link-secondary" rel="noopener" aria-label="LinkedIn">
+                      <i title="LinkedIn" class="mdi mdi-linkedin text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                  {# Support #}
+                  <li class="list-inline-item">
+                    <a href="mailto:support@netboxlabs.com" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "NetBox Labs Support" %}">
+                      <i title="{% trans "NetBox Labs Support" %}" class="mdi mdi-lifebuoy text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+
+                {# Community links #}
+                {% else %}
+                  {# GitHub #}
+                  <li class="list-inline-item">
+                    <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
+                      <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                  {# NetDev Slack #}
+                  <li class="list-inline-item">
+                    <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
+                      <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                {% endif %}
               {% endblock footer_links %}
             </ul>
             {# /Footer links #}
