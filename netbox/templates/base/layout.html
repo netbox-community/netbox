@@ -164,18 +164,20 @@ Blocks:
                     </a>
                   </li>
                 {% endif %}
-                {# GitHub #}
-                <li class="list-inline-item">
-                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                  </a>
-                </li>
-                {# NetDev Slack #}
-                <li class="list-inline-item">
-                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
-                    <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                  </a>
-                </li>
+                {% if not settings.ISOLATED_DEPLOYMENT %}
+                  {# GitHub #}
+                  <li class="list-inline-item">
+                    <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
+                      <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                  {# NetDev Slack #}
+                  <li class="list-inline-item">
+                    <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
+                      <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                {% endif %}
               {% endblock footer_links %}
             </ul>
             {# /Footer links #}

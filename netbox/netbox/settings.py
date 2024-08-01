@@ -112,6 +112,7 @@ FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
+ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -578,7 +579,7 @@ CENSUS_PARAMS = {
     'python_version': sys.version.split()[0],
     'deployment_id': DEPLOYMENT_ID,
 }
-if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
     try:
         # Report anonymous census data
         requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)

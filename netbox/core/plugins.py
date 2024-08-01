@@ -107,6 +107,10 @@ def get_catalog_plugins():
     """
     session = requests.Session()
 
+    # Disable catalog fetching for isolated deployments
+    if settings.ISOLATED_DEPLOYMENT:
+        return {}
+
     def get_pages():
         # TODO: pagination is currently broken in API
         payload = {'page': '1', 'per_page': '50'}
