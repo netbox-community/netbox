@@ -34,6 +34,8 @@ from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
+from .choices import DataSourceStatusChoices
+from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_plugins
 from .tables import CatalogPluginTable, PluginVersionTable
@@ -76,7 +78,11 @@ class DataSourceSyncView(BaseObjectView):
 
     def post(self, request, pk):
         datasource = get_object_or_404(self.queryset, pk=pk)
-        job = datasource.enqueue_sync_job(request)
+
+        # Enqueue the sync job & update the DataSource's status
+        job = SyncDataSourceJob.enqueue(instance=datasource, user=request.user)
+        datasource.status = DataSourceStatusChoices.QUEUED
+        DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
 
         messages.success(request, f"Queued job #{job.pk} to sync {datasource}")
         return redirect(datasource.get_absolute_url())

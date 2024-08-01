@@ -77,10 +77,14 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Commit Rate')
     )
     comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
+        verbose_name=_('Comments')
     )
     tags = columns.TagColumn(
         url_name='circuits:circuit_list'
+    )
+    assignments = columns.ManyToManyColumn(
+        verbose_name=_('Assignments'),
+        linkify_item=True
     )
 
     class Meta(NetBoxTable.Meta):
@@ -88,7 +92,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'tenant_group',
             'termination_a', 'termination_z', 'install_date', 'termination_date', 'commit_rate', 'description',
-            'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',

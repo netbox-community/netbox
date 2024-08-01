@@ -27,7 +27,7 @@ def get_event_type_choices():
     """
     return [
         (name, event.text)
-        for name, event in registry['events'].items()
+        for name, event in registry['event_types'].items()
     ]
 
 
@@ -102,7 +102,7 @@ class Notification(models.Model):
         """
         Returns the registered Event which triggered this Notification.
         """
-        return registry['events'].get(self.event_type)
+        return registry['event_types'].get(self.event_type)
 
 
 class NotificationGroup(ChangeLoggedModel):

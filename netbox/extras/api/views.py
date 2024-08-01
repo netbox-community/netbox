@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.module_loading import import_string
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
@@ -11,10 +12,10 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.models import Job, ObjectType
+from core.models import ObjectType
 from extras import filtersets
 from extras.models import *
-from extras.scripts import run_script
+from extras.jobs import ScriptJob
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -273,10 +274,8 @@ class ScriptViewSet(ModelViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            Job.enqueue(
-                run_script,
+            ScriptJob.enqueue(
                 instance=script,
-                name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],
                 request=copy_safe_request(request),

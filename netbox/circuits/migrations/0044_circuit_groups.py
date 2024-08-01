@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Circuit group assignment',
                 'verbose_name_plural': 'Circuit group assignments',
-                'ordering': ('circuit', 'priority', 'pk'),
+                'ordering': ('group', 'circuit', 'priority', 'pk'),
             },
         ),
         migrations.AddConstraint(

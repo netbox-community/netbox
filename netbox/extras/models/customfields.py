@@ -154,6 +154,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'Default value for the field (must be a JSON value). Encapsulate strings with double quotes (e.g. "Foo").'
         )
     )
+    related_object_filter = models.JSONField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'Filter the object selection choices using a query_params dict (must be a JSON value).'
+            'Encapsulate strings with double quotes (e.g. "Foo").'
+        )
+    )
     weight = models.PositiveSmallIntegerField(
         default=100,
         verbose_name=_('display weight'),
@@ -373,6 +381,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 .format(type=self.get_type_display())
             })
 
+        # Related object filter can be set only for object-type fields, and must contain a dictionary mapping (if set)
+        if self.related_object_filter is not None:
+            if self.type not in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+                raise ValidationError({
+                    'related_object_filter': _("A related object filter can be defined only for object fields.")
+                })
+            if type(self.related_object_filter) is not dict:
+                raise ValidationError({
+                    'related_object_filter': _("Filter must be defined as a dictionary mapping attributes to values.")
+                })
+
     def serialize(self, value):
         """
         Prepare a value for storage as JSON data.
@@ -511,7 +530,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             field = field_class(
                 queryset=model.objects.all(),
                 required=required,
-                initial=initial
+                initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Multiple objects
@@ -522,6 +542,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 queryset=model.objects.all(),
                 required=required,
                 initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Text

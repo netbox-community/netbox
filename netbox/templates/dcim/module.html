@@ -60,7 +60,7 @@
         </tr>
         <tr>
           <th scope="row">{% trans "Module Type" %}</th>
-          <td>{{ object.module_type|linkify }}</td>
+          <td>{{ object.module_type|linkify:"full_name" }}</td>
         </tr>
         <tr>
           <th scope="row">{% trans "Status" %}</th>

@@ -53,7 +53,7 @@
             <div class="dropdown-menu">
               {% for level, name in log_levels.items %}
                 <a class="dropdown-item d-flex justify-content-between" href="{% url 'extras:script_result' job_pk=job.pk %}?log_threshold={{ level }}">
-                  {{ name }}
+                  {{ name }}{% if forloop.first %} ({% trans "All" %}){% endif %}
                   {% if level == log_threshold %}<span class="badge bg-green ms-auto"></span>{% endif %}
                 </a>
               {% endfor %}

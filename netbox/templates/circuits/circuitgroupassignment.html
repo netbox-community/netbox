@@ -20,23 +20,23 @@
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Group" %}</th>
-            <td>{{ object.group }}</td>
+            <td>{{ object.group|linkify }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Circuit" %}</th>
-            <td>{{ object.circuit }}</td>
+            <td>{{ object.circuit|linkify }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Priority" %}</th>
-            <td>{{ object.priority }}</td>
+            <td>{{ object.get_priority_display }}</td>
           </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
       {% plugin_right_page object %}
     </div>
   </div>

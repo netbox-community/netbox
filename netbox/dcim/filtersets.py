@@ -375,6 +375,17 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
     rack_type = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__slug',
         queryset=RackType.objects.all(),

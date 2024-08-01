@@ -52,6 +52,14 @@
           <th scope="row">{% trans "Default Value" %}</th>
           <td>{{ object.default }}</td>
         </tr>
+        <tr>
+          <th scope="row">{% trans "Related object filter" %}</th>
+          {% if object.related_object_filter %}
+            <td><pre>{{ object.related_object_filter|json }}</pre></td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
+        </tr>
       </table>
     </div>
     <div class="card">

@@ -50,9 +50,13 @@ The amount of running memory provisioned, in megabytes.
 
 ### Disk
 
-The amount of disk storage provisioned, in gigabytes.
+The amount of disk storage provisioned, in megabytes.
+
+!!! warning
+    This field may be directly modified only on virtual machines which do not define discrete [virtual disks](./virtualdisk.md). Otherwise, it will report the sum of all attached disks.
 
 ### Serial Number
 
-Optional serial number assigned to this VM.
+!!! info "This field was introduced in NetBox v4.1."
 
+Optional serial number assigned to this virtual machine. Unlike devices, uniqueness is not enforced for virtual machine serial numbers.

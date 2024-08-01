@@ -136,10 +136,10 @@ DEFAULT_DASHBOARD = [
 ]
 
 LOG_LEVEL_RANK = {
-    LogLevelChoices.LOG_DEFAULT: 0,
-    LogLevelChoices.LOG_DEBUG: 1,
-    LogLevelChoices.LOG_SUCCESS: 2,
-    LogLevelChoices.LOG_INFO: 3,
+    LogLevelChoices.LOG_DEBUG: 0,
+    LogLevelChoices.LOG_DEFAULT: 1,
+    LogLevelChoices.LOG_INFO: 2,
+    LogLevelChoices.LOG_SUCCESS: 3,
     LogLevelChoices.LOG_WARNING: 4,
     LogLevelChoices.LOG_FAILURE: 5,
 }

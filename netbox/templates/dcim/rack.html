@@ -43,7 +43,7 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Rack Type" %}</th>
-            <td>{{ object.rack_type|linkify|placeholder }}</td>
+            <td>{{ object.rack_type|linkify:"full_name"|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Role" %}</th>
