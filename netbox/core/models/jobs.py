@@ -214,7 +214,7 @@ class Job(models.Model):
                 management commands only.
         """
         if schedule_at and immediate:
-            raise ValueError("enqueue() cannot be called with values for both schedule_at and immediate.")
+            raise ValueError(_("enqueue() cannot be called with values for both schedule_at and immediate."))
 
         if instance:
             object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
