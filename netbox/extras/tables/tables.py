@@ -44,6 +44,14 @@ NOTIFICATION_ICON = """
 <span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>
 """
 
+NOTIFICATION_LINK = """
+{% if not record.event.destructive %}
+  <a href="{% url 'extras:notification_read' pk=record.pk %}">{{ record.object_repr }}</a>
+{% else %}
+  {{ record.object_repr }}
+{% endif %}
+"""
+
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
@@ -314,12 +322,9 @@ class NotificationTable(NetBoxTable):
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
-    object = tables.Column(
+    object = columns.TemplateColumn(
         verbose_name=_('Object'),
-        linkify={
-            'viewname': 'extras:notification_read',
-            'args': [tables.A('pk')],
-        },
+        template_code=NOTIFICATION_LINK,
         orderable=False
     )
     created = columns.DateTimeColumn(

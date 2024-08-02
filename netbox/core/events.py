@@ -26,7 +26,7 @@ JOB_ERRORED = 'job_errored'
 # Register core events
 EventType(OBJECT_CREATED, _('Object created')).register()
 EventType(OBJECT_UPDATED, _('Object updated')).register()
-EventType(OBJECT_DELETED, _('Object deleted')).register()
+EventType(OBJECT_DELETED, _('Object deleted'), destructive=True).register()
 EventType(JOB_STARTED, _('Job started')).register()
 EventType(JOB_COMPLETED, _('Job completed'), kind=EVENT_TYPE_KIND_SUCCESS).register()
 EventType(JOB_FAILED, _('Job failed'), kind=EVENT_TYPE_KIND_WARNING).register()

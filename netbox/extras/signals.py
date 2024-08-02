@@ -137,10 +137,17 @@ def process_job_end_event_rules(sender, **kwargs):
 # Notifications
 #
 
-@receiver(post_save)
-def notify_object_changed(sender, instance, created, raw, **kwargs):
-    if created or raw:
+@receiver((post_save, pre_delete))
+def notify_object_changed(sender, instance, **kwargs):
+    # Skip for newly-created objects
+    if kwargs.get('created'):
         return
+
+    # Determine event type
+    if 'created' in kwargs:
+        event_type = OBJECT_UPDATED
+    else:
+        event_type = OBJECT_DELETED
 
     # Skip unsupported object types
     ct = ContentType.objects.get_for_model(instance)
@@ -157,6 +164,11 @@ def notify_object_changed(sender, instance, created, raw, **kwargs):
 
     # Create Notifications for Subscribers
     Notification.objects.bulk_create([
-        Notification(user_id=user, object=instance, event_type=OBJECT_UPDATED)
+        Notification(
+            user_id=user,
+            object=instance,
+            object_repr=Notification.get_object_repr(instance),
+            event_type=event_type
+        )
         for user in subscribed_users
     ])

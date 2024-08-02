@@ -7,7 +7,7 @@
           <i class="{{ notification.event.icon }}"></i>
         </div>
         <div class="col text-truncate">
-          <a href="{% url 'extras:notification_read' pk=notification.pk %}" class="text-body d-block">{{ notification.object }}</a>
+          <a href="{% url 'extras:notification_read' pk=notification.pk %}" class="text-body d-block">{{ notification.object_repr }}</a>
           <div class="d-block text-secondary fs-5">{{ notification.event }} {{ notification.created|timesince }} {% trans "ago" %}</div>
         </div>
         <div class="col-auto">

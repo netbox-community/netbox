@@ -58,6 +58,10 @@ class Notification(models.Model):
         ct_field='object_type',
         fk_field='object_id'
     )
+    object_repr = models.CharField(
+        max_length=200,
+        editable=False
+    )
     event_type = models.CharField(
         verbose_name=_('event'),
         max_length=50,
@@ -81,9 +85,7 @@ class Notification(models.Model):
         verbose_name_plural = _('notifications')
 
     def __str__(self):
-        if self.object:
-            return str(self.object)
-        return super().__str__()
+        return self.object_repr
 
     def get_absolute_url(self):
         return reverse('account:notifications')
@@ -97,12 +99,23 @@ class Notification(models.Model):
                 _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
             )
 
+    def save(self, *args, **kwargs):
+        # Record a string representation of the associated object
+        if self.object:
+            self.object_repr = self.get_object_repr(self.object)
+
+        super().save(*args, **kwargs)
+
     @cached_property
     def event(self):
         """
         Returns the registered Event which triggered this Notification.
         """
         return registry['event_types'].get(self.event_type)
+
+    @classmethod
+    def get_object_repr(cls, obj):
+        return str(obj)[:200]
 
 
 class NotificationGroup(ChangeLoggedModel):

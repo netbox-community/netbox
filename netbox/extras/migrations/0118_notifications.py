@@ -54,6 +54,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.PositiveBigIntegerField()),
                 ('event_type', models.CharField(max_length=50)),
                 ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype')),
+                ('object_repr', models.CharField(editable=False, max_length=200)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL)),
             ],
             options={

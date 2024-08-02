@@ -45,10 +45,12 @@ class EventType:
         name: The unique name under which the event is registered.
         text: The human-friendly event name. This should support translation.
         kind: The event's classification (info, success, warning, or danger). The default type is info.
+        destructive: Indicates that the associated object was destroyed as a result of the event (default: False).
     """
     name: str
     text: str
     kind: str = EVENT_TYPE_KIND_INFO
+    destructive: bool = False
 
     def __str__(self):
         return self.text
@@ -58,6 +60,7 @@ class EventType:
             raise Exception(f"An event type named {self.name} has already been registered!")
         registry['event_types'][self.name] = self
 
+    @property
     def color(self):
         return {
             EVENT_TYPE_KIND_INFO: 'blue',
@@ -66,6 +69,7 @@ class EventType:
             EVENT_TYPE_KIND_DANGER: 'red',
         }.get(self.kind)
 
+    @property
     def icon(self):
         return {
             EVENT_TYPE_KIND_INFO: 'mdi mdi-information',
