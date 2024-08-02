@@ -93,7 +93,10 @@ class Command(BaseCommand):
         # Check for new releases (if enabled)
         if options['verbosity']:
             self.stdout.write("[*] Checking for latest release")
-        if settings.RELEASE_CHECK_URL:
+        if settings.ISOLATED_DEPLOYMENT:
+            if options['verbosity']:
+                self.stdout.write(f"\tSkipping: ISOLATED_DEPLOYMENT is enabled")
+        elif settings.RELEASE_CHECK_URL:
             headers = {
                 'Accept': 'application/vnd.github.v3+json',
             }
