@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-27 05:02+0000\n"
+"POT-Creation-Date: 2024-08-02 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2007,7 +2007,7 @@ msgstr ""
 msgid "Oldest Task"
 msgstr ""
 
-#: netbox/core/tables/tasks.py:42 netbox/templates/core/rq_worker_list.html:34
+#: netbox/core/tables/tasks.py:42 netbox/templates/core/rq_worker_list.html:39
 msgid "Workers"
 msgstr ""
 
@@ -11128,8 +11128,8 @@ msgstr ""
 
 #: netbox/templates/core/rq_queue_list.html:24
 #: netbox/templates/core/rq_queue_list.html:25
-#: netbox/templates/core/rq_worker_list.html:44
-#: netbox/templates/core/rq_worker_list.html:45
+#: netbox/templates/core/rq_worker_list.html:49
+#: netbox/templates/core/rq_worker_list.html:50
 #: netbox/templates/extras/script_result.html:49
 #: netbox/templates/extras/script_result.html:51
 #: netbox/templates/inc/table_controls_htmx.html:30
@@ -11234,8 +11234,9 @@ msgstr ""
 msgid "Background Workers"
 msgstr ""
 
-#: netbox/templates/core/rq_worker_list.html:27
-msgid "Workers in "
+#: netbox/templates/core/rq_worker_list.html:29
+#, python-format
+msgid "Workers in %(queue_name)s"
 msgstr ""
 
 #: netbox/templates/core/system.html:11
