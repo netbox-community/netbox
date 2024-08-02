@@ -496,12 +496,18 @@ class ModuleType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ModuleBay,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('parent',),
     filters=ModuleBayFilter
 )
 class ModuleBayType(ModularComponentType):
 
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
+    children: List[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
+
+    @strawberry_django.field
+    def parent(self) -> Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')] | None:
+        return self.parent
 
 
 @strawberry_django.type(

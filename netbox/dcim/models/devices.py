@@ -1046,7 +1046,8 @@ class Device(
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())
-            self._instantiate_components(self.device_type.modulebaytemplates.all())
+            # Disable bulk_create to accommodate MPTT
+            self._instantiate_components(self.device_type.modulebaytemplates.all(), bulk_create=False)
             self._instantiate_components(self.device_type.devicebaytemplates.all())
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
@@ -1269,17 +1270,19 @@ class Module(PrimaryModel, ConfigContextModel):
                 if not disable_replication:
                     create_instances.append(template_instance)
 
-            component_model.objects.bulk_create(create_instances)
-            # Emit the post_save signal for each newly created object
-            for component in create_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=True,
-                    raw=False,
-                    using='default',
-                    update_fields=None
-                )
+            # component_model.objects.bulk_create(create_instances)
+            # # Emit the post_save signal for each newly created object
+            # for component in create_instances:
+            #     post_save.send(
+            #         sender=component_model,
+            #         instance=component,
+            #         created=True,
+            #         raw=False,
+            #         using='default',
+            #         update_fields=None
+            #     )
+            for instance in create_instances:
+                instance.save()
 
             update_fields = ['module']
             component_model.objects.bulk_update(update_instances, update_fields)

@@ -313,6 +313,10 @@ class ModularDeviceComponentTable(DeviceComponentTable):
         verbose_name=_('Inventory Items'),
     )
 
+    class Meta(NetBoxTable.Meta):
+        pass
+        # order_by = ('device', 'module', 'name')
+
 
 class CableTerminationTable(NetBoxTable):
     cable = tables.Column(
@@ -852,10 +856,9 @@ class ModuleBayTable(ModularDeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    parent_bay = tables.Column(
-        accessor=tables.A('module__module_bay'),
+    parent = tables.Column(
         linkify=True,
-        verbose_name=_('Parent Bay')
+        verbose_name=_('Parent'),
     )
     installed_module = tables.Column(
         linkify=True,
@@ -878,14 +881,14 @@ class ModuleBayTable(ModularDeviceComponentTable):
         verbose_name=_('Module Status')
     )
 
-    class Meta(DeviceComponentTable.Meta):
+    class Meta(ModularDeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'parent_bay', 'label', 'position', 'installed_module', 'module_status',
+            'pk', 'id', 'name', 'device', 'parent', 'label', 'position', 'installed_module', 'module_status',
             'module_serial', 'module_asset_tag', 'description', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'device', 'parent_bay', 'label', 'installed_module', 'module_status', 'description',
+            'pk', 'name', 'device', 'parent', 'label', 'installed_module', 'module_status', 'description',
         )
 
     def render_parent_bay(self, value):
@@ -896,17 +899,24 @@ class ModuleBayTable(ModularDeviceComponentTable):
 
 
 class DeviceModuleBayTable(ModuleBayTable):
+    name = tables.TemplateColumn(
+        verbose_name=_('Name'),
+        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
+                      '{{ value }}</a>',
+        order_by=Accessor('_name'),
+        attrs={'td': {'class': 'text-nowrap'}}
+    )
     actions = columns.ActionsColumn(
         extra_buttons=MODULEBAY_BUTTONS
     )
 
-    class Meta(DeviceComponentTable.Meta):
+    class Meta(ModuleBayTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'parent_bay', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
+            'pk', 'id', 'parent', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
             'module_asset_tag', 'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'parent_bay', 'name', 'label', 'installed_module', 'module_status', 'description')
+        default_columns = ('pk', 'name', 'label', 'installed_module', 'module_status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):
