@@ -630,7 +630,7 @@ class DeviceTestCase(TestCase):
         module_bays = (
             ModuleBay(device=device, name='Module Bay 1', label='A', description='First'),
             ModuleBay(device=device, name='Module Bay 2', label='B', description='Second'),
-            ModuleBay(device=device, name='Module Bay 2', label='B', description='Second'),
+            ModuleBay(device=device, name='Module Bay 3', label='C', description='Third'),
         )
         ModuleBay.objects.bulk_create(module_bays)
 
@@ -661,6 +661,12 @@ class DeviceTestCase(TestCase):
             modules[0].module_bay = module_bays[2]
             modules[0].clean()
             modules[0].save()
+
+    def test_single_module_token(self):
+        pass
+
+    def test_nested_module_token(self):
+        pass
 
 
 class CableTestCase(TestCase):
