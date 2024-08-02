@@ -1269,6 +1269,7 @@ class InterfacePoETypeChoices(ChoiceSet):
 
 class PortTypeChoices(ChoiceSet):
 
+    # Copper
     TYPE_8P8C = '8p8c'
     TYPE_8P6C = '8p6c'
     TYPE_8P4C = '8p4c'
@@ -1287,6 +1288,8 @@ class PortTypeChoices(ChoiceSet):
     TYPE_F = 'f'
     TYPE_N = 'n'
     TYPE_MRJ21 = 'mrj21'
+
+    # Fibre
     TYPE_ST = 'st'
     TYPE_SC = 'sc'
     TYPE_SC_PC = 'sc-pc'
@@ -1315,6 +1318,29 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+
+    # Neutrik
+    TYPE_NEUTRIK_ETHERCON = "neutrik-ethercon"
+    TYPE_NEUTRIK_ETHERCON_TOP = "neutrik-ethercon-top"
+    TYPE_NEUTRIK_ETHERCON_CAT6 = "neutrik-ethercon-cat6"
+    TYPE_NEUTRIK_ETHERCON_CAT6A = "neutrik-ethercon-cat6a"
+    TYPE_NEUTRIK_OPTICALCON_LITE_DUO = "neutrik-opticalcon-lite-duo"
+    TYPE_NEUTRIK_OPTICALCON_LITE_QUAD = "neutrik-opticalcon-lite-quad"
+    TYPE_NEUTRIK_OPTICALCON_LITE_MTP12 = "neutrik-opticalcon-lite-mtp12"
+    TYPE_NEUTRIK_OPTICALCON_LITE_MTP24 = "neutrik-opticalcon-lite-mtp24"
+    TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_MALE = "neutrik-opticalcon-dragonfly-male"
+    TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_FEMALE = "neutrik-opticalcon-dragonfly-female"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_DUO = "neutrik-opticalcon-advanced-duo"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_QUAD = "neutrik-opticalcon-advanced-quad"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP12 = "neutrik-opticalcon-advanced-mtp12"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP16 = "neutrik-opticalcon-advanced-mtp16"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP24 = "neutrik-opticalcon-advanced-mtp24"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP48 = "neutrik-opticalcon-advanced-mtp48"
+    TYPE_NEUTRIK_OPTICALCON_FIBREFOX_2CHANNEL = "neutrik-opticalcon-fibrefox-2channel"
+    TYPE_NEUTRIK_OPTICALCON_FIBREFOX_4CHANNEL = "neutrik-opticalcon-fibrefox-4channel"
+    TYPE_NEUTRIK_OPTICALCON_HYBRIDMED_MTP16 = "neutrik-opticalcon-hybridmed-mtp16"
+
+    # Other
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -1375,6 +1401,29 @@ class PortTypeChoices(ChoiceSet):
             ),
         ),
         (
+            _('Neutrik'), (
+                (TYPE_NEUTRIK_ETHERCON, "Neutrik etherCON"),
+                (TYPE_NEUTRIK_ETHERCON_TOP, "Neutrik etherCON TOP"),
+                (TYPE_NEUTRIK_ETHERCON_CAT6, "Neutrik etherCON CAT6"),
+                (TYPE_NEUTRIK_ETHERCON_CAT6A, "Neutrik etherCON CAT6A"),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_DUO, 'Neutrik opticalCON LITE DUO'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_QUAD, 'Neutrik opticalCON LITE QUAD'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_MTP12, 'Neutrik opticalCON LITE MTP12'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_MTP24, 'Neutrik opticalCON LITE MTP24'),
+                (TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_MALE, 'Neutrik opticalCON DRAGONFLY Male'),
+                (TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_FEMALE, 'Neutrik opticalCON DRAGONFLY Female'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_DUO, 'Neutrik opticalCON ADVANCED DUO'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_QUAD, 'Neutrik opticalCON ADVANCED QUAD'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP12, 'Neutrik opticalCON ADVANCED MTP12'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP16, 'Neutrik opticalCON ADVANCED MTP16'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP24, 'Neutrik opticalCON ADVANCED MTP24'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP48, 'Neutrik opticalCON ADVANCED MTP48'),
+                (TYPE_NEUTRIK_OPTICALCON_FIBREFOX_2CHANNEL, 'Neutrik opticalCON FIBREFOX 2CH'),
+                (TYPE_NEUTRIK_OPTICALCON_FIBREFOX_4CHANNEL, 'Neutrik opticalCON FIBREFOX 4CH'),
+                (TYPE_NEUTRIK_OPTICALCON_HYBRIDMED_MTP16, 'Neutrik opticalCON HYBRIDMED MTP16'),
+            ),
+        ),
+        (
             _('Other'),
             (
                 (TYPE_OTHER, _('Other')),
@@ -1389,6 +1438,7 @@ class PortTypeChoices(ChoiceSet):
 
 class CableTypeChoices(ChoiceSet):
 
+    # Copper
     TYPE_CAT3 = 'cat3'
     TYPE_CAT5 = 'cat5'
     TYPE_CAT5E = 'cat5e'
@@ -1401,6 +1451,8 @@ class CableTypeChoices(ChoiceSet):
     TYPE_DAC_PASSIVE = 'dac-passive'
     TYPE_MRJ21_TRUNK = 'mrj21-trunk'
     TYPE_COAXIAL = 'coaxial'
+
+    # Fibre
     TYPE_MMF = 'mmf'
     TYPE_MMF_OM1 = 'mmf-om1'
     TYPE_MMF_OM2 = 'mmf-om2'
@@ -1411,7 +1463,30 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS1 = 'smf-os1'
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
+
+    # Power
     TYPE_POWER = 'power'
+
+    # Neutrik
+    TYPE_NEUTRIK_ETHERCON = "neutrik-ethercon"
+    TYPE_NEUTRIK_ETHERCON_TOP = "neutrik-ethercon-top"
+    TYPE_NEUTRIK_ETHERCON_CAT6 = "neutrik-ethercon-cat6"
+    TYPE_NEUTRIK_ETHERCON_CAT6A = "neutrik-ethercon-cat6a"
+    TYPE_NEUTRIK_OPTICALCON_LITE_DUO = "neutrik-opticalcon-lite-duo"
+    TYPE_NEUTRIK_OPTICALCON_LITE_QUAD = "neutrik-opticalcon-lite-quad"
+    TYPE_NEUTRIK_OPTICALCON_LITE_MTP12 = "neutrik-opticalcon-lite-mtp12"
+    TYPE_NEUTRIK_OPTICALCON_LITE_MTP24 = "neutrik-opticalcon-lite-mtp24"
+    TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_MALE = "neutrik-opticalcon-dragonfly-male"
+    TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_FEMALE = "neutrik-opticalcon-dragonfly-female"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_DUO = "neutrik-opticalcon-advanced-duo"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_QUAD = "neutrik-opticalcon-advanced-quad"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP12 = "neutrik-opticalcon-advanced-mtp12"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP16 = "neutrik-opticalcon-advanced-mtp16"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP24 = "neutrik-opticalcon-advanced-mtp24"
+    TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP48 = "neutrik-opticalcon-advanced-mtp48"
+    TYPE_NEUTRIK_OPTICALCON_FIBREFOX_2CHANNEL = "neutrik-opticalcon-fibrefox-2channel"
+    TYPE_NEUTRIK_OPTICALCON_FIBREFOX_4CHANNEL = "neutrik-opticalcon-fibrefox-4channel"
+    TYPE_NEUTRIK_OPTICALCON_HYBRIDMED_MTP16 = "neutrik-opticalcon-hybridmed-mtp16"
 
     CHOICES = (
         (
@@ -1445,6 +1520,29 @@ class CableTypeChoices(ChoiceSet):
             ),
         ),
         (TYPE_POWER, _('Power')),
+        (
+            _('Neutrik'), (
+                (TYPE_NEUTRIK_ETHERCON, "Neutrik etherCON"),
+                (TYPE_NEUTRIK_ETHERCON_TOP, "Neutrik etherCON TOP"),
+                (TYPE_NEUTRIK_ETHERCON_CAT6, "Neutrik etherCON CAT6"),
+                (TYPE_NEUTRIK_ETHERCON_CAT6A, "Neutrik etherCON CAT6A"),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_DUO, 'Neutrik opticalCON LITE DUO'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_QUAD, 'Neutrik opticalCON LITE QUAD'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_MTP12, 'Neutrik opticalCON LITE MTP12'),
+                (TYPE_NEUTRIK_OPTICALCON_LITE_MTP24, 'Neutrik opticalCON LITE MTP24'),
+                (TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_MALE, 'Neutrik opticalCON DRAGONFLY Male'),
+                (TYPE_NEUTRIK_OPTICALCON_DRAGONFLY_FEMALE, 'Neutrik opticalCON DRAGONFLY Female'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_DUO, 'Neutrik opticalCON ADVANCED DUO'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_QUAD, 'Neutrik opticalCON ADVANCED QUAD'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP12, 'Neutrik opticalCON ADVANCED MTP12'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP16, 'Neutrik opticalCON ADVANCED MTP16'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP24, 'Neutrik opticalCON ADVANCED MTP24'),
+                (TYPE_NEUTRIK_OPTICALCON_ADVANCED_MTP48, 'Neutrik opticalCON ADVANCED MTP48'),
+                (TYPE_NEUTRIK_OPTICALCON_FIBREFOX_2CHANNEL, 'Neutrik opticalCON FIBREFOX 2CH'),
+                (TYPE_NEUTRIK_OPTICALCON_FIBREFOX_4CHANNEL, 'Neutrik opticalCON FIBREFOX 4CH'),
+                (TYPE_NEUTRIK_OPTICALCON_HYBRIDMED_MTP16, 'Neutrik opticalCON HYBRIDMED MTP16'),
+            ),
+        ),
     )
 
 
