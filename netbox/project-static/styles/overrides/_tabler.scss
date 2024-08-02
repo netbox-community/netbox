@@ -11,14 +11,36 @@ pre {
   color: inherit;
 }
 
-// Buttons
+// Slightly increase alert contrast between bg and text
+.alert {
+  background: var(--#{$prefix}bg-surface);
+}
+
+// Button adjustments
 .btn {
   // Tabler sets display: flex
   display: inline-block;
+
+  &:focus {
+    // Add button focus state
+    border: 1px solid var(--tblr-primary-fg);
+    outline: 2px solid var(--tblr-primary) !important;
+  }
 }
 .btn-sm {
   // $border-radius-sm (2px) is too small
   border-radius: $border-radius;
+}
+
+// Dropdown items
+.dropdown-item {
+  // Tabler sets display: flex
+  display: inline-block;
+}
+
+// Set footer icon color
+.footer .text-primary {
+  color: $rich-black !important;
 }
 
 // Tabs
@@ -29,15 +51,12 @@ pre {
   }
 }
 
-// Dropdown items
-.dropdown-item {
-  // Tabler sets display: flex
-  display: inline-block;
+// Altering background colors
+.page, .page-tabs .nav-tabs .nav-link.active {
+  background-color: var(--#{$prefix}bg-surface-tertiary) !important;
 }
-
-// Override background color alpha value
-[data-bs-theme=dark] ::selection {
-  background-color: rgba(var(--tblr-primary-rgb),.48);
+.page-body .card .card-header {
+  background: var(--tblr-bg-surface-secondary) !important;
 }
 
 // Dark mode colors
@@ -55,59 +74,30 @@ pre {
   }
 }
 
-// Slightly increase alert contrast between bg and text
-.alert {
-  background: var(--#{$prefix}bg-surface);
-}
-
-// Altering background colors
-.page, .page-tabs .nav-tabs .nav-link.active {
-  background-color: var(--#{$prefix}bg-surface-tertiary)!important;
-}
-.page-body .card .card-header {
-  background: var(--tblr-bg-surface-secondary)!important;
-}
-
-.footer .text-primary {
-  color: $rich-black!important;
-}
-
-// Add button focus state
-.btn:focus {
-  border: 1px solid var(--tblr-primary-fg);
-  outline: 2px solid var(--tblr-primary)!important;
-}
-
-// Fix secondary combo button contrast
-.btn-outline-secondary {
-  &.active {
-    color: var(--tblr-primary-fg);
-  }
-  &:hover {
-    color: var(--tblr-primary-fg);
-  }
-}
-
 // Dark mode overrides
 body[data-bs-theme=dark] {
+  // Override background color alpha value
+  ::selection {
+    background-color: rgba(var(--tblr-primary-rgb),.48);
+  }
 
   .btn-primary {
-    color: $rich-black!important;
+    color: $rich-black !important;
   }
 
   // Change content color when primary teal changes with theme
   .bg-primary {
     .card-title,a,i {
-      color: $rich-black!important;
+      color: $rich-black !important;
     }
   }
   .text-bg-primary {
-    color: $rich-black!important;
+    color: $rich-black !important;
   }
 
   // Altering background colors
   .card {
-    background: $rich-black!important;
+    background: $rich-black !important;
   }
 
   // Background colors to match brand colors
@@ -116,7 +106,7 @@ body[data-bs-theme=dark] {
     background-color: $rich-black;
   }
   .page, .page-tabs .nav-tabs .nav-link.active {
-    background-color: $rich-black-light!important;
+    background-color: $rich-black-light !important;
   }
 
   .page-link.active, .active>.page-link {
@@ -126,16 +116,16 @@ body[data-bs-theme=dark] {
   // Adjusting text colors
   .text- {
     &bg-primary {
-      color: $rich-black!important;
+      color: $rich-black !important;
     }
     &muted {
       color: var(--#{$prefix}secondary-color) !important;
     }
     &secondary {
-      color: $gray-400!important;
+      color: $gray-400 !important;
     }
   }
   .footer .text-primary {
-    color: white!important;
+    color: white !important;
   }
 }

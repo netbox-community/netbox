@@ -9,10 +9,10 @@
   // Adjust hover color & style for menu items
   .navbar-collapse {
     .nav-link-icon {
-      color: var(--tblr-nav-link-color)!important;
+      color: var(--tblr-nav-link-color) !important;
     }
     .text-secondary {
-      color: $dark-teal!important;
+      color: $dark-teal !important;
     }
 
     .dropdown-menu {
@@ -94,6 +94,7 @@
 
 // Light theme styling
 body[data-bs-theme=light] .navbar-vertical.navbar-expand-lg {
+  // Background Gradient
   background: linear-gradient(180deg, rgba(0, 133, 125, 0.00) 0%, rgba(0, 133, 125, 0.10) 100%), #FFF;
 }
 
@@ -105,29 +106,29 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
 
   // Border color for active dropdown list
   .nav-item.dropdown.active:after {
-    border-color: $bright-teal!important;
+    border-color: $bright-teal !important;
   }
 
   // Adjust hover color & style for menu items
   .dropdown-item {
     a {
-      color: white!important;
+      color: white !important;
     }
     &.active {
-      background-color: $navbar-dark-active-bg!important;
+      background-color: $navbar-dark-active-bg !important;
       a {
-        color: white!important;
+        color: white !important;
       }
     }
     &:hover {
-      background-color: $navbar-dark-active-bg!important;
+      background-color: $navbar-dark-active-bg !important;
     }
     .nav-link-title {
-      color: white!important;
+      color: white !important;
     }
   }
   .text-secondary {
-    color: $bright-teal!important;
+    color: $bright-teal !important;
   }
 
   img.motif {
