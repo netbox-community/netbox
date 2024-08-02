@@ -26,7 +26,7 @@
 <div class="row">
     <div class="col col-md-5">
         <div class="card">
-            <h5 class="card-header">{% trans "Change" %}</h5>
+            <h2 class="card-header">{% trans "Change" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Time" %}</th>
@@ -75,7 +75,7 @@
     </div>
     <div class="col col-md-7">
         <div class="card">
-            <h5 class="card-header d-flex justify-content-between">
+            <h2 class="card-header d-flex justify-content-between">
               {% trans "Difference" %}
               <div class="btn-group btn-group-sm d-print-none">
                 <a {% if prev_change %}href="{% url 'core:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
@@ -85,7 +85,7 @@
                   {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
                 </a>
               </div>
-            </h5>
+            </h2>
             <div class="card-body">
                 {% if diff_added == diff_removed %}
                     <span class="text-muted" style="margin-left: 10px;">
@@ -108,7 +108,7 @@
 <div class="row">
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
+            <h2 class="card-header">{% trans "Pre-Change Data" %}</h2>
             <div class="card-body">
             {% if object.prechange_data %}
               {% spaceless %}
@@ -128,7 +128,7 @@
     </div>
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Post-Change Data" %}</h5>
+            <h2 class="card-header">{% trans "Post-Change Data" %}</h2>
             <div class="card-body">
                 {% if object.postchange_data %}
                   {% spaceless %}

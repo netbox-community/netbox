@@ -47,7 +47,7 @@
     <div class="row">
       <div class="col col-6">
         <div class="card">
-          <h5 class="card-header">{% trans "Plugin Details" %}</h5>
+          <h2 class="card-header">{% trans "Plugin Details" %}</h2>
           <table class="table table-hover attr-table">
             <tr>
               <th scope="row">{% trans "Name" %}</th>
@@ -92,7 +92,7 @@
       </div>
       <div class="col col-6">
         <div class="card">
-          <h5 class="card-header">{% trans "Version History" %}</h5>
+          <h2 class="card-header">{% trans "Version History" %}</h2>
           <div class="htmx-container table-responsive" id="object_list">
             {% include 'htmx/table.html' %}
           </div>
@@ -103,7 +103,7 @@
   {% if not plugin.is_local and not settings.RELEASE.features.commercial %}
     <div class="tab-pane" id="install" role="tabpanel" aria-labelledby="install-tab">
       <div class="card">
-        <h5 class="card-header">{% trans "Local Installation Instructions" %}</h5>
+        <h2 class="card-header">{% trans "Local Installation Instructions" %}</h2>
         <div class="card-body">
           {% include 'core/inc/plugin_installation.html' %}
         </div>

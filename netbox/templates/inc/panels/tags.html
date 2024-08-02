@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">{% trans "Tags" %}</h5>
+  <h2 class="card-header">{% trans "Tags" %}</h2>
   <div class="card-body">
     {% with url=object|validated_viewname:"list" %}
       {% for tag in object.tags.all %}

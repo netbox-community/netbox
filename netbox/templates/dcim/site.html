@@ -25,7 +25,7 @@
 <div class="row">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Site" %}</h5>
+      <h2 class="card-header">{% trans "Site" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Region" %}</th>
@@ -123,7 +123,7 @@
 <div class="row">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
+      <h2 class="card-header">
         {% trans "Locations" %}
         {% if perms.dcim.add_location %}
           <div class="card-actions">
@@ -132,11 +132,11 @@
             </a>
           </div>
         {% endif %}
-      </h5>
+      </h2>
       {% htmx_table 'dcim:location_list' site_id=object.pk %}
     </div>
     <div class="card">
-      <h5 class="card-header">
+      <h2 class="card-header">
         {% trans "Non-Racked Devices" %}
         {% if perms.dcim.add_device %}
           <div class="card-actions">
@@ -145,7 +145,7 @@
             </a>
           </div>
         {% endif %}
-      </h5>
+      </h2>
       {% htmx_table 'dcim:device_list' site_id=object.pk rack_id='null' parent_bay_id='null' %}
     </div>
     {% plugin_full_width_page object %}

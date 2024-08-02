@@ -11,7 +11,7 @@
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Permission" %}</h5>
+        <h2 class="card-header">{% trans "Permission" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -28,7 +28,7 @@
         </table>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Actions" %}</h5>
+        <h2 class="card-header">{% trans "Actions" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "View" %}</th>
@@ -49,7 +49,7 @@
         </table>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Constraints" %}</h5>
+        <h2 class="card-header">{% trans "Constraints" %}</h2>
         <div class="card-body">
           {% if object.constraints %}
             <pre>{{ object.constraints|json }}</pre>
@@ -61,7 +61,7 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Object Types" %}</h5>
+        <h2 class="card-header">{% trans "Object Types" %}</h2>
         <ul class="list-group list-group-flush">
           {% for user in object.object_types.all %}
             <li class="list-group-item">{{ user }}</li>
@@ -69,7 +69,7 @@
         </ul>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Assigned Users" %}</h5>
+        <h2 class="card-header">{% trans "Assigned Users" %}</h2>
         <div class="list-group list-group-flush">
           {% for user in object.users.all %}
             <a href="{% url 'users:user' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
+        <h2 class="card-header">{% trans "Assigned Groups" %}</h2>
         <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
             <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>

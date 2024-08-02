@@ -10,7 +10,7 @@
   <div class="row">
 	  <div class="col col-12 col-xl-5">
       <div class="card">
-        <h5 class="card-header">{% trans "Rack" %}</h5>
+        <h2 class="card-header">{% trans "Rack" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Region" %}</th>
@@ -78,7 +78,7 @@
       {% include 'dcim/inc/panels/racktype_dimensions.html' %}
       {% include 'dcim/inc/panels/racktype_numbering.html' %}
       <div class="card">
-        <h5 class="card-header">{% trans "Weight" %}</h5>
+        <h2 class="card-header">{% trans "Weight" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Rack Weight" %}</th>
@@ -126,13 +126,13 @@
         <div class="row" style="margin-bottom: 20px">
           <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
             <div style="margin-left: 30px">
-              <h4>{% trans "Front" %}</h4>
+              <h2 class="h4">{% trans "Front" %}</h2>
               {% include 'dcim/inc/rack_elevation.html' with face='front' extra_params=svg_extra %}
             </div>
           </div>
           <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
             <div style="margin-left: 30px">
-              <h4>{% trans "Rear" %}</h4>
+              <h2 class="h4">{% trans "Rear" %}</h2>
               {% include 'dcim/inc/rack_elevation.html' with face='rear' extra_params=svg_extra %}
             </div>
           </div>

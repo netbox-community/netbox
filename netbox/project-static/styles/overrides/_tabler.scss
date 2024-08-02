@@ -11,14 +11,36 @@ pre {
   color: inherit;
 }
 
-// Buttons
+// Slightly increase alert contrast between bg and text
+.alert {
+  background: var(--#{$prefix}bg-surface);
+}
+
+// Button adjustments
 .btn {
   // Tabler sets display: flex
   display: inline-block;
+
+  &:focus {
+    // Add button focus state
+    border: 1px solid var(--tblr-primary-fg);
+    outline: 2px solid var(--tblr-primary) !important;
+  }
 }
 .btn-sm {
   // $border-radius-sm (2px) is too small
   border-radius: $border-radius;
+}
+
+// Dropdown items
+.dropdown-item {
+  // Tabler sets display: flex
+  display: inline-block;
+}
+
+// Set footer icon color
+.footer .text-primary {
+  color: $rich-black !important;
 }
 
 // Tabs
@@ -29,18 +51,81 @@ pre {
   }
 }
 
-// Dropdown items
-.dropdown-item {
-  // Tabler sets display: flex
-  display: inline-block;;
+// Altering background colors
+.page, .page-tabs .nav-tabs .nav-link.active {
+  background-color: var(--#{$prefix}bg-surface-tertiary) !important;
+}
+.page-body .card .card-header {
+  background: var(--tblr-bg-surface-secondary) !important;
 }
 
-table a {
-  // Adjust table anchor link contrast as not enough contrast in dark mode
-  filter: brightness(110%);
+// Dark mode colors
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
+    --#{$prefix}link-color: #{$bright-teal};
+    --#{$prefix}link-color-rgb: 0,242,212;
+    --#{$prefix}link-hover-color-rgb: 0,242,212;
+    --#{$prefix}secondary: #{$gray-400};
+    --#{$prefix}primary: #{$bright-teal};
+    --#{$prefix}primary-fg: #{$rich-black};
+    --#{$prefix}primary-rgb: 0,242,212;
+    --#{$prefix}btn-active-color: #{$rich-black};
+  }
 }
 
-// Override background color alpha value
-[data-bs-theme=dark] ::selection {
-  background-color: rgba(var(--tblr-primary-rgb),.48)
+// Dark mode overrides
+body[data-bs-theme=dark] {
+  // Override background color alpha value
+  ::selection {
+    background-color: rgba(var(--tblr-primary-rgb),.48);
+  }
+
+  .btn-primary {
+    color: $rich-black !important;
+  }
+
+  // Change content color when primary teal changes with theme
+  .bg-primary {
+    .card-title,a,i {
+      color: $rich-black !important;
+    }
+  }
+  .text-bg-primary {
+    color: $rich-black !important;
+  }
+
+  // Altering background colors
+  .card {
+    background: $rich-black !important;
+  }
+
+  // Background colors to match brand colors
+  background-color: $rich-black;
+  .navbar, .page-header {
+    background-color: $rich-black;
+  }
+  .page, .page-tabs .nav-tabs .nav-link.active {
+    background-color: $rich-black-light !important;
+  }
+
+  .page-link.active, .active>.page-link {
+    color: $rich-black;
+  }
+
+  // Adjusting text colors
+  .text- {
+    &bg-primary {
+      color: $rich-black !important;
+    }
+    &muted {
+      color: var(--#{$prefix}secondary-color) !important;
+    }
+    &secondary {
+      color: $gray-400 !important;
+    }
+  }
+  .footer .text-primary {
+    color: white !important;
+  }
 }

@@ -3,7 +3,7 @@
 
 <div class="card {% if panel_class %}border-{{ panel_class }}{% endif %}">
   {% if heading %}
-    <h5 class="card-header{% if panel_class %} text-{{ panel_class }}{% endif %}">{{ heading }}</h5>
+    <h2 class="card-header{% if panel_class %} text-{{ panel_class }}{% endif %}">{{ heading }}</h2>
   {% endif %}
   {% if table.rows %}
     <div class="table-responsive">

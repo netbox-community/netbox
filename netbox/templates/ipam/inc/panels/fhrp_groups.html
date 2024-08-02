@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">
+  <h2 class="card-header">
     {% trans "FHRP Groups" %}
     <div class="card-actions">
       {% if perms.ipam.add_fhrpgroup %}
@@ -16,7 +16,7 @@
         </a>
       {% endif %}
     </div>
-  </h5>
+  </h2>
   <table class="table table-hover">
     <thead>
       <tr>

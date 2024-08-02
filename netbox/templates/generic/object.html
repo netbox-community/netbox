@@ -103,9 +103,9 @@ Context:
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs">
+  <ul class="nav nav-tabs" role="presentation">
     {# Primary tab #}
-    <li class="nav-item" role="presentation">
+    <li class="nav-item">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
     </li>
 

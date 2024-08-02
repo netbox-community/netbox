@@ -16,6 +16,12 @@
       background: var(--#{$prefix}bg-surface-tertiary);
     }
 
+    // Use <h5> font size for card headers
+    h2.card-header {
+      @extend h5;
+      margin-bottom: 0;
+    }
+
     // Reduce padding
     .list-group-item {
       padding: 0.5rem 0.75rem;
