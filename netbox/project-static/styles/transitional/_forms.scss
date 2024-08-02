@@ -4,10 +4,10 @@ form.object-edit {
   max-width: 800px;
 }
 
-// Use <h4> style for field group headings
+// Use <h3> style for field group headings
 .field-group {
   h2 {
-    @extend h4;
+    @extend h3;
   }
 }
 
