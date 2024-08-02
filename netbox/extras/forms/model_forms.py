@@ -45,31 +45,34 @@ __all__ = (
 class CustomFieldForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ObjectType.objects.with_feature('custom_fields')
+        queryset=ObjectType.objects.with_feature('custom_fields'),
+        help_text=_("The type(s) of object that have this custom field")
+    )
+    default = JSONField(
+        label=_('Default value'),
+        required=False
     )
     related_object_type = ContentTypeChoiceField(
         label=_('Related object type'),
         queryset=ObjectType.objects.public(),
-        required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
-    choice_set = DynamicModelChoiceField(
-        queryset=CustomFieldChoiceSet.objects.all(),
+    related_object_filter = JSONField(
+        label=_('Related object filter'),
         required=False
+    )
+    choice_set = DynamicModelChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all()
     )
     comments = CommentField()
 
     fieldsets = (
         FieldSet(
-            'object_types', 'name', 'label', 'group_name', 'type', 'related_object_type', 'required', 'description',
-            name=_('Custom Field')
+            'object_types', 'name', 'label', 'group_name', 'description', 'type', 'required', 'validation_unique',
+            'default', name=_('Custom Field')
         ),
         FieldSet(
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
-        ),
-        FieldSet('default', 'choice_set', 'related_object_filter', name=_('Values')),
-        FieldSet(
-            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
         ),
     )
 
@@ -87,10 +90,74 @@ class CustomFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Mimic HTMXSelect()
+        self.fields['type'].widget.attrs.update({
+            'hx-get': '.',
+            'hx-include': '#form_fields',
+            'hx-target': '#form_fields',
+        })
+
         # Disable changing the type of a CustomField as it almost universally causes errors if custom field data
         # is already present.
         if self.instance.pk:
             self.fields['type'].disabled = True
+
+        field_type = get_field_value(self, 'type')
+
+        # Adjust for text fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_TEXT,
+                CustomFieldTypeChoices.TYPE_LONGTEXT,
+                CustomFieldTypeChoices.TYPE_URL
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_regex', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_regex']
+
+        # Adjust for numeric fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_INTEGER,
+                CustomFieldTypeChoices.TYPE_DECIMAL
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_minimum', 'validation_maximum', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_minimum']
+            del self.fields['validation_maximum']
+
+        # Adjust for object & multi-object fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_OBJECT,
+                CustomFieldTypeChoices.TYPE_MULTIOBJECT
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('related_object_type', 'related_object_filter', name=_('Related Object')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['related_object_type']
+            del self.fields['related_object_filter']
+
+        # Adjust for selection & multi-select fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('choice_set', name=_('Choices')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['choice_set']
 
 
 class CustomFieldChoiceSetForm(forms.ModelForm):
