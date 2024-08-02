@@ -6,7 +6,6 @@
 
 // Overrides of external libraries
 @import 'overrides/bootstrap';
-@import 'overrides/gridstack';
 @import 'overrides/tabler';
 @import 'overrides/tomselect';
 
@@ -22,6 +21,7 @@
 
 // Custom styling
 @import 'custom/code';
+@import 'custom/dashboard';
 @import 'custom/interfaces';
 @import 'custom/markdown';
 @import 'custom/misc';
