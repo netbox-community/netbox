@@ -49,24 +49,14 @@ td pre {
   margin-bottom: 0;
 }
 
+// Use base text color for table header links
 table th.orderable a {
   color: var(--#{$prefix}body-color);
 }
 
 body[data-bs-theme=dark] {
+  // Adjust table header background color
   .table thead th, .markdown>table thead th {
-    background: $rich-black!important;
+    background: $rich-black !important;
   }
-
-  // Adjust dark table link color without affecting buttons and badges
-  table {
-    a:not(.btn,.badge a) {
-      color: $bright-teal;
-    }
-    // Stops table headers from appearing as primary link color
-    th.orderable a {
-      color: var(--#{$prefix}body-color);
-    }
-  }
-
 }
