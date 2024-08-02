@@ -34,8 +34,8 @@ These are considered the "core" application models which are used to model netwo
 * [circuits.Provider](../models/circuits/provider.md)
 * [circuits.ProviderAccount](../models/circuits/provideraccount.md)
 * [circuits.ProviderNetwork](../models/circuits/providernetwork.md)
-* [core.DataSource](../models/core/datasource.md)
 * [core.DataFile](../models/core/datafile.md)
+* [core.DataSource](../models/core/datasource.md)
 * [core.Job](../models/core/job.md)
 * [dcim.Cable](../models/dcim/cable.md)
 * [dcim.Device](../models/dcim/device.md)
@@ -143,5 +143,4 @@ These function as templates to effect the replication of device and virtual mach
 Connection models are used to model the connections, or connection endpoints between models.
 
 * [circuits.CircuitTermination](../models/circuits/circuittermination.md)
-* [circuits.CircuitGroupAssignment](../models/circuits/circuitgroupassignment.md)
 * [vpn.TunnelTermination](../models/vpn/tunneltermination.md)
