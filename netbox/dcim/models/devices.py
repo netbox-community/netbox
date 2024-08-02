@@ -1209,11 +1209,13 @@ class Module(PrimaryModel, ConfigContextModel):
 
         # Check for recursion
         module = self
-        tree = []
+        module_bays = []
+        modules = []
         while module:
-            if module.pk in tree:
-                raise ValidationError(_("A module cannot be installed in a bay which depends on itself."))
-            tree.append(module.pk)
+            if module.pk in modules or module.module_bay.pk in module_bays:
+                raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+            modules.append(module.pk)
+            module_bays.append(module.module_bay.pk)
             module = module.module_bay.module if module.module_bay else None
 
     def save(self, *args, **kwargs):

@@ -619,12 +619,21 @@ class DeviceTestCase(TestCase):
         with self.assertRaises(ValidationError):
             Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
 
-    def test_module_bay_recursion(self):
-        site = Site.objects.create(name='Site 1', slug='site-1')
+
+class ModuleBayTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+
+        # Create a CustomField with a default value & assign it to all component models
         location = Location.objects.create(name='Location 1', slug='location-1', site=site)
         rack = Rack.objects.create(name='Rack 1', site=site)
-        device_type = DeviceType.objects.first()
-        device_role = DeviceRole.objects.first()
         device = Device.objects.create(name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack)
 
         module_bays = (
@@ -641,7 +650,7 @@ class DeviceTestCase(TestCase):
             Module(device=device, module_bay=module_bays[1], module_type=module_type),
             Module(device=device, module_bay=module_bays[2], module_type=module_type),
         )
-        # M2 -> MB2 -> M1 -> MB1 -> M0 -> MB0
+        # M3 -> MB3 -> M2 -> MB2 -> M1 -> MB1
         Module.objects.bulk_create(modules)
         module_bays[1].module = modules[0]
         module_bays[1].clean()
@@ -650,19 +659,38 @@ class DeviceTestCase(TestCase):
         module_bays[2].clean()
         module_bays[2].save()
 
+    def test_module_bay_recursion(self):
+        module_bay_1 = ModuleBay.objects.get(name='Module Bay 1')
+        module_bay_2 = ModuleBay.objects.get(name='Module Bay 2')
+        module_bay_3 = ModuleBay.objects.get(name='Module Bay 3')
+        module_1 = Module.objects.get(module_bay=module_bay_1)
+        module_2 = Module.objects.get(module_bay=module_bay_2)
+        module_3 = Module.objects.get(module_bay=module_bay_3)
+
         # Confirm error if ModuleBay recurses
         with self.assertRaises(ValidationError):
-            module_bays[0].module = modules[2]
-            module_bays[0].clean()
-            module_bays[0].save()
+            module_bay_1.module = module_3
+            module_bay_1.clean()
+            module_bay_1.save()
 
         # Confirm error if Module recurses
         with self.assertRaises(ValidationError):
-            modules[0].module_bay = module_bays[2]
-            modules[0].clean()
-            modules[0].save()
+            module_1.module_bay = module_bay_3
+            module_1.clean()
+            module_1.save()
 
     def test_single_module_token(self):
+        module_bays = ModuleBay.objects.all()
+        modules = Module.objects.all()
+        device_type = DeviceType.objects.first()
+
+        # Create DeviceType components
+        ConsolePortTemplate(
+            device_type=device_type,
+            name='{module}',
+            label='{module}',
+        ).save()
+
         pass
 
     def test_nested_module_token(self):

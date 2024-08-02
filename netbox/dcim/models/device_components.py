@@ -1118,11 +1118,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin):
 
         # Check for recursion
         if module := self.module:
-            tree = []
+            module_bays = [self.pk]
+            modules = []
             while module:
-                if module.pk in tree:
+                if module.pk in modules or module.module_bay.pk in module_bays:
                     raise ValidationError(_("A module bay cannot belong to a module installed within it."))
-                tree.append(module.pk)
+                modules.append(module.pk)
+                module_bays.append(module.module_bay.pk)
                 module = module.module_bay.module if module.module_bay else None
 
 
