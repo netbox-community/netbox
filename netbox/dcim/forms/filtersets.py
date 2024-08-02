@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -10,6 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
@@ -312,8 +312,8 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('status', 'role_id', 'serial', 'asset_tag', name=_('Rack')),
-        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
+        FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -356,6 +356,19 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         required=False,
         null_option='None',
         label=_('Role')
+    )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    rack_type_id = DynamicModelMultipleChoiceField(
+        queryset=RackType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Rack type')
     )
     serial = forms.CharField(
         label=_('Serial'),
@@ -435,7 +448,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Rack')
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )

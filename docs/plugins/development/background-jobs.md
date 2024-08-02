@@ -1,5 +1,7 @@
 # Background Jobs
 
+!!! info "This feature was introduced in NetBox v4.1."
+
 NetBox plugins can defer certain operations by enqueuing [background jobs](../../features/background-jobs.md), which are executed asynchronously by background workers. This is helpful for decoupling long-running processes from the user-facing request-response cycle.
 
 For example, your plugin might need to fetch data from a remote system. Depending on the amount of data and the responsiveness of the remote server, this could take a few minutes. Deferring this task to a queued job ensures that it can be completed in the background, without interrupting the user. The data it fetches can be made available once the job has completed.
@@ -8,12 +10,12 @@ For example, your plugin might need to fetch data from a remote system. Dependin
 
 A background job implements a basic [Job](../../models/core/job.md) executor for all kinds of tasks. It has logic implemented to handle the management of the associated job object, rescheduling of periodic jobs in the given interval and error handling. Adding custom jobs is done by subclassing NetBox's `JobRunner` class.
 
-::: utilities.jobs.JobRunner
+::: netbox.jobs.JobRunner
 
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import JobRunner
+from netbox.jobs import JobRunner
 
 
 class MyTestJob(JobRunner):
@@ -45,7 +47,7 @@ As described above, jobs can be scheduled for immediate execution or at any late
 #### Example
 
 ```python title="jobs.py"
-from utilities.jobs import JobRunner
+from netbox.jobs import JobRunner
 
 
 class MyHousekeepingJob(JobRunner):

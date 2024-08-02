@@ -1,12 +1,11 @@
-from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import WritableNestedSerializer
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 
 __all__ = [
     'NestedGroupSerializer',
@@ -26,7 +25,7 @@ class NestedGroupSerializer(WritableNestedSerializer):
 class NestedUserSerializer(WritableNestedSerializer):
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ['id', 'url', 'display_url', 'display', 'username']
 
     @extend_schema_field(OpenApiTypes.STR)

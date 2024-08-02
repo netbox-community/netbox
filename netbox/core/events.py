@@ -1,6 +1,6 @@
 from django.utils.translation import gettext as _
 
-from netbox.events import Event, EVENT_TYPE_DANGER, EVENT_TYPE_SUCCESS, EVENT_TYPE_WARNING
+from netbox.events import EventType, EVENT_TYPE_KIND_DANGER, EVENT_TYPE_KIND_SUCCESS, EVENT_TYPE_KIND_WARNING
 
 __all__ = (
     'JOB_COMPLETED',
@@ -24,10 +24,10 @@ JOB_FAILED = 'job_failed'
 JOB_ERRORED = 'job_errored'
 
 # Register core events
-Event(OBJECT_CREATED, _('Object created')).register()
-Event(OBJECT_UPDATED, _('Object updated')).register()
-Event(OBJECT_DELETED, _('Object deleted')).register()
-Event(JOB_STARTED, _('Job started')).register()
-Event(JOB_COMPLETED, _('Job completed'), type=EVENT_TYPE_SUCCESS).register()
-Event(JOB_FAILED, _('Job failed'), type=EVENT_TYPE_WARNING).register()
-Event(JOB_ERRORED, _('Job errored'), type=EVENT_TYPE_DANGER).register()
+EventType(OBJECT_CREATED, _('Object created')).register()
+EventType(OBJECT_UPDATED, _('Object updated')).register()
+EventType(OBJECT_DELETED, _('Object deleted')).register()
+EventType(JOB_STARTED, _('Job started')).register()
+EventType(JOB_COMPLETED, _('Job completed'), kind=EVENT_TYPE_KIND_SUCCESS).register()
+EventType(JOB_FAILED, _('Job failed'), kind=EVENT_TYPE_KIND_WARNING).register()
+EventType(JOB_ERRORED, _('Job errored'), kind=EVENT_TYPE_KIND_DANGER).register()

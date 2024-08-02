@@ -1,6 +1,5 @@
 import json
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
@@ -11,7 +10,7 @@ from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
 from core.models import ObjectType
-from users.models import ObjectPermission
+from users.models import ObjectPermission, User
 from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
 from utilities.permissions import resolve_permission_type
@@ -29,7 +28,7 @@ class TestCase(_TestCase):
     def setUp(self):
 
         # Create the test user and assign permissions
-        self.user = get_user_model().objects.create_user(username='testuser')
+        self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
 
         # Initialize the test client

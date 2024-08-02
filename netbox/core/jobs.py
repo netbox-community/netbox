@@ -1,7 +1,7 @@
 import logging
 
+from netbox.jobs import JobRunner
 from netbox.search.backends import search_backend
-from utilities.jobs import JobRunner
 from .choices import DataSourceStatusChoices
 from .exceptions import SyncError
 from .models import DataSource

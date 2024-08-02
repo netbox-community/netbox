@@ -551,14 +551,6 @@ class EventRuleListView(generic.ObjectListView):
 class EventRuleView(generic.ObjectView):
     queryset = EventRule.objects.all()
 
-    def get_extra_context(self, request, instance):
-        return {
-            'event_types': [
-                event for name, event in registry['events'].items()
-                if name in instance.event_types
-            ]
-        }
-
 
 @register_model_view(EventRule, 'edit')
 class EventRuleEditView(generic.ObjectEditView):

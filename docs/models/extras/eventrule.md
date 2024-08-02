@@ -18,17 +18,22 @@ The type(s) of object in NetBox that will trigger the rule.
 
 If not selected, the event rule will not be processed.
 
-### Events
+### Events Types
 
-The events which will trigger the rule. At least one event type must be selected.
+The event types which will trigger the rule. At least one event type must be selected.
 
-| Name       | Description                          |
-|------------|--------------------------------------|
-| Creations  | A new object has been created        |
-| Updates    | An existing object has been modified |
-| Deletions  | An object has been deleted           |
-| Job starts | A job for an object starts           |
-| Job ends   | A job for an object terminates       |
+| Name           | Description                                 |
+|----------------|---------------------------------------------|
+| Object created | A new object has been created               |
+| Object updated | An existing object has been modified        |
+| Object deleted | An object has been deleted                  |
+| Job started    | A background job is initiated               |
+| Job completed  | A background job completes successfully     |
+| Job failed     | A background job fails                      |
+| Job errored    | A background job is aborted due to an error |
+
+!!! tip "Custom Event Types"
+    The above list includes only built-in event types. NetBox plugins can also register their own custom event types.
 
 ### Conditions
 

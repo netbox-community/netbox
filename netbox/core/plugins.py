@@ -7,12 +7,12 @@ from typing import Optional
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins import PluginConfig
 from utilities.datetime import datetime_from_timestamp
 
 USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
+CACHE_KEY_CATALOG_FEED = 'plugins-catalog-feed'
 
 
 @dataclass
@@ -68,16 +68,19 @@ class Plugin:
     installed_version: str = ''
 
 
-def get_local_plugins():
+def get_local_plugins(plugins=None):
     """
     Return a dictionary of all locally-installed plugins, mapped by name.
     """
-    plugins = {}
+    plugins = plugins or {}
+    local_plugins = {}
+
+    # Gather all locally-installed plugins
     for plugin_name in settings.PLUGINS:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
 
-        plugins[plugin_config.name] = Plugin(
+        local_plugins[plugin_config.name] = Plugin(
             slug=plugin_config.name,
             title_short=plugin_config.verbose_name,
             tag_line=plugin_config.description,
@@ -87,6 +90,14 @@ def get_local_plugins():
             installed_version=plugin_config.version,
         )
 
+    # Update catalog entries for local plugins, or add them to the list if not listed
+    for k, v in local_plugins.items():
+        if k in plugins:
+            plugins[k].is_local = True
+            plugins[k].is_installed = True
+        else:
+            plugins[k] = v
+
     return plugins
 
 
@@ -95,7 +106,6 @@ def get_catalog_plugins():
     Return a dictionary of all entries in the plugins catalog, mapped by name.
     """
     session = requests.Session()
-    plugins = {}
 
     def get_pages():
         # TODO: pagination is currently broken in API
@@ -121,88 +131,80 @@ def get_catalog_plugins():
             ).json()
             yield next_page
 
-    for page in get_pages():
-        for data in page['data']:
+    def make_plugin_dict():
+        plugins = {}
 
-            # Populate releases
-            releases = []
-            for version in data['release_recent_history']:
-                releases.append(
-                    PluginVersion(
-                        date=datetime_from_timestamp(version['date']),
-                        version=version['version'],
-                        netbox_min_version=version['netbox_min_version'],
-                        netbox_max_version=version['netbox_max_version'],
-                        has_model=version['has_model'],
-                        is_certified=version['is_certified'],
-                        is_feature=version['is_feature'],
-                        is_integration=version['is_integration'],
-                        is_netboxlabs_supported=version['is_netboxlabs_supported'],
+        for page in get_pages():
+            for data in page['data']:
+
+                # Populate releases
+                releases = []
+                for version in data['release_recent_history']:
+                    releases.append(
+                        PluginVersion(
+                            date=datetime_from_timestamp(version['date']),
+                            version=version['version'],
+                            netbox_min_version=version['netbox_min_version'],
+                            netbox_max_version=version['netbox_max_version'],
+                            has_model=version['has_model'],
+                            is_certified=version['is_certified'],
+                            is_feature=version['is_feature'],
+                            is_integration=version['is_integration'],
+                            is_netboxlabs_supported=version['is_netboxlabs_supported'],
+                        )
                     )
+                releases = sorted(releases, key=lambda x: x.date, reverse=True)
+                latest_release = PluginVersion(
+                    date=datetime_from_timestamp(data['release_latest']['date']),
+                    version=data['release_latest']['version'],
+                    netbox_min_version=data['release_latest']['netbox_min_version'],
+                    netbox_max_version=data['release_latest']['netbox_max_version'],
+                    has_model=data['release_latest']['has_model'],
+                    is_certified=data['release_latest']['is_certified'],
+                    is_feature=data['release_latest']['is_feature'],
+                    is_integration=data['release_latest']['is_integration'],
+                    is_netboxlabs_supported=data['release_latest']['is_netboxlabs_supported'],
                 )
-            releases = sorted(releases, key=lambda x: x.date, reverse=True)
-            latest_release = PluginVersion(
-                date=datetime_from_timestamp(data['release_latest']['date']),
-                version=data['release_latest']['version'],
-                netbox_min_version=data['release_latest']['netbox_min_version'],
-                netbox_max_version=data['release_latest']['netbox_max_version'],
-                has_model=data['release_latest']['has_model'],
-                is_certified=data['release_latest']['is_certified'],
-                is_feature=data['release_latest']['is_feature'],
-                is_integration=data['release_latest']['is_integration'],
-                is_netboxlabs_supported=data['release_latest']['is_netboxlabs_supported'],
-            )
 
-            # Populate author (if any)
-            if data['author']:
-                author = PluginAuthor(
-                    name=data['author']['name'],
-                    org_id=data['author']['org_id'],
-                    url=data['author']['url'],
+                # Populate author (if any)
+                if data['author']:
+                    author = PluginAuthor(
+                        name=data['author']['name'],
+                        org_id=data['author']['org_id'],
+                        url=data['author']['url'],
+                    )
+                else:
+                    author = None
+
+                # Populate plugin data
+                plugins[data['slug']] = Plugin(
+                    id=data['id'],
+                    status=data['status'],
+                    title_short=data['title_short'],
+                    title_long=data['title_long'],
+                    tag_line=data['tag_line'],
+                    description_short=data['description_short'],
+                    slug=data['slug'],
+                    author=author,
+                    created_at=datetime_from_timestamp(data['created_at']),
+                    updated_at=datetime_from_timestamp(data['updated_at']),
+                    license_type=data['license_type'],
+                    homepage_url=data['homepage_url'],
+                    package_name_pypi=data['package_name_pypi'],
+                    config_name=data['config_name'],
+                    is_certified=data['is_certified'],
+                    release_latest=latest_release,
+                    release_recent_history=releases,
                 )
-            else:
-                author = None
 
-            # Populate plugin data
-            plugins[data['slug']] = Plugin(
-                id=data['id'],
-                status=data['status'],
-                title_short=data['title_short'],
-                title_long=data['title_long'],
-                tag_line=data['tag_line'],
-                description_short=data['description_short'],
-                slug=data['slug'],
-                author=author,
-                created_at=datetime_from_timestamp(data['created_at']),
-                updated_at=datetime_from_timestamp(data['updated_at']),
-                license_type=data['license_type'],
-                homepage_url=data['homepage_url'],
-                package_name_pypi=data['package_name_pypi'],
-                config_name=data['config_name'],
-                is_certified=data['is_certified'],
-                release_latest=latest_release,
-                release_recent_history=releases,
-            )
+        return plugins
 
-    return plugins
-
-
-def get_plugins():
-    """
-    Return a dictionary of all plugins (both catalog and locally installed), mapped by name.
-    """
-    local_plugins = get_local_plugins()
-    catalog_plugins = cache.get('plugins-catalog-feed')
+    catalog_plugins = cache.get(CACHE_KEY_CATALOG_FEED, default={})
     if not catalog_plugins:
-        catalog_plugins = get_catalog_plugins()
-        cache.set('plugins-catalog-feed', catalog_plugins, 3600)
+        try:
+            catalog_plugins = make_plugin_dict()
+            cache.set(CACHE_KEY_CATALOG_FEED, catalog_plugins, 3600)
+        except requests.exceptions.RequestException:
+            pass
 
-    plugins = catalog_plugins
-    for k, v in local_plugins.items():
-        if k in plugins:
-            plugins[k].is_local = True
-            plugins[k].is_installed = True
-        else:
-            plugins[k] = v
-
-    return plugins
+    return catalog_plugins

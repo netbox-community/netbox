@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
@@ -11,6 +10,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
+from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
@@ -208,10 +208,13 @@ class RackTypeForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all()
     )
     comments = CommentField()
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+        slug_source='model'
+    )
 
     fieldsets = (
-        FieldSet('manufacturer', 'name', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),
+        FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -224,7 +227,7 @@ class RackTypeForm(NetBoxModelForm):
     class Meta:
         model = RackType
         fields = [
-            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
             'airflow', 'description', 'comments', 'tags',
         ]
@@ -311,9 +314,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     )
     user = forms.ModelChoiceField(
         label=_('User'),
-        queryset=get_user_model().objects.order_by(
-            'username'
-        )
+        queryset=User.objects.order_by('username')
     )
     comments = CommentField()
 

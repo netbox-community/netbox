@@ -1,13 +1,12 @@
 import django_filters
 
-from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.filters import ContentTypeFilter
 
 __all__ = (
@@ -25,7 +24,7 @@ class GroupFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     permission_id = django_filters.ModelMultipleChoiceFilter(
@@ -80,7 +79,7 @@ class UserFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = (
             'id', 'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_staff', 'is_active',
             'is_superuser',
@@ -104,12 +103,12 @@ class TokenFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -171,12 +170,12 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='users__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )

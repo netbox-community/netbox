@@ -584,7 +584,9 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class RackTypeListView(generic.ObjectListView):
-    queryset = RackType.objects.all()
+    queryset = RackType.objects.annotate(
+        instance_count=count_related(Rack, 'rack_type')
+    )
     filterset = filtersets.RackTypeFilterSet
     filterset_form = forms.RackTypeFilterForm
     table = tables.RackTypeTable

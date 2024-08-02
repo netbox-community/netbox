@@ -222,7 +222,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = RackType
         fields = (
-            'manufacturer', 'name', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
+            'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
             'weight_unit', 'description', 'comments', 'tags',
         )

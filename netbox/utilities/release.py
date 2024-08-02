@@ -1,7 +1,7 @@
 import datetime
 import os
 import yaml
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import List, Union
 
 from django.core.exceptions import ImproperlyConfigured
@@ -41,6 +41,9 @@ class ReleaseInfo:
     @property
     def name(self):
         return f"NetBox {self.edition} v{self.full_version}"
+
+    def asdict(self):
+        return asdict(self)
 
 
 def load_release_data():

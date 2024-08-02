@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -11,13 +10,11 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
-
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -276,7 +273,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
@@ -290,26 +287,26 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], name='Rack Type 1', slug='rack-type-1'),
-            RackType(manufacturer=manufacturers[0], name='Rack Type 2', slug='rack-type-2'),
-            RackType(manufacturer=manufacturers[0], name='Rack Type 3', slug='rack-type-3'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3'),
         )
         RackType.objects.bulk_create(rack_types)
 
         cls.create_data = [
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 4',
+                'model': 'Rack Type 4',
                 'slug': 'rack-type-4',
             },
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 5',
+                'model': 'Rack Type 5',
                 'slug': 'rack-type-5',
             },
             {
                 'manufacturer': manufacturers[1].pk,
-                'name': 'Rack Type 6',
+                'model': 'Rack Type 6',
                 'slug': 'rack-type-6',
             },
         ]
