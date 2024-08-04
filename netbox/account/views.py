@@ -121,10 +121,6 @@ class LoginView(View):
 
             response = self.redirect_to_next(request, logger)
 
-            # Set the user's preferred language (if any)
-            if language := request.user.config.get('locale.language'):
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
-
             return response
 
         else:

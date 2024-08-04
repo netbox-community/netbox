@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import connection, ProgrammingError
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
+from django.utils import translation
 
 from netbox.config import clear_config, get_config
 from netbox.context_managers import event_tracking
@@ -32,12 +33,30 @@ class CoreMiddleware:
         # Assign a random unique ID to the request. This will be used for change logging.
         request.id = uuid.uuid4()
 
+        # Check if the language should be activated before the language cookie has been set.
+        # This will happen for instance on the first request after login.
+        # The language will have been already activated by the framework if the cookie exists.
+        if (
+            request.user.is_authenticated and
+            settings.LANGUAGE_COOKIE_NAME not in request.COOKIES and
+            hasattr(request.user, 'config')
+        ):
+            if language := request.user.config.get('locale.language'):
+                translation.activate(language)
+
         # Enable the event_tracking context manager and process the request.
         with event_tracking(request):
             response = self.get_response(request)
 
-        # Check if language cookie should be renewed
-        if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
+        # Check if language cookie should be renewed (persistent logins) or set when it does not exist, yet
+        if (
+            request.user.is_authenticated and
+            hasattr(request.user, 'config') and
+            (
+                settings.SESSION_SAVE_EVERY_REQUEST or
+                settings.LANGUAGE_COOKIE_NAME not in request.COOKIES
+            )
+        ):
             if language := request.user.config.get('locale.language'):
                 response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
 
