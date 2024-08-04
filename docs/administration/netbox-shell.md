@@ -1,6 +1,6 @@
 # The NetBox Python Shell
 
-NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
+NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command with the appropriate Python virtual environment activated:
 
 ```
 ./manage.py nbshell
@@ -106,7 +106,7 @@ This approach can span multiple levels of relations. For example, the following 
 ```
 
 !!! note
-    While the above query is functional, it's not very efficient. There are ways to optimize such requests, however they are out of scope for this document. For more information, see the [Django queryset method reference](https://docs.djangoproject.com/en/stable/ref/models/querysets/) documentation.
+    There are other methods apart from the `filter()`, such as `get()`, and there are ways to make more optimized and complex requests, but those are out of scope for this document. For more information, see the [Django queryset method reference](https://docs.djangoproject.com/en/stable/ref/models/querysets/) documentation.
 
 Reverse relationships can be traversed as well. For example, the following will find all devices with an interface named "em0":
 
@@ -144,7 +144,9 @@ To return the inverse of a filtered queryset, use `exclude()` instead of `filter
 ```
 
 !!! info
-    The examples above are intended only to provide a cursory introduction to queryset filtering. For an exhaustive list of the available filters, please consult the [Django queryset API documentation](https://docs.djangoproject.com/en/stable/ref/models/querysets/).
+    Queries can all also be executed from a particular object instead of from the model itself. This can be particularly useful for configuration templates and export templates.
+
+    The examples above are intended only to provide a cursory introduction to queryset filtering. For an exhaustive list of the available filters and methods, please consult the [Django queryset API documentation](https://docs.djangoproject.com/en/stable/ref/models/querysets/).
 
 ## Creating and Updating Objects
 

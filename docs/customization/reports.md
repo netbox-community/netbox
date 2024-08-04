@@ -15,8 +15,12 @@ from extras.reports import Report
 class MyReport(Report):
 ```
 
+<<<<<<< HEAD
 ```python title="New code"
 from extras.scripts import Script
+=======
+Within each report class, we'll create a number of test methods to execute our report's logic. The name of each method must begin with `test_` and the method must accept no arguments.
+>>>>>>> c29c257cd (Corrections in documentation about nbshell)
 
 class MyReport(Script):
 ```

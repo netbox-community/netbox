@@ -65,6 +65,11 @@ class AnotherCustomScript(Script):
 script_order = (MyCustomScript, AnotherCustomScript)
 ```
 
+!!! info
+    The [NetBox Shell](../administration/netbox-shell.md) is a good resource to keep in hand, since it allows to see the objects in NetBox in the same way the script does.
+
+The `run()` method can itself call other methods that are in the same module but outside the "MyCustomScript" class, and if there are several scripts in the same module (this is, in the same Python file), both scripts can reuse the same auxiliary methods, keeping the code cleaner. For this reason, it is encouraged to keep similar scripts in the same module. Script can return a string, which will be displayed in a text box in the web interface after the script finishes. This is useful, for instance, for returning a piece of configuration or information that you want the user to be able to easily copy and paste somewhere else.
+
 ## Script Attributes
 
 Script attributes are defined under a class named `Meta` within the script. These are optional, but encouraged.
