@@ -135,7 +135,7 @@ class NetBoxAutoSchema(AutoSchema):
 
     def get_serializer_ref_name(self, serializer):
         # from drf-yasg.utils
-        """Get serializer's ref_name (or None for ModelSerializer if it is named 'NestedSerializer')
+        """Get serializer's ref_name
         :param serializer: Serializer instance
         :return: Serializer's ``ref_name`` or ``None`` for inline serializer
         :rtype: str or None
