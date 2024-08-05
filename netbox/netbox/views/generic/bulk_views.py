@@ -746,7 +746,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                 raise PermissionsViolation
 
                             model_name = self.queryset.model._meta.verbose_name_plural
-                            messages.success(request, _("Renamed {len} {model_name}").format(len=len(select_objects), model_name=model_name))
+                            messages.success(request, _("Renamed {len} {model_name}").format(len=len(selected_objects), model_name=model_name))
                             return redirect(self.get_return_url(request))
 
                 except (AbortRequest, PermissionsViolation) as e:
