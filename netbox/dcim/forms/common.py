@@ -100,6 +100,8 @@ class ModuleCommonForm(forms.Form):
             self.instance._disable_replication = True
             return
 
+        module_bays = self._get_module_bay_tree(module_bay)
+
         for templates, component_attribute in [
                 ("consoleporttemplates", "consoleports"),
                 ("consoleserverporttemplates", "consoleserverports"),
@@ -124,7 +126,6 @@ class ModuleCommonForm(forms.Form):
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
 
-                    module_bays = self._get_module_bay_tree(template)
                     if len(module_bays) != template.name.count(MODULE_TOKEN):
                         raise forms.ValidationError(
                             _("Cannot install module with placeholder values in a module bay tree {level} in tree but {tokens} placeholders given.").format(
