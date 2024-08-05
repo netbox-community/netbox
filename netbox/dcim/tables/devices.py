@@ -313,10 +313,6 @@ class ModularDeviceComponentTable(DeviceComponentTable):
         verbose_name=_('Inventory Items'),
     )
 
-    class Meta(NetBoxTable.Meta):
-        pass
-        # order_by = ('device', 'module', 'name')
-
 
 class CableTerminationTable(NetBoxTable):
     cable = tables.Column(
