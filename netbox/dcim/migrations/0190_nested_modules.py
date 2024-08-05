@@ -1,4 +1,5 @@
 import django.db.models.deletion
+import mptt.fields
 from django.db import migrations, models
 
 
@@ -6,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0189_moduletype_airflow_rack_airflow_racktype_airflow'),
-        ('extras', '0119_eventrule_event_types'),
+        ('extras', '0120_customfield_related_object_filter'),
     ]
 
     operations = [
@@ -20,8 +21,37 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='modulebay',
+            name='level',
+            field=models.PositiveIntegerField(default=0, editable=False),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='modulebay',
+            name='lft',
+            field=models.PositiveIntegerField(default=0, editable=False),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='modulebay',
             name='module',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.module'),
+        ),
+        migrations.AddField(
+            model_name='modulebay',
+            name='parent',
+            field=mptt.fields.TreeForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='dcim.modulebay'),
+        ),
+        migrations.AddField(
+            model_name='modulebay',
+            name='rght',
+            field=models.PositiveIntegerField(default=0, editable=False),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='modulebay',
+            name='tree_id',
+            field=models.PositiveIntegerField(db_index=True, default=0, editable=False),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='modulebaytemplate',
