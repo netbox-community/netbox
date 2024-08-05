@@ -1352,7 +1352,8 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
             ModuleBay(device=device, name='Module Bay 5'),
             ModuleBay(device=device, name='Module Bay 6'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=device, module_bay=module_bays[0], module_type=module_types[0]),
@@ -1810,12 +1811,13 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         device = Device.objects.create(device_type=device_type, role=role, name='Device 1', site=site)
 
-        device_bays = (
+        module_bays = (
             ModuleBay(device=device, name='Device Bay 1'),
             ModuleBay(device=device, name='Device Bay 2'),
             ModuleBay(device=device, name='Device Bay 3'),
         )
-        ModuleBay.objects.bulk_create(device_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         cls.create_data = [
             {

@@ -1899,12 +1899,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_modulebays(self):
         device = Device.objects.first()
-        device_bays = (
-            ModuleBay(device=device, name='Module Bay 1'),
-            ModuleBay(device=device, name='Module Bay 2'),
-            ModuleBay(device=device, name='Module Bay 3'),
-        )
-        ModuleBay.objects.bulk_create(device_bays)
+        ModuleBay.objects.create(device=device, name='Module Bay 1')
+        ModuleBay.objects.create(device=device, name='Module Bay 2')
+        ModuleBay.objects.create(device=device, name='Module Bay 3')
 
         url = reverse('dcim:device_modulebays', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -1980,7 +1977,8 @@ class ModuleTestCase(
             ModuleBay(device=devices[1], name='Module Bay 4'),
             ModuleBay(device=devices[1], name='Module Bay 5'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0]),
@@ -2782,7 +2780,8 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ModuleBay(device=device, name='Module Bay 2'),
             ModuleBay(device=device, name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 

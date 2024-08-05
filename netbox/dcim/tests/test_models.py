@@ -641,7 +641,8 @@ class ModuleBayTestCase(TestCase):
             ModuleBay(device=device, name='Module Bay 2', label='B', description='Second'),
             ModuleBay(device=device, name='Module Bay 3', label='C', description='Third'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
