@@ -313,6 +313,9 @@ class ModularDeviceComponentTable(DeviceComponentTable):
         verbose_name=_('Inventory Items'),
     )
 
+    class Meta(NetBoxTable.Meta):
+        pass
+
 
 class CableTerminationTable(NetBoxTable):
     cable = tables.Column(
