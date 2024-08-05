@@ -683,15 +683,31 @@ class ModuleBayTestCase(TestCase):
         module_bays = ModuleBay.objects.all()
         modules = Module.objects.all()
         device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        location = Location.objects.first()
+        rack = Rack.objects.first()
 
         # Create DeviceType components
-        ConsolePortTemplate(
+        ConsolePortTemplate.objects.create(
             device_type=device_type,
             name='{module}',
             label='{module}',
-        ).save()
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Module Bay 1'
+        )
 
-        pass
+        device = Device.objects.create(
+            name='Device 2',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+            location=location,
+            rack=rack
+        )
+        cp = device.consoleports.first()
 
     def test_nested_module_token(self):
         pass
