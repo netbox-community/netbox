@@ -452,7 +452,7 @@ class BackgroundTaskStopView(BaseRQView):
         queue_index = QUEUES_MAP[job.origin]
         queue = get_queue_by_index(queue_index)
 
-        stopped, _ = stop_jobs(queue, job_id)
+        stopped, __ = stop_jobs(queue, job_id)
         if len(stopped) == 1:
             messages.success(request, _('You have successfully stopped {job_id}').format(job_id=job_id))
         else:
