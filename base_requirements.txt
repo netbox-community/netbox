@@ -10,7 +10,7 @@ django-cors-headers
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
 # Pinned for DNS looukp bug; see https://github.com/netbox-community/netbox/issues/16454
 # and https://github.com/jazzband/django-debug-toolbar/issues/1927
-django-debug-toolbar==4.3.0
+django-debug-toolbar
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
