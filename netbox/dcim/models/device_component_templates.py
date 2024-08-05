@@ -158,14 +158,41 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 _("A component template must be associated with either a device type or a module type.")
             )
 
+    def _get_module_tree(self, module):
+        modules = []
+        all_module_bays = module.device.modulebays.all().select_related('module')
+        while module:
+            modules.append(module)
+            if module.module_bay:
+                module = module.module_bay.module
+            else:
+                module = None
+
+        modules.reverse()
+        return modules
+
     def resolve_name(self, module):
+        if MODULE_TOKEN not in self.name:
+            return self.name
+
         if module:
-            return self.name.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            name = self.name
+            for module in modules:
+                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return name
         return self.name
 
     def resolve_label(self, module):
+        if MODULE_TOKEN not in self.label:
+            return self.label
+
         if module:
-            return self.label.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            label = self.label
+            for module in modules:
+                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return label
         return self.label
 
 
@@ -628,7 +655,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         }
 
 
-class ModuleBayTemplate(ComponentTemplateModel):
+class ModuleBayTemplate(ModularComponentTemplateModel):
     """
     A template for a ModuleBay to be created for a new parent Device.
     """
@@ -641,16 +668,16 @@ class ModuleBayTemplate(ComponentTemplateModel):
 
     component_model = ModuleBay
 
-    class Meta(ComponentTemplateModel.Meta):
+    class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return self.component_model(
-            device=device,
             name=self.name,
             label=self.label,
-            position=self.position
+            position=self.position,
+            **kwargs
         )
     instantiate.do_not_call_in_templates = True
 

@@ -297,6 +297,13 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
 
 class ModuleBaySerializer(NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
+    module = ModuleSerializer(
+        nested=True,
+        fields=('id', 'url', 'display', 'module_bay'),
+        required=False,
+        allow_null=True,
+        default=None
+    )
     installed_module = ModuleSerializer(
         nested=True,
         fields=('id', 'url', 'display', 'serial', 'description'),
@@ -307,7 +314,7 @@ class ModuleBaySerializer(NetBoxModelSerializer):
     class Meta:
         model = ModuleBay
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'name', 'installed_module', 'label', 'position',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'installed_module', 'label', 'position',
             'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'description')

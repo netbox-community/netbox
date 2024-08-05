@@ -39,6 +39,9 @@
         {% if perms.dcim.add_rearport %}
           <li><a class="dropdown-item" href="{% url 'dcim:rearport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.device.pk %}">{% trans "Rear Ports" %}</a></li>
         {% endif %}
+        {% if perms.dcim.add_modulebay %}
+          <li><a class="dropdown-item" href="{% url 'dcim:modulebay_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_modulebays' pk=object.pk %}">{% trans "Module Bays" %}</a></li>
+        {% endif %}
       </ul>
     </div>
   {% endif %}

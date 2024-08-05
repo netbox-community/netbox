@@ -27,10 +27,8 @@
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-              <th scope="row">{% trans "Airflow" %}</th>
-              <td>
-                  {{ object.get_airflow_display|placeholder }}
-              </td>
+            <th scope="row">{% trans "Airflow" %}</th>
+            <td>{{ object.get_airflow_display|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Weight" %}</th>

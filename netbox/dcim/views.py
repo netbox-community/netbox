@@ -1314,6 +1314,21 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     )
 
 
+@register_model_view(ModuleType, 'modulebays', path='module-bays')
+class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
+    child_model = ModuleBayTemplate
+    table = tables.ModuleBayTemplateTable
+    filterset = filtersets.ModuleBayTemplateFilterSet
+    viewname = 'dcim:moduletype_modulebays'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebaytemplates.count(),
+        permission='dcim.view_modulebaytemplate',
+        weight=570,
+        hide_if_empty=True
+    )
+
+
 class ModuleTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_moduletype',
