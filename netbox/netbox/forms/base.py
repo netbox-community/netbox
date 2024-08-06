@@ -60,6 +60,8 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
             if value in self.fields[cf_name].empty_values:
                 self.instance.custom_field_data[key] = None
             else:
+                if customfield.type == CustomFieldTypeChoices.TYPE_JSON and type(value) is str:
+                    value = json.loads(value)
                 self.instance.custom_field_data[key] = customfield.serialize(value)
 
         return super().clean()
