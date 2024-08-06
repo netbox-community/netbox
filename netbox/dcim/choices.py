@@ -940,6 +940,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Coaxial
     TYPE_DOCSIS = 'docsis'
+    TYPE_PPS = 'pps'
 
     # PON
     TYPE_BPON = 'bpon'
@@ -1132,6 +1133,7 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Coaxial'),
             (
                 (TYPE_DOCSIS, 'DOCSIS'),
+                (TYPE_PPS, 'PPS'),
             )
         ),
         (
