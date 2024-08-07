@@ -44,3 +44,7 @@ table a {
 [data-bs-theme=dark] ::selection {
   background-color: rgba(var(--tblr-primary-rgb),.48)
 }
+
+pre code {
+  padding: unset;
+}
