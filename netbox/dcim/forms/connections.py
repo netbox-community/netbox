@@ -19,7 +19,7 @@ def get_cable_form(a_type, b_type):
                 # Device component
                 if hasattr(term_cls, 'device'):
 
-                    attrs[f'termination_{cable_end}_device'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_device'] = DynamicModelMultipleChoiceField(
                         queryset=Device.objects.all(),
                         label=_('Device'),
                         required=False,
@@ -33,6 +33,7 @@ def get_cable_form(a_type, b_type):
                         label=term_cls._meta.verbose_name.title(),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'device',
                         },
                         query_params={
                             'device_id': f'$termination_{cable_end}_device',
@@ -43,7 +44,7 @@ def get_cable_form(a_type, b_type):
                 # PowerFeed
                 elif term_cls == PowerFeed:
 
-                    attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelMultipleChoiceField(
                         queryset=PowerPanel.objects.all(),
                         label=_('Power Panel'),
                         required=False,
@@ -57,6 +58,7 @@ def get_cable_form(a_type, b_type):
                         label=_('Power Feed'),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'powerpanel',
                         },
                         query_params={
                             'power_panel_id': f'$termination_{cable_end}_powerpanel',
@@ -66,7 +68,7 @@ def get_cable_form(a_type, b_type):
                 # CircuitTermination
                 elif term_cls == CircuitTermination:
 
-                    attrs[f'termination_{cable_end}_circuit'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_circuit'] = DynamicModelMultipleChoiceField(
                         queryset=Circuit.objects.all(),
                         label=_('Circuit'),
                         selector=True,
@@ -79,6 +81,7 @@ def get_cable_form(a_type, b_type):
                         label=_('Side'),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'circuit',
                         },
                         query_params={
                             'circuit_id': f'$termination_{cable_end}_circuit',
