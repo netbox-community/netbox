@@ -6,14 +6,20 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  <li class="breadcrumb-item">
-    <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
-  </li>
-  {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
+  {% if object.object %}
     <li class="breadcrumb-item">
-      <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
+      <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
     </li>
-  {% endwith %}
+    {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
+      <li class="breadcrumb-item">
+        <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
+      </li>
+    {% endwith %}
+  {% else %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'core:job_list' %}?name={{ object.name|urlencode }}">{{ object.name }}</a>
+    </li>
+  {% endif %}
 {% endblock breadcrumbs %}
 
 {% block control-buttons %}
