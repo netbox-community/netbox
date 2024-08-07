@@ -2,9 +2,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
 from django_filters.constants import EMPTY_VALUES
-from drf_spectacular.plumbing import build_basic_type
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
@@ -118,32 +116,11 @@ class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.CharField)
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
     """
-
-    def __init__(self, *args, **kwargs):
-        # Build up _spectacular_annotation for use by drf_-spectacular typing
-        # need to do this as typing is based on the to_field
-        if 'queryset' in kwargs and 'to_field_name' in kwargs:
-            ft = type(kwargs['queryset'].model._meta.get_field(kwargs['to_field_name']))
-
-            openapi_type = OpenApiTypes.STR
-            if isinstance(ft, models.IntegerField) or issubclass(ft, models.IntegerField):
-                openapi_type = OpenApiTypes.INT
-            elif isinstance(ft, models.FloatField) or issubclass(ft, models.FloatField):
-                openapi_type = OpenApiTypes.FLOAT
-
-            field = build_basic_type(openapi_type)
-            self._spectacular_annotation = {
-                'field': {
-                    **field,
-                    'description': kwargs['label'] if 'label' in kwargs else ''
-                }
-            }
-        super().__init__(*args, **kwargs)
-
     def get_filter_predicate(self, v):
         # Null value filtering
         if v is None:
