@@ -6,6 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.db.models.fields.reverse_related import ManyToOneRel
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
@@ -102,7 +103,7 @@ class BaseTable(tables.Table):
                             field = model._meta.get_field(field_name)
                         except FieldDoesNotExist:
                             break
-                        if isinstance(field, RelatedField):
+                        if isinstance(field, (RelatedField, ManyToOneRel)):
                             # Follow ForeignKeys to the related model
                             prefetch_path.append(field_name)
                             model = field.remote_field.model
