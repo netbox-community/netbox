@@ -29,3 +29,4 @@ netbox.pid
 .coverage
 .vscode
 .python-version
+.devcontainer
