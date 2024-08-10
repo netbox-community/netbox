@@ -271,8 +271,9 @@ class ClusterAddDevicesView(generic.ObjectEditView):
                     device.cluster = cluster
                     device.save()
 
-            messages.success(request, "Added {} devices to cluster {}".format(
-                len(device_pks), cluster
+            messages.success(request, _("Added {count} devices to cluster {cluster}").format(
+                count=len(device_pks),
+                cluster=cluster
             ))
             return redirect(cluster.get_absolute_url())
 
@@ -305,8 +306,9 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
                         device.cluster = None
                         device.save()
 
-                messages.success(request, "Removed {} devices from cluster {}".format(
-                    len(device_pks), cluster
+                messages.success(request, _("Removed {count} devices from cluster {cluster}").format(
+                    count=len(device_pks),
+                    cluster=cluster
                 ))
                 return redirect(cluster.get_absolute_url())
 
@@ -444,7 +446,7 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
             try:
                 rendered_config = config_template.render(context=context_data)
             except TemplateError as e:
-                messages.error(request, f"An error occurred while rendering the template: {e}")
+                messages.error(request, _("An error occurred while rendering the template: {error}").format(error=e))
                 rendered_config = traceback.format_exc()
 
         return {
