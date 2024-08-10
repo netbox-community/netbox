@@ -206,7 +206,10 @@ class ObjectSyncDataView(View):
             return redirect(obj.get_absolute_url())
 
         obj.sync(save=True)
-        messages.success(request, _("Synchronized data for {name} {obj}.").format(name=model._meta.verbose_name, obj=obj))
+        messages.success(request, _("Synchronized data for {name} {obj}.").format(
+            name=model._meta.verbose_name,
+            obj=obj
+        ))
 
         return redirect(obj.get_absolute_url())
 
