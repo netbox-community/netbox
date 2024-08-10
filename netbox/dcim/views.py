@@ -3498,7 +3498,10 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
                 device.vc_priority = None
                 device.save()
 
-            msg = _('Removed {} from virtual chassis {}').format(device, device.virtual_chassis)
+            msg = _('Removed {device} from virtual chassis {chassis}').format(
+                device=device,
+                chassis=device.virtual_chassis
+            )
             messages.success(request, msg)
 
             return redirect(self.get_return_url(request, device))

@@ -78,7 +78,7 @@ class DataSourceSyncView(BaseObjectView):
 
         messages.success(
             request,
-            _("Queued job #{job_id} to sync {datasource}").format(job_id=job.pk, datasource=datasource)
+            _("Queued job #{id} to sync {datasource}").format(id=job.pk, datasource=datasource)
         )
         return redirect(datasource.get_absolute_url())
 
@@ -438,7 +438,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
             registry = ScheduledJobRegistry(queue.name, queue.connection)
             registry.remove(job)
 
-        messages.success(request, _('Job {job_id} has been enqueued.').format(job_id=job_id))
+        messages.success(request, _('Job {id} has been enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
 

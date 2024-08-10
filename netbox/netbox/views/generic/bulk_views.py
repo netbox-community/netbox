@@ -754,12 +754,11 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
                                 raise PermissionsViolation
 
-                            model_name = self.queryset.model._meta.verbose_name_plural
                             messages.success(
                                 request,
                                 _("Renamed {count} {object_type}").format(
                                     count=len(selected_objects),
-                                    object_type=model_name
+                                    object_type=self.queryset.model._meta.verbose_name_plural
                                 )
                             )
                             return redirect(self.get_return_url(request))
@@ -875,7 +874,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         if not table.rows:
             messages.warning(
                 request,
-                _("No {object_type} were selected for deletion.").format(object_type=model._meta.verbose_name_plural)
+                _("No {object_type} were selected.").format(object_type=model._meta.verbose_name_plural)
             )
             return redirect(self.get_return_url(request))
 
