@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-02 05:02+0000\n"
+"POT-Creation-Date: 2024-08-11 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,8 +58,25 @@ msgstr ""
 msgid "Allowed IPs"
 msgstr ""
 
+#: netbox/account/views.py:112
+#, python-brace-format
+msgid "Logged in as {user}."
+msgstr ""
+
+#: netbox/account/views.py:162
+msgid "You have logged out."
+msgstr ""
+
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
+msgstr ""
+
+#: netbox/account/views.py:237
+msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
+msgstr ""
+
+#: netbox/account/views.py:252
+msgid "Your password has been changed successfully."
 msgstr ""
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
@@ -309,7 +326,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:212
 #: netbox/circuits/forms/model_forms.py:109
 #: netbox/circuits/forms/model_forms.py:131
-#: netbox/circuits/tables/circuits.py:98 netbox/dcim/forms/connections.py:71
+#: netbox/circuits/tables/circuits.py:98 netbox/dcim/forms/connections.py:73
 #: netbox/templates/circuits/circuit.html:15
 #: netbox/templates/circuits/circuittermination.html:19
 #: netbox/templates/dcim/inc/cable_termination.html:55
@@ -532,7 +549,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:802 netbox/dcim/tables/power.py:77
 #: netbox/extras/forms/bulk_import.py:39 netbox/extras/tables/tables.py:290
 #: netbox/extras/tables/tables.py:362 netbox/extras/tables/tables.py:480
-#: netbox/netbox/tables/tables.py:239 netbox/templates/circuits/circuit.html:30
+#: netbox/netbox/tables/tables.py:240 netbox/templates/circuits/circuit.html:30
 #: netbox/templates/core/datasource.html:38 netbox/templates/dcim/cable.html:15
 #: netbox/templates/dcim/consoleport.html:36
 #: netbox/templates/dcim/consoleserverport.html:36
@@ -964,7 +981,7 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:266 netbox/ipam/forms/filtersets.py:307
 #: netbox/ipam/forms/filtersets.py:382 netbox/ipam/forms/filtersets.py:475
 #: netbox/ipam/forms/filtersets.py:534 netbox/ipam/forms/filtersets.py:552
-#: netbox/netbox/tables/tables.py:255
+#: netbox/netbox/tables/tables.py:256
 #: netbox/virtualization/forms/filtersets.py:45
 #: netbox/virtualization/forms/filtersets.py:103
 #: netbox/virtualization/forms/filtersets.py:194
@@ -1375,6 +1392,16 @@ msgstr ""
 
 #: netbox/circuits/tables/providers.py:39 netbox/dcim/tables/sites.py:100
 msgid "ASN Count"
+msgstr ""
+
+#: netbox/circuits/views.py:331
+#, python-brace-format
+msgid "No terminations have been defined for circuit {circuit}."
+msgstr ""
+
+#: netbox/circuits/views.py:380
+#, python-brace-format
+msgid "Swapped terminations for circuit {circuit}."
 msgstr ""
 
 #: netbox/core/api/views.py:36
@@ -1959,7 +1986,7 @@ msgstr ""
 
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:165 netbox/extras/tables/tables.py:185
-#: netbox/extras/tables/tables.py:357 netbox/netbox/tables/tables.py:188
+#: netbox/extras/tables/tables.py:357 netbox/netbox/tables/tables.py:189
 #: netbox/templates/dcim/virtualchassis_edit.html:52
 #: netbox/utilities/forms/forms.py:73 netbox/wireless/tables/wirelesslink.py:16
 msgid "ID"
@@ -1969,7 +1996,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:248 netbox/extras/tables/tables.py:294
 #: netbox/extras/tables/tables.py:367 netbox/extras/tables/tables.py:485
 #: netbox/extras/tables/tables.py:516 netbox/extras/tables/tables.py:556
-#: netbox/extras/tables/tables.py:593 netbox/netbox/tables/tables.py:243
+#: netbox/extras/tables/tables.py:593 netbox/netbox/tables/tables.py:244
 #: netbox/templates/extras/eventrule.html:84
 #: netbox/templates/extras/journalentry.html:18
 #: netbox/templates/extras/objectchange.html:58
@@ -2063,10 +2090,54 @@ msgstr ""
 msgid "No workers found"
 msgstr ""
 
-#: netbox/core/views.py:331 netbox/core/views.py:374 netbox/core/views.py:397
-#: netbox/core/views.py:415 netbox/core/views.py:450
+#: netbox/core/views.py:81
+#, python-brace-format
+msgid "Queued job #{id} to sync {datasource}"
+msgstr ""
+
+#: netbox/core/views.py:241
+#, python-brace-format
+msgid "Restored configuration revision #{id}"
+msgstr ""
+
+#: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
 msgid "Job {job_id} not found"
+msgstr ""
+
+#: netbox/core/views.py:385
+#, python-brace-format
+msgid "Job {id} has been deleted."
+msgstr ""
+
+#: netbox/core/views.py:387
+#, python-brace-format
+msgid "Error deleting job {id}: {error}"
+msgstr ""
+
+#: netbox/core/views.py:400 netbox/core/views.py:418
+#, python-brace-format
+msgid "Job {id} not found."
+msgstr ""
+
+#: netbox/core/views.py:406
+#, python-brace-format
+msgid "Job {id} has been re-enqueued."
+msgstr ""
+
+#: netbox/core/views.py:441
+#, python-brace-format
+msgid "Job {id} has been enqueued."
+msgstr ""
+
+#: netbox/core/views.py:460
+#, python-brace-format
+msgid "Job {id} has been stopped."
+msgstr ""
+
+#: netbox/core/views.py:462
+#, python-brace-format
+msgid "Failed to stop job {id}"
 msgstr ""
 
 #: netbox/dcim/api/serializers_/devices.py:50
@@ -4091,7 +4162,7 @@ msgstr ""
 msgid "A {model} named {name} already exists"
 msgstr ""
 
-#: netbox/dcim/forms/connections.py:48 netbox/dcim/forms/model_forms.py:686
+#: netbox/dcim/forms/connections.py:49 netbox/dcim/forms/model_forms.py:686
 #: netbox/dcim/tables/power.py:66
 #: netbox/templates/dcim/inc/cable_termination.html:37
 #: netbox/templates/dcim/powerfeed.html:24
@@ -4100,13 +4171,13 @@ msgstr ""
 msgid "Power Panel"
 msgstr ""
 
-#: netbox/dcim/forms/connections.py:57 netbox/dcim/forms/model_forms.py:713
+#: netbox/dcim/forms/connections.py:58 netbox/dcim/forms/model_forms.py:713
 #: netbox/templates/dcim/powerfeed.html:21
 #: netbox/templates/dcim/powerport.html:80
 msgid "Power Feed"
 msgstr ""
 
-#: netbox/dcim/forms/connections.py:79
+#: netbox/dcim/forms/connections.py:81
 msgid "Side"
 msgstr ""
 
@@ -6081,7 +6152,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:27
 #: netbox/templates/virtualization/virtualmachine_list.html:14
 #: netbox/virtualization/tables/virtualmachines.py:100
-#: netbox/virtualization/views.py:363 netbox/wireless/tables/wirelesslan.py:55
+#: netbox/virtualization/views.py:365 netbox/wireless/tables/wirelesslan.py:55
 msgid "Interfaces"
 msgstr ""
 
@@ -6381,12 +6452,17 @@ msgstr ""
 #: netbox/dcim/views.py:2019 netbox/extras/forms/model_forms.py:453
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:225
-#: netbox/virtualization/views.py:404
+#: netbox/virtualization/views.py:406
 msgid "Config Context"
 msgstr ""
 
-#: netbox/dcim/views.py:2029 netbox/virtualization/views.py:414
+#: netbox/dcim/views.py:2029 netbox/virtualization/views.py:416
 msgid "Render Config"
+msgstr ""
+
+#: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
+#, python-brace-format
+msgid "An error occurred while rendering the template: {error}"
 msgstr ""
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
@@ -6395,8 +6471,32 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr ""
 
-#: netbox/dcim/views.py:2963 netbox/ipam/tables/ip.py:234
+#: netbox/dcim/views.py:2828
+#, python-brace-format
+msgid "Installed device {device} in bay {device_bay}."
+msgstr ""
+
+#: netbox/dcim/views.py:2869
+#, python-brace-format
+msgid "Removed device {device} from bay {device_bay}."
+msgstr ""
+
+#: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
+msgstr ""
+
+#: netbox/dcim/views.py:3441
+msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
+msgstr ""
+
+#: netbox/dcim/views.py:3488
+#, python-brace-format
+msgid "Unable to remove master device {device} from the virtual chassis."
+msgstr ""
+
+#: netbox/dcim/views.py:3501
+#, python-brace-format
+msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
 
 #: netbox/extras/api/customfields.py:88
@@ -10167,7 +10267,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:32
 #: netbox/templates/virtualization/virtualmachine_list.html:21
 #: netbox/virtualization/tables/virtualmachines.py:103
-#: netbox/virtualization/views.py:385
+#: netbox/virtualization/views.py:387
 msgid "Virtual Disks"
 msgstr ""
 
@@ -10538,17 +10638,17 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:57
+#: netbox/netbox/tables/tables.py:58
 #, python-brace-format
 msgid "No {model_name} found"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:248
+#: netbox/netbox/tables/tables.py:249
 #: netbox/templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:251
+#: netbox/netbox/tables/tables.py:252
 msgid "Value"
 msgstr ""
 
@@ -10556,9 +10656,33 @@ msgstr ""
 msgid "Dummy Plugin"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:405
+#: netbox/netbox/views/generic/bulk_views.py:111
+#, python-brace-format
+msgid ""
+"There was an error rendering the selected export template ({template}): "
+"{error}"
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
 msgid "Row {i}: Object with ID {id} does not exist"
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:679
+#: netbox/netbox/views/generic/bulk_views.py:877
+#: netbox/netbox/views/generic/bulk_views.py:925
+#, python-brace-format
+msgid "No {object_type} were selected."
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:759
+#, python-brace-format
+msgid "Renamed {count} {object_type}"
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:855
+#, python-brace-format
+msgid "Deleted {count} {object_type}"
 msgstr ""
 
 #: netbox/netbox/views/generic/feature_views.py:38
@@ -10567,6 +10691,20 @@ msgstr ""
 
 #: netbox/netbox/views/generic/feature_views.py:91
 msgid "Journal"
+msgstr ""
+
+#: netbox/netbox/views/generic/feature_views.py:205
+msgid "Unable to synchronize data: No data file set."
+msgstr ""
+
+#: netbox/netbox/views/generic/feature_views.py:209
+#, python-brace-format
+msgid "Synchronized data for {object_type} {object}."
+msgstr ""
+
+#: netbox/netbox/views/generic/feature_views.py:234
+#, python-brace-format
+msgid "Synced {count} {object_type}"
 msgstr ""
 
 #: netbox/netbox/views/generic/object_views.py:108
@@ -14333,6 +14471,16 @@ msgstr ""
 
 #: netbox/virtualization/models/virtualmachines.py:434
 msgid "virtual disks"
+msgstr ""
+
+#: netbox/virtualization/views.py:274
+#, python-brace-format
+msgid "Added {count} devices to cluster {cluster}"
+msgstr ""
+
+#: netbox/virtualization/views.py:309
+#, python-brace-format
+msgid "Removed {count} devices from cluster {cluster}"
 msgstr ""
 
 #: netbox/vpn/choices.py:31
