@@ -1,6 +1,7 @@
 {% load helpers %}
 {% load log_levels %}
 {% load i18n %}
+{% load render_table from django_tables2 %}
 
 <div class="htmx-container">
   <p>
@@ -41,7 +42,21 @@
     <div class="card">
       <div class="table-responsive" id="object_list">
         <h5 class="card-header">{% trans "Log" %}</h5>
-        {% include 'htmx/table.html' %}
+
+<div class="table-responsive">
+  {% with preferences|get_key:"pagination.placement" as paginator_placement %}
+    {% if paginator_placement == 'top' or paginator_placement == 'both' %}
+      {% include 'inc/paginator.html' with htmx=True table=table paginator=table.paginator page=table.page placement='top' %}
+    {% endif %}
+    {% render_table table 'inc/table_htmx.html' %}
+    {% if paginator_placement != 'top' %}
+      {% include 'inc/paginator.html' with htmx=True table=table paginator=table.paginator page=table.page %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+{# Include the updated object count for display elsewhere on the page #}
+<div class="d-none" hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
       </div>
     </div>
     {% endif %}
