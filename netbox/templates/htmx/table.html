@@ -1,5 +1,6 @@
 {# Render an HTMX-enabled table with paginator #}
 {% load helpers %}
+{% load buttons %}
 {% load render_table from django_tables2 %}
 
 <div class="htmx-container table-responsive">
@@ -16,3 +17,14 @@
 
 {# Include the updated object count for display elsewhere on the page #}
 <div class="d-none" hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
+{% if 'bulk_edit' in actions %}
+  <div class="d-none" hx-swap-oob="innerHTML:.bulk-edit-button">
+  {% bulk_edit_button model query_params=request.GET %}
+  </div>
+{% endif %}
+{% if 'bulk_delete' in actions %}
+  <div class="d-none" hx-swap-oob="innerHTML:.bulk-delete-button">
+  {% bulk_delete_button model query_params=request.GET %}
+  </div>
+{% endif %}
+
