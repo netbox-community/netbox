@@ -281,7 +281,8 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
         FieldSet('region', 'site_group', 'site', name=_('Site')),
-        FieldSet('vlan_group', 'vlan', 'vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
     nullable_fields = (
         'site', 'vlan', 'vrf', 'tenant', 'role', 'description', 'comments',
