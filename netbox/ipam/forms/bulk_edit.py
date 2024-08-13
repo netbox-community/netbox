@@ -221,6 +221,19 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
             'group_id': '$site_group',
         }
     )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label=_('VLAN Group')
+    )
+    vlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('VLAN'),
+        query_params={
+            'group_id': '$vlan_group',
+        }
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -268,10 +281,10 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
         FieldSet('region', 'site_group', 'site', name=_('Site')),
-        FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('vlan_group', 'vlan', 'vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
     )
     nullable_fields = (
-        'site', 'vrf', 'tenant', 'role', 'description', 'comments',
+        'site', 'vlan', 'vrf', 'tenant', 'role', 'description', 'comments',
     )
 
 
