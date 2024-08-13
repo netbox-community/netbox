@@ -2,12 +2,20 @@
 
 ## v4.0.9 (FUTURE)
 
+### Enhancements
+
+* [#16692](https://github.com/netbox-community/netbox/issues/16692) - Enable modifying VLAN assignment while bulk editing prefixes
+* [#17006](https://github.com/netbox-community/netbox/issues/17006) - Add IEEE 802.11be interface type
+
 ### Bug Fixes
 
 * [#13459](https://github.com/netbox-community/netbox/issues/13459) - Correct OpenAPI schema type for `TreeNodeMultipleChoiceFilter`
 * [#16176](https://github.com/netbox-community/netbox/issues/16176) - Restore ability to select multiple terminating devices when connecting a cable
 * [#17038](https://github.com/netbox-community/netbox/issues/17038) - Fix AttributeError exception when attempting to export system status data
 * [#17064](https://github.com/netbox-community/netbox/issues/17064) - Fix misaligned text within rendered Markdown code blocks
+* [#17124](https://github.com/netbox-community/netbox/issues/17124) - `BaseTable` should follow reverse one-to-one relationships when prefetching related objects
+* [#17131](https://github.com/netbox-community/netbox/issues/17131) - Fix exception when creating object-type custom field without selecting related object type
+* [#17144](https://github.com/netbox-community/netbox/issues/17144) - Avoid showing duplicated pop-up messages
 
 ---
 
