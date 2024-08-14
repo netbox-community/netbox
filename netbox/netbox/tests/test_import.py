@@ -2,6 +2,7 @@ from django.test import override_settings
 
 from core.models import ObjectType
 from dcim.models import *
+from extras.models import CustomField
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import ObjectPermission
 from utilities.testing import ModelViewTestCase, create_tags
@@ -116,3 +117,28 @@ class CSVImportTestCase(ModelViewTestCase):
         # Test POST with permission
         self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
         self.assertEqual(Region.objects.count(), 0)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_custom_field_defaults(self):
+        self.add_permissions('dcim.add_region')
+        csv_data = [
+            'name,slug,description',
+            'Region 1,region-1,abc',
+        ]
+        data = {
+            'format': ImportFormatChoices.CSV,
+            'data': self._get_csv_data(csv_data),
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        cf = CustomField.objects.create(
+            name='tcf',
+            type='text',
+            required=False,
+            default='def-cf-text'
+        )
+        cf.object_types.set([ObjectType.objects.get_for_model(self.model)])
+
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        region = Region.objects.get(slug='region-1')
+        self.assertEqual(region.cf['tcf'], 'def-cf-text')

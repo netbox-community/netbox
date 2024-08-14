@@ -2126,7 +2126,7 @@ class DeviceRenderConfigView(generic.ObjectView):
             try:
                 rendered_config = config_template.render(context=context_data)
             except TemplateError as e:
-                messages.error(request, f"An error occurred while rendering the template: {e}")
+                messages.error(request, _("An error occurred while rendering the template: {error}").format(error=e))
                 rendered_config = traceback.format_exc()
 
         return {
@@ -2890,7 +2890,13 @@ class DeviceBayPopulateView(generic.ObjectEditView):
             device_bay.snapshot()
             device_bay.installed_device = form.cleaned_data['installed_device']
             device_bay.save()
-            messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
+            messages.success(
+                request,
+                _("Installed device {device} in bay {device_bay}.").format(
+                    device=device_bay.installed_device,
+                    device_bay=device_bay
+                )
+            )
             return_url = self.get_return_url(request)
 
             return redirect(return_url)
@@ -2925,7 +2931,13 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, f"{removed_device} has been removed from {device_bay}.")
+            messages.success(
+                request,
+                _("Removed device {device} from bay {device_bay}.").format(
+                    device=removed_device,
+                    device_bay=device_bay
+                )
+            )
             return_url = self.get_return_url(request, device_bay.device)
 
             return redirect(return_url)
@@ -3493,7 +3505,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
                 membership_form.save()
                 messages.success(request, mark_safe(
-                    f'Added member <a href="{device.get_absolute_url()}">{escape(device)}</a>'
+                    _('Added member <a href="{url}">{escape(device)}</a>').format(url=device.get_absolute_url())
                 ))
 
                 if '_addanother' in request.POST:
@@ -3538,7 +3550,10 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         # Protect master device from being removed
         virtual_chassis = VirtualChassis.objects.filter(master=device).first()
         if virtual_chassis is not None:
-            messages.error(request, f'Unable to remove master device {device} from the virtual chassis.')
+            messages.error(
+                request,
+                _('Unable to remove master device {device} from the virtual chassis.').format(device=device)
+            )
             return redirect(device.get_absolute_url())
 
         if form.is_valid():
@@ -3550,7 +3565,10 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
                 device.vc_priority = None
                 device.save()
 
-            msg = 'Removed {} from virtual chassis {}'.format(device, device.virtual_chassis)
+            msg = _('Removed {device} from virtual chassis {chassis}').format(
+                device=device,
+                chassis=device.virtual_chassis
+            )
             messages.success(request, msg)
 
             return redirect(self.get_return_url(request, device))

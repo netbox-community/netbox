@@ -1295,12 +1295,17 @@ class ComponentBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, initial=None, **kwargs):
+        try:
+            self.device_id = int(initial.get('device'))
+        except (TypeError, ValueError):
+            self.device_id = None
+
+        super().__init__(*args, initial=initial, **kwargs)
 
         # Limit module queryset to Modules which belong to the parent Device
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
+        if self.device_id:
+            device = Device.objects.filter(pk=self.device_id).first()
             self.fields['module'].queryset = Module.objects.filter(device=device)
         else:
             self.fields['module'].choices = ()
@@ -1308,8 +1313,8 @@ class ComponentBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ConsolePortBulkEditForm(
-    form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(ConsolePort, ['label', 'type', 'speed', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1325,8 +1330,8 @@ class ConsolePortBulkEditForm(
 
 
 class ConsoleServerPortBulkEditForm(
-    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(ConsoleServerPort, ['label', 'type', 'speed', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1342,8 +1347,8 @@ class ConsoleServerPortBulkEditForm(
 
 
 class PowerPortBulkEditForm(
-    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(PowerPort, ['label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1360,8 +1365,8 @@ class PowerPortBulkEditForm(
 
 
 class PowerOutletBulkEditForm(
-    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1380,8 +1385,8 @@ class PowerOutletBulkEditForm(
         super().__init__(*args, **kwargs)
 
         # Limit power_port queryset to PowerPorts which belong to the parent Device
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
+        if self.device_id:
+            device = Device.objects.filter(pk=self.device_id).first()
             self.fields['power_port'].queryset = PowerPort.objects.filter(device=device)
         else:
             self.fields['power_port'].choices = ()
@@ -1389,12 +1394,12 @@ class PowerOutletBulkEditForm(
 
 
 class InterfaceBulkEditForm(
+    ComponentBulkEditForm,
     form_from_model(Interface, [
         'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
         'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
         'tx_power', 'wireless_lans'
-    ]),
-    ComponentBulkEditForm
+    ])
 ):
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -1523,8 +1528,8 @@ class InterfaceBulkEditForm(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if 'device' in self.initial:
-            device = Device.objects.filter(pk=self.initial['device']).first()
+        if self.device_id:
+            device = Device.objects.filter(pk=self.device_id).first()
 
             # Restrict parent/bridge/LAG interface assignment by device
             self.fields['parent'].widget.add_query_param('virtual_chassis_member_id', device.pk)
@@ -1587,8 +1592,8 @@ class InterfaceBulkEditForm(
 
 
 class FrontPortBulkEditForm(
-    form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(FrontPort, ['label', 'type', 'color', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1604,8 +1609,8 @@ class FrontPortBulkEditForm(
 
 
 class RearPortBulkEditForm(
-    form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description']),
-    ComponentBulkEditForm
+    ComponentBulkEditForm,
+    form_from_model(RearPort, ['label', 'type', 'color', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),

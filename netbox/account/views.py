@@ -111,7 +111,7 @@ class LoginView(View):
             # Authenticate user
             auth_login(request, form.get_user())
             logger.info(f"User {request.user} successfully authenticated")
-            messages.success(request, f"Logged in as {request.user}.")
+            messages.success(request, _("Logged in as {user}.").format(user=request.user))
 
             # Ensure the user has a UserConfig defined. (This should normally be handled by
             # create_userconfig() on user creation.)
@@ -161,7 +161,7 @@ class LogoutView(View):
         username = request.user
         auth_logout(request)
         logger.info(f"User {username} has logged out")
-        messages.info(request, "You have logged out.")
+        messages.info(request, _("You have logged out."))
 
         # Delete session key & language cookies (if set) upon logout
         response = HttpResponseRedirect(resolve_url(settings.LOGOUT_REDIRECT_URL))
@@ -236,7 +236,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
     def get(self, request):
         # LDAP users cannot change their password here
         if getattr(request.user, 'ldap_username', None):
-            messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
+            messages.warning(request, _("LDAP-authenticated user credentials cannot be changed within NetBox."))
             return redirect('account:profile')
 
         form = PasswordChangeForm(user=request.user)
@@ -251,7 +251,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            messages.success(request, "Your password has been changed successfully.")
+            messages.success(request, _("Your password has been changed successfully."))
             return redirect('account:profile')
 
         return render(request, self.template_name, {

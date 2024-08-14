@@ -85,7 +85,10 @@ class DataSourceSyncView(BaseObjectView):
         datasource.status = DataSourceStatusChoices.QUEUED
         DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
 
-        messages.success(request, f"Queued job #{job.pk} to sync {datasource}")
+        messages.success(
+            request,
+            _("Queued job #{id} to sync {datasource}").format(id=job.pk, datasource=datasource)
+        )
         return redirect(datasource.get_absolute_url())
 
 
@@ -313,7 +316,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
         candidate_config = get_object_or_404(ConfigRevision, pk=pk)
         candidate_config.activate()
-        messages.success(request, f"Restored configuration revision #{pk}")
+        messages.success(request, _("Restored configuration revision #{id}").format(id=pk))
 
         return redirect(candidate_config.get_absolute_url())
 
@@ -457,9 +460,9 @@ class BackgroundTaskDeleteView(BaseRQView):
             # Remove job id from queue and delete the actual job
             queue.connection.lrem(queue.key, 0, job.id)
             job.delete()
-            messages.success(request, f'Deleted job {job_id}')
+            messages.success(request, _('Job {id} has been deleted.').format(id=job_id))
         else:
-            messages.error(request, f'Error deleting job: {form.errors[0]}')
+            messages.error(request, _('Error deleting job {id}: {error}').format(id=job_id, error=form.errors[0]))
 
         return redirect(reverse('core:background_queue_list'))
 
@@ -472,13 +475,13 @@ class BackgroundTaskRequeueView(BaseRQView):
         try:
             job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
         except NoSuchJobError:
-            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+            raise Http404(_("Job {id} not found.").format(id=job_id))
 
         queue_index = QUEUES_MAP[job.origin]
         queue = get_queue_by_index(queue_index)
 
         requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
-        messages.success(request, f'You have successfully requeued: {job_id}')
+        messages.success(request, _('Job {id} has been re-enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
@@ -490,7 +493,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
         try:
             job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
         except NoSuchJobError:
-            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+            raise Http404(_("Job {id} not found.").format(id=job_id))
 
         queue_index = QUEUES_MAP[job.origin]
         queue = get_queue_by_index(queue_index)
@@ -513,7 +516,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
             registry = ScheduledJobRegistry(queue.name, queue.connection)
             registry.remove(job)
 
-        messages.success(request, f'You have successfully enqueued: {job_id}')
+        messages.success(request, _('Job {id} has been enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
@@ -530,11 +533,11 @@ class BackgroundTaskStopView(BaseRQView):
         queue_index = QUEUES_MAP[job.origin]
         queue = get_queue_by_index(queue_index)
 
-        stopped, _ = stop_jobs(queue, job_id)
-        if len(stopped) == 1:
-            messages.success(request, f'You have successfully stopped {job_id}')
+        stopped_jobs = stop_jobs(queue, job_id)[0]
+        if len(stopped_jobs) == 1:
+            messages.success(request, _('Job {id} has been stopped.').format(id=job_id))
         else:
-            messages.error(request, f'Failed to stop {job_id}')
+            messages.error(request, _('Failed to stop job {id}').format(id=job_id))
 
         return redirect(reverse('core:background_task', args=[job_id]))
 

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
 from netbox.views import generic
@@ -326,7 +327,9 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
         # Circuit must have at least one termination to swap
         if not circuit.termination_a and not circuit.termination_z:
-            messages.error(request, "No terminations have been defined for circuit {}.".format(circuit))
+            messages.error(request, _(
+                "No terminations have been defined for circuit {circuit}."
+            ).format(circuit=circuit))
             return redirect('circuits:circuit', pk=circuit.pk)
 
         return render(request, 'circuits/circuit_terminations_swap.html', {
@@ -374,7 +377,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
                 circuit.termination_z = None
                 circuit.save()
 
-            messages.success(request, f"Swapped terminations for circuit {circuit}.")
+            messages.success(request, _("Swapped terminations for circuit {circuit}.").format(circuit=circuit))
             return redirect('circuits:circuit', pk=circuit.pk)
 
         return render(request, 'circuits/circuit_terminations_swap.html', {

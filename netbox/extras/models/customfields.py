@@ -372,13 +372,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
             if not self.related_object_type:
                 raise ValidationError({
-                    'object_type': _("Object fields must define an object type.")
+                    'related_object_type': _("Object fields must define an object type.")
                 })
         elif self.related_object_type:
             raise ValidationError({
-                'object_type': _(
-                    "{type} fields may not define an object type.")
-                .format(type=self.get_type_display())
+                'type': _("{type} fields may not define an object type.") .format(type=self.get_type_display())
             })
 
         # Related object filter can be set only for object-type fields, and must contain a dictionary mapping (if set)
