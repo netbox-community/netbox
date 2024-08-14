@@ -4,9 +4,9 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Jeremy Stretch, 2024
 # Volodymyr Pidgornyi, 2024
 # Vladyslav V. Prodan, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-14 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Vladyslav V. Prodan, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Ukrainian (https://app.transifex.com/netbox-community/teams/178115/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,11 +67,11 @@ msgstr "Дозволені IP-адреси"
 #: netbox/account/views.py:112
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr ""
+msgstr "Ввійшов в систему як {user}."
 
 #: netbox/account/views.py:162
 msgid "You have logged out."
-msgstr ""
+msgstr "Ви вийшли з системи."
 
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
@@ -80,10 +80,11 @@ msgstr "Ваші налаштування було оновлено."
 #: netbox/account/views.py:237
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
+"Облікові дані користувача, підтверджені LDAP, неможливо змінити в NetBox."
 
 #: netbox/account/views.py:252
 msgid "Your password has been changed successfully."
-msgstr ""
+msgstr "Ваш пароль успішно змінено."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:174
@@ -1425,12 +1426,12 @@ msgstr "Кількість ASN"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr ""
+msgstr "Для схеми не визначено закінчень {circuit}."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr ""
+msgstr "Замінені закінчення для схеми {circuit}."
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -2125,12 +2126,12 @@ msgstr "Робочих процессів не знайдено"
 #: netbox/core/views.py:81
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr ""
+msgstr "Робота в черзі #{id} синхронізувати {datasource}"
 
 #: netbox/core/views.py:241
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
-msgstr ""
+msgstr "Відновлена версія конфігурації #{id}"
 
 #: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
@@ -2140,37 +2141,37 @@ msgstr "Робота {job_id} не знайдено"
 #: netbox/core/views.py:385
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr ""
+msgstr "Робота {id} було видалено."
 
 #: netbox/core/views.py:387
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
-msgstr ""
+msgstr "Помилка при видаленні завдання {id}: {error}"
 
 #: netbox/core/views.py:400 netbox/core/views.py:418
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr ""
+msgstr "Робота {id} не знайдено."
 
 #: netbox/core/views.py:406
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr ""
+msgstr "Робота {id} було знову поставлено в чергу."
 
 #: netbox/core/views.py:441
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr ""
+msgstr "Робота {id} був поставлений у чергу."
 
 #: netbox/core/views.py:460
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr ""
+msgstr "Робота {id} було зупинено."
 
 #: netbox/core/views.py:462
 #, python-brace-format
 msgid "Failed to stop job {id}"
-msgstr ""
+msgstr "Не вдалося зупинити завдання {id}"
 
 #: netbox/dcim/api/serializers_/devices.py:50
 #: netbox/dcim/api/serializers_/devicetypes.py:26
@@ -6647,7 +6648,7 @@ msgstr "Відтворювати конфігурацію"
 #: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
-msgstr ""
+msgstr "Під час візуалізації шаблону сталася помилка: {error}"
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
@@ -6658,12 +6659,12 @@ msgstr "Віртуальні машини"
 #: netbox/dcim/views.py:2828
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
-msgstr ""
+msgstr "Встановлений пристрій {device} в бухті {device_bay}."
 
 #: netbox/dcim/views.py:2869
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
-msgstr ""
+msgstr "Видалений пристрій {device} з бухти {device_bay}."
 
 #: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
@@ -6671,17 +6672,17 @@ msgstr "Підпорядкований"
 
 #: netbox/dcim/views.py:3441
 msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr ""
+msgstr "Доданий член <a href=\"{url}\">{escape(device)}</a>"
 
 #: netbox/dcim/views.py:3488
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
-msgstr ""
+msgstr "Неможливо видалити головний пристрій {device} від віртуального шасі."
 
 #: netbox/dcim/views.py:3501
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
-msgstr ""
+msgstr "Вилучено {device} з віртуального шасі {chassis}"
 
 #: netbox/extras/api/customfields.py:88
 #, python-brace-format
@@ -10996,6 +10997,8 @@ msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
+"Виникла помилка при рендерингу вибраного шаблону експорту ({template}): "
+"{error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
@@ -11007,17 +11010,17 @@ msgstr "Ряд {i}: Об'єкт з ідентифікатором {id} не іс
 #: netbox/netbox/views/generic/bulk_views.py:925
 #, python-brace-format
 msgid "No {object_type} were selected."
-msgstr ""
+msgstr "Ні {object_type} були обрані."
 
 #: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
-msgstr ""
+msgstr "Перейменовано {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:855
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
-msgstr ""
+msgstr "Видалено {count} {object_type}"
 
 #: netbox/netbox/views/generic/feature_views.py:38
 msgid "Changelog"
@@ -11029,17 +11032,17 @@ msgstr "Журнал"
 
 #: netbox/netbox/views/generic/feature_views.py:205
 msgid "Unable to synchronize data: No data file set."
-msgstr ""
+msgstr "Неможливо синхронізувати дані: Файл даних не встановлено."
 
 #: netbox/netbox/views/generic/feature_views.py:209
 #, python-brace-format
 msgid "Synchronized data for {object_type} {object}."
-msgstr ""
+msgstr "Синхронізовані дані для {object_type} {object}."
 
 #: netbox/netbox/views/generic/feature_views.py:234
 #, python-brace-format
 msgid "Synced {count} {object_type}"
-msgstr ""
+msgstr "Синхронізовано {count} {object_type}"
 
 #: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
@@ -14969,12 +14972,12 @@ msgstr "віртуальні диски"
 #: netbox/virtualization/views.py:274
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr ""
+msgstr "Додано {count} пристрої для кластеризації {cluster}"
 
 #: netbox/virtualization/views.py:309
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr ""
+msgstr "Вилучено {count} пристрої з кластера {cluster}"
 
 #: netbox/vpn/choices.py:31
 msgid "IPsec - Transport"
