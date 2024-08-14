@@ -5,8 +5,8 @@
 # 
 # Translators:
 # Burak Senturk, 2024
-# Jeremy Stretch, 2024
 # Hamdi Suat Aknar, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-14 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Hamdi Suat Aknar, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,11 +67,11 @@ msgstr "İzin verilen IP'ler"
 #: netbox/account/views.py:112
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr ""
+msgstr "Olarak oturum açtı {user}."
 
 #: netbox/account/views.py:162
 msgid "You have logged out."
-msgstr ""
+msgstr "Oturumu kapattınız."
 
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
@@ -80,10 +80,12 @@ msgstr "Tercihleriniz güncellendi."
 #: netbox/account/views.py:237
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
+"LDAP kimliği doğrulanmış kullanıcı kimlik bilgileri NetBox içinde "
+"değiştirilemez."
 
 #: netbox/account/views.py:252
 msgid "Your password has been changed successfully."
-msgstr ""
+msgstr "Şifreniz başarıyla değiştirildi."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:174
@@ -1422,12 +1424,12 @@ msgstr "ASN Sayısı"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr ""
+msgstr "Devre için sonlandırma tanımlanmamıştır {circuit}."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr ""
+msgstr "Devre için değiştirilmiş sonlandırmalar {circuit}."
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -2126,12 +2128,12 @@ msgstr "İşçi bulunamadı"
 #: netbox/core/views.py:81
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr ""
+msgstr "Sıraya alınmış iş #{id} senkronize etmek {datasource}"
 
 #: netbox/core/views.py:241
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
-msgstr ""
+msgstr "Geri yüklenen yapılandırma revizyonu #{id}"
 
 #: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
@@ -2141,37 +2143,37 @@ msgstr "İş {job_id} bulunamadı"
 #: netbox/core/views.py:385
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr ""
+msgstr "İş {id} silindi."
 
 #: netbox/core/views.py:387
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
-msgstr ""
+msgstr "İş silinirken hata oluştu {id}: {error}"
 
 #: netbox/core/views.py:400 netbox/core/views.py:418
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr ""
+msgstr "İş {id} bulunamadı."
 
 #: netbox/core/views.py:406
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr ""
+msgstr "İş {id} yeniden sıraya alındı."
 
 #: netbox/core/views.py:441
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr ""
+msgstr "İş {id} sıraya alındı."
 
 #: netbox/core/views.py:460
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr ""
+msgstr "İş {id} durduruldu."
 
 #: netbox/core/views.py:462
 #, python-brace-format
 msgid "Failed to stop job {id}"
-msgstr ""
+msgstr "İş durdurulamadı {id}"
 
 #: netbox/dcim/api/serializers_/devices.py:50
 #: netbox/dcim/api/serializers_/devicetypes.py:26
@@ -6596,7 +6598,7 @@ msgstr "Oluştur Yapılandırması"
 #: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
-msgstr ""
+msgstr "Şablon oluşturulurken bir hata oluştu: {error}"
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
@@ -6607,12 +6609,12 @@ msgstr "Sanal Makineler"
 #: netbox/dcim/views.py:2828
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
-msgstr ""
+msgstr "Yüklü cihaz {device} körfezde {device_bay}."
 
 #: netbox/dcim/views.py:2869
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
-msgstr ""
+msgstr "Kaldırılan cihaz {device} körfezden {device_bay}."
 
 #: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
@@ -6620,17 +6622,17 @@ msgstr "Çocuklar"
 
 #: netbox/dcim/views.py:3441
 msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr ""
+msgstr "Eklenen üye <a href=\"{url}\">{escape(device)}</a>"
 
 #: netbox/dcim/views.py:3488
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
-msgstr ""
+msgstr "Ana aygıt kaldırılamıyor {device} sanal kasadan."
 
 #: netbox/dcim/views.py:3501
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
-msgstr ""
+msgstr "Kaldırıldı {device} sanal kasadan {chassis}"
 
 #: netbox/extras/api/customfields.py:88
 #, python-brace-format
@@ -10848,11 +10850,11 @@ msgstr "Mağazalar kayıt defterinden silinemiyor"
 
 #: netbox/netbox/settings.py:742
 msgid "Czech"
-msgstr ""
+msgstr "Çek"
 
 #: netbox/netbox/settings.py:743
 msgid "Danish"
-msgstr ""
+msgstr "Danca"
 
 #: netbox/netbox/settings.py:744
 msgid "German"
@@ -10872,7 +10874,7 @@ msgstr "Fransızca"
 
 #: netbox/netbox/settings.py:748
 msgid "Italian"
-msgstr ""
+msgstr "İtalyan"
 
 #: netbox/netbox/settings.py:749
 msgid "Japanese"
@@ -10880,11 +10882,11 @@ msgstr "Japonca"
 
 #: netbox/netbox/settings.py:750
 msgid "Dutch"
-msgstr ""
+msgstr "Hollandalı"
 
 #: netbox/netbox/settings.py:751
 msgid "Polish"
-msgstr ""
+msgstr "Lehçe"
 
 #: netbox/netbox/settings.py:752
 msgid "Portuguese"
@@ -10942,6 +10944,8 @@ msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
+"Seçilen dışa aktarma şablonunu oluştururken bir hata oluştu ({template}): "
+"{error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
@@ -10953,17 +10957,17 @@ msgstr "Satır {i}: Kimliği olan nesne {id} mevcut değil"
 #: netbox/netbox/views/generic/bulk_views.py:925
 #, python-brace-format
 msgid "No {object_type} were selected."
-msgstr ""
+msgstr "Hayır {object_type} seçildi."
 
 #: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
-msgstr ""
+msgstr "Yeniden adlandırıldı {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:855
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
-msgstr ""
+msgstr "Silinmiş {count} {object_type}"
 
 #: netbox/netbox/views/generic/feature_views.py:38
 msgid "Changelog"
@@ -10975,17 +10979,17 @@ msgstr "dergi"
 
 #: netbox/netbox/views/generic/feature_views.py:205
 msgid "Unable to synchronize data: No data file set."
-msgstr ""
+msgstr "Veriler senkronize edilemiyor: Veri dosyası kümesi yok."
 
 #: netbox/netbox/views/generic/feature_views.py:209
 #, python-brace-format
 msgid "Synchronized data for {object_type} {object}."
-msgstr ""
+msgstr "Senkronize edilmiş veriler {object_type} {object}."
 
 #: netbox/netbox/views/generic/feature_views.py:234
 #, python-brace-format
 msgid "Synced {count} {object_type}"
-msgstr ""
+msgstr "Senkronize {count} {object_type}"
 
 #: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
@@ -11665,7 +11669,7 @@ msgstr "Arka Plan Çalışanları"
 #: netbox/templates/core/rq_worker_list.html:29
 #, python-format
 msgid "Workers in %(queue_name)s"
-msgstr ""
+msgstr "İçindeki işçiler %(queue_name)s"
 
 #: netbox/templates/core/system.html:11
 #: netbox/utilities/templates/buttons/export.html:4
@@ -14902,12 +14906,12 @@ msgstr "sanal diskler"
 #: netbox/virtualization/views.py:274
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr ""
+msgstr "Eklendi {count} kümelenecek cihazlar {cluster}"
 
 #: netbox/virtualization/views.py:309
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr ""
+msgstr "Kaldırıldı {count} kümeden aygıtlar {cluster}"
 
 #: netbox/vpn/choices.py:31
 msgid "IPsec - Transport"
