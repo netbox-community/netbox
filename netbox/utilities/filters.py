@@ -3,8 +3,8 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django_filters.constants import EMPTY_VALUES
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 
 __all__ = (
     'ContentTypeFilter',
@@ -116,6 +116,7 @@ class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.CharField)
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]

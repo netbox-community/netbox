@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRel
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -17,7 +18,8 @@ from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
 from core.models import ObjectType
-from extras.models import ExportTemplate
+from extras.choices import CustomFieldUIEditableChoices
+from extras.models import CustomField, ExportTemplate
 from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -106,7 +108,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         try:
             return template.render_to_response(self.queryset)
         except Exception as e:
-            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            messages.error(
+                request,
+                _("There was an error rendering the selected export template ({template}): {error}").format(
+                    template=template.name,
+                    error=e
+                )
+            )
             # Strip the `export` param and redirect user to the filtered objects list
             query_params = request.GET.copy()
             query_params.pop('export')
@@ -409,6 +417,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 if instance.pk and hasattr(instance, 'snapshot'):
                     instance.snapshot()
 
+            else:
+                # For newly created objects, apply any default custom field values
+                custom_fields = CustomField.objects.filter(
+                    object_types=ContentType.objects.get_for_model(self.queryset.model),
+                    ui_editable=CustomFieldUIEditableChoices.YES
+                )
+                for cf in custom_fields:
+                    field_name = f'cf_{cf.name}'
+                    if field_name not in record:
+                        record[field_name] = cf.default
+
             # Instantiate the model form for the object
             model_form_kwargs = {
                 'data': record,
@@ -668,7 +687,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
@@ -745,8 +767,13 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
                                 raise PermissionsViolation
 
-                            model_name = self.queryset.model._meta.verbose_name_plural
-                            messages.success(request, f"Renamed {len(selected_objects)} {model_name}")
+                            messages.success(
+                                request,
+                                _("Renamed {count} {object_type}").format(
+                                    count=len(selected_objects),
+                                    object_type=self.queryset.model._meta.verbose_name_plural
+                                )
+                            )
                             return redirect(self.get_return_url(request))
 
                 except (AbortRequest, PermissionsViolation) as e:
@@ -838,7 +865,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
 
-                msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
+                msg = _("Deleted {count} {object_type}").format(
+                    count=deleted_count,
+                    object_type=model._meta.verbose_name_plural
+                )
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
@@ -855,7 +885,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         # Retrieve objects being deleted
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
@@ -900,7 +933,10 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=self.parent_model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
         table = self.table(selected_objects, orderable=False)
 

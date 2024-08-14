@@ -202,11 +202,14 @@ class ObjectSyncDataView(View):
         obj = get_object_or_404(qs, **kwargs)
 
         if not obj.data_file:
-            messages.error(request, f"Unable to synchronize data: No data file set.")
+            messages.error(request, _("Unable to synchronize data: No data file set."))
             return redirect(obj.get_absolute_url())
 
         obj.sync(save=True)
-        messages.success(request, f"Synchronized data for {model._meta.verbose_name} {obj}.")
+        messages.success(request, _("Synchronized data for {object_type} {object}.").format(
+            object_type=model._meta.verbose_name,
+            object=obj
+        ))
 
         return redirect(obj.get_absolute_url())
 
@@ -228,7 +231,9 @@ class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
             for obj in selected_objects:
                 obj.sync(save=True)
 
-            model_name = self.queryset.model._meta.verbose_name_plural
-            messages.success(request, f"Synced {len(selected_objects)} {model_name}")
+            messages.success(request, _("Synced {count} {object_type}").format(
+                count=len(selected_objects),
+                object_type=self.queryset.model._meta.verbose_name_plural
+            ))
 
         return redirect(self.get_return_url(request))

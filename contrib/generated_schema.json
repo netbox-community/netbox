@@ -377,6 +377,7 @@
                         "ieee802.11ad",
                         "ieee802.11ax",
                         "ieee802.11ay",
+                        "ieee802.11be",
                         "ieee802.15.1",
                         "other-wireless",
                         "gsm",
