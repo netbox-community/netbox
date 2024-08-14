@@ -382,11 +382,6 @@ class NotificationsMixin(models.Model):
     """
     Enables support for user notifications.
     """
-    notifications = GenericRelation(
-        to='extras.Notification',
-        content_type_field='object_type',
-        object_id_field='object_id'
-    )
     subscriptions = GenericRelation(
         to='extras.Subscription',
         content_type_field='object_type',
