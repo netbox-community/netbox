@@ -1,9 +1,11 @@
+import warnings
+
 from drf_spectacular.utils import extend_schema_serializer
-from rest_framework import serializers
 
 from circuits.models import *
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
+from .serializers_.nested import NestedProviderAccountSerializer
 
 __all__ = [
     'NestedCircuitSerializer',
@@ -13,6 +15,12 @@ __all__ = [
     'NestedProviderSerializer',
     'NestedProviderAccountSerializer',
 ]
+
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
+)
 
 
 #
@@ -39,17 +47,6 @@ class NestedProviderSerializer(WritableNestedSerializer):
     class Meta:
         model = Provider
         fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'circuit_count']
-
-
-#
-# Provider Accounts
-#
-
-class NestedProviderAccountSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = ProviderAccount
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'account']
 
 
 #

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.models import Tenant, TenantGroup
-from ..nested_serializers import *
+from .nested import NestedTenantGroupSerializer
 
 __all__ = (
     'TenantGroupSerializer',

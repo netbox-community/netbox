@@ -21,7 +21,7 @@ class WritableNestedSerializer(BaseModelSerializer):
         return get_related_object_by_attrs(queryset, data)
 
 
-# Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers
+# Declared here for use by PrimaryModelSerializer
 class NestedTagSerializer(WritableNestedSerializer):
 
     class Meta:

@@ -1,3 +1,5 @@
+import warnings
+
 from rest_framework import serializers
 
 from core.choices import JobStatusChoices
@@ -10,6 +12,12 @@ __all__ = (
     'NestedDataFileSerializer',
     'NestedDataSourceSerializer',
     'NestedJobSerializer',
+)
+
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
 )
 
 

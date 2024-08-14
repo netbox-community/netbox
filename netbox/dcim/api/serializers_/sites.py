@@ -8,7 +8,7 @@ from ipam.models import ASN
 from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from ..nested_serializers import *
+from .nested import NestedLocationSerializer, NestedRegionSerializer, NestedSiteGroupSerializer
 
 __all__ = (
     'LocationSerializer',

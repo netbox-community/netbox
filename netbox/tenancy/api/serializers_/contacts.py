@@ -8,7 +8,7 @@ from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerial
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import ContactAssignment, Contact, ContactGroup, ContactRole
 from utilities.api import get_serializer_for_model
-from ..nested_serializers import *
+from .nested import NestedContactGroupSerializer
 
 __all__ = (
     'ContactAssignmentSerializer',

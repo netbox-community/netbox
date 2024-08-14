@@ -1,9 +1,15 @@
+import warnings
+
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from dcim import models
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
+from .serializers_.nested import (
+    NestedDeviceBaySerializer, NestedDeviceSerializer, NestedInterfaceSerializer, NestedInterfaceTemplateSerializer,
+    NestedLocationSerializer, NestedModuleBaySerializer, NestedRegionSerializer, NestedSiteGroupSerializer,
+)
 
 __all__ = [
     'NestedCableSerializer',
@@ -48,34 +54,16 @@ __all__ = [
     'NestedVirtualDeviceContextSerializer',
 ]
 
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
+)
+
 
 #
 # Regions/sites
 #
-
-@extend_schema_serializer(
-    exclude_fields=('site_count',),
-)
-class NestedRegionSerializer(WritableNestedSerializer):
-    site_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
-
-    class Meta:
-        model = models.Region
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'site_count', '_depth']
-
-
-@extend_schema_serializer(
-    exclude_fields=('site_count',),
-)
-class NestedSiteGroupSerializer(WritableNestedSerializer):
-    site_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
-
-    class Meta:
-        model = models.SiteGroup
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'site_count', '_depth']
-
 
 class NestedSiteSerializer(WritableNestedSerializer):
 
@@ -87,18 +75,6 @@ class NestedSiteSerializer(WritableNestedSerializer):
 #
 # Racks
 #
-
-@extend_schema_serializer(
-    exclude_fields=('rack_count',),
-)
-class NestedLocationSerializer(WritableNestedSerializer):
-    rack_count = serializers.IntegerField(read_only=True)
-    _depth = serializers.IntegerField(source='level', read_only=True)
-
-    class Meta:
-        model = models.Location
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'rack_count', '_depth']
-
 
 @extend_schema_serializer(
     exclude_fields=('rack_count',),
@@ -200,13 +176,6 @@ class NestedPowerOutletTemplateSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display_url', 'display', 'name']
 
 
-class NestedInterfaceTemplateSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = models.InterfaceTemplate
-        fields = ['id', 'url', 'display_url', 'display', 'name']
-
-
 class NestedRearPortTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
@@ -271,25 +240,11 @@ class NestedPlatformSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count']
 
 
-class NestedDeviceSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = models.Device
-        fields = ['id', 'url', 'display_url', 'display', 'name']
-
-
 class ModuleNestedModuleBaySerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ModuleBay
         fields = ['id', 'url', 'display_url', 'display', 'name']
-
-
-class ModuleBayNestedModuleSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = models.Module
-        fields = ['id', 'url', 'display_url', 'display', 'serial']
 
 
 class NestedModuleSerializer(WritableNestedSerializer):
@@ -338,15 +293,6 @@ class NestedPowerPortSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display_url', 'display', 'device', 'name', 'cable', '_occupied']
 
 
-class NestedInterfaceSerializer(WritableNestedSerializer):
-    device = NestedDeviceSerializer(read_only=True)
-    _occupied = serializers.BooleanField(required=False, read_only=True)
-
-    class Meta:
-        model = models.Interface
-        fields = ['id', 'url', 'display_url', 'display', 'device', 'name', 'cable', '_occupied']
-
-
 class NestedRearPortSerializer(WritableNestedSerializer):
     device = NestedDeviceSerializer(read_only=True)
     _occupied = serializers.BooleanField(required=False, read_only=True)
@@ -363,22 +309,6 @@ class NestedFrontPortSerializer(WritableNestedSerializer):
     class Meta:
         model = models.FrontPort
         fields = ['id', 'url', 'display_url', 'display', 'device', 'name', 'cable', '_occupied']
-
-
-class NestedModuleBaySerializer(WritableNestedSerializer):
-    installed_module = ModuleBayNestedModuleSerializer(required=False, allow_null=True)
-
-    class Meta:
-        model = models.ModuleBay
-        fields = ['id', 'url', 'display_url', 'display', 'installed_module', 'name']
-
-
-class NestedDeviceBaySerializer(WritableNestedSerializer):
-    device = NestedDeviceSerializer(read_only=True)
-
-    class Meta:
-        model = models.DeviceBay
-        fields = ['id', 'url', 'display_url', 'display', 'device', 'name']
 
 
 class NestedInventoryItemSerializer(WritableNestedSerializer):

@@ -1,5 +1,6 @@
+import warnings
+
 from drf_spectacular.utils import extend_schema_serializer
-from rest_framework import serializers
 
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
@@ -16,6 +17,12 @@ __all__ = (
     'NestedTunnelGroupSerializer',
     'NestedTunnelSerializer',
     'NestedTunnelTerminationSerializer',
+)
+
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
 )
 
 

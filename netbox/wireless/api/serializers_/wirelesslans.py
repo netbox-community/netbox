@@ -6,7 +6,7 @@ from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerial
 from tenancy.api.serializers_.tenants import TenantSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN, WirelessLANGroup
-from ..nested_serializers import *
+from .nested import NestedWirelessLANGroupSerializer
 
 __all__ = (
     'WirelessLANGroupSerializer',

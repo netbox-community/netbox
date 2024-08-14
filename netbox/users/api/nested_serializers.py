@@ -1,11 +1,13 @@
-from drf_spectacular.types import OpenApiTypes
+import warnings
+
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import WritableNestedSerializer
-from users.models import Group, ObjectPermission, Token, User
+from serializers_.nested import NestedGroupSerializer, NestedUserSerializer
+from users.models import ObjectPermission, Token
 
 __all__ = [
     'NestedGroupSerializer',
@@ -14,25 +16,11 @@ __all__ = [
     'NestedUserSerializer',
 ]
 
-
-class NestedGroupSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = Group
-        fields = ['id', 'url', 'display_url', 'display', 'name']
-
-
-class NestedUserSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = User
-        fields = ['id', 'url', 'display_url', 'display', 'username']
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_display(self, obj):
-        if full_name := obj.get_full_name():
-            return f"{obj.username} ({full_name})"
-        return obj.username
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
+)
 
 
 class NestedTokenSerializer(WritableNestedSerializer):
