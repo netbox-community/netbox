@@ -1,6 +1,6 @@
 # NetBox v4.0
 
-## v4.0.9 (FUTURE)
+## v4.0.9 (2024-08-14)
 
 ### Enhancements
 
@@ -10,7 +10,9 @@
 ### Bug Fixes
 
 * [#13459](https://github.com/netbox-community/netbox/issues/13459) - Correct OpenAPI schema type for `TreeNodeMultipleChoiceFilter`
+* [#16073](https://github.com/netbox-community/netbox/issues/16073) - Respect default values for custom fields during bulk import of objects
 * [#16176](https://github.com/netbox-community/netbox/issues/16176) - Restore ability to select multiple terminating devices when connecting a cable
+* [#16871](https://github.com/netbox-community/netbox/issues/16871) - Sanitize device ID query parameter when bulk editing components to prevent exception
 * [#17038](https://github.com/netbox-community/netbox/issues/17038) - Fix AttributeError exception when attempting to export system status data
 * [#17064](https://github.com/netbox-community/netbox/issues/17064) - Fix misaligned text within rendered Markdown code blocks
 * [#17124](https://github.com/netbox-community/netbox/issues/17124) - `BaseTable` should follow reverse one-to-one relationships when prefetching related objects
