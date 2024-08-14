@@ -6,6 +6,7 @@
 # Translators:
 # Jeff Gehlbach, 2024
 # Francesco Lombardo, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-14 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Francesco Lombardo, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Italian (https://app.transifex.com/netbox-community/teams/178115/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -66,11 +67,11 @@ msgstr "IP consentiti"
 #: netbox/account/views.py:112
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr ""
+msgstr "Effettuato l'accesso come {user}."
 
 #: netbox/account/views.py:162
 msgid "You have logged out."
-msgstr ""
+msgstr "Ti sei disconnesso."
 
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
@@ -79,10 +80,12 @@ msgstr "Le tue preferenze sono state aggiornate."
 #: netbox/account/views.py:237
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
+"Le credenziali utente autenticate con LDAP non possono essere modificate "
+"all'interno di NetBox."
 
 #: netbox/account/views.py:252
 msgid "Your password has been changed successfully."
-msgstr ""
+msgstr "La tua password è stata cambiata con successo."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:174
@@ -1424,12 +1427,12 @@ msgstr "Numero ASN"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr ""
+msgstr "Non sono state definite terminazioni per il circuito {circuit}."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr ""
+msgstr "Terminazioni sostituite per circuito {circuit}."
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -2132,12 +2135,12 @@ msgstr "Nessun lavoratore trovato"
 #: netbox/core/views.py:81
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr ""
+msgstr "Lavoro in coda #{id} da sincronizzare {datasource}"
 
 #: netbox/core/views.py:241
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
-msgstr ""
+msgstr "Revisione della configurazione ripristinata #{id}"
 
 #: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
@@ -2147,37 +2150,37 @@ msgstr "Lavoro {job_id} non trovato"
 #: netbox/core/views.py:385
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr ""
+msgstr "Lavoro {id} è stato eliminato."
 
 #: netbox/core/views.py:387
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
-msgstr ""
+msgstr "Errore durante l'eliminazione del lavoro {id}: {error}"
 
 #: netbox/core/views.py:400 netbox/core/views.py:418
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr ""
+msgstr "Lavoro {id} non trovato."
 
 #: netbox/core/views.py:406
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr ""
+msgstr "Lavoro {id} è stato nuovamente accodato."
 
 #: netbox/core/views.py:441
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr ""
+msgstr "Lavoro {id} è stato messo in coda."
 
 #: netbox/core/views.py:460
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr ""
+msgstr "Lavoro {id} è stato fermato."
 
 #: netbox/core/views.py:462
 #, python-brace-format
 msgid "Failed to stop job {id}"
-msgstr ""
+msgstr "Interruzione del lavoro non riuscita {id}"
 
 #: netbox/dcim/api/serializers_/devices.py:50
 #: netbox/dcim/api/serializers_/devicetypes.py:26
@@ -6692,7 +6695,7 @@ msgstr "Configurazione del rendering"
 #: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
-msgstr ""
+msgstr "Si è verificato un errore durante il rendering del modello: {error}"
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
@@ -6703,12 +6706,12 @@ msgstr "Macchine virtuali"
 #: netbox/dcim/views.py:2828
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
-msgstr ""
+msgstr "Dispositivo installato {device} nella baia {device_bay}."
 
 #: netbox/dcim/views.py:2869
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
-msgstr ""
+msgstr "Dispositivo rimosso {device} dalla baia {device_bay}."
 
 #: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
@@ -6716,17 +6719,18 @@ msgstr "Bambini"
 
 #: netbox/dcim/views.py:3441
 msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr ""
+msgstr "Membro aggiunto <a href=\"{url}\">{escape(device)}</a>"
 
 #: netbox/dcim/views.py:3488
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
+"Impossibile rimuovere il dispositivo master {device} dallo chassis virtuale."
 
 #: netbox/dcim/views.py:3501
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
-msgstr ""
+msgstr "Rimosso {device} da chassis virtuale {chassis}"
 
 #: netbox/extras/api/customfields.py:88
 #, python-brace-format
@@ -11008,11 +11012,11 @@ msgstr "Impossibile eliminare i negozi dal registro"
 
 #: netbox/netbox/settings.py:742
 msgid "Czech"
-msgstr ""
+msgstr "cechi"
 
 #: netbox/netbox/settings.py:743
 msgid "Danish"
-msgstr ""
+msgstr "danese"
 
 #: netbox/netbox/settings.py:744
 msgid "German"
@@ -11102,6 +11106,8 @@ msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
+"Si è verificato un errore durante il rendering del modello di esportazione "
+"selezionato ({template}): {error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
@@ -11113,17 +11119,17 @@ msgstr "Fila {i}: Oggetto con ID {id} non esiste"
 #: netbox/netbox/views/generic/bulk_views.py:925
 #, python-brace-format
 msgid "No {object_type} were selected."
-msgstr ""
+msgstr "No {object_type} sono stati selezionati."
 
 #: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
-msgstr ""
+msgstr "Rinominato {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:855
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
-msgstr ""
+msgstr "Eliminato {count} {object_type}"
 
 #: netbox/netbox/views/generic/feature_views.py:38
 msgid "Changelog"
@@ -11135,17 +11141,17 @@ msgstr "rivista"
 
 #: netbox/netbox/views/generic/feature_views.py:205
 msgid "Unable to synchronize data: No data file set."
-msgstr ""
+msgstr "Impossibile sincronizzare i dati: nessun file di dati impostato."
 
 #: netbox/netbox/views/generic/feature_views.py:209
 #, python-brace-format
 msgid "Synchronized data for {object_type} {object}."
-msgstr ""
+msgstr "Dati sincronizzati per {object_type} {object}."
 
 #: netbox/netbox/views/generic/feature_views.py:234
 #, python-brace-format
 msgid "Synced {count} {object_type}"
-msgstr ""
+msgstr "Sincronizzato {count} {object_type}"
 
 #: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
@@ -11826,7 +11832,7 @@ msgstr "Lavoratori di background"
 #: netbox/templates/core/rq_worker_list.html:29
 #, python-format
 msgid "Workers in %(queue_name)s"
-msgstr ""
+msgstr "Lavoratori in %(queue_name)s"
 
 #: netbox/templates/core/system.html:11
 #: netbox/utilities/templates/buttons/export.html:4
@@ -15092,12 +15098,12 @@ msgstr "dischi virtuali"
 #: netbox/virtualization/views.py:274
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr ""
+msgstr "Aggiunto {count} dispositivi da raggruppare {cluster}"
 
 #: netbox/virtualization/views.py:309
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr ""
+msgstr "Rimosso {count} dispositivi dal cluster {cluster}"
 
 #: netbox/vpn/choices.py:31
 msgid "IPsec - Transport"
