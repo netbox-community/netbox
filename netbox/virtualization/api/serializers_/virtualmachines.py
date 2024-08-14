@@ -18,7 +18,7 @@ from virtualization.choices import *
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .clusters import ClusterSerializer
-from ..nested_serializers import *
+from .nested import NestedVMInterfaceSerializer
 
 __all__ = (
     'VMInterfaceSerializer',

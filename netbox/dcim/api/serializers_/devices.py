@@ -16,9 +16,9 @@ from .devicetypes import *
 from .platforms import PlatformSerializer
 from .racks import RackSerializer
 from .roles import DeviceRoleSerializer
+from .nested import NestedDeviceBaySerializer, NestedDeviceSerializer, NestedModuleBaySerializer
 from .sites import LocationSerializer, SiteSerializer
 from .virtualchassis import VirtualChassisSerializer
-from ..nested_serializers import *
 
 __all__ = (
     'DeviceSerializer',

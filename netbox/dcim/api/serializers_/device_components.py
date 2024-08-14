@@ -15,7 +15,7 @@ from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelated
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
-from wireless.api.nested_serializers import NestedWirelessLinkSerializer
+from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
@@ -23,8 +23,8 @@ from .base import ConnectedEndpointsSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
+from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
-from ..nested_serializers import *
 
 __all__ = (
     'ConsolePortSerializer',

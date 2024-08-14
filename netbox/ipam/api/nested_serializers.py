@@ -1,3 +1,5 @@
+import warnings
+
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
@@ -5,6 +7,7 @@ from ipam import models
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
 from .field_serializers import IPAddressField
+from .serializers_.nested import NestedIPAddressSerializer
 
 __all__ = [
     'NestedAggregateSerializer',
@@ -24,6 +27,12 @@ __all__ = [
     'NestedVLANSerializer',
     'NestedVRFSerializer',
 ]
+
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
+)
 
 
 #
@@ -175,19 +184,6 @@ class NestedIPRangeSerializer(WritableNestedSerializer):
     class Meta:
         model = models.IPRange
         fields = ['id', 'url', 'display_url', 'display', 'family', 'start_address', 'end_address']
-
-
-#
-# IP addresses
-#
-
-class NestedIPAddressSerializer(WritableNestedSerializer):
-    family = serializers.IntegerField(read_only=True)
-    address = IPAddressField()
-
-    class Meta:
-        model = models.IPAddress
-        fields = ['id', 'url', 'display_url', 'display', 'family', 'address']
 
 
 #

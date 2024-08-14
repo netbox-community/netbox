@@ -13,4 +13,3 @@ from .serializers_.configtemplates import *
 from .serializers_.savedfilters import *
 from .serializers_.scripts import *
 from .serializers_.tags import *
-from .nested_serializers import *

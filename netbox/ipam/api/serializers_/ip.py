@@ -11,11 +11,11 @@ from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from .asns import RIRSerializer
+from .nested import NestedIPAddressSerializer
 from .roles import RoleSerializer
 from .vlans import VLANSerializer
 from .vrfs import VRFSerializer
 from ..field_serializers import IPAddressField, IPNetworkField
-from ..nested_serializers import *
 
 __all__ = (
     'AggregateSerializer',

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from dcim.models import VirtualChassis
 from netbox.api.serializers import NetBoxModelSerializer
-from ..nested_serializers import *
+from .nested import NestedDeviceSerializer
 
 __all__ = (
     'VirtualChassisSerializer',

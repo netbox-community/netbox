@@ -14,8 +14,8 @@ from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
+from .nested import NestedInterfaceTemplateSerializer
 from .roles import InventoryItemRoleSerializer
-from ..nested_serializers import *
 
 __all__ = (
     'ConsolePortTemplateSerializer',

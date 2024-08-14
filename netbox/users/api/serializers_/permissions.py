@@ -1,10 +1,8 @@
-from rest_framework import serializers
-
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
-from users.api.nested_serializers import NestedGroupSerializer, NestedUserSerializer
 from users.models import Group, ObjectPermission, User
+from .nested import NestedGroupSerializer, NestedUserSerializer
 
 __all__ = (
     'ObjectPermissionSerializer',

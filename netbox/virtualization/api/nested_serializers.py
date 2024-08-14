@@ -1,9 +1,11 @@
+import warnings
+
 from drf_spectacular.utils import extend_schema_serializer
-from rest_framework import serializers
 
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
 from virtualization.models import *
+from .serializers_.nested import NestedVirtualMachineSerializer, NestedVMInterfaceSerializer
 
 __all__ = [
     'NestedClusterGroupSerializer',
@@ -14,10 +16,16 @@ __all__ = [
     'NestedVirtualMachineSerializer',
 ]
 
+# TODO: Remove in v4.2
+warnings.warn(
+    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    DeprecationWarning
+)
+
+
 #
 # Clusters
 #
-
 
 @extend_schema_serializer(
     exclude_fields=('cluster_count',),
@@ -55,21 +63,6 @@ class NestedClusterSerializer(WritableNestedSerializer):
 #
 # Virtual machines
 #
-
-class NestedVirtualMachineSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = VirtualMachine
-        fields = ['id', 'url', 'display_url', 'display', 'name']
-
-
-class NestedVMInterfaceSerializer(WritableNestedSerializer):
-    virtual_machine = NestedVirtualMachineSerializer(read_only=True)
-
-    class Meta:
-        model = VMInterface
-        fields = ['id', 'url', 'display_url', 'display', 'virtual_machine', 'name']
-
 
 class NestedVirtualDiskSerializer(WritableNestedSerializer):
     virtual_machine = NestedVirtualMachineSerializer(read_only=True)
