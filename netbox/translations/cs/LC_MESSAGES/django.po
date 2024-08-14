@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Jeremy Stretch, 2024
 # czarnian, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-14 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: czarnian, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Czech (https://app.transifex.com/netbox-community/teams/178115/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -66,11 +66,11 @@ msgstr "Povolené IP adresy"
 #: netbox/account/views.py:112
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr ""
+msgstr "Přihlášen jako {user}."
 
 #: netbox/account/views.py:162
 msgid "You have logged out."
-msgstr ""
+msgstr "Odhlásili jste se."
 
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
@@ -78,11 +78,11 @@ msgstr "Vaše preference byly aktualizovány."
 
 #: netbox/account/views.py:237
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
-msgstr ""
+msgstr "Uživatelské pověření ověřené LDAP nelze v NetBoxu změnit."
 
 #: netbox/account/views.py:252
 msgid "Your password has been changed successfully."
-msgstr ""
+msgstr "Vaše heslo bylo úspěšně změněno."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:174
@@ -1423,12 +1423,12 @@ msgstr "Počet ASN"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr ""
+msgstr "Pro obvod nebyla definována žádná zakončení {circuit}."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr ""
+msgstr "Vyměněné zakončení pro obvod {circuit}."
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -2124,12 +2124,12 @@ msgstr "Nebyli nalezeni žádní pracovníci"
 #: netbox/core/views.py:81
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr ""
+msgstr "Úloha ve frontě #{id} synchronizovat {datasource}"
 
 #: netbox/core/views.py:241
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
-msgstr ""
+msgstr "Obnovená revize konfigurace #{id}"
 
 #: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
@@ -2139,37 +2139,37 @@ msgstr "Práce {job_id} nenalezeno"
 #: netbox/core/views.py:385
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr ""
+msgstr "Práce {id} byl vymazán."
 
 #: netbox/core/views.py:387
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
-msgstr ""
+msgstr "Chyba při mazání úlohy {id}: {error}"
 
 #: netbox/core/views.py:400 netbox/core/views.py:418
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr ""
+msgstr "Práce {id} nenalezeno."
 
 #: netbox/core/views.py:406
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr ""
+msgstr "Práce {id} byla znovu zařazena do fronty."
 
 #: netbox/core/views.py:441
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr ""
+msgstr "Práce {id} byl zařazen do fronty."
 
 #: netbox/core/views.py:460
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr ""
+msgstr "Práce {id} byl zastaven."
 
 #: netbox/core/views.py:462
 #, python-brace-format
 msgid "Failed to stop job {id}"
-msgstr ""
+msgstr "Nepodařilo se zastavit úlohu {id}"
 
 #: netbox/dcim/api/serializers_/devices.py:50
 #: netbox/dcim/api/serializers_/devicetypes.py:26
@@ -6601,7 +6601,7 @@ msgstr "Konfigurace rendrování"
 #: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
-msgstr ""
+msgstr "Při vykreslování šablony došlo k chybě: {error}"
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
@@ -6612,12 +6612,12 @@ msgstr "Virtuální stroje"
 #: netbox/dcim/views.py:2828
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
-msgstr ""
+msgstr "Nainstalované zařízení {device} v zátoce {device_bay}."
 
 #: netbox/dcim/views.py:2869
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
-msgstr ""
+msgstr "Odstraněné zařízení {device} od zátoky {device_bay}."
 
 #: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
@@ -6625,17 +6625,17 @@ msgstr "Děti"
 
 #: netbox/dcim/views.py:3441
 msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr ""
+msgstr "Přidán člen <a href=\"{url}\">{escape(device)}</a>"
 
 #: netbox/dcim/views.py:3488
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
-msgstr ""
+msgstr "Nelze odebrat hlavní zařízení {device} z virtuálního podvozku."
 
 #: netbox/dcim/views.py:3501
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
-msgstr ""
+msgstr "Odstraněno {device} z virtuálního šasi {chassis}"
 
 #: netbox/extras/api/customfields.py:88
 #, python-brace-format
@@ -10929,6 +10929,7 @@ msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
+"Při vykreslování vybrané šablony exportu došlo k chybě ({template}): {error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
@@ -10940,17 +10941,17 @@ msgstr "Řádek {i}: Objekt s ID {id} neexistuje"
 #: netbox/netbox/views/generic/bulk_views.py:925
 #, python-brace-format
 msgid "No {object_type} were selected."
-msgstr ""
+msgstr "Ne {object_type} Byly vybrány."
 
 #: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
-msgstr ""
+msgstr "Přejmenováno {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:855
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
-msgstr ""
+msgstr "Vymazáno {count} {object_type}"
 
 #: netbox/netbox/views/generic/feature_views.py:38
 msgid "Changelog"
@@ -10962,17 +10963,17 @@ msgstr "věstníku"
 
 #: netbox/netbox/views/generic/feature_views.py:205
 msgid "Unable to synchronize data: No data file set."
-msgstr ""
+msgstr "Nelze synchronizovat data: Žádný datový soubor není nastaven."
 
 #: netbox/netbox/views/generic/feature_views.py:209
 #, python-brace-format
 msgid "Synchronized data for {object_type} {object}."
-msgstr ""
+msgstr "Synchronizovaná data pro {object_type} {object}."
 
 #: netbox/netbox/views/generic/feature_views.py:234
 #, python-brace-format
 msgid "Synced {count} {object_type}"
-msgstr ""
+msgstr "Synchronizováno {count} {object_type}"
 
 #: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
@@ -11652,7 +11653,7 @@ msgstr "Pracovníci na pozadí"
 #: netbox/templates/core/rq_worker_list.html:29
 #, python-format
 msgid "Workers in %(queue_name)s"
-msgstr ""
+msgstr "Pracovníci v %(queue_name)s"
 
 #: netbox/templates/core/system.html:11
 #: netbox/utilities/templates/buttons/export.html:4
@@ -14884,12 +14885,12 @@ msgstr "virtuální disky"
 #: netbox/virtualization/views.py:274
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr ""
+msgstr "Přidal {count} zařízení do clusteru {cluster}"
 
 #: netbox/virtualization/views.py:309
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr ""
+msgstr "Odstraněno {count} zařízení z clusteru {cluster}"
 
 #: netbox/vpn/choices.py:31
 msgid "IPsec - Transport"
