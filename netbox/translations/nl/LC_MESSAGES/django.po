@@ -7,6 +7,7 @@
 # Jeff Gehlbach, 2024
 # deku_m, 2024
 # Peter Mulder <mistermulder+transifex@protonmail.com>, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-14 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Peter Mulder <mistermulder+transifex@protonmail.com>, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Dutch (https://app.transifex.com/netbox-community/teams/178115/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,11 +68,11 @@ msgstr "Toegestane IP-adressen"
 #: netbox/account/views.py:112
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr ""
+msgstr "Ingelogd als {user}."
 
 #: netbox/account/views.py:162
 msgid "You have logged out."
-msgstr ""
+msgstr "Je bent uitgelogd."
 
 #: netbox/account/views.py:214
 msgid "Your preferences have been updated."
@@ -80,10 +81,12 @@ msgstr "Je voorkeuren zijn bijgewerkt."
 #: netbox/account/views.py:237
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
+"LDAP-geverifieerde gebruikersgegevens kunnen niet worden gewijzigd in "
+"NetBox."
 
 #: netbox/account/views.py:252
 msgid "Your password has been changed successfully."
-msgstr ""
+msgstr "Je wachtwoord is succesvol gewijzigd."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:174
@@ -1425,12 +1428,12 @@ msgstr "Aantal ASN's"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr ""
+msgstr "Er zijn geen afsluitingen gedefinieerd voor het circuit {circuit}."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr ""
+msgstr "Verwisselde aansluitingen voor het circuit {circuit}."
 
 #: netbox/core/api/views.py:36
 msgid "This user does not have permission to synchronize this data source."
@@ -2133,12 +2136,12 @@ msgstr "Geen workers gevonden"
 #: netbox/core/views.py:81
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr ""
+msgstr "Taak in de wachtrij #{id} om te synchroniseren {datasource}"
 
 #: netbox/core/views.py:241
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
-msgstr ""
+msgstr "Herstelde configuratierevisie #{id}"
 
 #: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
 #, python-brace-format
@@ -2148,37 +2151,37 @@ msgstr "Taak {job_id} niet gevonden"
 #: netbox/core/views.py:385
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr ""
+msgstr "Baan {id} is verwijderd."
 
 #: netbox/core/views.py:387
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
-msgstr ""
+msgstr "Fout bij het verwijderen van de taak {id}: {error}"
 
 #: netbox/core/views.py:400 netbox/core/views.py:418
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr ""
+msgstr "Baan {id} niet gevonden."
 
 #: netbox/core/views.py:406
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr ""
+msgstr "Baan {id} is opnieuw gevraagd."
 
 #: netbox/core/views.py:441
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr ""
+msgstr "Baan {id} is ondervraagd."
 
 #: netbox/core/views.py:460
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr ""
+msgstr "Baan {id} is gestopt."
 
 #: netbox/core/views.py:462
 #, python-brace-format
 msgid "Failed to stop job {id}"
-msgstr ""
+msgstr "Kon de taak niet stoppen {id}"
 
 #: netbox/dcim/api/serializers_/devices.py:50
 #: netbox/dcim/api/serializers_/devicetypes.py:26
@@ -6670,6 +6673,7 @@ msgstr "Render-configuratie"
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
 msgstr ""
+"Er is een fout opgetreden tijdens het renderen van de sjabloon: {error}"
 
 #: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
@@ -6680,12 +6684,12 @@ msgstr "Virtuele machines"
 #: netbox/dcim/views.py:2828
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
-msgstr ""
+msgstr "Geïnstalleerd apparaat {device} in de baai {device_bay}."
 
 #: netbox/dcim/views.py:2869
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
-msgstr ""
+msgstr "Apparaat verwijderd {device} van bay {device_bay}."
 
 #: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
 msgid "Children"
@@ -6693,17 +6697,18 @@ msgstr "Kinderen"
 
 #: netbox/dcim/views.py:3441
 msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr ""
+msgstr "Lid toegevoegd <a href=\"{url}\">{escape(device)}</a>"
 
 #: netbox/dcim/views.py:3488
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
+"Kan het masterapparaat niet verwijderen {device} vanaf het virtuele chassis."
 
 #: netbox/dcim/views.py:3501
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
-msgstr ""
+msgstr "Verwijderd {device} vanaf een virtueel chassis {chassis}"
 
 #: netbox/extras/api/customfields.py:88
 #, python-brace-format
@@ -11075,6 +11080,8 @@ msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
+"Er is een fout opgetreden bij het weergeven van de geselecteerde "
+"exportsjabloon ({template}): {error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:411
 #, python-brace-format
@@ -11086,17 +11093,17 @@ msgstr "Rij {i}: Object met ID {id} bestaat niet"
 #: netbox/netbox/views/generic/bulk_views.py:925
 #, python-brace-format
 msgid "No {object_type} were selected."
-msgstr ""
+msgstr "Nee {object_type} zijn geselecteerd."
 
 #: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
-msgstr ""
+msgstr "Hernoemd {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:855
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
-msgstr ""
+msgstr "Verwijderd {count} {object_type}"
 
 #: netbox/netbox/views/generic/feature_views.py:38
 msgid "Changelog"
@@ -11109,16 +11116,17 @@ msgstr "Tijdschrift"
 #: netbox/netbox/views/generic/feature_views.py:205
 msgid "Unable to synchronize data: No data file set."
 msgstr ""
+"Kan gegevens niet synchroniseren: er is geen gegevensbestand ingesteld."
 
 #: netbox/netbox/views/generic/feature_views.py:209
 #, python-brace-format
 msgid "Synchronized data for {object_type} {object}."
-msgstr ""
+msgstr "Gesynchroniseerde gegevens voor {object_type} {object}."
 
 #: netbox/netbox/views/generic/feature_views.py:234
 #, python-brace-format
 msgid "Synced {count} {object_type}"
-msgstr ""
+msgstr "Gesynchroniseerd {count} {object_type}"
 
 #: netbox/netbox/views/generic/object_views.py:108
 #, python-brace-format
@@ -11799,7 +11807,7 @@ msgstr "Achtergrondwerkers"
 #: netbox/templates/core/rq_worker_list.html:29
 #, python-format
 msgid "Workers in %(queue_name)s"
-msgstr ""
+msgstr "Werknemers in %(queue_name)s"
 
 #: netbox/templates/core/system.html:11
 #: netbox/utilities/templates/buttons/export.html:4
@@ -15066,12 +15074,12 @@ msgstr "virtuele schijven"
 #: netbox/virtualization/views.py:274
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr ""
+msgstr "Toegevoegd {count} apparaten om te clusteren {cluster}"
 
 #: netbox/virtualization/views.py:309
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr ""
+msgstr "Verwijderd {count} apparaten uit het cluster {cluster}"
 
 #: netbox/vpn/choices.py:31
 msgid "IPsec - Transport"
