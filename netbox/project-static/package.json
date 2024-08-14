@@ -37,19 +37,19 @@
   },
   "devDependencies": {
     "@types/bootstrap": "5.2.10",
-    "@types/cookie": "^0.5.1",
-    "@types/node": "^20.11.16",
-    "@typescript-eslint/eslint-plugin": "^5.39.0",
-    "@typescript-eslint/parser": "^5.39.0",
-    "esbuild": "^0.13.15",
-    "esbuild-sass-plugin": "^2.3.3",
-    "eslint": "^8.24.0",
-    "eslint-config-prettier": "^8.5.0",
+    "@types/cookie": "^0.6.0",
+    "@types/node": "^22.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.1.0",
+    "@typescript-eslint/parser": "^8.1.0",
+    "esbuild": "^0.23.0",
+    "esbuild-sass-plugin": "^3.3.1",
+    "eslint": "<9.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.7.1",
-    "typescript": "~4.8.4"
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "typescript": "<5.5"
   },
   "resolutions": {
     "@types/bootstrap/**/@popperjs/core": "^2.11.6"
