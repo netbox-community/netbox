@@ -10,7 +10,9 @@ export function initMessages(): void {
   for (const element of elements) {
     if (element !== null) {
       const toast = new Toast(element);
-      toast.show();
+      if (!toast.isShown()) {
+        toast.show();
+      }
     }
   }
 }

@@ -49,6 +49,7 @@ WIRELESS_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_80211AD,
     InterfaceTypeChoices.TYPE_80211AX,
     InterfaceTypeChoices.TYPE_80211AY,
+    InterfaceTypeChoices.TYPE_80211BE,
     InterfaceTypeChoices.TYPE_802151,
     InterfaceTypeChoices.TYPE_OTHER_WIRELESS,
 ]
