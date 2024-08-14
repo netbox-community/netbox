@@ -7,7 +7,7 @@ import { DynamicParamsMap } from './dynamicParamsMap';
 
 // Transitional
 import { QueryFilter, PathFilter } from '../types'
-import { findFirstAdjacent, getElement, replaceAll } from '../../util';
+import { getElement, replaceAll } from '../../util';
 
 
 // Extends TomSelect to provide enhanced fetching of options via the REST API
