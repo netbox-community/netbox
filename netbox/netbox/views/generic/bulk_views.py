@@ -418,18 +418,15 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     instance.snapshot()
 
             else:
-                # for newly created objects we need to add in the default custom-field
-                # values as the form is not posted back so the inital values don't have
-                # an effect.
+                # For newly created objects, apply any default custom field values
                 custom_fields = CustomField.objects.filter(
                     object_types=ContentType.objects.get_for_model(self.queryset.model),
                     ui_editable=CustomFieldUIEditableChoices.YES
                 )
-                append_fields = [cf for cf in custom_fields if f'cf_{cf.name}' not in record]
-
-                for cf in append_fields:
+                for cf in custom_fields:
                     field_name = f'cf_{cf.name}'
-                    record[field_name] = cf.default
+                    if field_name not in record:
+                        record[field_name] = cf.default
 
             # Instantiate the model form for the object
             model_form_kwargs = {
