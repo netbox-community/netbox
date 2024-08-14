@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRel
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -17,7 +18,8 @@ from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
 from core.models import ObjectType
-from extras.models import ExportTemplate
+from extras.choices import CustomFieldUIEditableChoices
+from extras.models import CustomField, ExportTemplate
 from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -414,6 +416,20 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 # Take a snapshot for change logging
                 if instance.pk and hasattr(instance, 'snapshot'):
                     instance.snapshot()
+
+            else:
+                # for newly created objects we need to add in the default custom-field
+                # values as the form is not posted back so the inital values don't have
+                # an effect.
+                custom_fields = CustomField.objects.filter(
+                    object_types=ContentType.objects.get_for_model(self.queryset.model),
+                    ui_editable=CustomFieldUIEditableChoices.YES
+                )
+                append_fields = [cf for cf in custom_fields if f'cf_{cf.name}' not in record]
+
+                for cf in append_fields:
+                    field_name = f'cf_{cf.name}'
+                    record[field_name] = cf.default
 
             # Instantiate the model form for the object
             model_form_kwargs = {
