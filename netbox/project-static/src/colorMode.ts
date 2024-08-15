@@ -1,6 +1,6 @@
 import { getElements, isTruthy } from './util';
 
-const COLOR_MODE_KEY = 'netbox-color-mode';
+const COLOR_MODE_PREFERENCE_KEY = 'netbox-color-mode-preference';
 
 /**
  * Determine if a value is a supported color mode string value.
@@ -9,28 +9,41 @@ function isColorMode(value: unknown): value is ColorMode {
   return value === 'dark' || value === 'light';
 }
 
+function isDefinedColorModePreference(value: unknown): value is ColorModePreference {
+  return value === 'auto' || isColorMode(value);
+}
+
+
 /**
  * Set the color mode to light or dark.
  *
- * @param mode `'light'` or `'dark'`
+ * @param mode `'light'`, `'dark'` or `'auto'`
  * @returns `true` if the color mode was successfully set, `false` if not.
  */
-function storeColorMode(mode: ColorMode): void {
-  return localStorage.setItem(COLOR_MODE_KEY, mode);
+function storeColorMode(modePreference: ColorModePreference): void {
+  return localStorage.setItem(COLOR_MODE_PREFERENCE_KEY, mode);
 }
 
-function updateElements(targetMode: ColorMode): void {
+function updateElements(targetMode: ColorModePreference): void {
   const body = document.querySelector('body');
-  if (body && targetMode == 'dark') {
-    body.setAttribute('data-bs-theme', 'dark');
-  } else if (body) {
-    body.setAttribute('data-bs-theme', 'light');
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const theme = (targetMode === 'auto')
+      ? (mediaQuery.matches ? 'dark' : 'light'
+      : (targetMode === 'none' ? targetMode : 'light');
+
+  if (body) {
+    body.setAttribute('data-bs-theme', theme);
+  }
+  if (body && targetMode === 'auto') {
+    mediaQuery.onchange = event => {
+      body.setAttribute('data-bs-theme', event.matches ? 'dark' : 'light');
+    }
   }
 
   for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
     const svg = elevation.contentDocument?.querySelector('svg') ?? null;
     if (svg !== null) {
-      svg.setAttribute(`data-bs-theme`, targetMode);
+      svg.setAttribute(`data-bs-theme`, theme);
     }
   }
 }
@@ -40,7 +53,7 @@ function updateElements(targetMode: ColorMode): void {
  *
  * @param mode Target color mode.
  */
-export function setColorMode(mode: ColorMode): void {
+export function setColorMode(mode: ColorModePreference): void {
   storeColorMode(mode);
   updateElements(mode);
 }
@@ -49,11 +62,11 @@ export function setColorMode(mode: ColorMode): void {
  * Toggle the color mode when a color mode toggle is clicked.
  */
 function handleColorModeToggle(): void {
-  const currentValue = localStorage.getItem(COLOR_MODE_KEY);
-  if (currentValue === 'light') {
-    setColorMode('dark');
-  } else if (currentValue === 'dark') {
-    setColorMode('light');
+  const prevValue = localStorage.getItem(COLOR_MODE_PREFERENCE_KEY);
+  if (isColorMode(prevValue)) {
+    setColorMode(prevValue === 'light' ? 'dark' : 'light');
+  } else if (prevValue === 'auto') {
+    console.log('Ignoring color mode toggle in auto mode');
   } else {
     console.warn('Unable to determine the current color mode');
   }
@@ -64,33 +77,29 @@ function handleColorModeToggle(): void {
  */
 function defaultColorMode(): void {
   // Get the current color mode value from local storage.
-  const currentValue = localStorage.getItem(COLOR_MODE_KEY) as Nullable<ColorMode>;
-
-  if (isTruthy(currentValue)) {
-    return setColorMode(currentValue);
-  }
-
-  let preference: ColorModePreference = 'none';
-
-  // Determine if the user prefers dark or light mode.
-  for (const mode of ['dark', 'light']) {
-    if (window.matchMedia(`(prefers-color-scheme: ${mode})`).matches) {
-      preference = mode as ColorModePreference;
-      break;
-    }
-  }
+  const currentValue = localStorage.getItem(COLOR_MODE_PREFERENCE_KEY) as Nullable<ColorModePreference>;
 
   if (isTruthy(currentValue) && isColorMode(currentValue)) {
     return setColorMode(currentValue);
   }
 
+  let preference: ColorModePreference = 'none';
+
+  // Determine if the user prefers dark, light or auto mode.
+  if (preference !== 'auto') {
+    for (const mode of ['dark', 'light']) {
+      if (window.matchMedia(`(prefers-color-scheme: ${mode})`).matches) {
+        preference = mode as ColorModePreference;
+        break;
+      }
+    }
+  }
   switch (preference) {
+    case 'auto':
     case 'dark':
-      return setColorMode('dark');
     case 'light':
-      return setColorMode('light');
+      return setColorMode(preference);
     case 'none':
-      return setColorMode('light');
     default:
       return setColorMode('light');
   }

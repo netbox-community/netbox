@@ -1,10 +1,15 @@
 /**
  * Set the color mode on the `<html/>` element and in local storage.
  *
- * @param mode {"dark" | "light"} UI color mode.
+ * @param mode {"dark" | "light" | "auto"} UI color mode.
  */
 function setMode(mode) {
-    document.documentElement.setAttribute("data-bs-theme", mode);
+    document.documentElement.setAttribute(
+        "data-bs-theme",
+        mode === "auto"
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+            : mode
+    );
     localStorage.setItem("netbox-color-mode", mode);
 }
 
@@ -23,6 +28,12 @@ function initMode() {
         if (clientMode !== null) {
             return setMode(clientMode, false);
         }
+	// If client wants to auto-switch, attach an onchange listener to the media query
+	if (clientMode === 'auto') {
+		window.matchMedia('(prefers-color-scheme: light)').onchange = event => {
+			document.documentElement.dataset.bsTheme = (e.matches) ? 'light' : 'dark';
+		}
+	}
 
         // Fall back to the mode preferred by the browser, if specified
         if (preferDark) {

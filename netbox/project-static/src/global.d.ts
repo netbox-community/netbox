@@ -78,4 +78,4 @@ declare const messages: string[];
 type FormControls = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 type ColorMode = 'light' | 'dark';
-type ColorModePreference = ColorMode | 'none';
+type ColorModePreference = ColorMode | 'none' | 'auto';
