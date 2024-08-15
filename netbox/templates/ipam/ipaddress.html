@@ -116,7 +116,7 @@
     {% endif %}
     <div class="card">
       <h2 class="card-header">{% trans "Services" %}</h2>
-      {% htmx_table 'ipam:service_list' ipaddress_id=object.pk %}
+      {% htmx_table 'ipam:service_list' ip_address_id=object.pk %}
     </div>
     {% plugin_right_page object %}
 	</div>
