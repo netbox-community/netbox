@@ -424,11 +424,16 @@ class NotificationReadView(LoginRequiredMixin, View):
     Mark the Notification read and redirect the user to its attached object.
     """
     def get(self, request, pk):
+        # Mark the Notification as read
         notification = get_object_or_404(request.user.notifications, pk=pk)
         notification.read = timezone.now()
         notification.save()
 
-        return redirect(notification.object.get_absolute_url())
+        # Redirect to the object if it has a URL (deleted objects will not)
+        if hasattr(notification.object, 'get_absolute_url'):
+            return redirect(notification.object.get_absolute_url())
+
+        return redirect('account:notifications')
 
 
 @register_model_view(Notification, 'dismiss')
