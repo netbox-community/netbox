@@ -205,7 +205,6 @@ def get_catalog_plugins():
         return plugins
 
     catalog_plugins = cache.get(CACHE_KEY_CATALOG_FEED, default={})
-    catalog_plugins = None
     if not catalog_plugins:
         try:
             catalog_plugins = make_plugin_dict()
