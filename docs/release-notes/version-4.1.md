@@ -1,6 +1,6 @@
 # NetBox v4.1
 
-## v4.1-beta1 (2024-08-05)
+## v4.1.0 (FUTURE)
 
 !!! danger "Not for Production Use"
     This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
@@ -49,10 +49,20 @@ NetBox now includes a user notification system. Users can subscribe to individua
 * [#14656](https://github.com/netbox-community/netbox/issues/14656) - Dynamically render custom field edit form depending on the selected field type
 * [#15106](https://github.com/netbox-community/netbox/issues/15106) - Add distance tracking for wireless links
 * [#15156](https://github.com/netbox-community/netbox/issues/15156) - Add `display_url` field to all REST API serializers
+* [#16574](https://github.com/netbox-community/netbox/issues/16574) - Add `last_synced` time to REST API serializer for data sources
 * [#16580](https://github.com/netbox-community/netbox/issues/16580) - Enable individual views to enforce `LOGIN_REQUIRED` selectively (remove `AUTH_EXEMPT_PATHS`)
 * [#16782](https://github.com/netbox-community/netbox/issues/16782) - Enable filtering of selection choices for object type custom fields
 * [#16907](https://github.com/netbox-community/netbox/issues/16907) - Updated user interface styling
 * [#17051](https://github.com/netbox-community/netbox/issues/17051) - Introduced `ISOLATED_DEPLOYMENT` config parameter
+
+### Bug Fixes (From Beta1)
+
+* [#17086](https://github.com/netbox-community/netbox/issues/17086) - Fix exception when viewing a job with no related object
+* [#17097](https://github.com/netbox-community/netbox/issues/17097) - Record static object representation when calling `NotificationGroup.notify()`
+* [#17098](https://github.com/netbox-community/netbox/issues/17098) - Prevent automatic deletion of related notifications when deleting an object
+* [#17159](https://github.com/netbox-community/netbox/issues/17159) - Correct file paths in plugin installation instructions
+* [#17163](https://github.com/netbox-community/netbox/issues/17163) - Fix filtering of related services under IP address view
+* [#17169](https://github.com/netbox-community/netbox/issues/17169) - Avoid duplicating catalog listings for installed plugins
 
 ### Plugins
 
@@ -81,6 +91,8 @@ NetBox now includes a user notification system. Users can subscribe to individua
     * `/api/dcim/rack-types/`
 * circuits.Circuit
     * Added the `assignments` field, which lists all group assignments
+* core.DataSource
+    * Added the read-only `last_synced` field
 * dcim.ModuleBay
     * Added the optional `module` foreign key field
 * dcim.ModuleBayTemplate
