@@ -3,7 +3,7 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{{ plugin.title_short }}{% endblock %}
+{% block title %}{{ plugin.title_long }}{% endblock %}
 
 {% block object_identifier %}
 {% endblock object_identifier %}
@@ -51,7 +51,7 @@
           <table class="table table-hover attr-table">
             <tr>
               <th scope="row">{% trans "Name" %}</th>
-              <td>{{ plugin.title_short }}</td>
+              <td>{{ plugin.title_long }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Summary" %}</th>

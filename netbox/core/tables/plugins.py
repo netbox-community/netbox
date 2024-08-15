@@ -39,8 +39,8 @@ class PluginVersionTable(BaseTable):
 
 
 class CatalogPluginTable(BaseTable):
-    title_short = tables.Column(
-        linkify=('core:plugin', [tables.A('slug')]),
+    title_long = tables.Column(
+        linkify=('core:plugin', [tables.A('config_name')]),
         verbose_name=_('Name')
     )
     author = tables.Column(
@@ -69,11 +69,11 @@ class CatalogPluginTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
-            'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
+            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
             'installed_version',
         )
         default_columns = (
-            'title_short', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
+            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
         )
         # List installed plugins first, then certified plugins, then
         # everything else (with each tranche ordered alphabetically)

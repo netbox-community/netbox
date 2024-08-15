@@ -81,8 +81,9 @@ def get_local_plugins(plugins=None):
         plugin_config: PluginConfig = plugin.config
 
         local_plugins[plugin_config.name] = Plugin(
-            slug=plugin_config.name,
+            config_name=plugin_config.name,
             title_short=plugin_config.verbose_name,
+            title_long=plugin_config.verbose_name,
             tag_line=plugin_config.description,
             description_short=plugin_config.description,
             is_local=True,
@@ -181,7 +182,7 @@ def get_catalog_plugins():
                     author = None
 
                 # Populate plugin data
-                plugins[data['slug']] = Plugin(
+                plugins[data['config_name']] = Plugin(
                     id=data['id'],
                     status=data['status'],
                     title_short=data['title_short'],
