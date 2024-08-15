@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-14 14:39+0000\n"
+"POT-Creation-Date: 2024-08-15 12:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr ""
 #: core/tables/tasks.py:79 extras/tables/tables.py:332
 #: extras/tables/tables.py:563 templates/account/token.html:43
 #: templates/core/configrevision.html:26
-#: templates/core/configrevision_restore.html:12 templates/core/job.html:63
+#: templates/core/configrevision_restore.html:12 templates/core/job.html:69
 #: templates/core/rq_task.html:16 templates/core/rq_task.html:73
 #: templates/core/rq_worker.html:14 templates/extras/htmx/script_result.html:12
 #: templates/extras/journalentry.html:22 templates/generic/object.html:58
@@ -547,7 +547,7 @@ msgstr ""
 #: ipam/tables/ip.py:237 ipam/tables/ip.py:312 ipam/tables/ip.py:363
 #: ipam/tables/ip.py:426 ipam/tables/ip.py:453 ipam/tables/vlans.py:126
 #: ipam/tables/vlans.py:232 templates/circuits/circuit.html:34
-#: templates/core/datasource.html:46 templates/core/job.html:42
+#: templates/core/datasource.html:46 templates/core/job.html:48
 #: templates/core/rq_task.html:81 templates/core/system.html:18
 #: templates/dcim/cable.html:19 templates/dcim/device.html:178
 #: templates/dcim/location.html:45 templates/dcim/module.html:69
@@ -1189,7 +1189,7 @@ msgstr ""
 #: templates/circuits/circuittype.html:22
 #: templates/circuits/provideraccount.html:28
 #: templates/circuits/providernetwork.html:24 templates/core/datasource.html:34
-#: templates/core/job.html:38 templates/core/plugin.html:53
+#: templates/core/job.html:44 templates/core/plugin.html:53
 #: templates/core/rq_worker.html:43 templates/dcim/consoleport.html:28
 #: templates/dcim/consoleserverport.html:28 templates/dcim/devicebay.html:24
 #: templates/dcim/devicerole.html:26 templates/dcim/frontport.html:28
@@ -1338,7 +1338,7 @@ msgid "Syncing"
 msgstr ""
 
 #: core/choices.py:21 core/choices.py:57 core/tables/jobs.py:41
-#: templates/core/job.html:80
+#: templates/core/job.html:86
 msgid "Completed"
 msgstr ""
 
@@ -1364,7 +1364,7 @@ msgid "Pending"
 msgstr ""
 
 #: core/choices.py:55 core/constants.py:23 core/tables/jobs.py:32
-#: core/tables/tasks.py:38 templates/core/job.html:67
+#: core/tables/tasks.py:38 templates/core/job.html:73
 msgid "Scheduled"
 msgstr ""
 
@@ -1389,7 +1389,7 @@ msgstr ""
 msgid "Finished"
 msgstr ""
 
-#: core/constants.py:21 core/tables/jobs.py:38 templates/core/job.html:76
+#: core/constants.py:21 core/tables/jobs.py:38 templates/core/job.html:82
 #: templates/extras/htmx/script_result.html:8
 msgid "Started"
 msgstr ""
@@ -1552,7 +1552,7 @@ msgstr ""
 #: core/forms/filtersets.py:74 core/forms/filtersets.py:160
 #: extras/forms/filtersets.py:462 extras/tables/tables.py:217
 #: extras/tables/tables.py:291 extras/tables/tables.py:323
-#: extras/tables/tables.py:568 templates/core/job.html:32
+#: extras/tables/tables.py:568 templates/core/job.html:38
 #: templates/core/objectchange.html:52 tenancy/tables/contacts.py:90
 #: vpn/tables/l2vpn.py:59
 msgid "Object Type"
@@ -7048,7 +7048,7 @@ msgstr ""
 
 #: extras/forms/filtersets.py:165 extras/forms/filtersets.py:320
 #: extras/forms/filtersets.py:409 extras/forms/model_forms.py:571
-#: templates/core/job.html:90 templates/extras/eventrule.html:84
+#: templates/core/job.html:96 templates/extras/eventrule.html:84
 msgid "Data"
 msgstr ""
 
@@ -9847,31 +9847,31 @@ msgstr ""
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/models/features.py:472
+#: netbox/models/features.py:467
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/models/features.py:482
+#: netbox/models/features.py:477
 msgid "data path"
 msgstr ""
 
-#: netbox/models/features.py:486
+#: netbox/models/features.py:481
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/models/features.py:489
+#: netbox/models/features.py:484
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/models/features.py:491
+#: netbox/models/features.py:486
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/models/features.py:494
+#: netbox/models/features.py:489
 msgid "date synced"
 msgstr ""
 
-#: netbox/models/features.py:588
+#: netbox/models/features.py:583
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -10397,7 +10397,7 @@ msgstr ""
 msgid "Toggle Dropdown"
 msgstr ""
 
-#: netbox/tables/columns.py:565 templates/core/job.html:47
+#: netbox/tables/columns.py:565 templates/core/job.html:53
 msgid "Error"
 msgstr ""
 
@@ -11001,20 +11001,20 @@ msgstr ""
 msgid "Job retention"
 msgstr ""
 
-#: templates/core/job.html:29 templates/core/rq_task.html:12
+#: templates/core/job.html:35 templates/core/rq_task.html:12
 #: templates/core/rq_task.html:49 templates/core/rq_task.html:58
 msgid "Job"
 msgstr ""
 
-#: templates/core/job.html:52 templates/extras/journalentry.html:26
+#: templates/core/job.html:58 templates/extras/journalentry.html:26
 msgid "Created By"
 msgstr ""
 
-#: templates/core/job.html:60
+#: templates/core/job.html:66
 msgid "Scheduling"
 msgstr ""
 
-#: templates/core/job.html:71
+#: templates/core/job.html:77
 #, python-format
 msgid "every %(interval)s minutes"
 msgstr ""
