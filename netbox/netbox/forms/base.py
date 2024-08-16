@@ -177,7 +177,7 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         })
 
     def _get_custom_fields(self, content_type):
-        return super()._get_custom_fields(content_type).exclude(
+        return CustomField.objects.filter(object_types=content_type).exclude(
             Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
             Q(type=CustomFieldTypeChoices.TYPE_JSON)
         )
