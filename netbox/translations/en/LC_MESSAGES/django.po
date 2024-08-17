@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 05:01+0000\n"
+"POT-Creation-Date: 2024-08-17 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -308,7 +308,7 @@ msgstr ""
 #: netbox/extras/filtersets.py:450 netbox/extras/filtersets.py:613
 #: netbox/extras/filtersets.py:655 netbox/extras/filtersets.py:696
 #: netbox/ipam/forms/model_forms.py:447 netbox/netbox/filtersets.py:275
-#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:165
+#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:167
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:45
 #: netbox/templates/ipam/ipaddress_assign.html:29
@@ -3021,7 +3021,7 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:410
 #: netbox/extras/forms/model_forms.py:443
-#: netbox/extras/forms/model_forms.py:495 netbox/netbox/forms/base.py:84
+#: netbox/extras/forms/model_forms.py:495 netbox/netbox/forms/base.py:86
 #: netbox/netbox/forms/mixins.py:81 netbox/netbox/tables/columns.py:470
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
@@ -10041,17 +10041,17 @@ msgstr ""
 msgid "Lookup"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:88
+#: netbox/netbox/forms/base.py:90
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. \"tag1,tag2,"
 "tag3\")"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:118
+#: netbox/netbox/forms/base.py:120
 msgid "Add tags"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:123
+#: netbox/netbox/forms/base.py:125
 msgid "Remove tags"
 msgstr ""
 
