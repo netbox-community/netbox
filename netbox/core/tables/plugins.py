@@ -56,6 +56,12 @@ class CatalogPluginTable(BaseTable):
     is_certified = columns.BooleanColumn(
         verbose_name=_('Certified')
     )
+    created_at = columns.DateTimeColumn(
+        verbose_name=_('Published')
+    )
+    updated_at = columns.DateTimeColumn(
+        verbose_name=_('Updated')
+    )
     installed_version = tables.Column(
         verbose_name=_('Installed Version')
     )
@@ -63,15 +69,12 @@ class CatalogPluginTable(BaseTable):
         accessor=tables.A('release_latest__version'),
         verbose_name=_('Latest Version')
     )
-    installed_version = tables.Column(
-        verbose_name=_('Installed version')
-    )
 
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
-            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'installed_version', 'latest_version',
-            'installed_version',
+            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
+            'installed_version', 'latest_version',
         )
         default_columns = (
             'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'installed_version', 'latest_version',
