@@ -96,6 +96,7 @@ def get_local_plugins(plugins=None):
         if k in plugins:
             plugins[k].is_local = True
             plugins[k].is_installed = True
+            plugins[k].installed_version = v.installed_version
         else:
             plugins[k] = v
 

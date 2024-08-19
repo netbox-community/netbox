@@ -63,17 +63,21 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Updated')
     )
     installed_version = tables.Column(
-        verbose_name=_('Installed version')
+        verbose_name=_('Installed Version')
+    )
+    latest_version = tables.Column(
+        accessor=tables.A('release_latest__version'),
+        verbose_name=_('Latest Version')
     )
 
     class Meta(BaseTable.Meta):
         empty_text = _('No plugin data found')
         fields = (
             'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
-            'installed_version',
+            'installed_version', 'latest_version',
         )
         default_columns = (
-            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'created_at', 'updated_at',
+            'title_long', 'author', 'is_local', 'is_installed', 'is_certified', 'installed_version', 'latest_version',
         )
         # List installed plugins first, then certified plugins, then
         # everything else (with each tranche ordered alphabetically)
