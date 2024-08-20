@@ -2122,6 +2122,17 @@ class DeviceBulkRenameView(generic.BulkRenameView):
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
 
+    def _rename_objects(self, form, selected_objects):
+        # Check devices for any unnamed devices and enforce requirements on the renaming of devices
+        for obj in selected_objects:
+            if not form.cleaned_data['use_regex'] and not obj.name:
+                from django.core.exceptions import ValidationError
+                raise ValidationError({
+                    'use_regex': 'You must use regex to rename a unnamed device and must pass device uniqueness checks'
+                })
+
+        super()._rename_objects(form, selected_objects)
+
 
 @register_model_view(Device, 'contacts')
 class DeviceContactsView(ObjectContactsView):

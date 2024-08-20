@@ -776,6 +776,14 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             )
                             return redirect(self.get_return_url(request))
 
+                except IntegrityError as e:
+                    messages.error(self.request, ", ".join(e.args))
+                    clear_events.send(sender=self)
+
+                except ValidationError as e:
+                    messages.error(self.request, ", ".join(e.messages))
+                    clear_events.send(sender=self)
+
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
