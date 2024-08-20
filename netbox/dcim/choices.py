@@ -1433,14 +1433,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
-    TYPE_USB_1 = 'usb-1'
-    TYPE_USB_1_1 = 'usb-1-1'
-    TYPE_USB_2 = 'usb-2'
-    TYPE_USB_3 = 'usb-3'
-    TYPE_USB_3_1 = 'usb-3-1'
-    TYPE_USB_3_2 = 'usb-3-2'
-    TYPE_USB_4 = 'usb-4'
-    TYPE_USB_4_2 = 'usb-4-2'
+    TYPE_USB = 'usb'
 
     CHOICES = (
         (
@@ -1473,18 +1466,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
-        (
-            _('USB'), (
-                (TYPE_USB_1, 'USB 1.0'),
-                (TYPE_USB_1_1, 'USB 1.1'),
-                (TYPE_USB_2, 'USB 2.0'),
-                (TYPE_USB_3, 'USB 3.0'),
-                (TYPE_USB_3_1, 'USB 3.1'),
-                (TYPE_USB_3_2, 'USB 3.2'),
-                (TYPE_USB_4, 'USB 4'),
-                (TYPE_USB_4_2, 'USB 4 2.0'),
-            ),
-        ),
+        (TYPE_USB, _('USB')),
         (TYPE_POWER, _('Power')),
     )
 
