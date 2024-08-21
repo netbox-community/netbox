@@ -23,15 +23,6 @@ def get_table_ordering(request, table):
             return preference
 
 
-def linkify_email(value):
-    """
-    Render an email address as a hyperlink.
-    """
-    if value is None:
-        return None
-    return f"mailto:{value.replace(' ', '')}"
-
-
 def linkify_phone(value):
     """
     Render a telephone number as a hyperlink.

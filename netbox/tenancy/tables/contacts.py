@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 
 from netbox.tables import NetBoxTable, columns
 from tenancy.models import *
-from utilities.tables import linkify_phone, linkify_email
+from utilities.tables import linkify_phone
 
 __all__ = (
     'ContactAssignmentTable',
@@ -116,10 +116,9 @@ class ContactAssignmentTable(NetBoxTable):
         verbose_name=_('Contact Phone'),
         linkify=linkify_phone,
     )
-    contact_email = tables.Column(
+    contact_email = tables.EmailColumn(
         accessor=Accessor('contact__email'),
         verbose_name=_('Contact Email'),
-        linkify=linkify_email,
     )
     contact_address = tables.Column(
         accessor=Accessor('contact__address'),
