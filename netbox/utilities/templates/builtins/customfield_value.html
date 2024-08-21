@@ -3,7 +3,7 @@
 {% if customfield.type == 'integer' and value is not None %}
   {{ value }}
 {% elif customfield.type == 'longtext' and value %}
-  {{ value|markdown }}
+  {{ value|markdown:True }}
 {% elif customfield.type == 'boolean' and value == True %}
   {% checkmark value true="True" %}
 {% elif customfield.type == 'boolean' and value == False %}

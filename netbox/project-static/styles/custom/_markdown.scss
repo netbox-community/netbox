@@ -35,6 +35,11 @@ td > .rendered-markdown {
   }
 }
 
+td > .rendered-markdown.vertical-scroll {
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
 // Markdown preview
 .markdown-widget {
   .preview {
