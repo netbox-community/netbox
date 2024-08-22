@@ -48,3 +48,11 @@ table a {
 pre code {
   padding: unset;
 }
+
+.dropdown-toggle:after{
+  content: "\2228";
+  border-bottom: none;
+  border-left: none;
+  transform: none;
+  vertical-align: .18em;
+}
