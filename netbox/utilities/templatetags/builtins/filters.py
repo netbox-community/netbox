@@ -159,16 +159,11 @@ def content_type_id(model):
 #
 
 @register.filter('markdown', is_safe=True)
-def render_markdown(value, clamp_height=False):
+def render_markdown(value):
     """
     Render a string as Markdown. This filter is invoked as "markdown":
 
         {{ md_source_text|markdown }}
-
-    If clamp_height is True, the "vertical-scroll" class will be added to the container div which sets a max-height
-    and adds a vertical scrollbar:
-
-        {{ md_source_text|markdown:True }}
     """
     if not value:
         return ''
@@ -183,11 +178,7 @@ def render_markdown(value, clamp_height=False):
 
     # If the string is not empty wrap it in rendered-markdown to style tables
     if html:
-        classes = ['rendered-markdown']
-        if clamp_height:
-            classes.append('vertical-scroll')
-        classes_str = ' '.join(classes)
-        html = f'<div class="{classes_str}">{html}</div>'
+        html = f'<div class="rendered-markdown">{html}</div>'
 
     schemes = get_config().ALLOWED_URL_SCHEMES
 

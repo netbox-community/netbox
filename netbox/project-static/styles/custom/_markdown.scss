@@ -30,14 +30,12 @@
 
 // Remove the bottom margin of <p> elements inside a table cell
 td > .rendered-markdown {
+  max-height: 200px;
+  overflow-y: scroll;
+
   p:last-of-type {
     margin-bottom: 0;
   }
-}
-
-td > .rendered-markdown.vertical-scroll {
-  max-height: 200px;
-  overflow-y: scroll;
 }
 
 // Markdown preview
