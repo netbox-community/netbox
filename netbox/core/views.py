@@ -560,6 +560,12 @@ class SystemView(UserPassesTestMixin, View):
             # Fall back to using the active config data if no record is found
             config = get_config()
 
+        # If Custom Validators is function (in configuration.py) get function name
+        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
+            for k, v in config.CUSTOM_VALIDATORS.items():
+                if isinstance(v, tuple):
+                    config.CUSTOM_VALIDATORS[k] = type(v[0]).__name__
+
         # Raw data export
         if 'export' in request.GET:
             params = [param.name for param in PARAMS]
