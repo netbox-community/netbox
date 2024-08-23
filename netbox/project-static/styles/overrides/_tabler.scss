@@ -50,7 +50,11 @@ pre code {
 }
 
 .dropdown-toggle:after{
-  content: "\2228";
+  font-family: "Material Design Icons";
+  content: '\F0140';
+  -webkit-font-feature-settings: 'liga' 1;
+  -moz-font-feature-settings: 'liga' 1;
+  font-feature-settings: 'liga' 1;
   border-bottom: none;
   border-left: none;
   transform: none;
