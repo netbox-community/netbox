@@ -1795,6 +1795,10 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Role (slug)'),
     )
+    device_status = django_filters.MultipleChoiceFilter(
+        choices=DeviceStatusChoices,
+        field_name='device__status',
+    )
     component_type = ContentTypeFilter()
     component_id = MultiValueNumberFilter()
     serial = MultiValueCharFilter(
@@ -1803,7 +1807,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = InventoryItem
-        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered')
+        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered', 'device_status')
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -1434,7 +1434,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
             name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet('device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')),
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),
@@ -1460,6 +1460,11 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    device_status = forms.MultipleChoiceField(
+        choices=DeviceStatusChoices,
+        required=False,
+        label=_('Device Status'),
     )
     tag = TagFilterField(model)
 

@@ -927,6 +927,10 @@ class InventoryItemTable(DeviceComponentTable):
     tags = columns.TagColumn(
         url_name='dcim:inventoryitem_list'
     )
+    device_status = columns.ChoiceFieldColumn(
+        accessor=tables.A('device__status'),
+        verbose_name=_('Device Status'),
+    )
     cable = None  # Override DeviceComponentTable
 
     class Meta(NetBoxTable.Meta):
