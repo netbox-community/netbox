@@ -25,6 +25,7 @@ from rq.registry import (
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
+from extras.validators import CustomValidator
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -522,6 +523,23 @@ class SystemView(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_staff
 
+    def map_validators(self, validator):
+        if isinstance(validator, dict):
+            for k, v in validator.items():
+                if isinstance(v, tuple):
+                    validator[k] = type(v[0]).__name__
+                else:
+                    validator[k] = self.map_validators(v)
+
+        elif isinstance(validator, list):
+            for index, v in enumerate(validator):
+                validator[index] = self.map_validators(v)
+
+        elif issubclass(type(validator), CustomValidator):
+            return type(validator).__name__
+
+        return validator
+
     def get(self, request):
 
         # System stats
@@ -562,9 +580,7 @@ class SystemView(UserPassesTestMixin, View):
 
         # If Custom Validators is function (in configuration.py) get function name
         if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
-            for k, v in config.CUSTOM_VALIDATORS.items():
-                if isinstance(v, tuple):
-                    config.CUSTOM_VALIDATORS[k] = type(v[0]).__name__
+            config.CUSTOM_VALIDATORS = self.map_validators(config.CUSTOM_VALIDATORS)
 
         # Raw data export
         if 'export' in request.GET:
