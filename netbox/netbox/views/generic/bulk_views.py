@@ -727,6 +727,11 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         renamed_pks = []
 
         for obj in selected_objects:
+            # Validate that the rename will be successful and not trigger an error
+            if not form.cleaned_data['use_regex'] and not obj.name:
+                raise ValidationError({
+                    'use_regex': 'You must use regex to rename and must pass uniqueness checks'
+                })
 
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
