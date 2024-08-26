@@ -219,7 +219,8 @@ def isodate(value):
         text = value.isoformat()
         return mark_safe(f'<span title="{naturalday(value)}">{text}</span>')
     elif type(value) is datetime.datetime:
-        text = localtime(value).date().isoformat()
+        local_value = localtime(value) if value.tzinfo else value
+        text = local_value.date().isoformat()
         return mark_safe(f'<span title="{naturaltime(value)}">{text}</span>')
     else:
         return ''
@@ -230,7 +231,8 @@ def isotime(value, spec='seconds'):
     if type(value) is datetime.time:
         return value.isoformat(timespec=spec)
     if type(value) is datetime.datetime:
-        return localtime(value).time().isoformat(timespec=spec)
+        local_value = localtime(value) if value.tzinfo else value
+        return local_value.time().isoformat(timespec=spec)
     return ''
 
 
