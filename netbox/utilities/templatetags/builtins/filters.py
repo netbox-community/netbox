@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.timezone import localtime
 from markdown import markdown
 from markdown.extensions.tables import TableExtension
 
@@ -218,7 +219,7 @@ def isodate(value):
         text = value.isoformat()
         return mark_safe(f'<span title="{naturalday(value)}">{text}</span>')
     elif type(value) is datetime.datetime:
-        text = value.date().isoformat()
+        text = localtime(value).date().isoformat()
         return mark_safe(f'<span title="{naturaltime(value)}">{text}</span>')
     else:
         return ''
@@ -229,7 +230,7 @@ def isotime(value, spec='seconds'):
     if type(value) is datetime.time:
         return value.isoformat(timespec=spec)
     if type(value) is datetime.datetime:
-        return value.time().isoformat(timespec=spec)
+        return localtime(value).time().isoformat(timespec=spec)
     return ''
 
 
