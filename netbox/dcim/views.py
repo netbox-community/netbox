@@ -380,7 +380,9 @@ class SiteGroupContactsView(ObjectContactsView):
 #
 
 class SiteListView(generic.ObjectListView):
-    queryset = Site.objects.all()
+    queryset = Site.objects.annotate(
+        device_count=count_related(Device, 'site')
+    )
     filterset = filtersets.SiteFilterSet
     filterset_form = forms.SiteFilterForm
     table = tables.SiteTable

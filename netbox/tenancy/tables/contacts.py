@@ -113,11 +113,12 @@ class ContactAssignmentTable(NetBoxTable):
     )
     contact_phone = tables.Column(
         accessor=Accessor('contact__phone'),
-        verbose_name=_('Contact Phone')
+        verbose_name=_('Contact Phone'),
+        linkify=linkify_phone,
     )
-    contact_email = tables.Column(
+    contact_email = tables.EmailColumn(
         accessor=Accessor('contact__email'),
-        verbose_name=_('Contact Email')
+        verbose_name=_('Contact Email'),
     )
     contact_address = tables.Column(
         accessor=Accessor('contact__address'),
