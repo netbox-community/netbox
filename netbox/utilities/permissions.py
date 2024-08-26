@@ -97,7 +97,7 @@ def qs_filter_from_constraints(constraints, tokens=None):
         if type(value) is list:
             return list(map(lambda v: tokens.get(v, v), value))
         User = apps.get_model('users.User')
-        if value == CONSTRAINT_TOKEN_USER and type(tokens[CONSTRAINT_TOKEN_USER] is User):
+        if value == CONSTRAINT_TOKEN_USER and isinstance(tokens.get(CONSTRAINT_TOKEN_USER), User):
             return tokens[CONSTRAINT_TOKEN_USER].id
         return tokens.get(value, value)
 
