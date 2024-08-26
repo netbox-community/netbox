@@ -93,12 +93,14 @@ def qs_filter_from_constraints(constraints, tokens=None):
     if tokens is None:
         tokens = {}
 
+    User = apps.get_model('users.User')
+    for token, value in tokens.items():
+        if token == CONSTRAINT_TOKEN_USER and isinstance(value, User):
+            tokens[token] = value.id
+
     def _replace_tokens(value, tokens):
         if type(value) is list:
             return list(map(lambda v: tokens.get(v, v), value))
-        User = apps.get_model('users.User')
-        if value == CONSTRAINT_TOKEN_USER and isinstance(tokens.get(CONSTRAINT_TOKEN_USER), User):
-            return tokens[CONSTRAINT_TOKEN_USER].id
         return tokens.get(value, value)
 
     params = Q()
