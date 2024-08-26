@@ -49,6 +49,7 @@ pre code {
   padding: unset;
 }
 
+
 .dropdown-toggle:after{
   font-family: "Material Design Icons";
   content: '\F0140';
@@ -57,4 +58,5 @@ pre code {
   border-left: none;
   transform: none;
   vertical-align: .05em;
+  height: auto;
 }
