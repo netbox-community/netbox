@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
+from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
@@ -17,8 +17,10 @@ from utilities.forms.fields import (
     SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
-from utilities.forms.widgets import DatePicker
-from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
+from utilities.forms.utils import get_field_value
+from utilities.forms.widgets import DatePicker, HTMXSelect
+from utilities.templatetags.builtins.filters import bettertitle
+from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateForm',
@@ -562,91 +564,31 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
 
 
 class VLANGroupForm(NetBoxModelForm):
-    scope_type = ContentTypeChoiceField(
-        label=_('Scope type'),
-        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        required=False
-    )
-    region = DynamicModelChoiceField(
-        label=_('Region'),
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        },
-        label=_('Site group')
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        initial_params={
-            'locations': '$location'
-        },
-        query_params={
-            'region_id': '$region',
-            'group_id': '$sitegroup',
-        }
-    )
-    location = DynamicModelChoiceField(
-        label=_('Location'),
-        queryset=Location.objects.all(),
-        required=False,
-        initial_params={
-            'racks': '$rack'
-        },
-        query_params={
-            'site_id': '$site',
-        }
-    )
-    rack = DynamicModelChoiceField(
-        label=_('Rack'),
-        queryset=Rack.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site',
-            'location_id': '$location',
-        }
-    )
-    clustergroup = DynamicModelChoiceField(
-        queryset=ClusterGroup.objects.all(),
-        required=False,
-        initial_params={
-            'clusters': '$cluster'
-        },
-        label=_('Cluster group')
-    )
-    cluster = DynamicModelChoiceField(
-        label=_('Cluster'),
-        queryset=Cluster.objects.all(),
-        required=False,
-        query_params={
-            'group_id': '$clustergroup',
-        }
-    )
     slug = SlugField()
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        widget=HTMXSelect(),
+        required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
+    )
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('min_vid', 'max_vid', name=_('Child VLANs')),
-        FieldSet(
-            'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
-            name=_('Scope')
-        ),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
     )
 
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack',
-            'clustergroup', 'cluster', 'min_vid', 'max_vid', 'tags',
+            'name', 'slug', 'description', 'min_vid', 'max_vid', 'scope_type', 'scope', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -654,21 +596,30 @@ class VLANGroupForm(NetBoxModelForm):
         initial = kwargs.get('initial', {})
 
         if instance is not None and instance.scope:
-            initial[instance.scope_type.model] = instance.scope
-
+            initial['scope'] = instance.scope
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
 
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and scope_type_id != self.instance.scope_type_id:
+                self.initial['scope'] = None
+
     def clean(self):
         super().clean()
 
-        # Assign scope based on scope_type
-        if self.cleaned_data.get('scope_type'):
-            scope_field = self.cleaned_data['scope_type'].model
-            self.instance.scope = self.cleaned_data.get(scope_field)
-        else:
-            self.instance.scope_id = None
+        # Assign the selected scope (if any)
+        self.instance.scope = self.cleaned_data.get('scope')
 
 
 class VLANForm(TenancyForm, NetBoxModelForm):
