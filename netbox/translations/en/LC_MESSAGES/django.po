@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 05:01+0000\n"
+"POT-Creation-Date: 2024-08-27 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14154,14 +14154,14 @@ msgstr ""
 msgid "Missing required value for static query param: '{static_params}'"
 msgstr ""
 
-#: netbox/utilities/permissions.py:39
+#: netbox/utilities/permissions.py:42
 #, python-brace-format
 msgid ""
 "Invalid permission name: {name}. Must be in the format <app_label>."
 "<action>_<model>"
 msgstr ""
 
-#: netbox/utilities/permissions.py:57
+#: netbox/utilities/permissions.py:60
 #, python-brace-format
 msgid "Unknown app_label/model_name for {name}"
 msgstr ""
