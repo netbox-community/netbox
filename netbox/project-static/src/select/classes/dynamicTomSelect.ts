@@ -68,9 +68,6 @@ export class DynamicTomSelect extends TomSelect {
       this.updatePathValues(filter);
     }
 
-    // Initialize controlling elements.
-    this.initResetButton();
-
     // Add dependency event listeners.
     this.addEventListeners();
   }
@@ -311,20 +308,6 @@ export class DynamicTomSelect extends TomSelect {
           this.pathValues.set(id, '');
         }
       }
-    }
-  }
-
-  /**
-   * Initialize any adjacent reset buttons so that when clicked, the page is reloaded without
-   * query parameters.
-   */
-  private initResetButton(): void {
-    const resetButton = document.querySelector<HTMLButtonElement>('button[data-reset-select]');
-
-    if (resetButton !== null) {
-      resetButton.addEventListener('click', () => {
-        window.location.assign(window.location.origin + window.location.pathname);
-      });
     }
   }
 
