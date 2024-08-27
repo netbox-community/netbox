@@ -95,7 +95,7 @@
   <tr>
     <th scope="row" class="ps-3">{% trans "Custom validators" %}</th>
     {% if config.CUSTOM_VALIDATORS %}
-      <td><pre>{{ config.CUSTOM_VALIDATORS|json }}</pre></td>
+      <td><pre>{{ config.CUSTOM_VALIDATORS }}</pre></td>
     {% else %}
       <td>{{ ''|placeholder }}</td>
     {% endif %}
