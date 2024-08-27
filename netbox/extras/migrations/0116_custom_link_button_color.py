@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 def update_link_buttons(apps, schema_editor):
     CustomLink = apps.get_model('extras', 'CustomLink')
-    CustomLink.objects.filter(button_class='outline-dark').update(button_class='outline-secondary')
+    CustomLink.objects.filter(button_class='outline-dark').update(button_class='default')
 
 
 class Migration(migrations.Migration):
