@@ -1411,6 +1411,10 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label=_('Virtual Chassis'),
     )
+    device_status = django_filters.MultipleChoiceFilter(
+        choices=DeviceStatusChoices,
+        field_name='device__status',
+    )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1479,7 +1483,7 @@ class ConsolePortFilterSet(
 
     class Meta:
         model = ConsolePort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
+        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'device_status')
 
 
 class ConsoleServerPortFilterSet(
@@ -1495,7 +1499,7 @@ class ConsoleServerPortFilterSet(
 
     class Meta:
         model = ConsoleServerPort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
+        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'device_status')
 
 
 class PowerPortFilterSet(
@@ -1513,6 +1517,7 @@ class PowerPortFilterSet(
         model = PowerPort
         fields = (
             'id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description', 'mark_connected', 'cable_end',
+            'device_status',
         )
 
 
@@ -1538,7 +1543,7 @@ class PowerOutletFilterSet(
     class Meta:
         model = PowerOutlet
         fields = (
-            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end',
+            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end', 'device_status',
         )
 
 
@@ -1683,7 +1688,7 @@ class InterfaceFilterSet(
         fields = (
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end',
+            'cable_id', 'cable_end', 'device_status',
         )
 
     def filter_virtual_chassis_member(self, queryset, name, value):
@@ -1721,6 +1726,7 @@ class FrontPortFilterSet(
         model = FrontPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'rear_port_position', 'description', 'mark_connected', 'cable_end',
+            'device_status',
         )
 
 
@@ -1738,6 +1744,7 @@ class RearPortFilterSet(
         model = RearPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable_end',
+            'device_status',
         )
 
 
@@ -1750,7 +1757,7 @@ class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleBay
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'description', 'device_status',)
 
 
 class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
@@ -1767,7 +1774,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'description', 'device_status')
 
 
 class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
@@ -1794,10 +1801,6 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
         queryset=InventoryItemRole.objects.all(),
         to_field_name='slug',
         label=_('Role (slug)'),
-    )
-    device_status = django_filters.MultipleChoiceFilter(
-        choices=DeviceStatusChoices,
-        field_name='device__status',
     )
     component_type = ContentTypeFilter()
     component_id = MultiValueNumberFilter()

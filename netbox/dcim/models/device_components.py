@@ -1265,9 +1265,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
 
-    def get_device_status_color(self):
-        return self.device.get_status_color()
-
     def clean(self):
         super().clean()
 
