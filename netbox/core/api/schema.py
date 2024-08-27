@@ -128,8 +128,10 @@ class NetBoxAutoSchema(AutoSchema):
 
     def _get_serializer_name(self, serializer, direction, bypass_extensions=False) -> str:
         name = super()._get_serializer_name(serializer, direction, bypass_extensions)
-        if hasattr(serializer, 'nested') and serializer.nested:
-            name = 'Brief' + name
+
+        # If this serializer is nested, prepend its name with "Brief"
+        if getattr(serializer, 'nested', False):
+            name = f'Brief{name}'
 
         return name
 
