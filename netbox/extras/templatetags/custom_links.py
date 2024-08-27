@@ -61,8 +61,13 @@ def custom_links(context, obj):
         else:
             try:
                 if rendered := cl.render(link_context):
+                    if cl.button_class == "default":
+                        button_class = 'outline-secondary'
+                    else:
+                        button_class = cl.button_class
+
                     template_code += LINK_BUTTON.format(
-                        rendered['link'], rendered['link_target'], cl.button_class, rendered['text']
+                        rendered['link'], rendered['link_target'], button_class, rendered['text']
                     )
             except Exception as e:
                 template_code += f'<a class="btn btn-sm btn-outline-secondary" disabled="disabled" title="{e}">' \

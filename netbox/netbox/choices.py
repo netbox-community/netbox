@@ -84,7 +84,7 @@ class ButtonColorChoices(ChoiceSet):
     """
     Map standard button color choices to Bootstrap 3 button classes
     """
-    DEFAULT = 'outline-secondary'
+    DEFAULT = 'default'
     BLUE = 'blue'
     INDIGO = 'indigo'
     PURPLE = 'purple'

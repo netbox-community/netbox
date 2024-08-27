@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customlink',
             name='button_class',
-            field=models.CharField(default='outline-secondary', max_length=30),
+            field=models.CharField(default='default', max_length=30),
         ),
         migrations.RunPython(
             code=update_link_buttons,
