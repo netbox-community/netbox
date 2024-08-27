@@ -4,7 +4,7 @@ from typing import List
 import django_filters
 import strawberry
 import strawberry_django
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from strawberry import auto
 from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
@@ -201,4 +201,9 @@ def autotype_decorator(filterset):
 class BaseFilterMixin:
 
     def filter_by_filterset(self, queryset, key):
-        return self.filterset(data={key: getattr(self, key)}, queryset=queryset).qs
+        filterset = self.filterset(data={key: getattr(self, key)}, queryset=queryset)
+        if not filterset.is_valid():
+            # We could raise validation error but strawberry logs it all to the
+            # console i.e. raise ValidationError(f"{k}: {v[0]}")
+            return filterset.qs.none()
+        return filterset.qs
