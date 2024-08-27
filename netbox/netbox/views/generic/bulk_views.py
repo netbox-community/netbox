@@ -178,6 +178,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                     table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
+                'model': model,
+                'actions': actions,
             })
 
         context = {
