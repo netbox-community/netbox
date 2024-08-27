@@ -1,6 +1,9 @@
 from django.conf import settings
+from django.apps import apps
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+
+from users.constants import CONSTRAINT_TOKEN_USER
 
 __all__ = (
     'get_permission_for_model',
@@ -89,6 +92,11 @@ def qs_filter_from_constraints(constraints, tokens=None):
     """
     if tokens is None:
         tokens = {}
+
+    User = apps.get_model('users.User')
+    for token, value in tokens.items():
+        if token == CONSTRAINT_TOKEN_USER and isinstance(value, User):
+            tokens[token] = value.id
 
     def _replace_tokens(value, tokens):
         if type(value) is list:
