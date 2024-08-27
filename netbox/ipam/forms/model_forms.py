@@ -19,6 +19,7 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
+from utilities.templatetags.builtins.filters import bettertitle
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -574,6 +575,7 @@ class VLANGroupForm(NetBoxModelForm):
         label=_('Scope'),
         queryset=Site.objects.none(),  # Initial queryset
         required=False,
+        disabled=True,
         selector=True
     )
 
@@ -605,6 +607,8 @@ class VLANGroupForm(NetBoxModelForm):
                 model = scope_type.model_class()
                 self.fields['scope'].queryset = model.objects.all()
                 self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 
