@@ -3,7 +3,6 @@ from typing import List
 import strawberry
 import strawberry_django
 
-from ipam import models
 from .types import *
 
 
