@@ -612,6 +612,9 @@ class VLANGroupForm(NetBoxModelForm):
             except ObjectDoesNotExist:
                 pass
 
+            if self.instance and scope_type_id != self.instance.scope_type_id:
+                self.initial['scope'] = None
+
     def clean(self):
         super().clean()
 
