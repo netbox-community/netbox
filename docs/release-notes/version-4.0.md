@@ -13,14 +13,20 @@
 
 * [#16385](https://github.com/netbox-community/netbox/issues/16385) - Restore support for white, gray, and black background colors
 * [#16640](https://github.com/netbox-community/netbox/issues/16640) - Fix potential corruption of JSON values in custom fields that are not UI-editable
+* [#16670](https://github.com/netbox-community/netbox/issues/16670) - Fix conflicts within OpenAPI schema definition regarding nested serializers
+* [#16733](https://github.com/netbox-community/netbox/issues/16733) - Fix bulk edit/delete of objects when using "select all" widget
 * [#16825](https://github.com/netbox-community/netbox/issues/16825) - Avoid `NoReverseMatch` exception when displaying count of related object type with no list view
 * [#16946](https://github.com/netbox-community/netbox/issues/16946) - GraphQL API requests with an invalid filter should return an empty set
 * [#16959](https://github.com/netbox-community/netbox/issues/16959) - Fix function of "reset" button on objects filter form
 * [#16973](https://github.com/netbox-community/netbox/issues/16973) - Fix support for evaluating user token (`$user`) against custom field values in permission constraints
+* [#17007](https://github.com/netbox-community/netbox/issues/17007) - Center SSO authentication icon when backend is unnamed
 * [#17070](https://github.com/netbox-community/netbox/issues/17070) - Image height & width values should not be required when creating an image attachment via the REST API
 * [#17108](https://github.com/netbox-community/netbox/issues/17108) - Ensure template date & time filters always return localtime-aware values
 * [#17117](https://github.com/netbox-community/netbox/issues/17117) - Work around Safari rendering bug
+* [#17186](https://github.com/netbox-community/netbox/issues/17186) - Fix display of custom links with default style under dark mode
+* [#17219](https://github.com/netbox-community/netbox/issues/17219) - Fix system config view exception when custom validator classes are employed
 * [#17230](https://github.com/netbox-community/netbox/issues/17230) - Ensure consistent rendering for all dashboard widget colors
+* [#17256](https://github.com/netbox-community/netbox/issues/17256) - Fix VLAN group scope selection for non-English languages
 
 ---
 
