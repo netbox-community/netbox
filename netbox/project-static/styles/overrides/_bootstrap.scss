@@ -20,3 +20,14 @@ hr.dropdown-divider {
   margin-bottom: 0.25rem;
   margin-top: 0.25rem;
 }
+
+// Restore support for old Bootstrap v3 colors
+.text-bg-black {
+  @extend .text-bg-dark;
+}
+.text-bg-gray {
+  @extend .text-bg-secondary;
+}
+.text-bg-white {
+  @extend .text-bg-light;
+}

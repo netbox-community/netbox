@@ -19,6 +19,8 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
         queryset=ObjectType.objects.all()
     )
     parent = serializers.SerializerMethodField(read_only=True)
+    image_width = serializers.IntegerField(read_only=True)
+    image_height = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ImageAttachment

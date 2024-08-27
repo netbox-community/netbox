@@ -195,7 +195,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     model = Location
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'parent_id', 'status', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'parent_id', 'status', 'facility', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -230,6 +230,10 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=LocationStatusChoices,
+        required=False
+    )
+    facility = forms.CharField(
+        label=_('Facility'),
         required=False
     )
     tag = TagFilterField(model)
