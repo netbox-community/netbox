@@ -20,11 +20,12 @@ class CustomFieldJSONEncoder(DjangoJSONEncoder):
 
 class ConfigJSONEncoder(DjangoJSONEncoder):
     """
-    Override Django's built-in JSON encoder to save python functions as function names.
+    Override Django's built-in JSON encoder to serialize CustomValidator classes as strings.
     """
     def default(self, o):
         from extras.validators import CustomValidator
 
         if issubclass(type(o), CustomValidator):
             return type(o).__name__
+
         return super().default(o)

@@ -574,13 +574,14 @@ class SystemView(UserPassesTestMixin, View):
                     k: getattr(config, k) for k in sorted(params)
                 },
             }
-            response = HttpResponse(json.dumps(data, indent=4), content_type='text/json')
+            response = HttpResponse(json.dumps(data, cls=ConfigJSONEncoder, indent=4), content_type='text/json')
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
         plugins_table = tables.PluginTable(plugins, orderable=False)
         plugins_table.configure(request)
 
+        # Serialize any CustomValidator classes
         if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
             config.CUSTOM_VALIDATORS = json.dumps(config.CUSTOM_VALIDATORS, cls=ConfigJSONEncoder, indent=4)
 
