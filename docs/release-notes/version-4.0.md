@@ -1,6 +1,24 @@
 # NetBox v4.0
 
-## v4.0.9 (FUTURE)
+## v4.0.10 (FUTURE)
+
+### Enhancements
+
+* [#16857](https://github.com/netbox-community/netbox/issues/16857) - Scroll long rendered Markdown content within tables
+* [#16949](https://github.com/netbox-community/netbox/issues/16949) - Add device count column to sites table
+* [#17072](https://github.com/netbox-community/netbox/issues/17072) - Linkify email addresses & phone numbers in contact assignments list
+* [#17177](https://github.com/netbox-community/netbox/issues/17177) - Add facility field to locations filter form
+
+### Bug Fixes
+
+* [#16640](https://github.com/netbox-community/netbox/issues/16640) - Fix potential corruption of JSON values in custom fields that are not UI-editable
+* [#17070](https://github.com/netbox-community/netbox/issues/17070) - Image height & width values should not be required when creating an image attachment via the REST API
+* [#17108](https://github.com/netbox-community/netbox/issues/17108) - Ensure template date & time filters always return localtime-aware values
+* [#17117](https://github.com/netbox-community/netbox/issues/17117) - Work around Safari rendering bug
+
+---
+
+## v4.0.9 (2024-08-14)
 
 ### Enhancements
 
@@ -10,7 +28,9 @@
 ### Bug Fixes
 
 * [#13459](https://github.com/netbox-community/netbox/issues/13459) - Correct OpenAPI schema type for `TreeNodeMultipleChoiceFilter`
+* [#16073](https://github.com/netbox-community/netbox/issues/16073) - Respect default values for custom fields during bulk import of objects
 * [#16176](https://github.com/netbox-community/netbox/issues/16176) - Restore ability to select multiple terminating devices when connecting a cable
+* [#16871](https://github.com/netbox-community/netbox/issues/16871) - Sanitize device ID query parameter when bulk editing components to prevent exception
 * [#17038](https://github.com/netbox-community/netbox/issues/17038) - Fix AttributeError exception when attempting to export system status data
 * [#17064](https://github.com/netbox-community/netbox/issues/17064) - Fix misaligned text within rendered Markdown code blocks
 * [#17124](https://github.com/netbox-community/netbox/issues/17124) - `BaseTable` should follow reverse one-to-one relationships when prefetching related objects
