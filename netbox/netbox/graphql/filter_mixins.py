@@ -203,9 +203,7 @@ class BaseFilterMixin:
     def filter_by_filterset(self, queryset, key):
         filterset = self.filterset(data={key: getattr(self, key)}, queryset=queryset)
         if not filterset.is_valid():
-            # filterset.errors is errorDict - return first error as exception
-            k, v = next(iter(filterset.errors.items()))
-            return filterset.qs.none()
             # We could raise validation error but strawberry logs it all to the
             # console i.e. raise ValidationError(f"{k}: {v[0]}")
+            return filterset.qs.none()
         return filterset.qs
