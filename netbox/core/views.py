@@ -32,6 +32,7 @@ from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
+from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
@@ -523,23 +524,6 @@ class SystemView(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_staff
 
-    def map_validators(self, validator):
-        if isinstance(validator, dict):
-            for k, v in validator.items():
-                if isinstance(v, tuple):
-                    validator[k] = type(v[0]).__name__
-                else:
-                    validator[k] = self.map_validators(v)
-
-        elif isinstance(validator, list):
-            for index, v in enumerate(validator):
-                validator[index] = self.map_validators(v)
-
-        elif issubclass(type(validator), CustomValidator):
-            return type(validator).__name__
-
-        return validator
-
     def get(self, request):
 
         # System stats
@@ -578,10 +562,6 @@ class SystemView(UserPassesTestMixin, View):
             # Fall back to using the active config data if no record is found
             config = get_config()
 
-        # If Custom Validators is function (in configuration.py) get function name
-        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
-            config.CUSTOM_VALIDATORS = self.map_validators(config.CUSTOM_VALIDATORS)
-
         # Raw data export
         if 'export' in request.GET:
             params = [param.name for param in PARAMS]
@@ -600,6 +580,9 @@ class SystemView(UserPassesTestMixin, View):
 
         plugins_table = tables.PluginTable(plugins, orderable=False)
         plugins_table.configure(request)
+
+        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
+            config.CUSTOM_VALIDATORS = json.dumps(config.CUSTOM_VALIDATORS, cls=ConfigJSONEncoder, indent=4)
 
         return render(request, 'core/system.html', {
             'stats': stats,
