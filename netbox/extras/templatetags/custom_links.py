@@ -60,13 +60,9 @@ def custom_links(context, obj):
 
         # Add non-grouped links
         else:
+            button_class = 'outline-secondary' if cl.button_class == ButtonColorChoices.DEFAULT else cl.button_class
             try:
                 if rendered := cl.render(link_context):
-                    if cl.button_class == ButtonColorChoices.DEFAULT:
-                        button_class = 'outline-secondary'
-                    else:
-                        button_class = cl.button_class
-
                     template_code += LINK_BUTTON.format(
                         rendered['link'], rendered['link_target'], button_class, rendered['text']
                     )
