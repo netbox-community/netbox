@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
 from extras.models import CustomLink
+from netbox.choices import ButtonColorChoices
 
 
 register = template.Library()
@@ -61,7 +62,7 @@ def custom_links(context, obj):
         else:
             try:
                 if rendered := cl.render(link_context):
-                    if cl.button_class == "default":
+                    if cl.button_class == ButtonColorChoices.DEFAULT:
                         button_class = 'outline-secondary'
                     else:
                         button_class = cl.button_class
