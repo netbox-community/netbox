@@ -107,6 +107,16 @@ def disable_warnings(logger_name):
     logger.setLevel(current_level)
 
 
+@contextmanager
+def disable_logging(level=logging.CRITICAL):
+    """
+    Temporarily suppress log messages at or below the specified level (default: critical).
+    """
+    logging.disable(level)
+    yield
+    logging.disable(logging.NOTSET)
+
+
 #
 # Custom field testing
 #
