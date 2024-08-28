@@ -3440,7 +3440,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
                 membership_form.save()
                 messages.success(request, mark_safe(
-                    _('Added member <a href="{url}">{escape(device)}</a>').format(url=device.get_absolute_url())
+                    _('Added member <a href="{url}">{device}</a>').format(url=device.get_absolute_url(), device=escape(device))
                 ))
 
                 if '_addanother' in request.POST:
