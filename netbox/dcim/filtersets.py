@@ -1483,7 +1483,7 @@ class ConsolePortFilterSet(
 
     class Meta:
         model = ConsolePort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'device_status')
+        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
 
 
 class ConsoleServerPortFilterSet(
@@ -1499,7 +1499,7 @@ class ConsoleServerPortFilterSet(
 
     class Meta:
         model = ConsoleServerPort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'device_status')
+        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
 
 
 class PowerPortFilterSet(
@@ -1517,7 +1517,6 @@ class PowerPortFilterSet(
         model = PowerPort
         fields = (
             'id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description', 'mark_connected', 'cable_end',
-            'device_status',
         )
 
 
@@ -1543,7 +1542,7 @@ class PowerOutletFilterSet(
     class Meta:
         model = PowerOutlet
         fields = (
-            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end', 'device_status',
+            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end',
         )
 
 
@@ -1688,7 +1687,7 @@ class InterfaceFilterSet(
         fields = (
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end', 'device_status',
+            'cable_id', 'cable_end',
         )
 
     def filter_virtual_chassis_member(self, queryset, name, value):
@@ -1726,7 +1725,6 @@ class FrontPortFilterSet(
         model = FrontPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'rear_port_position', 'description', 'mark_connected', 'cable_end',
-            'device_status',
         )
 
 
@@ -1744,7 +1742,6 @@ class RearPortFilterSet(
         model = RearPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable_end',
-            'device_status',
         )
 
 
@@ -1757,7 +1754,7 @@ class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleBay
-        fields = ('id', 'name', 'label', 'position', 'description', 'device_status',)
+        fields = ('id', 'name', 'label', 'position', 'description')
 
 
 class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
@@ -1774,7 +1771,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ('id', 'name', 'label', 'description', 'device_status')
+        fields = ('id', 'name', 'label', 'description')
 
 
 class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
@@ -1810,7 +1807,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = InventoryItem
-        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered', 'device_status')
+        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered')
 
     def search(self, queryset, name, value):
         if not value.strip():
