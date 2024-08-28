@@ -3,38 +3,25 @@ from typing import List
 import strawberry
 import strawberry_django
 
-from tenancy import models
 from .types import *
 
 
-@strawberry.type
+@strawberry.type(name="Query")
 class TenancyQuery:
-    @strawberry.field
-    def tenant(self, id: int) -> TenantType:
-        return models.Tenant.objects.get(pk=id)
+    tenant: TenantType = strawberry_django.field()
     tenant_list: List[TenantType] = strawberry_django.field()
 
-    @strawberry.field
-    def tenant_group(self, id: int) -> TenantGroupType:
-        return models.TenantGroup.objects.get(pk=id)
+    tenant_group: TenantGroupType = strawberry_django.field()
     tenant_group_list: List[TenantGroupType] = strawberry_django.field()
 
-    @strawberry.field
-    def contact(self, id: int) -> ContactType:
-        return models.Contact.objects.get(pk=id)
+    contact: ContactType = strawberry_django.field()
     contact_list: List[ContactType] = strawberry_django.field()
 
-    @strawberry.field
-    def contact_role(self, id: int) -> ContactRoleType:
-        return models.ContactRole.objects.get(pk=id)
+    contact_role: ContactRoleType = strawberry_django.field()
     contact_role_list: List[ContactRoleType] = strawberry_django.field()
 
-    @strawberry.field
-    def contact_group(self, id: int) -> ContactGroupType:
-        return models.ContactGroup.objects.get(pk=id)
+    contact_group: ContactGroupType = strawberry_django.field()
     contact_group_list: List[ContactGroupType] = strawberry_django.field()
 
-    @strawberry.field
-    def contact_assignment(self, id: int) -> ContactAssignmentType:
-        return models.ContactAssignment.objects.get(pk=id)
+    contact_assignment: ContactAssignmentType = strawberry_django.field()
     contact_assignment_list: List[ContactAssignmentType] = strawberry_django.field()
