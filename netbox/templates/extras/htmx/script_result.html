@@ -41,7 +41,11 @@
     <div class="card">
       <div class="table-responsive" id="object_list">
         <h5 class="card-header">{% trans "Log" %}</h5>
-        {% include 'htmx/table.html' %}
+        <div class="htmx-container table-responsive"
+          hx-get="{% url 'extras:script_result' job_pk=job.pk %}?embedded=True&log=True"
+          hx-target="this"
+          hx-trigger="load" hx-select=".htmx-container" hx-swap="outerHTML"
+        ></div>
       </div>
     </div>
     {% endif %}
