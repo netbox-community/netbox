@@ -903,12 +903,10 @@ class ModuleBayTable(ModularDeviceComponentTable):
 
 
 class DeviceModuleBayTable(ModuleBayTable):
-    name = tables.TemplateColumn(
+    name = columns.MPTTColumn(
         verbose_name=_('Name'),
-        template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
-                      '{{ value }}</a>',
-        order_by=Accessor('_name'),
-        attrs={'td': {'class': 'text-nowrap'}}
+        linkify=True,
+        order_by=Accessor('_name')
     )
     actions = columns.ActionsColumn(
         extra_buttons=MODULEBAY_BUTTONS
