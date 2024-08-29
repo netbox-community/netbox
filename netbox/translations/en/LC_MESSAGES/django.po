@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-28 05:01+0000\n"
+"POT-Creation-Date: 2024-08-29 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6489,7 +6489,8 @@ msgid "Children"
 msgstr ""
 
 #: netbox/dcim/views.py:3443
-msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
+#, python-brace-format
+msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
 #: netbox/dcim/views.py:3490
@@ -10662,31 +10663,31 @@ msgstr ""
 msgid "Dummy Plugin"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:113
+#: netbox/netbox/views/generic/bulk_views.py:114
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:415
+#: netbox/netbox/views/generic/bulk_views.py:416
 #, python-brace-format
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:694
-#: netbox/netbox/views/generic/bulk_views.py:892
-#: netbox/netbox/views/generic/bulk_views.py:940
+#: netbox/netbox/views/generic/bulk_views.py:699
+#: netbox/netbox/views/generic/bulk_views.py:897
+#: netbox/netbox/views/generic/bulk_views.py:945
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:774
+#: netbox/netbox/views/generic/bulk_views.py:779
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:870
+#: netbox/netbox/views/generic/bulk_views.py:875
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
@@ -10911,7 +10912,7 @@ msgstr ""
 #: netbox/templates/dcim/modulebay.html:76
 #: netbox/templates/extras/configcontext.html:70
 #: netbox/templates/extras/eventrule.html:72
-#: netbox/templates/extras/htmx/script_result.html:56
+#: netbox/templates/extras/htmx/script_result.html:60
 #: netbox/templates/extras/objectchange.html:124
 #: netbox/templates/extras/objectchange.html:142
 #: netbox/templates/extras/webhook.html:67
@@ -12434,7 +12435,7 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-#: netbox/templates/extras/htmx/script_result.html:52
+#: netbox/templates/extras/htmx/script_result.html:56
 msgid "Output"
 msgstr ""
 
