@@ -524,14 +524,19 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         CircuitGroup.objects.bulk_create(circuit_groups)
 
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        providers = Provider.objects.bulk_create((
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+            Provider(name='Provider 4', slug='provider-4'),
+        ))
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 4', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 1', provider=providers[0], type=circuittype),
+            Circuit(cid='Circuit 2', provider=providers[1], type=circuittype),
+            Circuit(cid='Circuit 3', provider=providers[2], type=circuittype),
+            Circuit(cid='Circuit 4', provider=providers[3], type=circuittype),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -561,9 +566,18 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_circuit_id(self):
-        circuits = Circuit.objects.filter(cid__in=['Circuit 1', 'Circuit 2'])
+    def test_circuit(self):
+        circuits = Circuit.objects.all()[:2]
         params = {'circuit_id': [circuits[0].pk, circuits[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'circuit': [circuits[0].cid, circuits[1].cid]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

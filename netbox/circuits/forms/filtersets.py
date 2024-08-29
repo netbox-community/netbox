@@ -247,7 +247,12 @@ class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = CircuitGroupAssignment
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('circuit_id', 'group_id', 'priority', name=_('Assignment')),
+        FieldSet('provider_id', 'circuit_id', 'group_id', 'priority', name=_('Assignment')),
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     circuit_id = DynamicModelMultipleChoiceField(
         queryset=Circuit.objects.all(),
