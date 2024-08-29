@@ -91,8 +91,7 @@ class ModuleBayNestedModuleSerializer(WritableNestedSerializer):
 
 
 class NestedModuleBaySerializer(WritableNestedSerializer):
-    installed_module = ModuleBayNestedModuleSerializer(required=False, allow_null=True)
 
     class Meta:
         model = models.ModuleBay
-        fields = ['id', 'url', 'display_url', 'display', 'installed_module', 'name']
+        fields = ['id', 'url', 'display_url', 'display', 'name']

@@ -16,6 +16,8 @@ The device to which this module bay belongs.
 
 ### Module
 
+!!! info "This feature was introduced in NetBox v4.1."
+
 The module to which this bay belongs (optional).
 
 ### Name
