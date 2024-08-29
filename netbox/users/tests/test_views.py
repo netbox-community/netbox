@@ -60,10 +60,23 @@ class UserTestCase(
             'last_name': 'newlastname',
         }
 
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[{
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {'min_length': 8}
-    }])
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[
+        {
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+            "OPTIONS": {
+                "min_length": 8,
+            },
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        },
+        {
+            "NAME": "utilities.password_validation.NumericAlphaPasswordValidator",
+        },
+    ])
     def test_password_validation_enforced(self):
         """
         Test that any configured password validation rules (AUTH_PASSWORD_VALIDATORS) are enforced.
@@ -71,8 +84,8 @@ class UserTestCase(
         self.add_permissions('users.add_user')
         data = {
             'username': 'new_user',
-            'password': 'foo',
-            'confirm_password': 'foo',
+            'password': 'F1a',
+            'confirm_password': 'F1a',
         }
 
         # Password too short
@@ -84,9 +97,29 @@ class UserTestCase(
         self.assertHttpStatus(response, 200)
 
         # Password long enough
-        data['password'] = 'foobar123AD'
-        data['confirm_password'] = 'foobar123AD'
+        data['password'] = 'fooBar12'
+        data['confirm_password'] = 'fooBar12'
         self.assertHttpStatus(self.client.post(**request), 302)
+
+        # Password no number
+        data['password'] = 'FooBarFooBar'
+        data['confirm_password'] = 'FooBarFooBar'
+        self.assertHttpStatus(self.client.post(**request), 200)
+
+        # Password no letter
+        data['password'] = '123456789123'
+        data['confirm_password'] = '123456789123'
+        self.assertHttpStatus(self.client.post(**request), 200)
+
+        # Password no uppercase
+        data['password'] = 'foobar123abc'
+        data['confirm_password'] = 'foobar123abc'
+        self.assertHttpStatus(self.client.post(**request), 200)
+
+        # Password no lowercase
+        data['password'] = 'FOOBAR123ABC'
+        data['confirm_password'] = 'FOOBAR123ABC'
+        self.assertHttpStatus(self.client.post(**request), 200)
 
 
 class GroupTestCase(
