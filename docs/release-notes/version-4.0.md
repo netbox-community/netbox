@@ -5,16 +5,19 @@
 ### Enhancements
 
 * [#16857](https://github.com/netbox-community/netbox/issues/16857) - Scroll long rendered Markdown content within tables
+* [#16905](https://github.com/netbox-community/netbox/issues/16905) - Enable filtering of device components by device status
 * [#16949](https://github.com/netbox-community/netbox/issues/16949) - Add device count column to sites table
 * [#17072](https://github.com/netbox-community/netbox/issues/17072) - Linkify email addresses & phone numbers in contact assignments list
 * [#17177](https://github.com/netbox-community/netbox/issues/17177) - Add facility field to locations filter form
 
 ### Bug Fixes
 
+* [#16292](https://github.com/netbox-community/netbox/issues/16292) - Ensure consistent evaluation of queryset for both individual and list GraphQL API queries
 * [#16385](https://github.com/netbox-community/netbox/issues/16385) - Restore support for white, gray, and black background colors
 * [#16640](https://github.com/netbox-community/netbox/issues/16640) - Fix potential corruption of JSON values in custom fields that are not UI-editable
 * [#16670](https://github.com/netbox-community/netbox/issues/16670) - Fix conflicts within OpenAPI schema definition regarding nested serializers
 * [#16733](https://github.com/netbox-community/netbox/issues/16733) - Fix bulk edit/delete of objects when using "select all" widget
+* [#16756](https://github.com/netbox-community/netbox/issues/16756) - Fix dynamic pagination of custom script results table
 * [#16825](https://github.com/netbox-community/netbox/issues/16825) - Avoid `NoReverseMatch` exception when displaying count of related object type with no list view
 * [#16946](https://github.com/netbox-community/netbox/issues/16946) - GraphQL API requests with an invalid filter should return an empty set
 * [#16959](https://github.com/netbox-community/netbox/issues/16959) - Fix function of "reset" button on objects filter form
@@ -27,6 +30,9 @@
 * [#17219](https://github.com/netbox-community/netbox/issues/17219) - Fix system config view exception when custom validator classes are employed
 * [#17230](https://github.com/netbox-community/netbox/issues/17230) - Ensure consistent rendering for all dashboard widget colors
 * [#17256](https://github.com/netbox-community/netbox/issues/17256) - Fix VLAN group scope selection for non-English languages
+* [#17278](https://github.com/netbox-community/netbox/issues/17278) - Ensure hierarchy is recalculated when bulk editing recursively nested object types (e.g. tenant groups)
+* [#17279](https://github.com/netbox-community/netbox/issues/17279) - Do not regenerate key when updating a token via REST API
+* [#17286](https://github.com/netbox-community/netbox/issues/17286) - Fix exception when adding member device to virtual chassis via web UI
 
 ---
 
