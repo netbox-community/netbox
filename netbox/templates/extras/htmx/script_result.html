@@ -42,7 +42,7 @@
       <div class="table-responsive" id="object_list">
         <h2 class="card-header">{% trans "Log" %}</h2>
         <div class="htmx-container table-responsive"
-          hx-get="{% url 'extras:script_result' job_pk=job.pk %}?embedded=True&log=True"
+          hx-get="{% url 'extras:script_result' job_pk=job.pk %}?embedded=True&log=True&log_threshold={{log_threshold}}"
           hx-target="this"
           hx-trigger="load" hx-select=".htmx-container" hx-swap="outerHTML"
         ></div>
