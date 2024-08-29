@@ -38,8 +38,8 @@ class UserTestCase(
             'first_name': 'firstx',
             'last_name': 'lastx',
             'email': 'userx@foo.com',
-            'password': 'pass1xxx',
-            'confirm_password': 'pass1xxx',
+            'password': 'pass1xxxABCD',
+            'confirm_password': 'pass1xxxABCD',
         }
 
         cls.csv_data = (
@@ -84,8 +84,8 @@ class UserTestCase(
         self.assertHttpStatus(response, 200)
 
         # Password long enough
-        data['password'] = 'foobar123'
-        data['confirm_password'] = 'foobar123'
+        data['password'] = 'foobar123AD'
+        data['confirm_password'] = 'foobar123AD'
         self.assertHttpStatus(self.client.post(**request), 302)
 
 
