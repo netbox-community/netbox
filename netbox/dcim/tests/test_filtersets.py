@@ -500,7 +500,8 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=10,
                 max_weight=1000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar1'
+                description='foobar1',
+                airflow=RackAirflowChoices.FRONT_TO_REAR
             ),
             RackType(
                 manufacturer=manufacturers[1],
@@ -518,7 +519,8 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=20,
                 max_weight=2000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar2'
+                description='foobar2',
+                airflow=RackAirflowChoices.REAR_TO_FRONT
             ),
             RackType(
                 manufacturer=manufacturers[2],
@@ -614,6 +616,10 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_airflow(self):
+        params = {'airflow': RackAirflowChoices.REAR_TO_FRONT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -745,7 +751,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=10,
                 max_weight=1000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar1'
+                description='foobar1',
+                airflow=RackAirflowChoices.FRONT_TO_REAR
             ),
             Rack(
                 name='Rack 2',
@@ -767,7 +774,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=20,
                 max_weight=2000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar2'
+                description='foobar2',
+                airflow=RackAirflowChoices.REAR_TO_FRONT
             ),
             Rack(
                 name='Rack 3',
@@ -957,6 +965,10 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'rack_type': [rack_types[0].slug, rack_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_airflow(self):
+        params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1380,7 +1392,8 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 part_number='Part Number 1',
                 weight=10,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar1'
+                description='foobar1',
+                airflow=ModuleAirflowChoices.FRONT_TO_REAR
             ),
             ModuleType(
                 manufacturer=manufacturers[1],
@@ -1388,7 +1401,8 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 part_number='Part Number 2',
                 weight=20,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar2'
+                description='foobar2',
+                airflow=ModuleAirflowChoices.REAR_TO_FRONT
             ),
             ModuleType(
                 manufacturer=manufacturers[2],
@@ -1498,6 +1512,10 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_airflow(self):
+        params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
