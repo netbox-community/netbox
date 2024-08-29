@@ -299,7 +299,7 @@ class ModuleBaySerializer(NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        fields=('id', 'url', 'display', 'module_bay'),
+        fields=('id', 'url', 'display'),
         required=False,
         allow_null=True,
         default=None
