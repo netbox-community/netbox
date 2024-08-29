@@ -1326,6 +1326,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
 
         # If this is an HTMX request, return only the result HTML
         if htmx_partial(request):
+            if request.GET.get('log'):
+                # If log=True, render only the log table
+                return render(request, 'htmx/table.html', context)
             response = render(request, 'extras/htmx/script_result.html', context)
             if job.completed or not job.started:
                 response.status_code = 286

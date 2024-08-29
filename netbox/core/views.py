@@ -2,7 +2,6 @@ import json
 import platform
 
 from django import __version__ as DJANGO_VERSION
-from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -32,6 +31,7 @@ from netbox.views.generic.mixins import TableMixin
 from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
+from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
@@ -643,9 +643,13 @@ class SystemView(UserPassesTestMixin, View):
                     k: getattr(config, k) for k in sorted(params)
                 },
             }
-            response = HttpResponse(json.dumps(data, indent=4), content_type='text/json')
+            response = HttpResponse(json.dumps(data, cls=ConfigJSONEncoder, indent=4), content_type='text/json')
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
+
+        # Serialize any CustomValidator classes
+        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
+            config.CUSTOM_VALIDATORS = json.dumps(config.CUSTOM_VALIDATORS, cls=ConfigJSONEncoder, indent=4)
 
         return render(request, 'core/system.html', {
             'stats': stats,

@@ -10,31 +10,35 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    <div class="card-header {% if widget.color %} text-{{ widget.fg_color }} {% endif %} bg-{{ widget.color|default:'default' }} px-2 py-1 d-flex flex-row">
-      <a href="#"
-        hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
-        hx-target="#htmx-modal-content"
-        data-bs-toggle="modal"
-        data-bs-target="#htmx-modal"
-        aria-label="{{ widget.title }} {% trans "widget configuration" %}"
-      >
-        <i class="mdi mdi-cog {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
-      </a>
-      <div class="card-title flex-fill text-center">
-        {% if widget.title %}
-          <span class="fs-4 fw-bold">{{ widget.title }}</span>
-        {% endif %}
+    {% with bg_color=widget.color|default:"secondary" %}
+      <div class="card-header text-bg-{{ bg_color }} px-2 py-1 d-flex flex-row">
+        <a href="#"
+          hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
+          hx-target="#htmx-modal-content"
+          data-bs-toggle="modal"
+          data-bs-target="#htmx-modal"
+          class="text-bg-{{ bg_color }}"
+          aria-label="{{ widget.title }} {% trans "widget configuration" %}"
+        >
+          <i class="mdi mdi-cog"></i>
+        </a>
+        <div class="card-title flex-fill text-center">
+          {% if widget.title %}
+            <span class="fs-4 fw-bold">{{ widget.title }}</span>
+          {% endif %}
+        </div>
+        <a href="#"
+          hx-get="{% url 'extras:dashboardwidget_delete' id=widget.id %}"
+          hx-target="#htmx-modal-content"
+          data-bs-toggle="modal"
+          data-bs-target="#htmx-modal"
+          class="text-bg-{{ bg_color }}"
+          aria-label="{% trans "Close widget" %} {{ widget.title }}"
+        >
+          <i class="mdi mdi-close"></i>
+        </a>
       </div>
-      <a href="#"
-        hx-get="{% url 'extras:dashboardwidget_delete' id=widget.id %}"
-        hx-target="#htmx-modal-content"
-        data-bs-toggle="modal"
-        data-bs-target="#htmx-modal"
-        aria-label="{% trans "Close widget" %} {{ widget.title }}"
-      >
-        <i class="mdi mdi-close {% if widget.color %} text-{{ widget.fg_color }} {% endif %}"></i>
-      </a>
-    </div>
+    {% endwith %}
     <div class="card-body p-2 pt-1 overflow-auto">
       {% render_widget widget %}
     </div>

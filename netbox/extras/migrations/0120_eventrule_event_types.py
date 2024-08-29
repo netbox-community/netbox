@@ -28,7 +28,7 @@ def set_event_types(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0118_notifications'),
+        ('extras', '0119_notifications'),
     ]
 
     operations = [

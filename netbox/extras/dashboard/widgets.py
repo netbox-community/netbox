@@ -132,22 +132,6 @@ class DashboardWidget:
         return f'{self.__class__.__module__.split(".")[0]}.{self.__class__.__name__}'
 
     @property
-    def fg_color(self):
-        """
-        Return the appropriate foreground (text) color for the widget's color.
-        """
-        if self.color in (
-            ButtonColorChoices.CYAN,
-            ButtonColorChoices.GRAY,
-            ButtonColorChoices.GREY,
-            ButtonColorChoices.TEAL,
-            ButtonColorChoices.WHITE,
-            ButtonColorChoices.YELLOW,
-        ):
-            return ButtonColorChoices.BLACK
-        return ButtonColorChoices.WHITE
-
-    @property
     def form_data(self):
         return {
             'title': self.title,

@@ -126,9 +126,18 @@ class NetBoxAutoSchema(AutoSchema):
 
         return response_serializers
 
+    def _get_serializer_name(self, serializer, direction, bypass_extensions=False) -> str:
+        name = super()._get_serializer_name(serializer, direction, bypass_extensions)
+
+        # If this serializer is nested, prepend its name with "Brief"
+        if getattr(serializer, 'nested', False):
+            name = f'Brief{name}'
+
+        return name
+
     def get_serializer_ref_name(self, serializer):
         # from drf-yasg.utils
-        """Get serializer's ref_name (or None for ModelSerializer if it is named 'NestedSerializer')
+        """Get serializer's ref_name
         :param serializer: Serializer instance
         :return: Serializer's ``ref_name`` or ``None`` for inline serializer
         :rtype: str or None
@@ -137,8 +146,6 @@ class NetBoxAutoSchema(AutoSchema):
         serializer_name = type(serializer).__name__
         if hasattr(serializer_meta, 'ref_name'):
             ref_name = serializer_meta.ref_name
-        elif serializer_name == 'NestedSerializer' and isinstance(serializer, serializers.ModelSerializer):
-            ref_name = None
         else:
             ref_name = serializer_name
             if ref_name.endswith('Serializer'):

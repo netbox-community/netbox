@@ -1463,6 +1463,10 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label=_('Virtual Chassis'),
     )
+    device_status = django_filters.MultipleChoiceFilter(
+        choices=DeviceStatusChoices,
+        field_name='device__status',
+    )
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -31,7 +31,7 @@ class ReportForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Annotate the current system time for reference
-        now = local_now().strftime('%Y-%m-%d %H:%M:%S')
+        now = local_now().strftime('%Y-%m-%d %H:%M:%S %Z')
         self.fields['schedule_at'].help_text += _(' (current time: <strong>{now}</strong>)').format(now=now)
 
         # Remove scheduling fields if scheduling is disabled

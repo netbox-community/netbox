@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-14 05:02+0000\n"
+"POT-Creation-Date: 2024-08-29 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Czech (https://app.transifex.com/netbox-community/teams/178115/cs/)\n"
@@ -186,26 +186,26 @@ msgstr "Skupina stránek (slimák)"
 #: netbox/dcim/forms/bulk_import.py:181 netbox/dcim/forms/bulk_import.py:254
 #: netbox/dcim/forms/bulk_import.py:479 netbox/dcim/forms/bulk_import.py:1250
 #: netbox/dcim/forms/bulk_import.py:1278 netbox/dcim/forms/filtersets.py:86
-#: netbox/dcim/forms/filtersets.py:219 netbox/dcim/forms/filtersets.py:266
-#: netbox/dcim/forms/filtersets.py:375 netbox/dcim/forms/filtersets.py:684
-#: netbox/dcim/forms/filtersets.py:928 netbox/dcim/forms/filtersets.py:952
-#: netbox/dcim/forms/filtersets.py:1042 netbox/dcim/forms/filtersets.py:1080
-#: netbox/dcim/forms/filtersets.py:1488 netbox/dcim/forms/filtersets.py:1512
-#: netbox/dcim/forms/filtersets.py:1536 netbox/dcim/forms/model_forms.py:136
+#: netbox/dcim/forms/filtersets.py:219 netbox/dcim/forms/filtersets.py:270
+#: netbox/dcim/forms/filtersets.py:379 netbox/dcim/forms/filtersets.py:688
+#: netbox/dcim/forms/filtersets.py:932 netbox/dcim/forms/filtersets.py:956
+#: netbox/dcim/forms/filtersets.py:1046 netbox/dcim/forms/filtersets.py:1084
+#: netbox/dcim/forms/filtersets.py:1492 netbox/dcim/forms/filtersets.py:1516
+#: netbox/dcim/forms/filtersets.py:1540 netbox/dcim/forms/model_forms.py:136
 #: netbox/dcim/forms/model_forms.py:164 netbox/dcim/forms/model_forms.py:206
 #: netbox/dcim/forms/model_forms.py:406 netbox/dcim/forms/model_forms.py:671
 #: netbox/dcim/forms/object_create.py:391 netbox/dcim/tables/devices.py:153
 #: netbox/dcim/tables/power.py:26 netbox/dcim/tables/power.py:93
 #: netbox/dcim/tables/racks.py:62 netbox/dcim/tables/racks.py:138
-#: netbox/dcim/tables/sites.py:129 netbox/extras/filtersets.py:477
+#: netbox/dcim/tables/sites.py:134 netbox/extras/filtersets.py:477
 #: netbox/ipam/forms/bulk_edit.py:216 netbox/ipam/forms/bulk_edit.py:283
 #: netbox/ipam/forms/bulk_edit.py:462 netbox/ipam/forms/bulk_edit.py:536
 #: netbox/ipam/forms/bulk_import.py:170 netbox/ipam/forms/bulk_import.py:437
 #: netbox/ipam/forms/filtersets.py:153 netbox/ipam/forms/filtersets.py:231
 #: netbox/ipam/forms/filtersets.py:432 netbox/ipam/forms/filtersets.py:496
-#: netbox/ipam/forms/model_forms.py:203 netbox/ipam/forms/model_forms.py:587
-#: netbox/ipam/forms/model_forms.py:682 netbox/ipam/tables/ip.py:245
-#: netbox/ipam/tables/vlans.py:114 netbox/ipam/tables/vlans.py:217
+#: netbox/ipam/forms/model_forms.py:205 netbox/ipam/forms/model_forms.py:633
+#: netbox/ipam/tables/ip.py:245 netbox/ipam/tables/vlans.py:114
+#: netbox/ipam/tables/vlans.py:217
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:6
 #: netbox/templates/dcim/device.html:22
 #: netbox/templates/dcim/inc/cable_termination.html:8
@@ -249,7 +249,7 @@ msgid "ASN (ID)"
 msgstr "ASN (ID)"
 
 #: netbox/circuits/filtersets.py:71 netbox/circuits/forms/filtersets.py:29
-#: netbox/ipam/forms/model_forms.py:157 netbox/ipam/models/asns.py:108
+#: netbox/ipam/forms/model_forms.py:159 netbox/ipam/models/asns.py:108
 #: netbox/ipam/models/asns.py:125 netbox/ipam/tables/asn.py:41
 #: netbox/templates/ipam/asn.html:20
 msgid "ASN"
@@ -312,8 +312,8 @@ msgstr "Zakončení A (ID)"
 #: netbox/extras/filtersets.py:343 netbox/extras/filtersets.py:390
 #: netbox/extras/filtersets.py:450 netbox/extras/filtersets.py:613
 #: netbox/extras/filtersets.py:655 netbox/extras/filtersets.py:696
-#: netbox/ipam/forms/model_forms.py:447 netbox/netbox/filtersets.py:275
-#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:165
+#: netbox/ipam/forms/model_forms.py:449 netbox/netbox/filtersets.py:275
+#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:167
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:45
 #: netbox/templates/ipam/ipaddress_assign.html:29
@@ -374,7 +374,7 @@ msgstr "ASN"
 #: netbox/dcim/forms/bulk_edit.py:986 netbox/dcim/forms/bulk_edit.py:1030
 #: netbox/dcim/forms/bulk_edit.py:1075 netbox/dcim/forms/bulk_edit.py:1102
 #: netbox/dcim/forms/bulk_edit.py:1120 netbox/dcim/forms/bulk_edit.py:1138
-#: netbox/dcim/forms/bulk_edit.py:1156 netbox/dcim/forms/bulk_edit.py:1575
+#: netbox/dcim/forms/bulk_edit.py:1156 netbox/dcim/forms/bulk_edit.py:1580
 #: netbox/extras/forms/bulk_edit.py:36 netbox/extras/forms/bulk_edit.py:124
 #: netbox/extras/forms/bulk_edit.py:153 netbox/extras/forms/bulk_edit.py:183
 #: netbox/extras/forms/bulk_edit.py:264 netbox/extras/forms/bulk_edit.py:288
@@ -520,8 +520,8 @@ msgstr "ID služby"
 #: netbox/circuits/forms/filtersets.py:105 netbox/dcim/forms/bulk_edit.py:205
 #: netbox/dcim/forms/bulk_edit.py:502 netbox/dcim/forms/bulk_edit.py:702
 #: netbox/dcim/forms/bulk_edit.py:1071 netbox/dcim/forms/bulk_edit.py:1098
-#: netbox/dcim/forms/bulk_edit.py:1571 netbox/dcim/forms/filtersets.py:995
-#: netbox/dcim/forms/filtersets.py:1371 netbox/dcim/forms/filtersets.py:1392
+#: netbox/dcim/forms/bulk_edit.py:1576 netbox/dcim/forms/filtersets.py:999
+#: netbox/dcim/forms/filtersets.py:1375 netbox/dcim/forms/filtersets.py:1396
 #: netbox/dcim/tables/devices.py:692 netbox/dcim/tables/devices.py:749
 #: netbox/dcim/tables/devices.py:974 netbox/dcim/tables/devicetypes.py:250
 #: netbox/dcim/tables/devicetypes.py:265 netbox/dcim/tables/racks.py:32
@@ -550,12 +550,12 @@ msgstr "Barva"
 #: netbox/dcim/forms/bulk_import.py:699 netbox/dcim/forms/bulk_import.py:719
 #: netbox/dcim/forms/bulk_import.py:802 netbox/dcim/forms/bulk_import.py:896
 #: netbox/dcim/forms/bulk_import.py:938 netbox/dcim/forms/bulk_import.py:1152
-#: netbox/dcim/forms/bulk_import.py:1315 netbox/dcim/forms/filtersets.py:288
-#: netbox/dcim/forms/filtersets.py:886 netbox/dcim/forms/filtersets.py:985
-#: netbox/dcim/forms/filtersets.py:1106 netbox/dcim/forms/filtersets.py:1176
-#: netbox/dcim/forms/filtersets.py:1198 netbox/dcim/forms/filtersets.py:1220
-#: netbox/dcim/forms/filtersets.py:1237 netbox/dcim/forms/filtersets.py:1271
-#: netbox/dcim/forms/filtersets.py:1366 netbox/dcim/forms/filtersets.py:1387
+#: netbox/dcim/forms/bulk_import.py:1315 netbox/dcim/forms/filtersets.py:292
+#: netbox/dcim/forms/filtersets.py:890 netbox/dcim/forms/filtersets.py:989
+#: netbox/dcim/forms/filtersets.py:1110 netbox/dcim/forms/filtersets.py:1180
+#: netbox/dcim/forms/filtersets.py:1202 netbox/dcim/forms/filtersets.py:1224
+#: netbox/dcim/forms/filtersets.py:1241 netbox/dcim/forms/filtersets.py:1275
+#: netbox/dcim/forms/filtersets.py:1370 netbox/dcim/forms/filtersets.py:1391
 #: netbox/dcim/forms/model_forms.py:646 netbox/dcim/forms/model_forms.py:652
 #: netbox/dcim/forms/object_import.py:84
 #: netbox/dcim/forms/object_import.py:113
@@ -608,26 +608,26 @@ msgstr "Účet poskytovatele"
 #: netbox/dcim/forms/bulk_edit.py:105 netbox/dcim/forms/bulk_edit.py:180
 #: netbox/dcim/forms/bulk_edit.py:261 netbox/dcim/forms/bulk_edit.py:598
 #: netbox/dcim/forms/bulk_edit.py:654 netbox/dcim/forms/bulk_edit.py:686
-#: netbox/dcim/forms/bulk_edit.py:813 netbox/dcim/forms/bulk_edit.py:1594
+#: netbox/dcim/forms/bulk_edit.py:813 netbox/dcim/forms/bulk_edit.py:1599
 #: netbox/dcim/forms/bulk_import.py:87 netbox/dcim/forms/bulk_import.py:146
 #: netbox/dcim/forms/bulk_import.py:199 netbox/dcim/forms/bulk_import.py:444
 #: netbox/dcim/forms/bulk_import.py:598 netbox/dcim/forms/bulk_import.py:1146
 #: netbox/dcim/forms/bulk_import.py:1310 netbox/dcim/forms/bulk_import.py:1374
 #: netbox/dcim/forms/filtersets.py:172 netbox/dcim/forms/filtersets.py:231
-#: netbox/dcim/forms/filtersets.py:283 netbox/dcim/forms/filtersets.py:730
-#: netbox/dcim/forms/filtersets.py:855 netbox/dcim/forms/filtersets.py:889
-#: netbox/dcim/forms/filtersets.py:990 netbox/dcim/forms/filtersets.py:1101
+#: netbox/dcim/forms/filtersets.py:287 netbox/dcim/forms/filtersets.py:734
+#: netbox/dcim/forms/filtersets.py:859 netbox/dcim/forms/filtersets.py:893
+#: netbox/dcim/forms/filtersets.py:994 netbox/dcim/forms/filtersets.py:1105
 #: netbox/dcim/tables/devices.py:140 netbox/dcim/tables/devices.py:805
 #: netbox/dcim/tables/devices.py:1034 netbox/dcim/tables/modules.py:69
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:66
-#: netbox/dcim/tables/sites.py:82 netbox/dcim/tables/sites.py:133
+#: netbox/dcim/tables/sites.py:82 netbox/dcim/tables/sites.py:138
 #: netbox/ipam/forms/bulk_edit.py:254 netbox/ipam/forms/bulk_edit.py:304
 #: netbox/ipam/forms/bulk_edit.py:352 netbox/ipam/forms/bulk_edit.py:558
 #: netbox/ipam/forms/bulk_import.py:191 netbox/ipam/forms/bulk_import.py:256
 #: netbox/ipam/forms/bulk_import.py:292 netbox/ipam/forms/bulk_import.py:458
 #: netbox/ipam/forms/filtersets.py:210 netbox/ipam/forms/filtersets.py:281
 #: netbox/ipam/forms/filtersets.py:355 netbox/ipam/forms/filtersets.py:508
-#: netbox/ipam/forms/model_forms.py:466 netbox/ipam/tables/ip.py:237
+#: netbox/ipam/forms/model_forms.py:468 netbox/ipam/tables/ip.py:237
 #: netbox/ipam/tables/ip.py:312 netbox/ipam/tables/ip.py:363
 #: netbox/ipam/tables/ip.py:426 netbox/ipam/tables/ip.py:453
 #: netbox/ipam/tables/vlans.py:122 netbox/ipam/tables/vlans.py:228
@@ -674,16 +674,16 @@ msgstr "Stav"
 #: netbox/circuits/forms/filtersets.py:117 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_edit.py:186 netbox/dcim/forms/bulk_edit.py:256
 #: netbox/dcim/forms/bulk_edit.py:368 netbox/dcim/forms/bulk_edit.py:588
-#: netbox/dcim/forms/bulk_edit.py:692 netbox/dcim/forms/bulk_edit.py:1599
+#: netbox/dcim/forms/bulk_edit.py:692 netbox/dcim/forms/bulk_edit.py:1604
 #: netbox/dcim/forms/bulk_import.py:106 netbox/dcim/forms/bulk_import.py:151
 #: netbox/dcim/forms/bulk_import.py:192 netbox/dcim/forms/bulk_import.py:279
 #: netbox/dcim/forms/bulk_import.py:418 netbox/dcim/forms/bulk_import.py:1158
 #: netbox/dcim/forms/bulk_import.py:1367 netbox/dcim/forms/filtersets.py:167
-#: netbox/dcim/forms/filtersets.py:199 netbox/dcim/forms/filtersets.py:250
-#: netbox/dcim/forms/filtersets.py:335 netbox/dcim/forms/filtersets.py:356
-#: netbox/dcim/forms/filtersets.py:653 netbox/dcim/forms/filtersets.py:847
-#: netbox/dcim/forms/filtersets.py:909 netbox/dcim/forms/filtersets.py:939
-#: netbox/dcim/forms/filtersets.py:1061 netbox/dcim/tables/power.py:88
+#: netbox/dcim/forms/filtersets.py:199 netbox/dcim/forms/filtersets.py:254
+#: netbox/dcim/forms/filtersets.py:339 netbox/dcim/forms/filtersets.py:360
+#: netbox/dcim/forms/filtersets.py:657 netbox/dcim/forms/filtersets.py:851
+#: netbox/dcim/forms/filtersets.py:913 netbox/dcim/forms/filtersets.py:943
+#: netbox/dcim/forms/filtersets.py:1065 netbox/dcim/tables/power.py:88
 #: netbox/extras/filtersets.py:564 netbox/extras/forms/filtersets.py:332
 #: netbox/extras/forms/filtersets.py:405 netbox/ipam/forms/bulk_edit.py:41
 #: netbox/ipam/forms/bulk_edit.py:66 netbox/ipam/forms/bulk_edit.py:110
@@ -763,10 +763,10 @@ msgstr "Parametry služby"
 #: netbox/dcim/forms/model_forms.py:138 netbox/dcim/forms/model_forms.py:180
 #: netbox/dcim/forms/model_forms.py:228 netbox/dcim/forms/model_forms.py:267
 #: netbox/dcim/forms/model_forms.py:716 netbox/dcim/forms/model_forms.py:1639
-#: netbox/ipam/forms/model_forms.py:62 netbox/ipam/forms/model_forms.py:79
-#: netbox/ipam/forms/model_forms.py:113 netbox/ipam/forms/model_forms.py:134
-#: netbox/ipam/forms/model_forms.py:158 netbox/ipam/forms/model_forms.py:230
-#: netbox/ipam/forms/model_forms.py:259 netbox/ipam/forms/model_forms.py:314
+#: netbox/ipam/forms/model_forms.py:64 netbox/ipam/forms/model_forms.py:81
+#: netbox/ipam/forms/model_forms.py:115 netbox/ipam/forms/model_forms.py:136
+#: netbox/ipam/forms/model_forms.py:160 netbox/ipam/forms/model_forms.py:232
+#: netbox/ipam/forms/model_forms.py:261 netbox/ipam/forms/model_forms.py:316
 #: netbox/netbox/navigation/menu.py:37
 #: netbox/templates/dcim/device_edit.html:85
 #: netbox/templates/dcim/htmx/cable_edit.html:72
@@ -799,10 +799,10 @@ msgid "Upstream speed (Kbps)"
 msgstr "Odchozí rychlost (Kbps)"
 
 #: netbox/circuits/forms/bulk_edit.py:204 netbox/dcim/forms/bulk_edit.py:849
-#: netbox/dcim/forms/bulk_edit.py:1208 netbox/dcim/forms/bulk_edit.py:1225
-#: netbox/dcim/forms/bulk_edit.py:1242 netbox/dcim/forms/bulk_edit.py:1260
-#: netbox/dcim/forms/bulk_edit.py:1348 netbox/dcim/forms/bulk_edit.py:1487
-#: netbox/dcim/forms/bulk_edit.py:1504
+#: netbox/dcim/forms/bulk_edit.py:1213 netbox/dcim/forms/bulk_edit.py:1230
+#: netbox/dcim/forms/bulk_edit.py:1247 netbox/dcim/forms/bulk_edit.py:1265
+#: netbox/dcim/forms/bulk_edit.py:1353 netbox/dcim/forms/bulk_edit.py:1492
+#: netbox/dcim/forms/bulk_edit.py:1509
 msgid "Mark connected"
 msgstr "Označit jako zapojené"
 
@@ -885,17 +885,17 @@ msgstr "Síť poskytovatele"
 #: netbox/dcim/forms/bulk_import.py:186 netbox/dcim/forms/bulk_import.py:260
 #: netbox/dcim/forms/bulk_import.py:485 netbox/dcim/forms/bulk_import.py:1256
 #: netbox/dcim/forms/bulk_import.py:1290 netbox/dcim/forms/filtersets.py:94
-#: netbox/dcim/forms/filtersets.py:247 netbox/dcim/forms/filtersets.py:280
-#: netbox/dcim/forms/filtersets.py:332 netbox/dcim/forms/filtersets.py:383
-#: netbox/dcim/forms/filtersets.py:650 netbox/dcim/forms/filtersets.py:693
-#: netbox/dcim/forms/filtersets.py:908 netbox/dcim/forms/filtersets.py:937
-#: netbox/dcim/forms/filtersets.py:957 netbox/dcim/forms/filtersets.py:1021
-#: netbox/dcim/forms/filtersets.py:1051 netbox/dcim/forms/filtersets.py:1060
-#: netbox/dcim/forms/filtersets.py:1171 netbox/dcim/forms/filtersets.py:1193
-#: netbox/dcim/forms/filtersets.py:1215 netbox/dcim/forms/filtersets.py:1232
-#: netbox/dcim/forms/filtersets.py:1252 netbox/dcim/forms/filtersets.py:1360
-#: netbox/dcim/forms/filtersets.py:1382 netbox/dcim/forms/filtersets.py:1403
-#: netbox/dcim/forms/filtersets.py:1418 netbox/dcim/forms/filtersets.py:1432
+#: netbox/dcim/forms/filtersets.py:251 netbox/dcim/forms/filtersets.py:284
+#: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:387
+#: netbox/dcim/forms/filtersets.py:654 netbox/dcim/forms/filtersets.py:697
+#: netbox/dcim/forms/filtersets.py:912 netbox/dcim/forms/filtersets.py:941
+#: netbox/dcim/forms/filtersets.py:961 netbox/dcim/forms/filtersets.py:1025
+#: netbox/dcim/forms/filtersets.py:1055 netbox/dcim/forms/filtersets.py:1064
+#: netbox/dcim/forms/filtersets.py:1175 netbox/dcim/forms/filtersets.py:1197
+#: netbox/dcim/forms/filtersets.py:1219 netbox/dcim/forms/filtersets.py:1236
+#: netbox/dcim/forms/filtersets.py:1256 netbox/dcim/forms/filtersets.py:1364
+#: netbox/dcim/forms/filtersets.py:1386 netbox/dcim/forms/filtersets.py:1407
+#: netbox/dcim/forms/filtersets.py:1422 netbox/dcim/forms/filtersets.py:1436
 #: netbox/dcim/forms/model_forms.py:179 netbox/dcim/forms/model_forms.py:211
 #: netbox/dcim/forms/model_forms.py:411 netbox/dcim/forms/model_forms.py:676
 #: netbox/dcim/tables/devices.py:157 netbox/dcim/tables/power.py:30
@@ -903,8 +903,7 @@ msgstr "Síť poskytovatele"
 #: netbox/extras/filtersets.py:488 netbox/extras/forms/filtersets.py:329
 #: netbox/ipam/forms/bulk_edit.py:471 netbox/ipam/forms/filtersets.py:173
 #: netbox/ipam/forms/filtersets.py:414 netbox/ipam/forms/filtersets.py:437
-#: netbox/ipam/forms/filtersets.py:474 netbox/ipam/forms/model_forms.py:599
-#: netbox/templates/dcim/device.html:26
+#: netbox/ipam/forms/filtersets.py:474 netbox/templates/dcim/device.html:26
 #: netbox/templates/dcim/device_edit.html:30
 #: netbox/templates/dcim/inc/cable_termination.html:12
 #: netbox/templates/dcim/location.html:26
@@ -920,9 +919,9 @@ msgstr "Lokace"
 #: netbox/circuits/forms/filtersets.py:30
 #: netbox/circuits/forms/filtersets.py:118 netbox/dcim/forms/filtersets.py:138
 #: netbox/dcim/forms/filtersets.py:152 netbox/dcim/forms/filtersets.py:168
-#: netbox/dcim/forms/filtersets.py:200 netbox/dcim/forms/filtersets.py:251
-#: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:407
-#: netbox/dcim/forms/filtersets.py:654 netbox/dcim/forms/filtersets.py:1022
+#: netbox/dcim/forms/filtersets.py:200 netbox/dcim/forms/filtersets.py:255
+#: netbox/dcim/forms/filtersets.py:340 netbox/dcim/forms/filtersets.py:411
+#: netbox/dcim/forms/filtersets.py:658 netbox/dcim/forms/filtersets.py:1026
 #: netbox/netbox/navigation/menu.py:44 netbox/netbox/navigation/menu.py:46
 #: netbox/tenancy/forms/filtersets.py:42 netbox/tenancy/tables/columns.py:70
 #: netbox/tenancy/tables/contacts.py:25 netbox/tenancy/views.py:19
@@ -937,18 +936,18 @@ msgstr "Kontakty"
 #: netbox/dcim/forms/bulk_edit.py:223 netbox/dcim/forms/bulk_edit.py:755
 #: netbox/dcim/forms/bulk_import.py:92 netbox/dcim/forms/filtersets.py:72
 #: netbox/dcim/forms/filtersets.py:179 netbox/dcim/forms/filtersets.py:205
-#: netbox/dcim/forms/filtersets.py:258 netbox/dcim/forms/filtersets.py:361
-#: netbox/dcim/forms/filtersets.py:670 netbox/dcim/forms/filtersets.py:914
-#: netbox/dcim/forms/filtersets.py:944 netbox/dcim/forms/filtersets.py:1028
-#: netbox/dcim/forms/filtersets.py:1067 netbox/dcim/forms/filtersets.py:1480
-#: netbox/dcim/forms/filtersets.py:1504 netbox/dcim/forms/filtersets.py:1528
+#: netbox/dcim/forms/filtersets.py:262 netbox/dcim/forms/filtersets.py:365
+#: netbox/dcim/forms/filtersets.py:674 netbox/dcim/forms/filtersets.py:918
+#: netbox/dcim/forms/filtersets.py:948 netbox/dcim/forms/filtersets.py:1032
+#: netbox/dcim/forms/filtersets.py:1071 netbox/dcim/forms/filtersets.py:1484
+#: netbox/dcim/forms/filtersets.py:1508 netbox/dcim/forms/filtersets.py:1532
 #: netbox/dcim/forms/model_forms.py:111 netbox/dcim/forms/object_create.py:375
 #: netbox/dcim/tables/devices.py:143 netbox/dcim/tables/sites.py:85
 #: netbox/extras/filtersets.py:455 netbox/ipam/forms/bulk_edit.py:206
 #: netbox/ipam/forms/bulk_edit.py:452 netbox/ipam/forms/bulk_edit.py:526
 #: netbox/ipam/forms/filtersets.py:217 netbox/ipam/forms/filtersets.py:422
-#: netbox/ipam/forms/filtersets.py:482 netbox/ipam/forms/model_forms.py:571
-#: netbox/templates/dcim/device.html:18 netbox/templates/dcim/rack.html:16
+#: netbox/ipam/forms/filtersets.py:482 netbox/templates/dcim/device.html:18
+#: netbox/templates/dcim/rack.html:16
 #: netbox/templates/dcim/rackreservation.html:22
 #: netbox/templates/dcim/region.html:26 netbox/templates/dcim/site.html:31
 #: netbox/templates/ipam/prefix.html:49 netbox/templates/ipam/vlan.html:16
@@ -964,14 +963,13 @@ msgstr "Region"
 #: netbox/circuits/forms/filtersets.py:160 netbox/dcim/forms/bulk_edit.py:231
 #: netbox/dcim/forms/bulk_edit.py:763 netbox/dcim/forms/filtersets.py:77
 #: netbox/dcim/forms/filtersets.py:184 netbox/dcim/forms/filtersets.py:210
-#: netbox/dcim/forms/filtersets.py:271 netbox/dcim/forms/filtersets.py:366
-#: netbox/dcim/forms/filtersets.py:675 netbox/dcim/forms/filtersets.py:919
-#: netbox/dcim/forms/filtersets.py:1033 netbox/dcim/forms/filtersets.py:1072
+#: netbox/dcim/forms/filtersets.py:275 netbox/dcim/forms/filtersets.py:370
+#: netbox/dcim/forms/filtersets.py:679 netbox/dcim/forms/filtersets.py:923
+#: netbox/dcim/forms/filtersets.py:1037 netbox/dcim/forms/filtersets.py:1076
 #: netbox/dcim/forms/object_create.py:383 netbox/extras/filtersets.py:472
 #: netbox/ipam/forms/bulk_edit.py:211 netbox/ipam/forms/bulk_edit.py:459
 #: netbox/ipam/forms/bulk_edit.py:531 netbox/ipam/forms/filtersets.py:222
 #: netbox/ipam/forms/filtersets.py:427 netbox/ipam/forms/filtersets.py:487
-#: netbox/ipam/forms/model_forms.py:584
 #: netbox/virtualization/forms/bulk_edit.py:86
 #: netbox/virtualization/forms/filtersets.py:69
 #: netbox/virtualization/forms/filtersets.py:138
@@ -984,13 +982,13 @@ msgstr "Skupina stránek"
 #: netbox/circuits/forms/filtersets.py:100
 #: netbox/circuits/forms/filtersets.py:115 netbox/core/forms/filtersets.py:64
 #: netbox/dcim/forms/bulk_edit.py:726 netbox/dcim/forms/filtersets.py:166
-#: netbox/dcim/forms/filtersets.py:198 netbox/dcim/forms/filtersets.py:846
-#: netbox/dcim/forms/filtersets.py:938 netbox/dcim/forms/filtersets.py:1062
-#: netbox/dcim/forms/filtersets.py:1170 netbox/dcim/forms/filtersets.py:1192
-#: netbox/dcim/forms/filtersets.py:1214 netbox/dcim/forms/filtersets.py:1231
-#: netbox/dcim/forms/filtersets.py:1248 netbox/dcim/forms/filtersets.py:1359
-#: netbox/dcim/forms/filtersets.py:1381 netbox/dcim/forms/filtersets.py:1402
-#: netbox/dcim/forms/filtersets.py:1417 netbox/dcim/forms/filtersets.py:1430
+#: netbox/dcim/forms/filtersets.py:198 netbox/dcim/forms/filtersets.py:850
+#: netbox/dcim/forms/filtersets.py:942 netbox/dcim/forms/filtersets.py:1066
+#: netbox/dcim/forms/filtersets.py:1174 netbox/dcim/forms/filtersets.py:1196
+#: netbox/dcim/forms/filtersets.py:1218 netbox/dcim/forms/filtersets.py:1235
+#: netbox/dcim/forms/filtersets.py:1252 netbox/dcim/forms/filtersets.py:1363
+#: netbox/dcim/forms/filtersets.py:1385 netbox/dcim/forms/filtersets.py:1406
+#: netbox/dcim/forms/filtersets.py:1421 netbox/dcim/forms/filtersets.py:1434
 #: netbox/extras/forms/filtersets.py:43 netbox/extras/forms/filtersets.py:112
 #: netbox/extras/forms/filtersets.py:143 netbox/extras/forms/filtersets.py:183
 #: netbox/extras/forms/filtersets.py:199 netbox/extras/forms/filtersets.py:230
@@ -1254,7 +1252,7 @@ msgstr "sítě poskytovatelů"
 #: netbox/dcim/tables/power.py:62 netbox/dcim/tables/racks.py:23
 #: netbox/dcim/tables/racks.py:53 netbox/dcim/tables/sites.py:24
 #: netbox/dcim/tables/sites.py:51 netbox/dcim/tables/sites.py:78
-#: netbox/dcim/tables/sites.py:125 netbox/extras/forms/filtersets.py:191
+#: netbox/dcim/tables/sites.py:130 netbox/extras/forms/filtersets.py:191
 #: netbox/extras/tables/tables.py:43 netbox/extras/tables/tables.py:91
 #: netbox/extras/tables/tables.py:124 netbox/extras/tables/tables.py:149
 #: netbox/extras/tables/tables.py:215 netbox/extras/tables/tables.py:263
@@ -1386,7 +1384,7 @@ msgstr "Míra odevzdání"
 #: netbox/dcim/tables/devicetypes.py:93 netbox/dcim/tables/modules.py:29
 #: netbox/dcim/tables/modules.py:72 netbox/dcim/tables/power.py:39
 #: netbox/dcim/tables/power.py:96 netbox/dcim/tables/racks.py:76
-#: netbox/dcim/tables/racks.py:156 netbox/dcim/tables/sites.py:103
+#: netbox/dcim/tables/racks.py:156 netbox/dcim/tables/sites.py:108
 #: netbox/extras/tables/tables.py:522 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:136
 #: netbox/ipam/tables/ip.py:275 netbox/ipam/tables/ip.py:329
@@ -1562,7 +1560,7 @@ msgstr "Zdroj dat (název)"
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:40
 #: netbox/core/tables/data.py:26 netbox/dcim/forms/bulk_edit.py:1020
-#: netbox/dcim/forms/bulk_edit.py:1293 netbox/dcim/forms/filtersets.py:1288
+#: netbox/dcim/forms/bulk_edit.py:1298 netbox/dcim/forms/filtersets.py:1292
 #: netbox/dcim/tables/devices.py:545 netbox/dcim/tables/devicetypes.py:225
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/bulk_edit.py:162
 #: netbox/extras/forms/bulk_edit.py:221 netbox/extras/forms/filtersets.py:120
@@ -1665,7 +1663,7 @@ msgid "Completed before"
 msgstr "Dokončeno dříve"
 
 #: netbox/core/forms/filtersets.py:123 netbox/dcim/forms/bulk_edit.py:361
-#: netbox/dcim/forms/filtersets.py:354 netbox/dcim/forms/filtersets.py:398
+#: netbox/dcim/forms/filtersets.py:358 netbox/dcim/forms/filtersets.py:402
 #: netbox/dcim/forms/model_forms.py:258 netbox/extras/forms/filtersets.py:465
 #: netbox/extras/forms/filtersets.py:505
 #: netbox/templates/dcim/rackreservation.html:58
@@ -1710,8 +1708,8 @@ msgid "Rack Elevations"
 msgstr "Výšky stojanů"
 
 #: netbox/core/forms/model_forms.py:157 netbox/dcim/choices.py:1449
-#: netbox/dcim/forms/bulk_edit.py:867 netbox/dcim/forms/bulk_edit.py:1250
-#: netbox/dcim/forms/bulk_edit.py:1268 netbox/dcim/tables/racks.py:89
+#: netbox/dcim/forms/bulk_edit.py:867 netbox/dcim/forms/bulk_edit.py:1255
+#: netbox/dcim/forms/bulk_edit.py:1273 netbox/dcim/tables/racks.py:89
 #: netbox/netbox/navigation/menu.py:276 netbox/netbox/navigation/menu.py:280
 msgid "Power"
 msgstr "Napájení"
@@ -1748,7 +1746,7 @@ msgstr "Validace"
 msgid "User Preferences"
 msgstr "Uživatelské předvolby"
 
-#: netbox/core/forms/model_forms.py:167 netbox/dcim/forms/filtersets.py:663
+#: netbox/core/forms/model_forms.py:167 netbox/dcim/forms/filtersets.py:667
 #: netbox/templates/core/inc/config_data.html:127
 #: netbox/users/forms/model_forms.py:65
 msgid "Miscellaneous"
@@ -2121,52 +2119,52 @@ msgstr "PID"
 msgid "No workers found"
 msgstr "Nebyli nalezeni žádní pracovníci"
 
-#: netbox/core/views.py:81
+#: netbox/core/views.py:83
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr "Úloha ve frontě #{id} synchronizovat {datasource}"
 
-#: netbox/core/views.py:241
+#: netbox/core/views.py:243
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr "Obnovená revize konfigurace #{id}"
 
-#: netbox/core/views.py:334 netbox/core/views.py:377 netbox/core/views.py:453
+#: netbox/core/views.py:336 netbox/core/views.py:379 netbox/core/views.py:455
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr "Práce {job_id} nenalezeno"
 
-#: netbox/core/views.py:385
+#: netbox/core/views.py:387
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr "Práce {id} byl vymazán."
 
-#: netbox/core/views.py:387
+#: netbox/core/views.py:389
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr "Chyba při mazání úlohy {id}: {error}"
 
-#: netbox/core/views.py:400 netbox/core/views.py:418
+#: netbox/core/views.py:402 netbox/core/views.py:420
 #, python-brace-format
 msgid "Job {id} not found."
 msgstr "Práce {id} nenalezeno."
 
-#: netbox/core/views.py:406
+#: netbox/core/views.py:408
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr "Práce {id} byla znovu zařazena do fronty."
 
-#: netbox/core/views.py:441
+#: netbox/core/views.py:443
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr "Práce {id} byl zařazen do fronty."
 
-#: netbox/core/views.py:460
+#: netbox/core/views.py:462
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr "Práce {id} byl zastaven."
 
-#: netbox/core/views.py:462
+#: netbox/core/views.py:464
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr "Nepodařilo se zastavit úlohu {id}"
@@ -2254,7 +2252,7 @@ msgstr "palce"
 
 #: netbox/dcim/choices.py:140 netbox/dcim/forms/bulk_edit.py:67
 #: netbox/dcim/forms/bulk_edit.py:86 netbox/dcim/forms/bulk_edit.py:172
-#: netbox/dcim/forms/bulk_edit.py:1298 netbox/dcim/forms/bulk_import.py:59
+#: netbox/dcim/forms/bulk_edit.py:1303 netbox/dcim/forms/bulk_import.py:59
 #: netbox/dcim/forms/bulk_import.py:73 netbox/dcim/forms/bulk_import.py:136
 #: netbox/dcim/forms/bulk_import.py:505 netbox/dcim/forms/bulk_import.py:772
 #: netbox/dcim/forms/bulk_import.py:1027 netbox/dcim/forms/filtersets.py:228
@@ -2382,7 +2380,7 @@ msgid "Virtual"
 msgstr "Virtuální"
 
 #: netbox/dcim/choices.py:814 netbox/dcim/choices.py:1052
-#: netbox/dcim/forms/bulk_edit.py:1408 netbox/dcim/forms/filtersets.py:1251
+#: netbox/dcim/forms/bulk_edit.py:1413 netbox/dcim/forms/filtersets.py:1255
 #: netbox/dcim/forms/model_forms.py:936 netbox/dcim/forms/model_forms.py:1344
 #: netbox/netbox/navigation/menu.py:127 netbox/netbox/navigation/menu.py:131
 #: netbox/templates/dcim/interface.html:210
@@ -2393,7 +2391,7 @@ msgstr "Bezdrátové"
 msgid "Virtual interfaces"
 msgstr "Virtuální rozhraní"
 
-#: netbox/dcim/choices.py:980 netbox/dcim/forms/bulk_edit.py:1303
+#: netbox/dcim/choices.py:980 netbox/dcim/forms/bulk_edit.py:1308
 #: netbox/dcim/forms/bulk_import.py:779 netbox/dcim/forms/model_forms.py:922
 #: netbox/dcim/tables/devices.py:649 netbox/templates/dcim/interface.html:106
 #: netbox/templates/virtualization/vminterface.html:43
@@ -2423,9 +2421,9 @@ msgstr "Ethernet (propojovací deska)"
 msgid "Cellular"
 msgstr "Buněčný"
 
-#: netbox/dcim/choices.py:1119 netbox/dcim/forms/filtersets.py:304
-#: netbox/dcim/forms/filtersets.py:740 netbox/dcim/forms/filtersets.py:894
-#: netbox/dcim/forms/filtersets.py:1446
+#: netbox/dcim/choices.py:1119 netbox/dcim/forms/filtersets.py:308
+#: netbox/dcim/forms/filtersets.py:744 netbox/dcim/forms/filtersets.py:898
+#: netbox/dcim/forms/filtersets.py:1450
 #: netbox/templates/dcim/inventoryitem.html:52
 #: netbox/templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
@@ -2498,7 +2496,7 @@ msgstr "Optická vlákna"
 msgid "Fiber"
 msgstr "Vlákno"
 
-#: netbox/dcim/choices.py:1460 netbox/dcim/forms/filtersets.py:1158
+#: netbox/dcim/choices.py:1460 netbox/dcim/forms/filtersets.py:1162
 msgid "Connected"
 msgstr "Připojeno"
 
@@ -2668,61 +2666,61 @@ msgstr "Výchozí platforma (ID)"
 msgid "Default platform (slug)"
 msgstr "Výchozí platforma (slimák)"
 
-#: netbox/dcim/filtersets.py:500 netbox/dcim/forms/filtersets.py:453
+#: netbox/dcim/filtersets.py:500 netbox/dcim/forms/filtersets.py:457
 msgid "Has a front image"
 msgstr "Má přední obrázek"
 
-#: netbox/dcim/filtersets.py:504 netbox/dcim/forms/filtersets.py:460
+#: netbox/dcim/filtersets.py:504 netbox/dcim/forms/filtersets.py:464
 msgid "Has a rear image"
 msgstr "Má zadní obrázek"
 
 #: netbox/dcim/filtersets.py:509 netbox/dcim/filtersets.py:630
-#: netbox/dcim/filtersets.py:1079 netbox/dcim/forms/filtersets.py:467
-#: netbox/dcim/forms/filtersets.py:563 netbox/dcim/forms/filtersets.py:779
+#: netbox/dcim/filtersets.py:1079 netbox/dcim/forms/filtersets.py:471
+#: netbox/dcim/forms/filtersets.py:567 netbox/dcim/forms/filtersets.py:783
 msgid "Has console ports"
 msgstr "Má konzolové porty"
 
 #: netbox/dcim/filtersets.py:513 netbox/dcim/filtersets.py:634
-#: netbox/dcim/filtersets.py:1083 netbox/dcim/forms/filtersets.py:474
-#: netbox/dcim/forms/filtersets.py:570 netbox/dcim/forms/filtersets.py:786
+#: netbox/dcim/filtersets.py:1083 netbox/dcim/forms/filtersets.py:478
+#: netbox/dcim/forms/filtersets.py:574 netbox/dcim/forms/filtersets.py:790
 msgid "Has console server ports"
 msgstr "Má porty konzolového serveru"
 
 #: netbox/dcim/filtersets.py:517 netbox/dcim/filtersets.py:638
-#: netbox/dcim/filtersets.py:1087 netbox/dcim/forms/filtersets.py:481
-#: netbox/dcim/forms/filtersets.py:577 netbox/dcim/forms/filtersets.py:793
+#: netbox/dcim/filtersets.py:1087 netbox/dcim/forms/filtersets.py:485
+#: netbox/dcim/forms/filtersets.py:581 netbox/dcim/forms/filtersets.py:797
 msgid "Has power ports"
 msgstr "Má napájecí porty"
 
 #: netbox/dcim/filtersets.py:521 netbox/dcim/filtersets.py:642
-#: netbox/dcim/filtersets.py:1091 netbox/dcim/forms/filtersets.py:488
-#: netbox/dcim/forms/filtersets.py:584 netbox/dcim/forms/filtersets.py:800
+#: netbox/dcim/filtersets.py:1091 netbox/dcim/forms/filtersets.py:492
+#: netbox/dcim/forms/filtersets.py:588 netbox/dcim/forms/filtersets.py:804
 msgid "Has power outlets"
 msgstr "Má elektrické zásuvky"
 
 #: netbox/dcim/filtersets.py:525 netbox/dcim/filtersets.py:646
-#: netbox/dcim/filtersets.py:1095 netbox/dcim/forms/filtersets.py:495
-#: netbox/dcim/forms/filtersets.py:591 netbox/dcim/forms/filtersets.py:807
+#: netbox/dcim/filtersets.py:1095 netbox/dcim/forms/filtersets.py:499
+#: netbox/dcim/forms/filtersets.py:595 netbox/dcim/forms/filtersets.py:811
 msgid "Has interfaces"
 msgstr "Má rozhraní"
 
 #: netbox/dcim/filtersets.py:529 netbox/dcim/filtersets.py:650
-#: netbox/dcim/filtersets.py:1099 netbox/dcim/forms/filtersets.py:502
-#: netbox/dcim/forms/filtersets.py:598 netbox/dcim/forms/filtersets.py:814
+#: netbox/dcim/filtersets.py:1099 netbox/dcim/forms/filtersets.py:506
+#: netbox/dcim/forms/filtersets.py:602 netbox/dcim/forms/filtersets.py:818
 msgid "Has pass-through ports"
 msgstr "Má průchozí porty"
 
 #: netbox/dcim/filtersets.py:533 netbox/dcim/filtersets.py:1103
-#: netbox/dcim/forms/filtersets.py:516
+#: netbox/dcim/forms/filtersets.py:520
 msgid "Has module bays"
 msgstr "Má pozice pro moduly"
 
 #: netbox/dcim/filtersets.py:537 netbox/dcim/filtersets.py:1107
-#: netbox/dcim/forms/filtersets.py:509
+#: netbox/dcim/forms/filtersets.py:513
 msgid "Has device bays"
 msgstr "Má pozice pro zařízení"
 
-#: netbox/dcim/filtersets.py:541 netbox/dcim/forms/filtersets.py:523
+#: netbox/dcim/filtersets.py:541 netbox/dcim/forms/filtersets.py:527
 msgid "Has inventory items"
 msgstr "Má položky inventáře"
 
@@ -2797,7 +2795,7 @@ msgid "Is full depth"
 msgstr "Je plná hloubka"
 
 #: netbox/dcim/filtersets.py:1051 netbox/dcim/forms/common.py:18
-#: netbox/dcim/forms/filtersets.py:749 netbox/dcim/forms/filtersets.py:1303
+#: netbox/dcim/forms/filtersets.py:753 netbox/dcim/forms/filtersets.py:1307
 #: netbox/dcim/models/device_components.py:519
 #: netbox/virtualization/filtersets.py:230
 #: netbox/virtualization/filtersets.py:297
@@ -2807,7 +2805,7 @@ msgid "MAC address"
 msgstr "MAC adresa"
 
 #: netbox/dcim/filtersets.py:1058 netbox/dcim/filtersets.py:1222
-#: netbox/dcim/forms/filtersets.py:758 netbox/dcim/forms/filtersets.py:861
+#: netbox/dcim/forms/filtersets.py:762 netbox/dcim/forms/filtersets.py:865
 #: netbox/virtualization/filtersets.py:234
 #: netbox/virtualization/forms/filtersets.py:176
 msgid "Has a primary IP"
@@ -2914,8 +2912,8 @@ msgstr "Přiřazená VLAN"
 msgid "Assigned VID"
 msgstr "Přiřazené VID"
 
-#: netbox/dcim/filtersets.py:1557 netbox/dcim/forms/bulk_edit.py:1382
-#: netbox/dcim/forms/bulk_import.py:830 netbox/dcim/forms/filtersets.py:1346
+#: netbox/dcim/filtersets.py:1557 netbox/dcim/forms/bulk_edit.py:1387
+#: netbox/dcim/forms/bulk_import.py:830 netbox/dcim/forms/filtersets.py:1350
 #: netbox/dcim/forms/model_forms.py:1325
 #: netbox/dcim/models/device_components.py:712
 #: netbox/dcim/tables/devices.py:615 netbox/ipam/filtersets.py:316
@@ -2925,10 +2923,10 @@ msgstr "Přiřazené VID"
 #: netbox/ipam/forms/bulk_edit.py:338 netbox/ipam/forms/bulk_import.py:156
 #: netbox/ipam/forms/bulk_import.py:242 netbox/ipam/forms/bulk_import.py:278
 #: netbox/ipam/forms/filtersets.py:67 netbox/ipam/forms/filtersets.py:172
-#: netbox/ipam/forms/filtersets.py:309 netbox/ipam/forms/model_forms.py:60
-#: netbox/ipam/forms/model_forms.py:200 netbox/ipam/forms/model_forms.py:245
-#: netbox/ipam/forms/model_forms.py:298 netbox/ipam/forms/model_forms.py:429
-#: netbox/ipam/forms/model_forms.py:443 netbox/ipam/forms/model_forms.py:457
+#: netbox/ipam/forms/filtersets.py:309 netbox/ipam/forms/model_forms.py:62
+#: netbox/ipam/forms/model_forms.py:202 netbox/ipam/forms/model_forms.py:247
+#: netbox/ipam/forms/model_forms.py:300 netbox/ipam/forms/model_forms.py:431
+#: netbox/ipam/forms/model_forms.py:445 netbox/ipam/forms/model_forms.py:459
 #: netbox/ipam/models/ip.py:233 netbox/ipam/models/ip.py:512
 #: netbox/ipam/models/ip.py:720 netbox/ipam/models/vrfs.py:62
 #: netbox/ipam/tables/ip.py:242 netbox/ipam/tables/ip.py:309
@@ -2958,7 +2956,7 @@ msgstr "VRF (RD)"
 msgid "L2VPN (ID)"
 msgstr "L2VPN (ID)"
 
-#: netbox/dcim/filtersets.py:1574 netbox/dcim/forms/filtersets.py:1351
+#: netbox/dcim/filtersets.py:1574 netbox/dcim/forms/filtersets.py:1355
 #: netbox/dcim/tables/devices.py:562 netbox/ipam/filtersets.py:1022
 #: netbox/ipam/forms/filtersets.py:525 netbox/ipam/tables/vlans.py:133
 #: netbox/templates/dcim/interface.html:93 netbox/templates/ipam/vlan.html:66
@@ -2995,7 +2993,7 @@ msgid "LAG interface (ID)"
 msgstr "Rozhraní LAG (ID)"
 
 #: netbox/dcim/filtersets.py:1657 netbox/dcim/filtersets.py:1669
-#: netbox/dcim/forms/filtersets.py:1263 netbox/dcim/forms/model_forms.py:1637
+#: netbox/dcim/forms/filtersets.py:1267 netbox/dcim/forms/model_forms.py:1637
 #: netbox/templates/dcim/virtualdevicecontext.html:15
 msgid "Virtual Device Context"
 msgstr "Kontext virtuálního zařízení"
@@ -3043,7 +3041,7 @@ msgstr "Nájemce (ID)"
 msgid "Tenant (slug)"
 msgstr "Nájemce (slimák)"
 
-#: netbox/dcim/filtersets.py:1921 netbox/dcim/forms/filtersets.py:1008
+#: netbox/dcim/filtersets.py:1921 netbox/dcim/forms/filtersets.py:1012
 msgid "Unterminated"
 msgstr "Neukončený"
 
@@ -3053,7 +3051,7 @@ msgstr "Napájecí panel (ID)"
 
 #: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:410
 #: netbox/extras/forms/model_forms.py:443
-#: netbox/extras/forms/model_forms.py:495 netbox/netbox/forms/base.py:84
+#: netbox/extras/forms/model_forms.py:495 netbox/netbox/forms/base.py:86
 #: netbox/netbox/forms/mixins.py:81 netbox/netbox/tables/columns.py:470
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
@@ -3062,7 +3060,7 @@ msgstr "Napájecí panel (ID)"
 msgid "Tags"
 msgstr "Značky"
 
-#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1408
+#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1412
 #: netbox/dcim/forms/model_forms.py:431 netbox/dcim/forms/model_forms.py:489
 #: netbox/dcim/forms/object_create.py:197
 #: netbox/dcim/forms/object_create.py:353 netbox/dcim/tables/devices.py:165
@@ -3085,7 +3083,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:116 netbox/dcim/forms/bulk_import.py:99
 #: netbox/dcim/forms/model_forms.py:116 netbox/dcim/tables/sites.py:89
 #: netbox/ipam/filtersets.py:985 netbox/ipam/forms/bulk_edit.py:545
-#: netbox/ipam/forms/bulk_import.py:444 netbox/ipam/forms/model_forms.py:526
+#: netbox/ipam/forms/bulk_import.py:444 netbox/ipam/forms/model_forms.py:528
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:118
 #: netbox/ipam/tables/vlans.py:222 netbox/templates/dcim/interface.html:284
 #: netbox/templates/dcim/site.html:37
@@ -3141,9 +3139,9 @@ msgid "Time zone"
 msgstr "Časové pásmo"
 
 #: netbox/dcim/forms/bulk_edit.py:267 netbox/dcim/forms/bulk_edit.py:1160
-#: netbox/dcim/forms/bulk_edit.py:1548 netbox/dcim/forms/bulk_import.py:204
-#: netbox/dcim/forms/bulk_import.py:1015 netbox/dcim/forms/filtersets.py:301
-#: netbox/dcim/forms/filtersets.py:708 netbox/dcim/forms/filtersets.py:1438
+#: netbox/dcim/forms/bulk_edit.py:1553 netbox/dcim/forms/bulk_import.py:204
+#: netbox/dcim/forms/bulk_import.py:1015 netbox/dcim/forms/filtersets.py:305
+#: netbox/dcim/forms/filtersets.py:712 netbox/dcim/forms/filtersets.py:1442
 #: netbox/dcim/forms/model_forms.py:219 netbox/dcim/forms/model_forms.py:1018
 #: netbox/dcim/forms/model_forms.py:1457
 #: netbox/dcim/forms/object_import.py:181 netbox/dcim/tables/devices.py:169
@@ -3155,9 +3153,9 @@ msgstr "Časové pásmo"
 #: netbox/ipam/forms/bulk_import.py:261 netbox/ipam/forms/bulk_import.py:297
 #: netbox/ipam/forms/bulk_import.py:463 netbox/ipam/forms/filtersets.py:237
 #: netbox/ipam/forms/filtersets.py:289 netbox/ipam/forms/filtersets.py:360
-#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/forms/model_forms.py:186
-#: netbox/ipam/forms/model_forms.py:219 netbox/ipam/forms/model_forms.py:248
-#: netbox/ipam/forms/model_forms.py:689 netbox/ipam/tables/ip.py:258
+#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/forms/model_forms.py:188
+#: netbox/ipam/forms/model_forms.py:221 netbox/ipam/forms/model_forms.py:250
+#: netbox/ipam/forms/model_forms.py:640 netbox/ipam/tables/ip.py:258
 #: netbox/ipam/tables/ip.py:316 netbox/ipam/tables/ip.py:367
 #: netbox/ipam/tables/vlans.py:126 netbox/ipam/tables/vlans.py:231
 #: netbox/templates/dcim/device.html:182
@@ -3192,14 +3190,14 @@ msgstr "Role"
 msgid "Serial Number"
 msgstr "Sériové číslo"
 
-#: netbox/dcim/forms/bulk_edit.py:277 netbox/dcim/forms/filtersets.py:308
-#: netbox/dcim/forms/filtersets.py:744 netbox/dcim/forms/filtersets.py:898
-#: netbox/dcim/forms/filtersets.py:1450
+#: netbox/dcim/forms/bulk_edit.py:277 netbox/dcim/forms/filtersets.py:312
+#: netbox/dcim/forms/filtersets.py:748 netbox/dcim/forms/filtersets.py:902
+#: netbox/dcim/forms/filtersets.py:1454
 msgid "Asset tag"
 msgstr "Inventární číslo"
 
 #: netbox/dcim/forms/bulk_edit.py:287 netbox/dcim/forms/bulk_import.py:217
-#: netbox/dcim/forms/filtersets.py:293 netbox/templates/dcim/rack.html:86
+#: netbox/dcim/forms/filtersets.py:297 netbox/templates/dcim/rack.html:86
 msgid "Width"
 msgstr "Šířka"
 
@@ -3231,10 +3229,10 @@ msgstr "Hloubka montáže"
 #: netbox/dcim/forms/bulk_edit.py:436 netbox/dcim/forms/bulk_edit.py:459
 #: netbox/dcim/forms/bulk_edit.py:475 netbox/dcim/forms/bulk_edit.py:495
 #: netbox/dcim/forms/bulk_import.py:329 netbox/dcim/forms/bulk_import.py:355
-#: netbox/dcim/forms/filtersets.py:252 netbox/dcim/forms/filtersets.py:313
-#: netbox/dcim/forms/filtersets.py:337 netbox/dcim/forms/filtersets.py:424
-#: netbox/dcim/forms/filtersets.py:530 netbox/dcim/forms/filtersets.py:549
-#: netbox/dcim/forms/filtersets.py:605 netbox/dcim/forms/model_forms.py:232
+#: netbox/dcim/forms/filtersets.py:256 netbox/dcim/forms/filtersets.py:317
+#: netbox/dcim/forms/filtersets.py:341 netbox/dcim/forms/filtersets.py:428
+#: netbox/dcim/forms/filtersets.py:534 netbox/dcim/forms/filtersets.py:553
+#: netbox/dcim/forms/filtersets.py:609 netbox/dcim/forms/model_forms.py:232
 #: netbox/dcim/forms/model_forms.py:346 netbox/dcim/tables/devicetypes.py:107
 #: netbox/dcim/tables/modules.py:35 netbox/dcim/tables/racks.py:103
 #: netbox/extras/forms/bulk_edit.py:45 netbox/extras/forms/bulk_edit.py:108
@@ -3251,15 +3249,15 @@ msgstr "Hloubka montáže"
 msgid "Weight"
 msgstr "Hmotnost"
 
-#: netbox/dcim/forms/bulk_edit.py:326 netbox/dcim/forms/filtersets.py:318
+#: netbox/dcim/forms/bulk_edit.py:326 netbox/dcim/forms/filtersets.py:322
 msgid "Max weight"
 msgstr "Max. hmotnost"
 
 #: netbox/dcim/forms/bulk_edit.py:331 netbox/dcim/forms/bulk_edit.py:441
 #: netbox/dcim/forms/bulk_edit.py:480 netbox/dcim/forms/bulk_import.py:228
 #: netbox/dcim/forms/bulk_import.py:334 netbox/dcim/forms/bulk_import.py:360
-#: netbox/dcim/forms/filtersets.py:323 netbox/dcim/forms/filtersets.py:534
-#: netbox/dcim/forms/filtersets.py:609
+#: netbox/dcim/forms/filtersets.py:327 netbox/dcim/forms/filtersets.py:538
+#: netbox/dcim/forms/filtersets.py:613
 msgid "Weight unit"
 msgstr "Jednotka hmotnosti"
 
@@ -3267,15 +3265,15 @@ msgstr "Jednotka hmotnosti"
 #: netbox/dcim/forms/bulk_import.py:267 netbox/dcim/forms/bulk_import.py:270
 #: netbox/dcim/forms/bulk_import.py:492 netbox/dcim/forms/bulk_import.py:1297
 #: netbox/dcim/forms/bulk_import.py:1301 netbox/dcim/forms/filtersets.py:103
-#: netbox/dcim/forms/filtersets.py:341 netbox/dcim/forms/filtersets.py:355
-#: netbox/dcim/forms/filtersets.py:393 netbox/dcim/forms/filtersets.py:703
-#: netbox/dcim/forms/filtersets.py:966 netbox/dcim/forms/filtersets.py:1098
+#: netbox/dcim/forms/filtersets.py:345 netbox/dcim/forms/filtersets.py:359
+#: netbox/dcim/forms/filtersets.py:397 netbox/dcim/forms/filtersets.py:707
+#: netbox/dcim/forms/filtersets.py:970 netbox/dcim/forms/filtersets.py:1102
 #: netbox/dcim/forms/model_forms.py:226 netbox/dcim/forms/model_forms.py:248
 #: netbox/dcim/forms/model_forms.py:422 netbox/dcim/forms/model_forms.py:703
 #: netbox/dcim/forms/object_create.py:400 netbox/dcim/tables/devices.py:161
 #: netbox/dcim/tables/power.py:70 netbox/dcim/tables/racks.py:148
 #: netbox/ipam/forms/bulk_edit.py:479 netbox/ipam/forms/filtersets.py:442
-#: netbox/ipam/forms/model_forms.py:610 netbox/templates/dcim/device.html:30
+#: netbox/templates/dcim/device.html:30
 #: netbox/templates/dcim/inc/cable_termination.html:16
 #: netbox/templates/dcim/powerfeed.html:28 netbox/templates/dcim/rack.html:13
 #: netbox/templates/dcim/rack/base.html:4
@@ -3286,9 +3284,9 @@ msgid "Rack"
 msgstr "Stojan"
 
 #: netbox/dcim/forms/bulk_edit.py:349 netbox/dcim/forms/bulk_edit.py:628
-#: netbox/dcim/forms/filtersets.py:249 netbox/dcim/forms/filtersets.py:334
-#: netbox/dcim/forms/filtersets.py:417 netbox/dcim/forms/filtersets.py:544
-#: netbox/dcim/forms/filtersets.py:652 netbox/dcim/forms/filtersets.py:873
+#: netbox/dcim/forms/filtersets.py:253 netbox/dcim/forms/filtersets.py:338
+#: netbox/dcim/forms/filtersets.py:421 netbox/dcim/forms/filtersets.py:548
+#: netbox/dcim/forms/filtersets.py:656 netbox/dcim/forms/filtersets.py:877
 #: netbox/dcim/forms/model_forms.py:613 netbox/dcim/forms/model_forms.py:1527
 #: netbox/templates/dcim/device_edit.html:20
 msgid "Hardware"
@@ -3297,12 +3295,12 @@ msgstr "Hardware"
 #: netbox/dcim/forms/bulk_edit.py:402 netbox/dcim/forms/bulk_edit.py:466
 #: netbox/dcim/forms/bulk_edit.py:530 netbox/dcim/forms/bulk_edit.py:554
 #: netbox/dcim/forms/bulk_edit.py:638 netbox/dcim/forms/bulk_edit.py:1165
-#: netbox/dcim/forms/bulk_edit.py:1553 netbox/dcim/forms/bulk_import.py:316
+#: netbox/dcim/forms/bulk_edit.py:1558 netbox/dcim/forms/bulk_import.py:316
 #: netbox/dcim/forms/bulk_import.py:350 netbox/dcim/forms/bulk_import.py:389
 #: netbox/dcim/forms/bulk_import.py:425 netbox/dcim/forms/bulk_import.py:1021
-#: netbox/dcim/forms/filtersets.py:430 netbox/dcim/forms/filtersets.py:555
-#: netbox/dcim/forms/filtersets.py:631 netbox/dcim/forms/filtersets.py:713
-#: netbox/dcim/forms/filtersets.py:878 netbox/dcim/forms/filtersets.py:1443
+#: netbox/dcim/forms/filtersets.py:434 netbox/dcim/forms/filtersets.py:559
+#: netbox/dcim/forms/filtersets.py:635 netbox/dcim/forms/filtersets.py:717
+#: netbox/dcim/forms/filtersets.py:882 netbox/dcim/forms/filtersets.py:1447
 #: netbox/dcim/forms/model_forms.py:281 netbox/dcim/forms/model_forms.py:293
 #: netbox/dcim/forms/model_forms.py:339 netbox/dcim/forms/model_forms.py:379
 #: netbox/dcim/forms/model_forms.py:1023 netbox/dcim/forms/model_forms.py:1462
@@ -3320,12 +3318,12 @@ msgid "Manufacturer"
 msgstr "Výrobce"
 
 #: netbox/dcim/forms/bulk_edit.py:407 netbox/dcim/forms/bulk_import.py:322
-#: netbox/dcim/forms/filtersets.py:435 netbox/dcim/forms/model_forms.py:297
+#: netbox/dcim/forms/filtersets.py:439 netbox/dcim/forms/model_forms.py:297
 msgid "Default platform"
 msgstr "Výchozí platforma"
 
 #: netbox/dcim/forms/bulk_edit.py:412 netbox/dcim/forms/bulk_edit.py:471
-#: netbox/dcim/forms/filtersets.py:438 netbox/dcim/forms/filtersets.py:558
+#: netbox/dcim/forms/filtersets.py:442 netbox/dcim/forms/filtersets.py:562
 msgid "Part number"
 msgstr "Číslo dílu"
 
@@ -3338,8 +3336,8 @@ msgid "Exclude from utilization"
 msgstr "Vyloučit z využití"
 
 #: netbox/dcim/forms/bulk_edit.py:431 netbox/dcim/forms/bulk_edit.py:603
-#: netbox/dcim/forms/bulk_import.py:519 netbox/dcim/forms/filtersets.py:447
-#: netbox/dcim/forms/filtersets.py:735 netbox/templates/dcim/device.html:98
+#: netbox/dcim/forms/bulk_import.py:519 netbox/dcim/forms/filtersets.py:451
+#: netbox/dcim/forms/filtersets.py:739 netbox/templates/dcim/device.html:98
 #: netbox/templates/dcim/devicetype.html:65
 msgid "Airflow"
 msgstr "Proudění vzduchu"
@@ -3368,8 +3366,8 @@ msgstr "Role virtuálního počítače"
 #: netbox/dcim/forms/bulk_edit.py:618 netbox/dcim/forms/bulk_import.py:373
 #: netbox/dcim/forms/bulk_import.py:377 netbox/dcim/forms/bulk_import.py:396
 #: netbox/dcim/forms/bulk_import.py:400 netbox/dcim/forms/bulk_import.py:525
-#: netbox/dcim/forms/bulk_import.py:529 netbox/dcim/forms/filtersets.py:620
-#: netbox/dcim/forms/filtersets.py:636 netbox/dcim/forms/filtersets.py:754
+#: netbox/dcim/forms/bulk_import.py:529 netbox/dcim/forms/filtersets.py:624
+#: netbox/dcim/forms/filtersets.py:640 netbox/dcim/forms/filtersets.py:758
 #: netbox/dcim/forms/model_forms.py:358 netbox/dcim/forms/model_forms.py:384
 #: netbox/dcim/forms/model_forms.py:498
 #: netbox/virtualization/forms/bulk_import.py:132
@@ -3392,7 +3390,7 @@ msgid "Device role"
 msgstr "Role zařízení"
 
 #: netbox/dcim/forms/bulk_edit.py:593 netbox/dcim/forms/bulk_import.py:437
-#: netbox/dcim/forms/filtersets.py:727 netbox/dcim/forms/model_forms.py:394
+#: netbox/dcim/forms/filtersets.py:731 netbox/dcim/forms/model_forms.py:394
 #: netbox/dcim/forms/model_forms.py:456 netbox/dcim/tables/devices.py:182
 #: netbox/extras/filtersets.py:515 netbox/templates/dcim/device.html:186
 #: netbox/templates/dcim/platform.html:26
@@ -3406,7 +3404,7 @@ msgid "Platform"
 msgstr "Nástupiště"
 
 #: netbox/dcim/forms/bulk_edit.py:626 netbox/dcim/forms/bulk_edit.py:1179
-#: netbox/dcim/forms/bulk_edit.py:1543 netbox/dcim/forms/bulk_edit.py:1589
+#: netbox/dcim/forms/bulk_edit.py:1548 netbox/dcim/forms/bulk_edit.py:1594
 #: netbox/dcim/forms/bulk_import.py:580 netbox/dcim/forms/bulk_import.py:642
 #: netbox/dcim/forms/bulk_import.py:668 netbox/dcim/forms/bulk_import.py:694
 #: netbox/dcim/forms/bulk_import.py:714 netbox/dcim/forms/bulk_import.py:767
@@ -3414,14 +3412,14 @@ msgstr "Nástupiště"
 #: netbox/dcim/forms/bulk_import.py:950 netbox/dcim/forms/bulk_import.py:962
 #: netbox/dcim/forms/bulk_import.py:1010 netbox/dcim/forms/bulk_import.py:1361
 #: netbox/dcim/forms/connections.py:24 netbox/dcim/forms/filtersets.py:130
-#: netbox/dcim/forms/filtersets.py:852 netbox/dcim/forms/filtersets.py:982
-#: netbox/dcim/forms/filtersets.py:1172 netbox/dcim/forms/filtersets.py:1194
-#: netbox/dcim/forms/filtersets.py:1216 netbox/dcim/forms/filtersets.py:1233
-#: netbox/dcim/forms/filtersets.py:1253 netbox/dcim/forms/filtersets.py:1361
-#: netbox/dcim/forms/filtersets.py:1383 netbox/dcim/forms/filtersets.py:1404
-#: netbox/dcim/forms/filtersets.py:1419 netbox/dcim/forms/filtersets.py:1433
-#: netbox/dcim/forms/filtersets.py:1496 netbox/dcim/forms/filtersets.py:1520
-#: netbox/dcim/forms/filtersets.py:1544 netbox/dcim/forms/model_forms.py:576
+#: netbox/dcim/forms/filtersets.py:856 netbox/dcim/forms/filtersets.py:986
+#: netbox/dcim/forms/filtersets.py:1176 netbox/dcim/forms/filtersets.py:1198
+#: netbox/dcim/forms/filtersets.py:1220 netbox/dcim/forms/filtersets.py:1237
+#: netbox/dcim/forms/filtersets.py:1257 netbox/dcim/forms/filtersets.py:1365
+#: netbox/dcim/forms/filtersets.py:1387 netbox/dcim/forms/filtersets.py:1408
+#: netbox/dcim/forms/filtersets.py:1423 netbox/dcim/forms/filtersets.py:1437
+#: netbox/dcim/forms/filtersets.py:1500 netbox/dcim/forms/filtersets.py:1524
+#: netbox/dcim/forms/filtersets.py:1548 netbox/dcim/forms/model_forms.py:576
 #: netbox/dcim/forms/model_forms.py:797 netbox/dcim/forms/model_forms.py:1156
 #: netbox/dcim/forms/model_forms.py:1611
 #: netbox/dcim/forms/object_create.py:257 netbox/dcim/tables/connections.py:22
@@ -3434,9 +3432,9 @@ msgstr "Nástupiště"
 #: netbox/dcim/tables/devices.py:901 netbox/dcim/tables/devices.py:1028
 #: netbox/dcim/tables/modules.py:52 netbox/extras/forms/filtersets.py:330
 #: netbox/ipam/forms/bulk_import.py:303 netbox/ipam/forms/bulk_import.py:489
-#: netbox/ipam/forms/filtersets.py:558 netbox/ipam/forms/model_forms.py:317
-#: netbox/ipam/forms/model_forms.py:725 netbox/ipam/forms/model_forms.py:758
-#: netbox/ipam/forms/model_forms.py:784 netbox/ipam/tables/vlans.py:176
+#: netbox/ipam/forms/filtersets.py:558 netbox/ipam/forms/model_forms.py:319
+#: netbox/ipam/forms/model_forms.py:676 netbox/ipam/forms/model_forms.py:709
+#: netbox/ipam/forms/model_forms.py:735 netbox/ipam/tables/vlans.py:176
 #: netbox/templates/dcim/consoleport.html:20
 #: netbox/templates/dcim/consoleserverport.html:20
 #: netbox/templates/dcim/device.html:15 netbox/templates/dcim/device.html:130
@@ -3507,13 +3505,13 @@ msgstr "Typ modulu"
 msgid "Label"
 msgstr "Štítek"
 
-#: netbox/dcim/forms/bulk_edit.py:706 netbox/dcim/forms/filtersets.py:999
+#: netbox/dcim/forms/bulk_edit.py:706 netbox/dcim/forms/filtersets.py:1003
 #: netbox/templates/dcim/cable.html:50
 msgid "Length"
 msgstr "Délka"
 
 #: netbox/dcim/forms/bulk_edit.py:711 netbox/dcim/forms/bulk_import.py:1165
-#: netbox/dcim/forms/bulk_import.py:1168 netbox/dcim/forms/filtersets.py:1003
+#: netbox/dcim/forms/bulk_import.py:1168 netbox/dcim/forms/filtersets.py:1007
 msgid "Length unit"
 msgstr "Jednotka délky"
 
@@ -3523,33 +3521,33 @@ msgid "Domain"
 msgstr "Doména"
 
 #: netbox/dcim/forms/bulk_edit.py:803 netbox/dcim/forms/bulk_import.py:1284
-#: netbox/dcim/forms/filtersets.py:1089 netbox/dcim/forms/model_forms.py:698
+#: netbox/dcim/forms/filtersets.py:1093 netbox/dcim/forms/model_forms.py:698
 msgid "Power panel"
 msgstr "Napájecí panel"
 
 #: netbox/dcim/forms/bulk_edit.py:825 netbox/dcim/forms/bulk_import.py:1320
-#: netbox/dcim/forms/filtersets.py:1111
+#: netbox/dcim/forms/filtersets.py:1115
 #: netbox/templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "Zdroj"
 
 #: netbox/dcim/forms/bulk_edit.py:831 netbox/dcim/forms/bulk_import.py:1325
-#: netbox/dcim/forms/filtersets.py:1116
+#: netbox/dcim/forms/filtersets.py:1120
 #: netbox/templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "Fáze"
 
-#: netbox/dcim/forms/bulk_edit.py:837 netbox/dcim/forms/filtersets.py:1121
+#: netbox/dcim/forms/bulk_edit.py:837 netbox/dcim/forms/filtersets.py:1125
 #: netbox/templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "Napětí"
 
-#: netbox/dcim/forms/bulk_edit.py:841 netbox/dcim/forms/filtersets.py:1125
+#: netbox/dcim/forms/bulk_edit.py:841 netbox/dcim/forms/filtersets.py:1129
 #: netbox/templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "Proud"
 
-#: netbox/dcim/forms/bulk_edit.py:845 netbox/dcim/forms/filtersets.py:1129
+#: netbox/dcim/forms/bulk_edit.py:845 netbox/dcim/forms/filtersets.py:1133
 msgid "Max utilization"
 msgstr "Maximální využití"
 
@@ -3583,27 +3581,27 @@ msgstr "Napájecí port"
 msgid "Feed leg"
 msgstr "Napájecí větev"
 
-#: netbox/dcim/forms/bulk_edit.py:1027 netbox/dcim/forms/bulk_edit.py:1333
+#: netbox/dcim/forms/bulk_edit.py:1027 netbox/dcim/forms/bulk_edit.py:1338
 msgid "Management only"
 msgstr "Pouze správa"
 
-#: netbox/dcim/forms/bulk_edit.py:1037 netbox/dcim/forms/bulk_edit.py:1339
-#: netbox/dcim/forms/bulk_import.py:815 netbox/dcim/forms/filtersets.py:1312
+#: netbox/dcim/forms/bulk_edit.py:1037 netbox/dcim/forms/bulk_edit.py:1344
+#: netbox/dcim/forms/bulk_import.py:815 netbox/dcim/forms/filtersets.py:1316
 #: netbox/dcim/forms/object_import.py:90
 #: netbox/dcim/models/device_component_templates.py:411
 #: netbox/dcim/models/device_components.py:671
 msgid "PoE mode"
 msgstr "Režim PoE"
 
-#: netbox/dcim/forms/bulk_edit.py:1043 netbox/dcim/forms/bulk_edit.py:1345
-#: netbox/dcim/forms/bulk_import.py:821 netbox/dcim/forms/filtersets.py:1317
+#: netbox/dcim/forms/bulk_edit.py:1043 netbox/dcim/forms/bulk_edit.py:1350
+#: netbox/dcim/forms/bulk_import.py:821 netbox/dcim/forms/filtersets.py:1321
 #: netbox/dcim/forms/object_import.py:95
 #: netbox/dcim/models/device_component_templates.py:417
 #: netbox/dcim/models/device_components.py:677
 msgid "PoE type"
 msgstr "Typ PoE"
 
-#: netbox/dcim/forms/bulk_edit.py:1049 netbox/dcim/forms/filtersets.py:1322
+#: netbox/dcim/forms/bulk_edit.py:1049 netbox/dcim/forms/filtersets.py:1326
 #: netbox/dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "Bezdrátová role"
@@ -3622,18 +3620,18 @@ msgstr "Bezdrátová role"
 msgid "Module"
 msgstr "Modul"
 
-#: netbox/dcim/forms/bulk_edit.py:1313 netbox/dcim/tables/devices.py:654
+#: netbox/dcim/forms/bulk_edit.py:1318 netbox/dcim/tables/devices.py:654
 #: netbox/templates/dcim/interface.html:110
 msgid "LAG"
 msgstr "Agregační skupina"
 
-#: netbox/dcim/forms/bulk_edit.py:1318 netbox/dcim/forms/model_forms.py:1253
+#: netbox/dcim/forms/bulk_edit.py:1323 netbox/dcim/forms/model_forms.py:1253
 msgid "Virtual device contexts"
 msgstr "Kontexty virtuálních zařízení"
 
-#: netbox/dcim/forms/bulk_edit.py:1324 netbox/dcim/forms/bulk_import.py:653
-#: netbox/dcim/forms/bulk_import.py:679 netbox/dcim/forms/filtersets.py:1181
-#: netbox/dcim/forms/filtersets.py:1203 netbox/dcim/forms/filtersets.py:1276
+#: netbox/dcim/forms/bulk_edit.py:1329 netbox/dcim/forms/bulk_import.py:653
+#: netbox/dcim/forms/bulk_import.py:679 netbox/dcim/forms/filtersets.py:1185
+#: netbox/dcim/forms/filtersets.py:1207 netbox/dcim/forms/filtersets.py:1280
 #: netbox/dcim/tables/devices.py:599
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:67
 #: netbox/templates/dcim/consoleport.html:40
@@ -3641,7 +3639,7 @@ msgstr "Kontexty virtuálních zařízení"
 msgid "Speed"
 msgstr "Rychlost"
 
-#: netbox/dcim/forms/bulk_edit.py:1353 netbox/dcim/forms/bulk_import.py:824
+#: netbox/dcim/forms/bulk_edit.py:1358 netbox/dcim/forms/bulk_import.py:824
 #: netbox/templates/vpn/ikepolicy.html:25
 #: netbox/templates/vpn/ipsecprofile.html:21
 #: netbox/templates/vpn/ipsecprofile.html:48
@@ -3655,39 +3653,39 @@ msgstr "Rychlost"
 msgid "Mode"
 msgstr "Režim"
 
-#: netbox/dcim/forms/bulk_edit.py:1361 netbox/dcim/forms/model_forms.py:1302
+#: netbox/dcim/forms/bulk_edit.py:1366 netbox/dcim/forms/model_forms.py:1302
 #: netbox/ipam/forms/bulk_import.py:177 netbox/ipam/forms/filtersets.py:505
 #: netbox/ipam/models/vlans.py:84 netbox/virtualization/forms/bulk_edit.py:240
 #: netbox/virtualization/forms/model_forms.py:321
 msgid "VLAN group"
 msgstr "Skupina VLAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1369 netbox/dcim/forms/model_forms.py:1307
+#: netbox/dcim/forms/bulk_edit.py:1374 netbox/dcim/forms/model_forms.py:1307
 #: netbox/dcim/tables/devices.py:571
 #: netbox/virtualization/forms/bulk_edit.py:248
 #: netbox/virtualization/forms/model_forms.py:326
 msgid "Untagged VLAN"
 msgstr "Neznačené VLAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1377 netbox/dcim/forms/model_forms.py:1316
+#: netbox/dcim/forms/bulk_edit.py:1382 netbox/dcim/forms/model_forms.py:1316
 #: netbox/dcim/tables/devices.py:577
 #: netbox/virtualization/forms/bulk_edit.py:256
 #: netbox/virtualization/forms/model_forms.py:335
 msgid "Tagged VLANs"
 msgstr "Označené VLAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1387 netbox/dcim/forms/model_forms.py:1289
+#: netbox/dcim/forms/bulk_edit.py:1392 netbox/dcim/forms/model_forms.py:1289
 msgid "Wireless LAN group"
 msgstr "Skupina bezdrátových sítí"
 
-#: netbox/dcim/forms/bulk_edit.py:1392 netbox/dcim/forms/model_forms.py:1294
+#: netbox/dcim/forms/bulk_edit.py:1397 netbox/dcim/forms/model_forms.py:1294
 #: netbox/dcim/tables/devices.py:608 netbox/netbox/navigation/menu.py:133
 #: netbox/templates/dcim/interface.html:280
 #: netbox/wireless/tables/wirelesslan.py:24
 msgid "Wireless LANs"
 msgstr "Bezdrátové LAN sítě"
 
-#: netbox/dcim/forms/bulk_edit.py:1401 netbox/dcim/forms/filtersets.py:1249
+#: netbox/dcim/forms/bulk_edit.py:1406 netbox/dcim/forms/filtersets.py:1253
 #: netbox/dcim/forms/model_forms.py:1337 netbox/ipam/forms/bulk_edit.py:284
 #: netbox/ipam/forms/bulk_edit.py:376 netbox/ipam/forms/filtersets.py:169
 #: netbox/templates/dcim/interface.html:122
@@ -3696,35 +3694,35 @@ msgstr "Bezdrátové LAN sítě"
 msgid "Addressing"
 msgstr "Adresování"
 
-#: netbox/dcim/forms/bulk_edit.py:1402 netbox/dcim/forms/filtersets.py:651
+#: netbox/dcim/forms/bulk_edit.py:1407 netbox/dcim/forms/filtersets.py:655
 #: netbox/dcim/forms/model_forms.py:1338
 #: netbox/virtualization/forms/model_forms.py:350
 msgid "Operation"
 msgstr "Operace"
 
-#: netbox/dcim/forms/bulk_edit.py:1403 netbox/dcim/forms/filtersets.py:1250
+#: netbox/dcim/forms/bulk_edit.py:1408 netbox/dcim/forms/filtersets.py:1254
 #: netbox/dcim/forms/model_forms.py:935 netbox/dcim/forms/model_forms.py:1340
 msgid "PoE"
 msgstr "PoE"
 
-#: netbox/dcim/forms/bulk_edit.py:1404 netbox/dcim/forms/model_forms.py:1339
+#: netbox/dcim/forms/bulk_edit.py:1409 netbox/dcim/forms/model_forms.py:1339
 #: netbox/templates/dcim/interface.html:99
 #: netbox/virtualization/forms/bulk_edit.py:267
 #: netbox/virtualization/forms/model_forms.py:351
 msgid "Related Interfaces"
 msgstr "Související rozhraní"
 
-#: netbox/dcim/forms/bulk_edit.py:1405 netbox/dcim/forms/model_forms.py:1341
+#: netbox/dcim/forms/bulk_edit.py:1410 netbox/dcim/forms/model_forms.py:1341
 #: netbox/virtualization/forms/bulk_edit.py:268
 #: netbox/virtualization/forms/model_forms.py:352
 msgid "802.1Q Switching"
 msgstr "Přepínání 802.1Q"
 
-#: netbox/dcim/forms/bulk_edit.py:1467 netbox/dcim/forms/bulk_edit.py:1469
+#: netbox/dcim/forms/bulk_edit.py:1472 netbox/dcim/forms/bulk_edit.py:1474
 msgid "Interface mode must be specified to assign VLANs"
 msgstr "Pro přiřazení sítí VLAN musí být zadán režim rozhraní"
 
-#: netbox/dcim/forms/bulk_edit.py:1474 netbox/dcim/forms/common.py:50
+#: netbox/dcim/forms/bulk_edit.py:1479 netbox/dcim/forms/common.py:50
 msgid "An access interface cannot have tagged VLANs assigned."
 msgstr "Přístupovému rozhraní nelze přiřadit označené sítě VLAN."
 
@@ -3860,12 +3858,12 @@ msgstr "Přiřazená platforma"
 msgid "Virtual chassis"
 msgstr "Virtuální podvozek"
 
-#: netbox/dcim/forms/bulk_import.py:456 netbox/dcim/forms/filtersets.py:659
-#: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/model_forms.py:465
+#: netbox/dcim/forms/bulk_import.py:456 netbox/dcim/forms/filtersets.py:663
+#: netbox/dcim/forms/filtersets.py:833 netbox/dcim/forms/model_forms.py:465
 #: netbox/dcim/tables/devices.py:202 netbox/extras/filtersets.py:548
 #: netbox/extras/forms/filtersets.py:331 netbox/ipam/forms/bulk_edit.py:493
 #: netbox/ipam/forms/filtersets.py:415 netbox/ipam/forms/filtersets.py:459
-#: netbox/ipam/forms/model_forms.py:627 netbox/templates/dcim/device.html:239
+#: netbox/templates/dcim/device.html:239
 #: netbox/templates/virtualization/cluster.html:10
 #: netbox/templates/virtualization/virtualmachine.html:88
 #: netbox/templates/virtualization/virtualmachine.html:97
@@ -4009,7 +4007,7 @@ msgstr "Názvy VDC oddělené čárkami, uzavřené dvojitými uvozovkami. Pří
 msgid "Physical medium"
 msgstr "Fyzické médium"
 
-#: netbox/dcim/forms/bulk_import.py:807 netbox/dcim/forms/filtersets.py:1283
+#: netbox/dcim/forms/bulk_import.py:807 netbox/dcim/forms/filtersets.py:1287
 msgid "Duplex"
 msgstr "Dvoupodlažní"
 
@@ -4246,58 +4244,62 @@ msgstr "Nadřazená oblast"
 msgid "Parent group"
 msgstr "Rodičovská skupina"
 
-#: netbox/dcim/forms/filtersets.py:248 netbox/dcim/forms/filtersets.py:333
+#: netbox/dcim/forms/filtersets.py:236 netbox/templates/dcim/location.html:58
+#: netbox/templates/dcim/site.html:56
+msgid "Facility"
+msgstr "Zařízení"
+
+#: netbox/dcim/forms/filtersets.py:252 netbox/dcim/forms/filtersets.py:337
 msgid "Function"
 msgstr "Funkce"
 
-#: netbox/dcim/forms/filtersets.py:419 netbox/dcim/forms/model_forms.py:317
+#: netbox/dcim/forms/filtersets.py:423 netbox/dcim/forms/model_forms.py:317
 #: netbox/templates/inc/panels/image_attachments.html:6
 msgid "Images"
 msgstr "Obrázky"
 
-#: netbox/dcim/forms/filtersets.py:422 netbox/dcim/forms/filtersets.py:547
-#: netbox/dcim/forms/filtersets.py:657
+#: netbox/dcim/forms/filtersets.py:426 netbox/dcim/forms/filtersets.py:551
+#: netbox/dcim/forms/filtersets.py:661
 msgid "Components"
 msgstr "Komponenty"
 
-#: netbox/dcim/forms/filtersets.py:442
+#: netbox/dcim/forms/filtersets.py:446
 msgid "Subdevice role"
 msgstr "Role dílčího zařízení"
 
-#: netbox/dcim/forms/filtersets.py:721
+#: netbox/dcim/forms/filtersets.py:725
 msgid "Model"
 msgstr "Model"
 
-#: netbox/dcim/forms/filtersets.py:765
+#: netbox/dcim/forms/filtersets.py:769
 msgid "Has an OOB IP"
 msgstr "Má IP OOB"
 
-#: netbox/dcim/forms/filtersets.py:772
+#: netbox/dcim/forms/filtersets.py:776
 msgid "Virtual chassis member"
 msgstr "Člen virtuálního šasi"
 
-#: netbox/dcim/forms/filtersets.py:821
+#: netbox/dcim/forms/filtersets.py:825
 msgid "Has virtual device contexts"
 msgstr "Má kontexty virtuálních zařízení"
 
-#: netbox/dcim/forms/filtersets.py:834 netbox/extras/filtersets.py:537
+#: netbox/dcim/forms/filtersets.py:838 netbox/extras/filtersets.py:537
 #: netbox/ipam/forms/bulk_edit.py:490 netbox/ipam/forms/filtersets.py:464
-#: netbox/ipam/forms/model_forms.py:624
 #: netbox/virtualization/forms/filtersets.py:112
 msgid "Cluster group"
 msgstr "Skupina klastru"
 
-#: netbox/dcim/forms/filtersets.py:1141
+#: netbox/dcim/forms/filtersets.py:1145
 msgid "Cabled"
 msgstr "Kabelový"
 
-#: netbox/dcim/forms/filtersets.py:1148
+#: netbox/dcim/forms/filtersets.py:1152
 msgid "Occupied"
 msgstr "Obsazeno"
 
-#: netbox/dcim/forms/filtersets.py:1173 netbox/dcim/forms/filtersets.py:1195
-#: netbox/dcim/forms/filtersets.py:1217 netbox/dcim/forms/filtersets.py:1234
-#: netbox/dcim/forms/filtersets.py:1254 netbox/dcim/tables/devices.py:356
+#: netbox/dcim/forms/filtersets.py:1177 netbox/dcim/forms/filtersets.py:1199
+#: netbox/dcim/forms/filtersets.py:1221 netbox/dcim/forms/filtersets.py:1238
+#: netbox/dcim/forms/filtersets.py:1258 netbox/dcim/tables/devices.py:356
 #: netbox/templates/dcim/consoleport.html:55
 #: netbox/templates/dcim/consoleserverport.html:55
 #: netbox/templates/dcim/frontport.html:69
@@ -4309,7 +4311,7 @@ msgstr "Obsazeno"
 msgid "Connection"
 msgstr "Připojení"
 
-#: netbox/dcim/forms/filtersets.py:1266 netbox/extras/forms/bulk_edit.py:316
+#: netbox/dcim/forms/filtersets.py:1270 netbox/extras/forms/bulk_edit.py:316
 #: netbox/extras/forms/bulk_import.py:239
 #: netbox/extras/forms/filtersets.py:473
 #: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:519
@@ -4317,34 +4319,34 @@ msgstr "Připojení"
 msgid "Kind"
 msgstr "Druh"
 
-#: netbox/dcim/forms/filtersets.py:1295
+#: netbox/dcim/forms/filtersets.py:1299
 msgid "Mgmt only"
 msgstr "Pouze správa"
 
-#: netbox/dcim/forms/filtersets.py:1307 netbox/dcim/forms/model_forms.py:1330
+#: netbox/dcim/forms/filtersets.py:1311 netbox/dcim/forms/model_forms.py:1330
 #: netbox/dcim/models/device_components.py:630
 #: netbox/templates/dcim/interface.html:129
 msgid "WWN"
 msgstr "WWN"
 
-#: netbox/dcim/forms/filtersets.py:1327
+#: netbox/dcim/forms/filtersets.py:1331
 msgid "Wireless channel"
 msgstr "Bezdrátový kanál"
 
-#: netbox/dcim/forms/filtersets.py:1331
+#: netbox/dcim/forms/filtersets.py:1335
 msgid "Channel frequency (MHz)"
 msgstr "Frekvence kanálu (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1335
+#: netbox/dcim/forms/filtersets.py:1339
 msgid "Channel width (MHz)"
 msgstr "Šířka kanálu (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1339
+#: netbox/dcim/forms/filtersets.py:1343
 #: netbox/templates/dcim/interface.html:85
 msgid "Transmit power (dBm)"
 msgstr "Vysílací výkon (dBm)"
 
-#: netbox/dcim/forms/filtersets.py:1362 netbox/dcim/forms/filtersets.py:1384
+#: netbox/dcim/forms/filtersets.py:1366 netbox/dcim/forms/filtersets.py:1388
 #: netbox/dcim/tables/devices.py:319 netbox/templates/dcim/cable.html:12
 #: netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/frontport.html:77
@@ -4355,7 +4357,7 @@ msgstr "Vysílací výkon (dBm)"
 msgid "Cable"
 msgstr "Kabel"
 
-#: netbox/dcim/forms/filtersets.py:1454 netbox/dcim/tables/devices.py:920
+#: netbox/dcim/forms/filtersets.py:1458 netbox/dcim/tables/devices.py:920
 msgid "Discovered"
 msgstr "objeveno"
 
@@ -4476,7 +4478,7 @@ msgstr "Šablona zadního portu"
 #: netbox/dcim/forms/model_forms.py:1092 netbox/dcim/forms/model_forms.py:1335
 #: netbox/dcim/forms/model_forms.py:1498 netbox/dcim/forms/model_forms.py:1530
 #: netbox/dcim/tables/connections.py:65 netbox/ipam/forms/bulk_import.py:317
-#: netbox/ipam/forms/model_forms.py:278 netbox/ipam/forms/model_forms.py:287
+#: netbox/ipam/forms/model_forms.py:280 netbox/ipam/forms/model_forms.py:289
 #: netbox/ipam/tables/fhrp.py:64 netbox/ipam/tables/ip.py:372
 #: netbox/ipam/tables/vlans.py:165
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:51
@@ -6191,9 +6193,10 @@ msgid "Reachable"
 msgstr "Dosažitelný"
 
 #: netbox/dcim/tables/devices.py:58 netbox/dcim/tables/devices.py:106
-#: netbox/dcim/tables/racks.py:81 netbox/dcim/tables/sites.py:143
-#: netbox/extras/tables/tables.py:442 netbox/netbox/navigation/menu.py:56
-#: netbox/netbox/navigation/menu.py:60 netbox/netbox/navigation/menu.py:62
+#: netbox/dcim/tables/racks.py:81 netbox/dcim/tables/sites.py:105
+#: netbox/dcim/tables/sites.py:148 netbox/extras/tables/tables.py:442
+#: netbox/netbox/navigation/menu.py:56 netbox/netbox/navigation/menu.py:60
+#: netbox/netbox/navigation/menu.py:62
 #: netbox/virtualization/forms/model_forms.py:122
 #: netbox/virtualization/tables/clusters.py:83
 #: netbox/virtualization/views.py:205
@@ -6225,8 +6228,8 @@ msgid "Site Group"
 msgstr "Skupina stránek"
 
 #: netbox/dcim/tables/devices.py:187 netbox/dcim/tables/devices.py:1039
-#: netbox/ipam/forms/bulk_import.py:511 netbox/ipam/forms/model_forms.py:304
-#: netbox/ipam/forms/model_forms.py:313 netbox/ipam/tables/ip.py:356
+#: netbox/ipam/forms/bulk_import.py:511 netbox/ipam/forms/model_forms.py:306
+#: netbox/ipam/forms/model_forms.py:315 netbox/ipam/tables/ip.py:356
 #: netbox/ipam/tables/ip.py:423 netbox/ipam/tables/ip.py:446
 #: netbox/templates/ipam/ipaddress.html:11
 #: netbox/virtualization/tables/virtualmachines.py:94
@@ -6277,8 +6280,8 @@ msgid "Power outlets"
 msgstr "Elektrické zásuvky"
 
 #: netbox/dcim/tables/devices.py:246 netbox/dcim/tables/devices.py:1052
-#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:988
-#: netbox/dcim/views.py:1227 netbox/dcim/views.py:1908
+#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:990
+#: netbox/dcim/views.py:1229 netbox/dcim/views.py:1910
 #: netbox/netbox/navigation/menu.py:81 netbox/netbox/navigation/menu.py:237
 #: netbox/templates/dcim/device/base.html:37
 #: netbox/templates/dcim/device_list.html:43
@@ -6316,8 +6319,8 @@ msgid "Module Bay"
 msgstr "Modulová přihrádka"
 
 #: netbox/dcim/tables/devices.py:313 netbox/dcim/tables/devicetypes.py:48
-#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1063
-#: netbox/dcim/views.py:2006 netbox/netbox/navigation/menu.py:90
+#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1065
+#: netbox/dcim/views.py:2008 netbox/netbox/navigation/menu.py:90
 #: netbox/templates/dcim/device/base.html:52
 #: netbox/templates/dcim/device_list.html:71
 #: netbox/templates/dcim/devicetype/base.html:49
@@ -6346,7 +6349,7 @@ msgstr "Maximální tažení (W)"
 msgid "Allocated draw (W)"
 msgstr "Přidělené losování (W)"
 
-#: netbox/dcim/tables/devices.py:550 netbox/ipam/forms/model_forms.py:747
+#: netbox/dcim/tables/devices.py:550 netbox/ipam/forms/model_forms.py:698
 #: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:596
 #: netbox/ipam/views.py:696 netbox/netbox/navigation/menu.py:145
 #: netbox/netbox/navigation/menu.py:147
@@ -6441,8 +6444,8 @@ msgstr "Výška U"
 msgid "Instances"
 msgstr "Instance"
 
-#: netbox/dcim/tables/devicetypes.py:117 netbox/dcim/views.py:928
-#: netbox/dcim/views.py:1167 netbox/dcim/views.py:1844
+#: netbox/dcim/tables/devicetypes.py:117 netbox/dcim/views.py:930
+#: netbox/dcim/views.py:1169 netbox/dcim/views.py:1846
 #: netbox/netbox/navigation/menu.py:84
 #: netbox/templates/dcim/device/base.html:25
 #: netbox/templates/dcim/device_list.html:15
@@ -6452,8 +6455,8 @@ msgstr "Instance"
 msgid "Console Ports"
 msgstr "Porty konzoly"
 
-#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:943
-#: netbox/dcim/views.py:1182 netbox/dcim/views.py:1860
+#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:945
+#: netbox/dcim/views.py:1184 netbox/dcim/views.py:1862
 #: netbox/netbox/navigation/menu.py:85
 #: netbox/templates/dcim/device/base.html:28
 #: netbox/templates/dcim/device_list.html:22
@@ -6463,8 +6466,8 @@ msgstr "Porty konzoly"
 msgid "Console Server Ports"
 msgstr "Porty konzolového serveru"
 
-#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:958
-#: netbox/dcim/views.py:1197 netbox/dcim/views.py:1876
+#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:960
+#: netbox/dcim/views.py:1199 netbox/dcim/views.py:1878
 #: netbox/netbox/navigation/menu.py:86
 #: netbox/templates/dcim/device/base.html:31
 #: netbox/templates/dcim/device_list.html:29
@@ -6474,8 +6477,8 @@ msgstr "Porty konzolového serveru"
 msgid "Power Ports"
 msgstr "Napájecí porty"
 
-#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:973
-#: netbox/dcim/views.py:1212 netbox/dcim/views.py:1892
+#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:975
+#: netbox/dcim/views.py:1214 netbox/dcim/views.py:1894
 #: netbox/netbox/navigation/menu.py:87
 #: netbox/templates/dcim/device/base.html:34
 #: netbox/templates/dcim/device_list.html:36
@@ -6485,8 +6488,8 @@ msgstr "Napájecí porty"
 msgid "Power Outlets"
 msgstr "Napájecí zásuvky"
 
-#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1003
-#: netbox/dcim/views.py:1242 netbox/dcim/views.py:1930
+#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1005
+#: netbox/dcim/views.py:1244 netbox/dcim/views.py:1932
 #: netbox/netbox/navigation/menu.py:82
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -6495,8 +6498,8 @@ msgstr "Napájecí zásuvky"
 msgid "Front Ports"
 msgstr "Přední porty"
 
-#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1018
-#: netbox/dcim/views.py:1257 netbox/dcim/views.py:1946
+#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1020
+#: netbox/dcim/views.py:1259 netbox/dcim/views.py:1948
 #: netbox/netbox/navigation/menu.py:83
 #: netbox/templates/dcim/device/base.html:43
 #: netbox/templates/dcim/device_list.html:50
@@ -6506,16 +6509,16 @@ msgstr "Přední porty"
 msgid "Rear Ports"
 msgstr "Zadní porty"
 
-#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1048
-#: netbox/dcim/views.py:1986 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1050
+#: netbox/dcim/views.py:1988 netbox/netbox/navigation/menu.py:89
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/device_list.html:57
 #: netbox/templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
 msgstr "Pozice pro zařízení"
 
-#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1033
-#: netbox/dcim/views.py:1966 netbox/netbox/navigation/menu.py:88
+#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1035
+#: netbox/dcim/views.py:1968 netbox/netbox/navigation/menu.py:88
 #: netbox/templates/dcim/device/base.html:46
 #: netbox/templates/dcim/device_list.html:64
 #: netbox/templates/dcim/devicetype/base.html:43
@@ -6535,7 +6538,7 @@ msgstr "Maximální využití"
 msgid "Available Power (VA)"
 msgstr "Dostupný výkon (VA)"
 
-#: netbox/dcim/tables/racks.py:29 netbox/dcim/tables/sites.py:138
+#: netbox/dcim/tables/racks.py:29 netbox/dcim/tables/sites.py:143
 #: netbox/netbox/navigation/menu.py:24 netbox/netbox/navigation/menu.py:26
 msgid "Racks"
 msgstr "Stojany"
@@ -6564,7 +6567,7 @@ msgstr "Max. hmotnost"
 #: netbox/dcim/tables/sites.py:30 netbox/dcim/tables/sites.py:57
 #: netbox/extras/forms/filtersets.py:360
 #: netbox/extras/forms/model_forms.py:393 netbox/ipam/forms/bulk_edit.py:129
-#: netbox/ipam/forms/model_forms.py:151 netbox/ipam/tables/asn.py:66
+#: netbox/ipam/forms/model_forms.py:153 netbox/ipam/tables/asn.py:66
 #: netbox/netbox/navigation/menu.py:15 netbox/netbox/navigation/menu.py:17
 msgid "Sites"
 msgstr "Stránky"
@@ -6578,61 +6581,62 @@ msgstr "Testovací případ musí nastavit peer_termination_type"
 msgid "Disconnected {count} {type}"
 msgstr "Odpojeno {count} {type}"
 
-#: netbox/dcim/views.py:686 netbox/netbox/navigation/menu.py:28
+#: netbox/dcim/views.py:688 netbox/netbox/navigation/menu.py:28
 msgid "Reservations"
 msgstr "Rezervace"
 
-#: netbox/dcim/views.py:705 netbox/templates/dcim/location.html:90
+#: netbox/dcim/views.py:707 netbox/templates/dcim/location.html:90
 #: netbox/templates/dcim/site.html:140
 msgid "Non-Racked Devices"
 msgstr "Zařízení bez racku"
 
-#: netbox/dcim/views.py:2019 netbox/extras/forms/model_forms.py:453
+#: netbox/dcim/views.py:2021 netbox/extras/forms/model_forms.py:453
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:225
 #: netbox/virtualization/views.py:406
 msgid "Config Context"
 msgstr "Kontext konfigurace"
 
-#: netbox/dcim/views.py:2029 netbox/virtualization/views.py:416
+#: netbox/dcim/views.py:2031 netbox/virtualization/views.py:416
 msgid "Render Config"
 msgstr "Konfigurace rendrování"
 
-#: netbox/dcim/views.py:2062 netbox/virtualization/views.py:449
+#: netbox/dcim/views.py:2064 netbox/virtualization/views.py:449
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
 msgstr "Při vykreslování šablony došlo k chybě: {error}"
 
-#: netbox/dcim/views.py:2080 netbox/extras/tables/tables.py:447
+#: netbox/dcim/views.py:2082 netbox/extras/tables/tables.py:447
 #: netbox/netbox/navigation/menu.py:234 netbox/netbox/navigation/menu.py:236
 #: netbox/virtualization/views.py:179
 msgid "Virtual Machines"
 msgstr "Virtuální stroje"
 
-#: netbox/dcim/views.py:2828
+#: netbox/dcim/views.py:2830
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Nainstalované zařízení {device} v zátoce {device_bay}."
 
-#: netbox/dcim/views.py:2869
+#: netbox/dcim/views.py:2871
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Odstraněné zařízení {device} od zátoky {device_bay}."
 
-#: netbox/dcim/views.py:2975 netbox/ipam/tables/ip.py:234
+#: netbox/dcim/views.py:2977 netbox/ipam/tables/ip.py:234
 msgid "Children"
 msgstr "Děti"
 
-#: netbox/dcim/views.py:3441
-msgid "Added member <a href=\"{url}\">{escape(device)}</a>"
-msgstr "Přidán člen <a href=\"{url}\">{escape(device)}</a>"
+#: netbox/dcim/views.py:3443
+#, python-brace-format
+msgid "Added member <a href=\"{url}\">{device}</a>"
+msgstr "Přidán člen <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:3488
+#: netbox/dcim/views.py:3490
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Nelze odebrat hlavní zařízení {device} z virtuálního podvozku."
 
-#: netbox/dcim/views.py:3501
+#: netbox/dcim/views.py:3503
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Odstraněno {device} z virtuálního šasi {chassis}"
@@ -6779,7 +6783,7 @@ msgstr "Nebezpečí"
 msgid "Debug"
 msgstr "Ladění"
 
-#: netbox/extras/choices.py:183 netbox/netbox/choices.py:104
+#: netbox/extras/choices.py:183 netbox/netbox/choices.py:101
 msgid "Default"
 msgstr "Výchozí"
 
@@ -6840,66 +6844,66 @@ msgid "Delete"
 msgstr "Odstranit"
 
 #: netbox/extras/choices.py:298 netbox/netbox/choices.py:57
-#: netbox/netbox/choices.py:105
+#: netbox/netbox/choices.py:102
 msgid "Blue"
 msgstr "Modrý"
 
 #: netbox/extras/choices.py:299 netbox/netbox/choices.py:56
-#: netbox/netbox/choices.py:106
+#: netbox/netbox/choices.py:103
 msgid "Indigo"
 msgstr "Indigo"
 
 #: netbox/extras/choices.py:300 netbox/netbox/choices.py:54
-#: netbox/netbox/choices.py:107
+#: netbox/netbox/choices.py:104
 msgid "Purple"
 msgstr "Nachový"
 
 #: netbox/extras/choices.py:301 netbox/netbox/choices.py:51
-#: netbox/netbox/choices.py:108
+#: netbox/netbox/choices.py:105
 msgid "Pink"
 msgstr "Růžový"
 
 #: netbox/extras/choices.py:302 netbox/netbox/choices.py:50
-#: netbox/netbox/choices.py:109
+#: netbox/netbox/choices.py:106
 msgid "Red"
 msgstr "Červené"
 
 #: netbox/extras/choices.py:303 netbox/netbox/choices.py:68
-#: netbox/netbox/choices.py:110
+#: netbox/netbox/choices.py:107
 msgid "Orange"
 msgstr "oranžový"
 
 #: netbox/extras/choices.py:304 netbox/netbox/choices.py:66
-#: netbox/netbox/choices.py:111
+#: netbox/netbox/choices.py:108
 msgid "Yellow"
 msgstr "Žlutá"
 
 #: netbox/extras/choices.py:305 netbox/netbox/choices.py:63
-#: netbox/netbox/choices.py:112
+#: netbox/netbox/choices.py:109
 msgid "Green"
 msgstr "Zelená"
 
 #: netbox/extras/choices.py:306 netbox/netbox/choices.py:60
-#: netbox/netbox/choices.py:113
+#: netbox/netbox/choices.py:110
 msgid "Teal"
 msgstr "Šedozelená"
 
 #: netbox/extras/choices.py:307 netbox/netbox/choices.py:59
-#: netbox/netbox/choices.py:114
+#: netbox/netbox/choices.py:111
 msgid "Cyan"
 msgstr "Azurová"
 
-#: netbox/extras/choices.py:308 netbox/netbox/choices.py:115
+#: netbox/extras/choices.py:308 netbox/netbox/choices.py:112
 msgid "Gray"
 msgstr "Šedá"
 
 #: netbox/extras/choices.py:309 netbox/netbox/choices.py:74
-#: netbox/netbox/choices.py:116
+#: netbox/netbox/choices.py:113
 msgid "Black"
 msgstr "Černá"
 
 #: netbox/extras/choices.py:310 netbox/netbox/choices.py:75
-#: netbox/netbox/choices.py:117
+#: netbox/netbox/choices.py:114
 msgid "White"
 msgstr "Bílá"
 
@@ -6958,76 +6962,76 @@ msgstr "Neregistrovaná třída widgetu: {name}"
 msgid "{class_name} must define a render() method."
 msgstr "{class_name} musí definovat metodu render ()."
 
-#: netbox/extras/dashboard/widgets.py:161
+#: netbox/extras/dashboard/widgets.py:145
 msgid "Note"
 msgstr "Poznámka"
 
-#: netbox/extras/dashboard/widgets.py:162
+#: netbox/extras/dashboard/widgets.py:146
 msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr "Zobrazí nějaký libovolný vlastní obsah. Markdown je podporován."
 
-#: netbox/extras/dashboard/widgets.py:175
+#: netbox/extras/dashboard/widgets.py:159
 msgid "Object Counts"
 msgstr "Počty objektů"
 
-#: netbox/extras/dashboard/widgets.py:176
+#: netbox/extras/dashboard/widgets.py:160
 msgid ""
 "Display a set of NetBox models and the number of objects created for each "
 "type."
 msgstr "Zobrazí sadu modelů NetBox a počet objektů vytvořených pro každý typ."
 
-#: netbox/extras/dashboard/widgets.py:186
+#: netbox/extras/dashboard/widgets.py:170
 msgid "Filters to apply when counting the number of objects"
 msgstr "Filtry, které se použijí při počítání počtu objektů"
 
-#: netbox/extras/dashboard/widgets.py:194
+#: netbox/extras/dashboard/widgets.py:178
 msgid "Invalid format. Object filters must be passed as a dictionary."
 msgstr "Neplatný formát. Objektové filtry musí být předány jako slovník."
 
-#: netbox/extras/dashboard/widgets.py:222
+#: netbox/extras/dashboard/widgets.py:206
 msgid "Object List"
 msgstr "Seznam objektů"
 
-#: netbox/extras/dashboard/widgets.py:223
+#: netbox/extras/dashboard/widgets.py:207
 msgid "Display an arbitrary list of objects."
 msgstr "Zobrazí libovolný seznam objektů."
 
-#: netbox/extras/dashboard/widgets.py:236
+#: netbox/extras/dashboard/widgets.py:220
 msgid "The default number of objects to display"
 msgstr "Výchozí počet objektů k zobrazení"
 
-#: netbox/extras/dashboard/widgets.py:248
+#: netbox/extras/dashboard/widgets.py:232
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr "Neplatný formát. Parametry URL musí být předány jako slovník."
 
-#: netbox/extras/dashboard/widgets.py:288
+#: netbox/extras/dashboard/widgets.py:272
 msgid "RSS Feed"
 msgstr "RSS kanál"
 
-#: netbox/extras/dashboard/widgets.py:293
+#: netbox/extras/dashboard/widgets.py:277
 msgid "Embed an RSS feed from an external website."
 msgstr "Vložte kanál RSS z externího webu."
 
-#: netbox/extras/dashboard/widgets.py:300
+#: netbox/extras/dashboard/widgets.py:284
 msgid "Feed URL"
 msgstr "Adresa URL zdroje"
 
-#: netbox/extras/dashboard/widgets.py:305
+#: netbox/extras/dashboard/widgets.py:289
 msgid "The maximum number of objects to display"
 msgstr "Maximální počet objektů, které se mají zobrazit"
 
-#: netbox/extras/dashboard/widgets.py:310
+#: netbox/extras/dashboard/widgets.py:294
 msgid "How long to stored the cached content (in seconds)"
 msgstr "Jak dlouho uložit obsah uložený v mezipaměti (v sekundách)"
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:346
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr "Záložky"
 
-#: netbox/extras/dashboard/widgets.py:366
+#: netbox/extras/dashboard/widgets.py:350
 msgid "Show your personal bookmarks"
 msgstr "Zobrazit své osobní záložky"
 
@@ -7312,7 +7316,7 @@ msgid "Data"
 msgstr "Údaje"
 
 #: netbox/extras/forms/filtersets.py:153 netbox/extras/forms/filtersets.py:342
-#: netbox/extras/forms/filtersets.py:427 netbox/netbox/choices.py:133
+#: netbox/extras/forms/filtersets.py:427 netbox/netbox/choices.py:130
 #: netbox/utilities/forms/bulk_import.py:26
 msgid "Data file"
 msgstr "Datový soubor"
@@ -7589,7 +7593,7 @@ msgid "Tenants"
 msgstr "Nájemci"
 
 #: netbox/extras/forms/model_forms.py:458 netbox/ipam/forms/filtersets.py:142
-#: netbox/ipam/forms/filtersets.py:553 netbox/ipam/forms/model_forms.py:321
+#: netbox/ipam/forms/filtersets.py:553 netbox/ipam/forms/model_forms.py:323
 #: netbox/templates/extras/configcontext.html:60
 #: netbox/templates/ipam/ipaddress.html:59
 #: netbox/templates/ipam/vlan_edit.html:30
@@ -8793,7 +8797,7 @@ msgid "Exporting L2VPN (identifier)"
 msgstr "Export L2VPN (identifikátor)"
 
 #: netbox/ipam/filtersets.py:155 netbox/ipam/filtersets.py:281
-#: netbox/ipam/forms/model_forms.py:227 netbox/ipam/tables/ip.py:212
+#: netbox/ipam/forms/model_forms.py:229 netbox/ipam/tables/ip.py:212
 #: netbox/templates/ipam/prefix.html:12
 msgid "Prefix"
 msgstr "Předpona"
@@ -8835,7 +8839,7 @@ msgid "VLAN number (1-4094)"
 msgstr "Číslo VLAN (1-4094)"
 
 #: netbox/ipam/filtersets.py:471 netbox/ipam/filtersets.py:475
-#: netbox/ipam/filtersets.py:567 netbox/ipam/forms/model_forms.py:461
+#: netbox/ipam/filtersets.py:567 netbox/ipam/forms/model_forms.py:463
 #: netbox/templates/tenancy/contact.html:53
 #: netbox/tenancy/forms/bulk_edit.py:113
 msgid "Address"
@@ -8951,9 +8955,9 @@ msgstr "Je soukromý"
 #: netbox/ipam/forms/bulk_edit.py:161 netbox/ipam/forms/bulk_import.py:88
 #: netbox/ipam/forms/bulk_import.py:108 netbox/ipam/forms/bulk_import.py:128
 #: netbox/ipam/forms/filtersets.py:110 netbox/ipam/forms/filtersets.py:125
-#: netbox/ipam/forms/filtersets.py:148 netbox/ipam/forms/model_forms.py:94
-#: netbox/ipam/forms/model_forms.py:107 netbox/ipam/forms/model_forms.py:129
-#: netbox/ipam/forms/model_forms.py:147 netbox/ipam/models/asns.py:31
+#: netbox/ipam/forms/filtersets.py:148 netbox/ipam/forms/model_forms.py:96
+#: netbox/ipam/forms/model_forms.py:109 netbox/ipam/forms/model_forms.py:131
+#: netbox/ipam/forms/model_forms.py:149 netbox/ipam/models/asns.py:31
 #: netbox/ipam/models/asns.py:103 netbox/ipam/models/ip.py:71
 #: netbox/ipam/models/ip.py:90 netbox/ipam/tables/asn.py:20
 #: netbox/ipam/tables/asn.py:45 netbox/templates/ipam/aggregate.html:18
@@ -8966,15 +8970,15 @@ msgstr "ZVRHNOUT"
 msgid "Date added"
 msgstr "Datum přidání"
 
-#: netbox/ipam/forms/bulk_edit.py:227 netbox/ipam/forms/model_forms.py:637
-#: netbox/ipam/forms/model_forms.py:679 netbox/ipam/tables/ip.py:251
+#: netbox/ipam/forms/bulk_edit.py:227 netbox/ipam/forms/model_forms.py:583
+#: netbox/ipam/forms/model_forms.py:630 netbox/ipam/tables/ip.py:251
 #: netbox/templates/ipam/vlan_edit.html:37
 #: netbox/templates/ipam/vlangroup.html:27
 msgid "VLAN Group"
 msgstr "Skupina VLAN"
 
 #: netbox/ipam/forms/bulk_edit.py:232 netbox/ipam/forms/bulk_import.py:184
-#: netbox/ipam/forms/filtersets.py:256 netbox/ipam/forms/model_forms.py:216
+#: netbox/ipam/forms/filtersets.py:256 netbox/ipam/forms/model_forms.py:218
 #: netbox/ipam/models/vlans.py:214 netbox/ipam/tables/ip.py:255
 #: netbox/templates/ipam/prefix.html:60 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
@@ -9043,7 +9047,7 @@ msgid "Authentication key"
 msgstr "Ověřovací klíč"
 
 #: netbox/ipam/forms/bulk_edit.py:419 netbox/ipam/forms/filtersets.py:383
-#: netbox/ipam/forms/model_forms.py:472 netbox/netbox/navigation/menu.py:370
+#: netbox/ipam/forms/model_forms.py:474 netbox/netbox/navigation/menu.py:370
 #: netbox/templates/ipam/fhrpgroup.html:49
 #: netbox/templates/wireless/inc/authentication_attrs.html:5
 #: netbox/wireless/forms/bulk_edit.py:91
@@ -9063,12 +9067,13 @@ msgstr "Minimální dětský VLAN VID"
 msgid "Maximum child VLAN VID"
 msgstr "Maximální počet dětí VLAN VID"
 
-#: netbox/ipam/forms/bulk_edit.py:443 netbox/ipam/forms/model_forms.py:566
+#: netbox/ipam/forms/bulk_edit.py:443 netbox/ipam/forms/model_forms.py:572
 msgid "Scope type"
 msgstr "Typ rozsahu"
 
-#: netbox/ipam/forms/bulk_edit.py:505 netbox/ipam/forms/model_forms.py:641
-#: netbox/ipam/tables/vlans.py:71 netbox/templates/ipam/vlangroup.html:38
+#: netbox/ipam/forms/bulk_edit.py:505 netbox/ipam/forms/model_forms.py:575
+#: netbox/ipam/forms/model_forms.py:585 netbox/ipam/tables/vlans.py:71
+#: netbox/templates/ipam/vlangroup.html:38
 msgid "Scope"
 msgstr "Rozsah"
 
@@ -9076,8 +9081,8 @@ msgstr "Rozsah"
 msgid "Site & Group"
 msgstr "Stránky a skupina"
 
-#: netbox/ipam/forms/bulk_edit.py:591 netbox/ipam/forms/model_forms.py:705
-#: netbox/ipam/forms/model_forms.py:737 netbox/ipam/tables/services.py:19
+#: netbox/ipam/forms/bulk_edit.py:591 netbox/ipam/forms/model_forms.py:656
+#: netbox/ipam/forms/model_forms.py:688 netbox/ipam/tables/services.py:19
 #: netbox/ipam/tables/services.py:49 netbox/templates/ipam/service.html:36
 #: netbox/templates/ipam/servicetemplate.html:23
 msgid "Ports"
@@ -9105,7 +9110,7 @@ msgid "Parent device of assigned interface (if any)"
 msgstr "Nadřazené zařízení přiřazeného rozhraní (pokud existuje)"
 
 #: netbox/ipam/forms/bulk_import.py:310 netbox/ipam/forms/bulk_import.py:496
-#: netbox/ipam/forms/model_forms.py:731
+#: netbox/ipam/forms/model_forms.py:682
 #: netbox/virtualization/filtersets.py:284
 #: netbox/virtualization/filtersets.py:323
 #: netbox/virtualization/forms/bulk_edit.py:200
@@ -9184,17 +9189,17 @@ msgstr "Požadováno, pokud není přiřazeno k zařízení"
 msgid "{ip} is not assigned to this device/VM."
 msgstr "{ip} není přiřazen k tomuto zařízení/virtuálnímu počítači."
 
-#: netbox/ipam/forms/filtersets.py:47 netbox/ipam/forms/model_forms.py:61
+#: netbox/ipam/forms/filtersets.py:47 netbox/ipam/forms/model_forms.py:63
 #: netbox/netbox/navigation/menu.py:176 netbox/vpn/forms/model_forms.py:410
 msgid "Route Targets"
 msgstr "Cíle trasy"
 
-#: netbox/ipam/forms/filtersets.py:53 netbox/ipam/forms/model_forms.py:48
+#: netbox/ipam/forms/filtersets.py:53 netbox/ipam/forms/model_forms.py:50
 #: netbox/vpn/forms/filtersets.py:224 netbox/vpn/forms/model_forms.py:397
 msgid "Import targets"
 msgstr "Importovat cíle"
 
-#: netbox/ipam/forms/filtersets.py:58 netbox/ipam/forms/model_forms.py:53
+#: netbox/ipam/forms/filtersets.py:58 netbox/ipam/forms/model_forms.py:55
 #: netbox/vpn/forms/filtersets.py:229 netbox/vpn/forms/model_forms.py:402
 msgid "Export targets"
 msgstr "Cíle exportu"
@@ -9274,8 +9279,8 @@ msgstr "Minimální VID"
 msgid "Maximum VID"
 msgstr "Maximální VID"
 
-#: netbox/ipam/forms/filtersets.py:563 netbox/ipam/forms/model_forms.py:318
-#: netbox/ipam/forms/model_forms.py:759 netbox/ipam/forms/model_forms.py:785
+#: netbox/ipam/forms/filtersets.py:563 netbox/ipam/forms/model_forms.py:320
+#: netbox/ipam/forms/model_forms.py:710 netbox/ipam/forms/model_forms.py:736
 #: netbox/ipam/tables/vlans.py:191
 #: netbox/templates/virtualization/virtualdisk.html:21
 #: netbox/templates/virtualization/virtualmachine.html:12
@@ -9292,48 +9297,48 @@ msgstr "Maximální VID"
 msgid "Virtual Machine"
 msgstr "Virtuální stroj"
 
-#: netbox/ipam/forms/model_forms.py:78
+#: netbox/ipam/forms/model_forms.py:80
 #: netbox/templates/ipam/routetarget.html:10
 msgid "Route Target"
 msgstr "Cíl trasy"
 
-#: netbox/ipam/forms/model_forms.py:112 netbox/ipam/tables/ip.py:117
+#: netbox/ipam/forms/model_forms.py:114 netbox/ipam/tables/ip.py:117
 #: netbox/templates/ipam/aggregate.html:11
 #: netbox/templates/ipam/prefix.html:38
 msgid "Aggregate"
 msgstr "Agregát"
 
-#: netbox/ipam/forms/model_forms.py:133 netbox/templates/ipam/asnrange.html:12
+#: netbox/ipam/forms/model_forms.py:135 netbox/templates/ipam/asnrange.html:12
 msgid "ASN Range"
 msgstr "Řada ASN"
 
-#: netbox/ipam/forms/model_forms.py:229
+#: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
 msgstr "Přiřazení webu/VLAN"
 
-#: netbox/ipam/forms/model_forms.py:257 netbox/templates/ipam/iprange.html:10
+#: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
 msgstr "Rozsah IP"
 
-#: netbox/ipam/forms/model_forms.py:293 netbox/ipam/forms/model_forms.py:319
-#: netbox/ipam/forms/model_forms.py:471
+#: netbox/ipam/forms/model_forms.py:295 netbox/ipam/forms/model_forms.py:321
+#: netbox/ipam/forms/model_forms.py:473
 #: netbox/templates/ipam/fhrpgroup.html:19
 msgid "FHRP Group"
 msgstr "Skupina FHRP"
 
-#: netbox/ipam/forms/model_forms.py:308
+#: netbox/ipam/forms/model_forms.py:310
 msgid "Make this the primary IP for the device/VM"
 msgstr "Nastavte z něj primární IP pro zařízení/virtuální počítač"
 
-#: netbox/ipam/forms/model_forms.py:323
+#: netbox/ipam/forms/model_forms.py:325
 msgid "NAT IP (Inside)"
 msgstr "NAT IP (uvnitř)"
 
-#: netbox/ipam/forms/model_forms.py:382
+#: netbox/ipam/forms/model_forms.py:384
 msgid "An IP address can only be assigned to a single object."
 msgstr "IP adresu lze přiřadit pouze jednomu objektu."
 
-#: netbox/ipam/forms/model_forms.py:388 netbox/ipam/models/ip.py:897
+#: netbox/ipam/forms/model_forms.py:390 netbox/ipam/models/ip.py:897
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
@@ -9341,25 +9346,25 @@ msgstr ""
 "Nelze znovu přiřadit adresu IP, pokud je určena jako primární IP pro "
 "nadřazený objekt"
 
-#: netbox/ipam/forms/model_forms.py:398
+#: netbox/ipam/forms/model_forms.py:400
 msgid ""
 "Only IP addresses assigned to an interface can be designated as primary IPs."
 msgstr ""
 "Jako primární IP adresy lze označit pouze adresy IP přiřazené k rozhraní."
 
-#: netbox/ipam/forms/model_forms.py:473
+#: netbox/ipam/forms/model_forms.py:475
 msgid "Virtual IP Address"
 msgstr "Virtuální IP adresa"
 
-#: netbox/ipam/forms/model_forms.py:558
+#: netbox/ipam/forms/model_forms.py:560
 msgid "Assignment already exists"
 msgstr "Přiřazení již existuje"
 
-#: netbox/ipam/forms/model_forms.py:638
+#: netbox/ipam/forms/model_forms.py:584
 msgid "Child VLANs"
 msgstr "Dětské sítě VLAN"
 
-#: netbox/ipam/forms/model_forms.py:710 netbox/ipam/forms/model_forms.py:742
+#: netbox/ipam/forms/model_forms.py:661 netbox/ipam/forms/model_forms.py:693
 msgid ""
 "Comma-separated list of one or more port numbers. A range may be specified "
 "using a hyphen."
@@ -9367,33 +9372,33 @@ msgstr ""
 "Seznam jednoho nebo více čísel portů oddělený čárkami. Rozsah lze zadat "
 "pomocí pomlčky."
 
-#: netbox/ipam/forms/model_forms.py:715
+#: netbox/ipam/forms/model_forms.py:666
 #: netbox/templates/ipam/servicetemplate.html:12
 msgid "Service Template"
 msgstr "Šablona služby"
 
-#: netbox/ipam/forms/model_forms.py:762
+#: netbox/ipam/forms/model_forms.py:713
 msgid "Port(s)"
 msgstr "Přístav (y)"
 
-#: netbox/ipam/forms/model_forms.py:763 netbox/ipam/forms/model_forms.py:791
+#: netbox/ipam/forms/model_forms.py:714 netbox/ipam/forms/model_forms.py:742
 #: netbox/templates/ipam/service.html:21
 msgid "Service"
 msgstr "Servisní služby"
 
-#: netbox/ipam/forms/model_forms.py:776
+#: netbox/ipam/forms/model_forms.py:727
 msgid "Service template"
 msgstr "Šablona služby"
 
-#: netbox/ipam/forms/model_forms.py:788
+#: netbox/ipam/forms/model_forms.py:739
 msgid "From Template"
 msgstr "Z šablony"
 
-#: netbox/ipam/forms/model_forms.py:789
+#: netbox/ipam/forms/model_forms.py:740
 msgid "Custom"
 msgstr "Zvyk"
 
-#: netbox/ipam/forms/model_forms.py:819
+#: netbox/ipam/forms/model_forms.py:770
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
@@ -10058,27 +10063,27 @@ msgstr "Šedá"
 msgid "Dark Grey"
 msgstr "Tmavě šedá"
 
-#: netbox/netbox/choices.py:131
+#: netbox/netbox/choices.py:128
 msgid "Direct"
 msgstr "Přímo"
 
-#: netbox/netbox/choices.py:132
+#: netbox/netbox/choices.py:129
 msgid "Upload"
 msgstr "Nahrát"
 
-#: netbox/netbox/choices.py:144 netbox/netbox/choices.py:158
+#: netbox/netbox/choices.py:141 netbox/netbox/choices.py:155
 msgid "Auto-detect"
 msgstr "Automatická detekce"
 
-#: netbox/netbox/choices.py:159
+#: netbox/netbox/choices.py:156
 msgid "Comma"
 msgstr "Čárka"
 
-#: netbox/netbox/choices.py:160
+#: netbox/netbox/choices.py:157
 msgid "Semicolon"
 msgstr "Středník"
 
-#: netbox/netbox/choices.py:161
+#: netbox/netbox/choices.py:158
 msgid "Tab"
 msgstr "Záložka"
 
@@ -10297,7 +10302,7 @@ msgstr "Typ (typy) objektu"
 msgid "Lookup"
 msgstr "Vyhledávání"
 
-#: netbox/netbox/forms/base.py:88
+#: netbox/netbox/forms/base.py:90
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. "
 "\"tag1,tag2,tag3\")"
@@ -10305,11 +10310,11 @@ msgstr ""
 "Označte slimáky oddělené čárkami, uzavřené dvojitými uvozovkami (např. "
 "„tag1, tag2, tag3\")"
 
-#: netbox/netbox/forms/base.py:118
+#: netbox/netbox/forms/base.py:120
 msgid "Add tags"
 msgstr "Přidat štítky"
 
-#: netbox/netbox/forms/base.py:123
+#: netbox/netbox/forms/base.py:125
 msgid "Remove tags"
 msgstr "Odstranit značky"
 
@@ -10923,7 +10928,7 @@ msgstr "Hodnota"
 msgid "Dummy Plugin"
 msgstr "Dummy Plugin"
 
-#: netbox/netbox/views/generic/bulk_views.py:111
+#: netbox/netbox/views/generic/bulk_views.py:114
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
@@ -10931,24 +10936,24 @@ msgid ""
 msgstr ""
 "Při vykreslování vybrané šablony exportu došlo k chybě ({template}): {error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:411
+#: netbox/netbox/views/generic/bulk_views.py:416
 #, python-brace-format
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr "Řádek {i}: Objekt s ID {id} neexistuje"
 
-#: netbox/netbox/views/generic/bulk_views.py:679
-#: netbox/netbox/views/generic/bulk_views.py:877
-#: netbox/netbox/views/generic/bulk_views.py:925
+#: netbox/netbox/views/generic/bulk_views.py:699
+#: netbox/netbox/views/generic/bulk_views.py:897
+#: netbox/netbox/views/generic/bulk_views.py:945
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "Ne {object_type} Byly vybrány."
 
-#: netbox/netbox/views/generic/bulk_views.py:759
+#: netbox/netbox/views/generic/bulk_views.py:779
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "Přejmenováno {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:855
+#: netbox/netbox/views/generic/bulk_views.py:875
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "Vymazáno {count} {object_type}"
@@ -11179,7 +11184,7 @@ msgstr "Přiřazené skupiny"
 #: netbox/templates/dcim/modulebay.html:76
 #: netbox/templates/extras/configcontext.html:70
 #: netbox/templates/extras/eventrule.html:72
-#: netbox/templates/extras/htmx/script_result.html:56
+#: netbox/templates/extras/htmx/script_result.html:60
 #: netbox/templates/extras/objectchange.html:124
 #: netbox/templates/extras/objectchange.html:142
 #: netbox/templates/extras/webhook.html:67
@@ -12216,10 +12221,6 @@ msgstr "ID součásti"
 msgid "Add Child Location"
 msgstr "Přidat podřízenou polohu"
 
-#: netbox/templates/dcim/location.html:58 netbox/templates/dcim/site.html:56
-msgid "Facility"
-msgstr "Zařízení"
-
 #: netbox/templates/dcim/location.html:77
 msgid "Child Locations"
 msgstr "Umístění dětí"
@@ -12745,7 +12746,7 @@ msgstr "Souhrn testu"
 msgid "Log"
 msgstr "Protokol"
 
-#: netbox/templates/extras/htmx/script_result.html:52
+#: netbox/templates/extras/htmx/script_result.html:56
 msgid "Output"
 msgstr "Výstup"
 
@@ -13114,7 +13115,7 @@ msgstr "Vytvořit a přidat další"
 msgid "Filters"
 msgstr "Filtry"
 
-#: netbox/templates/generic/object_list.html:96
+#: netbox/templates/generic/object_list.html:88
 #, python-format
 msgid ""
 "Select <strong>all <span class=\"total-object-count\">%(count)s</span> "
@@ -14006,19 +14007,19 @@ msgstr "Název kontaktu"
 msgid "Contact Phone"
 msgstr "Kontaktní telefon"
 
-#: netbox/tenancy/tables/contacts.py:120
+#: netbox/tenancy/tables/contacts.py:121
 msgid "Contact Email"
 msgstr "Kontaktní e-mail"
 
-#: netbox/tenancy/tables/contacts.py:124
+#: netbox/tenancy/tables/contacts.py:125
 msgid "Contact Address"
 msgstr "Kontaktní adresa"
 
-#: netbox/tenancy/tables/contacts.py:128
+#: netbox/tenancy/tables/contacts.py:129
 msgid "Contact Link"
 msgstr "Kontakt Odkaz"
 
-#: netbox/tenancy/tables/contacts.py:132
+#: netbox/tenancy/tables/contacts.py:133
 msgid "Contact Description"
 msgstr "Kontakt Popis"
 
@@ -14539,7 +14540,7 @@ msgid "Missing required value for static query param: '{static_params}'"
 msgstr ""
 "Chybí požadovaná hodnota pro parametr statického dotazu: '{static_params}'"
 
-#: netbox/utilities/permissions.py:39
+#: netbox/utilities/permissions.py:42
 #, python-brace-format
 msgid ""
 "Invalid permission name: {name}. Must be in the format "
@@ -14548,7 +14549,7 @@ msgstr ""
 "Neplatný název oprávnění: {name}. Musí být ve formátu "
 "<app_label>.<action>_<model>"
 
-#: netbox/utilities/permissions.py:57
+#: netbox/utilities/permissions.py:60
 #, python-brace-format
 msgid "Unknown app_label/model_name for {name}"
 msgstr "Neznámý app_label/model_name pro {name}"

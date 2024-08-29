@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0189_moduletype_airflow_rack_airflow_racktype_airflow'),
-        ('extras', '0120_customfield_related_object_filter'),
+        ('extras', '0121_customfield_related_object_filter'),
     ]
 
     operations = [

@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0117_customfield_uniqueness'),
+        ('extras', '0118_customfield_uniqueness'),
         ('users', '0009_update_group_perms'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

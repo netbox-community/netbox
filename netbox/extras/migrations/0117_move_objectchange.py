@@ -28,7 +28,7 @@ def update_dashboard_widgets(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0115_convert_dashboard_widgets'),
+        ('extras', '0116_custom_link_button_color'),
         ('core', '0011_move_objectchange'),
     ]
 

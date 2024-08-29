@@ -99,6 +99,11 @@ class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         url_params={'site_id': 'pk'},
         verbose_name=_('ASN Count')
     )
+    device_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'site_id': 'pk'},
+        verbose_name=_('Devices')
+    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )

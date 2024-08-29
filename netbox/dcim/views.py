@@ -380,7 +380,9 @@ class SiteGroupContactsView(ObjectContactsView):
 #
 
 class SiteListView(generic.ObjectListView):
-    queryset = Site.objects.all()
+    queryset = Site.objects.annotate(
+        device_count=count_related(Device, 'site')
+    )
     filterset = filtersets.SiteFilterSet
     filterset_form = forms.SiteFilterForm
     table = tables.SiteTable
@@ -3505,7 +3507,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
                 membership_form.save()
                 messages.success(request, mark_safe(
-                    _('Added member <a href="{url}">{escape(device)}</a>').format(url=device.get_absolute_url())
+                    _('Added member <a href="{url}">{device}</a>').format(url=device.get_absolute_url(), device=escape(device))
                 ))
 
                 if '_addanother' in request.POST:

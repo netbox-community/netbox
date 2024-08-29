@@ -83,7 +83,7 @@ Default: `('127.0.0.1', '::1')`
 
 A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
-addresses (and [`DEBUG`](#debug) is true).
+addresses (and [`DEBUG`](./development.md#debug) is true).
 
 ---
 
@@ -117,7 +117,7 @@ JINJA2_FILTERS = {
 
 ## LOGGING
 
-By default, all messages of INFO severity or higher will be logged to the console. Additionally, if [`DEBUG`](#debug) is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in [`ADMINS`](#admins).
+By default, all messages of INFO severity or higher will be logged to the console. Additionally, if [`DEBUG`](./development.md#debug) is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in [`ADMINS`](./miscellaneous.md#admins).
 
 The Django framework on which NetBox runs allows for the customization of logging format and destination. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/stable/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a local file:
 

@@ -11,7 +11,7 @@ import utilities.ordering
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0117_customfield_uniqueness'),
+        ('extras', '0118_customfield_uniqueness'),
         ('dcim', '0187_alter_device_vc_position'),
     ]
 

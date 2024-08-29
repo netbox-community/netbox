@@ -81,15 +81,7 @@ Context:
         {% if table.paginator.num_pages > 1 %}
           <div id="select-all-box" class="d-none card d-print-none">
             <div class="form col-md-12">
-              <div class="card-body">
-                <div class="float-end">
-                  {% if 'bulk_edit' in actions %}
-                    {% bulk_edit_button model query_params=request.GET %}
-                  {% endif %}
-                  {% if 'bulk_delete' in actions %}
-                    {% bulk_delete_button model query_params=request.GET %}
-                  {% endif %}
-                </div>
+              <div class="card-body d-flex justify-content-between">
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
@@ -97,6 +89,14 @@ Context:
                       Select <strong>all <span class="total-object-count">{{ count }}</span> {{ object_type_plural }}</strong> matching query
                     {% endblocktrans %}
                   </label>
+                </div>
+                <div class="bulk-action-buttons">
+                  {% if 'bulk_edit' in actions %}
+                    {% bulk_edit_button model query_params=request.GET %}
+                  {% endif %}
+                  {% if 'bulk_delete' in actions %}
+                    {% bulk_delete_button model query_params=request.GET %}
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -123,12 +123,14 @@ Context:
           {# Form buttons #}
           <div class="btn-list d-print-none mt-2">
             {% block bulk_buttons %}
-              {% if 'bulk_edit' in actions %}
-                {% bulk_edit_button model query_params=request.GET %}
-              {% endif %}
-              {% if 'bulk_delete' in actions %}
-                {% bulk_delete_button model query_params=request.GET %}
-              {% endif %}
+              <div class="bulk-action-buttons">
+                {% if 'bulk_edit' in actions %}
+                  {% bulk_edit_button model query_params=request.GET %}
+                {% endif %}
+                {% if 'bulk_delete' in actions %}
+                  {% bulk_delete_button model query_params=request.GET %}
+                {% endif %}
+              </div>
             {% endblock %}
           </div>
           {# /Form buttons #}

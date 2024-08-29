@@ -39,7 +39,7 @@ class TokenSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'key', 'write_enabled', 'description')
 
     def to_internal_value(self, data):
-        if 'key' not in data:
+        if not getattr(self.instance, 'key', None) and 'key' not in data:
             data['key'] = Token.generate_key()
         return super().to_internal_value(data)
 
