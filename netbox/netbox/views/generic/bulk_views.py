@@ -9,13 +9,14 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, Valida
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
+from mptt.models import MPTTModel
 
 from core.models import ObjectType
 from extras.choices import CustomFieldUIEditableChoices
@@ -178,6 +179,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                     table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
+                'model': model,
+                'actions': actions,
             })
 
         context = {
@@ -611,6 +614,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 obj.tags.add(*form.cleaned_data['add_tags'])
             if form.cleaned_data.get('remove_tags', None):
                 obj.tags.remove(*form.cleaned_data['remove_tags'])
+
+        # Rebuild the tree for MPTT models
+        if issubclass(self.queryset.model, MPTTModel):
+            self.queryset.model.objects.rebuild()
 
         return updated_objects
 

@@ -5,7 +5,7 @@
 Default: False
 
 This setting enables debugging. Debugging should be enabled only during development or troubleshooting. Note that only
-clients which access NetBox from a recognized [internal IP address](#internal_ips) will see debugging tools in the user
+clients which access NetBox from a recognized [internal IP address](./system.md#internal_ips) will see debugging tools in the user
 interface.
 
 !!! warning

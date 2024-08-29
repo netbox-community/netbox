@@ -45,6 +45,19 @@ table a {
   background-color: rgba(var(--tblr-primary-rgb),.48)
 }
 
+// Do not apply padding to <code> elements inside a <pre>
 pre code {
   padding: unset;
+}
+
+// Use an icon instead of Tabler's native "caret" for dropdowns (avoids a Safari bug)
+.dropdown-toggle:after{
+  font-family: "Material Design Icons";
+  content: '\F0140';
+  padding-right: 9px;
+  border-bottom: none;
+  border-left: none;
+  transform: none;
+  vertical-align: .05em;
+  height: auto;
 }

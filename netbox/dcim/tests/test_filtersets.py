@@ -39,6 +39,12 @@ class DeviceComponentFilterSetTests:
         params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_device_status(self):
+        params = {'device_status': ['active']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_status': ['offline', 'active']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
 
 class DeviceComponentTemplateFilterSetTests:
 
@@ -2588,10 +2594,10 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2768,10 +2774,10 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2948,10 +2954,10 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3136,10 +3142,10 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3334,7 +3340,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rack=racks[0],
                 virtual_chassis=virtual_chassis,
                 vc_position=1,
-                vc_priority=1
+                vc_priority=1,
+                status='active',
             ),
             Device(
                 name='Device 1B',
@@ -3345,7 +3352,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rack=racks[2],
                 virtual_chassis=virtual_chassis,
                 vc_position=2,
-                vc_priority=1
+                vc_priority=1,
+                status='active',
             ),
             Device(
                 name='Device 2',
@@ -3353,7 +3361,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 role=roles[1],
                 site=sites[1],
                 location=locations[1],
-                rack=racks[1]
+                rack=racks[1],
+                status='offline',
             ),
             Device(
                 name='Device 3',
@@ -3361,14 +3370,16 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 role=roles[2],
                 site=sites[2],
                 location=locations[2],
-                rack=racks[2]
+                rack=racks[2],
+                status='planned',
             ),
             # For cable connections
             Device(
                 name=None,
                 device_type=device_types[2],
                 role=roles[2],
-                site=sites[3]
+                site=sites[3],
+                status='planned',
             ),
         )
         Device.objects.bulk_create(devices)
@@ -3814,10 +3825,10 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -4003,10 +4014,10 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -4184,9 +4195,9 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
         )
         Device.objects.bulk_create(devices)
 
@@ -4313,9 +4324,9 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
         )
         Device.objects.bulk_create(devices)
 

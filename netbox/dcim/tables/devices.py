@@ -290,6 +290,11 @@ class DeviceComponentTable(NetBoxTable):
         linkify=True,
         order_by=('_name',)
     )
+    device_status = columns.ChoiceFieldColumn(
+        accessor=tables.A('device__status'),
+        verbose_name=_('Device Status'),
+        color=lambda x: x.device.get_status_color(),
+    )
 
     class Meta(NetBoxTable.Meta):
         order_by = ('device', 'name')

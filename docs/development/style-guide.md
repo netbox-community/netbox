@@ -41,7 +41,7 @@ Line breaks are permitted following binary operators.
 
 ### Enforcing Code Style
 
-The [`pycodestyle`](https://pypi.org/project/pycodestyle/) utility (formerly `pep8`) is used by the CI process to enforce code style. A [pre-commit hook](./getting-started.md#2-enable-pre-commit-hooks) which runs this automatically is included with NetBox. To invoke `pycodestyle` manually, run:
+The [`pycodestyle`](https://pypi.org/project/pycodestyle/) utility (formerly `pep8`) is used by the CI process to enforce code style. A [pre-commit hook](./getting-started.md#3-enable-pre-commit-hooks) which runs this automatically is included with NetBox. To invoke `pycodestyle` manually, run:
 
 ```
 pycodestyle --ignore=W504,E501 netbox/

@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.9'
+VERSION = '4.0.10'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -763,6 +763,7 @@ LOCALE_PATHS = (
 # Strawberry (GraphQL)
 #
 STRAWBERRY_DJANGO = {
+    "DEFAULT_PK_FIELD_NAME": "id",
     "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
     "USE_DEPRECATED_FILTERS": True,
 }
