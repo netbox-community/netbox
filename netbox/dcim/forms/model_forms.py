@@ -214,7 +214,7 @@ class RackTypeForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),
+        FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -229,7 +229,7 @@ class RackTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
-            'airflow', 'description', 'comments', 'tags',
+            'description', 'comments', 'tags',
         ]
 
 
@@ -261,7 +261,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'tags', name=_('Rack')),
+        FieldSet('site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags', name=_('Rack')),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -293,7 +293,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
             self.fieldsets = (
                 *self.fieldsets,
                 FieldSet(
-                    'form_factor', 'width', 'starting_unit', 'u_height', 'airflow',
+                    'form_factor', 'width', 'starting_unit', 'u_height',
                     InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
                     InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
                     'mounting_depth', 'desc_units', name=_('Dimensions')

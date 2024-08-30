@@ -206,12 +206,6 @@ class RackTypeImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for outer dimensions')
     )
-    airflow = CSVChoiceField(
-        label=_('Airflow'),
-        choices=RackAirflowChoices,
-        required=False,
-        help_text=_('Airflow direction')
-    )
     weight_unit = CSVChoiceField(
         label=_('Weight unit'),
         choices=WeightUnitChoices,
@@ -223,7 +217,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
         model = RackType
         fields = (
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
+            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
             'weight_unit', 'description', 'comments', 'tags',
         )
 

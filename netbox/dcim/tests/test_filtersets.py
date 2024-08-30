@@ -501,7 +501,6 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 max_weight=1000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar1',
-                airflow=RackAirflowChoices.FRONT_TO_REAR
             ),
             RackType(
                 manufacturer=manufacturers[1],
@@ -520,7 +519,6 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 max_weight=2000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar2',
-                airflow=RackAirflowChoices.REAR_TO_FRONT
             ),
             RackType(
                 manufacturer=manufacturers[2],
@@ -616,10 +614,6 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_airflow(self):
-        params = {'airflow': RackAirflowChoices.REAR_TO_FRONT}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RackTestCase(TestCase, ChangeLoggedFilterSetTests):

@@ -302,7 +302,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
+        FieldSet('form_factor', 'width', 'u_height', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )

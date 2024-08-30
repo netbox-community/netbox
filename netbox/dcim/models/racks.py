@@ -53,12 +53,6 @@ class RackBase(WeightMixin, PrimaryModel):
         verbose_name=_('width'),
         help_text=_('Rail-to-rail width')
     )
-    airflow = models.CharField(
-        verbose_name=_('airflow'),
-        max_length=50,
-        choices=RackAirflowChoices,
-        blank=True
-    )
 
     # Numbering
     u_height = models.PositiveSmallIntegerField(
@@ -147,7 +141,7 @@ class RackType(RackBase):
     )
 
     clone_fields = (
-        'manufacturer', 'form_factor', 'width', 'u_height', 'airflow', 'desc_units', 'outer_width', 'outer_depth',
+        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
         'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -248,7 +242,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
     # Fields which cannot be set locally if a RackType is assigned
     RACKTYPE_FIELDS = (
-        'form_factor', 'width', 'airflow', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
         'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
     )
 
@@ -320,6 +314,12 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         unique=True,
         verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
+    )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=RackAirflowChoices,
+        blank=True
     )
 
     # Generic relations

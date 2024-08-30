@@ -268,11 +268,6 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         min_value=1
     )
-    airflow = forms.ChoiceField(
-        label=_('Airflow'),
-        choices=add_blank_choice(RackAirflowChoices),
-        required=False
-    )
     weight = forms.DecimalField(
         label=_('Weight'),
         min_value=0,
@@ -298,7 +293,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackType
     fieldsets = (
-        FieldSet('manufacturer', 'description', 'form_factor', 'width', 'u_height', 'airflow', name=_('Rack Type')),
+        FieldSet('manufacturer', 'description', 'form_factor', 'width', 'u_height', name=_('Rack Type')),
         FieldSet(
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
