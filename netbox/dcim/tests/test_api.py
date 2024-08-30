@@ -994,7 +994,7 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
-    user_permissions = ('dcim.view_devicetype', )
+    user_permissions = ('dcim.view_devicetype', 'dcim.view_manufacturer',)
 
     @classmethod
     def setUpTestData(cls):
