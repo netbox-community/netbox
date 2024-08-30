@@ -72,10 +72,9 @@ class CustomFieldImportForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'description',
-            'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
-            'validation_maximum', 'validation_regex', 'validation_unique', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'comments',
+            'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'unique',
+            'description', 'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
+            'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable', 'comments',
         )
 
 

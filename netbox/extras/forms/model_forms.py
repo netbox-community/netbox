@@ -69,8 +69,8 @@ class CustomFieldForm(forms.ModelForm):
 
     fieldsets = (
         FieldSet(
-            'object_types', 'name', 'label', 'group_name', 'description', 'type', 'required', 'validation_unique',
-            'default', name=_('Custom Field')
+            'object_types', 'name', 'label', 'group_name', 'description', 'type', 'required', 'unique', 'default',
+            name=_('Custom Field')
         ),
         FieldSet(
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')

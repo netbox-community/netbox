@@ -129,7 +129,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     required = models.BooleanField(
         verbose_name=_('required'),
         default=False,
-        help_text=_("If true, this field is required when creating new objects or editing an existing object.")
+        help_text=_("This field is required when creating new objects or editing an existing object.")
+    )
+    unique = models.BooleanField(
+        verbose_name=_('must be unique'),
+        default=False,
+        help_text=_("The value of this field must be unique for the assigned object")
     )
     search_weight = models.PositiveSmallIntegerField(
         verbose_name=_('search weight'),
@@ -189,11 +194,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
-    validation_unique = models.BooleanField(
-        verbose_name=_('must be unique'),
-        default=False,
-        help_text=_('The value of this field must be unique for the assigned object')
-    )
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
@@ -229,9 +229,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     clone_fields = (
-        'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'search_weight',
-        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-        'validation_unique', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
+        'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+        'validation_regex', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
@@ -349,9 +349,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             })
 
         # Uniqueness can not be enforced for boolean fields
-        if self.validation_unique and self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+        if self.unique and self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             raise ValidationError({
-                'validation_unique': _("Uniqueness cannot be enforced for boolean fields")
+                'unique': _("Uniqueness cannot be enforced for boolean fields")
             })
 
         # Choice set must be set on selection fields, and *only* on selection fields

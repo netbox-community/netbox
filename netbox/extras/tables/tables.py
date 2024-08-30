@@ -65,6 +65,10 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Required'),
         false_mark=None
     )
+    unique = columns.BooleanColumn(
+        verbose_name=_('Validate Uniqueness'),
+        false_mark=None
+    )
     ui_visible = columns.ChoiceFieldColumn(
         verbose_name=_('Visible')
     )
@@ -99,19 +103,18 @@ class CustomFieldTable(NetBoxTable):
     validation_regex = tables.Column(
         verbose_name=_('Validation Regex'),
     )
-    validation_unique = columns.BooleanColumn(
-        verbose_name=_('Validate Uniqueness'),
-    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
-            'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'validation_unique', 'comments', 'created', 'last_updated',
+            'unique', 'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
+            'is_cloneable', 'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'comments', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
+        default_columns = (
+            'pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'unique', 'description',
+        )
 
 
 class CustomFieldChoiceSetTable(NetBoxTable):
