@@ -114,6 +114,7 @@ class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'planned',
     }
+    user_permissions = ('dcim.view_interface', )
 
     @classmethod
     def setUpTestData(cls):

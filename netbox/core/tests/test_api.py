@@ -57,6 +57,7 @@ class DataFileTest(
 ):
     model = DataFile
     brief_fields = ['display', 'id', 'path', 'url']
+    user_permissions = ('core.view_datasource', )
 
     @classmethod
     def setUpTestData(cls):

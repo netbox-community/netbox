@@ -767,6 +767,7 @@ class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'priority': 100,
     }
+    user_permissions = ('ipam.view_fhrpgroup', )
 
     @classmethod
     def setUpTestData(cls):
