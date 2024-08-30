@@ -912,6 +912,7 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    user_permissions = ('dcim.view_devicetype', )
 
     @classmethod
     def setUpTestData(cls):
@@ -952,7 +953,7 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
-    user_permissions = ('dcim.view_device_type', )
+    user_permissions = ('dcim.view_devicetype', )
 
     @classmethod
     def setUpTestData(cls):
@@ -993,7 +994,7 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
-    user_permissions = ('dcim.view_device_type', )
+    user_permissions = ('dcim.view_devicetype', )
 
     @classmethod
     def setUpTestData(cls):
@@ -2237,7 +2238,7 @@ class PowerFeedTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'planned',
     }
-    user_permissions = ('dcim.power_panel', )
+    user_permissions = ('dcim.view_powerpanel', )
 
     @classmethod
     def setUpTestData(cls):
