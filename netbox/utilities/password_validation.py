@@ -15,7 +15,7 @@ class NumericAlphaPasswordValidator:
 
         if not any(char.isupper() for char in password):
             raise ValidationError(
-                _("Password should have at least one uppercase letter"),
+                _("Password must have at least one uppercase letter."),
             )
 
         if not any(char.islower() for char in password):
