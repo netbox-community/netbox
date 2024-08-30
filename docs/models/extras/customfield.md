@@ -57,7 +57,11 @@ A numeric weight used to override alphabetic ordering of fields by name. Custom 
 
 ### Required
 
-If checked, this custom field must be populated with a valid value for the object to pass validation.
+If enabled, this custom field must be populated with a valid value for the object to pass validation.
+
+### Unique
+
+If enabled, each object must have a unique value set for this custom field (per object type).
 
 ### Description
 
@@ -116,7 +120,3 @@ For numeric custom fields only. The maximum valid value (optional).
 ### Validation Regex
 
 For string-based custom fields only. A regular expression used to validate the field's value (optional).
-
-### Uniqueness Validation
-
-If enabled, each object must have a unique value set for this custom field (per object type).
