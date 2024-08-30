@@ -10,7 +10,7 @@ class NumericAlphaPasswordValidator:
     def validate(self, password, user=None):
         if not any(char.isdigit() for char in password):
             raise ValidationError(
-                _("Password should have at least one numeral"),
+                _("Password must have at least one numeral."),
             )
 
         if not any(char.isupper() for char in password):
