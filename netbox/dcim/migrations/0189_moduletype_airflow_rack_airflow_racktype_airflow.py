@@ -20,9 +20,4 @@ class Migration(migrations.Migration):
             name='airflow',
             field=models.CharField(blank=True, max_length=50),
         ),
-        migrations.AddField(
-            model_name='racktype',
-            name='airflow',
-            field=models.CharField(blank=True, max_length=50),
-        ),
     ]

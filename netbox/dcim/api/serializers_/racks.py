@@ -75,7 +75,7 @@ class RackTypeSerializer(RackBaseSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'slug', 'description', 'form_factor',
             'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
-            'max_weight', 'weight_unit', 'mounting_depth', 'airflow', 'description', 'comments', 'tags',
+            'max_weight', 'weight_unit', 'mounting_depth', 'description', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description')

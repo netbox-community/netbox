@@ -214,7 +214,7 @@ class RackTypeForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'airflow', 'tags', name=_('Rack Type')),
+        FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
@@ -229,7 +229,7 @@ class RackTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
-            'airflow', 'description', 'comments', 'tags',
+            'description', 'comments', 'tags',
         ]
 
 
