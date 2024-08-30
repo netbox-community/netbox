@@ -6,7 +6,7 @@ from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from wireless.models import *
 
 __all__ = (
@@ -159,7 +159,14 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     fieldsets = (
         FieldSet('site_a', 'location_a', 'device_a', 'interface_a', name=_('Side A')),
         FieldSet('site_b', 'location_b', 'device_b', 'interface_b', name=_('Side B')),
-        FieldSet('status', 'ssid', 'distance', 'distance_unit', 'description', 'tags', name=_('Link')),
+        FieldSet(
+            'status',
+            'ssid',
+            InlineFields('distance', 'distance_unit', label=_('Distance')),
+            'description',
+            'tags',
+            name=_('Link')
+        ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
