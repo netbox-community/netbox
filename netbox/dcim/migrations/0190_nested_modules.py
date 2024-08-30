@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0189_moduletype_airflow_rack_airflow_racktype_airflow'),
+        ('dcim', '0189_moduletype_rack_airflow'),
         ('extras', '0121_customfield_related_object_filter'),
     ]
 
