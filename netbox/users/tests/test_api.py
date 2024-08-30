@@ -38,26 +38,26 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
 
         users = (
-            User(username='User1', password='password1'),
-            User(username='User2', password='password2'),
-            User(username='User3', password='password3'),
+            User(username='User1', password='FooBarFooBar1'),
+            User(username='User2', password='FooBarFooBar2'),
+            User(username='User3', password='FooBarFooBar3'),
         )
         User.objects.bulk_create(users)
 
         cls.create_data = [
             {
                 'username': 'User4',
-                'password': 'password4',
+                'password': 'FooBarFooBar4',
                 'permissions': [permissions[0].pk],
             },
             {
                 'username': 'User5',
-                'password': 'password5',
+                'password': 'FooBarFooBar5',
                 'permissions': [permissions[1].pk],
             },
             {
                 'username': 'User6',
-                'password': 'password6',
+                'password': 'FooBarFooBar6',
                 'permissions': [permissions[2].pk],
             },
         ]
@@ -77,12 +77,12 @@ class UserTest(APIViewTestCases.APIViewTestCase):
 
         user_credentials = {
             'username': 'newuser',
-            'password': 'abc123',
+            'password': 'abc123FOO',
         }
         user = User.objects.create_user(**user_credentials)
 
         data = {
-            'password': 'newpassword'
+            'password': 'FooBarFooBar1'
         }
         url = reverse('users-api:user-detail', kwargs={'pk': user.id})
         response = self.client.patch(url, data, format='json', **self.header)
@@ -102,7 +102,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
 
         data = {
             'username': 'new_user',
-            'password': 'foo',
+            'password': 'f1A',
         }
         url = reverse('users-api:user-list')
 
@@ -111,9 +111,29 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 400)
 
         # Password long enough
-        data['password'] = 'foobar123'
+        data['password'] = 'FooBar123'
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
+
+        # Password no number
+        data['password'] = 'foobarFoo'
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+        # Password no letter
+        data['password'] = '123456789012'
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+        # Password no uppercase
+        data['password'] = 'foobarfoo1'
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+        # Password no lowercase
+        data['password'] = 'FOOBARFOO1'
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
 
 
 class GroupTest(APIViewTestCases.APIViewTestCase):

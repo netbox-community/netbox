@@ -21,7 +21,6 @@ from netbox.plugins import PluginConfig
 from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
-
 #
 # Environment setup
 #
@@ -63,7 +62,17 @@ for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
-AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
+AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
+    },
+    {
+        "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
+    },
+])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
