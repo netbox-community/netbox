@@ -31,7 +31,7 @@
             </div>
           </h2>
         </div>
-        <div class="col col-md-2 float-right d-print-none">
+        <div class="col col-md-2 d-print-none">
           <div class="btn-list justify-content-end mb-2">
             {% if perms.extras.edit_scriptmodule %}
               {% url 'extras:scriptmodule_edit' pk=module.pk as edit_url %}
