@@ -64,11 +64,6 @@ class RackTypeSerializer(RackBaseSerializer):
     manufacturer = ManufacturerSerializer(
         nested=True
     )
-    airflow = ChoiceField(
-        choices=RackAirflowChoices,
-        allow_blank=True,
-        required=False
-    )
 
     class Meta:
         model = RackType

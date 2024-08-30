@@ -242,7 +242,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
     # Fields which cannot be set locally if a RackType is assigned
     RACKTYPE_FIELDS = (
-        'form_factor', 'width', 'airflow', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
         'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
     )
 
