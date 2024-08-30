@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 )),
                 ('model', models.CharField(max_length=100)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
-                ('form_factor', models.CharField(blank=True, max_length=50)),
+                ('form_factor', models.CharField(max_length=50)),
                 ('width', models.PositiveSmallIntegerField(default=19)),
                 ('u_height', models.PositiveSmallIntegerField(
                     default=42,
