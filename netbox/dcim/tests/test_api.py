@@ -287,9 +287,9 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1'),
-            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2'),
-            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3'),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
         )
         RackType.objects.bulk_create(rack_types)
 
@@ -298,16 +298,19 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Rack Type 4',
                 'slug': 'rack-type-4',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Rack Type 5',
                 'slug': 'rack-type-5',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Rack Type 6',
                 'slug': 'rack-type-6',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
             },
         ]
 
