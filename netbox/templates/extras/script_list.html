@@ -34,12 +34,14 @@
         <div class="col col-md-2 d-print-none">
           <div class="btn-list justify-content-end mb-2">
             {% if perms.extras.edit_scriptmodule %}
-              {% url 'extras:scriptmodule_edit' pk=module.pk as edit_url %}
-              {% include 'buttons/edit.html' with url=edit_url %}
+              <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-yellow" role="button">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
+              </a>
             {% endif %}
             {% if perms.extras.delete_scriptmodule %}
-              {% url 'extras:scriptmodule_delete' pk=module.pk as delete_url %}
-              {% include 'buttons/delete.html' with url=delete_url %}
+              <a href={% url 'extras:scriptmodule_delete' pk=module.pk %} class="btn btn-red" role="button">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+              </a>
             {% endif %}
           </div>
         </div>
