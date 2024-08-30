@@ -20,7 +20,7 @@ class NumericAlphaPasswordValidator:
 
         if not any(char.islower() for char in password):
             raise ValidationError(
-                _("Password should have at least one lowercase letter"),
+                _("Password must have at least one lowercase letter."),
             )
 
     def get_help_text(self):
