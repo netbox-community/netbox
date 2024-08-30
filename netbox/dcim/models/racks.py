@@ -41,12 +41,6 @@ class RackBase(WeightMixin, PrimaryModel):
     """
     Base class for RackType & Rack. Holds
     """
-    form_factor = models.CharField(
-        choices=RackFormFactorChoices,
-        max_length=50,
-        blank=True,
-        verbose_name=_('form factor')
-    )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
@@ -125,6 +119,11 @@ class RackType(RackBase):
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
     """
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
+        max_length=50,
+        verbose_name=_('form factor')
+    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -246,6 +245,12 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
     )
 
+    form_factor = models.CharField(
+        choices=RackFormFactorChoices,
+        max_length=50,
+        blank=True,
+        verbose_name=_('form factor')
+    )
     rack_type = models.ForeignKey(
         to='dcim.RackType',
         on_delete=models.PROTECT,

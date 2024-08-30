@@ -346,9 +346,9 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], model='RackType 1', slug='rack-type-1',),
-            RackType(manufacturer=manufacturers[0], model='RackType 2', slug='rack-type-2',),
-            RackType(manufacturer=manufacturers[0], model='RackType 3', slug='rack-type-3',),
+            RackType(manufacturer=manufacturers[0], model='RackType 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='RackType 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='RackType 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
         )
         RackType.objects.bulk_create(rack_types)
 
@@ -369,6 +369,7 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'weight': 100,
             'max_weight': 2000,
             'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
