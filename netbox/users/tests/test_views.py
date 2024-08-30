@@ -60,23 +60,6 @@ class UserTestCase(
             'last_name': 'newlastname',
         }
 
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[
-        {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-            "OPTIONS": {
-                "min_length": 8,
-            },
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-        },
-        {
-            "NAME": "utilities.password_validation.NumericAlphaPasswordValidator",
-        },
-    ])
     def test_password_validation_enforced(self):
         """
         Test that any configured password validation rules (AUTH_PASSWORD_VALIDATORS) are enforced.
@@ -97,8 +80,8 @@ class UserTestCase(
         self.assertHttpStatus(response, 200)
 
         # Password long enough
-        data['password'] = 'fooBar12'
-        data['confirm_password'] = 'fooBar12'
+        data['password'] = 'fooBarFoo123'
+        data['confirm_password'] = 'fooBarFoo123'
         self.assertHttpStatus(self.client.post(**request), 302)
 
         # Password no number

@@ -90,23 +90,10 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         user.refresh_from_db()
         self.assertTrue(user.check_password(data['password']))
 
-    @override_settings(AUTH_PASSWORD_VALIDATORS=[
-        {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-            "OPTIONS": {
-                "min_length": 8,
-            },
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-        },
-        {
-            "NAME": "utilities.password_validation.NumericAlphaPasswordValidator",
-        },
-    ])
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8}
+    }])
     def test_password_validation_enforced(self):
         """
         Test that any configured password validation rules (AUTH_PASSWORD_VALIDATORS) are enforced.

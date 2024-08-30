@@ -76,7 +76,7 @@ AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": "utilities.password_validation.NumericAlphaPasswordValidator",
+        "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
     },
 ])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))

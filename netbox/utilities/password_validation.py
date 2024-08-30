@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 
-class NumericAlphaPasswordValidator:
+class AlphanumericPasswordValidator:
     """
     Validate that the password has at least one numeral, one uppercase letter and one lowercase letter.
     """
