@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices
 from circuits.models import Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType
 from dcim.api.serializers_.cables import CabledObjectSerializer
@@ -90,7 +88,7 @@ class CircuitSerializer(NetBoxModelSerializer):
             'install_date', 'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'assignments',
         ]
-        brief_fields = ('id', 'url', 'display', 'cid', 'description')
+        brief_fields = ('id', 'url', 'display', 'provider', 'cid', 'description')
 
 
 class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):

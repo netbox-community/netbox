@@ -92,7 +92,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
-    brief_fields = ['cid', 'description', 'display', 'id', 'url']
+    brief_fields = ['cid', 'description', 'display', 'id', 'provider', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
