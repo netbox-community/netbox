@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
-from django.core.exceptions import FieldError
+from django.core.exceptions import FieldError, ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -221,15 +221,20 @@ class UserForm(forms.ModelForm):
 
         return instance
 
+    def _post_clean(self):
+        super()._post_clean()
+        # Validate the password after self.instance is updated with form data
+        if self.cleaned_data['password']:
+            try:
+                password_validation.validate_password(self.cleaned_data['password'], self.instance)
+            except ValidationError as error:
+                self.add_error('password', error)
+
     def clean(self):
 
         # Check that password confirmation matches if password is set
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
-
-        # Enforce password validation rules (if configured)
-        if self.cleaned_data['password']:
-            password_validation.validate_password(self.cleaned_data['password'], self.instance)
 
 
 class GroupForm(forms.ModelForm):
