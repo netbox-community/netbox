@@ -28,14 +28,12 @@
         </div>
         <div>
           {% if perms.extras.edit_scriptmodule %}
-            <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-warning btn-sm">
-              <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
-            </a>
+            {% url 'extras:scriptmodule_edit' pk=module.pk as edit_url %}
+            {% include 'buttons/edit.html' with url=edit_url %}
           {% endif %}
           {% if perms.extras.delete_scriptmodule %}
-            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-            </a>
+            {% url 'extras:scriptmodule_delete' pk=module.pk as delete_url %}
+            {% include 'buttons/delete.html' with url=delete_url %}
           {% endif %}
         </div>
       </h2>
