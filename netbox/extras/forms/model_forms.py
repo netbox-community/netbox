@@ -59,7 +59,8 @@ class CustomFieldForm(forms.ModelForm):
     )
     related_object_filter = JSONField(
         label=_('Related object filter'),
-        required=False
+        required=False,
+        help_text=_('Specify query parameters as a JSON object.')
     )
     choice_set = DynamicModelChoiceField(
         queryset=CustomFieldChoiceSet.objects.all()
