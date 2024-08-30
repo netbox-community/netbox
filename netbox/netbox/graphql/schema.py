@@ -36,6 +36,6 @@ schema = strawberry.Schema(
     query=Query,
     config=StrawberryConfig(auto_camel_case=False),
     extensions=[
-        DjangoOptimizerExtension,
+        DjangoOptimizerExtension(prefetch_custom_queryset=True),
     ]
 )
