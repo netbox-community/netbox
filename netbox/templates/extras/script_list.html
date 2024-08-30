@@ -22,21 +22,28 @@
   {% for module in script_modules %}
     {% include 'inc/sync_warning.html' with object=module %}
     <div class="card">
-      <h2 class="card-header justify-content-between" id="module{{ module.pk }}">
-        <div>
-          <i class="mdi mdi-file-document-outline"></i> {{ module }}
+
+      <div class="card-header container-fluid">
+        <div class="col col-md-10">
+          <h2 id="module{{ module.pk }}">
+            <div>
+              <i class="mdi mdi-file-document-outline"></i> {{ module }}
+            </div>
+          </h2>
         </div>
-        <div>
-          {% if perms.extras.edit_scriptmodule %}
-            {% url 'extras:scriptmodule_edit' pk=module.pk as edit_url %}
-            {% include 'buttons/edit.html' with url=edit_url %}
-          {% endif %}
-          {% if perms.extras.delete_scriptmodule %}
-            {% url 'extras:scriptmodule_delete' pk=module.pk as delete_url %}
-            {% include 'buttons/delete.html' with url=delete_url %}
-          {% endif %}
+        <div class="col col-md-2 float-right d-print-none">
+          <div class="btn-list justify-content-end mb-2">
+            {% if perms.extras.edit_scriptmodule %}
+              {% url 'extras:scriptmodule_edit' pk=module.pk as edit_url %}
+              {% include 'buttons/edit.html' with url=edit_url %}
+            {% endif %}
+            {% if perms.extras.delete_scriptmodule %}
+              {% url 'extras:scriptmodule_delete' pk=module.pk as delete_url %}
+              {% include 'buttons/delete.html' with url=delete_url %}
+            {% endif %}
+          </div>
         </div>
-      </h2>
+      </div>
       {% if module.scripts %}
         <table class="table table-hover scripts">
           <thead>
