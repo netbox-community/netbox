@@ -125,7 +125,7 @@ class Command(BaseCommand):
         job = Job.objects.create(
             object=module,
             name=script.class_name,
-            user=User.objects.filter(is_superuser=True).order_by('pk')[0],
+            user=user,
             job_id=uuid.uuid4()
         )
 
