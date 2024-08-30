@@ -40,12 +40,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet(
-            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible',
-            'ui_editable', 'is_cloneable', name=_('Attributes')
+            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'unique', 'choice_set_id',
+            name=_('Attributes')
         ),
-        FieldSet(
-            'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_unique', name=_('Validation')
-        ),
+        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
+        FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
     related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -67,6 +66,13 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
     required = forms.NullBooleanField(
         label=_('Required'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    unique = forms.NullBooleanField(
+        label=_('Must be unique'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -105,13 +111,6 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     validation_regex = forms.CharField(
         label=_('Validation regex'),
         required=False
-    )
-    validation_unique = forms.NullBooleanField(
-        label=_('Must be unique'),
-        required=False,
-        widget=forms.Select(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
     )
 
 

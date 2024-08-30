@@ -39,6 +39,10 @@
           <td>{% checkmark object.required %}</td>
         </tr>
         <tr>
+          <th scope="row">{% trans "Must be Unique" %}</th>
+          <td>{% checkmark object.unique %}</td>
+        </tr>
+        <tr>
           <th scope="row">{% trans "Cloneable" %}</th>
           <td>{% checkmark object.is_cloneable %}</td>
         </tr>
@@ -127,10 +131,6 @@
               {{ ''|placeholder }}
             {% endif %}
           </td>
-        </tr>
-        <tr>
-          <th scope="row">{% trans "Must be Unique" %}</th>
-          <td>{% checkmark object.validation_unique %}</td>
         </tr>
       </table>
     </div>

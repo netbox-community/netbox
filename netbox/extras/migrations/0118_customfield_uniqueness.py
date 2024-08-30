@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='customfield',
-            name='validation_unique',
+            name='unique',
             field=models.BooleanField(default=False),
         ),
     ]

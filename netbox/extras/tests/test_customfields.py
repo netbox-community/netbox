@@ -1143,7 +1143,7 @@ class CustomFieldAPITest(APITestCase):
     def test_uniqueness_validation(self):
         # Create a unique custom field
         cf_text = CustomField.objects.get(name='text_field')
-        cf_text.validation_unique = True
+        cf_text.unique = True
         cf_text.save()
 
         # Set a value on site 1
