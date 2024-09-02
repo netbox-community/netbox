@@ -112,4 +112,4 @@ Authorization: Token $TOKEN
 
 ## Disabling the GraphQL API
 
-If not needed, the GraphQL API can be disabled by setting the [`GRAPHQL_ENABLED`](../configuration/miscellaneous.md#graphql_enabled) configuration parameter to False and restarting NetBox.
+If not needed, the GraphQL API can be disabled by setting the [`GRAPHQL_ENABLED`](../configuration/graphql-api.md#graphql_enabled) configuration parameter to False and restarting NetBox.

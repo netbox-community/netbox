@@ -119,6 +119,7 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
