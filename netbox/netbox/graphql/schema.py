@@ -1,4 +1,5 @@
 import strawberry
+from django.conf import settings
 from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.extensions import MaxAliasesLimiter
 from strawberry.schema.config import StrawberryConfig
@@ -38,6 +39,6 @@ schema = strawberry.Schema(
     config=StrawberryConfig(auto_camel_case=False),
     extensions=[
         DjangoOptimizerExtension,
-        MaxAliasesLimiter(max_alias_count=10),
+        MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
     ]
 )

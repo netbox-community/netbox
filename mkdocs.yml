@@ -109,6 +109,7 @@ nav:
         - Required Parameters: 'configuration/required-parameters.md'
         - System: 'configuration/system.md'
         - Security: 'configuration/security.md'
+        - GraphQL API: 'configuration/graphql-api.md'
         - Remote Authentication: 'configuration/remote-authentication.md'
         - Data & Validation: 'configuration/data-validation.md'
         - Default Values: 'configuration/default-values.md'
