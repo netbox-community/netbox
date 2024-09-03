@@ -1,5 +1,15 @@
 # NetBox v4.0
 
+## v4.0.11 (2024-09-03)
+
+### Bug Fixes
+
+* [#17310](https://github.com/netbox-community/netbox/issues/17310) - Enforce restricted queryset for related objects in GraphQL API requests
+* [#17321](https://github.com/netbox-community/netbox/issues/17321) - Ensure the job is attributed to the specified user when using the `runscript` management command
+* [#17323](https://github.com/netbox-community/netbox/issues/17323) - Associate job with script object when executed using the `runscript` management command
+* [#17337](https://github.com/netbox-community/netbox/issues/17337) - Fix ordering of virtual device contexts by device name
+* [#17341](https://github.com/netbox-community/netbox/issues/17341) - Avoid `NoReverseMatch` exceptions with specific dashboard widget configurations
+
 ## v4.0.10 (2024-08-29)
 
 ### Enhancements
