@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        def _run_script():
+        def _run_script(script):
             """
             Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
             the event_tracking context manager (which is bypassed if commit == False).
@@ -85,7 +85,6 @@ class Command(BaseCommand):
 
         module_name, script_name = script.split('.', 1)
         module, script = get_module_and_script(module_name, script_name)
-        script = script.python_class
 
         # Take user from command line if provided and exists, other
         if options['user']:
@@ -102,7 +101,7 @@ class Command(BaseCommand):
         stdouthandler.setLevel(logging.DEBUG)
         stdouthandler.setFormatter(formatter)
 
-        logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
+        logger = logging.getLogger(f"netbox.scripts.{script.python_class.full_name}")
         logger.addHandler(stdouthandler)
 
         try:
@@ -118,13 +117,13 @@ class Command(BaseCommand):
             raise CommandError(f"Invalid log level: {loglevel}")
 
         # Initialize the script form
-        script = script()
-        form = script.as_form(data, None)
+        script_instance = script.python_class()
+        form = script_instance.as_form(data, None)
 
         # Create the job
         job = Job.objects.create(
-            object=module,
-            name=script.class_name,
+            object=script,
+            name=script_instance.class_name,
             user=user,
             job_id=uuid.uuid4()
         )
@@ -149,7 +148,7 @@ class Command(BaseCommand):
             # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
             # change logging, webhooks, etc.
             with event_tracking(request):
-                _run_script()
+                _run_script(script_instance)
         else:
             logger.error('Data is not valid:')
             for field, errors in form.errors.get_json_data().items():
