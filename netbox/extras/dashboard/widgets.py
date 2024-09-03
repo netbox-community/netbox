@@ -183,7 +183,10 @@ class ObjectCountsWidget(DashboardWidget):
         for model in get_models_from_content_types(self.config['models']):
             permission = get_permission_for_model(model, 'view')
             if request.user.has_perm(permission):
-                url = reverse(get_viewname(model, 'list'))
+                try:
+                    url = reverse(get_viewname(model, 'list'))
+                except Exception:
+                    url = '#'
                 qs = model.objects.restrict(request.user, 'view')
                 # Apply any specified filters
                 if filters := self.config.get('filters'):
