@@ -1,6 +1,6 @@
 # NetBox v4.1
 
-## v4.1.0 (FUTURE)
+## v4.1.0 (2024-09-03)
 
 ### Breaking Changes
 

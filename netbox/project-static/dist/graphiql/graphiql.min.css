@@ -1199,7 +1199,7 @@ a.graphiql-doc-explorer-field-name:focus {
   }
 .graphiql-doc-explorer-search:not(:focus-within) [role='combobox'] {
     height: 24px;
-    width: 4ch;
+    width: 5ch;
   }
 .graphiql-doc-explorer-search [role='combobox']:focus {
     width: 100%;
