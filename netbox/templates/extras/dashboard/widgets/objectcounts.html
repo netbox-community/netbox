@@ -3,7 +3,7 @@
 {% if counts %}
   <div class="list-group list-group-flush">
     {% for model, count, url in counts %}
-      <a href="{{ url }}" class="list-group-item list-group-item-action px-1 py-2">
+      <a {% if url %}href="{{ url }}" {% endif %}class="list-group-item list-group-item-action px-1 py-2">
         <div class="d-flex w-100 justify-content-between align-items-center">
           {{ model|meta:"verbose_name_plural"|bettertitle }}
           {% if count is None %}
