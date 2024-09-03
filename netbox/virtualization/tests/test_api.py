@@ -253,6 +253,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     graphql_base_name = 'vm_interface'
+    user_permissions = ('virtualization.view_virtualmachine', )
 
     @classmethod
     def setUpTestData(cls):
@@ -342,6 +343,7 @@ class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
         'size': 888,
     }
     graphql_base_name = 'virtual_disk'
+    user_permissions = ('virtualization.view_virtualmachine', )
 
     @classmethod
     def setUpTestData(cls):

@@ -1031,7 +1031,7 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     )
     device = tables.TemplateColumn(
         verbose_name=_('Device'),
-        order_by=('_name',),
+        order_by=('device___name',),
         template_code=DEVICE_LINK,
         linkify=True
     )
