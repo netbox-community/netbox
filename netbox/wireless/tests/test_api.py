@@ -116,6 +116,7 @@ class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
         'distance': 100,
         'distance_unit': 'm',
     }
+    user_permissions = ('dcim.view_interface', )
 
     @classmethod
     def setUpTestData(cls):
