@@ -1,32 +1,29 @@
 import uuid
 from datetime import datetime, timezone
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Provider
-from core.choices import ManagedFileRootPathChoices
-from core.models import ObjectType
+from core.choices import ManagedFileRootPathChoices, ObjectChangeActionChoices
+from core.events import *
+from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from dcim.models import Location
 from extras.choices import *
 from extras.filtersets import *
 from extras.models import *
-from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group, User
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-
-
-User = get_user_model()
 
 
 class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
-    ignore_fields = ('default',)
+    ignore_fields = ('default', 'related_object_filter')
 
     @classmethod
     def setUpTestData(cls):
@@ -255,7 +252,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 class EventRuleTestCase(TestCase, BaseFilterSetTests):
     queryset = EventRule.objects.all()
     filterset = EventRuleFilterSet
-    ignore_fields = ('action_data', 'conditions')
+    ignore_fields = ('action_data', 'conditions', 'event_types')
 
     @classmethod
     def setUpTestData(cls):
@@ -296,11 +293,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 1',
                 action_object=webhooks[0],
                 enabled=True,
-                type_create=True,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_CREATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar1'
             ),
@@ -308,11 +301,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 2',
                 action_object=webhooks[1],
                 enabled=True,
-                type_create=False,
-                type_update=True,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_UPDATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar2'
             ),
@@ -320,11 +309,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 3',
                 action_object=webhooks[2],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=True,
-                type_job_start=False,
-                type_job_end=False,
+                event_types=[OBJECT_DELETED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 description='foobar3'
             ),
@@ -332,22 +317,14 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 name='Event Rule 4',
                 action_object=scripts[0],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=True,
-                type_job_end=False,
+                event_types=[JOB_STARTED],
                 action_type=EventRuleActionChoices.SCRIPT,
             ),
             EventRule(
                 name='Event Rule 5',
                 action_object=scripts[1],
                 enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=True,
+                event_types=[JOB_COMPLETED],
                 action_type=EventRuleActionChoices.SCRIPT,
             ),
         )
@@ -388,25 +365,9 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_type_create(self):
-        params = {'type_create': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_update(self):
-        params = {'type_update': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_delete(self):
-        params = {'type_delete': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_start(self):
-        params = {'type_job_start': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_end(self):
-        params = {'type_job_end': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+    def test_event_type(self):
+        params = {'event_type': [OBJECT_CREATED, OBJECT_UPDATED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1137,6 +1098,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'asnrange',
         'cable',
         'circuit',
+        'circuitgroup',
+        'circuitgroupassignment',
         'circuittermination',
         'circuittype',
         'cluster',
@@ -1188,6 +1151,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'rack',
         'rackreservation',
         'rackrole',
+        'racktype',
         'rearport',
         'region',
         'rir',
@@ -1278,102 +1242,6 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
             list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
             ['Tag 2', 'Tag 3']
         )
-
-
-class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
-    queryset = ObjectChange.objects.all()
-    filterset = ObjectChangeFilterSet
-    ignore_fields = ('prechange_data', 'postchange_data')
-
-    @classmethod
-    def setUpTestData(cls):
-        users = (
-            User(username='user1'),
-            User(username='user2'),
-            User(username='user3'),
-        )
-        User.objects.bulk_create(users)
-
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        ipaddress = IPAddress.objects.create(address='192.0.2.1/24')
-
-        object_changes = (
-            ObjectChange(
-                user=users[0],
-                user_name=users[0].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_CREATE,
-                changed_object=site,
-                object_repr=str(site),
-                postchange_data={'name': site.name, 'slug': site.slug}
-            ),
-            ObjectChange(
-                user=users[0],
-                user_name=users[0].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_UPDATE,
-                changed_object=site,
-                object_repr=str(site),
-                postchange_data={'name': site.name, 'slug': site.slug}
-            ),
-            ObjectChange(
-                user=users[1],
-                user_name=users[1].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_DELETE,
-                changed_object=site,
-                object_repr=str(site),
-                postchange_data={'name': site.name, 'slug': site.slug}
-            ),
-            ObjectChange(
-                user=users[1],
-                user_name=users[1].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_CREATE,
-                changed_object=ipaddress,
-                object_repr=str(ipaddress),
-                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
-            ),
-            ObjectChange(
-                user=users[2],
-                user_name=users[2].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_UPDATE,
-                changed_object=ipaddress,
-                object_repr=str(ipaddress),
-                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
-            ),
-            ObjectChange(
-                user=users[2],
-                user_name=users[2].username,
-                request_id=uuid.uuid4(),
-                action=ObjectChangeActionChoices.ACTION_DELETE,
-                changed_object=ipaddress,
-                object_repr=str(ipaddress),
-                postchange_data={'address': ipaddress.address, 'status': ipaddress.status}
-            ),
-        )
-        ObjectChange.objects.bulk_create(object_changes)
-
-    def test_q(self):
-        params = {'q': 'Site 1'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_user(self):
-        params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'user': ['user1', 'user2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_user_name(self):
-        params = {'user_name': ['user1', 'user2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_changed_object_type(self):
-        params = {'changed_object_type': 'dcim.site'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'changed_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class ChangeLoggedFilterSetTestCase(TestCase):
@@ -1467,3 +1335,65 @@ class ChangeLoggedFilterSetTestCase(TestCase):
         params = {'modified_by_request': self.create_update_request_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         self.assertEqual(self.queryset.count(), 4)
+
+
+class NotificationGroupTestCase(TestCase, BaseFilterSetTests):
+    queryset = NotificationGroup.objects.all()
+    filterset = NotificationGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        notification_groups = (
+            NotificationGroup(name='Notification Group 1'),
+            NotificationGroup(name='Notification Group 2'),
+            NotificationGroup(name='Notification Group 3'),
+        )
+        NotificationGroup.objects.bulk_create(notification_groups)
+        notification_groups[0].users.add(users[0])
+        notification_groups[1].users.add(users[1])
+        notification_groups[2].users.add(users[2])
+        notification_groups[0].groups.add(groups[0])
+        notification_groups[1].groups.add(groups[1])
+        notification_groups[2].groups.add(groups[2])
+
+    def test_user(self):
+        users = User.objects.filter(username__startswith='User')
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_group(self):
+        groups = Group.objects.all()
+        params = {'group': [groups[0].name, groups[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

@@ -1,10 +1,9 @@
 from typing import List
 
 import strawberry_django
-from django.contrib.auth import get_user_model
 
 from netbox.graphql.types import BaseObjectType
-from users.models import Group
+from users.models import Group, User
 from .filters import *
 
 __all__ = (
@@ -23,7 +22,7 @@ class GroupType(BaseObjectType):
 
 
 @strawberry_django.type(
-    get_user_model(),
+    User,
     fields=[
         'id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined', 'groups',
     ],

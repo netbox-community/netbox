@@ -22,6 +22,7 @@
     "validate:formatting:scripts": "prettier -c src/**/*.ts"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.0.22",
     "@mdi/font": "7.4.47",
     "@tabler/core": "1.0.0-beta20",
     "bootstrap": "5.3.3",
@@ -32,7 +33,6 @@
     "query-string": "9.1.0",
     "sass": "1.77.8",
     "tom-select": "2.3.1",
-    "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"
   },
   "devDependencies": {
@@ -41,12 +41,12 @@
     "@types/node": "^22.3.0",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.23.1",
     "esbuild-sass-plugin": "^3.3.1",
     "eslint": "<9.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.5.1",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.3.3",
     "typescript": "<5.5"

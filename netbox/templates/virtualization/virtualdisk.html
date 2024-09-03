@@ -15,7 +15,7 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Virtual Disk" %}</h5>
+        <h2 class="card-header">{% trans "Virtual Disk" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Virtual Machine" %}</th>
@@ -29,7 +29,7 @@
             <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Size" %}</th>
             <td>
               {% if object.size %}
-                {{ object.size }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                {{ object.size|humanize_megabytes }}
               {% else %}
                 {{ ''|placeholder }}
               {% endif %}

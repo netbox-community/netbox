@@ -3,16 +3,18 @@ import re
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelImportForm
+from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVMultipleContentTypeField, SlugField,
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
+    CSVMultipleContentTypeField, SlugField,
 )
 
 __all__ = (
@@ -23,6 +25,7 @@ __all__ = (
     'EventRuleImportForm',
     'ExportTemplateImportForm',
     'JournalEntryImportForm',
+    'NotificationGroupImportForm',
     'SavedFilterImportForm',
     'TagImportForm',
     'WebhookImportForm',
@@ -69,8 +72,8 @@ class CustomFieldImportForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'description',
-            'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
+            'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'unique',
+            'description', 'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
             'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable', 'comments',
         )
 
@@ -184,6 +187,11 @@ class EventRuleImportForm(NetBoxModelImportForm):
         queryset=ObjectType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
     )
+    event_types = CSVMultipleChoiceField(
+        choices=get_event_type_choices(),
+        label=_('Event types'),
+        help_text=_('The event type(s) which will trigger this rule')
+    )
     action_object = forms.CharField(
         label=_('Action object'),
         required=True,
@@ -193,8 +201,8 @@ class EventRuleImportForm(NetBoxModelImportForm):
     class Meta:
         model = EventRule
         fields = (
-            'name', 'description', 'enabled', 'conditions', 'object_types', 'type_create', 'type_update',
-            'type_delete', 'type_job_start', 'type_job_end', 'action_type', 'action_object', 'comments', 'tags'
+            'name', 'description', 'enabled', 'conditions', 'object_types', 'event_types', 'action_type',
+            'action_object', 'comments', 'tags'
         )
 
     def clean(self):
@@ -246,3 +254,24 @@ class JournalEntryImportForm(NetBoxModelImportForm):
         fields = (
             'assigned_object_type', 'assigned_object_id', 'created_by', 'kind', 'comments', 'tags'
         )
+
+
+class NotificationGroupImportForm(CSVModelForm):
+    users = CSVModelMultipleChoiceField(
+        label=_('Users'),
+        queryset=User.objects.all(),
+        required=False,
+        to_field_name='username',
+        help_text=_('User names separated by commas, encased with double quotes')
+    )
+    groups = CSVModelMultipleChoiceField(
+        label=_('Groups'),
+        queryset=Group.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Group names separated by commas, encased with double quotes')
+    )
+
+    class Meta:
+        model = NotificationGroup
+        fields = ('name', 'description', 'users', 'groups')

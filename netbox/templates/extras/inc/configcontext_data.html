@@ -2,13 +2,13 @@
 {% load i18n %}
 
 {% if title %}
-  <h5 class="card-header d-flex justify-content-between">
+  <h2 class="card-header d-flex justify-content-between">
     {% trans title %}
     <div>
       {% if copyid %}{% copy_content copyid %}{% endif %}
       {% include 'extras/inc/format_toggle.html' %}
     </div>
-  </h5>
+  </h2>
 {% endif %}
 <div class="card-body">
   <div class="rendered-context-data mt-1">

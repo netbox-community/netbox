@@ -35,6 +35,15 @@ class ExtrasQuery:
     journal_entry: JournalEntryType = strawberry_django.field()
     journal_entry_list: List[JournalEntryType] = strawberry_django.field()
 
+    notification: NotificationType = strawberry_django.field()
+    notification_list: List[NotificationType] = strawberry_django.field()
+
+    notification_group: NotificationGroupType = strawberry_django.field()
+    notification_group_list: List[NotificationGroupType] = strawberry_django.field()
+
+    subscription: SubscriptionType = strawberry_django.field()
+    subscription_list: List[SubscriptionType] = strawberry_django.field()
+
     tag: TagType = strawberry_django.field()
     tag_list: List[TagType] = strawberry_django.field()
 

@@ -55,4 +55,19 @@ urlpatterns = [
     path('circuit-terminations/delete/', views.CircuitTerminationBulkDeleteView.as_view(), name='circuittermination_bulk_delete'),
     path('circuit-terminations/<int:pk>/', include(get_model_urls('circuits', 'circuittermination'))),
 
+    # Circuit Groups
+    path('circuit-groups/', views.CircuitGroupListView.as_view(), name='circuitgroup_list'),
+    path('circuit-groups/add/', views.CircuitGroupEditView.as_view(), name='circuitgroup_add'),
+    path('circuit-groups/import/', views.CircuitGroupBulkImportView.as_view(), name='circuitgroup_import'),
+    path('circuit-groups/edit/', views.CircuitGroupBulkEditView.as_view(), name='circuitgroup_bulk_edit'),
+    path('circuit-groups/delete/', views.CircuitGroupBulkDeleteView.as_view(), name='circuitgroup_bulk_delete'),
+    path('circuit-groups/<int:pk>/', include(get_model_urls('circuits', 'circuitgroup'))),
+
+    # Circuit Group Assignments
+    path('circuit-group-assignments/', views.CircuitGroupAssignmentListView.as_view(), name='circuitgroupassignment_list'),
+    path('circuit-group-assignments/add/', views.CircuitGroupAssignmentEditView.as_view(), name='circuitgroupassignment_add'),
+    path('circuit-group-assignments/import/', views.CircuitGroupAssignmentBulkImportView.as_view(), name='circuitgroupassignment_import'),
+    path('circuit-group-assignments/edit/', views.CircuitGroupAssignmentBulkEditView.as_view(), name='circuitgroupassignment_bulk_edit'),
+    path('circuit-group-assignments/delete/', views.CircuitGroupAssignmentBulkDeleteView.as_view(), name='circuitgroupassignment_bulk_delete'),
+    path('circuit-group-assignments/<int:pk>/', include(get_model_urls('circuits', 'circuitgroupassignment'))),
 ]

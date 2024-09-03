@@ -17,6 +17,12 @@ class CircuitsQuery:
     circuit_type: CircuitTypeType = strawberry_django.field()
     circuit_type_list: List[CircuitTypeType] = strawberry_django.field()
 
+    circuit_group: CircuitGroupType = strawberry_django.field()
+    circuit_group_list: List[CircuitGroupType] = strawberry_django.field()
+
+    circuit_group_assignment: CircuitGroupAssignmentType = strawberry_django.field()
+    circuit_group_assignment_list: List[CircuitGroupAssignmentType] = strawberry_django.field()
+
     provider: ProviderType = strawberry_django.field()
     provider_list: List[ProviderType] = strawberry_django.field()
 

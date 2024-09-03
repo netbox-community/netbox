@@ -28,7 +28,7 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Data Source" %}</h5>
+        <h2 class="card-header">{% trans "Data Source" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -81,7 +81,7 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Backend" %}</h5>
+        <h2 class="card-header">{% trans "Backend" %}</h2>
           {% with backend=object.backend_class %}
             <table class="table table-hover attr-table">
               {% for name, field in backend.parameters.items %}
@@ -111,7 +111,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Files" %}</h5>
+        <h2 class="card-header">{% trans "Files" %}</h2>
         {% htmx_table 'core:datafile_list' source_id=object.pk %}
       </div>
       {% plugin_full_width_page object %}

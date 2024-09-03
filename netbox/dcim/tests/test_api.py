@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -11,13 +10,11 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
-
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -195,7 +192,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
-    user_permissions = ('dcim.view_site', )
+    user_permissions = ('dcim.view_site',)
 
     @classmethod
     def setUpTestData(cls):
@@ -273,6 +270,51 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3', color='0000ff'),
         )
         RackRole.objects.bulk_create(rack_roles)
+
+
+class RackTypeTest(APIViewTestCases.APIViewTestCase):
+    model = RackType
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
+    bulk_update_data = {
+        'description': 'new description',
+    }
+    user_permissions = ('dcim.view_manufacturer',)
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+        )
+        RackType.objects.bulk_create(rack_types)
+
+        cls.create_data = [
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Rack Type 4',
+                'slug': 'rack-type-4',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Rack Type 5',
+                'slug': 'rack-type-5',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'model': 'Rack Type 6',
+                'slug': 'rack-type-6',
+                'form_factor': RackFormFactorChoices.TYPE_CABINET,
+            },
+        ]
 
 
 class RackTest(APIViewTestCases.APIViewTestCase):
@@ -1329,7 +1371,8 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
             ModuleBay(device=device, name='Module Bay 5'),
             ModuleBay(device=device, name='Module Bay 6'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=device, module_bay=module_bays[0], module_type=module_types[0]),
@@ -1795,12 +1838,13 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
         device = Device.objects.create(device_type=device_type, role=role, name='Device 1', site=site)
 
-        device_bays = (
+        module_bays = (
             ModuleBay(device=device, name='Device Bay 1'),
             ModuleBay(device=device, name='Device Bay 2'),
             ModuleBay(device=device, name='Device Bay 3'),
         )
-        ModuleBay.objects.bulk_create(device_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         cls.create_data = [
             {

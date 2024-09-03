@@ -6,7 +6,7 @@
 {% block title %}{{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">{% trans "Change Log" %}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'core:objectchange_list' %}">{% trans "Change Log" %}</a></li>
   {% if object.related_object and object.related_object.get_absolute_url %}
     <li class="breadcrumb-item"><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
   {% elif object.changed_object and object.changed_object.get_absolute_url %}
@@ -26,7 +26,7 @@
 <div class="row">
     <div class="col col-md-5">
         <div class="card">
-            <h5 class="card-header">{% trans "Change" %}</h5>
+            <h2 class="card-header">{% trans "Change" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Time" %}</th>
@@ -75,17 +75,17 @@
     </div>
     <div class="col col-md-7">
         <div class="card">
-            <h5 class="card-header d-flex justify-content-between">
+            <h2 class="card-header d-flex justify-content-between">
               {% trans "Difference" %}
               <div class="btn-group btn-group-sm d-print-none">
-                <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                <a {% if prev_change %}href="{% url 'core:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
                   <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
                 </a>
-                <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                <a {% if next_change %}href="{% url 'core:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
                   {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
                 </a>
               </div>
-            </h5>
+            </h2>
             <div class="card-body">
                 {% if diff_added == diff_removed %}
                     <span class="text-muted" style="margin-left: 10px;">
@@ -108,7 +108,7 @@
 <div class="row">
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
+            <h2 class="card-header">{% trans "Pre-Change Data" %}</h2>
             <div class="card-body">
             {% if object.prechange_data %}
               {% spaceless %}
@@ -119,7 +119,7 @@
                 </pre>
               {% endspaceless %}
             {% elif non_atomic_change %}
-              {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
+              {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'core:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
             {% else %}
               <span class="text-muted">{% trans "None" %}</span>
             {% endif %}
@@ -128,7 +128,7 @@
     </div>
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Post-Change Data" %}</h5>
+            <h2 class="card-header">{% trans "Post-Change Data" %}</h2>
             <div class="card-body">
                 {% if object.postchange_data %}
                   {% spaceless %}
@@ -158,7 +158,7 @@
         {% include 'inc/panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
         {% if related_changes_count > related_changes_table.rows|length %}
             <div class="float-end">
-                <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">
+                <a href="{% url 'core:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">
                   {% blocktrans trimmed with count=related_changes_count|add:"1" %}
                     See All {{ count }} Changes
                   {% endblocktrans %}

@@ -243,6 +243,17 @@ class PowerPortIndex(SearchIndex):
 
 
 @register_search
+class RackTypeIndex(SearchIndex):
+    model = models.RackType
+    fields = (
+        ('model', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('type', 'description')
+
+
+@register_search
 class RackIndex(SearchIndex):
     model = models.Rack
     fields = (

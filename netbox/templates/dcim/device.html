@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col col-12 col-xl-6">
             <div class="card">
-                <h5 class="card-header">{% trans "Device" %}</h5>
+                <h2 class="card-header">{% trans "Device" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Region" %}</th>
@@ -87,7 +87,7 @@
                     <tr>
                         <th scope="row">{% trans "Device Type" %}</th>
                         <td>
-                            {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
+                            {{ object.device_type|linkify:"full_name" }} ({{ object.device_type.u_height|floatformat }}U)
                         </td>
                     </tr>
                     <tr>
@@ -116,14 +116,14 @@
             </div>
             {% if vc_members %}
                 <div class="card">
-                    <h5 class="card-header">
+                    <h2 class="card-header">
                       {% trans "Virtual Chassis" %}
                       <div class="card-actions">
                         <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
                           <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> {% trans "View Virtual Chassis" %}
                         </a>
                       </div>
-                    </h5>
+                    </h2>
                     <table class="table table-hover attr-table">
                       <thead>
                         <tr class="border-bottom">
@@ -156,7 +156,7 @@
             {% include 'inc/panels/tags.html' %}
             {% include 'inc/panels/comments.html' %}
             <div class="card">
-              <h5 class="card-header">
+              <h2 class="card-header">
                 {% trans "Virtual Device Contexts" %}
                 {% if perms.dcim.add_virtualdevicecontext %}
                   <div class="card-actions">
@@ -165,14 +165,14 @@
                     </a>
                   </div>
                 {% endif %}
-              </h5>
+              </h2>
               {% htmx_table 'dcim:virtualdevicecontext_list' device_id=object.pk %}
             </div>
             {% plugin_left_page object %}
         </div>
         <div class="col col-12 col-xl-6">
             <div class="card">
-                <h5 class="card-header">{% trans "Management" %}</h5>
+                <h2 class="card-header">{% trans "Management" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Status" %}</th>
@@ -249,7 +249,7 @@
             </div>
             {% if object.powerports.exists and object.poweroutlets.exists %}
                 <div class="card">
-                    <h5 class="card-header">{% trans "Power Utilization" %}</h5>
+                    <h2 class="card-header">{% trans "Power Utilization" %}</h2>
                     <table class="table table-hover">
                         <thead>
                           <tr>
@@ -298,7 +298,7 @@
                 </div>
             {% endif %}
             <div class="card">
-              <h5 class="card-header">
+              <h2 class="card-header">
                 {% trans "Services" %}
                 {% if perms.ipam.add_service %}
                   <div class="card-actions">
@@ -307,12 +307,12 @@
                     </a>
                   </div>
                 {% endif %}
-              </h5>
+              </h2>
               {% htmx_table 'ipam:service_list' device_id=object.pk %}
             </div>
             {% include 'inc/panels/image_attachments.html' %}
             <div class="card">
-                <h5 class="card-header">{% trans "Dimensions" %}</h5>
+                <h2 class="card-header">{% trans "Dimensions" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Height" %}</th>
@@ -336,13 +336,13 @@
               <div class="row" style="margin-bottom: 20px">
                 <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
                   <div style="margin-left: 30px">
-                    <h4>{% trans "Front" %}</h4>
+                    <h2 class="h4">{% trans "Front" %}</h2>
                     {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' extra_params=svg_extra %}
                   </div>
                 </div>
                 <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
                   <div style="margin-left: 30px">
-                    <h4>{% trans "Rear" %}</h4>
+                    <h2 class="h4">{% trans "Rear" %}</h2>
                     {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' extra_params=svg_extra %}
                   </div>
                 </div>

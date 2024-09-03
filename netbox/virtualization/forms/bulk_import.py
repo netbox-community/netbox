@@ -137,7 +137,7 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'config_template', 'comments', 'tags',
+            'description', 'serial', 'config_template', 'comments', 'tags',
         )
 
 

@@ -7,11 +7,11 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Interface" %} A</h5>
+        <h2 class="card-header">{% trans "Interface" %} A</h2>
         {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_a %}
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Link Properties" %}</h5>
+        <h2 class="card-header">{% trans "Link Properties" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Status" %}</th>
@@ -34,6 +34,16 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Distance" %}</th>
+            <td>
+              {% if object.distance is not None %}
+                {{ object.distance|floatformat }} {{ object.get_distance_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
@@ -42,7 +52,7 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Interface" %} B</h5>
+        <h2 class="card-header">{% trans "Interface" %} B</h2>
         {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_b %}
       </div>
       {% include 'wireless/inc/authentication_attrs.html' %}

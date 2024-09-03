@@ -1,8 +1,7 @@
 import json
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ManyToManyField, ManyToManyRel, JSONField
 from django.forms.models import model_to_dict
@@ -11,7 +10,8 @@ from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
 from core.models import ObjectType
-from users.models import ObjectPermission
+from users.models import ObjectPermission, User
+from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
 from utilities.permissions import resolve_permission_type
 from .utils import DUMMY_CF_DATA, extract_form_failures
@@ -28,7 +28,7 @@ class TestCase(_TestCase):
     def setUp(self):
 
         # Create the test user and assign permissions
-        self.user = get_user_model().objects.create_user(username='testuser')
+        self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
 
         # Initialize the test client
@@ -136,9 +136,15 @@ class ModelTestCase(TestCase):
 
                 # Convert ArrayFields to CSV strings
                 if type(field) is ArrayField:
-                    if type(field.base_field) is ArrayField:
+                    if getattr(field.base_field, 'choices', None):
+                        # Values for fields with pre-defined choices can be returned as lists
+                        model_dict[key] = value
+                    elif type(field.base_field) is ArrayField:
                         # Handle nested arrays (e.g. choice sets)
                         model_dict[key] = '\n'.join([f'{k},{v}' for k, v in value])
+                    elif issubclass(type(field.base_field), RangeField):
+                        # Handle arrays of numeric ranges (e.g. VLANGroup VLAN ID ranges)
+                        model_dict[key] = ranges_to_string(value)
                     else:
                         model_dict[key] = ','.join([str(v) for v in value])
 

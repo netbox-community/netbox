@@ -1,7 +1,3 @@
-# Prefix for nested serializers
-# TODO: Remove in v4.1
-NESTED_SERIALIZER_PREFIX = 'Nested'
-
 # RQ queue names
 RQ_QUEUE_DEFAULT = 'default'
 RQ_QUEUE_HIGH = 'high'
@@ -27,6 +23,9 @@ ADVISORY_LOCK_KEYS = {
     'wirelesslangroup': 105600,
     'inventoryitem': 105700,
     'inventoryitemtemplate': 105800,
+
+    # Jobs
+    'job-schedules': 110100,
 }
 
 # Default view action permission mapping

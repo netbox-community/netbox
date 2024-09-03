@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import ObjectType
 from core.signals import job_end, job_start
-from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
@@ -32,6 +31,8 @@ class Job(models.Model):
         to='contenttypes.ContentType',
         related_name='jobs',
         on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
     object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -198,25 +199,34 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
+    def enqueue(cls, func, instance=None, name='', user=None, schedule_at=None, interval=None, immediate=False, **kwargs):
         """
         Create a Job instance and enqueue a job using the given callable
 
         Args:
             func: The callable object to be enqueued for execution
-            instance: The NetBox object to which this job pertains
+            instance: The NetBox object to which this job pertains (optional)
             name: Name for the job (optional)
             user: The user responsible for running the job
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
+            immediate: Run the job immediately without scheduling it in the background. Should be used for interactive
+                management commands only.
         """
-        object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
-        rq_queue_name = get_queue_for_model(object_type.model)
+        if schedule_at and immediate:
+            raise ValueError(_("enqueue() cannot be called with values for both schedule_at and immediate."))
+
+        if instance:
+            object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
+            object_id = instance.pk
+        else:
+            object_type = object_id = None
+        rq_queue_name = get_queue_for_model(object_type.model if object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job.objects.create(
             object_type=object_type,
-            object_id=instance.pk,
+            object_id=object_id,
             name=name,
             status=status,
             scheduled=schedule_at,
@@ -225,8 +235,16 @@ class Job(models.Model):
             job_id=uuid.uuid4()
         )
 
-        if schedule_at:
+        # Run the job immediately, rather than enqueuing it as a background task. Note that this is a synchronous
+        # (blocking) operation, and execution will pause until the job completes.
+        if immediate:
+            func(job_id=str(job.job_id), job=job, **kwargs)
+
+        # Schedule the job to run at a specific date & time.
+        elif schedule_at:
             queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
+
+        # Schedule the job to run asynchronously at this first available opportunity.
         else:
             queue.enqueue(func, job_id=str(job.job_id), job=job, **kwargs)
 

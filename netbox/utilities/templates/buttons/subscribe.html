@@ -1,0 +1,18 @@
+{% load i18n %}
+{% if form_url %}
+  <form action="{{ form_url }}?return_url={{ return_url }}" method="post">
+    {% csrf_token %}
+    {% for field, value in form_data.items %}
+      <input type="hidden" name="{{ field }}" value="{{ value }}" />
+    {% endfor %}
+    {% if subscription %}
+      <button type="submit" class="btn btn-cyan">
+        <i class="mdi mdi-bell-minus"></i> {% trans "Unsubscribe" %}
+      </button>
+    {% else %}
+      <button type="submit" class="btn btn-cyan">
+        <i class="mdi mdi-bell-plus"></i> {% trans "Subscribe" %}
+      </button>
+    {% endif %}
+  </form>
+{% endif %}

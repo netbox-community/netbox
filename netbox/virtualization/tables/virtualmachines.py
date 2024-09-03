@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+from utilities.templatetags.helpers import humanize_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
@@ -106,17 +107,23 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         verbose_name=_('Config Template'),
         linkify=True
     )
+    disk = tables.Column(
+        verbose_name=_('Disk'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'vcpus',
             'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments', 'config_template',
-            'contacts', 'tags', 'created', 'last_updated',
+            'serial', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
+
+    def render_disk(self, value):
+        return humanize_megabytes(value)
 
 
 #
@@ -187,6 +194,9 @@ class VirtualDiskTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    size = tables.Column(
+        verbose_name=_('Size')
+    )
     tags = columns.TagColumn(
         url_name='virtualization:virtualdisk_list'
     )
@@ -200,6 +210,9 @@ class VirtualDiskTable(NetBoxTable):
         row_attrs = {
             'data-name': lambda record: record.name,
         }
+
+    def render_size(self, value):
+        return humanize_megabytes(value)
 
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):

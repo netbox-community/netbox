@@ -59,8 +59,31 @@ class JobStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
     )
 
+    ENQUEUED_STATE_CHOICES = (
+        STATUS_PENDING,
+        STATUS_SCHEDULED,
+        STATUS_RUNNING,
+    )
+
     TERMINAL_STATE_CHOICES = (
         STATUS_COMPLETED,
         STATUS_ERRORED,
         STATUS_FAILED,
+    )
+
+
+#
+# ObjectChanges
+#
+
+class ObjectChangeActionChoices(ChoiceSet):
+
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_DELETE = 'delete'
+
+    CHOICES = (
+        (ACTION_CREATE, _('Created'), 'green'),
+        (ACTION_UPDATE, _('Updated'), 'blue'),
+        (ACTION_DELETE, _('Deleted'), 'red'),
     )

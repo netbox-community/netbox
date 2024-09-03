@@ -22,23 +22,21 @@
   {% for module in script_modules %}
     {% include 'inc/sync_warning.html' with object=module %}
     <div class="card">
-      <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
-        <div>
-          <i class="mdi mdi-file-document-outline"></i> {{ module }}
-        </div>
-        <div>
+      <h2 class="card-header" id="module{{ module.pk }}">
+        <i class="mdi mdi-file-document-outline"></i> {{ module }}
+        <div class="card-actions">
           {% if perms.extras.edit_scriptmodule %}
-            <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-warning btn-sm">
+            <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-ghost-warning btn-sm">
               <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
             </a>
           {% endif %}
           {% if perms.extras.delete_scriptmodule %}
-            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-ghost-danger btn-sm">
               <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
             </a>
           {% endif %}
         </div>
-      </h5>
+      </h2>
       {% if module.scripts %}
         <table class="table table-hover scripts">
           <thead>

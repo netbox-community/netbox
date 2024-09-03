@@ -21,6 +21,7 @@ from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
+from utilities.datetime import datetime_from_timestamp
 from utilities.forms.fields import (
     CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicChoiceField,
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, DynamicMultipleChoiceField, JSONField, LaxURLField,
@@ -128,7 +129,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     required = models.BooleanField(
         verbose_name=_('required'),
         default=False,
-        help_text=_("If true, this field is required when creating new objects or editing an existing object.")
+        help_text=_("This field is required when creating new objects or editing an existing object.")
+    )
+    unique = models.BooleanField(
+        verbose_name=_('must be unique'),
+        default=False,
+        help_text=_("The value of this field must be unique for the assigned object")
     )
     search_weight = models.PositiveSmallIntegerField(
         verbose_name=_('search weight'),
@@ -151,6 +157,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         null=True,
         help_text=_(
             'Default value for the field (must be a JSON value). Encapsulate strings with double quotes (e.g. "Foo").'
+        )
+    )
+    related_object_filter = models.JSONField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'Filter the object selection choices using a query_params dict (must be a JSON value).'
+            'Encapsulate strings with double quotes (e.g. "Foo").'
         )
     )
     weight = models.PositiveSmallIntegerField(
@@ -215,9 +229,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     clone_fields = (
-        'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'search_weight',
-        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-        'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
+        'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+        'validation_regex', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
@@ -334,6 +348,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'validation_regex': _("Regular expression validation is supported only for text and URL fields")
             })
 
+        # Uniqueness can not be enforced for boolean fields
+        if self.unique and self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
+            raise ValidationError({
+                'unique': _("Uniqueness cannot be enforced for boolean fields")
+            })
+
         # Choice set must be set on selection fields, and *only* on selection fields
         if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
@@ -358,6 +378,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             raise ValidationError({
                 'type': _("{type} fields may not define an object type.") .format(type=self.get_type_display())
             })
+
+        # Related object filter can be set only for object-type fields, and must contain a dictionary mapping (if set)
+        if self.related_object_filter is not None:
+            if self.type not in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+                raise ValidationError({
+                    'related_object_filter': _("A related object filter can be defined only for object fields.")
+                })
+            if type(self.related_object_filter) is not dict:
+                raise ValidationError({
+                    'related_object_filter': _("Filter must be defined as a dictionary mapping attributes to values.")
+                })
 
     def serialize(self, value):
         """
@@ -497,7 +528,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             field = field_class(
                 queryset=model.objects.all(),
                 required=required,
-                initial=initial
+                initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Multiple objects
@@ -508,6 +540,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 queryset=model.objects.all(),
                 required=required,
                 initial=initial,
+                query_params=self.related_object_filter
             )
 
         # Text
@@ -659,12 +692,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
                 if type(value) is not datetime:
-                    # Work around UTC issue for Python < 3.11; see
-                    # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
-                    if type(value) is str and value.endswith('Z'):
-                        value = f'{value[:-1]}+00:00'
                     try:
-                        datetime.fromisoformat(value)
+                        datetime_from_timestamp(value)
                     except ValueError:
                         raise ValidationError(
                             _("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")

@@ -24,7 +24,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "VLAN Group" %}</h5>
+      <h2 class="card-header">{% trans "VLAN Group" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Name" %}</th>
@@ -39,8 +39,8 @@
           <td>{{ object.scope|linkify|placeholder }}</td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Permitted VIDs" %}</th>
-          <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
+          <th scope="row">{% trans "VLAN IDs" %}</th>
+          <td>{{ object.vid_ranges_list }}</td>
         </tr>
         <tr>
           <th scope="row">Utilization</th>

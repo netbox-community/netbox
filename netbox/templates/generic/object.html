@@ -77,6 +77,9 @@ Context:
       {% if perms.extras.add_bookmark and object.bookmarks %}
         {% bookmark_button object %}
       {% endif %}
+      {% if perms.extras.add_subscription and object.subscriptions %}
+        {% subscribe_button object %}
+      {% endif %}
       {% if request.user|can_add:object %}
         {% clone_button object %}
       {% endif %}
@@ -100,9 +103,9 @@ Context:
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs">
+  <ul class="nav nav-tabs" role="presentation">
     {# Primary tab #}
-    <li class="nav-item" role="presentation">
+    <li class="nav-item">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
     </li>
 
@@ -110,6 +113,10 @@ Context:
     {% model_view_tabs object %}
   </ul>
 {% endblock tabs %}
+
+{% block alerts %}
+  {% plugin_alerts object %}
+{% endblock alerts %}
 
 {% block content %}{% endblock %}
 

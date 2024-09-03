@@ -1,6 +1,5 @@
 import logging
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
@@ -34,7 +33,7 @@ class Branch(ChangeLoggedModel):
         blank=True
     )
     user = models.ForeignKey(
-        to=get_user_model(),
+        to='users.User',
         on_delete=models.SET_NULL,
         blank=True,
         null=True

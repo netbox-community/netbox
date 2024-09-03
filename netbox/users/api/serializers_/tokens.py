@@ -15,7 +15,6 @@ __all__ = (
 
 
 class TokenSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:token-detail')
     key = serializers.CharField(
         min_length=40,
         max_length=40,
@@ -34,8 +33,8 @@ class TokenSerializer(ValidatedModelSerializer):
     class Meta:
         model = Token
         fields = (
-            'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
-            'allowed_ips',
+            'id', 'url', 'display_url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled',
+            'description', 'allowed_ips',
         )
         brief_fields = ('id', 'url', 'display', 'key', 'write_enabled', 'description')
 
@@ -76,8 +75,8 @@ class TokenProvisionSerializer(TokenSerializer):
     class Meta:
         model = Token
         fields = (
-            'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
-            'allowed_ips', 'username', 'password',
+            'id', 'url', 'display_url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled',
+            'description', 'allowed_ips', 'username', 'password',
         )
 
     def validate(self, data):

@@ -12,7 +12,6 @@ __all__ = (
 
 
 class DeviceRoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts
@@ -22,14 +21,13 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = DeviceRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'device_count', 'virtualmachine_count')
 
 
 class InventoryItemRoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
 
     # Related object counts
     inventoryitem_count = RelatedObjectCountField('inventory_items')
@@ -37,7 +35,7 @@ class InventoryItemRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = InventoryItemRole
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
-            'last_updated', 'inventoryitem_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'inventoryitem_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'inventoryitem_count')

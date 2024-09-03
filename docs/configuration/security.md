@@ -20,18 +20,28 @@ A list of permitted URL schemes referenced when rendering links within NetBox. N
 
 ## AUTH_PASSWORD_VALIDATORS
 
-This parameter acts as a pass-through for configuring Django's built-in password validators for local user accounts. If configured, these will be applied whenever a user's password is updated to ensure that it meets minimum criteria such as length or complexity. An example is provided below. For more detail on the available options, please see [the Django documentation](https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation).
+This parameter acts as a pass-through for configuring Django's built-in password validators for local user accounts. These rules are applied whenever a user's password is created or updated to ensure that it meets minimum criteria such as length or complexity. The default configuration is shown below.
 
 ```python
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 10,
-        }
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
+    },
+    {
+        "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
     },
 ]
 ```
+
+The default configuration enforces the follow criteria:
+
+* A password must be at least 12 characters in length.
+* A password must have at least one uppercase letter, one lowercase letter, and one numeric digit.
+
+Although it is not recommended, the default validation rules can be disabled by setting `AUTH_PASSWORD_VALIDATORS = []` in the configuration file. For more detail on customizing password validation, please see [the Django documentation](https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation).
 
 ---
 

@@ -24,7 +24,7 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Interface" %}</h5>
+        <h2 class="card-header">{% trans "Interface" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Device" %}</th>
@@ -96,7 +96,7 @@
         </table>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Related Interfaces" %}</h5>
+        <h2 class="card-header">{% trans "Related Interfaces" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Parent" %}</th>
@@ -119,7 +119,7 @@
     <div class="col col-md-6">
       {% include 'inc/panel_table.html' with table=vdc_table heading="Virtual Device Contexts" %}
       <div class="card">
-        <h5 class="card-header">{% trans "Addressing" %}</h5>
+        <h2 class="card-header">{% trans "Addressing" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "MAC Address" %}</th>
@@ -137,7 +137,7 @@
       </div>
       {% if not object.is_virtual %}
         <div class="card">
-          <h5 class="card-header">{% trans "Connection" %}</h5>
+          <h2 class="card-header">{% trans "Connection" %}</h2>
           {% if object.mark_connected %}
             <div class="card-body">
               <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
@@ -207,7 +207,7 @@
       {% endif %}
       {% if object.is_wireless %}
         <div class="card">
-          <h5 class="card-header">{% trans "Wireless" %}</h5>
+          <h2 class="card-header">{% trans "Wireless" %}</h2>
           {% with peer=object.connected_endpoints.0 %}
             <table class="table table-hover">
               <thead>
@@ -277,7 +277,7 @@
           {% endwith %}
         </div>
         <div class="card">
-          <h5 class="card-header">{% trans "Wireless LANs" %}</h5>
+          <h2 class="card-header">{% trans "Wireless LANs" %}</h2>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -302,7 +302,7 @@
       {% endif %}
       {% if object.is_lag %}
         <div class="card">
-          <h5 class="card-header">{% trans "LAG Members" %}</h5>
+          <h2 class="card-header">{% trans "LAG Members" %}</h2>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -335,7 +335,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">
+        <h2 class="card-header">
           {% trans "IP Addresses" %}
           {% if perms.ipam.add_ipaddress %}
             <div class="card-actions">
@@ -344,7 +344,7 @@
               </a>
             </div>
           {% endif %}
-        </h5>
+        </h2>
         {% htmx_table 'ipam:ipaddress_list' interface_id=object.pk %}
         
       </div>

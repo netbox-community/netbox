@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -8,11 +7,10 @@ from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR, VRF
 from netbox.choices import ColorChoices
 from tenancy.models import Tenant, TenantGroup
+from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.models import Cluster, ClusterType, ClusterGroup
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
-
-User = get_user_model()
 
 
 class DeviceComponentFilterSetTests:
@@ -40,10 +38,8 @@ class DeviceComponentFilterSetTests:
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device_status(self):
-        params = {'device_status': ['active']}
+        params = {'device_status': ['active', 'planned']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'device_status': ['offline', 'active']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class DeviceComponentTemplateFilterSetTests:
@@ -56,9 +52,9 @@ class DeviceComponentTemplateFilterSetTests:
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_devicetype_id(self):
+    def test_device_type_id(self):
         device_types = DeviceType.objects.all()[:2]
-        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -474,6 +470,152 @@ class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = RackType.objects.all()
+    filterset = RackTypeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        racks = (
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_2POST,
+                width=RackWidthChoices.WIDTH_19IN,
+                u_height=42,
+                starting_unit=1,
+                desc_units=False,
+                outer_width=100,
+                outer_depth=100,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=100,
+                weight=10,
+                max_weight=1000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar1',
+            ),
+            RackType(
+                manufacturer=manufacturers[1],
+                model='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_4POST,
+                width=RackWidthChoices.WIDTH_21IN,
+                u_height=43,
+                starting_unit=2,
+                desc_units=False,
+                outer_width=200,
+                outer_depth=200,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=200,
+                weight=20,
+                max_weight=2000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar2',
+            ),
+            RackType(
+                manufacturer=manufacturers[2],
+                model='RackType 3',
+                slug='rack-type-3',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+                width=RackWidthChoices.WIDTH_23IN,
+                u_height=44,
+                starting_unit=3,
+                desc_units=True,
+                outer_width=300,
+                outer_depth=300,
+                outer_unit=RackDimensionUnitChoices.UNIT_INCH,
+                mounting_depth=300,
+                weight=30,
+                max_weight=3000,
+                weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
+                description='foobar3'
+            ),
+        )
+        RackType.objects.bulk_create(racks)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_model(self):
+        params = {'model': ['RackType 1', 'RackType 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['rack-type-1', 'rack-type-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_width(self):
+        params = {'width': [RackWidthChoices.WIDTH_19IN, RackWidthChoices.WIDTH_21IN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_u_height(self):
+        params = {'u_height': [42, 43]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_starting_unit(self):
+        params = {'starting_unit': [1, 2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_desc_units(self):
+        params = {'desc_units': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'desc_units': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_width(self):
+        params = {'outer_width': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_depth(self):
+        params = {'outer_depth': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_unit(self):
+        self.assertEqual(RackType.objects.filter(outer_unit__isnull=False).count(), 3)
+        params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mounting_depth(self):
+        params = {'mounting_depth': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight(self):
+        params = {'weight': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_max_weight(self):
+        params = {'max_weight': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_weight_unit(self):
+        params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Rack.objects.all()
     filterset = RackFilterSet
@@ -513,6 +655,53 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_2POST,
+                width=RackWidthChoices.WIDTH_19IN,
+                u_height=42,
+                starting_unit=1,
+                desc_units=False,
+                outer_width=100,
+                outer_depth=100,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=100,
+                weight=10,
+                max_weight=1000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar1'
+            ),
+            RackType(
+                manufacturer=manufacturers[1],
+                model='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_4POST,
+                width=RackWidthChoices.WIDTH_21IN,
+                u_height=43,
+                starting_unit=2,
+                desc_units=False,
+                outer_width=200,
+                outer_depth=200,
+                outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
+                mounting_depth=200,
+                weight=20,
+                max_weight=2000,
+                weight_unit=WeightUnitChoices.UNIT_POUND,
+                description='foobar2'
+            ),
+        )
+        RackType.objects.bulk_create(rack_types)
+
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -546,7 +735,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[0],
                 serial='ABC',
                 asset_tag='1001',
-                type=RackTypeChoices.TYPE_2POST,
+                form_factor=RackFormFactorChoices.TYPE_2POST,
                 width=RackWidthChoices.WIDTH_19IN,
                 u_height=42,
                 desc_units=False,
@@ -556,7 +745,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=10,
                 max_weight=1000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar1'
+                description='foobar1',
+                airflow=RackAirflowChoices.FRONT_TO_REAR
             ),
             Rack(
                 name='Rack 2',
@@ -568,7 +758,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[1],
                 serial='DEF',
                 asset_tag='1002',
-                type=RackTypeChoices.TYPE_4POST,
+                form_factor=RackFormFactorChoices.TYPE_4POST,
                 width=RackWidthChoices.WIDTH_21IN,
                 u_height=43,
                 desc_units=False,
@@ -578,7 +768,8 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=20,
                 max_weight=2000,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar2'
+                description='foobar2',
+                airflow=RackAirflowChoices.REAR_TO_FRONT
             ),
             Rack(
                 name='Rack 3',
@@ -590,7 +781,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 role=rack_roles[2],
                 serial='GHI',
                 asset_tag='1003',
-                type=RackTypeChoices.TYPE_CABINET,
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
                 width=RackWidthChoices.WIDTH_23IN,
                 u_height=44,
                 desc_units=True,
@@ -601,6 +792,28 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 max_weight=3000,
                 weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
                 description='foobar3'
+            ),
+            Rack(
+                name='Rack 4',
+                facility_id='rack-4',
+                site=sites[2],
+                location=locations[2],
+                tenant=tenants[2],
+                status=RackStatusChoices.STATUS_PLANNED,
+                role=rack_roles[2],
+                rack_type=rack_types[0],
+                description='foobar4'
+            ),
+            Rack(
+                name='Rack 5',
+                facility_id='rack-5',
+                site=sites[2],
+                location=locations[2],
+                tenant=tenants[2],
+                status=RackStatusChoices.STATUS_PLANNED,
+                role=rack_roles[2],
+                rack_type=rack_types[1],
+                description='foobar5'
             ),
         )
         Rack.objects.bulk_create(racks)
@@ -625,21 +838,21 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [RackTypeChoices.TYPE_2POST, RackTypeChoices.TYPE_4POST]}
+    def test_form_factor(self):
+        params = {'form_factor': [RackFormFactorChoices.TYPE_2POST, RackFormFactorChoices.TYPE_4POST]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_width(self):
         params = {'width': [RackWidthChoices.WIDTH_19IN, RackWidthChoices.WIDTH_21IN]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_u_height(self):
         params = {'u_height': [42, 43]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_starting_unit(self):
         params = {'starting_unit': [1]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {'starting_unit': [2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
@@ -647,7 +860,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'desc_units': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'desc_units': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_outer_width(self):
         params = {'outer_width': [100, 200]}
@@ -658,7 +871,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_unit(self):
-        self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 3)
+        self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 5)
         params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
@@ -692,7 +905,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [RackStatusChoices.STATUS_ACTIVE, RackStatusChoices.STATUS_PLANNED]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):
         roles = RackRole.objects.all()[:2]
@@ -732,6 +945,24 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack_type(self):
+        rack_types = RackType.objects.all()[:2]
+        params = {'rack_type_id': [rack_types[0].pk, rack_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rack_type': [rack_types[0].slug, rack_types[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_airflow(self):
+        params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1155,7 +1386,8 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 part_number='Part Number 1',
                 weight=10,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar1'
+                description='foobar1',
+                airflow=ModuleAirflowChoices.FRONT_TO_REAR
             ),
             ModuleType(
                 manufacturer=manufacturers[1],
@@ -1163,7 +1395,8 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 part_number='Part Number 2',
                 weight=20,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
-                description='foobar2'
+                description='foobar2',
+                airflow=ModuleAirflowChoices.REAR_TO_FRONT
             ),
             ModuleType(
                 manufacturer=manufacturers[2],
@@ -1273,6 +1506,10 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_weight_unit(self):
         params = {'weight_unit': WeightUnitChoices.UNIT_POUND}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_airflow(self):
+        params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
@@ -1650,14 +1887,25 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         DeviceType.objects.bulk_create(device_types)
 
+        module_types = (
+            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
+        )
+        ModuleType.objects.bulk_create(module_types)
+
         ModuleBayTemplate.objects.bulk_create((
             ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1', description='foobar1'),
-            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2', description='foobar2'),
-            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3', description='foobar3'),
+            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]),
+            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]),
         ))
 
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_module_type(self):
+        module_types = ModuleType.objects.all()[:2]
+        params = {'module_type_id': [module_types[0].pk, module_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1759,9 +2007,9 @@ class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         params = {'name': ['Inventory Item 1', 'Inventory Item 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_devicetype_id(self):
+    def test_device_type_id(self):
         device_types = DeviceType.objects.all()[:2]
-        params = {'devicetype_id': [device_types[0].pk, device_types[1].pk]}
+        params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_label(self):
@@ -2088,10 +2336,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
             FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
         ))
-        ModuleBay.objects.bulk_create((
-            ModuleBay(device=devices[0], name='Module Bay 1'),
-            ModuleBay(device=devices[1], name='Module Bay 2'),
-        ))
+        ModuleBay.objects.create(device=devices[0], name='Module Bay 1')
+        ModuleBay.objects.create(device=devices[1], name='Module Bay 2')
         DeviceBay.objects.bulk_create((
             DeviceBay(device=devices[0], name='Device Bay 1'),
             DeviceBay(device=devices[1], name='Device Bay 2'),
@@ -2403,7 +2649,8 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
             ModuleBay(device=devices[2], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(
@@ -2595,9 +2842,9 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2606,7 +2853,8 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -2775,9 +3023,9 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2786,7 +3034,8 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -2955,9 +3204,9 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2966,7 +3215,8 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -3143,9 +3393,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3154,7 +3404,8 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -3353,7 +3604,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 virtual_chassis=virtual_chassis,
                 vc_position=2,
                 vc_priority=1,
-                status='active',
+                status='planned',
             ),
             Device(
                 name='Device 2',
@@ -3371,7 +3622,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 site=sites[2],
                 location=locations[2],
                 rack=racks[2],
-                status='planned',
+                status='offline',
             ),
             # For cable connections
             Device(
@@ -3379,7 +3630,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[3],
-                status='planned',
+                status='offline',
             ),
         )
         Device.objects.bulk_create(devices)
@@ -3390,7 +3641,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[2], name='Module Bay 3'),
             ModuleBay(device=devices[3], name='Module Bay 4'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -3826,9 +4078,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3837,7 +4089,8 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -4015,9 +4268,9 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='planned'),  # For cable connections
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -4026,7 +4279,8 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
@@ -4196,7 +4450,7 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
         )
         Device.objects.bulk_create(devices)
@@ -4205,8 +4459,22 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[0], name='Module Bay 1', label='A', description='First'),
             ModuleBay(device=devices[1], name='Module Bay 2', label='B', description='Second'),
             ModuleBay(device=devices[2], name='Module Bay 3', label='C', description='Third'),
+            ModuleBay(device=devices[2], name='Module Bay 4', label='D', description='Fourth'),
+            ModuleBay(device=devices[2], name='Module Bay 5', label='E', description='Fifth'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        modules = (
+            Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
+            Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
+        )
+        Module.objects.bulk_create(modules)
+        module_bays[3].module = modules[0]
+        module_bays[3].save()
+        module_bays[4].module = modules[1]
+        module_bays[4].save()
 
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
@@ -4260,6 +4528,11 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'device_id': [devices[0].pk, devices[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_module(self):
+        modules = Module.objects.all()[:2]
+        params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -4325,7 +4598,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         devices = (
             Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='active'),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
             Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
         )
         Device.objects.bulk_create(devices)

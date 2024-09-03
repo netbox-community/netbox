@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -10,6 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
@@ -48,6 +48,7 @@ __all__ = (
     'RackElevationFilterForm',
     'RackReservationFilterForm',
     'RackRoleFilterForm',
+    'RackTypeFilterForm',
     'RearPortFilterForm',
     'RegionFilterForm',
     'SiteFilterForm',
@@ -249,16 +250,82 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class RackBaseFilterForm(NetBoxModelFilterSetForm):
+    form_factor = forms.MultipleChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
+        required=False
+    )
+    width = forms.MultipleChoiceField(
+        label=_('Width'),
+        choices=RackWidthChoices,
+        required=False
+    )
+    u_height = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    desc_units = forms.NullBooleanField(
+        required=False,
+        label=_('Descending units'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False
+    )
+    weight = forms.DecimalField(
+        label=_('Weight'),
+        required=False,
+        min_value=1
+    )
+    max_weight = forms.IntegerField(
+        label=_('Max weight'),
+        required=False,
+        min_value=1
+    )
+    weight_unit = forms.ChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
+
+
+class RackTypeFilterForm(RackBaseFilterForm):
+    model = RackType
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('form_factor', 'width', 'u_height', name=_('Rack Type')),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+    )
+    selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    tag = TagFilterField(model)
+
+
+class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
     model = Rack
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
-        FieldSet('status', 'role_id', name=_('Function')),
-        FieldSet('type', 'width', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+        FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'location_id')
     region_id = DynamicModelMultipleChoiceField(
@@ -293,21 +360,24 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         choices=RackStatusChoices,
         required=False
     )
-    type = forms.MultipleChoiceField(
-        label=_('Type'),
-        choices=RackTypeChoices,
-        required=False
-    )
-    width = forms.MultipleChoiceField(
-        label=_('Width'),
-        choices=RackWidthChoices,
-        required=False
-    )
     role_id = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         required=False,
         null_option='None',
         label=_('Role')
+    )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    rack_type_id = DynamicModelMultipleChoiceField(
+        queryset=RackType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Rack type')
     )
     serial = forms.CharField(
         label=_('Serial'),
@@ -318,21 +388,6 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     tag = TagFilterField(model)
-    weight = forms.DecimalField(
-        label=_('Weight'),
-        required=False,
-        min_value=1
-    )
-    max_weight = forms.IntegerField(
-        label=_('Max weight'),
-        required=False,
-        min_value=1
-    )
-    weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
-        choices=add_blank_choice(WeightUnitChoices),
-        required=False
-    )
 
 
 class RackElevationFilterForm(RackFilterForm):
@@ -402,7 +457,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Rack')
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )
@@ -550,7 +605,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('manufacturer_id', 'part_number', name=_('Hardware')),
+        FieldSet('manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -610,6 +665,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(ModuleAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False

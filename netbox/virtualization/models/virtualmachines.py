@@ -125,7 +125,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('disk (GB)')
+        verbose_name=_('disk (MB)')
+    )
+    serial = models.CharField(
+        verbose_name=_('serial number'),
+        blank=True,
+        max_length=50
     )
 
     # Counter fields
@@ -426,7 +431,7 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
 
 class VirtualDisk(ComponentModel, TrackingModelMixin):
     size = models.PositiveIntegerField(
-        verbose_name=_('size (GB)'),
+        verbose_name=_('size (MB)'),
     )
 
     class Meta(ComponentModel.Meta):

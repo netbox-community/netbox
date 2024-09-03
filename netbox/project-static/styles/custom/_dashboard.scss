@@ -1,0 +1,12 @@
+// Alter default color for dashboard widget headings
+.grid-stack {
+  .card-header {
+    // Default color of card header changes depending on theme
+    &.bg-default {
+      background: var(--tblr-bg-surface-secondary) !important;
+    }
+    a {
+      color: inherit !important;
+    }
+  }
+}

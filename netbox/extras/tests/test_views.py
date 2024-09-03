@@ -1,17 +1,13 @@
-import urllib.parse
-import uuid
-
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
+from core.events import *
 from core.models import ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
+from users.models import Group, User
 from utilities.testing import ViewTestCases, TestCase
-
-User = get_user_model()
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -399,9 +395,9 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         site_type = ObjectType.objects.get_for_model(Site)
         event_rules = (
-            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
-            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
-            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+            EventRule(name='EventRule 1', event_types=[OBJECT_CREATED], action_object=webhooks[0]),
+            EventRule(name='EventRule 2', event_types=[OBJECT_CREATED], action_object=webhooks[1]),
+            EventRule(name='EventRule 3', event_types=[OBJECT_CREATED], action_object=webhooks[2]),
         )
         for event in event_rules:
             event.save()
@@ -411,9 +407,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'Event X',
             'object_types': [site_type.pk],
-            'type_create': False,
-            'type_update': True,
-            'type_delete': True,
+            'event_types': [OBJECT_UPDATED, OBJECT_DELETED],
             'conditions': None,
             'action_type': 'webhook',
             'action_object_type': webhook_ct.pk,
@@ -423,8 +417,8 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,object_types,type_create,action_type,action_object",
-            "Webhook 4,dcim.site,True,webhook,Webhook 1",
+            f'name,object_types,event_types,action_type,action_object',
+            f'Webhook 4,dcim.site,"{OBJECT_CREATED},{OBJECT_UPDATED}",webhook,Webhook 1',
         )
 
         cls.csv_update_data = (
@@ -435,7 +429,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'type_update': True,
+            'description': 'New description',
         }
 
 
@@ -567,43 +561,6 @@ class ConfigTemplateTestCase(
         }
 
 
-# TODO: Convert to StandardTestCases.Views
-class ObjectChangeTestCase(TestCase):
-    user_permissions = (
-        'extras.view_objectchange',
-    )
-
-    @classmethod
-    def setUpTestData(cls):
-
-        site = Site(name='Site 1', slug='site-1')
-        site.save()
-
-        # Create three ObjectChanges
-        user = User.objects.create_user(username='testuser2')
-        for i in range(1, 4):
-            oc = site.to_objectchange(action=ObjectChangeActionChoices.ACTION_UPDATE)
-            oc.user = user
-            oc.request_id = uuid.uuid4()
-            oc.save()
-
-    def test_objectchange_list(self):
-
-        url = reverse('extras:objectchange_list')
-        params = {
-            "user": User.objects.first().pk,
-        }
-
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
-        self.assertHttpStatus(response, 200)
-
-    def test_objectchange(self):
-
-        objectchange = ObjectChange.objects.first()
-        response = self.client.get(objectchange.get_absolute_url())
-        self.assertHttpStatus(response, 200)
-
-
 class JournalEntryTestCase(
     # ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.CreateObjectViewTestCase,
@@ -660,3 +617,166 @@ class CustomLinkTest(TestCase):
         response = self.client.get(site.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(f'FOO {site.name} BAR', str(response.content))
+
+
+class SubscriptionTestCase(
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = Subscription
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+        )
+        Site.objects.bulk_create(sites)
+
+        cls.form_data = {
+            'object_type': site_ct.pk,
+            'object_id': sites[3].pk,
+        }
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+        user = self.user
+
+        subscriptions = (
+            Subscription(object=sites[0], user=user),
+            Subscription(object=sites[1], user=user),
+            Subscription(object=sites[2], user=user),
+        )
+        Subscription.objects.bulk_create(subscriptions)
+
+    def _get_url(self, action, instance=None):
+        if action == 'list':
+            return reverse('account:subscriptions')
+        return super()._get_url(action, instance)
+
+    def test_list_objects_anonymous(self):
+        self.client.logout()
+        url = reverse('account:subscriptions')
+        login_url = reverse('login')
+        self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
+
+    def test_list_objects_with_permission(self):
+        return
+
+    def test_list_objects_with_constrained_permission(self):
+        return
+
+
+class NotificationGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = NotificationGroup
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        notification_groups = (
+            NotificationGroup(name='Notification Group 1'),
+            NotificationGroup(name='Notification Group 2'),
+            NotificationGroup(name='Notification Group 3'),
+        )
+        NotificationGroup.objects.bulk_create(notification_groups)
+        for i, notification_group in enumerate(notification_groups):
+            notification_group.users.add(users[i])
+            notification_group.groups.add(groups[i])
+
+        cls.form_data = {
+            'name': 'Notification Group X',
+            'description': 'Blah',
+            'users': [users[0].pk, users[1].pk],
+            'groups': [groups[0].pk, groups[1].pk],
+        }
+
+        cls.csv_data = (
+            'name,description,users,groups',
+            'Notification Group 4,Foo,"User 1,User 2","Group 1,Group 2"',
+            'Notification Group 5,Bar,"User 1,User 2","Group 1,Group 2"',
+            'Notification Group 6,Baz,"User 1,User 2","Group 1,Group 2"',
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{notification_groups[0].pk},Notification Group 7",
+            f"{notification_groups[1].pk},Notification Group 8",
+            f"{notification_groups[2].pk},Notification Group 9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class NotificationTestCase(
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = Notification
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+        )
+        Site.objects.bulk_create(sites)
+
+        cls.form_data = {
+            'object_type': site_ct.pk,
+            'object_id': sites[3].pk,
+        }
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+        user = self.user
+
+        notifications = (
+            Notification(object=sites[0], user=user),
+            Notification(object=sites[1], user=user),
+            Notification(object=sites[2], user=user),
+        )
+        Notification.objects.bulk_create(notifications)
+
+    def _get_url(self, action, instance=None):
+        if action == 'list':
+            return reverse('account:notifications')
+        return super()._get_url(action, instance)
+
+    def test_list_objects_anonymous(self):
+        self.client.logout()
+        url = reverse('account:notifications')
+        login_url = reverse('login')
+        self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
+
+    def test_list_objects_with_permission(self):
+        return
+
+    def test_list_objects_with_constrained_permission(self):
+        return
