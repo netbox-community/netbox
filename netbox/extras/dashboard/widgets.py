@@ -185,11 +185,11 @@ class ObjectCountsWidget(DashboardWidget):
             if request.user.has_perm(permission):
                 try:
                     url = reverse(get_viewname(model, 'list'))
-                except Exception:
-                    url = '#'
+                except NoReverseMatch:
+                    url = None
                 qs = model.objects.restrict(request.user, 'view')
                 # Apply any specified filters
-                if filters := self.config.get('filters'):
+                if url and (filters := self.config.get('filters')):
                     params = dict_to_querydict(filters)
                     filterset = getattr(resolve(url).func.view_class, 'filterset', None)
                     qs = filterset(params, qs).qs
