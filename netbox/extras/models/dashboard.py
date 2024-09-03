@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -11,7 +10,7 @@ __all__ = (
 
 class Dashboard(models.Model):
     user = models.OneToOneField(
-        to=get_user_model(),
+        to='users.User',
         on_delete=models.CASCADE,
         related_name='dashboard'
     )

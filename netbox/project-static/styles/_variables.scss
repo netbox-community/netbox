@@ -1,9 +1,10 @@
 // Global variables
 
 // Set base fonts
-$font-family-sans-serif: 'Inter';
+$font-family-sans-serif: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
 // See https://github.com/tabler/tabler/issues/1812
 $font-family-monospace: 'Roboto Mono';
+$font-weight-base: 500;
 
 // Set the navigation sidebar width
 $sidebar-width: 18rem;
@@ -21,3 +22,16 @@ $hover-bg: rgba(var(--tblr-secondary-rgb), 0.08);
 
 // Ensure active nav-pill has a background color in dark mode
 $nav-pills-link-active-bg: rgba(var(--tblr-secondary-rgb), 0.15);
+
+// Brand colors
+$rich-black: #001423;
+$rich-black-light: #081B2A;
+$rich-black-lighter: #0D202E;
+$rich-black-lightest: #1A2C39;
+$bright-teal: #00F2D4;
+$dark-teal: #00857D;
+
+$primary: $dark-teal;
+
+// Navbar active dropdown border color
+$navbar-active-border-color: $dark-teal;

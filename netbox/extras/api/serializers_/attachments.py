@@ -14,7 +14,6 @@ __all__ = (
 
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
     object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
@@ -25,8 +24,8 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
     class Meta:
         model = ImageAttachment
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image', 'image_height',
-            'image_width', 'created', 'last_updated',
+            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image',
+            'image_height', 'image_width', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'image')
 

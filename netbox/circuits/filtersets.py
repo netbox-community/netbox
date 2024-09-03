@@ -13,6 +13,8 @@ from .models import *
 
 __all__ = (
     'CircuitFilterSet',
+    'CircuitGroupAssignmentFilterSet',
+    'CircuitGroupFilterSet',
     'CircuitTerminationFilterSet',
     'CircuitTypeFilterSet',
     'ProviderNetworkFilterSet',
@@ -303,3 +305,60 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
             Q(pp_info__icontains=value) |
             Q(description__icontains=value)
         ).distinct()
+
+
+class CircuitGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+
+    class Meta:
+        model = CircuitGroup
+        fields = ('id', 'name', 'slug', 'description')
+
+
+class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
+    )
+    circuit_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Circuit.objects.all(),
+        label=_('Circuit (ID)'),
+    )
+    circuit = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__cid',
+        queryset=Circuit.objects.all(),
+        to_field_name='cid',
+        label=_('Circuit (CID)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CircuitGroup.objects.all(),
+        label=_('Circuit group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__slug',
+        queryset=CircuitGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Circuit group (slug)'),
+    )
+
+    class Meta:
+        model = CircuitGroupAssignment
+        fields = ('id', 'priority')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(circuit__cid__icontains=value) |
+            Q(group__name__icontains=value)
+        )

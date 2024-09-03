@@ -7,7 +7,7 @@
   <div class="row mb-3">
     <div class="col col-md-5">
       <div class="card">
-        <h5 class="card-header">{% trans "Config Template" %}</h5>
+        <h2 class="card-header">{% trans "Config Template" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -53,7 +53,7 @@
     </div>
     <div class="col col-md-7">
       <div class="card">
-        <h5 class="card-header">{% trans "Environment Parameters" %}</h5>
+        <h2 class="card-header">{% trans "Environment Parameters" %}</h2>
         <div class="card-body">
           <pre>{{ object.environment_params }}</pre>
         </div>
@@ -64,7 +64,7 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Template" %}</h5>
+        <h2 class="card-header">{% trans "Template" %}</h2>
         <div class="card-body">
           {% include 'inc/sync_warning.html' %}
           <pre>{{ object.template_code }}</pre>

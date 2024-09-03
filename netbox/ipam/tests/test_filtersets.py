@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase
 from netaddr import IPNetwork
 
@@ -1465,6 +1466,7 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
 class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
+    ignore_fields = ('vid_ranges',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1494,14 +1496,55 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         cluster.save()
 
         vlan_groups = (
-            VLANGroup(name='VLAN Group 1', slug='vlan-group-1', scope=region, description='foobar1'),
-            VLANGroup(name='VLAN Group 2', slug='vlan-group-2', scope=sitegroup, description='foobar2'),
-            VLANGroup(name='VLAN Group 3', slug='vlan-group-3', scope=site, description='foobar3'),
-            VLANGroup(name='VLAN Group 4', slug='vlan-group-4', scope=location),
-            VLANGroup(name='VLAN Group 5', slug='vlan-group-5', scope=rack),
-            VLANGroup(name='VLAN Group 6', slug='vlan-group-6', scope=clustergroup),
-            VLANGroup(name='VLAN Group 7', slug='vlan-group-7', scope=cluster),
-            VLANGroup(name='VLAN Group 8', slug='vlan-group-8'),
+            VLANGroup(
+                name='VLAN Group 1',
+                slug='vlan-group-1',
+                vid_ranges=[NumericRange(1, 11), NumericRange(100, 200)],
+                scope=region,
+                description='foobar1'
+            ),
+            VLANGroup(
+                name='VLAN Group 2',
+                slug='vlan-group-2',
+                vid_ranges=[NumericRange(1, 11), NumericRange(200, 300)],
+                scope=sitegroup,
+                description='foobar2'
+            ),
+            VLANGroup(
+                name='VLAN Group 3',
+                slug='vlan-group-3',
+                vid_ranges=[NumericRange(1, 11), NumericRange(300, 400)],
+                scope=site,
+                description='foobar3'
+            ),
+            VLANGroup(
+                name='VLAN Group 4',
+                slug='vlan-group-4',
+                vid_ranges=[NumericRange(1, 11), NumericRange(400, 500)],
+                scope=location
+            ),
+            VLANGroup(
+                name='VLAN Group 5',
+                slug='vlan-group-5',
+                vid_ranges=[NumericRange(1, 11), NumericRange(500, 600)],
+                scope=rack
+            ),
+            VLANGroup(
+                name='VLAN Group 6',
+                slug='vlan-group-6',
+                vid_ranges=[NumericRange(1, 11), NumericRange(600, 700)],
+                scope=clustergroup
+            ),
+            VLANGroup(
+                name='VLAN Group 7',
+                slug='vlan-group-7',
+                vid_ranges=[NumericRange(1, 11), NumericRange(700, 800)],
+                scope=cluster
+            ),
+            VLANGroup(
+                name='VLAN Group 8',
+                slug='vlan-group-8'
+            ),
         )
         VLANGroup.objects.bulk_create(vlan_groups)
 
@@ -1521,12 +1564,18 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_contains_vid(self):
+        params = {'contains_vid': 123}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'contains_vid': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+
     def test_region(self):
         params = {'region': Region.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_sitegroup(self):
-        params = {'sitegroup': SiteGroup.objects.first().pk}
+    def test_site_group(self):
+        params = {'site_group': SiteGroup.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_site(self):
@@ -1541,8 +1590,8 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rack': Rack.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_clustergroup(self):
-        params = {'clustergroup': ClusterGroup.objects.first().pk}
+    def test_cluster_group(self):
+        params = {'cluster_group': ClusterGroup.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_cluster(self):

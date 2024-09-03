@@ -2,9 +2,9 @@
 
 This documentation describes the process of packaging and publishing a new NetBox release. There are three types of release:
 
-* Major release (e.g. v2.11 to v3.0)
-* Minor release (e.g. v3.2 to v3.3)
-* Patch release (e.g. v3.3.0 to v3.3.1)
+* Major release (e.g. v3.7.8 to v4.0.0)
+* Minor release (e.g. v4.0.10 to v4.1.0)
+* Patch release (e.g. v4.1.0 to v4.1.1)
 
 While major releases generally introduce some very substantial change to the application, they are typically treated the same as minor version increments for the purpose of release packaging.
 
@@ -90,7 +90,7 @@ Updated language translations should be pulled from [Transifex](https://app.tran
 
 ### Update Version and Changelog
 
-* Update the `VERSION` constant in `settings.py` to the new release version.
+* Update the version and published date in `release.yaml` with the current version & date. Add a designation (e.g.g `beta1`) if applicable.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Replace the "FUTURE" placeholder in the release notes with the current date.
 
@@ -116,16 +116,6 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 * **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
 Once created, the release will become available for users to install.
-
-### Update the Development Version
-
-On the `develop` branch, update `VERSION` in `settings.py` to point to the next release. For example, if you just released v3.3.1, set:
-
-```
-VERSION = 'v3.3.2-dev'
-```
-
-Commit this change with the comment "PRVB" (for _post-release version bump_) and push the commit upstream.
 
 ### Update the Public Documentation
 

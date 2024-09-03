@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.db import transaction
@@ -6,12 +7,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-from core.models import Job
-from core.tables import JobTable
-from extras import forms, tables
-from extras.models import *
+from core.models import Job, ObjectChange
+from core.tables import JobTable, ObjectChangeTable
+from extras.forms import JournalEntryForm
+from extras.models import JournalEntry
+from extras.tables import JournalEntryTable
 from utilities.permissions import get_permission_for_model
-from utilities.views import GetReturnURLMixin, ViewTab
+from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab
 from .base import BaseMultiObjectView
 
 __all__ = (
@@ -23,7 +25,7 @@ __all__ = (
 )
 
 
-class ObjectChangeLogView(View):
+class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
     """
     Present a history of changes made to a particular object. The model class must be passed as a keyword argument
     when referencing this view in a URL path. For example:
@@ -56,7 +58,7 @@ class ObjectChangeLogView(View):
             Q(changed_object_type=content_type, changed_object_id=obj.pk) |
             Q(related_object_type=content_type, related_object_id=obj.pk)
         )
-        objectchanges_table = tables.ObjectChangeTable(
+        objectchanges_table = ObjectChangeTable(
             data=objectchanges,
             orderable=False,
             user=request.user
@@ -76,7 +78,7 @@ class ObjectChangeLogView(View):
         })
 
 
-class ObjectJournalView(View):
+class ObjectJournalView(ConditionalLoginRequiredMixin, View):
     """
     Show all journal entries for an object. The model class must be passed as a keyword argument when referencing this
     view in a URL path. For example:
@@ -108,13 +110,13 @@ class ObjectJournalView(View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = tables.JournalEntryTable(journalentries, user=request.user)
+        journalentry_table = JournalEntryTable(journalentries, user=request.user)
         journalentry_table.configure(request)
         journalentry_table.columns.hide('assigned_object_type')
         journalentry_table.columns.hide('assigned_object')
 
         if request.user.has_perm('extras.add_journalentry'):
-            form = forms.JournalEntryForm(
+            form = JournalEntryForm(
                 initial={
                     'assigned_object_type': ContentType.objects.get_for_model(obj),
                     'assigned_object_id': obj.pk
@@ -137,7 +139,7 @@ class ObjectJournalView(View):
         })
 
 
-class ObjectJobsView(View):
+class ObjectJobsView(ConditionalLoginRequiredMixin, View):
     """
     Render a list of all Job assigned to an object. For example:
 
@@ -190,7 +192,7 @@ class ObjectJobsView(View):
         })
 
 
-class ObjectSyncDataView(View):
+class ObjectSyncDataView(LoginRequiredMixin, View):
 
     def post(self, request, model, **kwargs):
         """

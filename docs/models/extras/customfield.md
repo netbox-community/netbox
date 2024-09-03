@@ -42,13 +42,26 @@ The type of data this field holds. This must be one of the following:
 
 For object and multiple-object fields only. Designates the type of NetBox object being referenced.
 
+### Related Object Filter
+
+!!! info "This field was introduced in NetBox v4.1."
+
+For object and multi-object custom fields, a filter may be defined to limit the available objects when populating a field value. This filter maps object attributes to values. For example, `{"status": "active"}` will include only objects with a status of "active."
+
+!!! warning
+    This setting is employed for convenience only, and should not be relied upon to enforce data integrity.
+
 ### Weight
 
 A numeric weight used to override alphabetic ordering of fields by name. Custom fields with a lower weight will be listed before those with a higher weight. (Note that weight applies within the context of a custom field group, if defined.)
 
 ### Required
 
-If checked, this custom field must be populated with a valid value for the object to pass validation.
+If enabled, this custom field must be populated with a valid value for the object to pass validation.
+
+### Unique
+
+If enabled, each object must have a unique value set for this custom field (per object type).
 
 ### Description
 

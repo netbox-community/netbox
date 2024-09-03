@@ -3,12 +3,12 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -18,14 +18,15 @@ from extras.conditions import ConditionSet
 from extras.constants import *
 from extras.utils import image_upload
 from netbox.config import get_config
+from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.html import clean_html
+from utilities.jinja2 import render_jinja2
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
-from utilities.jinja2 import render_jinja2
 
 __all__ = (
     'Bookmark',
@@ -61,30 +62,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         max_length=200,
         blank=True
     )
-    type_create = models.BooleanField(
-        verbose_name=_('on create'),
-        default=False,
-        help_text=_("Triggers when a matching object is created.")
-    )
-    type_update = models.BooleanField(
-        verbose_name=_('on update'),
-        default=False,
-        help_text=_("Triggers when a matching object is updated.")
-    )
-    type_delete = models.BooleanField(
-        verbose_name=_('on delete'),
-        default=False,
-        help_text=_("Triggers when a matching object is deleted.")
-    )
-    type_job_start = models.BooleanField(
-        verbose_name=_('on job start'),
-        default=False,
-        help_text=_("Triggers when a job for a matching object is started.")
-    )
-    type_job_end = models.BooleanField(
-        verbose_name=_('on job end'),
-        default=False,
-        help_text=_("Triggers when a job for a matching object terminates.")
+    event_types = ArrayField(
+        base_field=models.CharField(max_length=50, choices=get_event_type_choices),
+        help_text=_("The types of event which will trigger this rule.")
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
@@ -144,14 +124,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
 
     def clean(self):
         super().clean()
-
-        # At least one action type must be selected
-        if not any([
-            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
-        ]):
-            raise ValidationError(
-                _("At least one event type must be selected: create, update, delete, job start, and/or job end.")
-            )
 
         # Validate that any conditions are in the correct format
         if self.conditions:

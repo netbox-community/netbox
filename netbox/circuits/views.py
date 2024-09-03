@@ -443,3 +443,100 @@ class CircuitTerminationBulkDeleteView(generic.BulkDeleteView):
 
 # Trace view
 register_model_view(CircuitTermination, 'trace', kwargs={'model': CircuitTermination})(PathTraceView)
+
+
+#
+# Circuit Groups
+#
+
+class CircuitGroupListView(generic.ObjectListView):
+    queryset = CircuitGroup.objects.annotate(
+        circuit_group_assignment_count=count_related(CircuitGroupAssignment, 'group')
+    )
+    filterset = filtersets.CircuitGroupFilterSet
+    filterset_form = forms.CircuitGroupFilterForm
+    table = tables.CircuitGroupTable
+
+
+@register_model_view(CircuitGroup)
+class CircuitGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = CircuitGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(CircuitGroup, 'edit')
+class CircuitGroupEditView(generic.ObjectEditView):
+    queryset = CircuitGroup.objects.all()
+    form = forms.CircuitGroupForm
+
+
+@register_model_view(CircuitGroup, 'delete')
+class CircuitGroupDeleteView(generic.ObjectDeleteView):
+    queryset = CircuitGroup.objects.all()
+
+
+class CircuitGroupBulkImportView(generic.BulkImportView):
+    queryset = CircuitGroup.objects.all()
+    model_form = forms.CircuitGroupImportForm
+
+
+class CircuitGroupBulkEditView(generic.BulkEditView):
+    queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
+    table = tables.CircuitGroupTable
+    form = forms.CircuitGroupBulkEditForm
+
+
+class CircuitGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
+    table = tables.CircuitGroupTable
+
+
+#
+# Circuit Groups
+#
+
+class CircuitGroupAssignmentListView(generic.ObjectListView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    filterset_form = forms.CircuitGroupAssignmentFilterForm
+    table = tables.CircuitGroupAssignmentTable
+
+
+@register_model_view(CircuitGroupAssignment)
+class CircuitGroupAssignmentView(generic.ObjectView):
+    queryset = CircuitGroupAssignment.objects.all()
+
+
+@register_model_view(CircuitGroupAssignment, 'edit')
+class CircuitGroupAssignmentEditView(generic.ObjectEditView):
+    queryset = CircuitGroupAssignment.objects.all()
+    form = forms.CircuitGroupAssignmentForm
+
+
+@register_model_view(CircuitGroupAssignment, 'delete')
+class CircuitGroupAssignmentDeleteView(generic.ObjectDeleteView):
+    queryset = CircuitGroupAssignment.objects.all()
+
+
+class CircuitGroupAssignmentBulkImportView(generic.BulkImportView):
+    queryset = CircuitGroupAssignment.objects.all()
+    model_form = forms.CircuitGroupAssignmentImportForm
+
+
+class CircuitGroupAssignmentBulkEditView(generic.BulkEditView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    table = tables.CircuitGroupAssignmentTable
+    form = forms.CircuitGroupAssignmentBulkEditForm
+
+
+class CircuitGroupAssignmentBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitGroupAssignment.objects.all()
+    filterset = filtersets.CircuitGroupAssignmentFilterSet
+    table = tables.CircuitGroupAssignmentTable

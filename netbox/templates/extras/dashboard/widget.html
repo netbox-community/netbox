@@ -1,4 +1,5 @@
 {% load dashboard %}
+{% load i18n %}
 
 <div
     class="grid-stack-item"
@@ -17,6 +18,7 @@
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
           class="text-bg-{{ bg_color }}"
+          aria-label="{{ widget.title }} {% trans "widget configuration" %}"
         >
           <i class="mdi mdi-cog"></i>
         </a>
@@ -31,13 +33,14 @@
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
           class="text-bg-{{ bg_color }}"
+          aria-label="{% trans "Close widget" %} {{ widget.title }}"
         >
           <i class="mdi mdi-close"></i>
         </a>
       </div>
-      <div class="card-body p-2 pt-1 overflow-auto">
-        {% render_widget widget %}
-      </div>
     {% endwith %}
+    <div class="card-body p-2 pt-1 overflow-auto">
+      {% render_widget widget %}
+    </div>
   </div>
 </div>

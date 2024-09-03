@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
@@ -1087,10 +1087,19 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ComponentModel, TrackingModelMixin):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     """
     An empty space within a Device which can house a child device
     """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        editable=False,
+        db_index=True
+    )
     position = models.CharField(
         verbose_name=_('position'),
         max_length=30,
@@ -1098,14 +1107,44 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
         help_text=_('Identifier to reference when renaming installed components')
     )
 
+    objects = TreeManager()
+
     clone_fields = ('device',)
 
-    class Meta(ComponentModel.Meta):
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'module', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_module_name'
+            ),
+        )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
 
+    class MPTTMeta:
+        order_insertion_by = ('module',)
+
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+
+    def clean(self):
+        super().clean()
+
+        # Check for recursion
+        if module := self.module:
+            module_bays = [self.pk]
+            modules = []
+            while module:
+                if module.pk in modules or module.module_bay.pk in module_bays:
+                    raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+                modules.append(module.pk)
+                module_bays.append(module.module_bay.pk)
+                module = module.module_bay.module if module.module_bay else None
+
+    def save(self, *args, **kwargs):
+        if self.module:
+            self.parent = self.module.module_bay
+        super().save(*args, **kwargs)
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):

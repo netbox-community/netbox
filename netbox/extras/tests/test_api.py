@@ -1,20 +1,20 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
+from core.events import *
 from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
+from netbox.events import *
+from users.models import Group, User
 from utilities.testing import APITestCase, APIViewTestCases
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -113,9 +113,9 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         Webhook.objects.bulk_create(webhooks)
 
         event_rules = (
-            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
-            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
-            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+            EventRule(name='EventRule 1', event_types=[OBJECT_CREATED], action_object=webhooks[0]),
+            EventRule(name='EventRule 2', event_types=[OBJECT_CREATED], action_object=webhooks[1]),
+            EventRule(name='EventRule 3', event_types=[OBJECT_CREATED], action_object=webhooks[2]),
         )
         EventRule.objects.bulk_create(event_rules)
 
@@ -123,7 +123,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 4',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[3].pk,
@@ -131,7 +131,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 5',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[4].pk,
@@ -139,7 +139,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'EventRule 6',
                 'object_types': ['dcim.device', 'dcim.devicetype'],
-                'type_create': True,
+                'event_types': [OBJECT_CREATED],
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
                 'action_object_id': webhooks[5].pk,
@@ -890,3 +890,196 @@ class ObjectTypeTest(APITestCase):
 
         url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
+
+
+class SubscriptionTest(APIViewTestCases.APIViewTestCase):
+    model = Subscription
+    brief_fields = ['display', 'id', 'object_id', 'object_type', 'url', 'user']
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+            User(username='User 4'),
+        )
+        User.objects.bulk_create(users)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        subscriptions = (
+            Subscription(
+                object=sites[0],
+                user=users[0],
+            ),
+            Subscription(
+                object=sites[1],
+                user=users[1],
+            ),
+            Subscription(
+                object=sites[2],
+                user=users[2],
+            ),
+        )
+        Subscription.objects.bulk_create(subscriptions)
+
+        cls.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[0].pk,
+                'user': users[3].pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[1].pk,
+                'user': users[3].pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[2].pk,
+                'user': users[3].pk,
+            },
+        ]
+
+
+class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
+    model = NotificationGroup
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'object_types': ['dcim.site'],
+            'name': 'Custom Link 4',
+            'enabled': True,
+            'link_text': 'Link 4',
+            'link_url': 'http://example.com/?4',
+        },
+        {
+            'object_types': ['dcim.site'],
+            'name': 'Custom Link 5',
+            'enabled': True,
+            'link_text': 'Link 5',
+            'link_url': 'http://example.com/?5',
+        },
+        {
+            'object_types': ['dcim.site'],
+            'name': 'Custom Link 6',
+            'enabled': False,
+            'link_text': 'Link 6',
+            'link_url': 'http://example.com/?6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        notification_groups = (
+            NotificationGroup(name='Notification Group 1'),
+            NotificationGroup(name='Notification Group 2'),
+            NotificationGroup(name='Notification Group 3'),
+        )
+        NotificationGroup.objects.bulk_create(notification_groups)
+        for i, notification_group in enumerate(notification_groups):
+            notification_group.users.add(users[i])
+            notification_group.groups.add(groups[i])
+
+        cls.create_data = [
+            {
+                'name': 'Notification Group 4',
+                'description': 'Foo',
+                'users': [users[0].pk],
+                'groups': [groups[0].pk],
+            },
+            {
+                'name': 'Notification Group 5',
+                'description': 'Bar',
+                'users': [users[1].pk],
+                'groups': [groups[1].pk],
+            },
+            {
+                'name': 'Notification Group 6',
+                'description': 'Baz',
+                'users': [users[2].pk],
+                'groups': [groups[2].pk],
+            },
+        ]
+
+
+class NotificationTest(APIViewTestCases.APIViewTestCase):
+    model = Notification
+    brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+            User(username='User 4'),
+        )
+        User.objects.bulk_create(users)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        notifications = (
+            Notification(
+                object=sites[0],
+                event_type=OBJECT_CREATED,
+                user=users[0],
+            ),
+            Notification(
+                object=sites[1],
+                event_type=OBJECT_UPDATED,
+                user=users[1],
+            ),
+            Notification(
+                object=sites[2],
+                event_type=OBJECT_DELETED,
+                user=users[2],
+            ),
+        )
+        Notification.objects.bulk_create(notifications)
+
+        cls.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[0].pk,
+                'user': users[3].pk,
+                'event_type': OBJECT_CREATED,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[1].pk,
+                'user': users[3].pk,
+                'event_type': OBJECT_UPDATED,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[2].pk,
+                'user': users[3].pk,
+                'event_type': OBJECT_DELETED,
+            },
+        ]

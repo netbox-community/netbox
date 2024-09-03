@@ -21,6 +21,11 @@ hr.dropdown-divider {
   margin-top: 0.25rem;
 }
 
+// Bootstrap forces the font weight for dropdown items to $font-weight-normal
+.dropdown-item {
+  font-weight: $font-weight-base;
+}
+
 // Restore support for old Bootstrap v3 colors
 .text-bg-black {
   @extend .text-bg-dark;

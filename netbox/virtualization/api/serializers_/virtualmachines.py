@@ -18,7 +18,7 @@ from virtualization.choices import *
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .clusters import ClusterSerializer
-from ..nested_serializers import *
+from .nested import NestedVMInterfaceSerializer
 
 __all__ = (
     'VMInterfaceSerializer',
@@ -29,7 +29,6 @@ __all__ = (
 
 
 class VirtualMachineSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -49,9 +48,9 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
+            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count', 'virtual_disk_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
@@ -62,9 +61,9 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
+            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
             'last_updated', 'interface_count', 'virtual_disk_count',
         ]
 
@@ -78,7 +77,6 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 #
 
 class VMInterfaceSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
     virtual_machine = VirtualMachineSerializer(nested=True)
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
@@ -104,9 +102,9 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     class Meta:
         model = VMInterface
         fields = [
-            'id', 'url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu', 'mac_address',
-            'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields',
-            'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
+            'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination',
+            'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
@@ -129,13 +127,12 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
 #
 
 class VirtualDiskSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualdisk-detail')
     virtual_machine = VirtualMachineSerializer(nested=True)
 
     class Meta:
         model = VirtualDisk
         fields = [
-            'id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'description', 'size', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size')

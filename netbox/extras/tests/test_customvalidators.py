@@ -14,7 +14,7 @@ from utilities.request import NetBoxFakeRequest
 
 class MyValidator(CustomValidator):
 
-    def validate(self, instance):
+    def validate(self, instance, request):
         if instance.name != 'foo':
             self.fail("Name must be foo!")
 

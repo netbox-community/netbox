@@ -15,7 +15,7 @@
   <div class="row">
     <div class="col col-md-7">
       <div class="card">
-        <h5 class="card-header">{% trans "Contact" %}</h5>
+        <h2 class="card-header">{% trans "Contact" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Group" %}</th>
@@ -81,7 +81,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Assignments" %}</h5>
+        <h2 class="card-header">{% trans "Assignments" %}</h2>
         {% htmx_table 'tenancy:contactassignment_list' contact_id=object.pk %}
       </div>
       {% plugin_full_width_page object %}

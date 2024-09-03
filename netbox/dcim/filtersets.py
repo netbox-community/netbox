@@ -1,5 +1,4 @@
 import django_filters
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
@@ -16,6 +15,7 @@ from netbox.filtersets import (
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
+from users.models import User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
@@ -69,6 +69,7 @@ __all__ = (
     'RackFilterSet',
     'RackReservationFilterSet',
     'RackRoleFilterSet',
+    'RackTypeFilterSet',
     'RearPortFilterSet',
     'RearPortTemplateFilterSet',
     'RegionFilterSet',
@@ -289,6 +290,41 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+class RackTypeFilterSet(NetBoxModelFilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
+    )
+    width = django_filters.MultipleChoiceFilter(
+        choices=RackWidthChoices
+    )
+
+    class Meta:
+        model = RackType
+        fields = (
+            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(model__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -339,12 +375,33 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
+    rack_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_type__slug',
+        queryset=RackType.objects.all(),
+        to_field_name='slug',
+        label=_('Rack type (slug)'),
+    )
+    rack_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackType.objects.all(),
+        label=_('Rack type (ID)'),
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
         null_value=None
     )
-    type = django_filters.MultipleChoiceFilter(
-        choices=RackTypeChoices
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=RackFormFactorChoices
     )
     width = django_filters.MultipleChoiceFilter(
         choices=RackWidthChoices
@@ -367,7 +424,8 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = (
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit',
+            'description',
         )
 
     def search(self, queryset, name, value):
@@ -439,12 +497,12 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         label=_('Location (slug)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -652,7 +710,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ('id', 'model', 'part_number', 'weight', 'weight_unit', 'description')
+        fields = ('id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -698,9 +756,6 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
         label=_('Device type (ID)'),
     )
 
-    # TODO: Remove in v4.1
-    devicetype_id = device_type_id
-
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
@@ -716,9 +771,6 @@ class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
         field_name='module_type_id',
         label=_('Module type (ID)'),
     )
-
-    # TODO: Remove in v4.1
-    moduletype_id = module_type_id
 
 
 class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -806,7 +858,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
-class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
+class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = ModuleBayTemplate
@@ -1270,11 +1322,11 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         to_field_name='model',
         label=_('Module type (model)'),
     )
-    module_bay_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='module_bay',
+    module_bay_id = TreeNodeMultipleChoiceFilter(
         queryset=ModuleBay.objects.all(),
-        to_field_name='id',
-        label=_('Module Bay (ID)')
+        field_name='module_bay',
+        lookup_expr='in',
+        label=_('Module bay (ID)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
@@ -1745,7 +1797,11 @@ class RearPortFilterSet(
         )
 
 
-class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
+class ModuleBayFilterSet(ModularDeviceComponentFilterSet, NetBoxModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ModuleBay.objects.all(),
+        label=_('Parent module bay (ID)'),
+    )
     installed_module_id = django_filters.ModelMultipleChoiceFilter(
         field_name='installed_module',
         queryset=ModuleBay.objects.all(),

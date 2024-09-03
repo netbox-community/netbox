@@ -51,7 +51,7 @@ class LocationStatusChoices(ChoiceSet):
 # Racks
 #
 
-class RackTypeChoices(ChoiceSet):
+class RackFormFactorChoices(ChoiceSet):
 
     TYPE_2POST = '2-post-frame'
     TYPE_4POST = '4-post-frame'
@@ -124,6 +124,17 @@ class RackElevationDetailRenderChoices(ChoiceSet):
     CHOICES = (
         (RENDER_JSON, 'json'),
         (RENDER_SVG, 'svg')
+    )
+
+
+class RackAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
     )
 
 
@@ -222,6 +233,25 @@ class ModuleStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
+
+
+class ModuleAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+    LEFT_TO_RIGHT = 'left-to-right'
+    RIGHT_TO_LEFT = 'right-to-left'
+    SIDE_TO_REAR = 'side-to-rear'
+    PASSIVE = 'passive'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
+        (LEFT_TO_RIGHT, _('Left to right')),
+        (RIGHT_TO_LEFT, _('Right to left')),
+        (SIDE_TO_REAR, _('Side to rear')),
+        (PASSIVE, _('Passive')),
+    )
 
 
 #

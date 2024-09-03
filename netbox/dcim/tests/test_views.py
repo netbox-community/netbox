@@ -2,7 +2,6 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -13,10 +12,9 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
-
-User = get_user_model()
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -336,6 +334,76 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RackType
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(manufacturer=manufacturers[0], model='RackType 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='RackType 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(manufacturer=manufacturers[0], model='RackType 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+        )
+        RackType.objects.bulk_create(rack_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'model': 'RackType X',
+            'slug': 'rack-type-x',
+            'type': RackFormFactorChoices.TYPE_CABINET,
+            'width': RackWidthChoices.WIDTH_19IN,
+            'u_height': 48,
+            'desc_units': False,
+            'outer_width': 500,
+            'outer_depth': 500,
+            'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
+            'weight': 100,
+            'max_weight': 2000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
+        )
+
+        cls.csv_update_data = (
+            "id,model",
+            f"{rack_types[0].pk},RackType 7",
+            f"{rack_types[1].pk},RackType 8",
+            f"{rack_types[2].pk},RackType 9",
+        )
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'type': RackFormFactorChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'weight': 200,
+            'max_weight': 4000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'New comments',
+        }
+
+
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Rack
 
@@ -380,7 +448,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': rackroles[1].pk,
             'serial': '123456',
             'asset_tag': 'ABCDEF',
-            'type': RackTypeChoices.TYPE_CABINET,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
             'u_height': 48,
             'desc_units': False,
@@ -416,7 +484,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,
             'serial': '654321',
-            'type': RackTypeChoices.TYPE_4POST,
+            'form_factor': RackFormFactorChoices.TYPE_4POST,
             'width': RackWidthChoices.WIDTH_23IN,
             'u_height': 49,
             'desc_units': True,
@@ -1832,12 +1900,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_modulebays(self):
         device = Device.objects.first()
-        device_bays = (
-            ModuleBay(device=device, name='Module Bay 1'),
-            ModuleBay(device=device, name='Module Bay 2'),
-            ModuleBay(device=device, name='Module Bay 3'),
-        )
-        ModuleBay.objects.bulk_create(device_bays)
+        ModuleBay.objects.create(device=device, name='Module Bay 1')
+        ModuleBay.objects.create(device=device, name='Module Bay 2')
+        ModuleBay.objects.create(device=device, name='Module Bay 3')
 
         url = reverse('dcim:device_modulebays', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -1913,7 +1978,8 @@ class ModuleTestCase(
             ModuleBay(device=devices[1], name='Module Bay 4'),
             ModuleBay(device=devices[1], name='Module Bay 5'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0]),
@@ -2715,7 +2781,8 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ModuleBay(device=device, name='Module Bay 2'),
             ModuleBay(device=device, name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 

@@ -582,6 +582,58 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# RackTypes
+#
+
+class RackTypeListView(generic.ObjectListView):
+    queryset = RackType.objects.annotate(
+        instance_count=count_related(Rack, 'rack_type')
+    )
+    filterset = filtersets.RackTypeFilterSet
+    filterset_form = forms.RackTypeFilterForm
+    table = tables.RackTypeTable
+
+
+@register_model_view(RackType)
+class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = RackType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(RackType, 'edit')
+class RackTypeEditView(generic.ObjectEditView):
+    queryset = RackType.objects.all()
+    form = forms.RackTypeForm
+
+
+@register_model_view(RackType, 'delete')
+class RackTypeDeleteView(generic.ObjectDeleteView):
+    queryset = RackType.objects.all()
+
+
+class RackTypeBulkImportView(generic.BulkImportView):
+    queryset = RackType.objects.all()
+    model_form = forms.RackTypeImportForm
+
+
+class RackTypeBulkEditView(generic.BulkEditView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
+    form = forms.RackTypeBulkEditForm
+
+
+class RackTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = RackType.objects.all()
+    filterset = filtersets.RackTypeFilterSet
+    table = tables.RackTypeTable
+
+
+#
 # Racks
 #
 
@@ -1260,6 +1312,21 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
         badge=lambda obj: obj.rearporttemplates.count(),
         permission='dcim.view_rearporttemplate',
         weight=520,
+        hide_if_empty=True
+    )
+
+
+@register_model_view(ModuleType, 'modulebays', path='module-bays')
+class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
+    child_model = ModuleBayTemplate
+    table = tables.ModuleBayTemplateTable
+    filterset = filtersets.ModuleBayTemplateFilterSet
+    viewname = 'dcim:moduletype_modulebays'
+    tab = ViewTab(
+        label=_('Module Bays'),
+        badge=lambda obj: obj.modulebaytemplates.count(),
+        permission='dcim.view_modulebaytemplate',
+        weight=570,
         hide_if_empty=True
     )
 

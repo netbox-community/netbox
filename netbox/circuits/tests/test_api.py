@@ -92,7 +92,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
-    brief_fields = ['cid', 'description', 'display', 'id', 'url']
+    brief_fields = ['cid', 'description', 'display', 'id', 'provider', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -208,10 +208,42 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
+class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
+    model = CircuitGroup
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        circuit_groups = (
+            CircuitGroup(name="Circuit Group 1", slug='circuit-group-1'),
+            CircuitGroup(name="Circuit Group 2", slug='circuit-group-2'),
+            CircuitGroup(name="Circuit Group 3", slug='circuit-group-3'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        cls.create_data = [
+            {
+                'name': 'Circuit Group 4',
+                'slug': 'circuit-group-4',
+            },
+            {
+                'name': 'Circuit Group 5',
+                'slug': 'circuit-group-5',
+            },
+            {
+                'name': 'Circuit Group 6',
+                'slug': 'circuit-group-6',
+            },
+        ]
+
+
 class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
     model = ProviderAccount
     brief_fields = ['account', 'description', 'display', 'id', 'name', 'url']
-    user_permissions = ('circuits.view_provider', )
+    user_permissions = ('circuits.view_provider',)
 
     @classmethod
     def setUpTestData(cls):
@@ -250,6 +282,78 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
             'provider': providers[1].pk,
             'description': 'New description',
         }
+
+
+class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
+    model = CircuitGroupAssignment
+    brief_fields = ['circuit', 'display', 'group', 'id', 'priority', 'url']
+    bulk_update_data = {
+        'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
+    }
+    user_permissions = ('circuits.view_circuit', 'circuits.view_circuitgroup')
+
+    @classmethod
+    def setUpTestData(cls):
+
+        circuit_groups = (
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
+            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
+            CircuitGroup(name='Circuit Group 4', slug='circuit-group-4'),
+            CircuitGroup(name='Circuit Group 5', slug='circuit-group-5'),
+            CircuitGroup(name='Circuit Group 6', slug='circuit-group-6'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+        circuits = (
+            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 4', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 5', provider=provider, type=circuittype),
+            Circuit(cid='Circuit 6', provider=provider, type=circuittype),
+        )
+        Circuit.objects.bulk_create(circuits)
+
+        assignments = (
+            CircuitGroupAssignment(
+                group=circuit_groups[0],
+                circuit=circuits[0],
+                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[1],
+                circuit=circuits[1],
+                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[2],
+                circuit=circuits[2],
+                priority=CircuitPriorityChoices.PRIORITY_TERTIARY
+            ),
+        )
+        CircuitGroupAssignment.objects.bulk_create(assignments)
+
+        cls.create_data = [
+            {
+                'group': circuit_groups[3].pk,
+                'circuit': circuits[3].pk,
+                'priority': CircuitPriorityChoices.PRIORITY_PRIMARY,
+            },
+            {
+                'group': circuit_groups[4].pk,
+                'circuit': circuits[4].pk,
+                'priority': CircuitPriorityChoices.PRIORITY_SECONDARY,
+            },
+            {
+                'group': circuit_groups[5].pk,
+                'circuit': circuits[5].pk,
+                'priority': CircuitPriorityChoices.PRIORITY_TERTIARY,
+            },
+        ]
 
 
 class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):

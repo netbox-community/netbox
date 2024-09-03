@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.views.generic.base import RedirectView
 from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
@@ -630,6 +631,15 @@ class VirtualDiskBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualDisk.objects.all()
     filterset = filtersets.VirtualDiskFilterSet
     table = tables.VirtualDiskTable
+
+
+# TODO: Remove in v4.2
+class VirtualDiskRedirectView(RedirectView):
+    """
+    Redirect old (pre-v4.1) URLs for VirtualDisk views.
+    """
+    def get_redirect_url(self, path):
+        return f"{reverse('virtualization:virtualdisk_list')}{path}"
 
 
 #

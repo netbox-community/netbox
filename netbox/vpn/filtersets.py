@@ -190,10 +190,6 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
         to_field_name='name'
     )
 
-    # TODO: Remove in v4.1
-    proposal = ike_proposal
-    proposal_id = ike_proposal_id
-
     class Meta:
         model = IKEPolicy
         fields = ('id', 'name', 'preshared_key', 'description')
@@ -254,10 +250,6 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
         queryset=IPSecProposal.objects.all(),
         to_field_name='name'
     )
-
-    # TODO: Remove in v4.1
-    proposal = ipsec_proposal
-    proposal_id = ipsec_proposal_id
 
     class Meta:
         model = IPSecPolicy

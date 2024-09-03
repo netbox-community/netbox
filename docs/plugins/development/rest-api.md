@@ -25,9 +25,11 @@ project-name/
 
 Serializers are responsible for converting Python objects to JSON data suitable for conveying to consumers, and vice versa. NetBox provides the `NetBoxModelSerializer` class for use by plugins to handle the assignment of tags and custom field data. (These features can also be included ad hoc via the `CustomFieldModelSerializer` and `TaggableModelSerializer` classes.)
 
+The default nested representation of an object is defined by the `brief_fields` attributes under the serializer's `Meta` class. (Older versions of NetBox required the definition of a separate nested serializer.)
+
 #### Example
 
-To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class. It is generally advisable to include a `url` attribute on each serializer. This will render the direct link to access the object being rendered.
+To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class.
 
 ```python
 # api/serializers.py
@@ -36,40 +38,12 @@ from netbox.api.serializers import NetBoxModelSerializer
 from my_plugin.models import MyModel
 
 class MyModelSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:myplugin-api:mymodel-detail'
-    )
+    foo = SiteSerializer(nested=True, allow_null=True)
 
     class Meta:
         model = MyModel
         fields = ('id', 'foo', 'bar', 'baz')
-```
-
-### Nested Serializers
-
-There are two cases where it is generally desirable to show only a minimal representation of an object:
-
-1. When displaying an object related to the one being viewed (for example, the region to which a site is assigned)
-2. Listing many objects using "brief" mode
-
-To accommodate these, it is recommended to create nested serializers accompanying the "full" serializer for each model. NetBox provides the `WritableNestedSerializer` class for just this purpose. This class accepts a primary key value on write, but displays an object representation for read requests. It also includes a read-only `display` attribute which conveys the string representation of the object.
-
-#### Example
-
-```python
-# api/serializers.py
-from rest_framework import serializers
-from netbox.api.serializers import WritableNestedSerializer
-from my_plugin.models import MyModel
-
-class NestedMyModelSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='plugins-api:myplugin-api:mymodel-detail'
-    )
-
-    class Meta:
-        model = MyModel
-        fields = ('id', 'display', 'foo')
+        brief_fields = ('id', 'url', 'display', 'bar')
 ```
 
 ## Viewsets

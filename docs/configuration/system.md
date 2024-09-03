@@ -87,6 +87,19 @@ addresses (and [`DEBUG`](./development.md#debug) is true).
 
 ---
 
+## ISOLATED_DEPLOYMENT
+
+!!! info "This feature was introduced in NetBox v4.1."
+
+Default: False
+
+Set this configuration parameter to True for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
+
+!!! note
+    If Internet access is available via a proxy, set [`HTTP_PROXIES`](#http_proxies) instead.
+
+---
+
 ## JINJA2_FILTERS
 
 Default: `{}`
@@ -143,7 +156,7 @@ LOGGING = {
 
 ## MEDIA_ROOT
 
-Default: $INSTALL_ROOT/netbox/media/
+Default: `$INSTALL_ROOT/netbox/media/`
 
 The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media/` directory within the base NetBox installation path.
 

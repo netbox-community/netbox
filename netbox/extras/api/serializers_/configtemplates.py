@@ -11,7 +11,6 @@ __all__ = (
 
 
 class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
     data_source = DataSourceSerializer(
         nested=True,
         required=False
@@ -24,7 +23,7 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
     class Meta:
         model = ConfigTemplate
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
-            'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'environment_params', 'template_code',
+            'data_source', 'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

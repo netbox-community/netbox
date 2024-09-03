@@ -6,7 +6,7 @@ from dcim.api.serializers_.sites import SiteSerializer
 from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup
-from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
@@ -22,7 +22,6 @@ __all__ = (
 
 
 class VLANGroupSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
@@ -33,6 +32,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
+    vid_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
 
     # Related object counts
@@ -41,7 +41,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = VLANGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vid_ranges',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
@@ -57,7 +57,6 @@ class VLANGroupSerializer(NetBoxModelSerializer):
 
 
 class VLANSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     group = VLANGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -71,8 +70,9 @@ class VLANSerializer(NetBoxModelSerializer):
     class Meta:
         model = VLAN
         fields = [
-            'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
-            'comments', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'id', 'url', 'display_url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role',
+            'description', 'comments', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated',
+            'prefix_count',
         ]
         brief_fields = ('id', 'url', 'display', 'vid', 'name', 'description')
 

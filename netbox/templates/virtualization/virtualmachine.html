@@ -9,7 +9,7 @@
 <div class="row my-3">
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Virtual Machine" %}</h5>
+            <h2 class="card-header">{% trans "Virtual Machine" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Name" %}</th>
@@ -30,6 +30,10 @@
                 <tr>
                   <th scope="row">{% trans "Description" %}</th>
                   <td>{{ object.description|placeholder }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">{% trans "Serial Number" %}</th>
+                  <td>{{ object.serial|placeholder }}</td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Tenant" %}</th>
@@ -85,7 +89,7 @@
     </div>
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">{% trans "Cluster" %}</h5>
+            <h2 class="card-header">{% trans "Cluster" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row">{% trans "Site" %}</th>
@@ -115,7 +119,7 @@
             </table>
         </div>
         <div class="card">
-            <h5 class="card-header">{% trans "Resources" %}</h5>
+            <h2 class="card-header">{% trans "Resources" %}</h2>
             <table class="table table-hover attr-table">
                 <tr>
                     <th scope="row"><i class="mdi mdi-gauge"></i> {% trans "Virtual CPUs" %}</th>
@@ -137,7 +141,7 @@
                   </th>
                   <td>
                     {% if object.disk %}
-                      {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                      {{ object.disk|humanize_megabytes }}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}
@@ -146,7 +150,7 @@
             </table>
         </div>
         <div class="card">
-          <h5 class="card-header">
+          <h2 class="card-header">
             {% trans "Services" %}
             {% if perms.ipam.add_service %}
               <div class="card-actions">
@@ -155,7 +159,7 @@
                 </a>
               </div>
             {% endif %}
-          </h5>
+          </h2>
           {% htmx_table 'ipam:service_list' virtual_machine_id=object.pk %}
         </div>
         {% include 'inc/panels/image_attachments.html' %}
@@ -166,7 +170,7 @@
 <div class="row">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
+      <h2 class="card-header">
         {% trans "Virtual Disks" %}
         {% if perms.virtualization.add_virtualdisk %}
           <div class="card-actions">
@@ -175,7 +179,7 @@
             </a>
           </div>
         {% endif %}
-      </h5>
+      </h2>
       {% htmx_table 'virtualization:virtualdisk_list' virtual_machine_id=object.pk %}
     </div>
   </div>

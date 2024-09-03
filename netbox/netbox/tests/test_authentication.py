@@ -1,7 +1,6 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -11,12 +10,9 @@ from rest_framework.test import APIClient
 from core.models import ObjectType
 from dcim.models import Site
 from ipam.models import Prefix
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import TestCase
 from utilities.testing.api import APITestCase
-
-
-User = get_user_model()
 
 
 class TokenAuthenticationTestCase(APITestCase):

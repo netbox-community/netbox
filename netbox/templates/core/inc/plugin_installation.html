@@ -1,0 +1,29 @@
+<p>You can install this plugin from the command line with PyPI.</p>
+<p>The following commands may be helpful; always refer to <a href="{{ plugin.homepage_url }}" target="_blank">the plugin's own documentation <i class="mdi mdi-launch"></i></a> and the <a href="https://netboxlabs.com/docs/netbox/en/stable/plugins/installation/" target="_blank">Installing a Plugin unit <i class="mdi mdi-launch"></i></a> of the NetBox documentation.</p>
+<p>1. Enter the NetBox virtual environment and install the plugin package:</p>
+
+<pre class="block">
+source /opt/netbox/venv/bin/activate
+pip install {{ plugin.slug }}
+</pre>
+
+<p>2. In /opt/netbox/netbox/netbox/configuration.py, add the plugin to the PLUGINS list:</p>
+
+<pre class="block">
+PLUGINS=［
+"{{ plugin.config_name }}",
+]
+</pre>
+
+<p>3. Still from the NetBox virtual environment, run database migrations and collect static files:</p>
+
+<pre class="block">
+python3 /opt/netbox/netbox/manage.py migrate
+python3 /opt/netbox/netbox/manage.py collectstatic
+</pre>
+
+<p>4. Restart the NetBox services to complete the plugin installation:</p>
+
+<pre class="block">
+sudo systemctl restart netbox netbox-rq
+</pre>

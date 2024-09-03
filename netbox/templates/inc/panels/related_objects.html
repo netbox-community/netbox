@@ -2,8 +2,8 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">{% trans "Related Objects" %}</h5>
-  <ul class="list-group list-group-flush">
+  <h2 class="card-header">{% trans "Related Objects" %}</h2>
+  <ul class="list-group list-group-flush" role="presentation">
     {% for qs, filter_param in related_models %}
       {% with viewname=qs.model|validated_viewname:"list" %}
         {% if viewname is not None %}

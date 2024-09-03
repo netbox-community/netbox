@@ -10,8 +10,10 @@ from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
+from users.models import Group, User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
@@ -32,7 +34,9 @@ __all__ = (
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
+    'NotificationGroupForm',
     'SavedFilterForm',
+    'SubscriptionForm',
     'TagForm',
     'WebhookForm',
 )
@@ -41,30 +45,36 @@ __all__ = (
 class CustomFieldForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ObjectType.objects.with_feature('custom_fields')
+        queryset=ObjectType.objects.with_feature('custom_fields'),
+        help_text=_("The type(s) of object that have this custom field")
+    )
+    default = JSONField(
+        label=_('Default value'),
+        required=False
     )
     related_object_type = ContentTypeChoiceField(
         label=_('Related object type'),
         queryset=ObjectType.objects.public(),
-        required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
+    related_object_filter = JSONField(
+        label=_('Related object filter'),
+        required=False,
+        help_text=_('Specify query parameters as a JSON object.')
+    )
     choice_set = DynamicModelChoiceField(
-        queryset=CustomFieldChoiceSet.objects.all(),
-        required=False
+        queryset=CustomFieldChoiceSet.objects.all()
     )
     comments = CommentField()
 
     fieldsets = (
         FieldSet(
-            'object_types', 'name', 'label', 'group_name', 'type', 'related_object_type', 'required', 'description',
+            'object_types', 'name', 'label', 'group_name', 'description', 'type', 'required', 'unique', 'default',
             name=_('Custom Field')
         ),
         FieldSet(
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
         ),
-        FieldSet('default', 'choice_set', name=_('Values')),
-        FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
 
     class Meta:
@@ -81,10 +91,74 @@ class CustomFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Mimic HTMXSelect()
+        self.fields['type'].widget.attrs.update({
+            'hx-get': '.',
+            'hx-include': '#form_fields',
+            'hx-target': '#form_fields',
+        })
+
         # Disable changing the type of a CustomField as it almost universally causes errors if custom field data
         # is already present.
         if self.instance.pk:
             self.fields['type'].disabled = True
+
+        field_type = get_field_value(self, 'type')
+
+        # Adjust for text fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_TEXT,
+                CustomFieldTypeChoices.TYPE_LONGTEXT,
+                CustomFieldTypeChoices.TYPE_URL
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_regex', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_regex']
+
+        # Adjust for numeric fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_INTEGER,
+                CustomFieldTypeChoices.TYPE_DECIMAL
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_minimum', 'validation_maximum', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_minimum']
+            del self.fields['validation_maximum']
+
+        # Adjust for object & multi-object fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_OBJECT,
+                CustomFieldTypeChoices.TYPE_MULTIOBJECT
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('related_object_type', 'related_object_filter', name=_('Related Object')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['related_object_type']
+            del self.fields['related_object_filter']
+
+        # Adjust for selection & multi-select fields
+        if field_type in (
+                CustomFieldTypeChoices.TYPE_SELECT,
+                CustomFieldTypeChoices.TYPE_MULTISELECT
+        ):
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('choice_set', name=_('Choices')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['choice_set']
 
 
 class CustomFieldChoiceSetForm(forms.ModelForm):
@@ -236,6 +310,43 @@ class BookmarkForm(forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
+class NotificationGroupForm(forms.ModelForm):
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
+        required=False,
+        queryset=Group.objects.all()
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        required=False,
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = NotificationGroup
+        fields = ('name', 'description', 'groups', 'users')
+
+    def clean(self):
+        super().clean()
+
+        # At least one User or Group must be assigned
+        if not self.cleaned_data['groups'] and not self.cleaned_data['users']:
+            raise forms.ValidationError(_("A notification group specify at least one user or group."))
+
+        return self.cleaned_data
+
+
+class SubscriptionForm(forms.ModelForm):
+    object_type = ContentTypeChoiceField(
+        label=_('Object type'),
+        queryset=ObjectType.objects.with_feature('notifications')
+    )
+
+    class Meta:
+        model = Subscription
+        fields = ('object_type', 'object_id')
+
+
 class WebhookForm(NetBoxModelForm):
 
     fieldsets = (
@@ -261,6 +372,10 @@ class EventRuleForm(NetBoxModelForm):
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
+    event_types = forms.MultipleChoiceField(
+        choices=get_event_type_choices(),
+        label=_('Event types')
+    )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),
         choices=[]
@@ -277,25 +392,16 @@ class EventRuleForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
-        FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
-        FieldSet('conditions', name=_('Conditions')),
+        FieldSet('event_types', 'conditions', name=_('Triggers')),
         FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
 
     class Meta:
         model = EventRule
         fields = (
-            'object_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
-            'action_data', 'comments', 'tags'
+            'object_types', 'name', 'description', 'enabled', 'event_types', 'conditions', 'action_type',
+            'action_object_type', 'action_object_id', 'action_data', 'comments', 'tags'
         )
-        labels = {
-            'type_create': _('Creations'),
-            'type_update': _('Updates'),
-            'type_delete': _('Deletions'),
-            'type_job_start': _('Job executions'),
-            'type_job_end': _('Job terminations'),
-        }
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
             'action_type': HTMXSelect(),
@@ -327,6 +433,18 @@ class EventRuleForm(NetBoxModelForm):
             initial=initial
         )
 
+    def init_notificationgroup_choice(self):
+        initial = None
+        if self.instance.action_type == EventRuleActionChoices.NOTIFICATION:
+            notificationgroup_id = get_field_value(self, 'action_object_id')
+            initial = NotificationGroup.objects.get(pk=notificationgroup_id) if notificationgroup_id else None
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Notification group'),
+            queryset=NotificationGroup.objects.all(),
+            required=True,
+            initial=initial
+        )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['action_object_type'].required = False
@@ -339,6 +457,8 @@ class EventRuleForm(NetBoxModelForm):
             self.init_webhook_choice()
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.init_script_choice()
+        elif action_type == EventRuleActionChoices.NOTIFICATION:
+            self.init_notificationgroup_choice()
 
     def clean(self):
         super().clean()
@@ -354,6 +474,10 @@ class EventRuleForm(NetBoxModelForm):
                 Script,
                 for_concrete_model=False
             )
+            self.cleaned_data['action_object_id'] = action_choice.id
+        # Notification
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.NOTIFICATION:
+            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
 
         return self.cleaned_data

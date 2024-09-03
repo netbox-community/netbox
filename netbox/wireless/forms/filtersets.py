@@ -71,7 +71,7 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('ssid', 'status', name=_('Attributes')),
+        FieldSet('ssid', 'status', 'distance', 'distance_unit', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -96,6 +96,15 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     auth_psk = forms.CharField(
         label=_('Pre-shared key'),
+        required=False
+    )
+    distance = forms.DecimalField(
+        label=_('Distance'),
+        required=False,
+    )
+    distance_unit = forms.ChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(WirelessLinkDistanceUnitChoices),
         required=False
     )
     tag = TagFilterField(model)

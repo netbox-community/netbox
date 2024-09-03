@@ -1,7 +1,9 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -10,6 +12,7 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
+from utilities.data import check_ranges_overlap, ranges_to_string
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -18,9 +21,16 @@ __all__ = (
 )
 
 
+def default_vid_ranges():
+    return [
+        NumericRange(VLAN_VID_MIN, VLAN_VID_MAX, bounds='[]')
+    ]
+
+
 class VLANGroup(OrganizationalModel):
     """
-    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique. Each group must
+     define one or more ranges of valid VLAN IDs, and may be assigned a specific scope.
     """
     name = models.CharField(
         verbose_name=_('name'),
@@ -45,23 +55,13 @@ class VLANGroup(OrganizationalModel):
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    min_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('minimum VLAN ID'),
-        default=VLAN_VID_MIN,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Lowest permissible ID of a child VLAN')
+    vid_ranges = ArrayField(
+        IntegerRangeField(),
+        verbose_name=_('VLAN ID ranges'),
+        default=default_vid_ranges
     )
-    max_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('maximum VLAN ID'),
-        default=VLAN_VID_MAX,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Highest permissible ID of a child VLAN')
+    _total_vlan_ids = models.PositiveBigIntegerField(
+        default=VLAN_VID_MAX - VLAN_VID_MIN + 1
     )
 
     objects = VLANGroupQuerySet.as_manager()
@@ -96,17 +96,33 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
-        # Validate min/max child VID limits
-        if self.max_vid < self.min_vid:
-            raise ValidationError({
-                'max_vid': _("Maximum child VID must be greater than or equal to minimum child VID")
-            })
+        # Validate VID ranges
+        if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
+            raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
+        for vid_range in self.vid_ranges:
+            if vid_range.lower >= vid_range.upper:
+                raise ValidationError({
+                    'vid_ranges': _(
+                        "Maximum child VID must be greater than or equal to minimum child VID ({value})"
+                    ).format(value=vid_range)
+                })
+
+    def save(self, *args, **kwargs):
+        self._total_vlan_ids = 0
+        for vid_range in self.vid_ranges:
+            self._total_vlan_ids += vid_range.upper - vid_range.lower + 1
+
+        super().save(*args, **kwargs)
 
     def get_available_vids(self):
         """
         Return all available VLANs within this group.
         """
-        available_vlans = {vid for vid in range(self.min_vid, self.max_vid + 1)}
+        available_vlans = set()
+        for vlan_range in self.vid_ranges:
+            available_vlans = available_vlans.union({
+                vid for vid in range(vlan_range.lower, vlan_range.upper)
+            })
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
@@ -125,6 +141,10 @@ class VLANGroup(OrganizationalModel):
         Return all VLANs within this group.
         """
         return VLAN.objects.filter(group=self).order_by('vid')
+
+    @property
+    def vid_ranges_list(self):
+        return ranges_to_string(self.vid_ranges)
 
 
 class VLAN(PrimaryModel):
@@ -231,13 +251,14 @@ class VLAN(PrimaryModel):
                 ).format(group=self.group, scope=self.group.scope, site=self.site)
             )
 
-        # Validate group min/max VIDs
-        if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
-            raise ValidationError({
-                'vid': _(
-                    "VID must be between {minimum} and {maximum} for VLANs in group {group}"
-                ).format(minimum=self.group.min_vid, maximum=self.group.max_vid, group=self.group)
-            })
+        # Check that the VLAN ID is permitted in the assigned group (if any)
+        if self.group:
+            if not any([self.vid in r for r in self.group.vid_ranges]):
+                raise ValidationError({
+                    'vid': _(
+                        "VID must be in ranges {ranges} for VLANs in group {group}"
+                    ).format(ranges=ranges_to_string(self.group.vid_ranges), group=self.group)
+                })
 
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)

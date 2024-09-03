@@ -240,7 +240,10 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ('id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count')
+        fields = (
+            'id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count',
+            'serial'
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -250,7 +253,8 @@ class VirtualMachineFilterSet(
             Q(description__icontains=value) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value)
+            Q(primary_ip6__address__startswith=value) |
+            Q(serial__icontains=value)
         )
 
     def _has_primary_ip(self, queryset, name, value):

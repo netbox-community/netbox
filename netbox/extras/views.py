@@ -6,6 +6,8 @@ from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.module_loading import import_string
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
@@ -14,12 +16,13 @@ from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
 from dcim.models import Device, DeviceRole, Platform
+from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
-from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -31,8 +34,8 @@ from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
+from .constants import LOG_LEVEL_RANK
 from .models import *
-from .scripts import run_script
 from .tables import ReportResultsTable, ScriptResultsTable
 
 
@@ -353,6 +356,144 @@ class BookmarkBulkDeleteView(generic.BulkDeleteView):
 
     def get_queryset(self, request):
         return Bookmark.objects.filter(user=request.user)
+
+
+#
+# Notification groups
+#
+
+class NotificationGroupListView(generic.ObjectListView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    filterset_form = forms.NotificationGroupFilterForm
+    table = tables.NotificationGroupTable
+
+
+@register_model_view(NotificationGroup)
+class NotificationGroupView(generic.ObjectView):
+    queryset = NotificationGroup.objects.all()
+
+
+@register_model_view(NotificationGroup, 'edit')
+class NotificationGroupEditView(generic.ObjectEditView):
+    queryset = NotificationGroup.objects.all()
+    form = forms.NotificationGroupForm
+
+
+@register_model_view(NotificationGroup, 'delete')
+class NotificationGroupDeleteView(generic.ObjectDeleteView):
+    queryset = NotificationGroup.objects.all()
+
+
+class NotificationGroupBulkImportView(generic.BulkImportView):
+    queryset = NotificationGroup.objects.all()
+    model_form = forms.NotificationGroupImportForm
+
+
+class NotificationGroupBulkEditView(generic.BulkEditView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    table = tables.NotificationGroupTable
+    form = forms.NotificationGroupBulkEditForm
+
+
+class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
+    table = tables.NotificationGroupTable
+
+
+#
+# Notifications
+#
+
+class NotificationsView(LoginRequiredMixin, View):
+    """
+    HTMX-only user-specific notifications list.
+    """
+    def get(self, request):
+        return render(request, 'htmx/notifications.html', {
+            'notifications': request.user.notifications.unread(),
+            'total_count': request.user.notifications.count(),
+        })
+
+
+@register_model_view(Notification, 'read')
+class NotificationReadView(LoginRequiredMixin, View):
+    """
+    Mark the Notification read and redirect the user to its attached object.
+    """
+    def get(self, request, pk):
+        # Mark the Notification as read
+        notification = get_object_or_404(request.user.notifications, pk=pk)
+        notification.read = timezone.now()
+        notification.save()
+
+        # Redirect to the object if it has a URL (deleted objects will not)
+        if hasattr(notification.object, 'get_absolute_url'):
+            return redirect(notification.object.get_absolute_url())
+
+        return redirect('account:notifications')
+
+
+@register_model_view(Notification, 'dismiss')
+class NotificationDismissView(LoginRequiredMixin, View):
+    """
+    A convenience view which allows deleting notifications with one click.
+    """
+    def get(self, request, pk):
+        notification = get_object_or_404(request.user.notifications, pk=pk)
+        notification.delete()
+
+        if htmx_partial(request):
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+            })
+
+        return redirect('account:notifications')
+
+
+@register_model_view(Notification, 'delete')
+class NotificationDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Notification.objects.filter(user=request.user)
+
+
+class NotificationBulkDeleteView(generic.BulkDeleteView):
+    table = tables.NotificationTable
+
+    def get_queryset(self, request):
+        return Notification.objects.filter(user=request.user)
+
+
+#
+# Subscriptions
+#
+
+class SubscriptionCreateView(generic.ObjectEditView):
+    form = forms.SubscriptionForm
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Subscription, 'delete')
+class SubscriptionDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
+
+
+class SubscriptionBulkDeleteView(generic.BulkDeleteView):
+    table = tables.SubscriptionTable
+
+    def get_queryset(self, request):
+        return Subscription.objects.filter(user=request.user)
 
 
 #
@@ -681,75 +822,6 @@ class ConfigTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
-
-
-#
-# Change logging
-#
-
-class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.valid_models()
-    filterset = filtersets.ObjectChangeFilterSet
-    filterset_form = forms.ObjectChangeFilterForm
-    table = tables.ObjectChangeTable
-    template_name = 'extras/objectchange_list.html'
-    actions = {
-        'export': {'view'},
-    }
-
-
-@register_model_view(ObjectChange)
-class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.valid_models()
-
-    def get_extra_context(self, request, instance):
-        related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
-            request_id=instance.request_id
-        ).exclude(
-            pk=instance.pk
-        )
-        related_changes_table = tables.ObjectChangeTable(
-            data=related_changes[:50],
-            orderable=False
-        )
-
-        objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
-            changed_object_type=instance.changed_object_type,
-            changed_object_id=instance.changed_object_id,
-        )
-
-        next_change = objectchanges.filter(time__gt=instance.time).order_by('time').first()
-        prev_change = objectchanges.filter(time__lt=instance.time).order_by('-time').first()
-
-        if not instance.prechange_data and instance.action in ['update', 'delete'] and prev_change:
-            non_atomic_change = True
-            prechange_data = prev_change.postchange_data_clean
-        else:
-            non_atomic_change = False
-            prechange_data = instance.prechange_data_clean
-
-        if prechange_data and instance.postchange_data:
-            diff_added = shallow_compare_dict(
-                prechange_data or dict(),
-                instance.postchange_data_clean or dict(),
-                exclude=['last_updated'],
-            )
-            diff_removed = {
-                x: prechange_data.get(x) for x in diff_added
-            } if prechange_data else {}
-        else:
-            diff_added = None
-            diff_removed = None
-
-        return {
-            'diff_added': diff_added,
-            'diff_removed': diff_removed,
-            'next_change': next_change,
-            'prev_change': prev_change,
-            'related_changes_table': related_changes_table,
-            'related_changes_count': related_changes.count(),
-            'non_atomic_change': non_atomic_change
-        }
 
 
 #
@@ -1100,10 +1172,9 @@ class ScriptView(BaseScriptView):
         if not get_workers_for_queue('default'):
             messages.error(request, _("Unable to run script: RQ worker process not running."))
         elif form.is_valid():
-            job = Job.enqueue(
-                run_script,
+            ScriptJob = import_string("extras.jobs.ScriptJob")
+            job = ScriptJob.enqueue(
                 instance=script,
-                name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
@@ -1159,25 +1230,6 @@ class ScriptJobsView(BaseScriptView):
         })
 
 
-class LegacyScriptRedirectView(ContentTypePermissionRequiredMixin, View):
-    """
-    Redirect legacy (pre-v4.0) script URLs. Examples:
-        /extras/scripts/<module>/<name>/         -->  /extras/scripts/<id>/
-        /extras/scripts/<module>/<name>/source/  -->  /extras/scripts/<id>/source/
-        /extras/scripts/<module>/<name>/jobs/    -->  /extras/scripts/<id>/jobs/
-    """
-    def get_required_permission(self):
-        return 'extras.view_script'
-
-    def get(self, request, module, name, path=''):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
-        script = get_object_or_404(Script.objects.all(), module=module, name=name)
-
-        url = reverse('extras:script', kwargs={'pk': script.pk})
-
-        return redirect(f'{url}{path}')
-
-
 class ScriptResultView(TableMixin, generic.ObjectView):
     queryset = Job.objects.all()
 
@@ -1189,22 +1241,30 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         tests = None
         table = None
         index = 0
+
+        try:
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+        except KeyError:
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
         if job.data:
+
             if 'log' in job.data:
                 if 'tests' in job.data:
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    index += 1
-                    result = {
-                        'index': index,
-                        'time': log.get('time'),
-                        'status': log.get('status'),
-                        'message': log.get('message'),
-                        'object': log.get('obj'),
-                        'url': log.get('url'),
-                    }
-                    data.append(result)
+                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    if log_level >= log_threshold:
+                        index += 1
+                        result = {
+                            'index': index,
+                            'time': log.get('time'),
+                            'status': log.get('status'),
+                            'message': log.get('message'),
+                            'object': log.get('obj'),
+                            'url': log.get('url'),
+                        }
+                        data.append(result)
 
                 table = ScriptResultsTable(data, user=request.user)
                 table.configure(request)
@@ -1216,17 +1276,19 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        index += 1
-                        result = {
-                            'index': index,
-                            'method': method,
-                            'time': time,
-                            'status': status,
-                            'object': obj,
-                            'url': url,
-                            'message': message,
-                        }
-                        data.append(result)
+                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        if log_level >= log_threshold:
+                            index += 1
+                            result = {
+                                'index': index,
+                                'method': method,
+                                'time': time,
+                                'status': status,
+                                'object': obj,
+                                'url': url,
+                                'message': message,
+                            }
+                            data.append(result)
 
             table = ReportResultsTable(data, user=request.user)
             table.configure(request)
@@ -1240,10 +1302,16 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        if log_threshold not in LOG_LEVEL_RANK:
+            log_threshold = LogLevelChoices.LOG_DEBUG
+
         context = {
             'script': job.object,
             'job': job,
             'table': table,
+            'log_levels': dict(LogLevelChoices),
+            'log_threshold': log_threshold,
         }
 
         if job.data and 'log' in job.data:
@@ -1273,7 +1341,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
 # Markdown
 #
 
-class RenderMarkdownView(View):
+class RenderMarkdownView(LoginRequiredMixin, View):
 
     def post(self, request):
         form = forms.RenderMarkdownForm(request.POST)

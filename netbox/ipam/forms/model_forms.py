@@ -14,7 +14,7 @@ from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    SlugField,
+    NumericRangeArrayField, SlugField
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
@@ -565,6 +565,9 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
 
 class VLANGroupForm(NetBoxModelForm):
     slug = SlugField()
+    vid_ranges = NumericRangeArrayField(
+        label=_('VLAN IDs')
+    )
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         widget=HTMXSelect(),
@@ -581,14 +584,14 @@ class VLANGroupForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
-        FieldSet('min_vid', 'max_vid', name=_('Child VLANs')),
+        FieldSet('vid_ranges', name=_('Child VLANs')),
         FieldSet('scope_type', 'scope', name=_('Scope')),
     )
 
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'min_vid', 'max_vid', 'scope_type', 'scope', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'scope', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

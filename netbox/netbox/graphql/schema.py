@@ -1,5 +1,7 @@
 import strawberry
+from django.conf import settings
 from strawberry_django.optimizer import DjangoOptimizerExtension
+from strawberry.extensions import MaxAliasesLimiter
 from strawberry.schema.config import StrawberryConfig
 
 from circuits.graphql.schema import CircuitsQuery
@@ -37,5 +39,6 @@ schema = strawberry.Schema(
     config=StrawberryConfig(auto_camel_case=False),
     extensions=[
         DjangoOptimizerExtension(prefetch_custom_queryset=True),
+        MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
     ]
 )
