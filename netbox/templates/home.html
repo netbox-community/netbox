@@ -28,7 +28,7 @@
 
 {% block page %}
   {# Render the user's customized dashboard #}
-  <div class="grid-stack m-2" id="dashboard">
+  <div class="grid-stack m-2" id="dashboard" hx-disinherit="*">
     {% for widget in dashboard %}
       {% include 'extras/dashboard/widget.html' %}
     {% endfor %}
