@@ -1,5 +1,16 @@
 # NetBox v4.1
 
+## v4.1.1 (FUTURE)
+
+### Bug Fixes
+
+* [#17332](https://github.com/netbox-community/netbox/issues/17332) - Restore pagination for object list dashboard widgets
+* [#17353](https://github.com/netbox-community/netbox/issues/17353) - Fix styling of map buttons under site and device views
+* [#17354](https://github.com/netbox-community/netbox/issues/17354) - Prevent object & multi-object custom fields from breaking bulk import forms
+* [#17364](https://github.com/netbox-community/netbox/issues/17364) - Fix rendering of Markdown tables inside object list dashboard widgets
+
+---
+
 ## v4.1.0 (2024-09-03)
 
 ### Breaking Changes
