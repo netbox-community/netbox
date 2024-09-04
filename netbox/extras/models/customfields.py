@@ -524,24 +524,36 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.related_object_type.model_class()
-            field_class = CSVModelChoiceField if for_csv_import else DynamicModelChoiceField
-            field = field_class(
-                queryset=model.objects.all(),
-                required=required,
-                initial=initial,
-                query_params=self.related_object_filter
-            )
+            if for_csv_import:
+                field = CSVModelChoiceField(
+                    queryset=model.objects.all(),
+                    required=required,
+                    initial=initial,
+                )
+            else:
+                field = DynamicModelChoiceField(
+                    queryset=model.objects.all(),
+                    required=required,
+                    initial=initial,
+                    query_params=self.related_object_filter
+                )
 
         # Multiple objects
         elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             model = self.related_object_type.model_class()
-            field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
-            field = field_class(
-                queryset=model.objects.all(),
-                required=required,
-                initial=initial,
-                query_params=self.related_object_filter
-            )
+            if for_csv_import:
+                field = CSVModelMultipleChoiceField(
+                    queryset=model.objects.all(),
+                    required=required,
+                    initial=initial,
+                )
+            else:
+                field = DynamicModelMultipleChoiceField(
+                    queryset=model.objects.all(),
+                    required=required,
+                    initial=initial,
+                    query_params=self.related_object_filter
+                )
 
         # Text
         else:
