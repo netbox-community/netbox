@@ -27,7 +27,7 @@ from wireless.models import WirelessLAN, WirelessLink
 from .choices import *
 from .constants import *
 from .models import *
-
+from django.db.models import JSONField
 __all__ = (
     'CableFilterSet',
     'CabledObjectFilterSet',
@@ -1186,6 +1186,7 @@ class DeviceFilterSet(
             'module_bay_count',
             'inventory_item_count',
         )
+
 
     def search(self, queryset, name, value):
         if not value.strip():

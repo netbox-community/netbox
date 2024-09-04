@@ -1,12 +1,19 @@
+
+from _decimal import Decimal
+from datetime import date, datetime
 from functools import partialmethod
 from typing import List
 
 import django_filters
 import strawberry
 import strawberry_django
+from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from strawberry import auto
 
+from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices
+from extras.models import CustomField
 from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
 from utilities.fields import ColorField, CounterCacheField
@@ -138,7 +145,7 @@ def autotype_decorator(filterset):
     class ExampleFilter(BaseFilterMixin):
         pass
 
-    The Filter itself must be derived from BaseFilterMixin.  For items listed in meta.fields
+    The Filter itself must be derived from BaseFilterMixin. For items listed in meta.fields
     of the filterset, usually just a type specifier is generated, so for
     `fields = [created, ]` the dataclass would be:
 
@@ -159,9 +166,70 @@ def autotype_decorator(filterset):
             setattr(cls, filter_name, partialmethod(filter_by_filterset, key=fieldname))
 
     def wrapper(cls):
+
+        # Dynamically add a Filter for each CustomField applicable to the parent model
+        custom_fields = CustomField.objects.filter(
+            object_types=ContentType.objects.get_for_model(filterset._meta.model)
+        ).exclude(
+            filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
+        )
+
+        ## taken from netbox.filtersets.NetBoxModelFilterSet
+        custom_field_filters = {}
+        for custom_field in custom_fields:
+            filter_name = f'cf_{custom_field.name}'
+            filter_instance = custom_field.to_filter()
+            if filter_instance:
+                    custom_field_filters[filter_name] = filter_instance
+
+                    # Add relevant additional lookups
+                    additional_lookups = filterset.get_additional_lookups(filter_name, filter_instance)
+                    custom_field_filters.update(additional_lookups)
+
+            filterset.declared_filters.update(custom_field_filters)
+
+            ## mirror the call to create_attribute_and_function for the model fields, but for custom fields of the model.
+            attr_type = None
+            match custom_field.type:
+                case CustomFieldTypeChoices.TYPE_TEXT:
+                    attr_type = str | None
+                case CustomFieldTypeChoices.TYPE_LONGTEXT:
+                    attr_type = str | None
+                case CustomFieldTypeChoices.TYPE_DATE:
+                    attr_type = date | None
+                case CustomFieldTypeChoices.TYPE_DATETIME:
+                    attr_type = datetime | None
+                case CustomFieldTypeChoices.TYPE_INTEGER:
+                    attr_type = int | None
+                case CustomFieldTypeChoices.TYPE_BOOLEAN:
+                    attr_type = bool | None
+                case CustomFieldTypeChoices.TYPE_DECIMAL:
+                    attr_type = Decimal | None
+
+                #### unclear which types to choose here
+                # case CustomFieldTypeChoices.TYPE_JSON:
+                #    attr_type = dict | None
+                # case [CustomFieldTypeChoices.TYPE_MULTIOBJECT]:
+                #    attr_type = str | None
+                # case [CustomFieldTypeChoices.TYPE_MULTISELECT]:
+                #    attr_type = str | None
+                # case [CustomFieldTypeChoices.TYPE_SELECT]:
+                #    attr_type = str | None
+                # case [CustomFieldTypeChoices.TYPE_OBJECT]:
+                #    attr_type = str | None
+
+            if attr_type:
+                create_attribute_and_function(
+                    cls,
+                    fieldname=filter_name,
+                    attr_type=attr_type,
+                    should_create_function=True
+                )
         cls.filterset = filterset
         fields = filterset.get_fields()
         model = filterset._meta.model
+
+        # Add a Filter for each field on the model itself
         for fieldname in fields.keys():
             should_create_function = False
             attr_type = auto
