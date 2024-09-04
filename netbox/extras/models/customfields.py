@@ -524,36 +524,30 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
             model = self.related_object_type.model_class()
-            if for_csv_import:
-                field = CSVModelChoiceField(
-                    queryset=model.objects.all(),
-                    required=required,
-                    initial=initial,
-                )
-            else:
-                field = DynamicModelChoiceField(
-                    queryset=model.objects.all(),
-                    required=required,
-                    initial=initial,
-                    query_params=self.related_object_filter
-                )
+            field_class = CSVModelChoiceField if for_csv_import else DynamicModelChoiceField
+            kwargs = {
+                'queryset': model.objects.all(),
+                'required': required,
+                'initial': initial,
+            }
+            if not for_csv_import:
+                kwargs['query_params'] = self.related_object_filter
+
+            field = field_class(**kwargs)
 
         # Multiple objects
         elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             model = self.related_object_type.model_class()
-            if for_csv_import:
-                field = CSVModelMultipleChoiceField(
-                    queryset=model.objects.all(),
-                    required=required,
-                    initial=initial,
-                )
-            else:
-                field = DynamicModelMultipleChoiceField(
-                    queryset=model.objects.all(),
-                    required=required,
-                    initial=initial,
-                    query_params=self.related_object_filter
-                )
+            field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
+            kwargs = {
+                'queryset': model.objects.all(),
+                'required': required,
+                'initial': initial,
+            }
+            if not for_csv_import:
+                kwargs['query_params'] = self.related_object_filter
+
+            field = field_class(**kwargs)
 
         # Text
         else:
