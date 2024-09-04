@@ -236,7 +236,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 )
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    queryset = Script.objects.prefetch_related('jobs')
+    queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
     filterset_class = filtersets.ScriptFilterSet
 
