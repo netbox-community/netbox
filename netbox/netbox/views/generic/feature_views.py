@@ -38,7 +38,7 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
     base_template = None
     tab = ViewTab(
         label=_('Changelog'),
-        permission='extras.view_objectchange',
+        permission='core.view_objectchange',
         weight=10000
     )
 
