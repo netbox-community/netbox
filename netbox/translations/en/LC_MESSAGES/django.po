@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-04 05:02+0000\n"
+"POT-Creation-Date: 2024-09-05 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8123,98 +8123,98 @@ msgstr ""
 msgid "False"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:554
+#: netbox/extras/models/customfields.py:560
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:648
+#: netbox/extras/models/customfields.py:654
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:650
+#: netbox/extras/models/customfields.py:656
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:655
+#: netbox/extras/models/customfields.py:661
 msgid "Value must be an integer."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:658
-#: netbox/extras/models/customfields.py:673
+#: netbox/extras/models/customfields.py:664
+#: netbox/extras/models/customfields.py:679
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:662
-#: netbox/extras/models/customfields.py:677
+#: netbox/extras/models/customfields.py:668
+#: netbox/extras/models/customfields.py:683
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:670
+#: netbox/extras/models/customfields.py:676
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:682
+#: netbox/extras/models/customfields.py:688
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:690
+#: netbox/extras/models/customfields.py:696
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:699
+#: netbox/extras/models/customfields.py:705
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:706
+#: netbox/extras/models/customfields.py:712
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:716
+#: netbox/extras/models/customfields.py:722
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:725
+#: netbox/extras/models/customfields.py:731
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:731
+#: netbox/extras/models/customfields.py:737
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:735
+#: netbox/extras/models/customfields.py:741
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:738
+#: netbox/extras/models/customfields.py:744
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:757
+#: netbox/extras/models/customfields.py:763
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:769
+#: netbox/extras/models/customfields.py:775
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:776
+#: netbox/extras/models/customfields.py:782
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:777
+#: netbox/extras/models/customfields.py:783
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:813
+#: netbox/extras/models/customfields.py:819
 msgid "Must define base or extra choices."
 msgstr ""
 
@@ -12014,8 +12014,9 @@ msgstr ""
 msgid "GPS Coordinates"
 msgstr ""
 
-#: netbox/templates/dcim/device.html:68 netbox/templates/dcim/site.html:100
-msgid "Map It"
+#: netbox/templates/dcim/device.html:68 netbox/templates/dcim/site.html:81
+#: netbox/templates/dcim/site.html:100
+msgid "Map"
 msgstr ""
 
 #: netbox/templates/dcim/device.html:108
@@ -12601,10 +12602,6 @@ msgstr ""
 
 #: netbox/templates/dcim/site.html:75
 msgid "Physical Address"
-msgstr ""
-
-#: netbox/templates/dcim/site.html:81
-msgid "Map"
 msgstr ""
 
 #: netbox/templates/dcim/site.html:90
