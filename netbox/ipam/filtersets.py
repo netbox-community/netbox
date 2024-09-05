@@ -458,7 +458,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
-        )
+        ).distinct()
 
 
 class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
@@ -738,7 +738,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
-        )
+        ).distinct()
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})
