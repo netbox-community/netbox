@@ -154,44 +154,49 @@ class NetHostContained(Lookup):
         return 'CAST(HOST(%s) AS INET) <<= %s' % (lhs, rhs), params
 
 
-class NetHostGreaterThan(Lookup):
+class NetHostComparison(Lookup):
+
+    @property
+    def comparison_sql(self):
+        raise NotImplementedError
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return self.comparison_sql % (lhs, rhs), params
+
+
+class NetHostGreaterThan(NetHostComparison):
     lookup_name = 'net_host_gt'
 
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
-        return 'CAST(HOST(%s) AS INET) > INET %s' % (lhs, rhs), params
+    @property
+    def comparison_sql(self):
+        return 'CAST(HOST(%s) AS INET) > INET %s'
 
 
-class NetHostLessThan(Lookup):
+class NetHostLessThan(NetHostComparison):
     lookup_name = 'net_host_lt'
 
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
-        return 'CAST(HOST(%s) AS INET) < INET %s' % (lhs, rhs), params
+    @property
+    def comparison_sql(self):
+        return 'CAST(HOST(%s) AS INET) < INET %s'
 
 
-class NetHostGreaterThanOrEqual(Lookup):
+class NetHostGreaterThanOrEqual(NetHostComparison):
     lookup_name = 'net_host_gte'
 
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
-        return 'CAST(HOST(%s) AS INET) >= INET %s' % (lhs, rhs), params
+    @property
+    def comparison_sql(self):
+        return 'CAST(HOST(%s) AS INET) >= INET %s'
 
 
-class NetHostLessThanOrEqual(Lookup):
+class NetHostLessThanOrEqual(NetHostComparison):
     lookup_name = 'net_host_lte'
 
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
-        return 'CAST(HOST(%s) AS INET) <= INET %s' % (lhs, rhs), params
+    @property
+    def comparison_sql(self):
+        return 'CAST(HOST(%s) AS INET) <= INET %s'
 
 
 class NetFamily(Transform):
