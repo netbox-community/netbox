@@ -543,3 +543,17 @@ class TestVLANGroup(TestCase):
 
         vlan = VLAN(vid=109, name='VLAN 109', group=vlangroup)
         vlan.full_clean()
+
+    def test_overlapping_vlan(self):
+        vlangroup = VLANGroup(
+            name='VLAN Group 1',
+            slug='vlan-group-1',
+            vid_ranges=string_to_ranges('2-4,3-5'),
+        )
+        with self.assertRaises(ValidationError):
+            vlangroup.full_clean()
+
+        # make sure single vlan range works
+        vlangroup.vid_ranges = string_to_ranges('2-2')
+        vlangroup.full_clean()
+        vlangroup.save()
