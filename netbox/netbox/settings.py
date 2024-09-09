@@ -416,7 +416,6 @@ if not DJANGO_ADMIN_ENABLED:
 
 # Middleware
 MIDDLEWARE = [
-    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -431,6 +430,13 @@ MIDDLEWARE = [
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE = [
+        "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
+        *MIDDLEWARE,
+    ]
+
 if METRICS_ENABLED:
     # If metrics are enabled, add the before & after Prometheus middleware
     MIDDLEWARE = [
