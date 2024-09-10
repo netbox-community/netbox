@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0002_squashed_0004'),
+        ('extras', '0113_customfield_rename_object_type'),
     ]
 
     operations = [
