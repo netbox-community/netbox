@@ -100,7 +100,7 @@ class VLANGroup(OrganizationalModel):
         if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
         for vid_range in self.vid_ranges:
-            if vid_range.lower >= vid_range.upper:
+            if vid_range.lower > vid_range.upper:
                 raise ValidationError({
                     'vid_ranges': _(
                         "Maximum child VID must be greater than or equal to minimum child VID ({value})"
