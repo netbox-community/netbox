@@ -2,12 +2,20 @@
 
 ## v4.1.1 (FUTURE)
 
+### Enhancements
+
+* [#16926](https://github.com/netbox-community/netbox/issues/16926) - Add USB front & rear port types
+* [#17347](https://github.com/netbox-community/netbox/issues/17347) - Add NEMA L22-20 power port & outlet types
+
 ### Bug Fixes
 
+* [#17066](https://github.com/netbox-community/netbox/issues/17066) - Fix OpenAPI schema definition for custom scripts REST API endpoint
 * [#17332](https://github.com/netbox-community/netbox/issues/17332) - Restore pagination for object list dashboard widgets
 * [#17353](https://github.com/netbox-community/netbox/issues/17353) - Fix styling of map buttons under site and device views
 * [#17354](https://github.com/netbox-community/netbox/issues/17354) - Prevent object & multi-object custom fields from breaking bulk import forms
 * [#17364](https://github.com/netbox-community/netbox/issues/17364) - Fix rendering of Markdown tables inside object list dashboard widgets
+* [#17387](https://github.com/netbox-community/netbox/issues/17387) - Fix display of the changelog tab for users with sufficient permission
+* [#17414](https://github.com/netbox-community/netbox/issues/17414) - Fix support for declaring individual VLAN IDs within a VLAN group
 
 ---
 
