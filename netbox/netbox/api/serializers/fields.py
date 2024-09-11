@@ -1,3 +1,4 @@
+from django.urls import NoReverseMatch
 from rest_framework import serializers
 
 __all__ = (
@@ -33,7 +34,11 @@ class BaseNetBoxHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         model_name = self.parent.Meta.model._meta.model_name
         app_name = self.parent.Meta.model._meta.app_label
         view_name = self.get_view_name(app_name, model_name)
-        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
+
+        try:
+            return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
+        except NoReverseMatch:
+            return None
 
     def get_view_name(self, app_name, model_name):
         raise NotImplementedError(_('{class_name} must implement get_view_name()').format(
