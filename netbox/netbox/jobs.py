@@ -100,9 +100,7 @@ class JobRunner(ABC):
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
-        name = kwargs.pop('name', None)
-        if not name:
-            name = cls.name
+        name = kwargs.pop('name', None) or cls.name
 
         return Job.enqueue(cls.handle, name=name, *args, **kwargs)
 
