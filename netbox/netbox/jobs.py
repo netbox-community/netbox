@@ -101,7 +101,6 @@ class JobRunner(ABC):
         parameters.
         """
         name = kwargs.pop('name', None) or cls.name
-
         return Job.enqueue(cls.handle, name=name, *args, **kwargs)
 
     @classmethod
