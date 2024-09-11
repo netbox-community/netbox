@@ -207,6 +207,11 @@ class Host(Transform):
     lookup_name = 'host'
 
 
+class HostAsInet(Transform):
+    lookup_name = 'host_as_inet'
+    template = 'CAST(HOST( %(expressions)s ) AS INET)'
+
+
 class Inet(Transform):
     function = 'INET'
     lookup_name = 'inet'
