@@ -93,14 +93,13 @@ class JobRunner(ABC):
         return jobs
 
     @classmethod
-    def enqueue(cls, *args, **kwargs):
+    def enqueue(cls, name=None, *args, **kwargs):
         """
         Enqueue a new `Job`.
 
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
-        name = kwargs.pop('name', None)
         if not name:
             name = cls.name
 
