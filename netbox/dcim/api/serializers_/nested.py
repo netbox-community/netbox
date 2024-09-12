@@ -72,7 +72,7 @@ class NestedInterfaceTemplateSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.InterfaceTemplate
-        fields = ['id', 'url', 'display_url', 'display', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):

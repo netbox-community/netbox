@@ -47,7 +47,7 @@ def map_strawberry_type(field):
         pass
     elif isinstance(field, NumericArrayFilter):
         should_create_function = True
-        attr_type = int
+        attr_type = int | None
     elif isinstance(field, TreeNodeMultipleChoiceFilter):
         should_create_function = True
         attr_type = List[str] | None
