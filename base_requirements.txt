@@ -84,10 +84,6 @@ Jinja2
 # https://python-markdown.github.io/changelog/
 Markdown
 
-# File inclusion plugin for Python-Markdown
-# https://github.com/cmacmackin/markdown-include
-markdown-include
-
 # MkDocs Material theme (for documentation build)
 # https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material

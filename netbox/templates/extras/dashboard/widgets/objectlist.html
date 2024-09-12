@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if htmx_url and has_permission %}
-  <div class="htmx-container" hx-get="{{ htmx_url }}" hx-trigger="load" hx-target="this" hx-select="table" hx-swap="innerHTML"></div>
+  <div class="htmx-container" hx-get="{{ htmx_url }}" hx-trigger="load" hx-target="this" hx-swap="innerHTML"></div>
 {% elif htmx_url %}
   <div class="text-muted text-center">
     <i class="mdi mdi-lock-outline"></i> {% trans "No permission to view this content" %}.

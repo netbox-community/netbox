@@ -1,5 +1,31 @@
 # NetBox v4.1
 
+## v4.1.1 (2024-09-12)
+
+### Enhancements
+
+* [#16926](https://github.com/netbox-community/netbox/issues/16926) - Add USB front & rear port types
+* [#17347](https://github.com/netbox-community/netbox/issues/17347) - Add NEMA L22-20 power port & outlet types
+
+### Bug Fixes
+
+* [#17066](https://github.com/netbox-community/netbox/issues/17066) - Fix OpenAPI schema definition for custom scripts REST API endpoint
+* [#17332](https://github.com/netbox-community/netbox/issues/17332) - Restore pagination for object list dashboard widgets
+* [#17333](https://github.com/netbox-community/netbox/issues/17333) - Avoid prefetching all jobs when retrieving custom scripts via the REST API
+* [#17353](https://github.com/netbox-community/netbox/issues/17353) - Fix styling of map buttons under site and device views
+* [#17354](https://github.com/netbox-community/netbox/issues/17354) - Prevent object & multi-object custom fields from breaking bulk import forms
+* [#17362](https://github.com/netbox-community/netbox/issues/17362) - Remove duplicate prefixes & IP addresses returned by the `present_in_vrf` query filter
+* [#17364](https://github.com/netbox-community/netbox/issues/17364) - Fix rendering of Markdown tables inside object list dashboard widgets
+* [#17387](https://github.com/netbox-community/netbox/issues/17387) - Fix display of the changelog tab for users with sufficient permission
+* [#17410](https://github.com/netbox-community/netbox/issues/17410) - Enable debug toolbar middleware for `strawberry-django` only when `DEBUG` is true
+* [#17414](https://github.com/netbox-community/netbox/issues/17414) - Fix support for declaring individual VLAN IDs within a VLAN group
+* [#17431](https://github.com/netbox-community/netbox/issues/17431) - Fix database migration error when upgrading to v4.1 from v3.7 or earlier
+* [#17437](https://github.com/netbox-community/netbox/issues/17437) - Fix exception when specifying a bridge relationship on an interface template
+* [#17444](https://github.com/netbox-community/netbox/issues/17444) - Custom script fails to execute when triggered by an event rule
+* [#17457](https://github.com/netbox-community/netbox/issues/17457) - GraphQL `service_list` filter should not require a port number
+
+---
+
 ## v4.1.0 (2024-09-03)
 
 ### Breaking Changes

@@ -63,9 +63,9 @@
                       <td class="position-relative">
                         {% if object.latitude and object.longitude %}
                           {% if config.MAPS_URL %}
-                            <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
-                              <a href="{{ config.MAPS_URL }}{{ object.latitude|unlocalize }},{{ object.longitude|unlocalize }}" target="_blank" class="btn btn-primary">
-                                <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
+                            <div class="position-absolute top-50 end-0 me-2 translate-middle-y d-print-none">
+                              <a href="{{ config.MAPS_URL }}{{ object.latitude|unlocalize }},{{ object.longitude|unlocalize }}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
                               </a>
                             </div>
                             {% endif %}

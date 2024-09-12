@@ -396,6 +396,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
+    TYPE_NEMA_L2220P = 'nema-l22-20p'
     TYPE_NEMA_L2230P = 'nema-l22-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
@@ -517,6 +518,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
+            (TYPE_NEMA_L2220P, 'NEMA L22-20P'),
             (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
         )),
         (_('California Style'), (
@@ -649,6 +651,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
+    TYPE_NEMA_L2220R = 'nema-l22-20r'
     TYPE_NEMA_L2230R = 'nema-l22-30r'
     # California style
     TYPE_CS6360C = 'CS6360C'
@@ -763,6 +766,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
+            (TYPE_NEMA_L2220R, 'NEMA L22-20R'),
             (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
         )),
         (_('California Style'), (
@@ -1347,6 +1351,14 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -1407,6 +1419,19 @@ class PortTypeChoices(ChoiceSet):
             ),
         ),
         (
+            _('USB'),
+            (
+                (TYPE_USB_A, 'USB Type A'),
+                (TYPE_USB_B, 'USB Type B'),
+                (TYPE_USB_C, 'USB Type C'),
+                (TYPE_USB_MINI_A, 'USB Mini A'),
+                (TYPE_USB_MINI_B, 'USB Mini B'),
+                (TYPE_USB_MICRO_A, 'USB Micro A'),
+                (TYPE_USB_MICRO_B, 'USB Micro B'),
+                (TYPE_USB_MICRO_AB, 'USB Micro AB'),
+            ),
+        ),
+        (
             _('Other'),
             (
                 (TYPE_OTHER, _('Other')),
@@ -1444,6 +1469,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
+    TYPE_USB = 'usb'
 
     CHOICES = (
         (
@@ -1476,6 +1502,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
+        (TYPE_USB, _('USB')),
         (TYPE_POWER, _('Power')),
     )
 
