@@ -24,7 +24,7 @@
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.1.0",
     "@mdi/font": "7.4.47",
-    "@tabler/core": "1.0.0-beta20",
+    "@tabler/core": "1.0.0-beta21",
     "bootstrap": "5.3.3",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
