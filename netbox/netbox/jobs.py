@@ -100,7 +100,8 @@ class JobRunner(ABC):
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
-        return Job.enqueue(cls.handle, name=cls.name, *args, **kwargs)
+        name = kwargs.pop('name', None) or cls.name
+        return Job.enqueue(cls.handle, name=name, *args, **kwargs)
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
