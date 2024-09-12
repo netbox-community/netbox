@@ -22,7 +22,7 @@
     "validate:formatting:scripts": "prettier -c src/**/*.ts"
   },
   "dependencies": {
-    "@fontsource-variable/plus-jakarta-sans": "^5.0.22",
+    "@fontsource-variable/plus-jakarta-sans": "^5.1.0",
     "@mdi/font": "7.4.47",
     "@tabler/core": "1.0.0-beta20",
     "bootstrap": "5.3.3",
@@ -31,7 +31,7 @@
     "gridstack": "10.3.1",
     "htmx.org": "1.9.12",
     "query-string": "9.1.0",
-    "sass": "1.77.8",
+    "sass": "1.78.0",
     "tom-select": "2.3.1",
     "typeface-roboto-mono": "1.1.13"
   },
