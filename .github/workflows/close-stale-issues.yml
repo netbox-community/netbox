@@ -45,6 +45,7 @@ jobs:
             This PR has been automatically closed due to lack of activity.
           days-before-pr-stale: 15
           days-before-pr-close: 15
+          exempt-pr-labels: 'status: blocked'
           stale-pr-label: 'pending closure'
           stale-pr-message: >
             This PR has been automatically marked as stale because it has not had
