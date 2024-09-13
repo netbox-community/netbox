@@ -295,10 +295,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         for ct in content_types:
             model = ct.model_class()
-            instances = model.objects.filter(custom_field_data__has_key=self.name)
-            for instance in instances:
-                del instance.custom_field_data[self.name]
-            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            if model:
+                instances = model.objects.filter(custom_field_data__has_key=self.name)
+                for instance in instances:
+                    del instance.custom_field_data[self.name]
+                model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def rename_object_data(self, old_name, new_name):
         """
