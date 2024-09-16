@@ -9,7 +9,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
-from ipam.models import VRF
+from ipam.models import VRF, IPAddress
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -1434,6 +1434,20 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=VirtualDeviceContextStatusChoices,
+    )
+    primary_ip4 = CSVModelChoiceField(
+        label=_('Primary IPv4'),
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('IPv4 address with mask, e.g. 1.2.3.4/24')
+    )
+    primary_ip6 = CSVModelChoiceField(
+        label=_('Primary IPv6'),
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('IPv6 address')
     )
 
     class Meta:
