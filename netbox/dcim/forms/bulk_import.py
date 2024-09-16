@@ -1438,6 +1438,6 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
 
     class Meta:
         fields = [
-            'name', 'device', 'status', 'tenant', 'identifier', 'comments',
+            'name', 'device', 'status', 'tenant', 'identifier', 'comments', 'primary_ip4', 'primary_ip6',
         ]
         model = VirtualDeviceContext
