@@ -829,22 +829,12 @@ class Device(
     def clean(self):
         super().clean()
 
-        # Validate site/location/rack combination
-        if self.rack and self.site != self.rack.site:
-            raise ValidationError({
-                'rack': _("Rack {rack} does not belong to site {site}.").format(rack=self.rack, site=self.site),
-            })
+        # Validate site/location combination
         if self.location and self.site != self.location.site:
             raise ValidationError({
                 'location': _(
                     "Location {location} does not belong to site {site}."
                 ).format(location=self.location, site=self.site)
-            })
-        if self.rack and self.location and self.rack.location != self.location:
-            raise ValidationError({
-                'rack': _(
-                    "Rack {rack} does not belong to location {location}."
-                ).format(rack=self.rack, location=self.location)
             })
 
         if self.rack is None:
@@ -1031,8 +1021,9 @@ class Device(
         if is_new and not self.platform:
             self.platform = self.device_type.default_platform
 
-        # Inherit location from Rack if not set
-        if self.rack and self.rack.location:
+        # Inherit site/location from Rack
+        if self.rack:
+            self.site = self.rack.site
             self.location = self.rack.location
 
         super().save(*args, **kwargs)
