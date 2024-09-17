@@ -1461,7 +1461,7 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
 
         if data:
 
-            # Limit primary_ip4/ip6 querysets by assigned site
+            # Limit primary_ip4/ip6 querysets by assigned device
             params = {f"interface__device__{self.fields['device'].to_field_name}": data.get('device')}
             self.fields['primary_ip4'].queryset = self.fields['primary_ip4'].queryset.filter(**params)
             self.fields['primary_ip6'].queryset = self.fields['primary_ip6'].queryset.filter(**params)
