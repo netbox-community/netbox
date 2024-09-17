@@ -615,6 +615,12 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if form.cleaned_data.get('remove_tags', None):
                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
+            # Add/remove tagged VLANs
+            if form.cleaned_data.get('add_tagged_vlans', None):
+                obj.tagged_vlans.add(*form.cleaned_data['add_tagged_vlans'])
+            if form.cleaned_data.get('remove_tagged_vlans', None):
+                obj.tagged_vlans.remove(*form.cleaned_data['remove_tagged_vlans'])
+
         # Rebuild the tree for MPTT models
         if issubclass(self.queryset.model, MPTTModel):
             self.queryset.model.objects.rebuild()
