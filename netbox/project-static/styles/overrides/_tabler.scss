@@ -52,7 +52,7 @@ pre {
 }
 
 // Altering background colors
-.page, .page-tabs .nav-tabs .nav-link.active {
+.page, .page-tabs .nav-tabs .nav-link.active, .btn-float-group {
   background-color: var(--#{$prefix}bg-surface-tertiary) !important;
 }
 .page-body .card .card-header {
@@ -105,7 +105,7 @@ body[data-bs-theme=dark] {
   .navbar, .page-header {
     background-color: $rich-black;
   }
-  .page, .page-tabs .nav-tabs .nav-link.active {
+  .page, .page-tabs .nav-tabs .nav-link.active, .btn-float-group {
     background-color: $rich-black-light !important;
   }
 

@@ -33,3 +33,11 @@ span.color-label {
 .netbox-edition {
   letter-spacing: .15rem;
 }
+
+// A floating div for form buttons
+.btn-float-group {
+  position: sticky;
+  bottom: 0px;
+  z-index: 1;
+  padding: 2px 0px 10px 0px;
+}
