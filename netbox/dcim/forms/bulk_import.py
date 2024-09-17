@@ -1447,7 +1447,7 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         queryset=IPAddress.objects.all(),
         required=False,
         to_field_name='address',
-        help_text=_('IPv6 address')
+        help_text=_('IPv6 address with mask, e.g. 1111:2222:3333:4444:5555:6666:7777:8888/24')
     )
 
     class Meta:
@@ -1455,3 +1455,13 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
             'name', 'device', 'status', 'tenant', 'identifier', 'comments', 'primary_ip4', 'primary_ip6',
         ]
         model = VirtualDeviceContext
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit primary_ip4/ip6 querysets by assigned site
+            params = {f"interface__device__{self.fields['device'].to_field_name}": data.get('device')}
+            self.fields['primary_ip4'].queryset = self.fields['primary_ip4'].queryset.filter(**params)
+            self.fields['primary_ip6'].queryset = self.fields['primary_ip6'].queryset.filter(**params)
