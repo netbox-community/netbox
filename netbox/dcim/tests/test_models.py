@@ -613,6 +613,25 @@ class DeviceTestCase(TestCase):
         with self.assertRaises(ValidationError):
             Device(name='device2', site=sites[0], location=locations[1], device_type=device_type, role=device_role).full_clean()
 
+    def test_device_mismatched_rack_location(self):
+        site = Site.objects.first()
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=site),
+            Location(name='Location 2', slug='location-2', site=site),
+        )
+        for location in locations:
+            location.save()
+
+        rack = Rack.objects.create(name='Rack 1', site=site, location=locations[0])
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device should use location from rack
+        with self.assertRaises(ValidationError):
+            Device(name='device1', site=site, location=locations[1], rack=rack, device_type=device_type, role=device_role).full_clean()
+
     def test_device_rack_clone_fields(self):
         site = Site.objects.first()
         location = Location(name='Location 1', slug='location-1', site=site)
