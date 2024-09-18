@@ -19,6 +19,7 @@ class ASNIndex(SearchIndex):
     model = models.ASN
     fields = (
         ('asn', 100),
+        ('prefixed_name', 110),
         ('description', 500),
     )
     display_attrs = ('rir', 'tenant', 'description')
