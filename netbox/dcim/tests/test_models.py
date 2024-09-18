@@ -623,9 +623,8 @@ class DeviceTestCase(TestCase):
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
 
-        # Device should use site and location from rack
-        device = Device.objects.create(name='device1', rack=rack, device_type=device_type, role=device_role)
-        self.assertEqual(device.site, site)
+        # Device should use location from rack
+        device = Device.objects.create(name='device1', site=site, rack=rack, device_type=device_type, role=device_role)
         self.assertEqual(device.location, location)
 
     def test_device_mismatched_site_cluster(self):
