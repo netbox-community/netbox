@@ -154,36 +154,6 @@ class NetHostContained(Lookup):
         return 'CAST(HOST(%s) AS INET) <<= %s' % (lhs, rhs), params
 
 
-class NetHostComparison(Lookup):
-    comparison_sql = None
-
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
-        params = lhs_params + rhs_params
-        return self.comparison_sql % (lhs, rhs), params
-
-
-class NetHostGreaterThan(NetHostComparison):
-    lookup_name = 'net_host_gt'
-    comparison_sql = 'CAST(HOST(%s) AS INET) > INET %s'
-
-
-class NetHostLessThan(NetHostComparison):
-    lookup_name = 'net_host_lt'
-    comparison_sql = 'CAST(HOST(%s) AS INET) < INET %s'
-
-
-class NetHostGreaterThanOrEqual(NetHostComparison):
-    lookup_name = 'net_host_gte'
-    comparison_sql = 'CAST(HOST(%s) AS INET) >= INET %s'
-
-
-class NetHostLessThanOrEqual(NetHostComparison):
-    lookup_name = 'net_host_lte'
-    comparison_sql = 'CAST(HOST(%s) AS INET) <= INET %s'
-
-
 class NetFamily(Transform):
     lookup_name = 'family'
     function = 'FAMILY'

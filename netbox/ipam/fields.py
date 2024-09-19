@@ -105,10 +105,6 @@ IPAddressField.register_lookup(lookups.NetIn)
 IPAddressField.register_lookup(lookups.NetHostContained)
 IPAddressField.register_lookup(lookups.NetFamily)
 IPAddressField.register_lookup(lookups.NetMaskLength)
-IPAddressField.register_lookup(lookups.NetHostLessThan)
-IPAddressField.register_lookup(lookups.NetHostLessThanOrEqual)
-IPAddressField.register_lookup(lookups.NetHostGreaterThan)
-IPAddressField.register_lookup(lookups.NetHostGreaterThanOrEqual)
 IPAddressField.register_lookup(lookups.HostAsInet)
 
 
