@@ -541,6 +541,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
+    def extra_object_field_operations(self, form, obj):
+        pass
+
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', {})
         standard_fields = [
@@ -615,11 +618,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if form.cleaned_data.get('remove_tags', None):
                 obj.tags.remove(*form.cleaned_data['remove_tags'])
 
-            # Add/remove tagged VLANs
-            if form.cleaned_data.get('add_tagged_vlans', None):
-                obj.tagged_vlans.add(*form.cleaned_data['add_tagged_vlans'])
-            if form.cleaned_data.get('remove_tagged_vlans', None):
-                obj.tagged_vlans.remove(*form.cleaned_data['remove_tagged_vlans'])
+            self.extra_object_field_operations(form, obj)
 
         # Rebuild the tree for MPTT models
         if issubclass(self.queryset.model, MPTTModel):
