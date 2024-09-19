@@ -128,6 +128,9 @@ body[data-bs-theme=dark] {
   .footer .text-primary {
     color: white !important;
   }
+  .toast {
+    color: var(--#{$prefix}body-color);
+  }
 }
 
 // Do not apply padding to <code> elements inside a <pre>
