@@ -2,7 +2,7 @@ from django.db import migrations
 
 
 def rebuild_mptt(apps, schema_editor):
-    ModuleBay = apps.get_model('dcim', 'ModuleBay')
+    from dcim.models import ModuleBay
     ModuleBay.objects.rebuild()
 
 
