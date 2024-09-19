@@ -20,7 +20,7 @@
   <div hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
 
   {# Update the bulk action buttons with new query parameters #}
-  {% if actions and model %}
+  {% if actions %}
     <div class="bulk-action-buttons" hx-swap-oob="outerHTML:.bulk-action-buttons">
       {% if 'bulk_edit' in actions %}
         {% bulk_edit_button model query_params=request.GET %}

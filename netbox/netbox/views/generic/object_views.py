@@ -129,6 +129,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         GET handler for rendering child objects.
         """
         instance = self.get_object(**kwargs)
+        model = self.queryset.model
         child_objects = self.get_children(request, instance)
 
         if self.filterset:
@@ -146,10 +147,12 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
+                'model': model,
             })
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'model': model,
             'child_model': self.child_model,
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
