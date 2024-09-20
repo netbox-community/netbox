@@ -39,5 +39,11 @@ span.color-label {
   position: sticky;
   bottom: 0px;
   z-index: 1;
-  padding: 2px 0px 10px 0px;
+  float: right;
+  padding: 0 0 10px;
+}
+
+// Override a transparent background
+.btn-float {
+  --tblr-btn-bg: var(--#{$prefix}bg-surface-tertiary) !important;
 }
