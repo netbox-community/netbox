@@ -17,8 +17,7 @@ function toggleFloat(): void {
   const isFloating = buttonGroup.classList.contains('btn-float-group-left');
   if (checkedCheckboxes !== null && !isFloating) {
     buttonGroup.classList.add('btn-float-group-left');
-  }
-  else if (checkedCheckboxes === null && isFloating) {
+  } else if (checkedCheckboxes === null && isFloating) {
     buttonGroup.classList.remove('btn-float-group-left');
   }
 }
@@ -27,9 +26,7 @@ function toggleFloat(): void {
  * Initialize floating bulk buttons.
  */
 export function initFloatBulk(): void {
-  for (const element of getElements<HTMLInputElement>(
-    'input[type="checkbox"][name="pk"]',
-  )) {
+  for (const element of getElements<HTMLInputElement>('input[type="checkbox"][name="pk"]')) {
     element.addEventListener('change', () => {
       toggleFloat();
     });
