@@ -162,7 +162,7 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
         super().clean()
 
         # An MPTT model cannot be its own parent
-        if self.pk and self.parent and self.parent in self.get_descendants(include_self=True):
+        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
                 "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
             })
