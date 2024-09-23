@@ -408,7 +408,7 @@ class JobsMixin(models.Model):
 
     def get_latest_jobs(self):
         """
-        Return a dictionary mapping of the most recent jobs for this instance.
+        Return a list of the most recent jobs for this instance.
         """
         return self.jobs.filter(status__in=JobStatusChoices.TERMINAL_STATE_CHOICES).order_by('-created').defer('data')
 
