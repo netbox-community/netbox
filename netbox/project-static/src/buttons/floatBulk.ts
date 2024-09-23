@@ -1,4 +1,4 @@
-import { getElements, fadeIn } from '../util';
+import { getElements } from '../util';
 				
 /**
  * Conditionally add and remove a class that will float the button group
