@@ -410,12 +410,7 @@ class JobsMixin(models.Model):
         """
         Return a dictionary mapping of the most recent jobs for this instance.
         """
-        return {
-            job.name: job
-            for job in self.jobs.filter(
-                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-            ).order_by('name', '-created').distinct('name').defer('data')
-        }
+        return self.jobs.filter(status__in=JobStatusChoices.TERMINAL_STATE_CHOICES).order_by('-created').defer('data')
 
 
 class JournalingMixin(models.Model):
