@@ -324,7 +324,11 @@
                         <th scope="row">{% trans "Weight" %}</th>
                         <td>
                             {% if object.total_weight %}
-                                {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
+                                {% if object.device_type.weight_unit == "lb" %}
+                                    {{ object.total_weight|kg_to_pounds|floatformat }} {% trans "Pounds" %}
+                                {% elif object.device_type.weight_unit == "kg" %}
+                                    {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
+                                {% endif %}
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}
