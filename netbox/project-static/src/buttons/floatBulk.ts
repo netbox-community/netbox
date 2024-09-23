@@ -7,6 +7,9 @@ import { getElements } from '../util';
 function toggleFloat(): void {
   const checkedCheckboxes = document.querySelector<HTMLInputElement>('input[type="checkbox"][name="pk"]:checked');
   const buttonGroup = document.querySelector<HTMLDivElement>('div.form.form-horizontal div.btn-list');
+  if (!buttonGroup) {
+    return;
+  }
   const isFloating = buttonGroup.classList.contains('btn-float-group-left');
   if (checkedCheckboxes !== null && !isFloating) {
     buttonGroup.classList.add('btn-float-group-left');
