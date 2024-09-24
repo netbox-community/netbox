@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.conf import settings
 from django.forms.models import fields_for_model
 from django.utils.translation import gettext as _
 
@@ -10,6 +11,7 @@ from .constants import *
 
 __all__ = (
     'add_blank_choice',
+    'add_empty_filtering_choice',
     'expand_alphanumeric_pattern',
     'expand_ipaddress_pattern',
     'form_from_model',
@@ -187,6 +189,14 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + tuple(choices)
+
+
+def add_empty_filtering_choice(choices):
+    """
+    Add an empty (null) choice to the end of a choices list, to be used in filtering classes
+    such as NullableMultipleChoiceFilter to match on an empty value.
+    """
+    return tuple(choices) + ((settings.FILTERS_NULL_CHOICE_VALUE, '(unset)'),)
 
 
 def form_from_model(model, fields):
