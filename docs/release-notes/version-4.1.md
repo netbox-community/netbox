@@ -8,15 +8,21 @@
 * [#15408](https://github.com/netbox-community/netbox/issues/15408) - Enable bulk import of primary IPv4 & IPv6 addresses for virtual device contexts (VDCs)
 * [#17471](https://github.com/netbox-community/netbox/issues/17471) - Add Eaton C39 power outlet type
 * [#17482](https://github.com/netbox-community/netbox/issues/17482) - Do not preload Branch & StagedChange models in `nbshell`
+* [#17550](https://github.com/netbox-community/netbox/issues/17550) - Add IEEE 802.15.4 wireless interface type
 
 ### Bug Fixes
 
+* [#16837](https://github.com/netbox-community/netbox/issues/16837) - Fix filtering of cables with no type assigned
 * [#17083](https://github.com/netbox-community/netbox/issues/17083) - Trim clickable area of form field labels
+* [#17126](https://github.com/netbox-community/netbox/issues/17126) - Show total device weight in both imperial & metric units
 * [#17406](https://github.com/netbox-community/netbox/issues/17406) - Fix the cleanup of stale custom field data after removing a plugin
 * [#17492](https://github.com/netbox-community/netbox/issues/17492) - Fix URL resolution in `NetBoxModelSerializer` for plugin models
+* [#17501](https://github.com/netbox-community/netbox/issues/17501) - Fix reporting of last run time & status for custom scripts under UI
 * [#17517](https://github.com/netbox-community/netbox/issues/17517) - Fix cable termination selection after switching termination type
 * [#17521](https://github.com/netbox-community/netbox/issues/17521) - Correct text color in notification pop-ups under dark mode
 * [#17522](https://github.com/netbox-community/netbox/issues/17522) - Fix language translation of form field labels under user preferences
+* [#17537](https://github.com/netbox-community/netbox/issues/17537) - Fix global search support for ASN range names
+* [#17555](https://github.com/netbox-community/netbox/issues/17555) - Fix toggling disconnected interfaces under device view
 
 ---
 
