@@ -829,10 +829,11 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
             if self.extra_choices:
                 new_choices = [obj[1] for obj in self.extra_choices]
 
-            diff_choices = list(set(original_choices) - set(new_choices))
-            if diff_choices:
-                # CustomFields using this ChoiceSet
+            # only care about what fields are being deleted.
+            if diff_choices := list(set(original_choices) - set(new_choices)):
+                # Get all CustomFields using this ChoiceSet
                 for custom_field in self.choices_for.all():
+                    # Then the models using those custom fields
                     for object_type in custom_field.object_types.all():
                         # unfortunately querying the whole array of diff_choices doesn't work
                         for choice in diff_choices:
