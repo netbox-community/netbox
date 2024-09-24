@@ -84,7 +84,7 @@ class CustomFieldType(ObjectType):
 class CustomFieldChoiceSetType(ObjectType):
 
     choices_for: List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]
-    extra_choices: List[List[str]] | None
+    extra_choices: List[tuple[str]] | None
 
 
 @strawberry_django.type(
