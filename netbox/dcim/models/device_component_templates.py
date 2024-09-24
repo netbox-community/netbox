@@ -98,7 +98,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self._original_device_type != self.device_type_id:
+        if not self._state.adding and self._original_device_type != self.device_type_id:
             raise ValidationError({
                 "device_type": _("Component templates cannot be moved to a different device type.")
             })

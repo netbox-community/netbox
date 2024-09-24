@@ -382,7 +382,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         if self.max_weight and not self.weight_unit:
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
-        if self.pk:
+        if not self._state.adding:
             mounted_devices = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('position')
 
             # Validate that Rack is tall enough to house the highest mounted Device
@@ -468,7 +468,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             }
 
         # Add devices to rack units list
-        if self.pk:
+        if not self._state.adding:
 
             # Retrieve all devices installed within the rack
             devices = Device.objects.prefetch_related(

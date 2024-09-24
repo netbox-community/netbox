@@ -1,5 +1,25 @@
 # NetBox v4.1
 
+## v4.1.2 (FUTURE)
+
+### Enhancements
+
+* [#14201](https://github.com/netbox-community/netbox/issues/14201) - Enable global search for AS numbers using "AS" prefix
+* [#15408](https://github.com/netbox-community/netbox/issues/15408) - Enable bulk import of primary IPv4 & IPv6 addresses for virtual device contexts (VDCs)
+* [#17471](https://github.com/netbox-community/netbox/issues/17471) - Add Eaton C39 power outlet type
+* [#17482](https://github.com/netbox-community/netbox/issues/17482) - Do not preload Branch & StagedChange models in `nbshell`
+
+### Bug Fixes
+
+* [#17083](https://github.com/netbox-community/netbox/issues/17083) - Trim clickable area of form field labels
+* [#17406](https://github.com/netbox-community/netbox/issues/17406) - Fix the cleanup of stale custom field data after removing a plugin
+* [#17492](https://github.com/netbox-community/netbox/issues/17492) - Fix URL resolution in `NetBoxModelSerializer` for plugin models
+* [#17517](https://github.com/netbox-community/netbox/issues/17517) - Fix cable termination selection after switching termination type
+* [#17521](https://github.com/netbox-community/netbox/issues/17521) - Correct text color in notification pop-ups under dark mode
+* [#17522](https://github.com/netbox-community/netbox/issues/17522) - Fix language translation of form field labels under user preferences
+
+---
+
 ## v4.1.1 (2024-09-12)
 
 ### Enhancements
