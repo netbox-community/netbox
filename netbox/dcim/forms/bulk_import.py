@@ -367,7 +367,7 @@ class ManufacturerImportForm(NetBoxModelImportForm):
 
 
 class DeviceTypeImportForm(NetBoxModelImportForm):
-    manufacturer = forms.ModelChoiceField(
+    manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
