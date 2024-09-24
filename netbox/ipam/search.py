@@ -29,6 +29,7 @@ class ASNIndex(SearchIndex):
 class ASNRangeIndex(SearchIndex):
     model = models.ASNRange
     fields = (
+        ('name', 100),
         ('description', 500),
     )
     display_attrs = ('rir', 'tenant', 'description')

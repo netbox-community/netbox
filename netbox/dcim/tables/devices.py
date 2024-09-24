@@ -684,7 +684,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-virtual': lambda record: "true" if record.is_virtual else "false",
             'data-mark-connected': lambda record: "true" if record.mark_connected else "false",
             'data-cable-status': lambda record: record.cable.status if record.cable else "",
-            'data-type': lambda record: record.type
+            'data-type': lambda record: record.type,
+            'data-connected': lambda record: "connected" if record.mark_connected or record.cable else "disconnected"
         }
 
 

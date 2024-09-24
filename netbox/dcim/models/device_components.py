@@ -561,7 +561,7 @@ class BaseInterface(models.Model):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
+        if not self._state.adding and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
@@ -1072,7 +1072,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
-        if self.pk:
+        if not self._state.adding:
             frontport_count = self.frontports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
@@ -1314,7 +1314,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
             })
 
         # Validation for moving InventoryItems
-        if self.pk:
+        if not self._state.adding:
             # Cannot move an InventoryItem to another device if it has a parent
             if self.parent and self.parent.device != self.device:
                 raise ValidationError({

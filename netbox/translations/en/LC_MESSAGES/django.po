@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-18 05:02+0000\n"
+"POT-Creation-Date: 2024-09-20 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4492,6 +4492,28 @@ msgstr ""
 msgid "Single or three-phase"
 msgstr ""
 
+#: netbox/dcim/forms/bulk_import.py:1439 netbox/dcim/forms/model_forms.py:1669
+#: netbox/templates/dcim/device.html:190
+#: netbox/templates/dcim/virtualdevicecontext.html:30
+#: netbox/templates/virtualization/virtualmachine.html:52
+msgid "Primary IPv4"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1443
+msgid "IPv4 address with mask, e.g. 1.2.3.4/24"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1446 netbox/dcim/forms/model_forms.py:1678
+#: netbox/templates/dcim/device.html:206
+#: netbox/templates/dcim/virtualdevicecontext.html:41
+#: netbox/templates/virtualization/virtualmachine.html:68
+msgid "Primary IPv6"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1450
+msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
+msgstr ""
+
 #: netbox/dcim/forms/common.py:24 netbox/dcim/models/device_components.py:528
 #: netbox/templates/dcim/interface.html:57
 #: netbox/templates/virtualization/vminterface.html:55
@@ -4896,18 +4918,6 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1651
 #: netbox/templates/dcim/inventoryitemrole.html:15
 msgid "Inventory Item Role"
-msgstr ""
-
-#: netbox/dcim/forms/model_forms.py:1669 netbox/templates/dcim/device.html:190
-#: netbox/templates/dcim/virtualdevicecontext.html:30
-#: netbox/templates/virtualization/virtualmachine.html:52
-msgid "Primary IPv4"
-msgstr ""
-
-#: netbox/dcim/forms/model_forms.py:1678 netbox/templates/dcim/device.html:206
-#: netbox/templates/dcim/virtualdevicecontext.html:41
-#: netbox/templates/virtualization/virtualmachine.html:68
-msgid "Primary IPv6"
 msgstr ""
 
 #: netbox/dcim/forms/object_create.py:48 netbox/dcim/forms/object_create.py:199
@@ -12187,7 +12197,7 @@ msgid "Parent Bay"
 msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:48
-#: netbox/utilities/templates/form_helpers/render_field.html:20
+#: netbox/utilities/templates/form_helpers/render_field.html:22
 msgid "Regenerate Slug"
 msgstr ""
 
@@ -14695,15 +14705,15 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: netbox/utilities/templates/form_helpers/render_field.html:39
+#: netbox/utilities/templates/form_helpers/render_field.html:41
 msgid "Copy to clipboard"
 msgstr ""
 
-#: netbox/utilities/templates/form_helpers/render_field.html:55
+#: netbox/utilities/templates/form_helpers/render_field.html:57
 msgid "This field is required"
 msgstr ""
 
-#: netbox/utilities/templates/form_helpers/render_field.html:68
+#: netbox/utilities/templates/form_helpers/render_field.html:70
 msgid "Set Null"
 msgstr ""
 
