@@ -343,6 +343,78 @@ class CustomFieldTest(TestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
+    def test_select_validation(self):
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+            ('d', 'Option D'),
+        )
+
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=CHOICES
+        )
+
+        # Create a custom field & check that initial value is null
+        cf = CustomField.objects.create(
+            name='select_field',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            required=False,
+            choice_set=choice_set
+        )
+        cf.object_types.set([self.object_type])
+
+        # Create a custom field & check that initial value is null
+        cf_multiselect = CustomField.objects.create(
+            name='multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            required=False,
+            choice_set=choice_set
+        )
+        cf_multiselect.object_types.set([self.object_type])
+
+        instance = Site.objects.first()
+
+        # Assign a value and check that it is saved
+        instance.custom_field_data[cf.name] = 'a'
+        instance.custom_field_data[cf_multiselect.name] = ['b', 'c']
+        instance.save()
+        instance.refresh_from_db()
+
+        # check can't delete single choice custom field option
+        with self.assertRaises(ValidationError):
+            CHOICES = (
+                ('b', 'Option B'),
+                ('c', 'Option C'),
+                ('d', 'Option D'),
+            )
+            choice_set.extra_choices = CHOICES
+            choice_set.full_clean()
+            choice_set.save()
+
+        # check can't delete multi choice custom field option
+        with self.assertRaises(ValidationError):
+            CHOICES = (
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+                ('d', 'Option D'),
+            )
+            choice_set.extra_choices = CHOICES
+            choice_set.full_clean()
+            choice_set.save()
+
+        # delete non selected option should work fine
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
+        choice_set.extra_choices = CHOICES
+        choice_set.full_clean()
+        choice_set.save()
+
     def test_object_field(self):
         value = VLAN.objects.create(name='VLAN 1', vid=1).pk
 

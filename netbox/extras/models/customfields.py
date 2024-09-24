@@ -825,9 +825,9 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         # check if removing any used choices
         if self._original_extra_choices:
             original_choices = new_choices = []
-            original_choices = [obj[1] for obj in self._original_extra_choices]
+            original_choices = [obj[0] for obj in self._original_extra_choices]
             if self.extra_choices:
-                new_choices = [obj[1] for obj in self.extra_choices]
+                new_choices = [obj[0] for obj in self.extra_choices]
 
             # only care about what fields are being deleted.
             if diff_choices := list(set(original_choices) - set(new_choices)):
@@ -845,7 +845,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
                             }
                             if object_type.model_class().objects.filter(models.Q(**query_args, _connector=models.Q.OR)).exists():
                                 raise ValidationError(
-                                    _("Cannot remove choice {choice} as it is used in model {model}").format(
+                                    _("Cannot remove choice {choice} as it is used in records of model {model}").format(
                                         choice=choice, model=object_type
                                     )
                                 )
