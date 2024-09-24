@@ -1352,7 +1352,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         queryset=VLANGroup.objects.all(),
         required=False,
         label=_('VLAN group'),
-        help_text=_("Used only to filter tagged and untagged VLANs below. This is not saved on the interface.")
+        help_text=_("Filter VLANs available for assignment by group.")
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
