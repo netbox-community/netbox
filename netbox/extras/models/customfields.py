@@ -785,6 +785,10 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     def __str__(self):
         return self.name
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_extra_choices = self.__dict__.get('extra_choices')
+
     def get_absolute_url(self):
         return reverse('extras:customfieldchoiceset', args=[self.pk])
 
@@ -817,6 +821,29 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     def clean(self):
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
+
+        # check if removing any used choices
+        original_choices = [obj[1] for obj in self._original_extra_choices]
+        new_choices = [obj[1] for obj in self.extra_choices]
+        diff_choices = list(set(original_choices) - set(new_choices))
+        if diff_choices:
+            # CustomFields using this ChoiceSet
+            for custom_field in self.choices_for.all():
+                for object_type in custom_field.object_types.all():
+                    # unfortunately querying the whole array of diff_choices doesn't work
+                    for choice in diff_choices:
+                        # Need to OR query as can be multiple choice or single choice so
+                        # have to do both contains and equals to catch both
+                        query_args = {
+                            f"custom_field_data__{custom_field.name}__contains": choice,
+                            f"custom_field_data__{custom_field.name}": choice
+                        }
+                        if object_type.model_class().objects.filter(models.Q(**query_args, _connector=models.Q.OR)).exists():
+                            raise ValidationError(
+                                _("Cannot remove choice {choice} as it is used in model {model}").format(
+                                    choice=choice, model=object_type
+                                )
+                            )
 
     def save(self, *args, **kwargs):
 
