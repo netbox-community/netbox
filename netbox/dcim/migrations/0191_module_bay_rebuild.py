@@ -1,9 +1,15 @@
 from django.db import migrations
+import mptt
+import mptt.managers
 
 
 def rebuild_mptt(apps, schema_editor):
-    from dcim.models import ModuleBay
-    ModuleBay.objects.rebuild()
+    manager = mptt.managers.TreeManager()
+    ModuleBay = apps.get_model('dcim', 'ModuleBay')
+    manager.model = ModuleBay
+    mptt.register(ModuleBay)
+    manager.contribute_to_class(ModuleBay, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
