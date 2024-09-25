@@ -349,6 +349,7 @@ class CustomFieldTest(TestCase):
             ('b', 'Option B'),
             ('c', 'Option C'),
             ('d', 'Option D'),
+            ('abcde', 'Option ABCDE'),
         )
 
         # Create a set of custom field choices
@@ -389,6 +390,7 @@ class CustomFieldTest(TestCase):
                 ('b', 'Option B'),
                 ('c', 'Option C'),
                 ('d', 'Option D'),
+                ('abcde', 'Option ABCDE'),
             )
             choice_set.extra_choices = CHOICES
             choice_set.full_clean()
@@ -400,6 +402,7 @@ class CustomFieldTest(TestCase):
                 ('a', 'Option A'),
                 ('b', 'Option B'),
                 ('d', 'Option D'),
+                ('abcde', 'Option ABCDE'),
             )
             choice_set.extra_choices = CHOICES
             choice_set.full_clean()
@@ -410,6 +413,7 @@ class CustomFieldTest(TestCase):
             ('a', 'Option A'),
             ('b', 'Option B'),
             ('c', 'Option C'),
+            ('abcde', 'Option ABCDE'),
         )
         choice_set.extra_choices = CHOICES
         choice_set.full_clean()
