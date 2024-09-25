@@ -366,11 +366,11 @@ class CableTermination(ChangeLoggedModel):
     def delete(self, *args, **kwargs):
 
         # Delete the cable association on the terminating object
-        termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(
-            cable=None,
-            cable_end=''
-        )
+        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
+        termination.snapshot()
+        termination.cable = None
+        termination.cable_end = ''
+        termination.save()
 
         super().delete(*args, **kwargs)
 
