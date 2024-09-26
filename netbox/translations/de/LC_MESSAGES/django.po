@@ -7529,7 +7529,7 @@ msgstr "Die Standardanzahl der anzuzeigenden Objekte"
 #: netbox/extras/dashboard/widgets.py:235
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
-"Ungültiges Format. URL-Parameter müssen als Verzeichnis übergeben werden."
+"Ungültiges Format. URL-Parameter müssen als Wörterbuch übergeben werden."
 
 #: netbox/extras/dashboard/widgets.py:275
 msgid "RSS Feed"
@@ -7841,7 +7841,7 @@ msgstr "Zugewiesener Objekttyp"
 
 #: netbox/extras/forms/bulk_import.py:249
 msgid "The classification of entry"
-msgstr "Die Klassifizierung des Eintrags"
+msgstr "Die Klassifizierung der Einreise"
 
 #: netbox/extras/forms/bulk_import.py:261
 #: netbox/extras/forms/model_forms.py:320 netbox/netbox/navigation/menu.py:390
@@ -8108,8 +8108,8 @@ msgstr "Wahl der Aktion"
 #: netbox/extras/forms/model_forms.py:385
 msgid "Enter conditions in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
-"Geben Sie die Bedingungen ein in <a href=\"https://json.org/\">JSON</a> - "
-"Format."
+"Geben Sie die Bedingungen ein in <a href=\"https://json.org/\">JSON</a> "
+"formatieren."
 
 #: netbox/extras/forms/model_forms.py:389
 msgid ""
