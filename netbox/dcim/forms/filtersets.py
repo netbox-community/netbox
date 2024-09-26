@@ -35,7 +35,6 @@ __all__ = (
     'LocationFilterForm',
     'ManufacturerFilterForm',
     'ModuleFilterForm',
-    'ModuleFilterForm',
     'ModuleBayFilterForm',
     'ModuleTypeFilterForm',
     'PlatformFilterForm',
@@ -1552,6 +1551,11 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        required=False
     )
     tag = TagFilterField(model)
 

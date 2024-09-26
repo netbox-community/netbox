@@ -44,3 +44,7 @@ The serial number assigned by the manufacturer.
 ### Asset Tag
 
 A unique, locally-administered label used to identify hardware resources.
+
+### Status
+
+The inventory item's operational status.

@@ -1860,10 +1860,14 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=InventoryItemStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = InventoryItem
-        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered')
+        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'status', 'description', 'discovered')
 
     def search(self, queryset, name, value):
         if not value.strip():

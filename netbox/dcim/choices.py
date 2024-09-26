@@ -1648,3 +1648,27 @@ class VirtualDeviceContextStatusChoices(ChoiceSet):
         (STATUS_PLANNED, _('Planned'), 'cyan'),
         (STATUS_OFFLINE, _('Offline'), 'red'),
     ]
+
+
+#
+# InventoryItem
+#
+
+class InventoryItemStatusChoices(ChoiceSet):
+    key = 'InventoryItem.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_STAGED = 'staged'
+    STATUS_FAILED = 'failed'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGED, _('Staged'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
+    ]

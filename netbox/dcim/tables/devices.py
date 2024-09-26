@@ -946,6 +946,9 @@ class InventoryItemTable(DeviceComponentTable):
         verbose_name=_('Discovered'),
         false_mark=None
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     parent = tables.Column(
         linkify=True,
         verbose_name=_('Parent'),
@@ -959,10 +962,10 @@ class InventoryItemTable(DeviceComponentTable):
         model = models.InventoryItem
         fields = (
             'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
-            'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
+            'asset_tag', 'status', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'pk', 'name', 'device', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'status',
         )
 
 

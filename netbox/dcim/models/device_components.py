@@ -1282,10 +1282,16 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         default=False,
         help_text=_('This item was automatically discovered')
     )
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=InventoryItemStatusChoices,
+        default=InventoryItemStatusChoices.STATUS_ACTIVE
+    )
 
     objects = TreeManager()
 
-    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id',)
+    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id', 'status')
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
@@ -1334,3 +1340,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 raise ValidationError({
                     "device": _("Cannot assign inventory item to component on another device")
                 })
+
+    def get_status_color(self):
+        return InventoryItemStatusChoices.colors.get(self.status)

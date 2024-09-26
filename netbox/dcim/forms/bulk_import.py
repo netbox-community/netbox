@@ -1103,12 +1103,17 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Component Name')
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        help_text=_('Operational status')
+    )
 
     class Meta:
         model = InventoryItem
         fields = (
             'device', 'name', 'label', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags', 'component_type', 'component_name',
+            'status', 'description', 'tags', 'component_type', 'component_name',
         )
 
     def __init__(self, *args, **kwargs):
