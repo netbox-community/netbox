@@ -156,7 +156,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
         model = PowerOutlet
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'power_port',
-            'feed_leg', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'feed_leg', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'color',
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
         ]

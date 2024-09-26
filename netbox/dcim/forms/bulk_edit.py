@@ -1371,7 +1371,7 @@ class PowerOutletBulkEditForm(
 
     model = PowerOutlet
     fieldsets = (
-        FieldSet('module', 'type', 'label', 'description', 'mark_connected'),
+        FieldSet('module', 'type', 'label', 'description', 'mark_connected', 'color'),
         FieldSet('feed_leg', 'power_port', name=_('Power')),
     )
     nullable_fields = ('module', 'label', 'type', 'feed_leg', 'power_port', 'description')

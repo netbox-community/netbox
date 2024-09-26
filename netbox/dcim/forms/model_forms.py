@@ -1285,7 +1285,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected', 'description',
             'tags',
         ),
     )
@@ -1293,7 +1293,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected', 'description',
             'tags',
         ]
 

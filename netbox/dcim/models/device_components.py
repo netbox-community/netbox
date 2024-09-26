@@ -481,6 +481,10 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         blank=True,
         help_text=_('Phase (for three-phase feeds)')
     )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
 
