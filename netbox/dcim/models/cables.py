@@ -164,7 +164,7 @@ class Cable(PrimaryModel):
         if self.length is not None and not self.length_unit:
             raise ValidationError(_("Must specify a unit when setting a cable length"))
 
-        if self.pk is None and (not self.a_terminations or not self.b_terminations):
+        if self._state.adding and (not self.a_terminations or not self.b_terminations):
             raise ValidationError(_("Must define A and B terminations when creating a new cable."))
 
         if self._terminations_modified:
@@ -366,11 +366,11 @@ class CableTermination(ChangeLoggedModel):
     def delete(self, *args, **kwargs):
 
         # Delete the cable association on the terminating object
-        termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(
-            cable=None,
-            cable_end=''
-        )
+        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
+        termination.snapshot()
+        termination.cable = None
+        termination.cable_end = ''
+        termination.save()
 
         super().delete(*args, **kwargs)
 

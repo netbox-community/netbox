@@ -149,3 +149,7 @@ class ASN(PrimaryModel):
             return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
         else:
             return self.asn
+
+    @property
+    def prefixed_name(self):
+        return f'AS{self.asn_with_asdot}'

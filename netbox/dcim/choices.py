@@ -684,6 +684,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
+    TYPE_EATON_C39 = 'eaton-c39'
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20a'
@@ -805,6 +806,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_DC, 'DC Terminal'),
         )),
         (_('Proprietary'), (
+            (TYPE_EATON_C39, 'Eaton C39'),
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
             (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
@@ -861,6 +863,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_LFX = '100base-lfx'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
+    TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
     TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
@@ -922,6 +925,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AY = 'ieee802.11ay'
     TYPE_80211BE = 'ieee802.11be'
     TYPE_802151 = 'ieee802.15.1'
+    TYPE_802154 = 'ieee802.15.4'
     TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
@@ -1033,6 +1037,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('Ethernet (modular)'),
             (
+                (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
@@ -1094,6 +1099,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AY, 'IEEE 802.11ay'),
                 (TYPE_80211BE, 'IEEE 802.11be'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
+                (TYPE_802154, 'IEEE 802.15.4 (LR-WPAN)'),
                 (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
             )
         ),

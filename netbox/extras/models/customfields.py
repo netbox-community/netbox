@@ -294,11 +294,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         no longer assigned to a model, or because it has been deleted).
         """
         for ct in content_types:
-            model = ct.model_class()
-            instances = model.objects.filter(custom_field_data__has_key=self.name)
-            for instance in instances:
-                del instance.custom_field_data[self.name]
-            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            if model := ct.model_class():
+                instances = model.objects.filter(custom_field_data__has_key=self.name)
+                for instance in instances:
+                    del instance.custom_field_data[self.name]
+                model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
 
     def rename_object_data(self, old_name, new_name):
         """
@@ -661,7 +661,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     raise ValidationError(_("Value must be an integer."))
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(
-                        _("Value must be at least {minimum}").format(minimum=self.validation_maximum)
+                        _("Value must be at least {minimum}").format(minimum=self.validation_minimum)
                     )
                 if self.validation_maximum is not None and value > self.validation_maximum:
                     raise ValidationError(

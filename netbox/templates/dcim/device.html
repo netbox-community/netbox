@@ -325,6 +325,7 @@
                         <td>
                             {% if object.total_weight %}
                                 {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
+                                ({{ object.total_weight|kg_to_pounds|floatformat }} {% trans "Pounds" %})
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}

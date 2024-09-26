@@ -1,4 +1,7 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+
+from utilities.views import get_viewname
 
 __all__ = (
     'NetBoxAPIHyperlinkedIdentityField',
@@ -30,12 +33,10 @@ class BaseNetBoxHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
         lookup_value = getattr(obj, self.lookup_field)
         kwargs = {self.lookup_url_kwarg: lookup_value}
 
-        model_name = self.parent.Meta.model._meta.model_name
-        app_name = self.parent.Meta.model._meta.app_label
-        view_name = self.get_view_name(app_name, model_name)
+        view_name = self.get_view_name(obj)
         return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
 
-    def get_view_name(self, app_name, model_name):
+    def get_view_name(self, model):
         raise NotImplementedError(_('{class_name} must implement get_view_name()').format(
             class_name=self.__class__.__name__
         ))
@@ -43,11 +44,11 @@ class BaseNetBoxHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
 
 class NetBoxAPIHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
 
-    def get_view_name(self, app_name, model_name):
-        return f'{app_name}-api:{model_name}-detail'
+    def get_view_name(self, model):
+        return get_viewname(model=model, action='detail', rest_api=True)
 
 
 class NetBoxURLHyperlinkedIdentityField(BaseNetBoxHyperlinkedIdentityField):
 
-    def get_view_name(self, app_name, model_name):
-        return f'{app_name}:{model_name}'
+    def get_view_name(self, model):
+        return get_viewname(model=model)

@@ -69,7 +69,7 @@
               <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}</th>
               <td>
                   {% if disk_sum %}
-                      {{ disk_sum }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                      {{ disk_sum|humanize_megabytes }}
                   {% else %}
                       {{ ''|placeholder }}
                   {% endif %}

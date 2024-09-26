@@ -18,7 +18,7 @@ jobs:
       - uses: actions/stale@v9
         with:
           # General parameters
-          operations-per-run: 100
+          operations-per-run: 200
           remove-stale-when-updated: false
 
           # Issue parameters
@@ -43,7 +43,7 @@ jobs:
           # Pull request parameters
           close-pr-message: >
             This PR has been automatically closed due to lack of activity.
-          days-before-pr-stale: 15
+          days-before-pr-stale: 30
           days-before-pr-close: 15
           exempt-pr-labels: 'status: blocked'
           stale-pr-label: 'pending closure'

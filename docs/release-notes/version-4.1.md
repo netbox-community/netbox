@@ -1,5 +1,41 @@
 # NetBox v4.1
 
+## v4.1.2 (2024-09-26)
+
+### Enhancements
+
+* [#14201](https://github.com/netbox-community/netbox/issues/14201) - Enable global search for AS numbers using "AS" prefix
+* [#15408](https://github.com/netbox-community/netbox/issues/15408) - Enable bulk import of primary IPv4 & IPv6 addresses for virtual device contexts (VDCs)
+* [#16781](https://github.com/netbox-community/netbox/issues/16781) - Add 100Base-X SFP interface type
+* [#17255](https://github.com/netbox-community/netbox/issues/17255) - Include return URL when creating new IP address from prefix IPs list
+* [#17471](https://github.com/netbox-community/netbox/issues/17471) - Add Eaton C39 power outlet type
+* [#17482](https://github.com/netbox-community/netbox/issues/17482) - Do not preload Branch & StagedChange models in `nbshell`
+* [#17550](https://github.com/netbox-community/netbox/issues/17550) - Add IEEE 802.15.4 wireless interface type
+
+### Bug Fixes
+
+* [#16837](https://github.com/netbox-community/netbox/issues/16837) - Fix filtering of cables with no type assigned
+* [#17083](https://github.com/netbox-community/netbox/issues/17083) - Trim clickable area of form field labels
+* [#17126](https://github.com/netbox-community/netbox/issues/17126) - Show total device weight in both imperial & metric units
+* [#17360](https://github.com/netbox-community/netbox/issues/17360) - Fix AttributeError under child object views when experimental HTMX navigation is enabled
+* [#17406](https://github.com/netbox-community/netbox/issues/17406) - Fix the cleanup of stale custom field data after removing a plugin
+* [#17419](https://github.com/netbox-community/netbox/issues/17419) - Rebuild MPTT for module bays on upgrade to v4.1
+* [#17492](https://github.com/netbox-community/netbox/issues/17492) - Fix URL resolution in `NetBoxModelSerializer` for plugin models
+* [#17497](https://github.com/netbox-community/netbox/issues/17497) - Fix uncaught FieldError exception when referencing an invalid field on a related object during bulk import
+* [#17498](https://github.com/netbox-community/netbox/issues/17498) - Fix MultipleObjectsReturned exception when importing a device type without uniquely specifying a manufacturer
+* [#17501](https://github.com/netbox-community/netbox/issues/17501) - Fix reporting of last run time & status for custom scripts under UI
+* [#17511](https://github.com/netbox-community/netbox/issues/17511) - Restore consistent font support for non-Latin characters
+* [#17517](https://github.com/netbox-community/netbox/issues/17517) - Fix cable termination selection after switching termination type
+* [#17521](https://github.com/netbox-community/netbox/issues/17521) - Correct text color in notification pop-ups under dark mode
+* [#17522](https://github.com/netbox-community/netbox/issues/17522) - Fix language translation of form field labels under user preferences
+* [#17537](https://github.com/netbox-community/netbox/issues/17537) - Fix global search support for ASN range names
+* [#17555](https://github.com/netbox-community/netbox/issues/17555) - Fix toggling disconnected interfaces under device view
+* [#17601](https://github.com/netbox-community/netbox/issues/17601) - Record change to terminating object when disconnecting a cable
+* [#17605](https://github.com/netbox-community/netbox/issues/17605) - Fix calculation of aggregate VM disk space under cluster view
+* [#17611](https://github.com/netbox-community/netbox/issues/17611) - Correct custom field minimum value validation error message
+
+---
+
 ## v4.1.1 (2024-09-12)
 
 ### Enhancements

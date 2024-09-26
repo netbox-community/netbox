@@ -1351,7 +1351,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label=_('VLAN group')
+        label=_('VLAN group'),
+        help_text=_("Filter VLANs available for assignment by group.")
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),

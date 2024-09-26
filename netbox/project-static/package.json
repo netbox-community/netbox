@@ -22,17 +22,17 @@
     "validate:formatting:scripts": "prettier -c src/**/*.ts"
   },
   "dependencies": {
-    "@fontsource-variable/plus-jakarta-sans": "^5.1.0",
     "@mdi/font": "7.4.47",
-    "@tabler/core": "1.0.0-beta20",
+    "@tabler/core": "1.0.0-beta21",
     "bootstrap": "5.3.3",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
     "gridstack": "10.3.1",
     "htmx.org": "1.9.12",
     "query-string": "9.1.0",
-    "sass": "1.78.0",
+    "sass": "1.79.3",
     "tom-select": "2.3.1",
+    "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"
   },
   "devDependencies": {
