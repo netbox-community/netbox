@@ -36,12 +36,6 @@ class PluginTest(TestCase):
         instance.delete()
         self.assertIsNone(instance.pk)
 
-    def test_admin(self):
-
-        # Test admin view URL resolution
-        url = reverse('admin:dummy_plugin_dummymodel_add')
-        self.assertEqual(url, '/admin/dummy_plugin/dummymodel/add/')
-
     @override_settings(LOGIN_REQUIRED=False)
     def test_views(self):
 
