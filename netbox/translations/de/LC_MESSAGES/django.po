@@ -7841,7 +7841,7 @@ msgstr "Zugewiesener Objekttyp"
 
 #: netbox/extras/forms/bulk_import.py:249
 msgid "The classification of entry"
-msgstr "Die Klassifizierung der Einreise"
+msgstr "Die Klassifizierung des Eintrags"
 
 #: netbox/extras/forms/bulk_import.py:261
 #: netbox/extras/forms/model_forms.py:320 netbox/netbox/navigation/menu.py:390
