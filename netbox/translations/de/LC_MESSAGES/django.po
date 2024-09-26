@@ -8108,8 +8108,8 @@ msgstr "Wahl der Aktion"
 #: netbox/extras/forms/model_forms.py:385
 msgid "Enter conditions in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
-"Geben Sie die Bedingungen ein in <a href=\"https://json.org/\">JSON</a> "
-"formatieren."
+"Geben Sie die Bedingungen ein in <a href=\"https://json.org/\">JSON</a> - "
+"Format."
 
 #: netbox/extras/forms/model_forms.py:389
 msgid ""
