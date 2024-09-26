@@ -1,8 +1,8 @@
-# Microsoft Azure AD
+# Microsoft Entra ID
 
-This guide explains how to configure single sign-on (SSO) support for NetBox using [Microsoft Azure Active Directory (AD)](https://azure.microsoft.com/en-us/services/active-directory/) as an authentication backend.
+This guide explains how to configure single sign-on (SSO) support for NetBox using [Microsoft Entra ID](https://www.microsoft.com/en-us/security/business/identity-access/microsoft-entra-id) as an authentication backend.
 
-## Azure AD Configuration
+## Entra ID Configuration
 
 ### 1. Create a test user (optional)
 
@@ -16,7 +16,7 @@ Under the Azure Active Directory dashboard, navigate to **Add > App registration
 
 Enter a name for the registration (e.g. "NetBox") and ensure that the "single tenant" option is selected.
 
-Under "Redirect URI", select "Web" for the platform and enter the path to your NetBox installation, ending with `/oauth/complete/azuread-oauth2/`. Note that this URI **must** begin with `https://` unless you are referencing localhost (for development purposes).
+Under "Redirect URI", select "Web" for the platform and enter the path to your NetBox installation, ending with `/oauth/complete/entraid-oauth2/`. Note that this URI **must** begin with `https://` unless you are referencing localhost (for development purposes).
 
 ![App registration parameters](../../media/authentication/azure_ad_app_registration.png)
 
