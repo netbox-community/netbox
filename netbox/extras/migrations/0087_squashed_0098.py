@@ -98,9 +98,10 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(blank=True, related_name='+', to='contenttypes.contenttype'),
         ),
-        migrations.AddIndex(
+        migrations.RenameIndex(
             model_name='taggeditem',
-            index=models.Index(fields=['content_type', 'object_id'], name='extras_tagg_content_717743_idx'),
+            new_name='extras_tagg_content_717743_idx',
+            old_fields=('content_type', 'object_id'),
         ),
         migrations.CreateModel(
             name='Bookmark',
