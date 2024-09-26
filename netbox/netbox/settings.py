@@ -545,7 +545,6 @@ EXEMPT_EXCLUDE_MODELS = (
 
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
-    f'/{BASE_PATH}admin/',
     f'/{BASE_PATH}extras/config-revisions/',  # Allow modifying the configuration
     LOGIN_URL,
     LOGIN_REDIRECT_URL,
