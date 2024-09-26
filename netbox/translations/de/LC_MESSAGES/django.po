@@ -7529,7 +7529,7 @@ msgstr "Die Standardanzahl der anzuzeigenden Objekte"
 #: netbox/extras/dashboard/widgets.py:235
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
-"Ungültiges Format. URL-Parameter müssen als Wörterbuch übergeben werden."
+"Ungültiges Format. URL-Parameter müssen als Verzeichnis übergeben werden."
 
 #: netbox/extras/dashboard/widgets.py:275
 msgid "RSS Feed"
