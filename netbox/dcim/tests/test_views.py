@@ -2929,10 +2929,10 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,parent",
-            "Device 1,Inventory Item 4,Inventory Item 1",
-            "Device 1,Inventory Item 5,Inventory Item 2",
-            "Device 1,Inventory Item 6,Inventory Item 3",
+            "device,name,parent,status",
+            "Device 1,Inventory Item 4,Inventory Item 1,active",
+            "Device 1,Inventory Item 5,Inventory Item 2,planned",
+            "Device 1,Inventory Item 6,Inventory Item 3,failed",
         )
 
         cls.csv_update_data = (
