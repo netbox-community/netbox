@@ -2903,6 +2903,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'part_id': '123456',
             'serial': '123ABC',
             'asset_tag': 'ABC123',
+            'status': InventoryItemStatusChoices.STATUS_ACTIVE,
             'description': 'An inventory item',
             'tags': [t.pk for t in tags],
         }
@@ -2916,6 +2917,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'discovered': False,
             'part_id': '123456',
             'serial': '123ABC',
+            'status': InventoryItemStatusChoices.STATUS_ACTIVE,
             'description': 'An inventory item',
             'tags': [t.pk for t in tags],
         }
