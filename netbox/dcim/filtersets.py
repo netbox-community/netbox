@@ -1594,7 +1594,7 @@ class PowerOutletFilterSet(
     class Meta:
         model = PowerOutlet
         fields = (
-            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end',
+            'id', 'name', 'label', 'feed_leg', 'description', 'color', 'mark_connected', 'cable_end',
         )
 
 
