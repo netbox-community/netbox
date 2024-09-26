@@ -66,7 +66,7 @@ class CSVModelChoiceField(forms.ModelChoiceField):
             )
         except FieldError:
             raise forms.ValidationError(
-                _(f'"{self.to_field_name}" is an invalid accessor field name.')
+                _('"{field_name}" is an invalid accessor field name.').format(field_name=self.to_field_name)
             )
 
 
