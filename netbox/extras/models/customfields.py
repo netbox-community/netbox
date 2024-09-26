@@ -661,7 +661,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     raise ValidationError(_("Value must be an integer."))
                 if self.validation_minimum is not None and value < self.validation_minimum:
                     raise ValidationError(
-                        _("Value must be at least {minimum}").format(minimum=self.validation_maximum)
+                        _("Value must be at least {minimum}").format(minimum=self.validation_minimum)
                     )
                 if self.validation_maximum is not None and value > self.validation_maximum:
                     raise ValidationError(
