@@ -131,10 +131,6 @@ class Migration(migrations.Migration):
             name='webhook',
             unique_together={('payload_url', 'type_create', 'type_update', 'type_delete')},
         ),
-        migrations.AlterIndexTogether(
-            name='taggeditem',
-            index_together={('content_type', 'object_id')},
-        ),
         migrations.AlterUniqueTogether(
             name='exporttemplate',
             unique_together={('content_type', 'name')},
