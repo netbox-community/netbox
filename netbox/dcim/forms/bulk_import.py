@@ -373,7 +373,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('The manufacturer which produces this device type')
     )
-    default_platform = forms.ModelChoiceField(
+    default_platform = CSVModelChoiceField(
         label=_('Default platform'),
         queryset=Platform.objects.all(),
         to_field_name='name',
