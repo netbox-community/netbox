@@ -574,7 +574,7 @@ class VLANGroupForm(NetBoxModelForm):
         required=False,
         label=_('Scope type')
     )
-    scope = DynamicModelChoiceField(
+    scope_key = DynamicModelChoiceField(
         label=_('Scope'),
         queryset=Site.objects.none(),  # Initial queryset
         required=False,
@@ -585,13 +585,13 @@ class VLANGroupForm(NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('vid_ranges', name=_('Child VLANs')),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope_type', 'scope_key', name=_('Scope')),
     )
 
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'scope', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'scope_key', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -599,7 +599,7 @@ class VLANGroupForm(NetBoxModelForm):
         initial = kwargs.get('initial', {})
 
         if instance is not None and instance.scope:
-            initial['scope'] = instance.scope
+            initial['scope_key'] = instance.scope
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -608,15 +608,15 @@ class VLANGroupForm(NetBoxModelForm):
             try:
                 scope_type = ContentType.objects.get(pk=scope_type_id)
                 model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+                self.fields['scope_key'].queryset = model.objects.all()
+                self.fields['scope_key'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope_key'].disabled = False
+                self.fields['scope_key'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 
             if self.instance and scope_type_id != self.instance.scope_type_id:
-                self.initial['scope'] = None
+                self.initial['scope_key'] = None
 
     def clean(self):
         super().clean()
