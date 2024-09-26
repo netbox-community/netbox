@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
+from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
@@ -132,7 +133,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
     )
     distance_unit = forms.ChoiceField(
         label=_('Distance unit'),
-        choices=add_blank_choice(WirelessLinkDistanceUnitChoices),
+        choices=add_blank_choice(DistanceUnitChoices),
         required=False,
         initial=''
     )

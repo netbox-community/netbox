@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
+from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
@@ -114,7 +115,7 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
     )
     distance_unit = CSVChoiceField(
         label=_('Distance unit'),
-        choices=WirelessLinkDistanceUnitChoices,
+        choices=DistanceUnitChoices,
         required=False,
         help_text=_('Distance unit')
     )
