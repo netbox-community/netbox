@@ -9306,19 +9306,19 @@ msgstr "Ungültiges IP-Adressformat: {address}"
 
 #: netbox/ipam/filtersets.py:48 netbox/vpn/filtersets.py:315
 msgid "Import target"
-msgstr "Ziel importieren"
+msgstr "Target importieren"
 
 #: netbox/ipam/filtersets.py:54 netbox/vpn/filtersets.py:321
 msgid "Import target (name)"
-msgstr "Importziel (Name)"
+msgstr "Import target (Name)"
 
 #: netbox/ipam/filtersets.py:59 netbox/vpn/filtersets.py:326
 msgid "Export target"
-msgstr "Ziel exportieren"
+msgstr "Target exportieren"
 
 #: netbox/ipam/filtersets.py:65 netbox/vpn/filtersets.py:332
 msgid "Export target (name)"
-msgstr "Exportziel (Name)"
+msgstr "Export target (Name)"
 
 #: netbox/ipam/filtersets.py:86
 msgid "Importing VRF"
@@ -9642,11 +9642,11 @@ msgstr "Ports"
 
 #: netbox/ipam/forms/bulk_import.py:48
 msgid "Import route targets"
-msgstr "Routenziele importieren"
+msgstr "Route Targets importieren"
 
 #: netbox/ipam/forms/bulk_import.py:54
 msgid "Export route targets"
-msgstr "Routenziele exportieren"
+msgstr "Route Targets exportieren"
 
 #: netbox/ipam/forms/bulk_import.py:92 netbox/ipam/forms/bulk_import.py:112
 #: netbox/ipam/forms/bulk_import.py:132
@@ -9735,17 +9735,17 @@ msgstr "{ip} ist diesem Gerät/dieser VM nicht zugewiesen."
 #: netbox/ipam/forms/filtersets.py:47 netbox/ipam/forms/model_forms.py:63
 #: netbox/netbox/navigation/menu.py:189 netbox/vpn/forms/model_forms.py:410
 msgid "Route Targets"
-msgstr "Routen-Ziele"
+msgstr "Route Targets"
 
 #: netbox/ipam/forms/filtersets.py:53 netbox/ipam/forms/model_forms.py:50
 #: netbox/vpn/forms/filtersets.py:224 netbox/vpn/forms/model_forms.py:397
 msgid "Import targets"
-msgstr "Ziele importieren"
+msgstr "Target importieren"
 
 #: netbox/ipam/forms/filtersets.py:58 netbox/ipam/forms/model_forms.py:55
 #: netbox/vpn/forms/filtersets.py:229 netbox/vpn/forms/model_forms.py:402
 msgid "Export targets"
-msgstr "Ziele exportieren"
+msgstr "Target exportieren"
 
 #: netbox/ipam/forms/filtersets.py:73
 msgid "Imported by VRF"
@@ -9846,7 +9846,7 @@ msgstr "Virtuelle Maschine"
 #: netbox/ipam/forms/model_forms.py:80
 #: netbox/templates/ipam/routetarget.html:10
 msgid "Route Target"
-msgstr "Ziel der Route"
+msgstr "Route Target"
 
 #: netbox/ipam/forms/model_forms.py:114 netbox/ipam/tables/ip.py:117
 #: netbox/templates/ipam/aggregate.html:11
@@ -10369,15 +10369,15 @@ msgstr "VRFs"
 
 #: netbox/ipam/models/vrfs.py:82
 msgid "Route target value (formatted in accordance with RFC 4360)"
-msgstr "Routenzielwert (formatiert gemäß RFC 4360)"
+msgstr "Route Target Wert (formatiert gemäß RFC 4360)"
 
 #: netbox/ipam/models/vrfs.py:94
 msgid "route target"
-msgstr "Ziel der Route"
+msgstr "route target"
 
 #: netbox/ipam/models/vrfs.py:95
 msgid "route targets"
-msgstr "Routenziele"
+msgstr "route targets"
 
 #: netbox/ipam/tables/asn.py:52
 msgid "ASDOT"
@@ -10479,11 +10479,11 @@ msgstr "Einzigartig"
 
 #: netbox/ipam/tables/vrfs.py:37 netbox/vpn/tables/l2vpn.py:27
 msgid "Import Targets"
-msgstr "Ziele importieren"
+msgstr "Targets importieren"
 
 #: netbox/ipam/tables/vrfs.py:42 netbox/vpn/tables/l2vpn.py:32
 msgid "Export Targets"
-msgstr "Ziele exportieren"
+msgstr "Targets exportieren"
 
 #: netbox/ipam/validators.py:9
 #, python-brace-format
