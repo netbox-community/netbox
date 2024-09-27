@@ -4,6 +4,8 @@ import re
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
+from urllib3 import PoolManager, HTTPConnectionPool, HTTPSConnectionPool
+from urllib3.connection import HTTPConnection, HTTPSConnection
 from urllib.parse import urlparse
 
 from django import forms
@@ -21,6 +23,81 @@ __all__ = (
 )
 
 logger = logging.getLogger('netbox.data_backends')
+
+
+# These Proxy Methods are for handling socks connection proxy
+class ProxyHTTPConnection(HTTPConnection):
+    use_rdns = False
+
+    def __init__(self, *args, **kwargs):
+        socks_options = kwargs.pop('_socks_options')
+        self._proxy_url = socks_options['proxy_url']
+        super().__init__(*args, **kwargs)
+
+    def _new_conn(self):
+        from python_socks.sync import Proxy
+        proxy = Proxy.from_url(self._proxy_url, rdns=self.use_rdns)
+        return proxy.connect(
+            dest_host=self.host,
+            dest_port=self.port,
+            timeout=self.timeout
+        )
+
+
+class ProxyHTTPSConnection(ProxyHTTPConnection, HTTPSConnection):
+    pass
+
+
+class rdnsProxyHTTPConnection(ProxyHTTPConnection):
+    use_rdns = True
+
+
+class rdnsProxyHTTPSConnection(ProxyHTTPSConnection):
+    use_rdns = True
+
+
+class ProxyHTTPConnectionPool(HTTPConnectionPool):
+    ConnectionCls = ProxyHTTPConnection
+
+
+class ProxyHTTPSConnectionPool(HTTPSConnectionPool):
+    ConnectionCls = ProxyHTTPSConnection
+
+
+class rdnsProxyHTTPConnectionPool(HTTPConnectionPool):
+    ConnectionCls = rdnsProxyHTTPConnection
+
+
+class rdnsProxyHTTPSConnectionPool(HTTPSConnectionPool):
+    ConnectionCls = rdnsProxyHTTPSConnection
+
+
+class ProxyPoolManager(PoolManager):
+    def __init__(self, proxy_url, timeout=5, num_pools=10, headers=None,
+                 **connection_pool_kw):
+
+        # python_socks uses rdns param to denote remote DNS parsing and
+        # doesn't accept the 'h' or 'a' in the proxy URL
+        cleaned_proxy_url = proxy_url
+        if use_rdns := cleaned_proxy_url.startswith(('socks5h:', 'socks5a:')):
+            cleaned_proxy_url = cleaned_proxy_url.replace('socks5h:', 'socks5:')
+            cleaned_proxy_url = cleaned_proxy_url.replace('socks5a:', 'socks5:')
+
+        connection_pool_kw['_socks_options'] = {'proxy_url': cleaned_proxy_url}
+        connection_pool_kw['timeout'] = timeout
+
+        super().__init__(num_pools, headers, **connection_pool_kw)
+
+        if use_rdns:
+            self.pool_classes_by_scheme = {
+                'http': rdnsProxyHTTPConnectionPool,
+                'https': rdnsProxyHTTPSConnectionPool,
+            }
+        else:
+            self.pool_classes_by_scheme = {
+                'http': ProxyHTTPConnectionPool,
+                'https': ProxyHTTPSConnectionPool,
+            }
 
 
 @register_data_backend()
@@ -67,11 +144,14 @@ class GitBackend(DataBackend):
 
         # Initialize backend config
         config = ConfigDict()
+        self.use_socks = False
 
         # Apply HTTP proxy (if configured)
         if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
             if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
                 config.set("http", "proxy", proxy)
+                if proxy.startswith('socks'):
+                    self.use_socks = True
 
         return config
 
@@ -86,6 +166,10 @@ class GitBackend(DataBackend):
             "config": self.config,
             "errstream": porcelain.NoneStream(),
         }
+
+        # check if using socks for proxy - if so need to use custom pool_manager
+        if self.use_socks:
+            clone_args['pool_manager'] = ProxyPoolManager(settings.HTTP_PROXIES.get(self.url_scheme))
 
         if self.url_scheme in ('http', 'https'):
             if self.params.get('username'):
