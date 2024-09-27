@@ -1361,7 +1361,7 @@ class PowerPortBulkEditForm(
 
 class PowerOutletBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description'])
+    form_from_model(PowerOutlet, ['label', 'type', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),

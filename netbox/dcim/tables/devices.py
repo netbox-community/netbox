@@ -541,11 +541,11 @@ class DevicePowerOutletTable(PowerOutletTable):
     class Meta(CableTerminationTable.Meta, DeviceComponentTable.Meta):
         model = models.PowerOutlet
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'power_port', 'feed_leg', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'color', 'power_port', 'feed_leg',
+            'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
+            'pk', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
         )
 
 
