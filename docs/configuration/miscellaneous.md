@@ -96,14 +96,6 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 ---
 
-## DJANGO_ADMIN_ENABLED
-
-Default: False
-
-Setting this to True installs the `django.contrib.admin` app and enables the [Django admin UI](https://docs.djangoproject.com/en/5.0/ref/contrib/admin/). This may be necessary to support older plugins which do not integrate with the native NetBox interface.
-
----
-
 ## ENFORCE_GLOBAL_UNIQUE
 
 !!! tip "Dynamic Configuration Parameter"
