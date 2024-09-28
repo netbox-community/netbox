@@ -79,7 +79,7 @@ class ProxyPoolManager(PoolManager):
         # python_socks uses rdns param to denote remote DNS parsing and
         # doesn't accept the 'h' or 'a' in the proxy URL
         cleaned_proxy_url = proxy_url
-        if use_rdns := urlparse(cleaned_proxy_url).scheme.lower() in ['socks4h', 'socks4a' 'socks5h', 'socks5a']:
+        if use_rdns := urlparse(cleaned_proxy_url).scheme in ['socks4h', 'socks4a' 'socks5h', 'socks5a']:
             cleaned_proxy_url = cleaned_proxy_url.replace('socks5h:', 'socks5:').replace('socks5a:', 'socks5:')
             cleaned_proxy_url = cleaned_proxy_url.replace('socks4h:', 'socks4:').replace('socks4a:', 'socks4:')
 
@@ -150,7 +150,7 @@ class GitBackend(DataBackend):
         if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
             if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
                 config.set("http", "proxy", proxy)
-                if urlparse(proxy).scheme.lower() in ['socks4', 'socks4a', 'socks4h', 'socks5', 'socks5a', 'socks5h']:
+                if urlparse(proxy).scheme in ['socks4', 'socks4a', 'socks4h', 'socks5', 'socks5a', 'socks5h']:
                     self.use_socks = True
 
         return config
