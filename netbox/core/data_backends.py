@@ -25,7 +25,7 @@ __all__ = (
 logger = logging.getLogger('netbox.data_backends')
 
 
-# These Proxy Methods are for handling socks connection proxy
+# These Proxy Methods are for handling SOCKS connection proxy
 class ProxyHTTPConnection(HTTPConnection):
     use_rdns = False
 
@@ -73,9 +73,7 @@ class rdnsProxyHTTPSConnectionPool(HTTPSConnectionPool):
 
 
 class ProxyPoolManager(PoolManager):
-    def __init__(self, proxy_url, timeout=5, num_pools=10, headers=None,
-                 **connection_pool_kw):
-
+    def __init__(self, proxy_url, timeout=5, num_pools=10, headers=None, **connection_pool_kw):
         # python_socks uses rdns param to denote remote DNS parsing and
         # doesn't accept the 'h' or 'a' in the proxy URL
         cleaned_proxy_url = proxy_url
