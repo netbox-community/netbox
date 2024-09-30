@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from urllib3 import PoolManager, HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.connection import HTTPConnection, HTTPSConnection
 
