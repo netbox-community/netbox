@@ -1576,7 +1576,7 @@ class InventoryItemForm(DeviceComponentForm):
     )
 
     fieldsets = (
-        FieldSet('device', 'parent', 'name', 'label', 'role', 'description', 'tags', name=_('Inventory Item')),
+        FieldSet('device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags', name=_('Inventory Item')),
         FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet(
             TabbedGroups(
@@ -1596,7 +1596,7 @@ class InventoryItemForm(DeviceComponentForm):
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'description', 'tags',
+            'status', 'description', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

@@ -1661,10 +1661,16 @@ class InventoryItemBulkEditForm(
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(InventoryItemStatusChoices),
+        required=False,
+        initial=''
+    )
 
     model = InventoryItem
     fieldsets = (
-        FieldSet('device', 'label', 'role', 'manufacturer', 'part_id', 'description'),
+        FieldSet('device', 'label', 'role', 'manufacturer', 'part_id', 'status', 'description'),
     )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 

@@ -1244,6 +1244,12 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         ct_field='component_type',
         fk_field='component_id'
     )
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=InventoryItemStatusChoices,
+        default=InventoryItemStatusChoices.STATUS_ACTIVE
+    )
     role = models.ForeignKey(
         to='dcim.InventoryItemRole',
         on_delete=models.PROTECT,
@@ -1285,7 +1291,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     objects = TreeManager()
 
-    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id',)
+    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
@@ -1334,3 +1340,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 raise ValidationError({
                     "device": _("Cannot assign inventory item to component on another device")
                 })
+
+    def get_status_color(self):
+        return InventoryItemStatusChoices.colors.get(self.status)
