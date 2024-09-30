@@ -343,13 +343,16 @@ class CustomFieldTest(TestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
-    def test_select_validation(self):
+    def test_remove_selected_choice(self):
+        """
+        Removing a ChoiceSet choice that is referenced by an object should raise
+        a ValidationError exception.
+        """
         CHOICES = (
             ('a', 'Option A'),
             ('b', 'Option B'),
             ('c', 'Option C'),
             ('d', 'Option D'),
-            ('abcde', 'Option ABCDE'),
         )
 
         # Create a set of custom field choices
@@ -358,7 +361,7 @@ class CustomFieldTest(TestCase):
             extra_choices=CHOICES
         )
 
-        # Create a custom field & check that initial value is null
+        # Create a select custom field
         cf = CustomField.objects.create(
             name='select_field',
             type=CustomFieldTypeChoices.TYPE_SELECT,
@@ -367,7 +370,7 @@ class CustomFieldTest(TestCase):
         )
         cf.object_types.set([self.object_type])
 
-        # Create a custom field & check that initial value is null
+        # Create a multi-select custom field
         cf_multiselect = CustomField.objects.create(
             name='multiselect_field',
             type=CustomFieldTypeChoices.TYPE_MULTISELECT,
@@ -376,48 +379,37 @@ class CustomFieldTest(TestCase):
         )
         cf_multiselect.object_types.set([self.object_type])
 
+        # Assign a choice for both custom fields on an object
         instance = Site.objects.first()
-
-        # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = 'a'
         instance.custom_field_data[cf_multiselect.name] = ['b', 'c']
         instance.save()
-        instance.refresh_from_db()
 
-        # check can't delete single choice custom field option
+        # Attempting to delete a selected choice should fail
         with self.assertRaises(ValidationError):
-            CHOICES = (
+            choice_set.extra_choices = (
                 ('b', 'Option B'),
                 ('c', 'Option C'),
                 ('d', 'Option D'),
-                ('abcde', 'Option ABCDE'),
             )
-            choice_set.extra_choices = CHOICES
             choice_set.full_clean()
-            choice_set.save()
 
-        # check can't delete multi choice custom field option
+        # Attempting to delete either of the multi-select choices should fail
         with self.assertRaises(ValidationError):
-            CHOICES = (
+            choice_set.extra_choices = (
                 ('a', 'Option A'),
                 ('b', 'Option B'),
                 ('d', 'Option D'),
-                ('abcde', 'Option ABCDE'),
             )
-            choice_set.extra_choices = CHOICES
             choice_set.full_clean()
-            choice_set.save()
 
-        # delete non selected option should work fine
-        CHOICES = (
+        # Removing a non-selected choice should succeed
+        choice_set.extra_choices = (
             ('a', 'Option A'),
             ('b', 'Option B'),
             ('c', 'Option C'),
-            ('abcde', 'Option ABCDE'),
         )
-        choice_set.extra_choices = CHOICES
         choice_set.full_clean()
-        choice_set.save()
 
     def test_object_field(self):
         value = VLAN.objects.create(name='VLAN 1', vid=1).pk

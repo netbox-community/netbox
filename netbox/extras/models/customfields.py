@@ -787,6 +787,8 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Cache the initial set of choices for comparison under clean()
         self._original_extra_choices = self.__dict__.get('extra_choices')
 
     def get_absolute_url(self):
@@ -822,33 +824,31 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
 
-        # check if removing any used choices
-        if self._original_extra_choices:
-            original_choices = new_choices = []
-            original_choices = [obj[0] for obj in self._original_extra_choices]
-            if self.extra_choices:
-                new_choices = [obj[0] for obj in self.extra_choices]
-
-            # only care about what fields are being deleted.
-            if diff_choices := list(set(original_choices) - set(new_choices)):
-                # Get all CustomFields using this ChoiceSet
-                for custom_field in self.choices_for.all():
-                    # Then the models using those custom fields
-                    for object_type in custom_field.object_types.all():
-                        # unfortunately querying the whole array of diff_choices doesn't work
-                        for choice in diff_choices:
-                            # Need to OR query as can be multiple choice or single choice so
-                            # have to do both contains and equals to catch both
-                            query_args = {
-                                f"custom_field_data__{custom_field.name}__contains": choice,
-                                f"custom_field_data__{custom_field.name}": choice
-                            }
-                            if object_type.model_class().objects.filter(models.Q(**query_args, _connector=models.Q.OR)).exists():
-                                raise ValidationError(
-                                    _("Cannot remove choice {choice} as it is used in records of model {model}").format(
-                                        choice=choice, model=object_type
-                                    )
-                                )
+        # Check whether any choices have been removed. If so, check whether any of the removed
+        # choices are still set in custom field data for any object.
+        original_choices = set([
+            c[0] for c in self._original_extra_choices
+        ]) if self._original_extra_choices else set()
+        current_choices = set([
+            c[0] for c in self.extra_choices
+        ]) if self.extra_choices else set()
+        if removed_choices := original_choices - current_choices:
+            for custom_field in self.choices_for.all():
+                for object_type in custom_field.object_types.all():
+                    model = object_type.model_class()
+                    for choice in removed_choices:
+                        # Form the query based on the type of custom field
+                        if custom_field.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                            query_args = {f"custom_field_data__{custom_field.name}__contains": choice}
+                        else:
+                            query_args = {f"custom_field_data__{custom_field.name}": choice}
+                        # Raise a ValidationError if there are any objects which still reference the removed choice
+                        if model.objects.filter(models.Q(**query_args)).exists():
+                            raise ValidationError(
+                                _(
+                                    "Cannot remove choice {choice} as there are {model} objects which reference it."
+                                ).format(choice=choice, model=object_type)
+                            )
 
     def save(self, *args, **kwargs):
 
