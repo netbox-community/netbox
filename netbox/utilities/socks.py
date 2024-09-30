@@ -55,7 +55,7 @@ class ProxyPoolManager(PoolManager):
         # python_socks uses rdns param to denote remote DNS parsing and
         # doesn't accept the 'h' or 'a' in the proxy URL
         cleaned_proxy_url = proxy_url
-        if use_rdns := urlparse(cleaned_proxy_url).scheme in ['socks4h', 'socks4a' 'socks5h', 'socks5a']:
+        if use_rdns := urlparse(cleaned_proxy_url).scheme in ['socks4h', 'socks4a', 'socks5h', 'socks5a']:
             cleaned_proxy_url = cleaned_proxy_url.replace('socks5h:', 'socks5:').replace('socks5a:', 'socks5:')
             cleaned_proxy_url = cleaned_proxy_url.replace('socks4h:', 'socks4:').replace('socks4a:', 'socks4:')
 
