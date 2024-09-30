@@ -1576,8 +1576,8 @@ class InventoryItemForm(DeviceComponentForm):
     )
 
     fieldsets = (
-        FieldSet('device', 'parent', 'name', 'label', 'role', 'description', 'tags', name=_('Inventory Item')),
-        FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', 'status', name=_('Hardware')),
+        FieldSet('device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags', name=_('Inventory Item')),
+        FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet(
             TabbedGroups(
                 FieldSet('interface', name=_('Interface')),

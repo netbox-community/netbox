@@ -1112,8 +1112,8 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'status', 'description', 'tags', 'component_type', 'component_name',
+            'device', 'name', 'label', 'status', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
+            'description', 'tags', 'component_type', 'component_name',
         )
 
     def __init__(self, *args, **kwargs):
