@@ -785,6 +785,12 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     def __str__(self):
         return self.name
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the initial set of choices for comparison under clean()
+        self._original_extra_choices = self.__dict__.get('extra_choices')
+
     def get_absolute_url(self):
         return reverse('extras:customfieldchoiceset', args=[self.pk])
 
@@ -817,6 +823,32 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     def clean(self):
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
+
+        # Check whether any choices have been removed. If so, check whether any of the removed
+        # choices are still set in custom field data for any object.
+        original_choices = set([
+            c[0] for c in self._original_extra_choices
+        ]) if self._original_extra_choices else set()
+        current_choices = set([
+            c[0] for c in self.extra_choices
+        ]) if self.extra_choices else set()
+        if removed_choices := original_choices - current_choices:
+            for custom_field in self.choices_for.all():
+                for object_type in custom_field.object_types.all():
+                    model = object_type.model_class()
+                    for choice in removed_choices:
+                        # Form the query based on the type of custom field
+                        if custom_field.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                            query_args = {f"custom_field_data__{custom_field.name}__contains": choice}
+                        else:
+                            query_args = {f"custom_field_data__{custom_field.name}": choice}
+                        # Raise a ValidationError if there are any objects which still reference the removed choice
+                        if model.objects.filter(models.Q(**query_args)).exists():
+                            raise ValidationError(
+                                _(
+                                    "Cannot remove choice {choice} as there are {model} objects which reference it."
+                                ).format(choice=choice, model=object_type)
+                            )
 
     def save(self, *args, **kwargs):
 
