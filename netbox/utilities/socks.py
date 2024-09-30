@@ -1,10 +1,15 @@
 from urllib.parse import urlparse
 from urllib3 import PoolManager, HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.connection import HTTPConnection, HTTPSConnection
+from .constants import DATA_SOURCE_SOCK_RDNS_SCHEMAS
 
 
-# These Proxy Methods are for handling SOCKS connection proxy
 class ProxyHTTPConnection(HTTPConnection):
+    """
+    A Proxy connection class that uses a SOCK proxy - used to create
+    a urllib3 PoolManager that routes connections via the proxy.
+    This is for an HTTP (not HTTPS) connection
+    """
     use_rdns = False
 
     def __init__(self, *args, **kwargs):
@@ -23,14 +28,25 @@ class ProxyHTTPConnection(HTTPConnection):
 
 
 class ProxyHTTPSConnection(ProxyHTTPConnection, HTTPSConnection):
+    """
+    A Proxy connection class for an HTTPS (not HTTP) connection.
+    """
     pass
 
 
 class RdnsProxyHTTPConnection(ProxyHTTPConnection):
+    """
+    A Proxy connection class for an HTTP remote-dns connection.
+    I.E. socks4a, socks4h, socks5a, socks5h
+    """
     use_rdns = True
 
 
 class RdnsProxyHTTPSConnection(ProxyHTTPSConnection):
+    """
+    A Proxy connection class for an HTTPS remote-dns connection.
+    I.E. socks4a, socks4h, socks5a, socks5h
+    """
     use_rdns = True
 
 
@@ -54,12 +70,11 @@ class ProxyPoolManager(PoolManager):
     def __init__(self, proxy_url, timeout=5, num_pools=10, headers=None, **connection_pool_kw):
         # python_socks uses rdns param to denote remote DNS parsing and
         # doesn't accept the 'h' or 'a' in the proxy URL
-        cleaned_proxy_url = proxy_url
-        if use_rdns := urlparse(cleaned_proxy_url).scheme in ['socks4h', 'socks4a', 'socks5h', 'socks5a']:
-            cleaned_proxy_url = cleaned_proxy_url.replace('socks5h:', 'socks5:').replace('socks5a:', 'socks5:')
-            cleaned_proxy_url = cleaned_proxy_url.replace('socks4h:', 'socks4:').replace('socks4a:', 'socks4:')
+        if use_rdns := urlparse(proxy_url).scheme in DATA_SOURCE_SOCK_RDNS_SCHEMAS:
+            proxy_url = proxy_url.replace('socks5h:', 'socks5:').replace('socks5a:', 'socks5:')
+            proxy_url = proxy_url.replace('socks4h:', 'socks4:').replace('socks4a:', 'socks4:')
 
-        connection_pool_kw['_socks_options'] = {'proxy_url': cleaned_proxy_url}
+        connection_pool_kw['_socks_options'] = {'proxy_url': proxy_url}
         connection_pool_kw['timeout'] = timeout
 
         super().__init__(num_pools, headers, **connection_pool_kw)
