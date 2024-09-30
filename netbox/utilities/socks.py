@@ -1,7 +1,12 @@
+import logging
+
 from urllib.parse import urlparse
 from urllib3 import PoolManager, HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.connection import HTTPConnection, HTTPSConnection
-from .constants import DATA_SOURCE_SOCK_RDNS_SCHEMAS
+from .constants import HTTP_PROXY_SOCK_RDNS_SCHEMAS
+
+
+logger = logging.getLogger('netbox.utilities')
 
 
 class ProxyHTTPConnection(HTTPConnection):
@@ -18,7 +23,12 @@ class ProxyHTTPConnection(HTTPConnection):
         super().__init__(*args, **kwargs)
 
     def _new_conn(self):
-        from python_socks.sync import Proxy
+        try:
+            from python_socks.sync import Proxy
+        except ModuleNotFoundError as e:
+            logger.info("Configuring an HTTP proxy using SOCKS requires the python_socks library. Check that it has been installed.")
+            raise e
+
         proxy = Proxy.from_url(self._proxy_url, rdns=self.use_rdns)
         return proxy.connect(
             dest_host=self.host,
@@ -70,7 +80,7 @@ class ProxyPoolManager(PoolManager):
     def __init__(self, proxy_url, timeout=5, num_pools=10, headers=None, **connection_pool_kw):
         # python_socks uses rdns param to denote remote DNS parsing and
         # doesn't accept the 'h' or 'a' in the proxy URL
-        if use_rdns := urlparse(proxy_url).scheme in DATA_SOURCE_SOCK_RDNS_SCHEMAS:
+        if use_rdns := urlparse(proxy_url).scheme in HTTP_PROXY_SOCK_RDNS_SCHEMAS:
             proxy_url = proxy_url.replace('socks5h:', 'socks5:').replace('socks5a:', 'socks5:')
             proxy_url = proxy_url.replace('socks4h:', 'socks4:').replace('socks4a:', 'socks4:')
 
