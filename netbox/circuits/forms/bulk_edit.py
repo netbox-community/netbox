@@ -5,6 +5,7 @@ from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, C
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
@@ -160,6 +161,17 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
             options=CircuitCommitRateChoices
         )
     )
+    distance = forms.DecimalField(
+        label=_('Distance'),
+        min_value=0,
+        required=False
+    )
+    distance_unit = forms.ChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(DistanceUnitChoices),
+        required=False,
+        initial=''
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=100,
@@ -171,6 +183,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('provider', 'type', 'status', 'description', name=_('Circuit')),
         FieldSet('provider_account', 'install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('distance', 'distance_unit', name=_('Attributes')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (

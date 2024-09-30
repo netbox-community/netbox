@@ -7,7 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.rendering import FieldSet, TabbedGroups
+from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -108,7 +108,17 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags', name=_('Circuit')),
+        FieldSet(
+            'provider',
+            'provider_account',
+            'cid',
+            'type',
+            'status',
+            InlineFields('distance', 'distance_unit', label=_('Distance')),
+            'description',
+            'tags',
+            name=_('Circuit')
+        ),
         FieldSet('install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )

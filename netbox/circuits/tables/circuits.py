@@ -7,6 +7,7 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from netbox.tables import NetBoxTable, columns
 
 from .columns import CommitRateColumn
+from .template_code import CIRCUIT_DISTANCE
 
 __all__ = (
     'CircuitGroupAssignmentTable',
@@ -75,6 +76,10 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     commit_rate = CommitRateColumn(
         verbose_name=_('Commit Rate')
+    )
+    distance = columns.TemplateColumn(
+        template_code=CIRCUIT_DISTANCE,
+        order_by=('_abs_distance')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments')
