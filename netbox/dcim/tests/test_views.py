@@ -10,7 +10,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from users.models import User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data

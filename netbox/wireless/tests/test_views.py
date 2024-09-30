@@ -2,6 +2,7 @@ from wireless.choices import *
 from wireless.models import *
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
 from dcim.models import Interface
+from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
@@ -161,7 +162,7 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'interface_b': interfaces[7].pk,
             'status': LinkStatusChoices.STATUS_PLANNED,
             'distance': 100,
-            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_FOOT,
+            'distance_unit': DistanceUnitChoices.UNIT_FOOT,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
@@ -183,5 +184,5 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'status': LinkStatusChoices.STATUS_PLANNED,
             'distance': 50,
-            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_METER,
+            'distance_unit': DistanceUnitChoices.UNIT_METER,
         }

@@ -3,6 +3,7 @@ from django.test import TestCase
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
+from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
 from wireless.choices import *
 from wireless.filtersets import *
@@ -261,7 +262,7 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_psk='PSK1',
             tenant=tenants[0],
             distance=10,
-            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_FOOT,
+            distance_unit=DistanceUnitChoices.UNIT_FOOT,
             description='foobar1'
         ).save()
         WirelessLink(
@@ -274,7 +275,7 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_psk='PSK2',
             tenant=tenants[1],
             distance=20,
-            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_METER,
+            distance_unit=DistanceUnitChoices.UNIT_METER,
             description='foobar2'
         ).save()
         WirelessLink(
@@ -286,7 +287,7 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
             auth_psk='PSK3',
             distance=30,
-            distance_unit=WirelessLinkDistanceUnitChoices.UNIT_METER,
+            distance_unit=DistanceUnitChoices.UNIT_METER,
             tenant=tenants[2],
         ).save()
         WirelessLink(
@@ -324,7 +325,7 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_distance_unit(self):
-        params = {'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_FOOT}
+        params = {'distance_unit': DistanceUnitChoices.UNIT_FOOT}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

@@ -5,7 +5,7 @@ from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR, VRF
-from netbox.choices import ColorChoices
+from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
