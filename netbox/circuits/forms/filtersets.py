@@ -5,8 +5,10 @@ from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, C
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
@@ -114,7 +116,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', name=_('Attributes')),
+        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -187,6 +189,15 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )
+    )
+    distance = forms.DecimalField(
+        label=_('Distance'),
+        required=False,
+    )
+    distance_unit = forms.ChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(DistanceUnitChoices),
+        required=False
     )
     tag = TagFilterField(model)
 

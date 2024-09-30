@@ -127,7 +127,7 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'provider_account', 'status', 'install_date', 'termination_date', 'commit_rate',
-            'description', 'tenant_group', 'tenant', 'comments', 'tags',
+            'distance', 'distance_unit', 'description', 'tenant_group', 'tenant', 'comments', 'tags',
         ]
         widgets = {
             'install_date': DatePicker(),
