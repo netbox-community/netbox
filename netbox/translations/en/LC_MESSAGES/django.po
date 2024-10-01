@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-27 05:01+0000\n"
+"POT-Creation-Date: 2024-10-01 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8233,8 +8233,15 @@ msgstr ""
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:819
+#: netbox/extras/models/customfields.py:825
 msgid "Must define base or extra choices."
+msgstr ""
+
+#: netbox/extras/models/customfields.py:849
+#, python-brace-format
+msgid ""
+"Cannot remove choice {choice} as there are {model} objects which reference "
+"it."
 msgstr ""
 
 #: netbox/extras/models/dashboard.py:18
