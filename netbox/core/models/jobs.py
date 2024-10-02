@@ -120,7 +120,7 @@ class Job(models.Model):
         # TODO: Employ dynamic registration
         if self.object_type.model == 'reportmodule':
             return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
-        elif self.object_type.model == 'scriptmodule':
+        if self.object_type.model == 'scriptmodule':
             return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 
