@@ -41,6 +41,16 @@
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">{% trans "Color" %}</th>
+                      <td>
+                        {% if object.color %}
+                          <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Power Port" %}</th>
                         <td>{{ object.power_port|linkify|placeholder }}</td>
                     </tr>

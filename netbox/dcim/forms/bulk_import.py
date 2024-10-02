@@ -798,7 +798,7 @@ class PowerOutletImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = PowerOutlet
-        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description', 'tags')
+        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'power_port', 'feed_leg', 'description', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
