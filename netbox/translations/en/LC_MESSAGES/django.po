@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-01 05:02+0000\n"
+"POT-Creation-Date: 2024-10-02 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1653,42 +1653,42 @@ msgstr ""
 msgid "Cancelled"
 msgstr ""
 
-#: netbox/core/data_backends.py:29 netbox/core/tables/plugins.py:51
+#: netbox/core/data_backends.py:32 netbox/core/tables/plugins.py:51
 #: netbox/templates/core/plugin.html:87
 #: netbox/templates/dcim/interface.html:216
 msgid "Local"
 msgstr ""
 
-#: netbox/core/data_backends.py:47 netbox/core/tables/change_logging.py:20
+#: netbox/core/data_backends.py:50 netbox/core/tables/change_logging.py:20
 #: netbox/templates/account/profile.html:15 netbox/templates/users/user.html:17
 #: netbox/users/tables.py:31
 msgid "Username"
 msgstr ""
 
-#: netbox/core/data_backends.py:49 netbox/core/data_backends.py:55
+#: netbox/core/data_backends.py:52 netbox/core/data_backends.py:58
 msgid "Only used for cloning with HTTP(S)"
 msgstr ""
 
-#: netbox/core/data_backends.py:53 netbox/templates/account/base.html:23
+#: netbox/core/data_backends.py:56 netbox/templates/account/base.html:23
 #: netbox/templates/account/password.html:12
 #: netbox/users/forms/model_forms.py:171
 msgid "Password"
 msgstr ""
 
-#: netbox/core/data_backends.py:59
+#: netbox/core/data_backends.py:62
 msgid "Branch"
 msgstr ""
 
-#: netbox/core/data_backends.py:106
+#: netbox/core/data_backends.py:120
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr ""
 
-#: netbox/core/data_backends.py:119
+#: netbox/core/data_backends.py:133
 msgid "AWS access key ID"
 msgstr ""
 
-#: netbox/core/data_backends.py:123
+#: netbox/core/data_backends.py:137
 msgid "AWS secret access key"
 msgstr ""
 
