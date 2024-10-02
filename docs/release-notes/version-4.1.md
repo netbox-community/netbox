@@ -1,5 +1,17 @@
 # NetBox v4.1
 
+## v4.1.3 (2024-10-02)
+
+### Enhancements
+
+* [#17639](https://github.com/netbox-community/netbox/issues/17639) - Add SOCKS support to proxy settings for Git remote data sources
+
+### Bug Fixes
+
+* [#17558](https://github.com/netbox-community/netbox/issues/17558) - Raise validation error when attempting to remove a custom field choice in use
+
+---
+
 ## v4.1.2 (2024-09-26)
 
 ### Enhancements

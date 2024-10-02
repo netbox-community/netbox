@@ -8,10 +8,13 @@ from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext as _
 
 from netbox.data_backends import DataBackend
 from netbox.utils import register_data_backend
+from utilities.constants import HTTP_PROXY_SUPPORTED_SCHEMAS, HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS
+from utilities.socks import ProxyPoolManager
 from .exceptions import SyncError
 
 __all__ = (
@@ -67,11 +70,18 @@ class GitBackend(DataBackend):
 
         # Initialize backend config
         config = ConfigDict()
+        self.use_socks = False
 
         # Apply HTTP proxy (if configured)
-        if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
-            if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
-                config.set("http", "proxy", proxy)
+        if settings.HTTP_PROXIES:
+            if proxy := settings.HTTP_PROXIES.get(self.url_scheme, None):
+                if urlparse(proxy).scheme not in HTTP_PROXY_SUPPORTED_SCHEMAS:
+                    raise ImproperlyConfigured(f"Unsupported Git DataSource proxy scheme: {urlparse(proxy).scheme}")
+
+                if self.url_scheme in ('http', 'https'):
+                    config.set("http", "proxy", proxy)
+                    if urlparse(proxy).scheme in HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS:
+                        self.use_socks = True
 
         return config
 
@@ -86,6 +96,10 @@ class GitBackend(DataBackend):
             "config": self.config,
             "errstream": porcelain.NoneStream(),
         }
+
+        # check if using socks for proxy - if so need to use custom pool_manager
+        if self.use_socks:
+            clone_args['pool_manager'] = ProxyPoolManager(settings.HTTP_PROXIES.get(self.url_scheme))
 
         if self.url_scheme in ('http', 'https'):
             if self.params.get('username'):
