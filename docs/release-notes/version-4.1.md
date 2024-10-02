@@ -1,6 +1,10 @@
 # NetBox v4.1
 
-## v4.1.3 (FUTURE)
+## v4.1.3 (2024-10-02)
+
+### Enhancements
+
+* [#17639](https://github.com/netbox-community/netbox/issues/17639) - Add SOCKS support to proxy settings for Git remote data sources
 
 ### Bug Fixes
 
