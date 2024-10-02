@@ -155,7 +155,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'power_port',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'power_port',
             'feed_leg', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
@@ -345,11 +345,12 @@ class InventoryItemSerializer(NetBoxModelSerializer):
     )
     component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
+    status = ChoiceField(choices=InventoryItemStatusChoices, required=False)
 
     class Meta:
         model = InventoryItem
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'parent', 'name', 'label', 'role', 'manufacturer',
+            'id', 'url', 'display_url', 'display', 'device', 'parent', 'name', 'label', 'status', 'role', 'manufacturer',
             'part_id', 'serial', 'asset_tag', 'discovered', 'description', 'component_type', 'component_id',
             'component', 'tags', 'custom_fields', 'created', 'last_updated', '_depth',
         ]

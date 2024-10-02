@@ -3421,9 +3421,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], module=modules[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First'),
-            PowerOutlet(device=devices[1], module=modules[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second'),
-            PowerOutlet(device=devices[2], module=modules[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third'),
+            PowerOutlet(device=devices[0], module=modules[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First', color='ff0000'),
+            PowerOutlet(device=devices[1], module=modules[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second', color='00ff00'),
+            PowerOutlet(device=devices[2], module=modules[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third', color='0000ff'),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -3442,6 +3442,10 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': ['ff0000', '00ff00']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_feed_leg(self):
@@ -4751,9 +4755,9 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         inventory_items = (
-            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, description='First', component=components[0]),
-            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, description='Second', component=components[1]),
-            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, description='Third', component=components[2]),
+            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, status=ModuleStatusChoices.STATUS_ACTIVE, description='First', component=components[0]),
+            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, status=ModuleStatusChoices.STATUS_PLANNED, description='Second', component=components[1]),
+            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, status=ModuleStatusChoices.STATUS_FAILED, description='Third', component=components[2]),
         )
         for i in inventory_items:
             i.save()
@@ -4880,6 +4884,10 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_component_type(self):
         params = {'component_type': 'dcim.interface'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {'status': [InventoryItemStatusChoices.STATUS_PLANNED, InventoryItemStatusChoices.STATUS_FAILED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class InventoryItemRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
