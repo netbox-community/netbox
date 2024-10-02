@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0190_nested_modules'),
+        ('dcim', '0191_inventoryitem_status'),
     ]
 
     operations = [
