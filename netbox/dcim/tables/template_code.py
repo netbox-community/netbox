@@ -57,7 +57,7 @@ INTERFACE_FHRPGROUPS = """
 INTERFACE_TAGGED_VLANS = """
 {% if record.mode == 'tagged' %}
   {% if value.count > 3 %}
-    <a href="{% url 'ipam:vlan_list' %}?{{ record|meta:"model_name" }}_id={{ record.pk }}">{{ value.count }}</a>
+    <a href="{% url 'ipam:vlan_list' %}?{{ record|meta:"model_name" }}_id={{ record.pk }}">{{ value.count }} VLANs</a>
   {% else %}
     {% for vlan in value.all %}
         <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
