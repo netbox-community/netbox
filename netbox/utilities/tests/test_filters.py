@@ -408,9 +408,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
             region.save()
 
         sites = (
-            Site(name='Site 1', slug='abc-site-1', region=regions[0]),
-            Site(name='Site 2', slug='def-site-2', region=regions[1]),
-            Site(name='Site 3', slug='ghi-site-3', region=regions[2]),
+            Site(name='Site 1', slug='abc-site-1', region=regions[0], status='active'),
+            Site(name='Site 2', slug='def-site-2', region=regions[1], status='active'),
+            Site(name='Site 3', slug='ghi-site-3', region=regions[2], status='planned'),
         )
         Site.objects.bulk_create(sites)
 
@@ -448,6 +448,14 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_icontains(self):
         params = {'slug__ic': ['-1']}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
+
+    def test_site_status_icontains(self):
+        params = {'status__ic': [SiteStatusChoices.STATUS_ACTIVE]}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+
+    def test_site_status_icontains_negation(self):
+        params = {'status__nic': [SiteStatusChoices.STATUS_ACTIVE]}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
 
     def test_site_slug_icontains_negation(self):
