@@ -408,9 +408,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
             region.save()
 
         sites = (
-            Site(name='Site 1', slug='abc-site-1', region=regions[0], status='active'),
-            Site(name='Site 2', slug='def-site-2', region=regions[1], status='active'),
-            Site(name='Site 3', slug='ghi-site-3', region=regions[2], status='planned'),
+            Site(name='Site 1', slug='abc-site-1', region=regions[0], status=SiteStatusChoices.STATUS_ACTIVE),
+            Site(name='Site 2', slug='def-site-2', region=regions[1], status=SiteStatusChoices.STATUS_ACTIVE),
+            Site(name='Site 3', slug='ghi-site-3', region=regions[2], status=SiteStatusChoices.STATUS_PLANNED),
         )
         Site.objects.bulk_create(sites)
 
