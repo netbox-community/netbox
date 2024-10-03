@@ -563,7 +563,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
         params = {'mac_address__nic': ['aa:', 'bb']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
 
-    def test_interface_wireless_role_empty(self):
+    def test_interface_rf_role_empty(self):
         params = {'rf_role__empty': 'true'}
         self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 5)
         params = {'rf_role__empty': 'false'}
