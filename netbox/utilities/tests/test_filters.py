@@ -7,7 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.fields import MACAddressField
-from dcim.filtersets import DeviceFilterSet, SiteFilterSet
+from dcim.filtersets import DeviceFilterSet, SiteFilterSet, InterfaceFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )
@@ -16,6 +16,7 @@ from extras.models import TaggedItem
 from ipam.filtersets import ASNFilterSet
 from ipam.models import RIR, ASN
 from netbox.filtersets import BaseFilterSet
+from wireless.choices import WirelessRoleChoices
 from utilities.filters import (
     MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueMACAddressFilter,
     MultiValueNumberFilter, MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
@@ -438,7 +439,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Interface(device=devices[1], name='Interface 3', mac_address='00-00-00-00-00-02'),
             Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
             Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
-            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03'),
+            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03', rf_role=WirelessRoleChoices.ROLE_AP),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -561,3 +562,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+
+    def test_interface_wireless_role_empty(self):
+        params = {'rf_role__empty': 'true'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 5)
+        params = {'rf_role__empty': 'false'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 1)
