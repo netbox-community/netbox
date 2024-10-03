@@ -542,6 +542,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         return get_permission_for_model(self.queryset.model, 'change')
 
     def extra_object_field_operations(self, form, obj):
+        """
+        This method is called for each object in _update_objects. Override to perform additional object-level
+        operations that are specific to a particular ModelForm.
+        """
         pass
 
     def _update_objects(self, form, request):
