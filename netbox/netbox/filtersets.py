@@ -183,8 +183,8 @@ class BaseFilterSet(django_filters.FilterSet):
                     filter_cls = type(existing_filter)
                     if lookup_expr == 'empty':
                         filter_cls = django_filters.BooleanFilter
-                        for field_to_remove in ('choices', 'null_value'):
-                            existing_filter_extra.pop(field_to_remove, None)
+                        for param_to_remove in ('choices', 'null_value'):
+                            existing_filter_extra.pop(param_to_remove, None)
                     new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,
