@@ -1072,7 +1072,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
 
-    def test_filter_interface_id(self, queryset, name, value):
+    def filter_interface_id(self, queryset, name, value):
         if value is None:
             return queryset.none()
         return queryset.filter(
@@ -1081,9 +1081,8 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         )
 
     def filter_vminterface_id(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
+        if value is None:
+            return queryset.none()
         return queryset.filter(
             Q(vminterfaces_as_tagged=value) |
             Q(vminterfaces_as_untagged=value)

@@ -1887,6 +1887,16 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'available_at_site': site_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)  # 4 scoped + 1 global group + 1 global
 
+    def test_interface(self):
+        interface_id = Interface.objects.first().pk
+        params = {'interface_id': interface_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_vminterface(self):
+        vminterface_id = VMInterface.objects.first().pk
+        params = {'vminterface_id': vminterface_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
 
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
