@@ -446,16 +446,16 @@ class DynamicFilterLookupExpressionTest(TestCase):
         params = {'name__n': ['Site 1']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
 
-    def test_site_slug_icontains(self):
-        params = {'slug__ic': ['-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
-
     def test_site_status_icontains(self):
         params = {'status__ic': [SiteStatusChoices.STATUS_ACTIVE]}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
 
     def test_site_status_icontains_negation(self):
         params = {'status__nic': [SiteStatusChoices.STATUS_ACTIVE]}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
+
+    def test_site_slug_icontains(self):
+        params = {'slug__ic': ['-1']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
 
     def test_site_slug_icontains_negation(self):
