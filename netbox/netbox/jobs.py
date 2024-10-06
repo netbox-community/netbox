@@ -127,7 +127,7 @@ class JobRunner(ABC):
         if job:
             # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
             # delete the existing job and schedule a new job instead.
-            if (schedule_at and job.scheduled == schedule_at) and (job.interval == interval):
+            if (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 
