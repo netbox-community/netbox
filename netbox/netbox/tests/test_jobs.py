@@ -90,6 +90,15 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(job1, job2)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
+    def test_enqueue_once_twice_same_no_schedule_at(self):
+        instance = Job()
+        schedule_at = self.get_schedule_at()
+        job1 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
+        job2 = TestJobRunner.enqueue_once(instance)
+
+        self.assertEqual(job1, job2)
+        self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
+
     def test_enqueue_once_twice_different_schedule_at(self):
         instance = Job()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at())
