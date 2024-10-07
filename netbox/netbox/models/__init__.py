@@ -99,7 +99,7 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
                     setattr(self, field.name, obj)
 
     def get_absolute_url(self):
-        return reverse(f'{self._meta.app_label}:{model_name}', args=[self.pk])
+        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])
 
 #
 # NetBox internal base models
@@ -207,4 +207,4 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse(f'{self._meta.app_label}:{model_name}', args=[self.pk])
+        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])
