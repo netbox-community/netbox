@@ -170,7 +170,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ),
         FieldSet('vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        # FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     mask_length__lte = forms.IntegerField(
@@ -211,25 +211,25 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         choices=PrefixStatusChoices,
         required=False
     )
-    region_id = DynamicModelMultipleChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        label=_('Region')
-    )
-    site_group_id = DynamicModelMultipleChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        label=_('Site group')
-    )
-    site_id = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
-        label=_('Site')
-    )
+    # region_id = DynamicModelMultipleChoiceField(
+    #     queryset=Region.objects.all(),
+    #     required=False,
+    #     label=_('Region')
+    # )
+    # site_group_id = DynamicModelMultipleChoiceField(
+    #     queryset=SiteGroup.objects.all(),
+    #     required=False,
+    #     label=_('Site group')
+    # )
+    # site_id = DynamicModelMultipleChoiceField(
+    #     queryset=Site.objects.all(),
+    #     required=False,
+    #     null_option='None',
+    #     query_params={
+    #         'region_id': '$region_id'
+    #     },
+    #     label=_('Site')
+    # )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
         required=False,

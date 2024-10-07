@@ -199,20 +199,28 @@ class Role(OrganizationalModel):
 
 class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
-    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
-    VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
-    assigned to a VLAN where appropriate.
+    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be scoped to certain
+    areas and/or assigned to VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role.
+    A Prefix can also be assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        related_name='prefixes',
+        related_name='+',
         blank=True,
         null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',
@@ -275,7 +283,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        'scope_type', 'scope_id', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     )
 
     class Meta:
