@@ -1,5 +1,21 @@
 # NetBox v4.1
 
+## v4.1.4 (FUTURE)
+
+### Enhancements
+
+* [#11671](https://github.com/netbox-community/netbox/issues/11671) - Display device's rack position in cable traces
+* [#15829](https://github.com/netbox-community/netbox/issues/15829) - Rename Microsoft Azure AD SSO backend to Microsoft Entra ID
+* [#17669](https://github.com/netbox-community/netbox/issues/17669) - Enable filtering VLANs by assigned device or VM interface
+
+### Bug Fixes
+
+* [#16024](https://github.com/netbox-community/netbox/issues/16024) - Fix AND/OR filtering in GraphQL API for selection fields
+* [#17663](https://github.com/netbox-community/netbox/issues/17663) - Fix extended lookups for choice field filters
+* [#17671](https://github.com/netbox-community/netbox/issues/17671) - Fix the display of rack types in global search results
+
+---
+
 ## v4.1.3 (2024-10-02)
 
 ### Enhancements

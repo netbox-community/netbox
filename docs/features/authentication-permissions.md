@@ -41,7 +41,7 @@ NetBox integrates with the open source [python-social-auth](https://github.com/p
 * Google
 * Hashicorp Vault
 * Keycloak
-* Microsoft Azure AD
+* Microsoft Entra ID
 * Microsoft Graph
 * Okta
 * OIDC

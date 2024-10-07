@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-02 05:01+0000\n"
+"POT-Creation-Date: 2024-10-04 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -327,7 +327,7 @@ msgstr ""
 #: netbox/extras/filtersets.py:348 netbox/extras/filtersets.py:391
 #: netbox/extras/filtersets.py:438 netbox/extras/filtersets.py:498
 #: netbox/extras/filtersets.py:657 netbox/extras/filtersets.py:703
-#: netbox/ipam/forms/model_forms.py:449 netbox/netbox/filtersets.py:280
+#: netbox/ipam/forms/model_forms.py:449 netbox/netbox/filtersets.py:282
 #: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:167
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:45
@@ -3160,7 +3160,7 @@ msgstr ""
 
 #: netbox/dcim/filtersets.py:1333 netbox/dcim/filtersets.py:1425
 #: netbox/ipam/filtersets.py:611 netbox/ipam/filtersets.py:851
-#: netbox/ipam/filtersets.py:1089 netbox/virtualization/filtersets.py:161
+#: netbox/ipam/filtersets.py:1115 netbox/virtualization/filtersets.py:161
 #: netbox/vpn/filtersets.py:390
 msgid "Device (ID)"
 msgstr ""
@@ -3170,7 +3170,7 @@ msgid "Rack (name)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:1431 netbox/ipam/filtersets.py:606
-#: netbox/ipam/filtersets.py:846 netbox/ipam/filtersets.py:1095
+#: netbox/ipam/filtersets.py:846 netbox/ipam/filtersets.py:1121
 #: netbox/vpn/filtersets.py:385
 msgid "Device (name)"
 msgstr ""
@@ -9019,12 +9019,12 @@ msgid "Parent prefix"
 msgstr ""
 
 #: netbox/ipam/filtersets.py:616 netbox/ipam/filtersets.py:856
-#: netbox/ipam/filtersets.py:1105 netbox/vpn/filtersets.py:396
+#: netbox/ipam/filtersets.py:1131 netbox/vpn/filtersets.py:396
 msgid "Virtual machine (name)"
 msgstr ""
 
 #: netbox/ipam/filtersets.py:621 netbox/ipam/filtersets.py:861
-#: netbox/ipam/filtersets.py:1099 netbox/virtualization/filtersets.py:282
+#: netbox/ipam/filtersets.py:1125 netbox/virtualization/filtersets.py:282
 #: netbox/virtualization/filtersets.py:321 netbox/vpn/filtersets.py:401
 msgid "Virtual machine (ID)"
 msgstr ""
@@ -9063,19 +9063,27 @@ msgstr ""
 msgid "NAT inside IP address (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1110
+#: netbox/ipam/filtersets.py:1041 netbox/ipam/forms/bulk_import.py:322
+msgid "Assigned interface"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:1046
+msgid "Assigned VM interface"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:1136
 msgid "IP address (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1116 netbox/ipam/models/ip.py:788
+#: netbox/ipam/filtersets.py:1142 netbox/ipam/models/ip.py:788
 msgid "IP address"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1141
+#: netbox/ipam/filtersets.py:1167
 msgid "Primary IPv4 (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1146
+#: netbox/ipam/filtersets.py:1172
 msgid "Primary IPv6 (ID)"
 msgstr ""
 
@@ -9284,10 +9292,6 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_import.py:315
 msgid "Parent VM of assigned interface (if any)"
-msgstr ""
-
-#: netbox/ipam/forms/bulk_import.py:322
-msgid "Assigned interface"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_import.py:325

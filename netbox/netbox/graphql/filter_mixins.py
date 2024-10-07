@@ -1,11 +1,12 @@
-from functools import partial, partialmethod, wraps
+from functools import partialmethod
 from typing import List
 
 import django_filters
 import strawberry
 import strawberry_django
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist
 from strawberry import auto
+
 from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
 from utilities.fields import ColorField, CounterCacheField
@@ -108,8 +109,7 @@ def map_strawberry_type(field):
     elif issubclass(type(field), django_filters.TypedMultipleChoiceFilter):
         pass
     elif issubclass(type(field), django_filters.MultipleChoiceFilter):
-        should_create_function = True
-        attr_type = List[str] | None
+        attr_type = str | None
     elif issubclass(type(field), django_filters.TypedChoiceFilter):
         pass
     elif issubclass(type(field), django_filters.ChoiceFilter):

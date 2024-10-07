@@ -7,7 +7,7 @@ from taggit.managers import TaggableManager
 
 from dcim.choices import *
 from dcim.fields import MACAddressField
-from dcim.filtersets import DeviceFilterSet, SiteFilterSet
+from dcim.filtersets import DeviceFilterSet, SiteFilterSet, InterfaceFilterSet
 from dcim.models import (
     Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
 )
@@ -16,6 +16,7 @@ from extras.models import TaggedItem
 from ipam.filtersets import ASNFilterSet
 from ipam.models import RIR, ASN
 from netbox.filtersets import BaseFilterSet
+from wireless.choices import WirelessRoleChoices
 from utilities.filters import (
     MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueMACAddressFilter,
     MultiValueNumberFilter, MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
@@ -408,9 +409,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
             region.save()
 
         sites = (
-            Site(name='Site 1', slug='abc-site-1', region=regions[0]),
-            Site(name='Site 2', slug='def-site-2', region=regions[1]),
-            Site(name='Site 3', slug='ghi-site-3', region=regions[2]),
+            Site(name='Site 1', slug='abc-site-1', region=regions[0], status=SiteStatusChoices.STATUS_ACTIVE),
+            Site(name='Site 2', slug='def-site-2', region=regions[1], status=SiteStatusChoices.STATUS_ACTIVE),
+            Site(name='Site 3', slug='ghi-site-3', region=regions[2], status=SiteStatusChoices.STATUS_PLANNED),
         )
         Site.objects.bulk_create(sites)
 
@@ -438,13 +439,21 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Interface(device=devices[1], name='Interface 3', mac_address='00-00-00-00-00-02'),
             Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
             Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
-            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03'),
+            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03', rf_role=WirelessRoleChoices.ROLE_AP),
         )
         Interface.objects.bulk_create(interfaces)
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+
+    def test_site_status_icontains(self):
+        params = {'status__ic': [SiteStatusChoices.STATUS_ACTIVE]}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+
+    def test_site_status_icontains_negation(self):
+        params = {'status__nic': [SiteStatusChoices.STATUS_ACTIVE]}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
 
     def test_site_slug_icontains(self):
         params = {'slug__ic': ['-1']}
@@ -553,3 +562,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+
+    def test_interface_rf_role_empty(self):
+        params = {'rf_role__empty': 'true'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 5)
+        params = {'rf_role__empty': 'false'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 1)

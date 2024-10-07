@@ -1035,6 +1035,16 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='identifier',
         label=_('L2VPN'),
     )
+    interface_id = django_filters.ModelChoiceFilter(
+        queryset=Interface.objects.all(),
+        method='filter_interface_id',
+        label=_('Assigned interface')
+    )
+    vminterface_id = django_filters.ModelChoiceFilter(
+        queryset=VMInterface.objects.all(),
+        method='filter_vminterface_id',
+        label=_('Assigned VM interface')
+    )
 
     class Meta:
         model = VLAN
@@ -1061,6 +1071,22 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
+
+    def filter_interface_id(self, queryset, name, value):
+        if value is None:
+            return queryset.none()
+        return queryset.filter(
+            Q(interfaces_as_tagged=value) |
+            Q(interfaces_as_untagged=value)
+        )
+
+    def filter_vminterface_id(self, queryset, name, value):
+        if value is None:
+            return queryset.none()
+        return queryset.filter(
+            Q(vminterfaces_as_tagged=value) |
+            Q(vminterfaces_as_untagged=value)
+        )
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):
