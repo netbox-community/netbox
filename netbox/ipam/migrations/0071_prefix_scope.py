@@ -8,9 +8,10 @@ def copy_site_assignments(apps, schema_editor):
     """
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Prefix = apps.get_model('ipam', 'Prefix')
+    Site = apps.get_model('dcim', 'Site')
 
     Prefix.objects.filter(site__isnull=False).update(
-        scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
+        scope_type=ContentType.objects.get_for_model(Site),
         scope_id=models.F('site_id')
     )
 
