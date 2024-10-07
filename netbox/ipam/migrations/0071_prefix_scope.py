@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Add the scope GenericForeignKey
+        # Add the `scope` GenericForeignKey
         migrations.AddField(
             model_name='prefix',
             name='scope_id',
@@ -45,11 +45,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=copy_site_assignments,
             reverse_code=migrations.RunPython.noop
-        ),
-
-        # Delete the site ForeignKey
-        migrations.RemoveField(
-            model_name='prefix',
-            name='site',
         ),
     ]
