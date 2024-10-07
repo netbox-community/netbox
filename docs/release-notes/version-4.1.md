@@ -6,11 +6,15 @@
 
 * [#11671](https://github.com/netbox-community/netbox/issues/11671) - Display device's rack position in cable traces
 * [#15829](https://github.com/netbox-community/netbox/issues/15829) - Rename Microsoft Azure AD SSO backend to Microsoft Entra ID
+* [#17079](https://github.com/netbox-community/netbox/issues/17079) - Introduce additional choices for device airflow direction
+* [#17655](https://github.com/netbox-community/netbox/issues/17655) - Limit the display of tagged VLANs within interface tables
 * [#17669](https://github.com/netbox-community/netbox/issues/17669) - Enable filtering VLANs by assigned device or VM interface
 
 ### Bug Fixes
 
 * [#16024](https://github.com/netbox-community/netbox/issues/16024) - Fix AND/OR filtering in GraphQL API for selection fields
+* [#17566](https://github.com/netbox-community/netbox/issues/17566) - Fix AttributeError exception resulting from background jobs with no associated object type
+* [#17648](https://github.com/netbox-community/netbox/issues/17648) - Fix AttributeError exception when attempting to delete a background job under certain conditions
 * [#17663](https://github.com/netbox-community/netbox/issues/17663) - Fix extended lookups for choice field filters
 * [#17671](https://github.com/netbox-community/netbox/issues/17671) - Fix the display of rack types in global search results
 
