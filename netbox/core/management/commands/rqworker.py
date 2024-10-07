@@ -1,6 +1,9 @@
 import logging
 
+from django.core.management.base import CommandError
 from django_rq.management.commands.rqworker import Command as _Command
+
+from netbox.registry import registry
 
 
 DEFAULT_QUEUES = ('high', 'default', 'low')
@@ -14,6 +17,16 @@ class Command(_Command):
     of only the 'default' queue).
     """
     def handle(self, *args, **options):
+        # Setup system jobs.
+        for job in registry['system_jobs'].values():
+            if getattr(job.Meta, 'enabled', True):
+                try:
+                    logger.debug(f"Scheduling system job {job.name}")
+                    job.enqueue_once(interval=getattr(job.Meta, 'interval'))
+
+                except AttributeError as e:
+                    raise CommandError(f"Job {job.name} is missing required attribute in Meta: {e.name}")
+
         # Run the worker with scheduler functionality
         options['with_scheduler'] = True
 
