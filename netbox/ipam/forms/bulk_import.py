@@ -167,13 +167,13 @@ class PrefixImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
-    site = CSVModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_('Assigned site')
-    )
+    # site = CSVModelChoiceField(
+    #     label=_('Site'),
+    #     queryset=Site.objects.all(),
+    #     required=False,
+    #     to_field_name='name',
+    #     help_text=_('Assigned site')
+    # )
     vlan_group = CSVModelChoiceField(
         label=_('VLAN group'),
         queryset=VLANGroup.objects.all(),
@@ -204,7 +204,7 @@ class PrefixImportForm(NetBoxModelImportForm):
     class Meta:
         model = Prefix
         fields = (
-            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
+            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
             'description', 'comments', 'tags',
         )
 

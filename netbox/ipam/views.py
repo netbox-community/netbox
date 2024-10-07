@@ -492,7 +492,7 @@ class PrefixView(generic.ObjectView):
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
-            'site', 'role', 'tenant', 'vlan',
+            'scope', 'role', 'tenant', 'vlan',
         )
         parent_prefix_table = tables.PrefixTable(
             list(parent_prefixes),
@@ -506,7 +506,7 @@ class PrefixView(generic.ObjectView):
         ).exclude(
             pk=instance.pk
         ).prefetch_related(
-            'site', 'role', 'tenant', 'vlan',
+            'scope', 'role', 'tenant', 'vlan',
         )
         duplicate_prefix_table = tables.PrefixTable(
             list(duplicate_prefixes),
@@ -538,7 +538,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
-            'site', 'vrf', 'vlan', 'role', 'tenant', 'tenant__group'
+            'scope', 'vrf', 'vlan', 'role', 'tenant', 'tenant__group'
         )
 
     def prep_table_data(self, request, queryset, parent):
