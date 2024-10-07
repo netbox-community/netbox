@@ -165,9 +165,6 @@ class RackType(RackBase):
     def __str__(self):
         return self.model
 
-    def get_absolute_url(self):
-        return reverse('dcim:racktype', args=[self.pk])
-
     @property
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
@@ -229,9 +226,6 @@ class RackRole(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('rack role')
         verbose_name_plural = _('rack roles')
-
-    def get_absolute_url(self):
-        return reverse('dcim:rackrole', args=[self.pk])
 
 
 class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
@@ -363,9 +357,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:rack', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -698,9 +689,6 @@ class RackReservation(PrimaryModel):
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
-
-    def get_absolute_url(self):
-        return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
         super().clean()

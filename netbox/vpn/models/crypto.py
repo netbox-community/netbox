@@ -62,9 +62,6 @@ class IKEProposal(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ikeproposal', args=[self.pk])
-
 
 class IKEPolicy(PrimaryModel):
     name = models.CharField(
@@ -106,9 +103,6 @@ class IKEPolicy(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('vpn:ikepolicy', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -167,9 +161,6 @@ class IPSecProposal(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecproposal', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -212,9 +203,6 @@ class IPSecPolicy(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecpolicy', args=[self.pk])
-
 
 class IPSecProfile(PrimaryModel):
     name = models.CharField(
@@ -252,6 +240,3 @@ class IPSecProfile(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecprofile', args=[self.pk])

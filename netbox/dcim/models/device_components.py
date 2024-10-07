@@ -301,9 +301,6 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         verbose_name = _('console port')
         verbose_name_plural = _('console ports')
 
-    def get_absolute_url(self):
-        return reverse('dcim:consoleport', kwargs={'pk': self.pk})
-
 
 class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
@@ -329,9 +326,6 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('console server port')
         verbose_name_plural = _('console server ports')
-
-    def get_absolute_url(self):
-        return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
 
 
 #
@@ -369,9 +363,6 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('power port')
         verbose_name_plural = _('power ports')
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerport', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -491,9 +482,6 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('power outlet')
         verbose_name_plural = _('power outlets')
-
-    def get_absolute_url(self):
-        return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -749,9 +737,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         ordering = ('device', CollateAsChar('_name'))
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
-
-    def get_absolute_url(self):
-        return reverse('dcim:interface', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -1011,9 +996,6 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
 
-    def get_absolute_url(self):
-        return reverse('dcim:frontport', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -1068,9 +1050,6 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('rear port')
         verbose_name_plural = _('rear ports')
-
-    def get_absolute_url(self):
-        return reverse('dcim:rearport', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -1128,9 +1107,6 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     class MPTTMeta:
         order_insertion_by = ('module',)
 
-    def get_absolute_url(self):
-        return reverse('dcim:modulebay', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -1168,9 +1144,6 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
     class Meta(ComponentModel.Meta):
         verbose_name = _('device bay')
         verbose_name_plural = _('device bays')
-
-    def get_absolute_url(self):
-        return reverse('dcim:devicebay', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -1214,9 +1187,6 @@ class InventoryItemRole(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('inventory item role')
         verbose_name_plural = _('inventory item roles')
-
-    def get_absolute_url(self):
-        return reverse('dcim:inventoryitemrole', args=[self.pk])
 
 
 class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
@@ -1310,9 +1280,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         )
         verbose_name = _('inventory item')
         verbose_name_plural = _('inventory items')
-
-    def get_absolute_url(self):
-        return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()

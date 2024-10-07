@@ -172,9 +172,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('virtualization:virtualmachine', args=[self.pk])
-
     def clean(self):
         super().clean()
 

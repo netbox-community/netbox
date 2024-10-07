@@ -140,9 +140,6 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.cid
 
-    def get_absolute_url(self):
-        return reverse('circuits:circuit', args=[self.pk])
-
     def get_status_color(self):
         return CircuitStatusChoices.colors.get(self.status)
 
@@ -172,9 +169,6 @@ class CircuitGroup(OrganizationalModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('circuits:circuitgroup', args=[self.pk])
 
 
 class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

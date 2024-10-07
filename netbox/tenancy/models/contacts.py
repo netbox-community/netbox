@@ -40,9 +40,6 @@ class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
     """
-    def get_absolute_url(self):
-        return reverse('tenancy:contactrole', args=[self.pk])
-
     class Meta:
         ordering = ('name',)
         verbose_name = _('contact role')
@@ -105,9 +102,6 @@ class Contact(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('tenancy:contact', args=[self.pk])
 
 
 class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

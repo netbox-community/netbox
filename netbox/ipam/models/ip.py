@@ -71,9 +71,6 @@ class RIR(OrganizationalModel):
         verbose_name = _('RIR')
         verbose_name_plural = _('RIRs')
 
-    def get_absolute_url(self):
-        return reverse('ipam:rir', args=[self.pk])
-
 
 class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
@@ -117,9 +114,6 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     def __str__(self):
         return str(self.prefix)
-
-    def get_absolute_url(self):
-        return reverse('ipam:aggregate', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -202,9 +196,6 @@ class Role(OrganizationalModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('ipam:role', args=[self.pk])
 
 
 class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
@@ -302,9 +293,6 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     def __str__(self):
         return str(self.prefix)
-
-    def get_absolute_url(self):
-        return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -551,9 +539,6 @@ class IPRange(ContactsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('ipam:iprange', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -797,9 +782,6 @@ class IPAddress(ContactsMixin, PrimaryModel):
         # Denote the original assigned object (if any) for validation in clean()
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
-
-    def get_absolute_url(self):
-        return reverse('ipam:ipaddress', args=[self.pk])
 
     def get_duplicates(self):
         return IPAddress.objects.filter(

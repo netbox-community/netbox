@@ -97,10 +97,13 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
                     # update the GFK field value
                     setattr(self, field.name, obj)
 
+    def get_absolute_url(self):
+        return reverse(f'{self._meta.app_label}:{model_name}', args=[self.pk])
 
 #
 # NetBox internal base models
 #
+
 
 class PrimaryModel(NetBoxModel):
     """
@@ -201,3 +204,6 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse(f'{self._meta.app_label}:{model_name}', args=[self.pk])

@@ -84,9 +84,6 @@ class DataSource(JobsMixin, PrimaryModel):
     def __str__(self):
         return f'{self.name}'
 
-    def get_absolute_url(self):
-        return reverse('core:datasource', args=[self.pk])
-
     @property
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'

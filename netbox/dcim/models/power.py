@@ -58,9 +58,6 @@ class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('dcim:powerpanel', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -166,9 +163,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerfeed', args=[self.pk])
 
     def clean(self):
         super().clean()

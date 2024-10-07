@@ -241,9 +241,6 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('dcim:site', args=[self.pk])
-
     def get_status_color(self):
         return SiteStatusChoices.colors.get(self.status)
 

@@ -68,9 +68,6 @@ class L2VPN(ContactsMixin, PrimaryModel):
             return f'{self.name} ({self.identifier})'
         return f'{self.name}'
 
-    def get_absolute_url(self):
-        return reverse('vpn:l2vpn', args=[self.pk])
-
     @cached_property
     def can_add_termination(self):
         if self.type in L2VPNTypeChoices.P2P and self.terminations.count() >= 2:
@@ -120,9 +117,6 @@ class L2VPNTermination(NetBoxModel):
         if self.pk is not None:
             return f'{self.assigned_object} <> {self.l2vpn}'
         return super().__str__()
-
-    def get_absolute_url(self):
-        return reverse('vpn:l2vpntermination', args=[self.pk])
 
     def clean(self):
         # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
