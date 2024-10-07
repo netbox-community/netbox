@@ -13,8 +13,6 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import ObjectType
 from core.signals import job_end, job_start
-from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
@@ -155,7 +153,7 @@ class Job(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_queue_for_model(self.object_type.model if self.object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.job_id))
 
