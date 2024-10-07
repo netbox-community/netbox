@@ -19,10 +19,10 @@ class Command(_Command):
     def handle(self, *args, **options):
         # Setup system jobs.
         for job in registry['system_jobs'].values():
-            if getattr(job.Meta, 'enabled', True):
+            if getattr(job.Meta, 'system_enabled', True):
                 try:
                     logger.debug(f"Scheduling system job {job.name}")
-                    job.enqueue_once(interval=getattr(job.Meta, 'interval'))
+                    job.enqueue_once(interval=getattr(job.Meta, 'system_interval'))
 
                 except AttributeError as e:
                     raise CommandError(f"Job {job.name} is missing required attribute in Meta: {e.name}")
