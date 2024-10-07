@@ -244,9 +244,18 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         choice_sets = (
-            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['1A', '1B', '1C', '1D', '1E']),
-            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['2A', '2B', '2C', '2D', '2E']),
-            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
+            CustomFieldChoiceSet(
+                name='Choice Set 1',
+                extra_choices=[['1A', '1A'], ['1B', '1B'], ['1C', '1C'], ['1D', '1D'], ['1E', '1E']],
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 2',
+                extra_choices=[['2A', '2A'], ['2B', '2B'], ['2C', '2C'], ['2D', '2D'], ['2E', '2E']],
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 3',
+                extra_choices=[['3A', '3A'], ['3B', '3B'], ['3C', '3C'], ['3D', '3D'], ['3E', '3E']],
+            ),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
