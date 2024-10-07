@@ -35,6 +35,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DistanceColumn',
     'DurationColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
@@ -691,3 +692,22 @@ class ChoicesColumn(tables.Column):
             value.append(f'({omitted_count} more)')
 
         return ', '.join(value)
+
+
+class DistanceColumn(tables.TemplateColumn):
+    """
+    Distance with template code for formatting
+    """
+    template_code = """
+        {% load helpers %}
+        {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
+        """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            template_code=self.template_code,
+            order_by=('_abs_distance'),
+            *args, **kwargs)
+
+    def value(self, value):
+        return value
