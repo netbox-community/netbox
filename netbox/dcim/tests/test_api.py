@@ -1,3 +1,5 @@
+import json
+
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -11,7 +13,7 @@ from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.models import User
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
@@ -1717,6 +1719,32 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
         self.client.delete(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(device.interfaces.count(), 2)  # Child & parent were both deleted
+
+    def test_create_child_interfaces_mode_invalid_data(self):
+        """
+        POST a single object without permission.
+        """
+        self.add_permissions('dcim.add_interface')
+        url = self._get_list_url()
+        initial_count = self._get_queryset().count()
+
+        device = Device.objects.first()
+        vlans = VLAN.objects.all()[0:3]
+
+        create_data = {
+            'device': device.pk,
+            'name': 'Untagged Interface 1',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            'mode': InterfaceModeChoices.MODE_ACCESS,
+            'tagged_vlans': [vlans[0].pk, vlans[1].pk],
+            'untagged_vlan': vlans[2].pk,
+        }
+
+        response = self.client.post(self._get_list_url(), create_data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(response.content)
+        self.assertIn('tagged_vlans', content)
+        self.assertIsNone(content.get('data'))
 
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):

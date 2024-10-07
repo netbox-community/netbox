@@ -42,7 +42,8 @@ class InterfaceCommonForm(forms.Form):
         super().clean()
 
         parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
-        tagged_vlans = self.cleaned_data.get('tagged_vlans')
+        interface_mode = get_field_value(self, parent_field)
+        tagged_vlans = get_field_value(self, 'tagged_vlans') if 'tagged_vlans' in self.fields.keys() else []
 
         # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
@@ -51,8 +52,10 @@ class InterfaceCommonForm(forms.Form):
             })
 
         # Remove all tagged VLAN assignments from "tagged all" interfaces
-        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL:
-            self.cleaned_data['tagged_vlans'] = []
+        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL and tagged_vlans:
+            raise forms.ValidationError({
+                'mode': _("An tagged-all interface cannot have tagged VLANs assigned.")
+            })
 
         # Validate tagged VLANs; must be a global VLAN or in the same site
         elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
