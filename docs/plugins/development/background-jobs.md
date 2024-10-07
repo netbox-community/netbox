@@ -37,11 +37,11 @@ You can schedule the background job from within your code (e.g. from a model's `
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
 
-#### `enabled`
+#### `system_enabled`
 
 When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls whether a job will be scheduled. By default, this attribute is `True`.
 
-#### `interval` *(required for system jobs)*
+#### `system_interval` *(required for system jobs)*
 
 When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls the interval of the scheduled job.
 
@@ -87,7 +87,7 @@ from .models import MyModel
 class MyHousekeepingJob(JobRunner):
     class Meta:
         name = "My Housekeeping Job"
-        interval = 60  # every 60 minutes
+        system_interval = 60  # every 60 minutes
 
     def run(self, *args, **kwargs):
         MyModel.objects.filter(foo='bar').delete()

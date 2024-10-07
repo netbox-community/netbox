@@ -3,7 +3,7 @@ from netbox.jobs import JobRunner
 
 class DummySystemJob(JobRunner):
     class Meta:
-        interval = 60
+        system_interval = 60
 
     def run(self, *args, **kwargs):
         pass
