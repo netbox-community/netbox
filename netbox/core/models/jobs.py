@@ -118,10 +118,11 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         # TODO: Employ dynamic registration
-        if self.object_type.model == 'reportmodule':
-            return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
-        if self.object_type.model == 'scriptmodule':
-            return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
+        if self.object_type:
+            if self.object_type.model == 'reportmodule':
+                return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
+            elif self.object_type.model == 'scriptmodule':
+                return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
