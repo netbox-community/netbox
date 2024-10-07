@@ -46,25 +46,20 @@ As described above, jobs can be scheduled for immediate execution or at any late
 
 #### Example
 
-```python title="jobs.py"
-from netbox.jobs import JobRunner
+```python title="models.py"
+from django.db import models
+from netbox.models import NetBoxModel
+from .jobs import MyTestJob
 
+class MyModel(NetBoxModel):
+    foo = models.CharField()
 
-class MyHousekeepingJob(JobRunner):
-    class Meta:
-        name = "Housekeeping"
+    def save(self, *args, **kwargs):
+        MyTestJob.enqueue_once(instance=self, interval=60)
+        return super().save(*args, **kwargs)
 
-    def run(self, *args, **kwargs):
-        # your logic goes here
-```
-
-```python title="__init__.py"
-from netbox.plugins import PluginConfig
-
-class MyPluginConfig(PluginConfig):
-    def ready(self):
-        from .jobs import MyHousekeepingJob
-        MyHousekeepingJob.setup(interval=60)
+    def sync(self):
+        MyTestJob.enqueue(instance=self)
 ```
 
 ## Task queues
