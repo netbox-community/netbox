@@ -954,7 +954,7 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
         queryset=PowerPortTemplate.objects.all(),
         required=False,
         query_params={
-            'devicetype_id': '$device_type',
+            'device_type_id': '$device_type',
         }
     )
 
@@ -1001,8 +1001,8 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
         queryset=RearPortTemplate.objects.all(),
         required=False,
         query_params={
-            'devicetype_id': '$device_type',
-            'moduletype_id': '$module_type',
+            'device_type_id': '$device_type',
+            'module_type_id': '$module_type',
         }
     )
 
@@ -1063,7 +1063,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         queryset=InventoryItemTemplate.objects.all(),
         required=False,
         query_params={
-            'devicetype_id': '$device_type'
+            'device_type_id': '$device_type'
         }
     )
     role = DynamicModelChoiceField(
