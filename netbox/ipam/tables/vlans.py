@@ -16,6 +16,9 @@ __all__ = (
     'VLANMembersTable',
     'VLANTable',
     'VLANVirtualMachinesTable',
+    'VLANTranslationPolicyTable',
+    'VLANTranslationRuleTable',
+    'InterfaceVLANTranslationTable',
 )
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
@@ -240,6 +243,78 @@ class InterfaceVLANTable(NetBoxTable):
         model = VLAN
         fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
         exclude = ('id', )
+
+    def __init__(self, interface, *args, **kwargs):
+        self.interface = interface
+        super().__init__(*args, **kwargs)
+
+
+#
+# VLAN Translation
+#
+
+class VLANTranslationPolicyTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    description = tables.Column(
+        verbose_name=_('Description'),
+        # linkify=True
+    )
+    tags = columns.TagColumn(
+        url_name='ipam:vlantranslationpolicy_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANTranslationPolicy
+        fields = (
+            'pk', 'id', 'name', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'description')
+
+
+class VLANTranslationRuleTable(NetBoxTable):
+    policy = tables.Column(
+        verbose_name=_('Policy'),
+        linkify=True
+    )
+    local_vid = tables.Column(
+        verbose_name=_('Local VID'),
+        linkify=True
+    )
+    remote_vid = tables.Column(
+        verbose_name=_('Remote VID'),
+    )
+    tags = columns.TagColumn(
+        url_name='ipam:vlantranslationrule_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANTranslationRule
+        fields = (
+            'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'tags', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'local_vid', 'remote_vid', 'policy')
+
+
+class InterfaceVLANTranslationTable(NetBoxTable):
+    policy = tables.Column(
+        verbose_name=_('Policy'),
+        linkify=True
+    )
+    local_vid = tables.Column(
+        verbose_name=_('Local VID'),
+        linkify=True,
+    )
+    remote_vid = tables.Column(
+        verbose_name=_('Remote VID'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANTranslationRule
+        fields = ('local_vid', 'remote_vid')
+        default_columns = ('pk', 'local_vid', 'remote_vid', 'policy')
 
     def __init__(self, interface, *args, **kwargs):
         self.interface = interface

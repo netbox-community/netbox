@@ -10,13 +10,15 @@ from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
 from utilities.data import check_ranges_overlap, ranges_to_string
 from virtualization.models import VMInterface
 
 __all__ = (
     'VLAN',
     'VLANGroup',
+    'VLANTranslationPolicy',
+    'VLANTranslationRule',
 )
 
 
@@ -273,3 +275,57 @@ class VLAN(PrimaryModel):
     @property
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
+
+
+class VLANTranslationPolicy(OrganizationalModel):
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _('VLAN translation policy')
+        verbose_name_plural = _('VLAN translation policies')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('ipam:vlantranslationpolicy', args=[self.pk])
+
+
+class VLANTranslationRule(NetBoxModel):
+    policy = models.ForeignKey(
+        to=VLANTranslationPolicy,
+        related_name='rules',
+        on_delete=models.CASCADE,
+    )
+    local_vid = models.IntegerField()
+    remote_vid = models.IntegerField()
+
+    class Meta:
+        verbose_name = _('VLAN translation rule')
+        ordering = ('policy', 'local_vid', 'remote_vid',)
+        # Unique constraints are TBD
+        # constraints = (
+        #     models.UniqueConstraint(
+        #         fields=('policy', 'local_vid'),
+        #         name='%(app_label)s_%(class)s_unique_policy_local_vid'
+        #     ),
+        #     models.UniqueConstraint(
+        #         fields=('policy', 'remote_vid'),
+        #         name='%(app_label)s_%(class)s_unique_policy_remote_vid'
+        #     ),
+        # )
+
+    def __str__(self):
+        return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
+
+    def get_absolute_url(self):
+        return reverse('ipam:vlantranslationrule', args=[self.pk])

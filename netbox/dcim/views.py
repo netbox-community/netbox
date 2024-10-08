@@ -18,7 +18,7 @@ from jinja2.exceptions import TemplateError
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, VLANGroup
-from ipam.tables import InterfaceVLANTable
+from ipam.tables import InterfaceVLANTable, InterfaceVLANTranslationTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
@@ -2579,12 +2579,18 @@ class InterfaceView(generic.ObjectView):
             data=vlans,
             orderable=False
         )
+        vlan_translation_table = InterfaceVLANTranslationTable(
+            interface=instance,
+            data=instance.vlan_translation_policy.rules.all() if instance.vlan_translation_policy else [],
+            orderable=False
+        )
 
         return {
             'vdc_table': vdc_table,
             'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
+            'vlan_translation_table': vlan_translation_table,
         }
 
 

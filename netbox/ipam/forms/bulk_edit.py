@@ -33,6 +33,8 @@ __all__ = (
     'ServiceTemplateBulkEditForm',
     'VLANBulkEditForm',
     'VLANGroupBulkEditForm',
+    'VLANTranslationPolicyBulkEditForm',
+    'VLANTranslationRuleBulkEditForm',
     'VRFBulkEditForm',
 )
 
@@ -572,6 +574,29 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'site', 'group', 'tenant', 'role', 'description', 'comments',
     )
+
+
+class VLANTranslationPolicyBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = VLANTranslationPolicy
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description',)
+
+
+class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
+
+    model = VLANTranslationRule
+    fieldsets = (
+        FieldSet('policy', 'local_vid', 'remote_vid'),
+    )
+    nullable_fields = ('description',)
 
 
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):

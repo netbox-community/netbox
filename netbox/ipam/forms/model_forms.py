@@ -41,6 +41,8 @@ __all__ = (
     'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',
+    'VLANTranslationPolicyForm',
+    'VLANTranslationRuleForm',
     'VRFForm',
 )
 
@@ -651,6 +653,32 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
             'tags',
+        ]
+
+
+class VLANTranslationPolicyForm(NetBoxModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', 'tags', name=_('VLAN Translation Policy')),
+    )
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = [
+            'name', 'description',
+        ]
+
+
+class VLANTranslationRuleForm(NetBoxModelForm):
+
+    fieldsets = (
+        FieldSet('policy', 'local_vid', 'remote_vid', name=_('VLAN Translation Rule')),
+    )
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = [
+            'policy', 'local_vid', 'remote_vid',
         ]
 
 

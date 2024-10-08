@@ -1396,6 +1396,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
             name=_('Wireless')
         ),
+        FieldSet('vlan_translation_policy', name=_('VLAN Translation'))
     )
 
     class Meta:
@@ -1404,7 +1405,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
             'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags', 'vlan_translation_policy',
         ]
         widgets = {
             'speed': NumberWithOptions(

@@ -37,6 +37,8 @@ __all__ = (
     'ServiceTemplateFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
+    'VLANTranslationPolicyFilterSet',
+    'VLANTranslationRuleFilterSet',
     'VRFFilterSet',
 )
 
@@ -1087,6 +1089,20 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             Q(vminterfaces_as_tagged=value) |
             Q(vminterfaces_as_untagged=value)
         )
+
+
+class VLANTranslationPolicyFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ('id', 'name', 'description')
+
+
+class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ('id', 'policy', 'local_vid', 'remote_vid')
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):
