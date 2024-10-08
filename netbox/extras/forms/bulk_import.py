@@ -192,7 +192,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
         label=_('Event types'),
         help_text=_('The event type(s) which will trigger this rule')
     )
-    action_object_key = forms.CharField(
+    action_object = forms.CharField(
         label=_('Action object'),
         required=True,
         help_text=_('Webhook name or script as dotted path module.Class')
@@ -202,13 +202,13 @@ class EventRuleImportForm(NetBoxModelImportForm):
         model = EventRule
         fields = (
             'name', 'description', 'enabled', 'conditions', 'object_types', 'event_types', 'action_type',
-            'action_object_key', 'comments', 'tags'
+            'comments', 'tags'
         )
 
     def clean(self):
         super().clean()
 
-        action_object = self.cleaned_data.get('action_object_key')
+        action_object = self.cleaned_data.get('action_object')
         action_type = self.cleaned_data.get('action_type')
         if action_object and action_type:
             # Webhook

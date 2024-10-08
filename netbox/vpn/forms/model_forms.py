@@ -235,7 +235,7 @@ class TunnelTerminationForm(NetBoxModelForm):
         selector=True,
         label=_('Device')
     )
-    termination_key = DynamicModelChoiceField(
+    termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         label=_('Tunnel interface'),
         query_params={
@@ -252,13 +252,13 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('tunnel', 'role', 'type', 'parent', 'termination_key', 'outside_ip', 'tags'),
+        FieldSet('tunnel', 'role', 'type', 'parent', 'termination_key' 'outside_ip', 'tags'),
     )
 
     class Meta:
         model = TunnelTermination
         fields = [
-            'tunnel', 'role', 'termination_key', 'outside_ip', 'tags',
+            'tunnel', 'role', 'outside_ip', 'tags',
         ]
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -273,8 +273,8 @@ class TunnelTerminationForm(NetBoxModelForm):
             self.fields['parent'].label = _('Virtual Machine')
             self.fields['parent'].queryset = VirtualMachine.objects.all()
             self.fields['parent'].widget.attrs['selector'] = 'virtualization.virtualmachine'
-            self.fields['termination_key'].queryset = VMInterface.objects.all()
-            self.fields['termination_key'].widget.add_query_params({
+            self.fields['termination'].queryset = VMInterface.objects.all()
+            self.fields['termination'].widget.add_query_params({
                 'virtual_machine_id': '$parent',
             })
             self.fields['outside_ip'].widget.add_query_params({
@@ -283,13 +283,13 @@ class TunnelTerminationForm(NetBoxModelForm):
 
         if self.instance.pk:
             self.fields['parent'].initial = self.instance.termination.parent_object
-            self.fields['termination_key'].initial = self.instance.termination
+            self.fields['termination'].initial = self.instance.termination
 
     def clean(self):
         super().clean()
 
         # Set the terminated object
-        self.instance.termination = self.cleaned_data.get('termination_key')
+        self.instance.termination = self.cleaned_data.get('termination')
 
 
 class IKEProposalForm(NetBoxModelForm):
