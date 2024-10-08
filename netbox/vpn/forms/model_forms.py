@@ -252,7 +252,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('tunnel', 'role', 'type', 'parent', 'termination_key' 'outside_ip', 'tags'),
+        FieldSet('tunnel', 'role', 'type', 'parent', 'termination' 'outside_ip', 'tags'),
     )
 
     class Meta:

@@ -585,7 +585,7 @@ class VLANGroupForm(NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('vid_ranges', name=_('Child VLANs')),
-        FieldSet('scope_type', name=_('Scope')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
     )
 
     class Meta:
