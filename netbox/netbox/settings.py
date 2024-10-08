@@ -859,6 +859,10 @@ for plugin_name in PLUGINS:
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
 
+    events_pipeline = plugin_config.events_pipeline
+    if events_pipeline and type(events_pipeline) in (list, tuple):
+        EVENTS_PIPELINE.extend(events_pipeline)
+
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
     from .local_settings import *
