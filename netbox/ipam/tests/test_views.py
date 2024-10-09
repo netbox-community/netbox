@@ -432,11 +432,12 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
+        site = sites[0].pk
         cls.csv_data = (
-            "vrf,prefix,status",
-            "VRF 1,10.4.0.0/16,active",
-            "VRF 1,10.5.0.0/16,active",
-            "VRF 1,10.6.0.0/16,active",
+            "vrf,prefix,status,scope_type,scope_id",
+            f"VRF 1,10.4.0.0/16,active,dcim.site,{site}",
+            f"VRF 1,10.5.0.0/16,active,dcim.site,{site}",
+            f"VRF 1,10.6.0.0/16,active,dcim.site,{site}",
         )
 
         cls.csv_update_data = (
