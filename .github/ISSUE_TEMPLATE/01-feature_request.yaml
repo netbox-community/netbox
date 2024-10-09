@@ -24,6 +24,21 @@ body:
         - Data model extension
         - New functionality
         - Change to existing functionality
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Triage priority
+      description: >
+        Issue triage may be prioritized in some cases. Select whichever of the following
+        conditions applies, if any.
+      options:
+        - I volunteer to perform this work (if approved)
+        - I'm a NetBox Labs customer
+        - This is a very minor change
+        - N/A
+      default: 3
     validations:
       required: true
   - type: textarea
