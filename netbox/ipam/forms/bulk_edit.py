@@ -203,25 +203,6 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PrefixBulkEditForm(NetBoxModelBulkEditForm):
-    # region = DynamicModelChoiceField(
-    #     label=_('Region'),
-    #     queryset=Region.objects.all(),
-    #     required=False
-    # )
-    # site_group = DynamicModelChoiceField(
-    #     label=_('Site group'),
-    #     queryset=SiteGroup.objects.all(),
-    #     required=False
-    # )
-    # site = DynamicModelChoiceField(
-    #     label=_('Site'),
-    #     queryset=Site.objects.all(),
-    #     required=False,
-    #     query_params={
-    #         'region_id': '$region',
-    #         'group_id': '$site_group',
-    #     }
-    # )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -281,7 +262,6 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     model = Prefix
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
-        # FieldSet('region', 'site_group', 'site', name=_('Site')),
         FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
