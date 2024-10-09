@@ -277,10 +277,11 @@ class VLAN(PrimaryModel):
         return self.l2vpn_terminations.first()
 
 
-class VLANTranslationPolicy(OrganizationalModel):
+class VLANTranslationPolicy(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
+        unique=True,
     )
     description = models.CharField(
         verbose_name=_('description'),
