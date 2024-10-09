@@ -112,9 +112,9 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
+EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
-))
+])
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
@@ -861,6 +861,7 @@ for plugin_name in PLUGINS:
 
     events_pipeline = plugin_config.events_pipeline
     if events_pipeline and type(events_pipeline) in (list, tuple):
+        EVENTS_PIPELINE = list(EVENTS_PIPELINE)
         EVENTS_PIPELINE.extend(events_pipeline)
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
