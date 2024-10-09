@@ -352,7 +352,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(parent.prefix)
-        ).prefetch_related('site', 'role', 'tenant', 'tenant__group', 'vlan')
+        ).prefetch_related('scope', 'role', 'tenant', 'tenant__group', 'vlan')
 
     def prep_table_data(self, request, queryset, parent):
         # Determine whether to show assigned prefixes, available prefixes, or both
