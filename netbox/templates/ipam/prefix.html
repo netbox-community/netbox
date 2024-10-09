@@ -46,7 +46,11 @@
         </tr>
         <tr>
           <th scope="row">{% trans "Scope" %}</th>
-          <td>{{ object.scope|linkify|placeholder }}</td>
+          {% if object.scope %}
+            <td>{{ object.scope|linkify }} ({% trans object.scope_type.name %})</td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans "VLAN" %}</th>
