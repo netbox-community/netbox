@@ -234,7 +234,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         FieldSet(
             'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope_type', 'scope_id', name=_('Scope')),
         FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -242,8 +242,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
-            'description', 'comments', 'tags',
+            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'scope_id',
+            'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
