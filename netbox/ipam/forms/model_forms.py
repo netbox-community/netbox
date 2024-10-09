@@ -207,7 +207,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('Scope type')
     )
-    scope = DynamicModelChoiceField(
+    scope_id = DynamicModelChoiceField(
         label=_('Scope'),
         queryset=Site.objects.none(),  # Initial queryset
         required=False,
@@ -242,8 +242,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'vlan', 'scope_type', 'scope', 'status', 'role', 'is_pool', 'mark_utilized',
-            'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
+            'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -260,21 +260,21 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
             try:
                 scope_type = ContentType.objects.get(pk=scope_type_id)
                 model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+                self.fields['scope_id'].queryset = model.objects.all()
+                self.fields['scope_id'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope_id'].disabled = False
+                self.fields['scope_id'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 
             if self.instance and scope_type_id != self.instance.scope_type_id:
-                self.initial['scope'] = None
+                self.initial['scope_id'] = None
 
     def clean(self):
         super().clean()
 
         # Assign the selected scope (if any)
-        self.instance.scope = self.cleaned_data.get('scope')
+        self.instance.scope = self.cleaned_data.get('scope_id')
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):
