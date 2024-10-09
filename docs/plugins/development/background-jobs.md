@@ -29,6 +29,9 @@ class MyTestJob(JobRunner):
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
+!!! tip
+    A set of predefined intervals can be used from `core.choices.JobIntervalChoices`.
+
 ### Attributes
 
 `JobRunner` attributes are defined under a class named `Meta` within the job. These are optional (unless specified otherwise), but encouraged.
@@ -56,6 +59,7 @@ As described above, jobs can be scheduled for immediate execution or at any late
 
 ```python title="models.py"
 from django.db import models
+from core.choices import JobIntervalChoices
 from netbox.models import NetBoxModel
 from .jobs import MyTestJob
 
@@ -63,7 +67,7 @@ class MyModel(NetBoxModel):
     foo = models.CharField()
 
     def save(self, *args, **kwargs):
-        MyTestJob.enqueue_once(instance=self, interval=60)
+        MyTestJob.enqueue_once(instance=self, interval=JobIntervalChoices.INTERVAL_HOURLY)
         return super().save(*args, **kwargs)
 
     def sync(self):
@@ -81,13 +85,14 @@ Some plugins may implement background jobs that are decoupled from any object an
 #### Example
 
 ```python title="jobs.py"
+from core.choices import JobIntervalChoices
 from netbox.jobs import JobRunner
 from .models import MyModel
 
 class MyHousekeepingJob(JobRunner):
     class Meta:
         name = "My Housekeeping Job"
-        system_interval = 60  # every 60 minutes
+        system_interval = JobIntervalChoices.INTERVAL_HOURLY  # or integer for n minutes
 
     def run(self, *args, **kwargs):
         MyModel.objects.filter(foo='bar').delete()
