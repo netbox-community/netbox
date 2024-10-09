@@ -61,7 +61,6 @@ class SiteSerializer(NetBoxModelSerializer):
     # Related object counts
     circuit_count = RelatedObjectCountField('circuit_terminations')
     device_count = RelatedObjectCountField('devices')
-    # prefix_count = RelatedObjectCountField('prefixes')
     rack_count = RelatedObjectCountField('racks')
     vlan_count = RelatedObjectCountField('vlans')
     virtualmachine_count = RelatedObjectCountField('virtual_machines')
