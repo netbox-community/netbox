@@ -2060,6 +2060,49 @@ class CablePathTestCase(TestCase):
         # Test SVG generation
         CableTraceSVG(interface1).render()
 
+    def test_222_single_path_via_multiple_singleposition_rear_ports(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2]
+                     [FP2] [RP2]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
+        frontport1 = FrontPort.objects.create(
+            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        )
+        frontport2 = FrontPort.objects.create(
+            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
+        )
+
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[frontport1, frontport2]
+        )
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        cable2 = Cable(
+            a_terminations=[rearport1, rearport2],
+            b_terminations=[interface2]
+        )
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        self.assertPathExists(
+            (interface1, cable1, (frontport1, frontport2), (rearport1, rearport2), cable2, interface2),
+            is_complete=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, (rearport1, rearport2), (frontport1, frontport2), cable1, interface1),
+            is_complete=True
+        )
+
+        # Test SVG generation both directions
+        CableTraceSVG(interface1).render()
+        CableTraceSVG(interface2).render()
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
