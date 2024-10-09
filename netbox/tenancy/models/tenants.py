@@ -32,9 +32,6 @@ class TenantGroup(NestedGroupModel):
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')
 
-    def get_absolute_url(self):
-        return reverse('tenancy:tenantgroup', args=[self.pk])
-
 
 class Tenant(ContactsMixin, PrimaryModel):
     """

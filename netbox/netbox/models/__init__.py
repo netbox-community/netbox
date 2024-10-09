@@ -41,6 +41,9 @@ class NetBoxFeatureSet(
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
+    def get_absolute_url(self):
+        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])
+
 
 #
 # Base model classes
@@ -97,9 +100,6 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
 
                     # update the GFK field value
                     setattr(self, field.name, obj)
-
-    def get_absolute_url(self):
-        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])
 
 #
 # NetBox internal base models
@@ -205,6 +205,3 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])

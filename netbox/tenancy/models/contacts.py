@@ -32,9 +32,6 @@ class ContactGroup(NestedGroupModel):
         verbose_name = _('contact group')
         verbose_name_plural = _('contact groups')
 
-    def get_absolute_url(self):
-        return reverse('tenancy:contactgroup', args=[self.pk])
-
 
 class ContactRole(OrganizationalModel):
     """

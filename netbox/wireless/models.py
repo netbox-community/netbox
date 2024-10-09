@@ -69,9 +69,6 @@ class WirelessLANGroup(NestedGroupModel):
         verbose_name = _('wireless LAN group')
         verbose_name_plural = _('wireless LAN groups')
 
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslangroup', args=[self.pk])
-
 
 class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
