@@ -12,7 +12,6 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Loca
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
-from netbox.events import *
 from users.models import Group, User
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -793,7 +792,6 @@ class ScriptTest(APITestCase):
         super().setUp()
 
         # Monkey-patch the Script model to return our TestScriptClass above
-        from extras.api.views import ScriptViewSet
         Script.python_class = self.python_class
 
     def test_get_script(self):
