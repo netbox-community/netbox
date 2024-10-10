@@ -62,6 +62,9 @@ class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.TunnelGroupFilterSet
     table = tables.TunnelGroupTable
 
+@register_model_view(Tunnel, 'contacts')
+class TunnelGroupContactsView(ObjectContactsView):
+    queryset = TunnelGroup.objects.all()
 
 #
 # Tunnels
@@ -121,6 +124,9 @@ class TunnelBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.TunnelFilterSet
     table = tables.TunnelTable
 
+@register_model_view(Tunnel, 'contacts')
+class TunnelContactsView(ObjectContactsView):
+    queryset = Tunnel.objects.all()
 
 #
 # Tunnel terminations
