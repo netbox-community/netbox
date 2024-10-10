@@ -34,7 +34,7 @@ class LocalBackend(DataBackend):
 
     @contextmanager
     def fetch(self):
-        logger.debug(f"Data source type is local; skipping fetch")
+        logger.debug("Data source type is local; skipping fetch")
         local_path = urlparse(self.url).path  # Strip file:// scheme
 
         yield local_path

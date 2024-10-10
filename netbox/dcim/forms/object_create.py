@@ -261,8 +261,8 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
             # TODO: Clean up the application of HTMXSelect attributes
             attrs={
                 'hx-get': '.',
-                'hx-include': f'#form_fields',
-                'hx-target': f'#form_fields',
+                'hx-include': '#form_fields',
+                'hx-target': '#form_fields',
             }
         )
     )
