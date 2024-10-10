@@ -239,7 +239,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Circuit
-        fields = ('id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate')
+        fields = ('id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit')
 
     def search(self, queryset, name, value):
         if not value.strip():

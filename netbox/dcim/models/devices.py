@@ -21,11 +21,12 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
-from .mixins import RenderConfigMixin, WeightMixin
+from .mixins import RenderConfigMixin
 
 
 __all__ = (

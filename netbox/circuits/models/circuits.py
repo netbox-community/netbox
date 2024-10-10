@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models.mixins import DistanceMixin
 from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, ImageAttachmentsMixin, TagsMixin
 from utilities.fields import ColorField
 
@@ -34,7 +35,7 @@ class CircuitType(OrganizationalModel):
         verbose_name_plural = _('circuit types')
 
 
-class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
+class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular

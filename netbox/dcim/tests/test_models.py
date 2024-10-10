@@ -6,6 +6,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
+from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType

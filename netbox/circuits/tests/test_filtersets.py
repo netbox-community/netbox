@@ -5,6 +5,7 @@ from circuits.filtersets import *
 from circuits.models import *
 from dcim.models import Cable, Region, Site, SiteGroup
 from ipam.models import ASN, RIR
+from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests
 
@@ -222,9 +223,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2'),
-            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1', distance=10, distance_unit=DistanceUnitChoices.UNIT_FOOT),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2', distance=20, distance_unit=DistanceUnitChoices.UNIT_METER),
+            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED, distance=30, distance_unit=DistanceUnitChoices.UNIT_METER),
             Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
             Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
             Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
@@ -288,6 +289,14 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_status(self):
         params = {'status': [CircuitStatusChoices.STATUS_ACTIVE, CircuitStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_distance(self):
+        params = {'distance': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_distance_unit(self):
+        params = {'distance_unit': DistanceUnitChoices.UNIT_FOOT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}

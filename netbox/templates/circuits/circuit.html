@@ -35,6 +35,16 @@
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Distance" %}</th>
+            <td>
+              {% if object.distance is not None %}
+                {{ object.distance|floatformat }} {{ object.get_distance_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}

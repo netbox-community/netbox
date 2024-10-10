@@ -4,6 +4,7 @@ from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.choices import LinkStatusChoices
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.choices import *
 from tenancy.api.serializers_.tenants import TenantSerializer
 from wireless.choices import *
 from wireless.models import WirelessLink
@@ -20,7 +21,7 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
-    distance_unit = ChoiceField(choices=WirelessLinkDistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
+    distance_unit = ChoiceField(choices=DistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = WirelessLink

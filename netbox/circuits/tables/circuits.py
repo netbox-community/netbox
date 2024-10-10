@@ -76,6 +76,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     commit_rate = CommitRateColumn(
         verbose_name=_('Commit Rate')
     )
+    distance = columns.DistanceColumn()
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments')
     )

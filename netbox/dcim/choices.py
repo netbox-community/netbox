@@ -1546,24 +1546,6 @@ class CableLengthUnitChoices(ChoiceSet):
     )
 
 
-class WeightUnitChoices(ChoiceSet):
-
-    # Metric
-    UNIT_KILOGRAM = 'kg'
-    UNIT_GRAM = 'g'
-
-    # Imperial
-    UNIT_POUND = 'lb'
-    UNIT_OUNCE = 'oz'
-
-    CHOICES = (
-        (UNIT_KILOGRAM, _('Kilograms')),
-        (UNIT_GRAM, _('Grams')),
-        (UNIT_POUND, _('Pounds')),
-        (UNIT_OUNCE, _('Ounces')),
-    )
-
-
 #
 # CableTerminations
 #
