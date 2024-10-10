@@ -201,7 +201,7 @@ class DataSource(JobsMixin, PrimaryModel):
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files
-            deleted_count, _ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
+            deleted_count, __ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
             logger.debug(f"Deleted {deleted_count} files")
 
             # Walk the local replication to find new files
