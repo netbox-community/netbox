@@ -734,6 +734,11 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         renamed_pks = []
 
         for obj in selected_objects:
+            # Validate that the rename will be successful and not trigger an error
+            if not form.cleaned_data['use_regex'] and not obj.name:
+                raise ValidationError({
+                    'use_regex': 'You must use regex to rename and must pass uniqueness checks'
+                })
 
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
@@ -782,6 +787,14 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                 )
                             )
                             return redirect(self.get_return_url(request))
+
+                except IntegrityError as e:
+                    messages.error(self.request, ", ".join(e.args))
+                    clear_events.send(sender=self)
+
+                except ValidationError as e:
+                    messages.error(self.request, ", ".join(e.messages))
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
