@@ -29,6 +29,12 @@ class Region(ContactsMixin, NestedGroupModel):
     states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
     also considered to be members of its parent and ancestor region(s).
     """
+    prefixes = GenericRelation(
+        to='ipam.Prefix',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='region'
+    )
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
@@ -79,6 +85,12 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
     nested recursively to form a hierarchy.
     """
+    prefixes = GenericRelation(
+        to='ipam.Prefix',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site_group'
+    )
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
@@ -215,6 +227,12 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     )
 
     # Generic relations
+    prefixes = GenericRelation(
+        to='ipam.Prefix',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site'
+    )
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
@@ -274,6 +292,12 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
     )
 
     # Generic relations
+    prefixes = GenericRelation(
+        to='ipam.Prefix',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='location'
+    )
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',

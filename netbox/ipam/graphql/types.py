@@ -152,16 +152,24 @@ class IPRangeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Prefix,
-    fields='__all__',
+    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_sitegroup'),
     filters=PrefixFilter
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
     prefix: str
-    site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     role: Annotated["RoleType", strawberry.lazy('ipam.graphql.types')] | None
+
+    @strawberry_django.field
+    def scope(self) -> Annotated[Union[
+        Annotated["LocationType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("PrefixScopeType")] | None:
+        return self.scope
 
 
 @strawberry_django.type(

@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
@@ -119,6 +120,10 @@ class ModelTestCase(TestCase):
                     model_dict[key] = sorted([object_type_identifier(ot) for ot in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
+
+            # Handle GenericForeignKeys
+            elif value and type(field) is GenericForeignKey:
+                model_dict[key] = value.pk
 
             elif api:
 
