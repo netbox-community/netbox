@@ -983,6 +983,13 @@ class Device(
                 'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
             })
 
+        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
+            raise ValidationError({
+                'virtual_chassis': _("Cannot change to a different virtual chassis when assigned as a master. Remove it as the master of {master} first.").format(
+                    master=self.vc_master_for
+                )
+            })
+
     def _instantiate_components(self, queryset, bulk_create=True):
         """
         Instantiate components for the device from the specified component templates.
