@@ -48,7 +48,7 @@ class ScriptJob(JobRunner):
             except AbortTransaction:
                 script.log_info(message=_("Database changes have been reverted automatically."))
                 if script.failed:
-                    logger.warning(f"Script failed")
+                    logger.warning("Script failed")
                     raise
 
         except Exception as e:

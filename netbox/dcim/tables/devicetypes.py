@@ -1,6 +1,5 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim import models
 from netbox.tables import NetBoxTable, columns

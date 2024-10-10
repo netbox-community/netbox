@@ -15,7 +15,7 @@ __all__ = [
 
 # TODO: Remove in v4.2
 warnings.warn(
-    f"Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
+    "Dedicated nested serializers will be removed in NetBox v4.2. Use Serializer(nested=True) instead.",
     DeprecationWarning
 )
 

@@ -386,57 +386,57 @@ ADMIN_MENU = Menu(
             label=_('Authentication'),
             items=(
                 MenuItem(
-                    link=f'users:user_list',
+                    link='users:user_list',
                     link_text=_('Users'),
                     auth_required=True,
-                    permissions=[f'users.view_user'],
+                    permissions=['users.view_user'],
                     buttons=(
                         MenuItemButton(
-                            link=f'users:user_add',
+                            link='users:user_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'users.add_user']
+                            permissions=['users.add_user']
                         ),
                         MenuItemButton(
-                            link=f'users:user_import',
+                            link='users:user_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'users.add_user']
+                            permissions=['users.add_user']
                         )
                     )
                 ),
                 MenuItem(
-                    link=f'users:group_list',
+                    link='users:group_list',
                     link_text=_('Groups'),
                     auth_required=True,
-                    permissions=[f'users.view_group'],
+                    permissions=['users.view_group'],
                     buttons=(
                         MenuItemButton(
-                            link=f'users:group_add',
+                            link='users:group_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'users.add_group']
+                            permissions=['users.add_group']
                         ),
                         MenuItemButton(
-                            link=f'users:group_import',
+                            link='users:group_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'users.add_group']
+                            permissions=['users.add_group']
                         )
                     )
                 ),
                 MenuItem(
-                    link=f'users:token_list',
+                    link='users:token_list',
                     link_text=_('API Tokens'),
                     auth_required=True,
-                    permissions=[f'users.view_token'],
+                    permissions=['users.view_token'],
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
-                    link=f'users:objectpermission_list',
+                    link='users:objectpermission_list',
                     link_text=_('Permissions'),
                     auth_required=True,
-                    permissions=[f'users.view_objectpermission'],
+                    permissions=['users.view_objectpermission'],
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
             ),

@@ -283,7 +283,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         for ct in content_types:
             model = ct.model_class()
-            instances = model.objects.exclude(**{f'custom_field_data__contains': self.name})
+            instances = model.objects.exclude(**{'custom_field_data__contains': self.name})
             for instance in instances:
                 instance.custom_field_data[self.name] = self.default
             model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)

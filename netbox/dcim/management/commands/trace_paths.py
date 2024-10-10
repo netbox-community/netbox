@@ -60,7 +60,7 @@ class Command(BaseCommand):
             self.stdout.write((self.style.SUCCESS(f'  Deleted {deleted_count} paths')))
 
             # Reinitialize the model's PK sequence
-            self.stdout.write(f'Resetting database sequence for CablePath model')
+            self.stdout.write('Resetting database sequence for CablePath model')
             sequence_sql = connection.ops.sequence_reset_sql(no_style(), [CablePath])
             with connection.cursor() as cursor:
                 for sql in sequence_sql:

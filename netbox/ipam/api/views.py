@@ -186,13 +186,13 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
         """
         Return the parent object.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_available_objects(self, parent, limit=None):
         """
         Return all available objects for the parent.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_extra_context(self, parent):
         """
@@ -250,7 +250,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
             # Determine if the requested number of objects is available
             if not self.check_sufficient_available(serializer.validated_data, available_objects):
                 return Response(
-                    {"detail": f"Insufficient resources are available to satisfy the request"},
+                    {"detail": "Insufficient resources are available to satisfy the request"},
                     status=status.HTTP_409_CONFLICT
                 )
 

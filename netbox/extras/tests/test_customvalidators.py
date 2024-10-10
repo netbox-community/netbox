@@ -162,7 +162,7 @@ class CustomValidatorTest(TestCase):
         Site(name='abcdef123', slug='abcdef123').clean()
 
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [region_validator]})
-    def test_valid(self):
+    def test_related_object(self):
         region1 = Region(name='Foo', slug='foo')
         region1.save()
         region2 = Region(name='Bar', slug='bar')

@@ -15,7 +15,7 @@ __all__ = (
 class ChangelogMixin:
 
     @strawberry_django.field
-    def changelog(self, info) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
+    def changelog(self, info) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:  # noqa: F821
         content_type = ContentType.objects.get_for_model(self)
         object_changes = ObjectChange.objects.filter(
             changed_object_type=content_type,

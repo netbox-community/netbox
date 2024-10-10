@@ -36,7 +36,6 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
         # Emulate a declared field for each supported user preference
         preference_fields = {}
         for field_name, preference in PREFERENCES.items():
-            description = f'{preference.description}<br />' if preference.description else ''
             help_text = f'<code>{field_name}</code>'
             if preference.description:
                 help_text = f'{preference.description}<br />{help_text}'

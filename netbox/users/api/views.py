@@ -73,7 +73,7 @@ class TokenProvisionView(APIView):
 
     def perform_create(self, serializer):
         model = serializer.Meta.model
-        logger = logging.getLogger(f'netbox.api.views.TokenProvisionView')
+        logger = logging.getLogger('netbox.api.views.TokenProvisionView')
         logger.info(f"Creating new {model._meta.verbose_name}")
         serializer.save()
 

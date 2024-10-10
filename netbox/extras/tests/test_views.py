@@ -417,7 +417,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f'name,object_types,event_types,action_type,action_object',
+            'name,object_types,event_types,action_type,action_object',
             f'Webhook 4,dcim.site,"{OBJECT_CREATED},{OBJECT_UPDATED}",webhook,Webhook 1',
         )
 

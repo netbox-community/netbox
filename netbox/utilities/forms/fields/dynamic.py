@@ -142,7 +142,7 @@ class DynamicModelChoiceMixin:
 
         if data:
             # When the field is multiple choice pass the data as a list if it's not already
-            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and not type(data) is list:
+            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and type(data) is not list:
                 data = [data]
 
             field_name = getattr(self, 'to_field_name') or 'pk'

@@ -21,7 +21,7 @@ class DummyModelsView(View):
 class DummyModelAddView(View):
 
     def get(self, request):
-        return HttpResponse(f"Create an instance")
+        return HttpResponse("Create an instance")
 
     def post(self, request):
         instance = DummyModel(
@@ -29,7 +29,7 @@ class DummyModelAddView(View):
             number=random.randint(1, 100000)
         )
         instance.save()
-        return HttpResponse(f"Instance created")
+        return HttpResponse("Instance created")
 
 
 @register_model_view(Site, 'extra', path='other-stuff')

@@ -51,7 +51,7 @@ class Command(BaseCommand):
             user = User.objects.filter(is_superuser=True).order_by('pk')[0]
 
         # Setup logging to Stdout
-        formatter = logging.Formatter(f'[%(asctime)s][%(levelname)s] - %(message)s')
+        formatter = logging.Formatter('[%(asctime)s][%(levelname)s] - %(message)s')
         stdouthandler = logging.StreamHandler(sys.stdout)
         stdouthandler.setLevel(logging.DEBUG)
         stdouthandler.setFormatter(formatter)

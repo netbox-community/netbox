@@ -657,7 +657,7 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_vminterface'
+        return 'virtualization.add_vminterface'
 
 
 class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
@@ -671,4 +671,4 @@ class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_virtualdisk'
+        return 'virtualization.add_virtualdisk'

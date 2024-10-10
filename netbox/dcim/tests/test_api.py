@@ -2135,12 +2135,12 @@ class ConnectedDeviceTest(APITestCase):
     def test_get_connected_device(self):
         url = reverse('dcim-api:connected-device-list')
 
-        url_params = f'?peer_device=TestDevice1&peer_interface=eth0'
+        url_params = '?peer_device=TestDevice1&peer_interface=eth0'
         response = self.client.get(url + url_params, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'TestDevice2')
 
-        url_params = f'?peer_device=TestDevice1&peer_interface=eth1'
+        url_params = '?peer_device=TestDevice1&peer_interface=eth1'
         response = self.client.get(url + url_params, **self.header)
         self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 

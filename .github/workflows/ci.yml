@@ -73,7 +73,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pycodestyle coverage tblib
+        pip install ruff coverage tblib
 
     - name: Build documentation
       run: mkdocs build
@@ -85,7 +85,7 @@ jobs:
       run: python netbox/manage.py makemigrations --check
 
     - name: Check PEP8 compliance
-      run: pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
+      run: ruff check netbox/
 
     - name: Check UI ESLint, TypeScript, and Prettier Compliance
       run: yarn --cwd netbox/project-static validate

@@ -198,7 +198,7 @@ if len(SECRET_KEY) < 50:
 if RELEASE_CHECK_URL:
     try:
         URLValidator()(RELEASE_CHECK_URL)
-    except ValidationError as e:
+    except ValidationError:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )

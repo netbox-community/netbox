@@ -554,7 +554,7 @@ class BaseScript:
         """
         Run the report and save its results. Each test method will be executed in order.
         """
-        self.logger.info(f"Running report")
+        self.logger.info("Running report")
 
         try:
             for test_name in self.tests:

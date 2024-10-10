@@ -50,7 +50,7 @@ class ASNRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f"name,slug,rir,tenant,start,end,description",
+            "name,slug,rir,tenant,start,end,description",
             f"ASN Range 4,asn-range-4,{rirs[1].name},{tenants[1].name},400,499,Fourth range",
             f"ASN Range 5,asn-range-5,{rirs[1].name},{tenants[1].name},500,599,Fifth range",
             f"ASN Range 6,asn-range-6,{rirs[1].name},{tenants[1].name},600,699,Sixth range",
@@ -770,14 +770,14 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f"name,slug,scope_type,scope_id,description",
-            f"VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
+            "name,slug,scope_type,scope_id,description",
+            "VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
             f"VLAN Group 5,vlan-group-5,dcim.site,{sites[0].pk},Fifth VLAN group",
             f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].pk},Sixth VLAN group",
         )
 
         cls.csv_update_data = (
-            f"id,name,description",
+            "id,name,description",
             f"{vlan_groups[0].pk},VLAN Group 7,Fourth VLAN group7",
             f"{vlan_groups[1].pk},VLAN Group 8,Fifth VLAN group8",
             f"{vlan_groups[2].pk},VLAN Group 9,Sixth VLAN group9",
