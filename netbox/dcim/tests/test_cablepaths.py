@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
 
 from circuits.models import *
 from dcim.choices import LinkStatusChoices
@@ -2300,3 +2301,41 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 0)
+
+    def test_detect_infinite_loop(self):
+        """
+        Tests the ability to detect a non-resolving path and break out with a logged warning.
+        No assertion; test will fail by falling into a non-terminating loop in CablePath.from_origin()
+        [IF1] --C1-- [FP1][Test Device][Rear Splice]
+                     [FP2]   --C2--    [ Rear Splice
+        """
+        manufacturer = Manufacturer.objects.create(name='Infinite Loop Co', slug='infinite-loop-co')
+        role = DeviceRole.objects.create(name='Infinite Loop Device Role', slug='infinite-loop-device-role')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Infinite Loop Device Type', slug='infinite-loop-device-type')
+        device = Device.objects.create(site=self.site, device_type=device_type, role=role, name='Infinite Loop Device')
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        patch_panel_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            front_port_template_count=48,
+            rear_port_template_count=48,
+        )
+        patch_panel = Device.objects.create(site=self.site, device_type=patch_panel_device_type, role=role)
+        rear_splice = RearPort.objects.create(device=patch_panel, positions=48, name='Rear Splice')
+        front_port_1 = FrontPort.objects.create(device=patch_panel, rear_port=rear_splice, rear_port_position=1, name='Front Port 1')
+        front_port_2 = FrontPort.objects.create(device=patch_panel, rear_port=rear_splice, rear_port_position=2, name='Front Port 2')
+
+        ct_interface = ContentType.objects.get(app_label='dcim', model='interface')
+        ct_frontport = ContentType.objects.get(app_label='dcim', model='frontport')
+        ct_rearport = ContentType.objects.get(app_label='dcim', model='rearport')
+
+        cable_1 = Cable.objects.create()
+        termination_1a = CableTermination.objects.create(cable=cable_1, cable_end='A', termination_type=ct_interface, termination_id=interface.id)
+        termination_1b = CableTermination.objects.create(cable=cable_1, cable_end='B', termination_type=ct_frontport, termination_id=front_port_1.id)
+
+        cable_2 = Cable.objects.create()
+        termination_2a = CableTermination.objects.create(cable=cable_2, cable_end='A', termination_type=ct_frontport, termination_id=front_port_2.id)
+        termination_2b = CableTermination.objects.create(cable=cable_2, cable_end='B', termination_type=ct_rearport, termination_id=rear_splice.id)
+
+        cable_1._terminations_modified = True
+        cable_1.save()

@@ -1,4 +1,5 @@
 import itertools
+import logging
 from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -26,6 +27,8 @@ __all__ = (
     'CablePath',
     'CableTermination',
 )
+
+logger = logging.getLogger('netbox.dcim.cable')
 
 
 trace_paths = Signal()
@@ -543,6 +546,7 @@ class CablePath(models.Model):
         is_split = False
 
         while terminations:
+            prev_path = path.copy()
 
             # Terminations must all be of the same type
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
@@ -712,6 +716,14 @@ class CablePath(models.Model):
                     # Unsupported topology, mark as split and exit
                     is_complete = False
                     is_split = True
+                break
+
+            # Detect infinite loop in cabling topology
+            num_elements_added = len(path) - len(prev_path)
+            prev_elements_added = prev_path[-num_elements_added:]
+            elements_added = path[-num_elements_added:]
+            if elements_added == prev_elements_added:
+                logger.warning('Infinite loop detected while updating cable path trace')
                 break
 
         return cls(
