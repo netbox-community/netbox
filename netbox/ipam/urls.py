@@ -116,6 +116,22 @@ urlpatterns = [
     path('vlans/delete/', views.VLANBulkDeleteView.as_view(), name='vlan_bulk_delete'),
     path('vlans/<int:pk>/', include(get_model_urls('ipam', 'vlan'))),
 
+    # VLAN Translation Policies
+    path('vlan-translation-policies/', views.VLANTranslationPolicyListView.as_view(), name='vlantranslationpolicy_list'),
+    path('vlan-translation-policies/add/', views.VLANTranslationPolicyEditView.as_view(), name='vlantranslationpolicy_add'),
+    path('vlan-translation-policies/import/', views.VLANTranslationPolicyBulkImportView.as_view(), name='vlantranslationpolicy_import'),
+    path('vlan-translation-policies/edit/', views.VLANTranslationPolicyBulkEditView.as_view(), name='vlantranslationpolicy_bulk_edit'),
+    path('vlan-translation-policies/delete/', views.VLANTranslationPolicyBulkDeleteView.as_view(), name='vlantranslationpolicy_bulk_delete'),
+    path('vlan-translation-policies/<int:pk>/', include(get_model_urls('ipam', 'vlantranslationpolicy'))),
+
+    # VLAN Translation Rules
+    path('vlan-translation-rules/', views.VLANTranslationRuleListView.as_view(), name='vlantranslationrule_list'),
+    path('vlan-translation-rules/add/', views.VLANTranslationRuleEditView.as_view(), name='vlantranslationrule_add'),
+    path('vlan-translation-rules/import/', views.VLANTranslationRuleBulkImportView.as_view(), name='vlantranslationrule_import'),
+    path('vlan-translation-rules/edit/', views.VLANTranslationRuleBulkEditView.as_view(), name='vlantranslationrule_bulk_edit'),
+    path('vlan-translation-rules/delete/', views.VLANTranslationRuleBulkDeleteView.as_view(), name='vlantranslationrule_bulk_delete'),
+    path('vlan-translation-rules/<int:pk>/', include(get_model_urls('ipam', 'vlantranslationrule'))),
+
     # Service templates
     path('service-templates/', views.ServiceTemplateListView.as_view(), name='servicetemplate_list'),
     path('service-templates/add/', views.ServiceTemplateEditView.as_view(), name='servicetemplate_add'),
