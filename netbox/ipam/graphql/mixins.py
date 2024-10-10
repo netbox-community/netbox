@@ -10,9 +10,9 @@ __all__ = (
 
 @strawberry.type
 class IPAddressesMixin:
-    ip_addresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
+    ip_addresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]  # noqa: F821
 
 
 @strawberry.type
 class VLANGroupsMixin:
-    vlan_groups: List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]
+    vlan_groups: List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]  # noqa: F821
