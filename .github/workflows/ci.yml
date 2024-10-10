@@ -85,7 +85,7 @@ jobs:
       run: python netbox/manage.py makemigrations --check
 
     - name: Check PEP8 compliance
-      run: ruff check netbox/ --ignore E501,F403,F405
+      run: ruff check netbox/
 
     - name: Check UI ESLint, TypeScript, and Prettier Compliance
       run: yarn --cwd netbox/project-static validate

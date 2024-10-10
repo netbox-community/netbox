@@ -25,7 +25,7 @@ NetBox generally follows the [Django style guide](https://docs.djangoproject.com
 The [ruff](https://docs.astral.sh/ruff/) linter is used to enforce code style. A [pre-commit hook](./getting-started.md#3-enable-pre-commit-hooks) which runs this automatically is included with NetBox. To invoke `ruff` manually, run:
 
 ```
-ruff check netbox/ --ignore E501,F403,F405
+ruff check netbox/
 ```
 
 #### Linter Exceptions

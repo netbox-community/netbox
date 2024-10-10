@@ -29,7 +29,7 @@ if [ ${NOVALIDATE} ]; then
 fi
 
 echo "Linting with ruff..."
-ruff check netbox/ --ignore E501,F403,F405
+ruff check netbox/
 if [ $? != 0 ]; then
 	EXIT=1
 fi
