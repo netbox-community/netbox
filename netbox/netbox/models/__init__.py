@@ -101,10 +101,10 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
                     # update the GFK field value
                     setattr(self, field.name, obj)
 
+
 #
 # NetBox internal base models
 #
-
 
 class PrimaryModel(NetBoxModel):
     """
