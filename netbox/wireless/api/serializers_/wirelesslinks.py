@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.choices import LinkStatusChoices
 from netbox.api.fields import ChoiceField

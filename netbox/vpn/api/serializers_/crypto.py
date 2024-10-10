@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from vpn.choices import *

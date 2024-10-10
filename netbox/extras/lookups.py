@@ -1,4 +1,5 @@
-from django.db.models import CharField, TextField, Lookup
+from django.db.models import CharField, Lookup
+
 from .fields import CachedValueField
 
 

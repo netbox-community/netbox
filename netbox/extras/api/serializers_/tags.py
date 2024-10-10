@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from core.models import ObjectType
 from extras.models import Tag
 from netbox.api.fields import ContentTypeField, RelatedObjectCountField

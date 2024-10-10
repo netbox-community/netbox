@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.models import *
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import DynamicModelMultipleChoiceField
 from .model_forms import CableForm
 
 
