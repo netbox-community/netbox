@@ -694,20 +694,14 @@ class ChoicesColumn(tables.Column):
         return ', '.join(value)
 
 
-class DistanceColumn(tables.TemplateColumn):
+class DistanceColumn(TemplateColumn):
     """
     Distance with template code for formatting
     """
     template_code = """
-        {% load helpers %}
-        {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
-        """
+    {% load helpers %}
+    {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
+    """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            template_code=self.template_code,
-            order_by=('_abs_distance'),
-            *args, **kwargs)
-
-    def value(self, value):
-        return value
+    def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
+        super().__init__(template_code=template_code, order_by=order_by, **kwargs)
