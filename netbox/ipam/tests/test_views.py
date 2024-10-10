@@ -421,7 +421,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
             'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope_id': sites[1].pk,
+            'scope': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
