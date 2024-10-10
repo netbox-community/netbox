@@ -186,13 +186,13 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
         """
         Return the parent object.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_available_objects(self, parent, limit=None):
         """
         Return all available objects for the parent.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_extra_context(self, parent):
         """
