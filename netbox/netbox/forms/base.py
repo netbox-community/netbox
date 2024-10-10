@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.forms.fields import BooleanField, NullBooleanField
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -30,6 +31,15 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
     fieldsets = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for key, value in self.initial.items():
+            if key not in self.fields:
+                continue
+            if isinstance(self.fields[key], (BooleanField, NullBooleanField)) and self.initial[key] == "False":
+                self.initial[key] = False
 
     def _get_content_type(self):
         return ContentType.objects.get_for_model(self._meta.model)
