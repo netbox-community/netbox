@@ -62,9 +62,6 @@ class Region(ContactsMixin, NestedGroupModel):
         verbose_name = _('region')
         verbose_name_plural = _('regions')
 
-    def get_absolute_url(self):
-        return reverse('dcim:region', args=[self.pk])
-
     def get_site_count(self):
         return Site.objects.filter(
             Q(region=self) |
@@ -114,9 +111,6 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
         )
         verbose_name = _('site group')
         verbose_name_plural = _('site groups')
-
-    def get_absolute_url(self):
-        return reverse('dcim:sitegroup', args=[self.pk])
 
     def get_site_count(self):
         return Site.objects.filter(
@@ -241,9 +235,6 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('dcim:site', args=[self.pk])
-
     def get_status_color(self):
         return SiteStatusChoices.colors.get(self.status)
 
@@ -321,9 +312,6 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
         )
         verbose_name = _('location')
         verbose_name_plural = _('locations')
-
-    def get_absolute_url(self):
-        return reverse('dcim:location', args=[self.pk])
 
     def get_status_color(self):
         return LocationStatusChoices.colors.get(self.status)

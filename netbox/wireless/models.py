@@ -69,9 +69,6 @@ class WirelessLANGroup(NestedGroupModel):
         verbose_name = _('wireless LAN group')
         verbose_name_plural = _('wireless LAN groups')
 
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslangroup', args=[self.pk])
-
 
 class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
@@ -118,9 +115,6 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
 
     def __str__(self):
         return self.ssid
-
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslan', args=[self.pk])
 
     def get_status_color(self):
         return WirelessLANStatusChoices.colors.get(self.status)
@@ -221,9 +215,6 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
 
     def __str__(self):
         return self.ssid or f'#{self.pk}'
-
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslink', args=[self.pk])
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)

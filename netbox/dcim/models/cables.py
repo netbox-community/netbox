@@ -116,9 +116,6 @@ class Cable(PrimaryModel):
         pk = self.pk or self._pk
         return self.label or f'#{pk}'
 
-    def get_absolute_url(self):
-        return reverse('dcim:cable', args=[self.pk])
-
     @property
     def a_terminations(self):
         if hasattr(self, '_a_terminations'):

@@ -71,9 +71,6 @@ class FHRPGroup(PrimaryModel):
 
         return name
 
-    def get_absolute_url(self):
-        return reverse('ipam:fhrpgroup', args=[self.pk])
-
 
 class FHRPGroupAssignment(ChangeLoggedModel):
     interface_type = models.ForeignKey(
