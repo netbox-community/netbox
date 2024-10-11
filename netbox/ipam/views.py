@@ -352,7 +352,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return Prefix.objects.restrict(request.user, 'view').filter(
             prefix__net_contained_or_equal=str(parent.prefix)
-        ).prefetch_related('site', 'role', 'tenant', 'tenant__group', 'vlan')
+        ).prefetch_related('region', 'site_group', 'site', 'location', 'role', 'tenant', 'tenant__group', 'vlan')
 
     def prep_table_data(self, request, queryset, parent):
         # Determine whether to show assigned prefixes, available prefixes, or both
@@ -467,7 +467,7 @@ class RoleBulkDeleteView(generic.BulkDeleteView):
 #
 
 class PrefixListView(generic.ObjectListView):
-    queryset = Prefix.objects.all()
+    queryset = Prefix.objects.prefetch_related('region', 'site_group', 'site', 'location')
     filterset = filtersets.PrefixFilterSet
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixTable
@@ -492,7 +492,7 @@ class PrefixView(generic.ObjectView):
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
-            'site', 'role', 'tenant', 'vlan',
+            'region', 'site_group', 'site', 'location', 'role', 'tenant', 'vlan',
         )
         parent_prefix_table = tables.PrefixTable(
             list(parent_prefixes),
@@ -506,7 +506,7 @@ class PrefixView(generic.ObjectView):
         ).exclude(
             pk=instance.pk
         ).prefetch_related(
-            'site', 'role', 'tenant', 'vlan',
+            'region', 'site_group', 'site', 'location', 'role', 'tenant', 'vlan',
         )
         duplicate_prefix_table = tables.PrefixTable(
             list(duplicate_prefixes),
@@ -538,7 +538,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_child_prefixes().restrict(request.user, 'view').prefetch_related(
-            'site', 'vrf', 'vlan', 'role', 'tenant', 'tenant__group'
+            'region', 'site_group', 'site', 'location', 'vrf', 'vlan', 'role', 'tenant', 'tenant__group'
         )
 
     def prep_table_data(self, request, queryset, parent):
@@ -631,14 +631,14 @@ class PrefixBulkImportView(generic.BulkImportView):
 
 
 class PrefixBulkEditView(generic.BulkEditView):
-    queryset = Prefix.objects.prefetch_related('vrf__tenant')
+    queryset = Prefix.objects.prefetch_related('region', 'site_group', 'site', 'location')
     filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
 
 
 class PrefixBulkDeleteView(generic.BulkDeleteView):
-    queryset = Prefix.objects.prefetch_related('vrf__tenant')
+    queryset = Prefix.objects.prefetch_related('region', 'site_group', 'site', 'location')
     filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
 

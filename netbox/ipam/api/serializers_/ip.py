@@ -2,9 +2,9 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.api.serializers_.sites import SiteSerializer
+from ipam.api.field_serializers import IPAddressField, IPNetworkField
 from ipam.choices import *
-from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
+from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, PREFIX_SCOPE_TYPES
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -15,7 +15,6 @@ from .nested import NestedIPAddressSerializer
 from .roles import RoleSerializer
 from .vlans import VLANSerializer
 from .vrfs import VRFSerializer
-from ..field_serializers import IPAddressField, IPNetworkField
 
 __all__ = (
     'AggregateSerializer',
@@ -45,7 +44,16 @@ class AggregateSerializer(NetBoxModelSerializer):
 
 class PrefixSerializer(NetBoxModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
-    site = SiteSerializer(nested=True, required=False, allow_null=True)
+    scope_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            model__in=PREFIX_SCOPE_TYPES
+        ),
+        allow_null=True,
+        required=False,
+        default=None
+    )
+    # TODO: Handle writing to scope
+    scope = serializers.SerializerMethodField(read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     vlan = VLANSerializer(nested=True, required=False, allow_null=True)
@@ -58,11 +66,19 @@ class PrefixSerializer(NetBoxModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status',
-            'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'site', 'vrf', 'scope_type', 'scope', 'tenant',
+            'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_scope(self, obj):
+        if obj.scope is None:
+            return None
+        serializer = get_serializer_for_model(obj.scope)
+        context = {'request': self.context['request']}
+        return serializer(obj.scope, nested=True, context=context).data
 
 
 class PrefixLengthSerializer(serializers.Serializer):

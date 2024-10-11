@@ -241,8 +241,28 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         template_code=VRF_LINK,
         verbose_name=_('VRF')
     )
+    scope_type = columns.ContentTypeColumn(
+        verbose_name=_('Scope Type'),
+    )
+    scope = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Scope')
+    )
+    region = tables.Column(
+        verbose_name=_('Region'),
+        linkify=True
+    )
+    site_group = tables.Column(
+        verbose_name=_('Site Group'),
+        linkify=True
+    )
     site = tables.Column(
         verbose_name=_('Site'),
+        linkify=True
+    )
+    location = tables.Column(
+        verbose_name=_('Location'),
         linkify=True
     )
     vlan_group = tables.Column(
@@ -285,11 +305,11 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         model = Prefix
         fields = (
             'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'site', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'region', 'site_group', 'site', 'location', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'vlan', 'role', 'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',

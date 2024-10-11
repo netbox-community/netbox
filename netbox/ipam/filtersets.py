@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema_field
 from netaddr.core import AddrFormatError
 
 from circuits.models import Provider
-from dcim.models import Device, Interface, Region, Site, SiteGroup
+from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
@@ -332,6 +332,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
+    # TODO: Figure out region & site filters
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -367,6 +368,17 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site (slug)'),
+    )
+    location_id = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        lookup_expr='in',
+        label=_('Location (ID)'),
+    )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),

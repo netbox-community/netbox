@@ -201,12 +201,18 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('VRF')
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=PREFIX_SCOPE_TYPES),
+        widget=HTMXSelect(),
         required=False,
-        selector=True,
-        null_option='None'
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -228,7 +234,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         FieldSet(
             'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('site', 'vlan', name=_('Site/VLAN Assignment')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
@@ -238,6 +245,32 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
             'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
             'description', 'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope and 'scope_type' not in initial:
+            initial['scope_type'] = instance.scope_type.pk
+            initial['scope'] = instance.scope
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if scope_type := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+    def save(self, *args, **kwargs):
+        self.instance.scope = self.cleaned_data['scope']
+        return super().save(*args, **kwargs)
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):

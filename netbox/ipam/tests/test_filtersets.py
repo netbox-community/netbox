@@ -656,14 +656,14 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         prefixes = (
-            Prefix(prefix='10.0.0.0/24', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True, description='foobar1'),
-            Prefix(prefix='10.0.1.0/24', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0], description='foobar2'),
-            Prefix(prefix='10.0.2.0/24', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(prefix='10.0.3.0/24', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(prefix='2001:db8::/64', tenant=None, site=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True),
-            Prefix(prefix='2001:db8:0:1::/64', tenant=tenants[0], site=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(prefix='2001:db8:0:2::/64', tenant=tenants[1], site=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(prefix='2001:db8:0:3::/64', tenant=tenants[2], site=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='10.0.0.0/24', tenant=None, scope=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True, description='foobar1'),
+            Prefix(prefix='10.0.1.0/24', tenant=tenants[0], scope=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0], description='foobar2'),
+            Prefix(prefix='10.0.2.0/24', tenant=tenants[1], scope=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='10.0.3.0/24', tenant=tenants[2], scope=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(prefix='2001:db8::/64', tenant=None, scope=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True),
+            Prefix(prefix='2001:db8:0:1::/64', tenant=tenants[0], scope=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
+            Prefix(prefix='2001:db8:0:2::/64', tenant=tenants[1], scope=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
+            Prefix(prefix='2001:db8:0:3::/64', tenant=tenants[2], scope=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
             Prefix(prefix='10.0.0.0/16'),
             Prefix(prefix='2001:db8::/32'),
         )

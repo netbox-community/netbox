@@ -44,17 +44,13 @@
             {% endif %}
           </td>
         </tr>
-        {% if object.site.region %}
-          <tr>
-            <th scope="row">{% trans "Region" %}</th>
-            <td>
-              {% nested_tree object.site.region %}
-            </td>
-          </tr>
-        {% endif %}
         <tr>
-          <th scope="row">{% trans "Site" %}</th>
-          <td>{{ object.site|linkify|placeholder }}</td>
+          <th scope="row">{% trans "Scope" %}</th>
+          {% if object.scope %}
+            <td>{{ object.scope|linkify }} ({% trans object.scope_type.name %})</td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans "VLAN" %}</th>

@@ -1,4 +1,5 @@
 import netaddr
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -207,8 +208,29 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
     )
+    region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.PROTECT,
+        related_name='prefixes',
+        blank=True,
+        null=True
+    )
+    site_group = models.ForeignKey(
+        to='dcim.SiteGroup',
+        on_delete=models.PROTECT,
+        related_name='prefixes',
+        blank=True,
+        null=True
+    )
     site = models.ForeignKey(
         to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='prefixes',
+        blank=True,
+        null=True
+    )
+    location = models.ForeignKey(
+        to='dcim.Location',
         on_delete=models.PROTECT,
         related_name='prefixes',
         blank=True,
@@ -275,7 +297,8 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        # 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'scope_type', 'scope',
     )
 
     class Meta:
@@ -340,6 +363,27 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     @property
     def children(self):
         return self._children
+
+    @property
+    def scope_type(self):
+        if not self.scope:
+            return None
+        return ObjectType.objects.get_for_model(self.scope)
+
+    @property
+    def scope(self):
+        return self.region or self.site_group or self.site or self.location
+
+    @scope.setter
+    def scope(self, value):
+        self.region = self.site_group = self.site = self.location = None
+        if value is not None:
+            if value._meta.model_name == 'sitegroup':
+                # TODO: Fix this hack
+                field_name = 'site_group'
+            else:
+                field_name = value._meta.model_name
+            setattr(self, field_name, value)
 
     def _set_prefix_length(self, value):
         """

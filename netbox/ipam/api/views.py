@@ -79,7 +79,7 @@ class RoleViewSet(NetBoxModelViewSet):
 
 
 class PrefixViewSet(NetBoxModelViewSet):
-    queryset = Prefix.objects.all()
+    queryset = Prefix.objects.prefetch_related('region', 'site_group', 'site', 'location')
     serializer_class = serializers.PrefixSerializer
     filterset_class = filtersets.PrefixFilterSet
 
