@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.dispatch import Signal
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType

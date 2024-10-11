@@ -6,7 +6,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Lower
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import BaseInterface
