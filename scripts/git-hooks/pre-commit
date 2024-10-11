@@ -14,6 +14,11 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NOCOLOR='\033[0m'
 
+printf "${YELLOW}This script is obsolete and will be removed in a future release.\n"
+printf "Please use pre-commit instead:\n"
+printf "  pip install pre-commit\n"
+printf "  pre-commit install${NOCOLOR}\n"
+
 if [ -d ./venv/ ]; then
     VENV="$PWD/venv"
     if [ -e $VENV/bin/python ]; then
