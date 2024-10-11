@@ -108,7 +108,6 @@ By default, NetBox will prevent the creation of duplicate prefixes and IP addres
 
 ## EVENTS_PIPELINE
 
-!!! tip "Dynamic Configuration Parameter"
 
 Default: ['extras.events.process_event_queue',]
 
