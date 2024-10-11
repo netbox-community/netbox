@@ -297,9 +297,6 @@ class VLANTranslationPolicy(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('ipam:vlantranslationpolicy', args=[self.pk])
-
 
 class VLANTranslationRule(NetBoxModel):
     policy = models.ForeignKey(
@@ -327,6 +324,3 @@ class VLANTranslationRule(NetBoxModel):
 
     def __str__(self):
         return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
-
-    def get_absolute_url(self):
-        return reverse('ipam:vlantranslationrule', args=[self.pk])
