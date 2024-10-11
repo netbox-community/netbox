@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0190_nested_modules'),
+        ('dcim', '0191_module_bay_rebuild'),
     ]
 
     operations = [
