@@ -16,10 +16,13 @@
 * [#16024](https://github.com/netbox-community/netbox/issues/16024) - Fix AND/OR filtering in GraphQL API for selection fields
 * [#17562](https://github.com/netbox-community/netbox/issues/17562) - Fix GraphQL API query support for custom field choices
 * [#17566](https://github.com/netbox-community/netbox/issues/17566) - Fix AttributeError exception resulting from background jobs with no associated object type
+* [#17614](https://github.com/netbox-community/netbox/issues/17614) - Disallow removal of a master device from its virtual chassis
 * [#17636](https://github.com/netbox-community/netbox/issues/17636) - Fix filtering of related objects when adding a power port, rear port, or inventory item template to a device type
+* [#17644](https://github.com/netbox-community/netbox/issues/17644) - Correct sizing of logo & SSO icons on login page
 * [#17648](https://github.com/netbox-community/netbox/issues/17648) - Fix AttributeError exception when attempting to delete a background job under certain conditions
 * [#17663](https://github.com/netbox-community/netbox/issues/17663) - Fix extended lookups for choice field filters
 * [#17671](https://github.com/netbox-community/netbox/issues/17671) - Fix the display of rack types in global search results
+* [#17713](https://github.com/netbox-community/netbox/issues/17713) - Fix UnboundLocalError exception when attempting to sync data source in parallel
 
 ---
 
