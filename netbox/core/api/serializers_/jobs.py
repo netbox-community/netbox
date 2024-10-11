@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from core.choices import *
 from core.models import Job
 from netbox.api.fields import ChoiceField, ContentTypeField

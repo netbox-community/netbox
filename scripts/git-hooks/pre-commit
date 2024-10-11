@@ -28,8 +28,8 @@ if [ ${NOVALIDATE} ]; then
   exit $EXIT
 fi
 
-echo "Validating PEP8 compliance..."
-pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
+echo "Linting with ruff..."
+ruff check netbox/
 if [ $? != 0 ]; then
 	EXIT=1
 fi

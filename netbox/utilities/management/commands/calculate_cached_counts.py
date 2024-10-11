@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from django.core.management.base import BaseCommand
-from django.db.models import Count, OuterRef, Subquery
 
 from netbox.registry import registry
 from utilities.counters import update_counts

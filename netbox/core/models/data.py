@@ -122,7 +122,7 @@ class DataSource(JobsMixin, PrimaryModel):
         # Ensure URL scheme matches selected type
         if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({
-                'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
+                'source_url': "URLs for local sources must start with file:// (or specify no scheme)"
             })
 
     def to_objectchange(self, action):
@@ -198,7 +198,7 @@ class DataSource(JobsMixin, PrimaryModel):
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files
-            deleted_count, _ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
+            deleted_count, __ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
             logger.debug(f"Deleted {deleted_count} files")
 
             # Walk the local replication to find new files

@@ -146,10 +146,12 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
+                'model': self.child_model,
             })
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'model': self.child_model,
             'child_model': self.child_model,
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,

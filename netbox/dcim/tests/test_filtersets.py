@@ -4842,13 +4842,6 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
-    def test_role(self):
-        role = DeviceRole.objects.all()[:2]
-        params = {'role_id': [role[0].pk, role[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'role': [role[0].slug, role[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
     def test_device(self):
         devices = Device.objects.all()[:2]
         params = {'device_id': [devices[0].pk, devices[1].pk]}
