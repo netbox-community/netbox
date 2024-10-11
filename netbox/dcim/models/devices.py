@@ -983,7 +983,7 @@ class Device(
                 'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
             })
 
-        if vc_master_for := getattr(self, 'vc_master_for', None) != self.virtual_chassis:
+        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
             raise ValidationError({
                 'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
                     virtual_chassis=self.vc_master_for
