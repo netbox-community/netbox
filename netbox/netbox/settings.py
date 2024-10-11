@@ -867,8 +867,6 @@ for plugin_name in PLUGINS:
 
         EVENTS_PIPELINE.extend(events_pipeline)
 
-print(EVENTS_PIPELINE)
-
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
     from .local_settings import *
