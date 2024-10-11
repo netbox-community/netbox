@@ -70,10 +70,10 @@ NetBox ships with a [git pre-commit hook](https://githooks.com/) script that aut
 cd .git/hooks/
 ln -s ../../scripts/git-hooks/pre-commit
 ```
-For the pre-commit hooks to work, you will also need to install the pycodestyle package:
+For the pre-commit hooks to work, you will also need to install the [ruff](https://docs.astral.sh/ruff/) linter:
 
 ```no-highlight
-python -m pip install pycodestyle
+python -m pip install ruff
 ```
 ...and set up the yarn packages as shown in the [Web UI Development Guide](web-ui.md)
 

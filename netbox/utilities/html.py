@@ -59,7 +59,7 @@ def highlight(value, highlight, trim_pre=None, trim_post=None, trim_placeholder=
         else:
             highlight = re.escape(highlight)
             pre, match, post = re.split(fr'({highlight})', value, maxsplit=1, flags=re.IGNORECASE)
-    except ValueError as e:
+    except ValueError:
         # Match not found
         return escape(value)
 
