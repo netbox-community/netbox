@@ -840,7 +840,7 @@ class Device(
                     "Location {location} does not belong to site {site}."
                 ).format(location=self.location, site=self.site)
             })
-        if self.rack and self.location and self.rack.location != self.location:
+        if self.rack and self.location and not self.location.get_descendants(True).contains(self.rack.location):
             raise ValidationError({
                 'rack': _(
                     "Rack {rack} does not belong to location {location}."
