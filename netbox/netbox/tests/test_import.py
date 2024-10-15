@@ -77,7 +77,6 @@ class CSVImportTestCase(ModelViewTestCase):
         self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
         regions = Region.objects.all()
         self.assertEqual(regions.count(), 4)
-        region = Region.objects.get(slug="region-4")
         self.assertEqual(
             list(regions[0].tags.values_list('name', flat=True)),
             ['Alpha', 'Bravo']

@@ -11,8 +11,8 @@
 
       {# NetBox logo #}
       <div class="text-center mb-4">
-        <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" height="80" class="hide-theme-dark">
-        <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" height="80" class="hide-theme-light">
+        <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" height="80" class="hide-theme-dark logo">
+        <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" height="80" class="hide-theme-light logo">
         <div class="netbox-edition fw-semibold">{{ settings.RELEASE.edition }}</div>
       </div>
 
@@ -81,7 +81,7 @@
                 <div class="col">
                   <a href="{{ backend.url }}" class="btn w-100">
                     {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>
-                    {% elif backend.icon_img %}<img src="{{ backend.icon_img }}" height="24" {% if backend.display_name %}class="me-2" {% endif %}/>{% endif %}
+                    {% elif backend.icon_img %}<img src="{{ backend.icon_img }}" height="24"{% if backend.display_name %}class="me-2 sso-icon" {% endif %}/>{% endif %}
                     {{ backend.display_name }}
                   </a>
                 </div>

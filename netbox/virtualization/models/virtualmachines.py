@@ -205,7 +205,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
             })
 
         # Validate aggregate disk size
-        if self.pk:
+        if not self._state.adding:
             total_disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
             if total_disk and self.disk is None:
                 self.disk = total_disk

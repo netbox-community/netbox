@@ -293,7 +293,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
-        if self.pk and self.u_height > self._original_u_height:
+        if not self._state.adding and self.u_height > self._original_u_height:
             for d in Device.objects.filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
                 u_available = d.rack.get_available_units(
@@ -310,7 +310,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                     })
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
-        elif self.pk and self._original_u_height > 0 and self.u_height == 0:
+        elif not self._state.adding and self._original_u_height > 0 and self.u_height == 0:
             racked_instance_count = Device.objects.filter(
                 device_type=self,
                 position__isnull=False
@@ -983,6 +983,13 @@ class Device(
                 'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
             })
 
+        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
+            raise ValidationError({
+                'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
+                    virtual_chassis=self.vc_master_for
+                )
+            })
+
     def _instantiate_components(self, queryset, bulk_create=True):
         """
         Instantiate components for the device from the specified component templates.
@@ -1351,7 +1358,7 @@ class VirtualChassis(PrimaryModel):
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)
-        if self.pk and self.master and self.master not in self.members.all():
+        if not self._state.adding and self.master and self.master not in self.members.all():
             raise ValidationError({
                 'master': _("The selected master ({master}) is not assigned to this virtual chassis.").format(
                     master=self.master

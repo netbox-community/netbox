@@ -662,10 +662,8 @@ class ModuleBayTestCase(TestCase):
 
     def test_module_bay_recursion(self):
         module_bay_1 = ModuleBay.objects.get(name='Module Bay 1')
-        module_bay_2 = ModuleBay.objects.get(name='Module Bay 2')
         module_bay_3 = ModuleBay.objects.get(name='Module Bay 3')
         module_1 = Module.objects.get(module_bay=module_bay_1)
-        module_2 = Module.objects.get(module_bay=module_bay_2)
         module_3 = Module.objects.get(module_bay=module_bay_3)
 
         # Confirm error if ModuleBay recurses
@@ -681,8 +679,6 @@ class ModuleBayTestCase(TestCase):
             module_1.save()
 
     def test_single_module_token(self):
-        module_bays = ModuleBay.objects.all()
-        modules = Module.objects.all()
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
         site = Site.objects.first()
@@ -708,7 +704,7 @@ class ModuleBayTestCase(TestCase):
             location=location,
             rack=rack
         )
-        cp = device.consoleports.first()
+        device.consoleports.first()
 
     def test_nested_module_token(self):
         pass
@@ -733,39 +729,41 @@ class CableTestCase(TestCase):
         device2 = Device.objects.create(
             device_type=devicetype, role=role, name='TestDevice2', site=site
         )
-        interface1 = Interface.objects.create(device=device1, name='eth0')
-        interface2 = Interface.objects.create(device=device2, name='eth0')
-        interface3 = Interface.objects.create(device=device2, name='eth1')
-        Cable(a_terminations=[interface1], b_terminations=[interface2]).save()
+        interfaces = (
+            Interface(device=device1, name='eth0'),
+            Interface(device=device2, name='eth0'),
+            Interface(device=device2, name='eth1'),
+        )
+        Interface.objects.bulk_create(interfaces)
+        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[1]]).save()
+        PowerPort.objects.create(device=device2, name='psu1')
 
-        power_port1 = PowerPort.objects.create(device=device2, name='psu1')
-        patch_pannel = Device.objects.create(
+        patch_panel = Device.objects.create(
             device_type=devicetype, role=role, name='TestPatchPanel', site=site
         )
-        rear_port1 = RearPort.objects.create(device=patch_pannel, name='RP1', type='8p8c')
-        front_port1 = FrontPort.objects.create(
-            device=patch_pannel, name='FP1', type='8p8c', rear_port=rear_port1, rear_port_position=1
+        rear_ports = (
+            RearPort(device=patch_panel, name='RP1', type='8p8c'),
+            RearPort(device=patch_panel, name='RP2', type='8p8c', positions=2),
+            RearPort(device=patch_panel, name='RP3', type='8p8c', positions=3),
+            RearPort(device=patch_panel, name='RP4', type='8p8c', positions=3),
         )
-        rear_port2 = RearPort.objects.create(device=patch_pannel, name='RP2', type='8p8c', positions=2)
-        front_port2 = FrontPort.objects.create(
-            device=patch_pannel, name='FP2', type='8p8c', rear_port=rear_port2, rear_port_position=1
+        RearPort.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPort(device=patch_panel, name='FP1', type='8p8c', rear_port=rear_ports[0], rear_port_position=1),
+            FrontPort(device=patch_panel, name='FP2', type='8p8c', rear_port=rear_ports[1], rear_port_position=1),
+            FrontPort(device=patch_panel, name='FP3', type='8p8c', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPort(device=patch_panel, name='FP4', type='8p8c', rear_port=rear_ports[3], rear_port_position=1),
         )
-        rear_port3 = RearPort.objects.create(device=patch_pannel, name='RP3', type='8p8c', positions=3)
-        front_port3 = FrontPort.objects.create(
-            device=patch_pannel, name='FP3', type='8p8c', rear_port=rear_port3, rear_port_position=1
-        )
-        rear_port4 = RearPort.objects.create(device=patch_pannel, name='RP4', type='8p8c', positions=3)
-        front_port4 = FrontPort.objects.create(
-            device=patch_pannel, name='FP4', type='8p8c', rear_port=rear_port4, rear_port_position=1
-        )
+        FrontPort.objects.bulk_create(front_ports)
+
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         circuit1 = Circuit.objects.create(provider=provider, type=circuittype, cid='1')
         circuit2 = Circuit.objects.create(provider=provider, type=circuittype, cid='2')
-        circuittermination1 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='Z')
-        circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')
+        CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='A')
+        CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='Z')
+        CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')
 
     def test_cable_creation(self):
         """

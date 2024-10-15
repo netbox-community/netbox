@@ -1658,6 +1658,13 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Device.objects.bulk_create(devices)
 
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(interfaces)
+
         cluster_groups = (
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
             ClusterGroup(name='Cluster Group 2', slug='cluster-group-2'),
@@ -1679,6 +1686,13 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[2]),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
+
+        vm_interfaces = (
+            VMInterface(virtual_machine=virtual_machines[0], name='VM Interface 1'),
+            VMInterface(virtual_machine=virtual_machines[1], name='VM Interface 2'),
+            VMInterface(virtual_machine=virtual_machines[2], name='VM Interface 3'),
+        )
+        VMInterface.objects.bulk_create(vm_interfaces)
 
         groups = (
             # Scoped VLAN groups
@@ -1773,6 +1787,22 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VLAN.objects.bulk_create(vlans)
 
+        # Assign VLANs to device interfaces
+        interfaces[0].untagged_vlan = vlans[0]
+        interfaces[0].tagged_vlans.add(vlans[1])
+        interfaces[1].untagged_vlan = vlans[2]
+        interfaces[1].tagged_vlans.add(vlans[3])
+        interfaces[2].untagged_vlan = vlans[4]
+        interfaces[2].tagged_vlans.add(vlans[5])
+
+        # Assign VLANs to VM interfaces
+        vm_interfaces[0].untagged_vlan = vlans[0]
+        vm_interfaces[0].tagged_vlans.add(vlans[1])
+        vm_interfaces[1].untagged_vlan = vlans[2]
+        vm_interfaces[1].tagged_vlans.add(vlans[3])
+        vm_interfaces[2].untagged_vlan = vlans[4]
+        vm_interfaces[2].tagged_vlans.add(vlans[5])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -1856,6 +1886,16 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         site_id = Site.objects.first().pk
         params = {'available_at_site': site_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)  # 4 scoped + 1 global group + 1 global
+
+    def test_interface(self):
+        interface_id = Interface.objects.first().pk
+        params = {'interface_id': interface_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_vminterface(self):
+        vminterface_id = VMInterface.objects.first().pk
+        params = {'vminterface_id': vminterface_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):

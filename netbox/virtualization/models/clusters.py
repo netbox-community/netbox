@@ -134,7 +134,7 @@ class Cluster(ContactsMixin, PrimaryModel):
         super().clean()
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
-        if self.pk and self.site:
+        if not self._state.adding and self.site:
             if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=self.site).count():
                 raise ValidationError({
                     'site': _(

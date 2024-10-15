@@ -1,4 +1,3 @@
-import inspect
 import operator
 
 from django.core import validators
