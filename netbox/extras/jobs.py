@@ -51,6 +51,9 @@ class ScriptJob(JobRunner):
                     logger.warning("Script failed")
                     raise
 
+        except AbortTransaction:
+            # this is already handled above.
+            pass
         except Exception as e:
             if type(e) is AbortScript:
                 msg = _("Script aborted with error: ") + str(e)
