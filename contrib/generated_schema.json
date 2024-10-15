@@ -12,6 +12,9 @@
                 "left-to-right",
                 "right-to-left",
                 "side-to-rear",
+                "rear-to-side",
+                "bottom-to-top",
+                "top-to-bottom",
                 "passive",
                 "mixed"
             ]

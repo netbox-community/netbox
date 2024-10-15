@@ -162,6 +162,9 @@ class CableTraceSVG:
                 location_label += f' / {instance.location}'
             if instance.rack:
                 location_label += f' / {instance.rack}'
+            if instance.position:
+                location_label += f' / {instance.get_face_display()}'
+                location_label += f' / U{instance.position}'
             labels.append(location_label)
         elif instance._meta.model_name == 'circuit':
             labels[0] = f'Circuit {instance}'

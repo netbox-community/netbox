@@ -160,7 +160,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     def _get_module_tree(self, module):
         modules = []
-        all_module_bays = module.device.modulebays.all().select_related('module')
         while module:
             modules.append(module)
             if module.module_bay:

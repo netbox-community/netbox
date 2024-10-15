@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from core.models import ObjectType
 from extras.models import ExportTemplate

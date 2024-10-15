@@ -197,6 +197,9 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
     AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
     AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_REAR_TO_SIDE = 'rear-to-side'
+    AIRFLOW_BOTTOM_TO_TOP = 'bottom-to-top'
+    AIRFLOW_TOP_TO_BOTTOM = 'top-to-bottom'
     AIRFLOW_PASSIVE = 'passive'
     AIRFLOW_MIXED = 'mixed'
 
@@ -206,6 +209,9 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
         (AIRFLOW_RIGHT_TO_LEFT, _('Right to left')),
         (AIRFLOW_SIDE_TO_REAR, _('Side to rear')),
+        (AIRFLOW_REAR_TO_SIDE, _('Rear to side')),
+        (AIRFLOW_BOTTOM_TO_TOP, _('Bottom to top')),
+        (AIRFLOW_TOP_TO_BOTTOM, _('Top to bottom')),
         (AIRFLOW_PASSIVE, _('Passive')),
         (AIRFLOW_MIXED, _('Mixed')),
     )

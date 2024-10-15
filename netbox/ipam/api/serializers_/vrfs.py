@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from ipam.models import RouteTarget, VRF
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer

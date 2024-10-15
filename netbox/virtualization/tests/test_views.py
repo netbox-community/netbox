@@ -354,14 +354,14 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"virtual_machine,name,vrf.pk",
+            "virtual_machine,name,vrf.pk",
             f"Virtual Machine 2,Interface 4,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 5,{vrfs[0].pk}",
             f"Virtual Machine 2,Interface 6,{vrfs[0].pk}",
         )
 
         cls.csv_update_data = (
-            f"id,name,description",
+            "id,name,description",
             f"{interfaces[0].pk},Interface 7,New description 7",
             f"{interfaces[1].pk},Interface 8,New description 8",
             f"{interfaces[2].pk},Interface 9,New description 9",
@@ -438,14 +438,14 @@ class VirtualDiskTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"virtual_machine,name,size,description",
-            f"Virtual Machine 1,Disk 4,20,Fourth",
-            f"Virtual Machine 1,Disk 5,20,Fifth",
-            f"Virtual Machine 1,Disk 6,20,Sixth",
+            "virtual_machine,name,size,description",
+            "Virtual Machine 1,Disk 4,20,Fourth",
+            "Virtual Machine 1,Disk 5,20,Fifth",
+            "Virtual Machine 1,Disk 6,20,Sixth",
         )
 
         cls.csv_update_data = (
-            f"id,name,size",
+            "id,name,size",
             f"{disks[0].pk},disk1,20",
             f"{disks[1].pk},disk2,20",
             f"{disks[2].pk},disk3,20",

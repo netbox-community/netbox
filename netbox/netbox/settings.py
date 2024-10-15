@@ -5,14 +5,12 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlencode
 
-import django
 import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -200,7 +198,7 @@ if len(SECRET_KEY) < 50:
 if RELEASE_CHECK_URL:
     try:
         URLValidator()(RELEASE_CHECK_URL)
-    except ValidationError as e:
+    except ValidationError:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )
@@ -252,7 +250,7 @@ if STORAGE_BACKEND is not None:
     # django-storage-swift
     elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
         try:
-            import swift.utils  # type: ignore
+            import swift.utils  # noqa: F401
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'swift':
                 raise ImproperlyConfigured(
