@@ -34,6 +34,28 @@ span.color-label {
   letter-spacing: .15rem;
 }
 
+// A floating div for form buttons
+.btn-float-group {
+  position: sticky;
+  bottom: 10px;
+  z-index: 2;
+}
+
+.btn-float-group-left {
+  @extend .btn-float-group;
+  float: left;  
+}
+
+.btn-float-group-right {
+  @extend .btn-float-group;
+  float: right;
+}
+
+// Override a transparent background
+.btn-float {
+  --tblr-btn-bg: var(--#{$prefix}bg-surface-tertiary) !important;
+}
+
 .logo {
   height: 80px;
 }
