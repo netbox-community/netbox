@@ -112,7 +112,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.CableTermination,
-    exclude=('termination_type', 'termination_id'),
+    exclude=('termination_type', 'termination_id', '_device', '_rack', '_location', '_site'),
     filters=CableTerminationFilter
 )
 class CableTerminationType(NetBoxObjectType):
