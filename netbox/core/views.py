@@ -715,6 +715,12 @@ class PluginView(BasePluginView):
         table = PluginVersionTable(plugin.release_recent_history, user=request.user)
         table.configure(request)
 
+        # If this is an HTMX request, return only the rendered table HTML
+        if htmx_partial(request):
+            return render(request, 'htmx/table.html', {
+                'table': table,
+            })
+
         return render(request, 'core/plugin.html', {
             'plugin': plugin,
             'table': table,
