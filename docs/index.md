@@ -1,4 +1,4 @@
-![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em"}
+![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em; background: none;"}
 
 # The Premier Network Source of Truth
 
