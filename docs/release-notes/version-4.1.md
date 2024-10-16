@@ -1,5 +1,17 @@
 # NetBox v4.1
 
+## v4.1.5 (FUTURE)
+
+### Bug Fixes
+
+* [#17710](https://github.com/netbox-community/netbox/issues/17710) - Remove cached fields on CableTermination model from GraphQL API
+* [#17740](https://github.com/netbox-community/netbox/issues/17740) - Ensure support for image attachments with a `.webp` file extension
+* [#17749](https://github.com/netbox-community/netbox/issues/17749) - Restore missing `devicetypes` and `children` fields for several objects in GraphQL API
+* [#17754](https://github.com/netbox-community/netbox/issues/17754) - Remove paginator from version history table under plugin view
+* [#17759](https://github.com/netbox-community/netbox/issues/17759) - Retain `job_timeout` value when scheduling a recurring custom script
+
+---
+
 ## v4.1.4 (2024-10-15)
 
 ### Enhancements
