@@ -3,7 +3,7 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.contenttypes.fields import GenericRel
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
@@ -576,7 +576,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             for name, model_field in model_fields.items():
                 # Handle nullification
                 if name in form.nullable_fields and name in nullified_fields:
-                    setattr(obj, name, None if model_field.null else '')
+                    if type(model_field) is GenericForeignKey:
+                        setattr(obj, name, None)
+                    else:
+                        setattr(obj, name, None if model_field.null else '')
                 # Normal fields
                 elif name in form.changed_data:
                     setattr(obj, name, form.cleaned_data[name])
@@ -688,7 +691,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = self.form(initial=initial_data)
+            form = self.form(request.POST, initial=initial_data)
             restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
