@@ -1,11 +1,12 @@
 # NetBox v4.1
 
-## v4.1.4 (FUTURE)
+## v4.1.4 (2024-10-15)
 
 ### Enhancements
 
 * [#11671](https://github.com/netbox-community/netbox/issues/11671) - Display device's rack position in cable traces
 * [#15829](https://github.com/netbox-community/netbox/issues/15829) - Rename Microsoft Azure AD SSO backend to Microsoft Entra ID
+* [#16009](https://github.com/netbox-community/netbox/issues/16009) - Float form & bulk operation buttons within UI
 * [#17079](https://github.com/netbox-community/netbox/issues/17079) - Introduce additional choices for device airflow direction
 * [#17216](https://github.com/netbox-community/netbox/issues/17216) - Add EVPN-VPWS L2VPN type
 * [#17655](https://github.com/netbox-community/netbox/issues/17655) - Limit the display of tagged VLANs within interface tables
@@ -14,12 +15,16 @@
 ### Bug Fixes
 
 * [#16024](https://github.com/netbox-community/netbox/issues/16024) - Fix AND/OR filtering in GraphQL API for selection fields
+* [#17400](https://github.com/netbox-community/netbox/issues/17400) - Fix cable tracing across split paths
 * [#17562](https://github.com/netbox-community/netbox/issues/17562) - Fix GraphQL API query support for custom field choices
 * [#17566](https://github.com/netbox-community/netbox/issues/17566) - Fix AttributeError exception resulting from background jobs with no associated object type
+* [#17614](https://github.com/netbox-community/netbox/issues/17614) - Disallow removal of a master device from its virtual chassis
 * [#17636](https://github.com/netbox-community/netbox/issues/17636) - Fix filtering of related objects when adding a power port, rear port, or inventory item template to a device type
+* [#17644](https://github.com/netbox-community/netbox/issues/17644) - Correct sizing of logo & SSO icons on login page
 * [#17648](https://github.com/netbox-community/netbox/issues/17648) - Fix AttributeError exception when attempting to delete a background job under certain conditions
 * [#17663](https://github.com/netbox-community/netbox/issues/17663) - Fix extended lookups for choice field filters
 * [#17671](https://github.com/netbox-community/netbox/issues/17671) - Fix the display of rack types in global search results
+* [#17713](https://github.com/netbox-community/netbox/issues/17713) - Fix UnboundLocalError exception when attempting to sync data source in parallel
 
 ---
 
