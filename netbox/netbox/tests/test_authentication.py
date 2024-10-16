@@ -4,7 +4,6 @@ from django.conf import settings
 from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
-from netaddr import IPNetwork
 from rest_framework.test import APIClient
 
 from core.models import ObjectType

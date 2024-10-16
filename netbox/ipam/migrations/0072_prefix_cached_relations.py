@@ -21,7 +21,7 @@ def populate_denormalized_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0192_poweroutlet_color'),
+        ('dcim', '0193_poweroutlet_color'),
         ('ipam', '0071_prefix_scope'),
     ]
 
