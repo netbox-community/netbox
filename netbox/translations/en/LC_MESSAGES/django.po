@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-12 05:02+0000\n"
+"POT-Creation-Date: 2024-10-16 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -330,7 +330,7 @@ msgstr ""
 #: netbox/ipam/forms/model_forms.py:449 netbox/netbox/filtersets.py:282
 #: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:167
 #: netbox/templates/htmx/object_selector.html:28
-#: netbox/templates/inc/filter_list.html:45
+#: netbox/templates/inc/filter_list.html:46
 #: netbox/templates/ipam/ipaddress_assign.html:29
 #: netbox/templates/search.html:7 netbox/templates/search.html:26
 #: netbox/tenancy/filtersets.py:99 netbox/users/filtersets.py:23
@@ -13363,7 +13363,7 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: netbox/templates/inc/filter_list.html:42
+#: netbox/templates/inc/filter_list.html:43
 #: netbox/utilities/templates/helpers/table_config_form.html:39
 msgid "Reset"
 msgstr ""
