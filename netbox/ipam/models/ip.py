@@ -369,29 +369,22 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
         super().save(*args, **kwargs)
 
     def cache_related_objects(self):
-        if self.scope is None:
-            return
-        scope_type = self.scope_type.model_class()
-        if scope_type == apps.get_model('dcim', 'region'):
-            self._region = self.scope
-            self._sitegroup = None
-            self._site = None
-            self._location = None
-        elif scope_type == apps.get_model('dcim', 'sitegroup'):
-            self._region = None
-            self._sitegroup = self.scope
-            self._site = None
-            self._location = None
-        elif scope_type == apps.get_model('dcim', 'site'):
-            self._region = self.scope.region
-            self._sitegroup = self.scope.group
-            self._site = self.scope
-            self._location = None
-        elif scope_type == apps.get_model('dcim', 'location'):
-            self._region = self.scope.site.region
-            self._sitegroup = self.scope.site.group
-            self._site = self.scope.site
-            self._location = self.scope
+        self._region = self._sitegroup = self._site = self._location = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'region'):
+                self._region = self.scope
+            elif scope_type == apps.get_model('dcim', 'sitegroup'):
+                self._sitegroup = self.scope
+            elif scope_type == apps.get_model('dcim', 'site'):
+                self._region = self.scope.region
+                self._sitegroup = self.scope.group
+                self._site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                self._region = self.scope.site.region
+                self._sitegroup = self.scope.site.group
+                self._site = self.scope.site
+                self._location = self.scope
     cache_related_objects.alters_data = True
 
     @property
