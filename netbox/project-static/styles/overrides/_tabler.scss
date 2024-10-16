@@ -131,6 +131,11 @@ body[data-bs-theme=dark] {
   .toast {
     color: var(--#{$prefix}body-color);
   }
+  .table-primary {
+    --tblr-table-bg: rgba(var(--tblr-secondary-rgb), 0.48);
+    --tblr-table-hover-bg: inherit;
+    --tblr-table-hover-color: inherit;
+  }
 }
 
 // Do not apply padding to <code> elements inside a <pre>
