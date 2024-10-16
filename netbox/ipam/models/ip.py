@@ -211,6 +211,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
+        limit_choices_to=Q(model__in=PREFIX_SCOPE_TYPES),
         related_name='+',
         blank=True,
         null=True
