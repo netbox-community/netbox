@@ -725,6 +725,13 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         object_id_field='assigned_object_id',
         related_query_name='interface',
     )
+    vlan_translation_policy = models.ForeignKey(
+        to='ipam.VLANTranslationPolicy',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('VLAN Translation Policy'),
+    )
 
     clone_fields = (
         'device', 'module', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'speed', 'duplex', 'rf_role',

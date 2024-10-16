@@ -27,6 +27,7 @@ __all__ = (
     'ServiceTemplateType',
     'VLANType',
     'VLANGroupType',
+    'VLANTranslationPolicyType',
     'VRFType',
 )
 
@@ -264,6 +265,15 @@ class VLANGroupType(OrganizationalObjectType):
         Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
     ], strawberry.union("VLANGroupScopeType")] | None:
         return self.scope
+
+
+@strawberry_django.type(
+    models.VLANTranslationPolicy,
+    exclude=('scope_type', 'scope_id'),
+    filters=VLANTranslationPolicyFilter
+)
+class VLANTranslationPolicyType(NetBoxObjectType):
+    pass
 
 
 @strawberry_django.type(

@@ -1172,6 +1172,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'virtualmachine',
         'vlan',
         'vlangroup',
+        'vlantranslationpolicy',
+        'vlantranslationrule',
         'vminterface',
         'vrf',
         'webhook',

@@ -368,6 +368,13 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         object_id_field='assigned_object_id',
         related_query_name='vminterface',
     )
+    vlan_translation_policy = models.ForeignKey(
+        to='ipam.VLANTranslationPolicy',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('VLAN Translation Policy'),
+    )
 
     class Meta(ComponentModel.Meta):
         verbose_name = _('interface')
