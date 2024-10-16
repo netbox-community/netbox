@@ -33,7 +33,7 @@ def image_upload(instance, filename):
 
     # Rename the file to the provided name, if any. Attempt to preserve the file extension.
     extension = filename.rsplit('.')[-1].lower()
-    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png']:
+    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png', 'webp']:
         filename = '.'.join([instance.name, extension])
     elif instance.name:
         filename = instance.name
