@@ -170,7 +170,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ),
         FieldSet('vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     mask_length__lte = forms.IntegerField(
@@ -224,11 +224,12 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
         label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),

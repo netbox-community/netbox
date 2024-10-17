@@ -21,12 +21,13 @@ __all__ = (
 class RegionSerializer(NestedGroupModelSerializer):
     parent = NestedRegionSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True, default=0)
+    prefix_count = RelatedObjectCountField('_prefixes')
 
     class Meta:
         model = Region
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
@@ -34,12 +35,13 @@ class RegionSerializer(NestedGroupModelSerializer):
 class SiteGroupSerializer(NestedGroupModelSerializer):
     parent = NestedSiteGroupSerializer(required=False, allow_null=True, default=None)
     site_count = serializers.IntegerField(read_only=True, default=0)
+    prefix_count = RelatedObjectCountField('_prefixes')
 
     class Meta:
         model = SiteGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
@@ -61,7 +63,7 @@ class SiteSerializer(NetBoxModelSerializer):
     # Related object counts
     circuit_count = RelatedObjectCountField('circuit_terminations')
     device_count = RelatedObjectCountField('devices')
-    prefix_count = RelatedObjectCountField('prefixes')
+    prefix_count = RelatedObjectCountField('_prefixes')
     rack_count = RelatedObjectCountField('racks')
     vlan_count = RelatedObjectCountField('vlans')
     virtualmachine_count = RelatedObjectCountField('virtual_machines')
@@ -84,11 +86,13 @@ class LocationSerializer(NestedGroupModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True, default=0)
     device_count = serializers.IntegerField(read_only=True, default=0)
+    prefix_count = RelatedObjectCountField('_prefixes')
 
     class Meta:
         model = Location
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'facility',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count', '_depth',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count',
+            'prefix_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')

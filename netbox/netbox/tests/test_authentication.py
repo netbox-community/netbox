@@ -4,12 +4,10 @@ from django.conf import settings
 from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
-from netaddr import IPNetwork
 from rest_framework.test import APIClient
 
 from core.models import ObjectType
-from dcim.models import Site
-from ipam.models import Prefix
+from dcim.models import Rack, Site
 from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import TestCase
 from utilities.testing.api import APITestCase
@@ -410,18 +408,18 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         Site.objects.bulk_create(cls.sites)
 
-        cls.prefixes = (
-            Prefix(prefix=IPNetwork('10.0.0.0/24'), site=cls.sites[0]),
-            Prefix(prefix=IPNetwork('10.0.1.0/24'), site=cls.sites[0]),
-            Prefix(prefix=IPNetwork('10.0.2.0/24'), site=cls.sites[0]),
-            Prefix(prefix=IPNetwork('10.0.3.0/24'), site=cls.sites[1]),
-            Prefix(prefix=IPNetwork('10.0.4.0/24'), site=cls.sites[1]),
-            Prefix(prefix=IPNetwork('10.0.5.0/24'), site=cls.sites[1]),
-            Prefix(prefix=IPNetwork('10.0.6.0/24'), site=cls.sites[2]),
-            Prefix(prefix=IPNetwork('10.0.7.0/24'), site=cls.sites[2]),
-            Prefix(prefix=IPNetwork('10.0.8.0/24'), site=cls.sites[2]),
+        cls.racks = (
+            Rack(name='Rack 1', site=cls.sites[0]),
+            Rack(name='Rack 2', site=cls.sites[0]),
+            Rack(name='Rack 3', site=cls.sites[0]),
+            Rack(name='Rack 4', site=cls.sites[1]),
+            Rack(name='Rack 5', site=cls.sites[1]),
+            Rack(name='Rack 6', site=cls.sites[1]),
+            Rack(name='Rack 7', site=cls.sites[2]),
+            Rack(name='Rack 8', site=cls.sites[2]),
+            Rack(name='Rack 9', site=cls.sites[2]),
         )
-        Prefix.objects.bulk_create(cls.prefixes)
+        Rack.objects.bulk_create(cls.racks)
 
     def setUp(self):
         """
@@ -435,8 +433,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
     def test_get_object(self):
 
         # Attempt to retrieve object without permission
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 403)
 
@@ -448,23 +445,21 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Rack))
 
         # Retrieve permitted object
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
 
         # Attempt to retrieve non-permitted object
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[3].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[3].pk})
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 404)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_list_objects(self):
-        url = reverse('ipam-api:prefix-list')
+        url = reverse('dcim-api:rack-list')
 
         # Attempt to list objects without permission
         response = self.client.get(url, **self.header)
@@ -478,7 +473,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Rack))
 
         # Retrieve all objects. Only permitted objects should be returned.
         response = self.client.get(url, **self.header)
@@ -487,12 +482,12 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_create_object(self):
-        url = reverse('ipam-api:prefix-list')
+        url = reverse('dcim-api:rack-list')
         data = {
-            'prefix': '10.0.9.0/24',
+            'name': 'Rack 10',
             'site': self.sites[1].pk,
         }
-        initial_count = Prefix.objects.count()
+        initial_count = Rack.objects.count()
 
         # Attempt to create an object without permission
         response = self.client.post(url, data, format='json', **self.header)
@@ -506,26 +501,25 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Rack))
 
         # Attempt to create a non-permitted object
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(Prefix.objects.count(), initial_count)
+        self.assertEqual(Rack.objects.count(), initial_count)
 
         # Create a permitted object
         data['site'] = self.sites[0].pk
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(Prefix.objects.count(), initial_count + 1)
+        self.assertEqual(Rack.objects.count(), initial_count + 1)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_edit_object(self):
 
         # Attempt to edit an object without permission
         data = {'site': self.sites[0].pk}
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
@@ -537,26 +531,23 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Rack))
 
         # Attempt to edit a non-permitted object
         data = {'site': self.sites[0].pk}
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[3].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[3].pk})
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 404)
 
         # Edit a permitted object
         data['status'] = 'reserved'
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 200)
 
         # Attempt to modify a permitted object to a non-permitted object
         data['site'] = self.sites[1].pk
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
@@ -564,8 +555,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
     def test_delete_object(self):
 
         # Attempt to delete an object without permission
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
 
@@ -577,16 +567,14 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Rack))
 
         # Attempt to delete a non-permitted object
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[3].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[3].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 404)
 
         # Delete a permitted object
-        url = reverse('ipam-api:prefix-detail',
-                      kwargs={'pk': self.prefixes[0].pk})
+        url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)

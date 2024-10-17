@@ -1,4 +1,5 @@
 import netaddr
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -199,20 +200,29 @@ class Role(OrganizationalModel):
 
 class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
-    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
-    VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
-    assigned to a VLAN where appropriate.
+    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be scoped to certain
+    areas and/or assigned to VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role.
+    A Prefix can also be assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        related_name='prefixes',
+        limit_choices_to=Q(model__in=PREFIX_SCOPE_TYPES),
+        related_name='+',
         blank=True,
         null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',
@@ -262,6 +272,36 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
         help_text=_("Treat as fully utilized")
     )
 
+    # Cached associations to enable efficient filtering
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.CASCADE,
+        related_name='_prefixes',
+        blank=True,
+        null=True
+    )
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='_prefixes',
+        blank=True,
+        null=True
+    )
+    _region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.CASCADE,
+        related_name='_prefixes',
+        blank=True,
+        null=True
+    )
+    _sitegroup = models.ForeignKey(
+        to='dcim.SiteGroup',
+        on_delete=models.CASCADE,
+        related_name='_prefixes',
+        blank=True,
+        null=True
+    )
+
     # Cached depth & child counts
     _depth = models.PositiveSmallIntegerField(
         default=0,
@@ -275,7 +315,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        'scope_type', 'scope_id', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     )
 
     class Meta:
@@ -323,7 +363,29 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
             # Clear host bits from prefix
             self.prefix = self.prefix.cidr
 
+        # Cache objects associated with the terminating object (for filtering)
+        self.cache_related_objects()
+
         super().save(*args, **kwargs)
+
+    def cache_related_objects(self):
+        self._region = self._sitegroup = self._site = self._location = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'region'):
+                self._region = self.scope
+            elif scope_type == apps.get_model('dcim', 'sitegroup'):
+                self._sitegroup = self.scope
+            elif scope_type == apps.get_model('dcim', 'site'):
+                self._region = self.scope.region
+                self._sitegroup = self.scope.group
+                self._site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                self._region = self.scope.site.region
+                self._sitegroup = self.scope.site.group
+                self._site = self.scope.site
+                self._location = self.scope
+    cache_related_objects.alters_data = True
 
     @property
     def family(self):
