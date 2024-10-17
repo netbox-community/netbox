@@ -1,10 +1,10 @@
 import hashlib
 import logging
 import os
-import yaml
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
+import yaml
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -12,7 +12,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
@@ -22,8 +21,6 @@ from netbox.registry import registry
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
-from ..signals import post_sync, pre_sync
-from .jobs import Job
 
 __all__ = (
     'AutoSyncRecord',
@@ -128,7 +125,7 @@ class DataSource(JobsMixin, PrimaryModel):
         # Ensure URL scheme matches selected type
         if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({
-                'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
+                'source_url': "URLs for local sources must start with file:// (or specify no scheme)"
             })
 
     def to_objectchange(self, action):
@@ -153,21 +150,6 @@ class DataSource(JobsMixin, PrimaryModel):
 
         return objectchange
 
-    def enqueue_sync_job(self, request):
-        """
-        Enqueue a background job to synchronize the DataSource by calling sync().
-        """
-        # Set the status to "syncing"
-        self.status = DataSourceStatusChoices.QUEUED
-        DataSource.objects.filter(pk=self.pk).update(status=self.status)
-
-        # Enqueue a sync job
-        return Job.enqueue(
-            import_string('core.jobs.sync_datasource'),
-            instance=self,
-            user=request.user
-        )
-
     def get_backend(self):
         backend_params = self.parameters or {}
         return self.backend_class(self.source_url, **backend_params)
@@ -176,6 +158,8 @@ class DataSource(JobsMixin, PrimaryModel):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
+        from core.signals import post_sync, pre_sync
+
         if self.status == DataSourceStatusChoices.SYNCING:
             raise SyncError(_("Cannot initiate sync; syncing already in progress."))
 
@@ -217,7 +201,7 @@ class DataSource(JobsMixin, PrimaryModel):
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files
-            deleted_count, _ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
+            deleted_count, __ = DataFile.objects.filter(pk__in=deleted_file_ids).delete()
             logger.debug(f"Deleted {deleted_count} files")
 
             # Walk the local replication to find new files

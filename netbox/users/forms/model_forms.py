@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
 from django.utils.safestring import mark_safe
@@ -36,7 +36,6 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
         # Emulate a declared field for each supported user preference
         preference_fields = {}
         for field_name, preference in PREFERENCES.items():
-            description = f'{preference.description}<br />' if preference.description else ''
             help_text = f'<code>{field_name}</code>'
             if preference.description:
                 help_text = f'{preference.description}<br />{help_text}'
@@ -152,7 +151,7 @@ class UserTokenForm(forms.ModelForm):
 
 class TokenForm(UserTokenForm):
     user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.order_by('username'),
+        queryset=User.objects.order_by('username'),
         label=_('User')
     )
 
@@ -236,7 +235,7 @@ class GroupForm(forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
-        queryset=get_user_model().objects.all()
+        queryset=User.objects.all()
     )
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
@@ -300,7 +299,7 @@ class ObjectPermissionForm(forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
-        queryset=get_user_model().objects.all()
+        queryset=User.objects.all()
     )
     groups = DynamicModelMultipleChoiceField(
         label=_('Groups'),

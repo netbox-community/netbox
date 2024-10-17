@@ -22,7 +22,6 @@ from utilities.tracking import TrackingModelMixin
 from wireless.choices import *
 from wireless.utils import get_channel_attr
 
-
 __all__ = (
     'BaseInterface',
     'CabledObjectModel',
@@ -561,7 +560,7 @@ class BaseInterface(models.Model):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
+        if not self._state.adding and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
@@ -1072,7 +1071,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
-        if self.pk:
+        if not self._state.adding:
             frontport_count = self.frontports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
@@ -1087,10 +1086,19 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ComponentModel, TrackingModelMixin):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     """
     An empty space within a Device which can house a child device
     """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        editable=False,
+        db_index=True
+    )
     position = models.CharField(
         verbose_name=_('position'),
         max_length=30,
@@ -1098,14 +1106,44 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
         help_text=_('Identifier to reference when renaming installed components')
     )
 
+    objects = TreeManager()
+
     clone_fields = ('device',)
 
-    class Meta(ComponentModel.Meta):
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'module', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_module_name'
+            ),
+        )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
 
+    class MPTTMeta:
+        order_insertion_by = ('module',)
+
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+
+    def clean(self):
+        super().clean()
+
+        # Check for recursion
+        if module := self.module:
+            module_bays = [self.pk]
+            modules = []
+            while module:
+                if module.pk in modules or module.module_bay.pk in module_bays:
+                    raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+                modules.append(module.pk)
+                module_bays.append(module.module_bay.pk)
+                module = module.module_bay.module if module.module_bay else None
+
+    def save(self, *args, **kwargs):
+        if self.module:
+            self.parent = self.module.module_bay
+        super().save(*args, **kwargs)
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
@@ -1275,7 +1313,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
             })
 
         # Validation for moving InventoryItems
-        if self.pk:
+        if not self._state.adding:
             # Cannot move an InventoryItem to another device if it has a parent
             if self.parent and self.parent.device != self.device:
                 raise ValidationError({

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices, CircuitTerminationSideChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices, CircuitTerminationSideChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
@@ -13,6 +13,8 @@ from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
+    'CircuitGroupAssignmentFilterForm',
+    'CircuitGroupFilterForm',
     'CircuitTerminationFilterForm',
     'CircuitTypeFilterForm',
     'ProviderFilterForm',
@@ -228,5 +230,43 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
         queryset=Provider.objects.all(),
         required=False,
         label=_('Provider')
+    )
+    tag = TagFilterField(model)
+
+
+class CircuitGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+    model = CircuitGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+    )
+    tag = TagFilterField(model)
+
+
+class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
+    model = CircuitGroupAssignment
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'circuit_id', 'group_id', 'priority', name=_('Assignment')),
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
+    )
+    circuit_id = DynamicModelMultipleChoiceField(
+        queryset=Circuit.objects.all(),
+        required=False,
+        label=_('Circuit')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=CircuitGroup.objects.all(),
+        required=False,
+        label=_('Group')
+    )
+    priority = forms.MultipleChoiceField(
+        label=_('Priority'),
+        choices=CircuitPriorityChoices,
+        required=False
     )
     tag = TagFilterField(model)

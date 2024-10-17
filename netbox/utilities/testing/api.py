@@ -1,35 +1,29 @@
 import inspect
 import json
-import strawberry_django
 
+import strawberry_django
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.test import override_settings
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+from strawberry.types.base import StrawberryList, StrawberryOptional
+from strawberry.types.lazy_type import LazyType
+from strawberry.types.union import StrawberryUnion
 
-from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
-from users.models import ObjectPermission, Token
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
+from ipam.graphql.types import IPAddressFamilyType
+from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
-from .utils import disable_warnings
-
-from ipam.graphql.types import IPAddressFamilyType
-from strawberry.types.lazy_type import LazyType
-from strawberry.types.base import StrawberryList, StrawberryOptional
-from strawberry.types.union import StrawberryUnion
+from .utils import disable_logging, disable_warnings
 
 __all__ = (
     'APITestCase',
     'APIViewTestCases',
 )
-
-
-User = get_user_model()
 
 
 #
@@ -523,7 +517,6 @@ class APIViewTestCases:
             return self._build_query_with_filter(name, filter_string)
 
         @override_settings(LOGIN_REQUIRED=True)
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_get_object(self):
             url = reverse('graphql')
             field_name = self._get_graphql_base_name()
@@ -531,57 +524,85 @@ class APIViewTestCases:
             query = self._build_query(field_name, id=object_id)
 
             # Non-authenticated requests should fail
+            header = {
+                'HTTP_ACCEPT': 'application/json',
+            }
             with disable_warnings('django.request'):
-                header = {
-                    'HTTP_ACCEPT': 'application/json',
-                }
-                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
+                response = self.client.post(url, data={'query': query}, format="json", **header)
+            self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
-            # Add object-level permission
+            # Add constrained permission
             obj_perm = ObjectPermission(
                 name='Test permission',
-                actions=['view']
+                actions=['view'],
+                constraints={'id': 0}  # Impossible constraint
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            # Request should succeed but return empty result
+            with disable_logging():
+                response = self.client.post(url, data={'query': query}, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertIn('errors', data)
+            self.assertIsNone(data['data'])
+
+            # Remove permission constraint
+            obj_perm.constraints = None
+            obj_perm.save()
+
+            # Request should return requested object
             response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
+            self.assertIsNotNone(data['data'])
 
         @override_settings(LOGIN_REQUIRED=True)
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_list_objects(self):
             url = reverse('graphql')
             field_name = f'{self._get_graphql_base_name()}_list'
             query = self._build_query(field_name)
 
             # Non-authenticated requests should fail
+            header = {
+                'HTTP_ACCEPT': 'application/json',
+            }
             with disable_warnings('django.request'):
-                header = {
-                    'HTTP_ACCEPT': 'application/json',
-                }
-                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
+                response = self.client.post(url, data={'query': query}, format="json", **header)
+            self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
-            # Add object-level permission
+            # Add constrained permission
             obj_perm = ObjectPermission(
                 name='Test permission',
-                actions=['view']
+                actions=['view'],
+                constraints={'id': 0}  # Impossible constraint
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            # Request should succeed but return empty results list
             response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
-            self.assertGreater(len(data['data'][field_name]), 0)
+            self.assertEqual(len(data['data'][field_name]), 0)
+
+            # Remove permission constraint
+            obj_perm.constraints = None
+            obj_perm.save()
+
+            # Request should return all objects
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertEqual(len(data['data'][field_name]), self.model.objects.count())
 
         @override_settings(LOGIN_REQUIRED=True)
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
         def test_graphql_filter_objects(self):
             if not hasattr(self, 'graphql_filter'):
                 return

@@ -71,7 +71,6 @@ Add the relevant navigation menu items in `netbox/netbox/navigation/menu.py`.
 Create the following for each model:
 
 * Detailed (full) model serializer in `api/serializers.py`
-* Nested serializer in `api/nested_serializers.py`
 * API view in `api/views.py`
 * Endpoint route in `api/urls.py`
 

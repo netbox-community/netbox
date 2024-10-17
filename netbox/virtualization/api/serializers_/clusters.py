@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -15,7 +13,6 @@ __all__ = (
 
 
 class ClusterTypeSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
 
     # Related object counts
     cluster_count = RelatedObjectCountField('clusters')
@@ -23,14 +20,13 @@ class ClusterTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = ClusterType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
-            'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterGroupSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
 
     # Related object counts
     cluster_count = RelatedObjectCountField('clusters')
@@ -38,14 +34,13 @@ class ClusterGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
-            'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     type = ClusterTypeSerializer(nested=True)
     group = ClusterGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
@@ -59,7 +54,8 @@ class ClusterSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cluster
         fields = [
-            'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display_url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'virtualmachine_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'virtualmachine_count')

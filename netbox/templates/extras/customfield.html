@@ -7,7 +7,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Custom Field" %}</h5>
+      <h2 class="card-header">{% trans "Custom Field" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Name" %}</th>
@@ -39,6 +39,10 @@
           <td>{% checkmark object.required %}</td>
         </tr>
         <tr>
+          <th scope="row">{% trans "Must be Unique" %}</th>
+          <td>{% checkmark object.unique %}</td>
+        </tr>
+        <tr>
           <th scope="row">{% trans "Cloneable" %}</th>
           <td>{% checkmark object.is_cloneable %}</td>
         </tr>
@@ -52,10 +56,18 @@
           <th scope="row">{% trans "Default Value" %}</th>
           <td>{{ object.default }}</td>
         </tr>
+        <tr>
+          <th scope="row">{% trans "Related object filter" %}</th>
+          {% if object.related_object_filter %}
+            <td><pre>{{ object.related_object_filter|json }}</pre></td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
+        </tr>
       </table>
     </div>
     <div class="card">
-      <h5 class="card-header">{% trans "Behavior" %}</h5>
+      <h2 class="card-header">{% trans "Behavior" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Search Weight" %}</th>
@@ -90,7 +102,7 @@
 	</div>
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Object Types" %}</h5>
+      <h2 class="card-header">{% trans "Object Types" %}</h2>
       <table class="table table-hover attr-table">
         {% for ct in object.object_types.all %}
           <tr>
@@ -100,7 +112,7 @@
       </table>
     </div>
     <div class="card">
-      <h5 class="card-header">{% trans "Validation Rules" %}</h5>
+      <h2 class="card-header">{% trans "Validation Rules" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Minimum Value" %}</th>
@@ -123,8 +135,8 @@
       </table>
     </div>
     <div class="card">
-      <h5 class="card-header">Related Objects</h5>
-      <ul class="list-group list-group-flush">
+      <h2 class="card-header">Related Objects</h2>
+      <ul class="list-group list-group-flush" role="presentation">
         {% for qs in related_models %}
           <a class="list-group-item list-group-item-action d-flex justify-content-between">
             {{ qs.model|meta:"verbose_name_plural"|bettertitle }}

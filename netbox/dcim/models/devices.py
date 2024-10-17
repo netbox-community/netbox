@@ -221,7 +221,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         return reverse('dcim:devicetype', args=[self.pk])
 
     @property
-    def get_full_name(self):
+    def full_name(self):
         return f"{self.manufacturer} {self.model}"
 
     def to_yaml(self):
@@ -293,7 +293,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
         # room to expand within their racks. This validation will impose a very high performance penalty when there are
         # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
-        if self.pk and self.u_height > self._original_u_height:
+        if not self._state.adding and self.u_height > self._original_u_height:
             for d in Device.objects.filter(device_type=self, position__isnull=False):
                 face_required = None if self.is_full_depth else d.face
                 u_available = d.rack.get_available_units(
@@ -310,7 +310,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                     })
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
-        elif self.pk and self._original_u_height > 0 and self.u_height == 0:
+        elif not self._state.adding and self._original_u_height > 0 and self.u_height == 0:
             racked_instance_count = Device.objects.filter(
                 device_type=self,
                 position__isnull=False
@@ -388,8 +388,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         help_text=_('Discrete part number (optional)')
     )
+    airflow = models.CharField(
+        verbose_name=_('airflow'),
+        max_length=50,
+        choices=ModuleAirflowChoices,
+        blank=True
+    )
 
-    clone_fields = ('manufacturer', 'weight', 'weight_unit',)
+    clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
@@ -410,6 +416,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def get_absolute_url(self):
         return reverse('dcim:moduletype', args=[self.pk])
+
+    @property
+    def full_name(self):
+        return f"{self.manufacturer} {self.model}"
 
     def to_yaml(self):
         data = {
@@ -973,6 +983,13 @@ class Device(
                 'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
             })
 
+        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
+            raise ValidationError({
+                'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
+                    virtual_chassis=self.vc_master_for
+                )
+            })
+
     def _instantiate_components(self, queryset, bulk_create=True):
         """
         Instantiate components for the device from the specified component templates.
@@ -1036,7 +1053,8 @@ class Device(
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())
-            self._instantiate_components(self.device_type.modulebaytemplates.all())
+            # Disable bulk_create to accommodate MPTT
+            self._instantiate_components(self.device_type.modulebaytemplates.all(), bulk_create=False)
             self._instantiate_components(self.device_type.devicebaytemplates.all())
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
@@ -1197,6 +1215,17 @@ class Module(PrimaryModel, ConfigContextModel):
                 )
             )
 
+        # Check for recursion
+        module = self
+        module_bays = []
+        modules = []
+        while module:
+            if module.pk in modules or module.module_bay.pk in module_bays:
+                raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+            modules.append(module.pk)
+            module_bays.append(module.module_bay.pk)
+            module = module.module_bay.module if module.module_bay else None
+
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
@@ -1218,7 +1247,8 @@ class Module(PrimaryModel, ConfigContextModel):
             ("powerporttemplates", "powerports", PowerPort),
             ("poweroutlettemplates", "poweroutlets", PowerOutlet),
             ("rearporttemplates", "rearports", RearPort),
-            ("frontporttemplates", "frontports", FrontPort)
+            ("frontporttemplates", "frontports", FrontPort),
+            ("modulebaytemplates", "modulebays", ModuleBay),
         ]:
             create_instances = []
             update_instances = []
@@ -1247,17 +1277,22 @@ class Module(PrimaryModel, ConfigContextModel):
                 if not disable_replication:
                     create_instances.append(template_instance)
 
-            component_model.objects.bulk_create(create_instances)
-            # Emit the post_save signal for each newly created object
-            for component in create_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=True,
-                    raw=False,
-                    using='default',
-                    update_fields=None
-                )
+            if component_model is not ModuleBay:
+                component_model.objects.bulk_create(create_instances)
+                # Emit the post_save signal for each newly created object
+                for component in create_instances:
+                    post_save.send(
+                        sender=component_model,
+                        instance=component,
+                        created=True,
+                        raw=False,
+                        using='default',
+                        update_fields=None
+                    )
+            else:
+                # ModuleBays must be saved individually for MPTT
+                for instance in create_instances:
+                    instance.save()
 
             update_fields = ['module']
             component_model.objects.bulk_update(update_instances, update_fields)
@@ -1323,7 +1358,7 @@ class VirtualChassis(PrimaryModel):
 
         # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
         # VirtualChassis.)
-        if self.pk and self.master and self.master not in self.members.all():
+        if not self._state.adding and self.master and self.master not in self.members.all():
             raise ValidationError({
                 'master': _("The selected master ({master}) is not assigned to this virtual chassis.").format(
                     master=self.master

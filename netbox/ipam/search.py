@@ -19,6 +19,7 @@ class ASNIndex(SearchIndex):
     model = models.ASN
     fields = (
         ('asn', 100),
+        ('prefixed_name', 110),
         ('description', 500),
     )
     display_attrs = ('rir', 'tenant', 'description')
@@ -28,6 +29,7 @@ class ASNIndex(SearchIndex):
 class ASNRangeIndex(SearchIndex):
     model = models.ASNRange
     fields = (
+        ('name', 100),
         ('description', 500),
     )
     display_attrs = ('rir', 'tenant', 'description')
@@ -154,9 +156,8 @@ class VLANGroupIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
-        ('max_vid', 2000),
     )
-    display_attrs = ('scope_type', 'min_vid', 'max_vid', 'description')
+    display_attrs = ('scope_type', 'description')
 
 
 @register_search

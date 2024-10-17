@@ -5,27 +5,26 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlencode
 
-import django
 import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
+from utilities.release import load_release_data
 from utilities.string import trailing_slash
-
 
 #
 # Environment setup
 #
 
-VERSION = '4.0.10-dev'
+RELEASE = load_release_data()
+VERSION = RELEASE.full_version  # Retained for backward compatibility
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -61,7 +60,17 @@ for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
-AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
+AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
+    },
+    {
+        "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
+    },
+])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
@@ -82,6 +91,16 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'extras.add_bookmark': ({'user': '$user'},),
     'extras.change_bookmark': ({'user': '$user'},),
     'extras.delete_bookmark': ({'user': '$user'},),
+    # Permit users to manage their own notifications
+    'extras.view_notification': ({'user': '$user'},),
+    'extras.add_notification': ({'user': '$user'},),
+    'extras.change_notification': ({'user': '$user'},),
+    'extras.delete_notification': ({'user': '$user'},),
+    # Permit users to manage their own subscriptions
+    'extras.view_subscription': ({'user': '$user'},),
+    'extras.add_subscription': ({'user': '$user'},),
+    'extras.change_subscription': ({'user': '$user'},),
+    'extras.delete_subscription': ({'user': '$user'},),
     # Permit users to manage their own API tokens
     'users.view_token': ({'user': '$user'},),
     'users.add_token': ({'user': '$user'},),
@@ -98,8 +117,10 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
+ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -177,7 +198,7 @@ if len(SECRET_KEY) < 50:
 if RELEASE_CHECK_URL:
     try:
         URLValidator()(RELEASE_CHECK_URL)
-    except ValidationError as e:
+    except ValidationError:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )
@@ -229,7 +250,7 @@ if STORAGE_BACKEND is not None:
     # django-storage-swift
     elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
         try:
-            import swift.utils  # type: ignore
+            import swift.utils  # noqa: F401
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'swift':
                 raise ImproperlyConfigured(
@@ -393,7 +414,6 @@ if not DJANGO_ADMIN_ENABLED:
 
 # Middleware
 MIDDLEWARE = [
-    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -408,6 +428,13 @@ MIDDLEWARE = [
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE = [
+        "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
+        *MIDDLEWARE,
+    ]
+
 if METRICS_ENABLED:
     # If metrics are enabled, add the before & after Prometheus middleware
     MIDDLEWARE = [
@@ -518,15 +545,6 @@ EXEMPT_EXCLUDE_MODELS = (
     ('users', 'user'),
 )
 
-# All URLs starting with a string listed here are exempt from login enforcement
-AUTH_EXEMPT_PATHS = (
-    f'/{BASE_PATH}api/',
-    f'/{BASE_PATH}graphql/',
-    f'/{BASE_PATH}login/',
-    f'/{BASE_PATH}oauth/',
-    f'/{BASE_PATH}metrics',
-)
-
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
     f'/{BASE_PATH}admin/',
@@ -551,7 +569,7 @@ if SENTRY_ENABLED:
     # Initialize the SDK
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        release=VERSION,
+        release=RELEASE.full_version,
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=SENTRY_SEND_DEFAULT_PII,
@@ -571,11 +589,11 @@ if SENTRY_ENABLED:
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
 CENSUS_PARAMS = {
-    'version': VERSION,
+    'version': RELEASE.full_version,
     'python_version': sys.version.split()[0],
     'deployment_id': DEPLOYMENT_ID,
 }
-if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
     try:
         # Report anonymous census data
         requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
@@ -629,7 +647,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 # Django REST framework (API)
 #
 
-REST_FRAMEWORK_VERSION = '.'.join(VERSION.split('-')[0].split('.')[:2])  # Use major.minor as API version
+REST_FRAMEWORK_VERSION = '.'.join(RELEASE.version.split('-')[0].split('.')[:2])  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'COERCE_DECIMAL_TO_STRING': False,
@@ -674,7 +692,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'NetBox REST API',
     'LICENSE': {'name': 'Apache v2 License'},
-    'VERSION': VERSION,
+    'VERSION': RELEASE.full_version,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
     'SERVERS': [{
@@ -763,6 +781,7 @@ LOCALE_PATHS = (
 # Strawberry (GraphQL)
 #
 STRAWBERRY_DJANGO = {
+    "DEFAULT_PK_FIELD_NAME": "id",
     "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
     "USE_DEPRECATED_FILTERS": True,
 }
@@ -770,6 +789,8 @@ STRAWBERRY_DJANGO = {
 #
 # Plugins
 #
+
+PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
 
 # Register any configured plugins
 for plugin_name in PLUGINS:
@@ -825,7 +846,7 @@ for plugin_name in PLUGINS:
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
         PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name], VERSION)
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
 
     # Add middleware
     plugin_middleware = plugin_config.middleware

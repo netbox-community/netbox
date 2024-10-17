@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.views.generic.base import RedirectView
 from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
@@ -632,6 +633,15 @@ class VirtualDiskBulkDeleteView(generic.BulkDeleteView):
     table = tables.VirtualDiskTable
 
 
+# TODO: Remove in v4.2
+class VirtualDiskRedirectView(RedirectView):
+    """
+    Redirect old (pre-v4.1) URLs for VirtualDisk views.
+    """
+    def get_redirect_url(self, path):
+        return f"{reverse('virtualization:virtualdisk_list')}{path}"
+
+
 #
 # Bulk Device component creation
 #
@@ -647,7 +657,7 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_vminterface'
+        return 'virtualization.add_vminterface'
 
 
 class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
@@ -661,4 +671,4 @@ class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_virtualdisk'
+        return 'virtualization.add_virtualdisk'

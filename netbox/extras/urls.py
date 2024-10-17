@@ -53,6 +53,24 @@ urlpatterns = [
     path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
     path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
 
+    # Notification groups
+    path('notification-groups/', views.NotificationGroupListView.as_view(), name='notificationgroup_list'),
+    path('notification-groups/add/', views.NotificationGroupEditView.as_view(), name='notificationgroup_add'),
+    path('notification-groups/import/', views.NotificationGroupBulkImportView.as_view(), name='notificationgroup_import'),
+    path('notification-groups/edit/', views.NotificationGroupBulkEditView.as_view(), name='notificationgroup_bulk_edit'),
+    path('notification-groups/delete/', views.NotificationGroupBulkDeleteView.as_view(), name='notificationgroup_bulk_delete'),
+    path('notification-groups/<int:pk>/', include(get_model_urls('extras', 'notificationgroup'))),
+
+    # Notifications
+    path('notifications/', views.NotificationsView.as_view(), name='notifications'),
+    path('notifications/delete/', views.NotificationBulkDeleteView.as_view(), name='notification_bulk_delete'),
+    path('notifications/<int:pk>/', include(get_model_urls('extras', 'notification'))),
+
+    # Subscriptions
+    path('subscriptions/add/', views.SubscriptionCreateView.as_view(), name='subscription_add'),
+    path('subscriptions/delete/', views.SubscriptionBulkDeleteView.as_view(), name='subscription_bulk_delete'),
+    path('subscriptions/<int:pk>/', include(get_model_urls('extras', 'subscription'))),
+
     # Webhooks
     path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
     path('webhooks/add/', views.WebhookEditView.as_view(), name='webhook_add'),
@@ -106,10 +124,6 @@ urlpatterns = [
     path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
-    # Change logging
-    path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
-    path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
-
     # User dashboard
     path('dashboard/reset/', views.DashboardResetView.as_view(), name='dashboard_reset'),
     path('dashboard/widgets/add/', views.DashboardWidgetAddView.as_view(), name='dashboardwidget_add'),
@@ -124,11 +138,6 @@ urlpatterns = [
     path('scripts/<int:pk>/source/', views.ScriptSourceView.as_view(), name='script_source'),
     path('scripts/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
     path('script-modules/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
-
-    # Redirects for legacy script URLs
-    # TODO: Remove in NetBox v4.1
-    path('scripts/<str:module>/<str:name>/', views.LegacyScriptRedirectView.as_view()),
-    path('scripts/<str:module>/<str:name>/<path:path>/', views.LegacyScriptRedirectView.as_view()),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),

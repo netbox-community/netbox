@@ -112,10 +112,16 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Authentication cipher')
     )
+    distance_unit = CSVChoiceField(
+        label=_('Distance unit'),
+        choices=WirelessLinkDistanceUnitChoices,
+        required=False,
+        help_text=_('Distance unit')
+    )
 
     class Meta:
         model = WirelessLink
         fields = (
-            'interface_a', 'interface_b', 'ssid', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments', 'tags',
+            'interface_a', 'interface_b', 'ssid', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
+            'distance', 'distance_unit', 'description', 'comments', 'tags',
         )

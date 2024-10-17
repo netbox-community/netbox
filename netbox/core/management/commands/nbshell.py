@@ -5,12 +5,16 @@ import sys
 from django import get_version
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from core.models import ObjectType
+from users.models import User
 
 APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
+EXCLUDE_MODELS = (
+    'extras.branch',
+    'extras.stagedchange',
+)
 
 BANNER_TEXT = """### NetBox interactive shell ({node})
 ### Python {python} | Django {django} | NetBox {netbox}
@@ -18,7 +22,7 @@ BANNER_TEXT = """### NetBox interactive shell ({node})
     node=platform.node(),
     python=platform.python_version(),
     django=get_version(),
-    netbox=settings.VERSION
+    netbox=settings.RELEASE.name
 )
 
 
@@ -44,12 +48,16 @@ class Command(BaseCommand):
 
         # Gather Django models and constants from each app
         for app in APPS:
-            self.django_models[app] = []
+            models = []
 
             # Load models from each app
             for model in apps.get_app_config(app).get_models():
-                namespace[model.__name__] = model
-                self.django_models[app].append(model.__name__)
+                app_label = model._meta.app_label
+                model_name = model._meta.model_name
+                if f'{app_label}.{model_name}' not in EXCLUDE_MODELS:
+                    namespace[model.__name__] = model
+                    models.append(model.__name__)
+            self.django_models[app] = sorted(models)
 
             # Constants
             try:
@@ -61,7 +69,7 @@ class Command(BaseCommand):
 
         # Additional objects to include
         namespace['ObjectType'] = ObjectType
-        namespace['User'] = get_user_model()
+        namespace['User'] = User
 
         # Load convenience commands
         namespace.update({

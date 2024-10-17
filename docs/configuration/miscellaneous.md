@@ -122,16 +122,6 @@ The maximum amount (in bytes) of uploaded data that will be held in memory befor
 
 ---
 
-## GRAPHQL_ENABLED
-
-!!! tip "Dynamic Configuration Parameter"
-
-Default: True
-
-Setting this to False will disable the GraphQL API.
-
----
-
 ## JOB_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"

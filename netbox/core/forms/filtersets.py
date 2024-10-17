@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
@@ -7,8 +6,11 @@ from core.models import *
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
-from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
+from users.models import User
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
+from utilities.forms.fields import (
+    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField,
+)
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 
@@ -17,6 +19,7 @@ __all__ = (
     'DataFileFilterForm',
     'DataSourceFilterForm',
     'JobFilterForm',
+    'ObjectChangeFilterForm',
 )
 
 
@@ -118,9 +121,43 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         widget=DateTimePicker()
     )
     user = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
+    )
+
+
+class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
+    model = ObjectChange
+    fieldsets = (
+        FieldSet('q', 'filter_id'),
+        FieldSet('time_before', 'time_after', name=_('Time')),
+        FieldSet('action', 'user_id', 'changed_object_type_id', name=_('Attributes')),
+    )
+    time_after = forms.DateTimeField(
+        required=False,
+        label=_('After'),
+        widget=DateTimePicker()
+    )
+    time_before = forms.DateTimeField(
+        required=False,
+        label=_('Before'),
+        widget=DateTimePicker()
+    )
+    action = forms.ChoiceField(
+        label=_('Action'),
+        choices=add_blank_choice(ObjectChangeActionChoices),
+        required=False
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User')
+    )
+    changed_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.with_feature('change_logging'),
+        required=False,
+        label=_('Object Type'),
     )
 
 

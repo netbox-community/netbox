@@ -481,3 +481,21 @@ class WirelessAuthCipherChoices(ChoiceSet):
         (CIPHER_TKIP, 'TKIP'),
         (CIPHER_AES, 'AES'),
     )
+
+
+class WirelessLinkDistanceUnitChoices(ChoiceSet):
+
+    # Metric
+    UNIT_KILOMETER = 'km'
+    UNIT_METER = 'm'
+
+    # Imperial
+    UNIT_MILE = 'mi'
+    UNIT_FOOT = 'ft'
+
+    CHOICES = (
+        (UNIT_KILOMETER, _('Kilometers')),
+        (UNIT_METER, _('Meters')),
+        (UNIT_MILE, _('Miles')),
+        (UNIT_FOOT, _('Feet')),
+    )

@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
 from extras.models import CustomLink
+from netbox.choices import ButtonColorChoices
 
 
 register = template.Library()
@@ -59,10 +60,11 @@ def custom_links(context, obj):
 
         # Add non-grouped links
         else:
+            button_class = 'outline-secondary' if cl.button_class == ButtonColorChoices.DEFAULT else cl.button_class
             try:
                 if rendered := cl.render(link_context):
                     template_code += LINK_BUTTON.format(
-                        rendered['link'], rendered['link_target'], cl.button_class, rendered['text']
+                        rendered['link'], rendered['link_target'], button_class, rendered['text']
                     )
             except Exception as e:
                 template_code += f'<a class="btn btn-sm btn-outline-secondary" disabled="disabled" title="{e}">' \

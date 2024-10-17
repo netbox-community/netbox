@@ -8,7 +8,7 @@ from dcim.models import Site
 from utilities.views import register_model_view
 from .models import DummyModel
 # Trigger registration of custom column
-from .tables import mycol
+from .tables import mycol  # noqa: F401
 
 
 class DummyModelsView(View):
@@ -21,7 +21,7 @@ class DummyModelsView(View):
 class DummyModelAddView(View):
 
     def get(self, request):
-        return HttpResponse(f"Create an instance")
+        return HttpResponse("Create an instance")
 
     def post(self, request):
         instance = DummyModel(
@@ -29,7 +29,7 @@ class DummyModelAddView(View):
             number=random.randint(1, 100000)
         )
         instance.save()
-        return HttpResponse(f"Instance created")
+        return HttpResponse("Instance created")
 
 
 @register_model_view(Site, 'extra', path='other-stuff')

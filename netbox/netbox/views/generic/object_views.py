@@ -13,7 +13,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from extras.signals import clear_events
+from core.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
@@ -146,10 +146,12 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
+                'model': self.child_model,
             })
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'model': self.child_model,
             'child_model': self.child_model,
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
@@ -234,6 +236,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         # If this is an HTMX request, return only the rendered form HTML
         if htmx_partial(request):
             return render(request, self.htmx_template_name, {
+                'model': model,
+                'object': obj,
                 'form': form,
             })
 
@@ -288,6 +292,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                     msg = f'{msg} {obj}'
                 messages.success(request, msg)
 
+                # If adding another object, redirect back to the edit form
                 if '_addanother' in request.POST:
                     redirect_url = request.path
 
@@ -302,6 +307,12 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                     return redirect(redirect_url)
 
                 return_url = self.get_return_url(request, obj)
+
+                # If the object has been created or edited via HTMX, return an HTMX redirect to the object view
+                if request.htmx:
+                    return HttpResponse(headers={
+                        'HX-Location': return_url,
+                    })
 
                 return redirect(return_url)
 

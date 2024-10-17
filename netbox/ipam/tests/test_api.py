@@ -8,6 +8,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer,
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
+from utilities.data import string_to_ranges
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
@@ -699,8 +700,6 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
         device1.primary_ip4 = ip_addresses[0]
         device1.save()
 
-        ip2 = ip_addresses[1]
-
         url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': ip1.pk})
         self.add_permissions('ipam.change_ipaddress')
 
@@ -767,6 +766,7 @@ class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'priority': 100,
     }
+    user_permissions = ('ipam.view_fhrpgroup', )
 
     @classmethod
     def setUpTestData(cls):
@@ -882,8 +882,7 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group X',
             slug='vlan-group-x',
-            min_vid=MIN_VID,
-            max_vid=MAX_VID
+            vid_ranges=string_to_ranges(f"{MIN_VID}-{MAX_VID}")
         )
 
         # Create a set of VLANs within the group

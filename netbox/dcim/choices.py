@@ -51,7 +51,7 @@ class LocationStatusChoices(ChoiceSet):
 # Racks
 #
 
-class RackTypeChoices(ChoiceSet):
+class RackFormFactorChoices(ChoiceSet):
 
     TYPE_2POST = '2-post-frame'
     TYPE_4POST = '4-post-frame'
@@ -127,6 +127,17 @@ class RackElevationDetailRenderChoices(ChoiceSet):
     )
 
 
+class RackAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
+    )
+
+
 #
 # DeviceTypes
 #
@@ -186,6 +197,9 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
     AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
     AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_REAR_TO_SIDE = 'rear-to-side'
+    AIRFLOW_BOTTOM_TO_TOP = 'bottom-to-top'
+    AIRFLOW_TOP_TO_BOTTOM = 'top-to-bottom'
     AIRFLOW_PASSIVE = 'passive'
     AIRFLOW_MIXED = 'mixed'
 
@@ -195,6 +209,9 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
         (AIRFLOW_RIGHT_TO_LEFT, _('Right to left')),
         (AIRFLOW_SIDE_TO_REAR, _('Side to rear')),
+        (AIRFLOW_REAR_TO_SIDE, _('Rear to side')),
+        (AIRFLOW_BOTTOM_TO_TOP, _('Bottom to top')),
+        (AIRFLOW_TOP_TO_BOTTOM, _('Top to bottom')),
         (AIRFLOW_PASSIVE, _('Passive')),
         (AIRFLOW_MIXED, _('Mixed')),
     )
@@ -222,6 +239,25 @@ class ModuleStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
+
+
+class ModuleAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+    LEFT_TO_RIGHT = 'left-to-right'
+    RIGHT_TO_LEFT = 'right-to-left'
+    SIDE_TO_REAR = 'side-to-rear'
+    PASSIVE = 'passive'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
+        (LEFT_TO_RIGHT, _('Left to right')),
+        (RIGHT_TO_LEFT, _('Right to left')),
+        (SIDE_TO_REAR, _('Side to rear')),
+        (PASSIVE, _('Passive')),
+    )
 
 
 #
@@ -366,6 +402,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
+    TYPE_NEMA_L2220P = 'nema-l22-20p'
     TYPE_NEMA_L2230P = 'nema-l22-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
@@ -487,6 +524,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
+            (TYPE_NEMA_L2220P, 'NEMA L22-20P'),
             (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
         )),
         (_('California Style'), (
@@ -619,6 +657,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
+    TYPE_NEMA_L2220R = 'nema-l22-20r'
     TYPE_NEMA_L2230R = 'nema-l22-30r'
     # California style
     TYPE_CS6360C = 'CS6360C'
@@ -651,6 +690,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
+    TYPE_EATON_C39 = 'eaton-c39'
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20a'
@@ -733,6 +773,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
+            (TYPE_NEMA_L2220R, 'NEMA L22-20R'),
             (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
         )),
         (_('California Style'), (
@@ -771,6 +812,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_DC, 'DC Terminal'),
         )),
         (_('Proprietary'), (
+            (TYPE_EATON_C39, 'Eaton C39'),
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
             (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
@@ -827,6 +869,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_LFX = '100base-lfx'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
+    TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
     TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
@@ -888,6 +931,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AY = 'ieee802.11ay'
     TYPE_80211BE = 'ieee802.11be'
     TYPE_802151 = 'ieee802.15.1'
+    TYPE_802154 = 'ieee802.15.4'
     TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
@@ -999,6 +1043,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('Ethernet (modular)'),
             (
+                (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
@@ -1060,6 +1105,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AY, 'IEEE 802.11ay'),
                 (TYPE_80211BE, 'IEEE 802.11be'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
+                (TYPE_802154, 'IEEE 802.15.4 (LR-WPAN)'),
                 (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
             )
         ),
@@ -1317,6 +1363,14 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -1377,6 +1431,19 @@ class PortTypeChoices(ChoiceSet):
             ),
         ),
         (
+            _('USB'),
+            (
+                (TYPE_USB_A, 'USB Type A'),
+                (TYPE_USB_B, 'USB Type B'),
+                (TYPE_USB_C, 'USB Type C'),
+                (TYPE_USB_MINI_A, 'USB Mini A'),
+                (TYPE_USB_MINI_B, 'USB Mini B'),
+                (TYPE_USB_MICRO_A, 'USB Micro A'),
+                (TYPE_USB_MICRO_B, 'USB Micro B'),
+                (TYPE_USB_MICRO_AB, 'USB Micro AB'),
+            ),
+        ),
+        (
             _('Other'),
             (
                 (TYPE_OTHER, _('Other')),
@@ -1414,6 +1481,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
+    TYPE_USB = 'usb'
 
     CHOICES = (
         (
@@ -1446,6 +1514,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
+        (TYPE_USB, _('USB')),
         (TYPE_POWER, _('Power')),
     )
 

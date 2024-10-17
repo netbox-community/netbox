@@ -7,7 +7,11 @@
   <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
   <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-15-blue" alt="Languages supported" /></a>
   <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" /></a>
-  <p></p>
+  <p>
+    <strong><a href="https://github.com/netbox-community/netbox/">NetBox Community</a></strong> |
+    <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong> |
+    <strong><a href="https://netboxlabs.com/netbox-enterprise/">NetBox Enterprise</a></strong>
+  </p>
 </div>
 
 NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network.
@@ -80,11 +84,6 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
-
-<p align="center">
-  <a href="https://netboxlabs.com/netbox-cloud/"><img src="docs/media/misc/netbox_cloud.png" alt="NetBox Cloud" /></a><br />
-  Looking for a managed solution? Check out <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong> or <strong><a href="https://netboxlabs.com/netbox-enterprise/">NetBox Enterprise</a></strong>!
-</p>
 
 ## Get Involved
 

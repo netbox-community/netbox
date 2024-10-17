@@ -14,8 +14,8 @@ from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
+from .nested import NestedInterfaceTemplateSerializer
 from .roles import InventoryItemRoleSerializer
-from ..nested_serializers import *
 
 __all__ = (
     'ConsolePortTemplateSerializer',
@@ -32,7 +32,6 @@ __all__ = (
 
 
 class ConsolePortTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleporttemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -54,14 +53,13 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsolePortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverporttemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -83,14 +81,13 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerporttemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -113,14 +110,13 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw',
-            'allocated_draw', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'maximum_draw', 'allocated_draw', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlettemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -154,14 +150,13 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
-            'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'power_port', 'feed_leg', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interfacetemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -201,14 +196,13 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only',
-            'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
+            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearporttemplate-detail')
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -226,14 +220,13 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
-            'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
+            'positions', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontporttemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -252,41 +245,50 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
+            'rear_port', 'rear_port_position', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ModuleBayTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:modulebaytemplate-detail')
     device_type = DeviceTypeSerializer(
-        nested=True
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
     )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'position', 'description', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'description',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebaytemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True
     )
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['id', 'url', 'display', 'device_type', 'name', 'label', 'description', 'created', 'last_updated']
+        fields = [
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'description',
+            'created', 'last_updated'
+        ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InventoryItemTemplateSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemtemplate-detail')
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -313,8 +315,9 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = InventoryItemTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id',
-            'description', 'component_type', 'component_id', 'component', 'created', 'last_updated', '_depth',
+            'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer',
+            'part_id', 'description', 'component_type', 'component_id', 'component', 'created', 'last_updated',
+            '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', '_depth')
 

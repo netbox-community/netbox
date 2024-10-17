@@ -210,6 +210,7 @@ class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'priority': ContactPriorityChoices.PRIORITY_INACTIVE,
     }
+    user_permissions = ('tenancy.view_contact', )
 
     @classmethod
     def setUpTestData(cls):

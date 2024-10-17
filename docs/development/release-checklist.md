@@ -2,9 +2,9 @@
 
 This documentation describes the process of packaging and publishing a new NetBox release. There are three types of release:
 
-* Major release (e.g. v2.11 to v3.0)
-* Minor release (e.g. v3.2 to v3.3)
-* Patch release (e.g. v3.3.0 to v3.3.1)
+* Major release (e.g. v3.7.8 to v4.0.0)
+* Minor release (e.g. v4.0.10 to v4.1.0)
+* Patch release (e.g. v4.1.0 to v4.1.1)
 
 While major releases generally introduce some very substantial change to the application, they are typically treated the same as minor version increments for the purpose of release packaging.
 
@@ -19,7 +19,7 @@ Sometimes it becomes necessary to constrain dependencies to a particular version
 djangorestframework==3.8.1
 ```
 
-These version constraints are added to `base_requirements.txt` to ensure that newer packages are not installed when updating the pinned dependencies in `requirements.txt` (see the [Update Requirements](#update-requirements) section below). Before each new minor version of NetBox is released, all such constraints on dependent packages should be addressed if feasible. This guards against the collection of stale constraints over time.
+These version constraints are added to `base_requirements.txt` to ensure that newer packages are not installed when updating the pinned dependencies in `requirements.txt` (see the [Update Requirements](#update-python-dependencies) section below). Before each new minor version of NetBox is released, all such constraints on dependent packages should be addressed if feasible. This guards against the collection of stale constraints over time.
 
 ### Close the Release Milestone
 
@@ -38,6 +38,10 @@ mkdocs serve
 ```
 
 Follow these instructions to perform a new installation of NetBox in a temporary environment. This process must not be automated: The goal of this step is to catch any errors or omissions in the documentation, and ensure that it is kept up-to-date for each release. Make any necessary changes to the documentation before proceeding with the release.
+
+### Test Upgrade Paths
+
+Upgrading from a previous version typically involves database migrations, which must work without errors. Supported upgrade paths include from one minor version to another within the same major version (i.e. 4.0 to 4.1), as well as from the latest patch version of the previous minor version (i.e. 3.7 to 4.0 or to 4.1). Prior to release, test all these supported paths by loading demo data from the source version and performing a `./manage.py migrate`.
 
 ### Merge the Release Branch
 
@@ -90,7 +94,7 @@ Updated language translations should be pulled from [Transifex](https://app.tran
 
 ### Update Version and Changelog
 
-* Update the `VERSION` constant in `settings.py` to the new release version.
+* Update the version and published date in `release.yaml` with the current version & date. Add a designation (e.g.g `beta1`) if applicable.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Replace the "FUTURE" placeholder in the release notes with the current date.
 
@@ -116,16 +120,6 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 * **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
 Once created, the release will become available for users to install.
-
-### Update the Development Version
-
-On the `develop` branch, update `VERSION` in `settings.py` to point to the next release. For example, if you just released v3.3.1, set:
-
-```
-VERSION = 'v3.3.2-dev'
-```
-
-Commit this change with the comment "PRVB" (for _post-release version bump_) and push the commit upstream.
 
 ### Update the Public Documentation
 

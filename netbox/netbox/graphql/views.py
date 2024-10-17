@@ -1,10 +1,6 @@
-import json
-
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseNotFound, HttpResponseForbidden
-from django.http import HttpResponse
-from django.template import loader
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.exceptions import AuthenticationFailed
@@ -46,9 +42,3 @@ class NetBoxGraphQLView(GraphQLView):
                 return HttpResponseForbidden("No credentials provided.")
 
         return super().dispatch(request, *args, **kwargs)
-
-    def render_graphql_ide(self, request):
-        template = loader.get_template("graphiql.html")
-        context = {"SUBSCRIPTION_ENABLED": json.dumps(self.subscriptions_enabled)}
-
-        return HttpResponse(template.render(context, request))

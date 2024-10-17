@@ -4,30 +4,30 @@
 
 {% block form %}
     {% render_errors form %}
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Device" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Device" %}</h2>
       </div>
       {% render_field form.name %}
       {% render_field form.role %}
       {% render_field form.description %}
       {% render_field form.tags %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Hardware" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Hardware" %}</h2>
       </div>
       {% render_field form.device_type %}
       {% render_field form.airflow %}
       {% render_field form.serial %}
       {% render_field form.asset_tag %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Location" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Location" %}</h2>
       </div>
       {% render_field form.site %}
       {% render_field form.location %}
@@ -58,10 +58,10 @@
         {% render_field form.longitude %}
       {% endif %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Management" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Management" %}</h2>
       </div>
       {% render_field form.status %}
       {% render_field form.platform %}
@@ -72,17 +72,17 @@
         {% render_field form.oob_ip %}
       {% endif %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Virtualization" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Virtualization" %}</h2>
       </div>
       {% render_field form.cluster %}
     </div>
-    
+
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Tenancy" %}</h2>
       </div>
       {% render_field form.tenant_group %}
       {% render_field form.tenant %}
@@ -90,7 +90,7 @@
 
     <div class="field-group my-5">
       <div class="row">
-        <h5 class="col-9 offset-3">{% trans "Virtual Chassis" %}</h5>
+        <h2 class="col-9 offset-3">{% trans "Virtual Chassis" %}</h2>
       </div>
       {% render_field form.virtual_chassis %}
       {% render_field form.vc_position %}
@@ -100,14 +100,14 @@
     {% if form.custom_fields %}
       <div class="field-group my-5">
         <div class="row">
-          <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
+          <h2 class="col-9 offset-3">{% trans "Custom Fields" %}</h2>
         </div>
         {% render_custom_fields form %}
       </div>
     {% endif %}
 
     <div class="field-group my-5">
-      <h5 class="text-center">{% trans "Local Config Context Data" %}</h5>
+      <h2 class="text-center">{% trans "Local Config Context Data" %}</h2>
       {% render_field form.local_context_data %}
     </div>
 

@@ -6,7 +6,7 @@ from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -105,7 +105,7 @@ class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = WirelessLink
-        fields = ('id', 'ssid', 'auth_psk', 'description')
+        fields = ('id', 'ssid', 'auth_psk', 'distance', 'distance_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -102,14 +102,14 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f"group,ssid,status,tenant",
+            "group,ssid,status,tenant",
             f"Wireless LAN Group 2,WLAN4,{WirelessLANStatusChoices.STATUS_ACTIVE},{tenants[0].name}",
             f"Wireless LAN Group 2,WLAN5,{WirelessLANStatusChoices.STATUS_DISABLED},{tenants[1].name}",
             f"Wireless LAN Group 2,WLAN6,{WirelessLANStatusChoices.STATUS_RESERVED},{tenants[2].name}",
         )
 
         cls.csv_update_data = (
-            f"id,ssid",
+            "id,ssid",
             f"{wireless_lans[0].pk},WLAN7",
             f"{wireless_lans[1].pk},WLAN8",
             f"{wireless_lans[2].pk},WLAN9",
@@ -160,12 +160,14 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'interface_a': interfaces[6].pk,
             'interface_b': interfaces[7].pk,
             'status': LinkStatusChoices.STATUS_PLANNED,
+            'distance': 100,
+            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_FOOT,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            f"interface_a,interface_b,status,tenant",
+            "interface_a,interface_b,status,tenant",
             f"{interfaces[6].pk},{interfaces[7].pk},connected,{tenants[0].name}",
             f"{interfaces[8].pk},{interfaces[9].pk},connected,{tenants[1].name}",
             f"{interfaces[10].pk},{interfaces[11].pk},connected,{tenants[2].name}",
@@ -180,4 +182,6 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'status': LinkStatusChoices.STATUS_PLANNED,
+            'distance': 50,
+            'distance_unit': WirelessLinkDistanceUnitChoices.UNIT_METER,
         }

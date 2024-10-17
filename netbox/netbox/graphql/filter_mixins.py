@@ -1,4 +1,4 @@
-from functools import partial, partialmethod, wraps
+from functools import partialmethod
 from typing import List
 
 import django_filters
@@ -6,6 +6,7 @@ import strawberry
 import strawberry_django
 from django.core.exceptions import FieldDoesNotExist
 from strawberry import auto
+
 from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
 from utilities.fields import ColorField, CounterCacheField
@@ -47,7 +48,7 @@ def map_strawberry_type(field):
         pass
     elif isinstance(field, NumericArrayFilter):
         should_create_function = True
-        attr_type = int
+        attr_type = int | None
     elif isinstance(field, TreeNodeMultipleChoiceFilter):
         should_create_function = True
         attr_type = List[str] | None
@@ -108,8 +109,7 @@ def map_strawberry_type(field):
     elif issubclass(type(field), django_filters.TypedMultipleChoiceFilter):
         pass
     elif issubclass(type(field), django_filters.MultipleChoiceFilter):
-        should_create_function = True
-        attr_type = List[str] | None
+        attr_type = str | None
     elif issubclass(type(field), django_filters.TypedChoiceFilter):
         pass
     elif issubclass(type(field), django_filters.ChoiceFilter):
@@ -201,4 +201,9 @@ def autotype_decorator(filterset):
 class BaseFilterMixin:
 
     def filter_by_filterset(self, queryset, key):
-        return self.filterset(data={key: getattr(self, key)}, queryset=queryset).qs
+        filterset = self.filterset(data={key: getattr(self, key)}, queryset=queryset)
+        if not filterset.is_valid():
+            # We could raise validation error but strawberry logs it all to the
+            # console i.e. raise ValidationError(f"{k}: {v[0]}")
+            return filterset.qs.none()
+        return filterset.qs

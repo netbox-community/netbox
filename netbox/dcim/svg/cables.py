@@ -162,6 +162,9 @@ class CableTraceSVG:
                 location_label += f' / {instance.location}'
             if instance.rack:
                 location_label += f' / {instance.rack}'
+            if instance.position:
+                location_label += f' / {instance.get_face_display()}'
+                location_label += f' / U{instance.position}'
             labels.append(location_label)
         elif instance._meta.model_name == 'circuit':
             labels[0] = f'Circuit {instance}'
@@ -393,6 +396,8 @@ class CableTraceSVG:
                         labels = [f"{cable}"] if len(links) > 2 else [f"Wireless {cable}", cable.get_status_display()]
                         if cable.ssid:
                             description.append(f"{cable.ssid}")
+                        if cable.distance and cable.distance_unit:
+                            description.append(f"{cable.distance} {cable.get_distance_unit_display()}")
                         near = [term for term in near_terminations if term.object == cable.interface_a]
                         far = [term for term in far_terminations if term.object == cable.interface_b]
                         if not (near and far):

@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackReservation, RackRole
+from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import WEIGHT
@@ -11,6 +11,7 @@ __all__ = (
     'RackTable',
     'RackReservationTable',
     'RackRoleTable',
+    'RackTypeTable',
 )
 
 
@@ -45,6 +46,65 @@ class RackRoleTable(NetBoxTable):
 
 
 #
+# Rack Types
+#
+
+class RackTypeTable(NetBoxTable):
+    model = tables.Column(
+        verbose_name=_('Model'),
+        linkify=True
+    )
+    manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
+        linkify=True
+    )
+    u_height = tables.TemplateColumn(
+        template_code="{{ value }}U",
+        verbose_name=_('Height')
+    )
+    outer_width = tables.TemplateColumn(
+        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Width')
+    )
+    outer_depth = tables.TemplateColumn(
+        template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
+        verbose_name=_('Outer Depth')
+    )
+    weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
+    max_weight = columns.TemplateColumn(
+        verbose_name=_('Max Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_max_weight', 'weight_unit')
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+    instance_count = columns.LinkedCountColumn(
+        viewname='dcim:rack_list',
+        url_params={'rack_type_id': 'pk'},
+        verbose_name=_('Instances')
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:rack_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = RackType
+        fields = (
+            'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description', 'comments',
+            'instance_count', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
+        )
+
+
+#
 # Racks
 #
 
@@ -67,6 +127,15 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     role = columns.ColoredLabelColumn(
         verbose_name=_('Role'),
+    )
+    manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
+        accessor=Accessor('rack_type__manufacturer'),
+        linkify=True
+    )
+    rack_type = tables.Column(
+        linkify=True,
+        verbose_name=_('Type')
     )
     u_height = tables.TemplateColumn(
         template_code="{{ value }}U",
@@ -113,14 +182,14 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Rack
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role', 'serial',
-            'asset_tag', 'type', 'u_height', 'starting_unit', 'width', 'outer_width', 'outer_depth', 'mounting_depth',
-            'weight', 'max_weight', 'comments', 'device_count', 'get_utilization', 'get_power_utilization',
-            'description', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
+            'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
+            'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments', 'device_count',
+            'get_utilization', 'get_power_utilization', 'description', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
-            'get_utilization',
+            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'rack_type', 'u_height',
+            'device_count', 'get_utilization',
         )
 
 

@@ -2,7 +2,6 @@ import logging
 from collections import defaultdict
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
@@ -10,23 +9,21 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
-from users.models import Group, ObjectPermission
+from users.models import Group, ObjectPermission, User
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
 )
 from .misc import _mirror_groups
-
-UserModel = get_user_model()
 
 AUTH_BACKEND_ATTRS = {
     # backend name: title, MDI icon name
     'amazon': ('Amazon AWS', 'aws'),
     'apple': ('Apple', 'apple'),
     'auth0': ('Auth0', None),
-    'azuread-oauth2': ('Microsoft Azure AD', 'microsoft'),
-    'azuread-b2c-oauth2': ('Microsoft Azure AD', 'microsoft'),
-    'azuread-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
-    'azuread-v2-tenant-oauth2': ('Microsoft Azure AD', 'microsoft'),
+    'entraid-oauth2': ('Microsoft Entra ID', 'microsoft'),
+    'entraid-b2c-oauth2': ('Microsoft Entra ID', 'microsoft'),
+    'entraid-tenant-oauth2': ('Microsoft Entra ID', 'microsoft'),
+    'entraid-v2-tenant-oauth2': ('Microsoft Entra ID', 'microsoft'),
     'bitbucket': ('BitBucket', 'bitbucket'),
     'bitbucket-oauth2': ('BitBucket', 'bitbucket'),
     'digitalocean': ('DigitalOcean', 'digital-ocean'),
@@ -218,15 +215,15 @@ class RemoteUserBackend(_RemoteUserBackend):
         # instead we use get_or_create when creating unknown users since it has
         # built-in safeguards for multiple threads.
         if self.create_unknown_user:
-            user, created = UserModel._default_manager.get_or_create(**{
-                UserModel.USERNAME_FIELD: username
+            user, created = User._default_manager.get_or_create(**{
+                User.USERNAME_FIELD: username
             })
             if created:
                 user = self.configure_user(request, user)
         else:
             try:
-                user = UserModel._default_manager.get_by_natural_key(username)
-            except UserModel.DoesNotExist:
+                user = User._default_manager.get_by_natural_key(username)
+            except User.DoesNotExist:
                 pass
         if self.user_can_authenticate(user):
             if settings.REMOTE_AUTH_GROUP_SYNC_ENABLED:

@@ -6,8 +6,9 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
+from netbox.events import get_event_text
 from netbox.tables import BaseTable, NetBoxTable, columns
-from .template_code import *
+from .columns import NotificationActionsColumn
 
 __all__ = (
     'BookmarkTable',
@@ -20,22 +21,36 @@ __all__ = (
     'ExportTemplateTable',
     'ImageAttachmentTable',
     'JournalEntryTable',
-    'ObjectChangeTable',
+    'NotificationGroupTable',
+    'NotificationTable',
     'SavedFilterTable',
     'ReportResultsTable',
     'ScriptResultsTable',
+    'SubscriptionTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
 )
 
-IMAGEATTACHMENT_IMAGE = '''
+IMAGEATTACHMENT_IMAGE = """
 {% if record.image %}
   <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
 {% else %}
   &mdash;
 {% endif %}
-'''
+"""
+
+NOTIFICATION_ICON = """
+<span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>
+"""
+
+NOTIFICATION_LINK = """
+{% if not record.event.destructive %}
+  <a href="{% url 'extras:notification_read' pk=record.pk %}">{{ record.object_repr }}</a>
+{% else %}
+  {{ record.object_repr }}
+{% endif %}
+"""
 
 
 class CustomFieldTable(NetBoxTable):
@@ -48,6 +63,10 @@ class CustomFieldTable(NetBoxTable):
     )
     required = columns.BooleanColumn(
         verbose_name=_('Required'),
+        false_mark=None
+    )
+    unique = columns.BooleanColumn(
+        verbose_name=_('Validate Uniqueness'),
         false_mark=None
     )
     ui_visible = columns.ChoiceFieldColumn(
@@ -75,15 +94,27 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Is Cloneable'),
         false_mark=None
     )
+    validation_minimum = tables.Column(
+        verbose_name=_('Minimum Value'),
+    )
+    validation_maximum = tables.Column(
+        verbose_name=_('Maximum Value'),
+    )
+    validation_regex = tables.Column(
+        verbose_name=_('Validation Regex'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
-            'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'weight', 'choice_set', 'choices', 'comments', 'created', 'last_updated',
+            'unique', 'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
+            'is_cloneable', 'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'comments', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
+        default_columns = (
+            'pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'unique', 'description',
+        )
 
 
 class CustomFieldChoiceSetTable(NetBoxTable):
@@ -258,6 +289,90 @@ class BookmarkTable(NetBoxTable):
         default_columns = ('object', 'object_type', 'created')
 
 
+class SubscriptionTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    object = tables.Column(
+        verbose_name=_('Object'),
+        linkify=True,
+        orderable=False
+    )
+    user = tables.Column(
+        verbose_name=_('User'),
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Subscription
+        fields = ('pk', 'object', 'object_type', 'created', 'user')
+        default_columns = ('object', 'object_type', 'created')
+
+
+class NotificationTable(NetBoxTable):
+    icon = columns.TemplateColumn(
+        template_code=NOTIFICATION_ICON,
+        accessor=tables.A('event'),
+        attrs={
+            'td': {'class': 'w-1'},
+            'th': {'class': 'w-1'},
+        },
+        verbose_name=''
+    )
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    object = columns.TemplateColumn(
+        verbose_name=_('Object'),
+        template_code=NOTIFICATION_LINK,
+        orderable=False
+    )
+    created = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Created'),
+    )
+    read = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Read'),
+    )
+    user = tables.Column(
+        verbose_name=_('User'),
+        linkify=True
+    )
+    actions = NotificationActionsColumn(
+        actions=('dismiss',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Notification
+        fields = ('pk', 'icon', 'object', 'object_type', 'event_type', 'created', 'read', 'user')
+        default_columns = ('icon', 'object', 'object_type', 'event_type', 'created')
+        row_attrs = {
+            'data-read': lambda record: bool(record.read),
+        }
+
+
+class NotificationGroupTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True,
+        verbose_name=_('Name')
+    )
+    users = columns.ManyToManyColumn(
+        linkify_item=True
+    )
+    groups = columns.ManyToManyColumn(
+        linkify_item=True
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NotificationGroup
+        fields = ('pk', 'name', 'description', 'groups', 'users')
+        default_columns = ('name', 'description', 'groups', 'users')
+
+
 class WebhookTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
@@ -299,20 +414,10 @@ class EventRuleTable(NetBoxTable):
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
-    type_create = columns.BooleanColumn(
-        verbose_name=_('Create')
-    )
-    type_update = columns.BooleanColumn(
-        verbose_name=_('Update')
-    )
-    type_delete = columns.BooleanColumn(
-        verbose_name=_('Delete')
-    )
-    type_job_start = columns.BooleanColumn(
-        verbose_name=_('Job Start')
-    )
-    type_job_end = columns.BooleanColumn(
-        verbose_name=_('Job End')
+    event_types = columns.ArrayColumn(
+        verbose_name=_('Event Types'),
+        func=get_event_text,
+        orderable=False
     )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
@@ -322,12 +427,10 @@ class EventRuleTable(NetBoxTable):
         model = EventRule
         fields = (
             'pk', 'id', 'name', 'enabled', 'description', 'action_type', 'action_object', 'object_types',
-            'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'tags', 'created',
-            'last_updated',
+            'event_types', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'type_create', 'type_update',
-            'type_delete', 'type_job_start', 'type_job_end',
+            'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'event_types',
         )
 
 
@@ -455,49 +558,6 @@ class ConfigTemplateTable(NetBoxTable):
         )
         default_columns = (
             'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',
-        )
-
-
-class ObjectChangeTable(NetBoxTable):
-    time = columns.DateTimeColumn(
-        verbose_name=_('Time'),
-        timespec='minutes',
-        linkify=True
-    )
-    user_name = tables.Column(
-        verbose_name=_('Username')
-    )
-    full_name = tables.TemplateColumn(
-        accessor=tables.A('user'),
-        template_code=OBJECTCHANGE_FULL_NAME,
-        verbose_name=_('Full Name'),
-        orderable=False
-    )
-    action = columns.ChoiceFieldColumn(
-        verbose_name=_('Action'),
-    )
-    changed_object_type = columns.ContentTypeColumn(
-        verbose_name=_('Type')
-    )
-    object_repr = tables.TemplateColumn(
-        accessor=tables.A('changed_object'),
-        template_code=OBJECTCHANGE_OBJECT,
-        verbose_name=_('Object'),
-        orderable=False
-    )
-    request_id = tables.TemplateColumn(
-        template_code=OBJECTCHANGE_REQUEST_ID,
-        verbose_name=_('Request ID')
-    )
-    actions = columns.ActionsColumn(
-        actions=()
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = ObjectChange
-        fields = (
-            'pk', 'id', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id',
-            'actions',
         )
 
 

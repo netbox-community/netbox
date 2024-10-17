@@ -173,6 +173,7 @@ class ToggleColumn(tables.CheckBoxColumn):
             kwargs['attrs'] = {
                 'th': {
                     'class': 'w-1',
+                    'aria-label': _('Select all'),
                 },
                 'td': {
                     'class': 'w-1',
@@ -284,7 +285,7 @@ class ActionsColumn(tables.Column):
                 if len(self.actions) == 1 or (self.split_actions and idx == 0):
                     dropdown_class = attrs.css_class
                     button = (
-                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button">'
+                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button" aria-label="{attrs.title}">'
                         f'<i class="mdi mdi-{attrs.icon}"></i></a>'
                     )
 
@@ -330,19 +331,26 @@ class ActionsColumn(tables.Column):
 class ChoiceFieldColumn(tables.Column):
     """
     Render a model's static ChoiceField with its value from `get_FOO_display()` as a colored badge. Background color is
-    set by the instance's get_FOO_color() method, if defined.
+    set by the instance's get_FOO_color() method, if defined, or can be overridden by a "color" callable.
     """
     DEFAULT_BG_COLOR = 'secondary'
+
+    def __init__(self, *args, color=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.color = color
 
     def render(self, record, bound_column, value):
         if value in self.empty_values:
             return self.default
 
-        # Determine the background color to use (try calling object.get_FOO_color())
-        try:
-            bg_color = getattr(record, f'get_{bound_column.name}_color')() or self.DEFAULT_BG_COLOR
-        except AttributeError:
-            bg_color = self.DEFAULT_BG_COLOR
+        # Determine the background color to use (use "color" callable if given, else try calling object.get_FOO_color())
+        if self.color:
+            bg_color = self.color(record)
+        else:
+            try:
+                bg_color = getattr(record, f'get_{bound_column.name}_color')() or self.DEFAULT_BG_COLOR
+            except AttributeError:
+                bg_color = self.DEFAULT_BG_COLOR
 
         return mark_safe(f'<span class="badge text-bg-{bg_color}">{value}</span>')
 

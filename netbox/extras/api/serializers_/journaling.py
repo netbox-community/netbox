@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -8,6 +7,7 @@ from extras.choices import *
 from extras.models import JournalEntry
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
+from users.models import User
 from utilities.api import get_serializer_for_model
 
 __all__ = (
@@ -16,14 +16,13 @@ __all__ = (
 
 
 class JournalEntrySerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         default=serializers.CurrentUserDefault()
     )
@@ -35,8 +34,8 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     class Meta:
         model = JournalEntry
         fields = [
-            'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object',
+            'created', 'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'created')
 

@@ -25,11 +25,16 @@
   <div class="row mb-3">
     <div class="col">
       <div class="card">
-        <h5 class="card-header">{% trans "System Status" %}</h5>
+        <h2 class="card-header">{% trans "System Status" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">{% trans "NetBox version" %}</th>
-            <td>{{ stats.netbox_version }}</td>
+            <th scope="row">{% trans "NetBox release" %}</th>
+            <td>
+              {{ stats.netbox_release.name }}
+              {% if stats.netbox_release.published %}
+               ({{ stats.netbox_release.published|isodate }})
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Python version" %}</th>
@@ -73,24 +78,13 @@
     </div>
   </div>
 
-  {# Plugins #}
-  <div class="row mb-3">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">{% trans "Plugins" %}</h5>
-        {% render_table plugins_table %}
-      </div>
-    </div>
-  </div>
-
   {# Configuration #}
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Current Configuration" %}</h5>
+        <h2 class="card-header">{% trans "Current Configuration" %}</h2>
         {% include 'core/inc/config_data.html' %}
       </div>
-
     </div>
   </div>
 {% endblock content %}

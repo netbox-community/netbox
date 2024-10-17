@@ -90,43 +90,57 @@ def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     return output
 
 
-def add_available_vlans(vlans, vlan_group=None):
+def available_vlans_from_range(vlans, vlan_group, vid_range):
     """
     Create fake records for all gaps between used VLANs
     """
-    min_vid = vlan_group.min_vid if vlan_group else VLAN_VID_MIN
-    max_vid = vlan_group.max_vid if vlan_group else VLAN_VID_MAX
+    min_vid = int(vid_range.lower) if vid_range else VLAN_VID_MIN
+    max_vid = int(vid_range.upper) if vid_range else VLAN_VID_MAX
 
     if not vlans:
         return [{
             'vid': min_vid,
             'vlan_group': vlan_group,
-            'available': max_vid - min_vid + 1
+            'available': max_vid - min_vid
         }]
 
-    prev_vid = max_vid
+    prev_vid = min_vid - 1
     new_vlans = []
     for vlan in vlans:
+
+        # Ignore VIDs outside the range
+        if not min_vid <= vlan.vid < max_vid:
+            continue
+
+        # Annotate any available VIDs between the previous (or minimum) VID
+        # and the current VID
         if vlan.vid - prev_vid > 1:
             new_vlans.append({
                 'vid': prev_vid + 1,
                 'vlan_group': vlan_group,
                 'available': vlan.vid - prev_vid - 1,
             })
+
         prev_vid = vlan.vid
 
-    if vlans[0].vid > min_vid:
-        new_vlans.append({
-            'vid': min_vid,
-            'vlan_group': vlan_group,
-            'available': vlans[0].vid - min_vid,
-        })
+    # Annotate any remaining available VLANs
     if prev_vid < max_vid:
         new_vlans.append({
             'vid': prev_vid + 1,
             'vlan_group': vlan_group,
-            'available': max_vid - prev_vid,
+            'available': max_vid - prev_vid - 1,
         })
+
+    return new_vlans
+
+
+def add_available_vlans(vlans, vlan_group):
+    """
+    Create fake records for all gaps between used VLANs
+    """
+    new_vlans = []
+    for vid_range in vlan_group.vid_ranges:
+        new_vlans.extend(available_vlans_from_range(vlans, vlan_group, vid_range))
 
     vlans = list(vlans) + new_vlans
     vlans.sort(key=lambda v: v.vid if type(v) is VLAN else v['vid'])

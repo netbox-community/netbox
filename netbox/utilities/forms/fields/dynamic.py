@@ -113,11 +113,6 @@ class DynamicModelChoiceMixin:
         for var, accessor in self.context.items():
             attrs[f'ts-{var}-field'] = accessor
 
-        # TODO: Remove in v4.1
-        # Legacy means of specifying the disabled indicator
-        if self.disabled_indicator is not None:
-            attrs['ts-disabled-field'] = self.disabled_indicator
-
         # Attach any static query parameters
         if len(self.query_params) > 0:
             widget.add_query_params(self.query_params)
@@ -147,7 +142,7 @@ class DynamicModelChoiceMixin:
 
         if data:
             # When the field is multiple choice pass the data as a list if it's not already
-            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and not type(data) is list:
+            if isinstance(bound_field.field, DynamicModelMultipleChoiceField) and type(data) is not list:
                 data = [data]
 
             field_name = getattr(self, 'to_field_name') or 'pk'

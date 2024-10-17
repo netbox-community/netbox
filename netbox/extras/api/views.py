@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -11,10 +12,10 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.models import Job, ObjectType
+from core.models import ObjectType
 from extras import filtersets
+from extras.jobs import ScriptJob
 from extras.models import *
-from extras.scripts import run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -141,6 +142,27 @@ class BookmarkViewSet(NetBoxModelViewSet):
 
 
 #
+# Notifications & subscriptions
+#
+
+class NotificationViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Notification.objects.all()
+    serializer_class = serializers.NotificationSerializer
+
+
+class NotificationGroupViewSet(NetBoxModelViewSet):
+    queryset = NotificationGroup.objects.all()
+    serializer_class = serializers.NotificationGroupSerializer
+
+
+class SubscriptionViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Subscription.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
+
+
+#
 # Tags
 #
 
@@ -207,9 +229,13 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
+@extend_schema_view(
+    update=extend_schema(request=serializers.ScriptInputSerializer),
+    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
+)
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    queryset = Script.objects.prefetch_related('jobs')
+    queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
     filterset_class = filtersets.ScriptFilterSet
 
@@ -252,10 +278,8 @@ class ScriptViewSet(ModelViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            Job.enqueue(
-                run_script,
+            ScriptJob.enqueue(
                 instance=script,
-                name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],
                 request=copy_safe_request(request),
@@ -269,20 +293,6 @@ class ScriptViewSet(ModelViewSet):
             return Response(serializer.data)
 
         return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-#
-# Change logging
-#
-
-class ObjectChangeViewSet(ReadOnlyModelViewSet):
-    """
-    Retrieve a list of recent changes.
-    """
-    metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.valid_models()
-    serializer_class = serializers.ObjectChangeSerializer
-    filterset_class = filtersets.ObjectChangeFilterSet
 
 
 #
