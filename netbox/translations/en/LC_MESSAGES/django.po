@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-16 05:01+0000\n"
+"POT-Creation-Date: 2024-10-17 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -430,7 +430,7 @@ msgstr ""
 #: netbox/templates/circuits/provider.html:33
 #: netbox/templates/circuits/providernetwork.html:32
 #: netbox/templates/core/datasource.html:54
-#: netbox/templates/core/plugin.html:79 netbox/templates/dcim/cable.html:36
+#: netbox/templates/core/plugin.html:80 netbox/templates/dcim/cable.html:36
 #: netbox/templates/dcim/consoleport.html:44
 #: netbox/templates/dcim/consoleserverport.html:44
 #: netbox/templates/dcim/device.html:94 netbox/templates/dcim/devicebay.html:32
@@ -1168,7 +1168,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:84 netbox/templates/core/plugin.html:19
+#: netbox/circuits/models/circuits.py:84 netbox/templates/core/plugin.html:20
 msgid "installed"
 msgstr ""
 
@@ -1396,7 +1396,7 @@ msgstr ""
 #: netbox/templates/circuits/provideraccount.html:28
 #: netbox/templates/circuits/providernetwork.html:24
 #: netbox/templates/core/datasource.html:34 netbox/templates/core/job.html:44
-#: netbox/templates/core/plugin.html:53 netbox/templates/core/rq_worker.html:43
+#: netbox/templates/core/plugin.html:54 netbox/templates/core/rq_worker.html:43
 #: netbox/templates/dcim/consoleport.html:28
 #: netbox/templates/dcim/consoleserverport.html:28
 #: netbox/templates/dcim/devicebay.html:24
@@ -1654,7 +1654,7 @@ msgid "Cancelled"
 msgstr ""
 
 #: netbox/core/data_backends.py:32 netbox/core/tables/plugins.py:51
-#: netbox/templates/core/plugin.html:87
+#: netbox/templates/core/plugin.html:88
 #: netbox/templates/dcim/interface.html:216
 msgid "Local"
 msgstr ""
@@ -2072,7 +2072,7 @@ msgstr ""
 #: netbox/core/models/data.py:49 netbox/extras/choices.py:37
 #: netbox/extras/models/models.py:164 netbox/extras/tables/tables.py:656
 #: netbox/templates/core/datasource.html:58
-#: netbox/templates/core/plugin.html:65
+#: netbox/templates/core/plugin.html:66
 msgid "URL"
 msgstr ""
 
@@ -2320,7 +2320,7 @@ msgstr ""
 msgid "No plugin data found"
 msgstr ""
 
-#: netbox/core/tables/plugins.py:48 netbox/templates/core/plugin.html:61
+#: netbox/core/tables/plugins.py:48 netbox/templates/core/plugin.html:62
 msgid "Author"
 msgstr ""
 
@@ -2328,7 +2328,7 @@ msgstr ""
 msgid "Installed"
 msgstr ""
 
-#: netbox/core/tables/plugins.py:57 netbox/templates/core/plugin.html:83
+#: netbox/core/tables/plugins.py:57 netbox/templates/core/plugin.html:84
 msgid "Certified"
 msgstr ""
 
@@ -10849,7 +10849,7 @@ msgstr ""
 
 #: netbox/netbox/navigation/menu.py:454 netbox/netbox/navigation/menu.py:502
 #: netbox/templates/500.html:35 netbox/templates/account/preferences.html:22
-#: netbox/templates/core/plugin.html:12
+#: netbox/templates/core/plugin.html:13
 #: netbox/templates/core/plugin_list.html:7
 #: netbox/templates/core/plugin_list.html:12
 msgid "Plugins"
@@ -11769,35 +11769,35 @@ msgstr ""
 msgid "Indefinite"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:21
+#: netbox/templates/core/plugin.html:22
 msgid "Not installed"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:32
+#: netbox/templates/core/plugin.html:33
 msgid "Overview"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:38
+#: netbox/templates/core/plugin.html:39
 msgid "Install"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:50
+#: netbox/templates/core/plugin.html:51
 msgid "Plugin Details"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:57
+#: netbox/templates/core/plugin.html:58
 msgid "Summary"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:75
+#: netbox/templates/core/plugin.html:76
 msgid "License"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:95
+#: netbox/templates/core/plugin.html:96
 msgid "Version History"
 msgstr ""
 
-#: netbox/templates/core/plugin.html:106
+#: netbox/templates/core/plugin.html:107
 msgid "Local Installation Instructions"
 msgstr ""
 
