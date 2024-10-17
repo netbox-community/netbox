@@ -21,7 +21,7 @@ class PluginTemplateExtension:
     * config - Plugin-specific configuration parameters
     """
     models = None
-    model = None
+    model = None  # Deprecated; use `models` instead
 
     def __init__(self, context):
         self.context = context
