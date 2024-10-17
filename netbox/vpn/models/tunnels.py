@@ -103,6 +103,10 @@ class Tunnel(PrimaryModel):
     def get_status_color(self):
         return TunnelStatusChoices.colors.get(self.status)
 
+    @property
+    def is_wireguard(self):
+        return self.encapsulation == TunnelEncapsulationChoices.ENCAP_WIREGUARD
+
 
 class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLoggedModel):
     tunnel = models.ForeignKey(

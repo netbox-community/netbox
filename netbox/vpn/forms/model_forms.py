@@ -1,9 +1,13 @@
+from random import choices
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
+from netbox.api.fields import ChoiceField
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
@@ -20,6 +24,7 @@ __all__ = (
     'IPSecPolicyForm',
     'IPSecProfileForm',
     'IPSecProposalForm',
+    'WireguardConfigForm',
     'L2VPNForm',
     'L2VPNTerminationForm',
     'TunnelCreateForm',
@@ -57,8 +62,7 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
-        FieldSet('ipsec_profile', name=_('Security')),
+        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tags', name=_('Tunnel')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
@@ -68,6 +72,15 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
             'name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group',
             'tenant', 'comments', 'tags',
         ]
+        widgets = {
+            'encapsulation': HTMXSelect(),
+        }
+
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        if get_field_value(self, 'encapsulation') == TunnelEncapsulationChoices.ENCAP_WIREGUARD:
+            del(self.fields['ipsec_profile'])
 
 
 class TunnelCreateForm(TunnelForm):
@@ -142,8 +155,7 @@ class TunnelCreateForm(TunnelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
-        FieldSet('ipsec_profile', name=_('Security')),
+        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tags', name=_('Tunnel')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
@@ -264,12 +276,23 @@ class TunnelTerminationForm(NetBoxModelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        if (get_field_value(self, 'type') is None and
-                self.instance.pk and isinstance(self.instance.termination.parent_object, VirtualMachine)):
+        # Mimic HTMXSelect()
+        self.fields['tunnel'].widget.attrs.update({
+            'hx-get': '.',
+            'hx-include': '#form_fields',
+            'hx-target': '#form_fields',
+        })
+
+        tunnel_id = get_field_value(self, 'tunnel')
+        tunnel = Tunnel.objects.filter(id=tunnel_id).first() if tunnel_id else None
+
+        tt_type = get_field_value(self, 'type')
+
+        if tt_type is None and self.instance.pk and isinstance(self.instance.termination.parent_object, VirtualMachine):
             self.fields['type'].initial = TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE
 
         # If initial or self.data is set and the type is a VIRTUALMACHINE type, swap the field querysets.
-        if get_field_value(self, 'type') == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
+        if tt_type == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
             self.fields['parent'].label = _('Virtual Machine')
             self.fields['parent'].queryset = VirtualMachine.objects.all()
             self.fields['parent'].widget.attrs['selector'] = 'virtualization.virtualmachine'
@@ -280,6 +303,10 @@ class TunnelTerminationForm(NetBoxModelForm):
             self.fields['outside_ip'].widget.add_query_params({
                 'virtual_machine_id': '$parent',
             })
+        elif tunnel and tunnel.is_wireguard:
+            self.fields['termination'].help_text = _('As this is a Wireguard tunnel, only virtual interfaces are available for selection')
+            if tt_type == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
+                self.fields['termination'].widget.add_query_params({'type': InterfaceTypeChoices.TYPE_VIRTUAL})
 
         if self.instance.pk:
             self.fields['parent'].initial = self.instance.termination.parent_object
@@ -287,9 +314,15 @@ class TunnelTerminationForm(NetBoxModelForm):
 
     def clean(self):
         super().clean()
+        termination = self.cleaned_data['termination']
+
+        # verify that interface is virtual
+        is_virtual_interface = termination.type == InterfaceTypeChoices.TYPE_VIRTUAL if self.cleaned_data['type'] == TunnelTerminationTypeChoices.TYPE_DEVICE else True
+        if self.cleaned_data['tunnel'].encapsulation == TunnelEncapsulationChoices.ENCAP_WIREGUARD and not is_virtual_interface:
+            raise forms.ValidationError(_('Interface must be virtual for Wireguard tunnels'))
 
         # Set the terminated object
-        self.instance.termination = self.cleaned_data.get('termination')
+        self.instance.termination = termination
 
 
 class IKEProposalForm(NetBoxModelForm):
@@ -386,6 +419,71 @@ class IPSecProfileForm(NetBoxModelForm):
             'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
         ]
 
+
+#
+# Wireguard Config
+#
+
+
+class WireguardConfigForm(NetBoxModelForm):
+    type = forms.ChoiceField(
+        choices=TunnelTerminationTypeChoices,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        selector=True,
+        label=_('Device')
+    )
+    tunnel_interface = DynamicModelChoiceField(
+        queryset=Interface.objects.filter(type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        label=_('Tunnel interface'),
+        query_params={
+            'device_id': '$parent',
+            'type': InterfaceTypeChoices.TYPE_VIRTUAL,
+        },
+        help_text=_('Only virtual interfaces are shown'),
+    )
+
+    fieldsets = (
+        FieldSet('type', 'parent', 'tunnel_interface', 'tags', name=_('Wireguard config')),
+        FieldSet('private_key', 'public_key', name=_('Keys')),
+        FieldSet('listen_port', 'allowed_ips', 'fwmark', 'persistent_keepalive_interval', name=_('Parameters')),
+    )
+
+    class Meta:
+        model = WireguardConfig
+        fields = [
+            'type', 'parent', 'tunnel_interface', 'tags', 'private_key', 'public_key', 'listen_port', 'allowed_ips', 'fwmark', 'persistent_keepalive_interval',
+        ]
+
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        if (get_field_value(self, 'type') is None and
+                self.instance.pk and isinstance(self.instance.tunnel_interface.parent_object, VirtualMachine)):
+            self.fields['type'].initial = TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE
+
+        # If initial or self.data is set and the type is a VIRTUALMACHINE type, swap the field querysets.
+        if get_field_value(self, 'type') == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
+            self.fields['parent'].label = _('Virtual Machine')
+            self.fields['parent'].queryset = VirtualMachine.objects.all()
+            self.fields['parent'].widget.attrs['selector'] = 'virtualization.virtualmachine'
+            self.fields['tunnel_interface'].queryset = VMInterface.objects.all()
+            self.fields['tunnel_interface'].widget.add_query_params({
+                'virtual_machine_id': '$parent',
+            })
+
+        if self.instance.pk:
+            self.fields['parent'].initial = self.instance.tunnel_interface.parent_object
+            self.fields['tunnel_interface'].initial = self.instance.tunnel_interface
+
+    def clean(self):
+        super().clean()
+
+        # Set the tunnel_interface object
+        self.instance.tunnel_interface = self.cleaned_data.get('tunnel_interface')
 
 #
 # L2VPN

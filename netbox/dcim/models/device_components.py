@@ -577,6 +577,10 @@ class BaseInterface(models.Model):
     def count_fhrp_groups(self):
         return self.fhrp_group_assignments.count()
 
+    @property
+    def wireguard_config(self):
+        return self.wireguard_configs.first()
+
 
 class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
@@ -733,6 +737,12 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface',
+    )
+    wireguard_configs = GenericRelation(
+        to='vpn.WireguardConfig',
+        content_type_field='tunnel_interface_type',
+        object_id_field='tunnel_interface_id',
+        related_query_name='interface'
     )
 
     clone_fields = (

@@ -10,6 +10,7 @@ __all__ = (
     'IPSecPolicyTable',
     'IPSecProposalTable',
     'IPSecProfileTable',
+    'WireguardConfigTable',
 )
 
 
@@ -183,3 +184,36 @@ class IPSecProfileTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'mode', 'ike_policy', 'ipsec_policy', 'description')
+
+
+# TODO: Fix..
+class WireguardConfigTable(NetBoxTable):
+    tunnel_interface_parent = tables.Column(
+        accessor='tunnel_interface__parent_object',
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Host')
+    )
+    tunnel_interface = tables.Column(
+        verbose_name=_('Tunnel interface'),
+        linkify=True
+    )
+    ip_addresses = columns.ManyToManyColumn(
+        accessor=tables.A('tunnel_interface__ip_addresses'),
+        orderable=False,
+        linkify_item=True,
+        verbose_name=_('IP Addresses')
+    )
+    tags = columns.TagColumn(
+        url_name='vpn:tunneltermination_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = WireguardConfig
+        fields = (
+            'pk', 'id', 'tunnel', 'role', 'tunnel_interface_parent', 'tunnel_interface', 'ip_addresses', 'tags',
+            'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'id', 'tunnel_interface_parent', 'tunnel_interface', 'ip_addresses',
+        )

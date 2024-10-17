@@ -37,10 +37,12 @@
             <th scope="row">{% trans "Encapsulation" %}</th>
             <td>{{ object.get_encapsulation_display }}</td>
           </tr>
-          <tr>
-            <th scope="row">{% trans "IPSec profile" %}</th>
-            <td>{{ object.ipsec_profile|linkify|placeholder }}</td>
-          </tr>
+          {% if not object.is_wireguard %}
+            <tr>
+              <th scope="row">{% trans "IPSec profile" %}</th>
+              <td>{{ object.ipsec_profile|linkify|placeholder }}</td>
+            </tr>
+          {% endif %}
           <tr>
             <th scope="row">{% trans "Tunnel ID" %}</th>
             <td>{{ object.tunnel_id|placeholder }}</td>
