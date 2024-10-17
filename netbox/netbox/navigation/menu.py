@@ -234,6 +234,7 @@ VPN_MENU = Menu(
                 get_model_item('vpn', 'ipsecproposal', _('IPSec Proposals')),
                 get_model_item('vpn', 'ipsecpolicy', _('IPSec Policies')),
                 get_model_item('vpn', 'ipsecprofile', _('IPSec Profiles')),
+                get_model_item('vpn', 'wireguardconfig', _('Wireguard Configs')),
             ),
         ),
     ),

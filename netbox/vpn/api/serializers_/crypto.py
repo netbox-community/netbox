@@ -1,7 +1,8 @@
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from vpn.choices import *
-from vpn.models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile, IPSecProposal
+from vpn.models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile, IPSecProposal, \
+    WireguardConfig
 
 __all__ = (
     'IKEPolicySerializer',
@@ -9,6 +10,7 @@ __all__ = (
     'IPSecPolicySerializer',
     'IPSecProfileSerializer',
     'IPSecProposalSerializer',
+    'WireguardConfigSerializer',
 )
 
 
@@ -119,3 +121,11 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
+# TODO: Fix missing stuff
+class WireguardConfigSerializer(NetBoxModelSerializer):
+    class Meta:
+        model = WireguardConfig
+        fields = ('id', 'tunnel_interface_type')
+        brief_fields = ('id', 'tunnel_interface_type')

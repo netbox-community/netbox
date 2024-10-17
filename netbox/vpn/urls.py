@@ -70,6 +70,14 @@ urlpatterns = [
     path('ipsec-profiles/delete/', views.IPSecProfileBulkDeleteView.as_view(), name='ipsecprofile_bulk_delete'),
     path('ipsec-profiles/<int:pk>/', include(get_model_urls('vpn', 'ipsecprofile'))),
 
+    # Wireguard configs
+    path('wireguard-configs/', views.WireguardConfigListView.as_view(), name='wireguardconfig_list'),
+    path('wireguard-configs/add/', views.WireguardConfigEditView.as_view(), name='wireguardconfig_add'),
+    path('wireguard-configs/import/', views.WireguardConfigBulkImportView.as_view(), name='wireguardconfig_import'),
+    path('wireguard-configs/edit/', views.WireguardConfigBulkEditView.as_view(), name='wireguardconfig_bulk_edit'),
+    path('wireguard-configs/delete/', views.WireguardConfigBulkDeleteView.as_view(), name='wireguardconfig_bulk_delete'),
+    path('wireguard-configs/<int:pk>/', include(get_model_urls('vpn', 'wireguardconfig'))),
+
     # L2VPN
     path('l2vpns/', views.L2VPNListView.as_view(), name='l2vpn_list'),
     path('l2vpns/add/', views.L2VPNEditView.as_view(), name='l2vpn_add'),

@@ -372,6 +372,12 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         object_id_field='assigned_object_id',
         related_query_name='vminterface',
     )
+    wireguard_configs = GenericRelation(
+        to='vpn.WireguardConfig',
+        content_type_field='tunnel_interface_type',
+        object_id_field='tunnel_interface_id',
+        related_query_name='vminterface',
+    )
 
     class Meta(ComponentModel.Meta):
         verbose_name = _('interface')
