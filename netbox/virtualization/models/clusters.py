@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
@@ -25,9 +24,6 @@ class ClusterType(OrganizationalModel):
         verbose_name = _('cluster type')
         verbose_name_plural = _('cluster types')
 
-    def get_absolute_url(self):
-        return reverse('virtualization:clustertype', args=[self.pk])
-
 
 class ClusterGroup(ContactsMixin, OrganizationalModel):
     """
@@ -44,9 +40,6 @@ class ClusterGroup(ContactsMixin, OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('cluster group')
         verbose_name_plural = _('cluster groups')
-
-    def get_absolute_url(self):
-        return reverse('virtualization:clustergroup', args=[self.pk])
 
 
 class Cluster(ContactsMixin, PrimaryModel):
@@ -123,9 +116,6 @@ class Cluster(ContactsMixin, PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('virtualization:cluster', args=[self.pk])
 
     def get_status_color(self):
         return ClusterStatusChoices.colors.get(self.status)

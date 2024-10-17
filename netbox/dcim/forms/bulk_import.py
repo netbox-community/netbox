@@ -10,6 +10,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.models import VRF, IPAddress
+from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -367,13 +368,13 @@ class ManufacturerImportForm(NetBoxModelImportForm):
 
 
 class DeviceTypeImportForm(NetBoxModelImportForm):
-    manufacturer = forms.ModelChoiceField(
+    manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
         help_text=_('The manufacturer which produces this device type')
     )
-    default_platform = forms.ModelChoiceField(
+    default_platform = CSVModelChoiceField(
         label=_('Default platform'),
         queryset=Platform.objects.all(),
         to_field_name='name',

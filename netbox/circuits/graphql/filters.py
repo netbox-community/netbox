@@ -1,7 +1,6 @@
-import strawberry
 import strawberry_django
-from circuits import filtersets, models
 
+from circuits import filtersets, models
 from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (

@@ -156,7 +156,7 @@ nav:
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
-            - Microsoft Azure AD: 'administration/authentication/microsoft-azure-ad.md'
+            - Microsoft Entra ID: 'administration/authentication/microsoft-entra-id.md'
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
         - Error Reporting: 'administration/error-reporting.md'

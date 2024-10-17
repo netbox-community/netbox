@@ -589,6 +589,9 @@ class BaseInterfaceTable(NetBoxTable):
     def value_ip_addresses(self, value):
         return ",".join([str(obj.address) for obj in value.all()])
 
+    def value_tagged_vlans(self, value):
+        return ",".join([str(obj) for obj in value.all()])
+
 
 class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
     device = tables.Column(

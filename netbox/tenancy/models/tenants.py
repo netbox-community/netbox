@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import NestedGroupModel, PrimaryModel
@@ -31,9 +30,6 @@ class TenantGroup(NestedGroupModel):
         ordering = ['name']
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')
-
-    def get_absolute_url(self):
-        return reverse('tenancy:tenantgroup', args=[self.pk])
 
 
 class Tenant(ContactsMixin, PrimaryModel):
@@ -90,6 +86,3 @@ class Tenant(ContactsMixin, PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('tenancy:tenant', args=[self.pk])

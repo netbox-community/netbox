@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.dispatch import Signal
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -115,9 +114,6 @@ class Cable(PrimaryModel):
     def __str__(self):
         pk = self.pk or self._pk
         return self.label or f'#{pk}'
-
-    def get_absolute_url(self):
-        return reverse('dcim:cable', args=[self.pk])
 
     @property
     def a_terminations(self):
@@ -666,6 +662,14 @@ class CablePath(models.Model):
                         rear_port_id=remote_terminations[0].pk,
                         rear_port_position__in=position_stack.pop()
                     )
+                # If all rear ports have a single position, we can just get the front ports
+                elif all([rp.positions == 1 for rp in remote_terminations]):
+                    front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
+
+                    if len(front_ports) != len(remote_terminations):
+                        # Some rear ports does not have a front port
+                        is_split = True
+                        break
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
                     is_split = True

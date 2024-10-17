@@ -258,7 +258,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     class Meta:
         model = TunnelTermination
         fields = [
-            'tunnel', 'role', 'termination', 'outside_ip', 'tags',
+            'tunnel', 'role', 'outside_ip', 'tags',
         ]
 
     def __init__(self, *args, initial=None, **kwargs):

@@ -1,10 +1,10 @@
 from django import forms
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
 from circuits.models import *
 from dcim.models import Site
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
@@ -95,6 +95,12 @@ class CircuitImportForm(NetBoxModelImportForm):
         choices=CircuitStatusChoices,
         help_text=_('Operational status')
     )
+    distance_unit = CSVChoiceField(
+        label=_('Distance unit'),
+        choices=DistanceUnitChoices,
+        required=False,
+        help_text=_('Distance unit')
+    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -107,7 +113,7 @@ class CircuitImportForm(NetBoxModelImportForm):
         model = Circuit
         fields = [
             'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date',
-            'commit_rate', 'description', 'comments', 'tags'
+            'commit_rate', 'distance', 'distance_unit', 'description', 'comments', 'tags'
         ]
 
 

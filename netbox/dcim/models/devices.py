@@ -21,11 +21,12 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
-from .mixins import RenderConfigMixin, WeightMixin
+from .mixins import RenderConfigMixin
 
 
 __all__ = (
@@ -53,9 +54,6 @@ class Manufacturer(ContactsMixin, OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('manufacturer')
         verbose_name_plural = _('manufacturers')
-
-    def get_absolute_url(self):
-        return reverse('dcim:manufacturer', args=[self.pk])
 
 
 class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
@@ -216,9 +214,6 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         # Save references to the original front/rear images
         self._original_front_image = self.__dict__.get('front_image')
         self._original_rear_image = self.__dict__.get('rear_image')
-
-    def get_absolute_url(self):
-        return reverse('dcim:devicetype', args=[self.pk])
 
     @property
     def full_name(self):
@@ -414,9 +409,6 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     def __str__(self):
         return self.model
 
-    def get_absolute_url(self):
-        return reverse('dcim:moduletype', args=[self.pk])
-
     @property
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
@@ -497,9 +489,6 @@ class DeviceRole(OrganizationalModel):
         verbose_name = _('device role')
         verbose_name_plural = _('device roles')
 
-    def get_absolute_url(self):
-        return reverse('dcim:devicerole', args=[self.pk])
-
 
 class Platform(OrganizationalModel):
     """
@@ -526,9 +515,6 @@ class Platform(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
-
-    def get_absolute_url(self):
-        return reverse('dcim:platform', args=[self.pk])
 
 
 def update_interface_bridges(device, interface_templates, module=None):
@@ -823,9 +809,6 @@ class Device(
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
 
-    def get_absolute_url(self):
-        return reverse('dcim:device', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -981,6 +964,13 @@ class Device(
         if self.virtual_chassis and self.vc_position is None:
             raise ValidationError({
                 'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
+            })
+
+        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
+            raise ValidationError({
+                'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
+                    virtual_chassis=self.vc_master_for
+                )
             })
 
     def _instantiate_components(self, queryset, bulk_create=True):
@@ -1192,9 +1182,6 @@ class Module(PrimaryModel, ConfigContextModel):
     def __str__(self):
         return f'{self.module_bay.name}: {self.module_type} ({self.pk})'
 
-    def get_absolute_url(self):
-        return reverse('dcim:module', args=[self.pk])
-
     def get_status_color(self):
         return ModuleStatusChoices.colors.get(self.status)
 
@@ -1343,9 +1330,6 @@ class VirtualChassis(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('dcim:virtualchassis', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -1444,9 +1428,6 @@ class VirtualDeviceContext(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:virtualdevicecontext', kwargs={'pk': self.pk})
 
     def get_status_color(self):
         return VirtualDeviceContextStatusChoices.colors.get(self.status)

@@ -4,6 +4,7 @@ from dcim.api.serializers_.cables import CabledObjectSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
+from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
@@ -80,13 +81,14 @@ class CircuitSerializer(NetBoxModelSerializer):
     termination_a = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     assignments = CircuitGroupAssignmentSerializer_(nested=True, many=True, required=False)
+    distance_unit = ChoiceField(choices=DistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant',
             'install_date', 'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'assignments',
+            'distance', 'distance_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'assignments',
         ]
         brief_fields = ('id', 'url', 'display', 'provider', 'cid', 'description')
 

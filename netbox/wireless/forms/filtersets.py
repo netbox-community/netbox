@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
+from netbox.choices import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
@@ -104,7 +105,7 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     distance_unit = forms.ChoiceField(
         label=_('Distance unit'),
-        choices=add_blank_choice(WirelessLinkDistanceUnitChoices),
+        choices=add_blank_choice(DistanceUnitChoices),
         required=False
     )
     tag = TagFilterField(model)

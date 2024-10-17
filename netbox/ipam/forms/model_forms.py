@@ -591,7 +591,7 @@ class VLANGroupForm(NetBoxModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'scope', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

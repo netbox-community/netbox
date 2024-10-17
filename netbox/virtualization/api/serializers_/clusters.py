@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer

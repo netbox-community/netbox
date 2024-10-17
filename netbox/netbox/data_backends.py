@@ -50,4 +50,4 @@ class DataBackend:
         2. Yields the local path at which data has been replicated
         3. Performs any necessary cleanup
         """
-        raise NotImplemented()
+        raise NotImplementedError()

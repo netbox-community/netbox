@@ -6,7 +6,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Lower
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import BaseInterface
@@ -171,9 +170,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('virtualization:virtualmachine', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -377,9 +373,6 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
 
-    def get_absolute_url(self):
-        return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -437,6 +430,3 @@ class VirtualDisk(ComponentModel, TrackingModelMixin):
     class Meta(ComponentModel.Meta):
         verbose_name = _('virtual disk')
         verbose_name_plural = _('virtual disks')
-
-    def get_absolute_url(self):
-        return reverse('virtualization:virtualdisk', args=[self.pk])

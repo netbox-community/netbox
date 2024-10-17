@@ -5,7 +5,7 @@ from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR, VRF
-from netbox.choices import ColorChoices
+from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
@@ -4840,13 +4840,6 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_role_id': [role[0].pk, role[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'device_role': [role[0].slug, role[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_role(self):
-        role = DeviceRole.objects.all()[:2]
-        params = {'role_id': [role[0].pk, role[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):

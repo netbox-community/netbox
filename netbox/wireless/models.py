@@ -1,12 +1,11 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from netbox.models import NestedGroupModel, PrimaryModel
-from utilities.conversion import to_meters
+from netbox.models.mixins import DistanceMixin
 from .choices import *
 from .constants import *
 
@@ -69,9 +68,6 @@ class WirelessLANGroup(NestedGroupModel):
         verbose_name = _('wireless LAN group')
         verbose_name_plural = _('wireless LAN groups')
 
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslangroup', args=[self.pk])
-
 
 class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
@@ -119,9 +115,6 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     def __str__(self):
         return self.ssid
 
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslan', args=[self.pk])
-
     def get_status_color(self):
         return WirelessLANStatusChoices.colors.get(self.status)
 
@@ -132,7 +125,7 @@ def get_wireless_interface_types():
     return {'type__in': WIRELESS_IFACE_TYPES}
 
 
-class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
+class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """
@@ -160,26 +153,6 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
-    )
-    distance = models.DecimalField(
-        verbose_name=_('distance'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True
-    )
-    distance_unit = models.CharField(
-        verbose_name=_('distance unit'),
-        max_length=50,
-        choices=WirelessLinkDistanceUnitChoices,
-        blank=True,
-    )
-    # Stores the normalized distance (in meters) for database ordering
-    _abs_distance = models.DecimalField(
-        max_digits=10,
-        decimal_places=4,
-        blank=True,
-        null=True
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -222,18 +195,11 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
     def __str__(self):
         return self.ssid or f'#{self.pk}'
 
-    def get_absolute_url(self):
-        return reverse('wireless:wirelesslink', args=[self.pk])
-
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()
-
-        # Validate distance and distance_unit
-        if self.distance is not None and not self.distance_unit:
-            raise ValidationError(_("Must specify a unit when setting a wireless distance"))
 
         # Validate interface types
         if self.interface_a.type not in WIRELESS_IFACE_TYPES:
@@ -250,16 +216,6 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
             })
 
     def save(self, *args, **kwargs):
-        # Store the given distance (if any) in meters for use in database ordering
-        if self.distance is not None and self.distance_unit:
-            self._abs_distance = to_meters(self.distance, self.distance_unit)
-        else:
-            self._abs_distance = None
-
-        # Clear distance_unit if no distance is defined
-        if self.distance is None:
-            self.distance_unit = ''
-
         # Store the parent Device for the A and B interfaces
         self._interface_a_device = self.interface_a.device
         self._interface_b_device = self.interface_b.device

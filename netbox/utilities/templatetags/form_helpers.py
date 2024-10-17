@@ -1,8 +1,6 @@
-import warnings
-
 from django import template
 
-from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
+from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedGroups
 
 __all__ = (
     'getfield',

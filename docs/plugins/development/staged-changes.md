@@ -1,7 +1,7 @@
 # Staged Changes
 
-!!! danger "Experimental Feature"
-    This feature is still under active development and considered experimental in nature. Its use in production is strongly discouraged at this time.
+!!! danger "Deprecated Feature"
+    This feature has been deprecated in NetBox v4.2 and will be removed in a future release. Please consider using the [netbox-branching plugin](https://github.com/netboxlabs/netbox-branching), which provides much more robust functionality.
 
 NetBox provides a programmatic API to stage the creation, modification, and deletion of objects without actually committing those changes to the active database. This can be useful for performing a "dry run" of bulk operations, or preparing a set of changes for administrative approval, for example.
 

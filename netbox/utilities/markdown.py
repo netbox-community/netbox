@@ -14,7 +14,7 @@ class StrikethroughExtension(markdown.Extension):
     """
     def extendMarkdown(self, md):
         md.inlinePatterns.register(
-            markdown.inlinepatterns.SimpleTagPattern(STRIKE_RE, 'del'),
+            SimpleTagPattern(STRIKE_RE, 'del'),
             'strikethrough',
             200
         )

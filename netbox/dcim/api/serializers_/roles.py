@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.models import DeviceRole, InventoryItemRole
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from netbox.api.fields import RelatedObjectCountField

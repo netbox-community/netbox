@@ -1,9 +1,9 @@
 import datetime
 import os
-import yaml
 from dataclasses import asdict, dataclass, field
-from typing import List, Union
+from typing import Union
 
+import yaml
 from django.core.exceptions import ImproperlyConfigured
 
 from utilities.datetime import datetime_from_timestamp
