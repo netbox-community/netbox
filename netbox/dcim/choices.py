@@ -1514,8 +1514,12 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
-        (TYPE_USB, _('USB')),
-        (TYPE_POWER, _('Power')),
+        (
+            _('Other'), (
+                (TYPE_USB, _('USB')),
+                (TYPE_POWER, _('Power')),
+            )
+        )
     )
 
 
