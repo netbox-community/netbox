@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
+from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -129,6 +130,13 @@ class PluginTest(TestCase):
         """
         self.assertIn('dummy', registry['data_backends'])
         self.assertIs(registry['data_backends']['dummy'], DummyBackend)
+
+    def test_system_jobs(self):
+        """
+        Check registered system jobs.
+        """
+        self.assertIn(DummySystemJob.name, registry['system_jobs'])
+        self.assertIs(registry['system_jobs'][DummySystemJob.name], DummySystemJob)
 
     def test_queues(self):
         """

@@ -29,13 +29,24 @@ class MyTestJob(JobRunner):
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
+!!! tip
+    A set of predefined intervals can be used from `core.choices.JobIntervalChoices`.
+
 ### Attributes
 
-`JobRunner` attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
+`JobRunner` attributes are defined under a class named `Meta` within the job. These are optional (unless specified otherwise), but encouraged.
 
 #### `name`
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
+
+#### `system_enabled`
+
+When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls whether a job will be scheduled. By default, this attribute is `True`.
+
+#### `system_interval` *(required for system jobs)*
+
+When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls the interval of the scheduled job.
 
 ### Scheduled Jobs
 
@@ -46,25 +57,49 @@ As described above, jobs can be scheduled for immediate execution or at any late
 
 #### Example
 
-```python title="jobs.py"
-from netbox.jobs import JobRunner
+```python title="models.py"
+from django.db import models
+from core.choices import JobIntervalChoices
+from netbox.models import NetBoxModel
+from .jobs import MyTestJob
 
+class MyModel(NetBoxModel):
+    foo = models.CharField()
+
+    def save(self, *args, **kwargs):
+        MyTestJob.enqueue_once(instance=self, interval=JobIntervalChoices.INTERVAL_HOURLY)
+        return super().save(*args, **kwargs)
+
+    def sync(self):
+        MyTestJob.enqueue(instance=self)
+```
+
+
+### System Jobs
+
+Some plugins may implement background jobs that are decoupled from any object and the request-response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be created using *system jobs*. The `JobRunner` class has everything included to provide this type of job as well. Just add the appropriate metadata to let NetBox schedule all background jobs automatically.
+
+!!! info
+    All system jobs are automatically scheduled just before the `./manage.py rqworker` command is started and the job queue is processed. The schedules are also checked at each restart of this process.
+
+#### Example
+
+```python title="jobs.py"
+from core.choices import JobIntervalChoices
+from netbox.jobs import JobRunner
+from .models import MyModel
 
 class MyHousekeepingJob(JobRunner):
     class Meta:
-        name = "Housekeeping"
+        name = "My Housekeeping Job"
+        system_interval = JobIntervalChoices.INTERVAL_HOURLY  # or integer for n minutes
 
     def run(self, *args, **kwargs):
-        # your logic goes here
-```
+        MyModel.objects.filter(foo='bar').delete()
 
-```python title="__init__.py"
-from netbox.plugins import PluginConfig
-
-class MyPluginConfig(PluginConfig):
-    def ready(self):
-        from .jobs import MyHousekeepingJob
-        MyHousekeepingJob.setup(interval=60)
+system_jobs = (
+    MyHousekeepingJob,
+)
 ```
 
 ## Task queues
