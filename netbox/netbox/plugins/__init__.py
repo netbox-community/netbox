@@ -78,6 +78,7 @@ class PluginConfig(AppConfig):
     menu_items = None
     template_extensions = None
     user_preferences = None
+    events_pipeline = []
 
     def _load_resource(self, name):
         # Import from the configured path, if defined.
