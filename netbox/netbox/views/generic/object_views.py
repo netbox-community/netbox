@@ -13,6 +13,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from dcim.exceptions import UnsupportedCablePath
 from core.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -317,6 +318,12 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                 return redirect(return_url)
 
             except (AbortRequest, PermissionsViolation) as e:
+                logger.debug(e.message)
+                form.add_error(None, e.message)
+                clear_events.send(sender=self)
+
+            # Catch any validation errors thrown in the model.save() or form.save() methods
+            except UnsupportedCablePath as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
                 clear_events.send(sender=self)
