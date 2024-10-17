@@ -789,6 +789,10 @@ STRAWBERRY_DJANGO = {
 
 PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
 
+EVENTS_PIPELINE = list(EVENTS_PIPELINE)
+if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
+    EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
+
 # Register any configured plugins
 for plugin_name in PLUGINS:
     try:
@@ -860,12 +864,11 @@ for plugin_name in PLUGINS:
     })
 
     events_pipeline = plugin_config.events_pipeline
-    if events_pipeline and type(events_pipeline) in (list, tuple):
-        EVENTS_PIPELINE = list(EVENTS_PIPELINE)
-        if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
-            EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
-
-        EVENTS_PIPELINE.extend(events_pipeline)
+    if events_pipeline:
+        if type(events_pipeline) in (list, tuple):
+            EVENTS_PIPELINE.extend(events_pipeline)
+        else:
+            raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
