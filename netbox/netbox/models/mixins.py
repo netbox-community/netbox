@@ -23,6 +23,7 @@ class WeightMixin(models.Model):
         max_length=50,
         choices=WeightUnitChoices,
         blank=True,
+        null=True,
     )
     # Stores the normalized weight (in grams) for database ordering
     _abs_weight = models.PositiveBigIntegerField(
@@ -64,6 +65,7 @@ class DistanceMixin(models.Model):
         max_length=50,
         choices=DistanceUnitChoices,
         blank=True,
+        null=True,
     )
     # Stores the normalized distance (in meters) for database ordering
     _abs_distance = models.DecimalField(
@@ -85,7 +87,7 @@ class DistanceMixin(models.Model):
 
         # Clear distance_unit if no distance is defined
         if self.distance is None:
-            self.distance_unit = ''
+            self.distance_unit = None
 
         super().save(*args, **kwargs)
 

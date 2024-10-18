@@ -34,6 +34,7 @@ class FHRPGroup(PrimaryModel):
         max_length=50,
         choices=FHRPGroupAuthTypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('authentication type')
     )
     auth_key = models.CharField(

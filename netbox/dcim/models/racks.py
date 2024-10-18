@@ -83,7 +83,8 @@ class RackBase(WeightMixin, PrimaryModel):
         verbose_name=_('outer unit'),
         max_length=50,
         choices=RackDimensionUnitChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     mounting_depth = models.PositiveSmallIntegerField(
         verbose_name=_('mounting depth'),
@@ -188,7 +189,7 @@ class RackType(RackBase):
 
         # Clear unit if outer width & depth are not set
         if self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = ''
+            self.outer_unit = None
 
         super().save(*args, **kwargs)
 
@@ -242,6 +243,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         choices=RackFormFactorChoices,
         max_length=50,
         blank=True,
+        null=True,
         verbose_name=_('form factor')
     )
     rack_type = models.ForeignKey(
@@ -317,7 +319,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         verbose_name=_('airflow'),
         max_length=50,
         choices=RackAirflowChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     # Generic relations
@@ -409,7 +412,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
         # Clear unit if outer width & depth are not set
         if self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = ''
+            self.outer_unit = None
 
         super().save(*args, **kwargs)
 
