@@ -133,7 +133,7 @@ class BaseFilterSet(django_filters.FilterSet):
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
             TagFilter
-        )) or existing_filter.extra.get('choices'):
+        )):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
 
@@ -172,6 +172,7 @@ class BaseFilterSet(django_filters.FilterSet):
         # Create new filters for each lookup expression in the map
         for lookup_name, lookup_expr in lookup_map.items():
             new_filter_name = f'{existing_filter_name}__{lookup_name}'
+            existing_filter_extra = deepcopy(existing_filter.extra)
 
             try:
                 if existing_filter_name in cls.declared_filters:
@@ -179,14 +180,18 @@ class BaseFilterSet(django_filters.FilterSet):
                     # create the new filter with the same type because there is no guarantee the defined type
                     # is the same as the default type for the field
                     resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
-                    filter_cls = django_filters.BooleanFilter if lookup_expr == 'empty' else type(existing_filter)
+                    filter_cls = type(existing_filter)
+                    if lookup_expr == 'empty':
+                        filter_cls = django_filters.BooleanFilter
+                        for param_to_remove in ('choices', 'null_value'):
+                            existing_filter_extra.pop(param_to_remove, None)
                     new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,
                         label=existing_filter.label,
                         exclude=existing_filter.exclude,
                         distinct=existing_filter.distinct,
-                        **existing_filter.extra
+                        **existing_filter_extra
                     )
                 elif hasattr(existing_filter, 'custom_field'):
                     # Filter is for a custom field

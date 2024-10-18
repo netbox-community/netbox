@@ -49,11 +49,11 @@ class ConfigContextTest(TestCase):
         sitegroup = SiteGroup.objects.create(name='Site Group')
         site = Site.objects.create(name='Site 1', slug='site-1', region=region, group=sitegroup)
         location = Location.objects.create(name='Location 1', slug='location-1', site=site)
-        platform = Platform.objects.create(name='Platform')
+        Platform.objects.create(name='Platform')
         tenantgroup = TenantGroup.objects.create(name='Tenant Group')
-        tenant = Tenant.objects.create(name='Tenant', group=tenantgroup)
-        tag1 = Tag.objects.create(name='Tag', slug='tag')
-        tag2 = Tag.objects.create(name='Tag2', slug='tag2')
+        Tenant.objects.create(name='Tenant', group=tenantgroup)
+        Tag.objects.create(name='Tag', slug='tag')
+        Tag.objects.create(name='Tag2', slug='tag2')
 
         Device.objects.create(
             name='Device 1',

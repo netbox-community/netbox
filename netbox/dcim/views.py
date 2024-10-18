@@ -3253,10 +3253,10 @@ class CableEditView(generic.ObjectEditView):
         doesn't currently provide a hook for dynamic class resolution.
         """
         a_terminations_type = CABLE_TERMINATION_TYPES.get(
-            request.GET.get('a_terminations_type') or request.POST.get('a_terminations_type')
+            request.POST.get('a_terminations_type') or request.GET.get('a_terminations_type')
         )
         b_terminations_type = CABLE_TERMINATION_TYPES.get(
-            request.GET.get('b_terminations_type') or request.POST.get('b_terminations_type')
+            request.POST.get('b_terminations_type') or request.GET.get('b_terminations_type')
         )
 
         if obj.pk:

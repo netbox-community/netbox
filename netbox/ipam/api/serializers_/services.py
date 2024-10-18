@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.api.serializers_.devices import DeviceSerializer
 from ipam.choices import *
 from ipam.models import IPAddress, Service, ServiceTemplate

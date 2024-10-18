@@ -12,6 +12,9 @@
                 "left-to-right",
                 "right-to-left",
                 "side-to-rear",
+                "rear-to-side",
+                "bottom-to-top",
+                "top-to-bottom",
                 "passive",
                 "mixed"
             ]
@@ -149,6 +152,7 @@
                         "nema-l15-60p",
                         "nema-l21-20p",
                         "nema-l21-30p",
+                        "nema-l22-20p",
                         "nema-l22-30p",
                         "cs6361c",
                         "cs6365c",
@@ -262,6 +266,7 @@
                         "nema-l15-60r",
                         "nema-l21-20r",
                         "nema-l21-30r",
+                        "nema-l22-20r",
                         "nema-l22-30r",
                         "CS6360C",
                         "CS6364C",
@@ -288,6 +293,7 @@
                         "molex-micro-fit-2x2",
                         "molex-micro-fit-2x4",
                         "dc-terminal",
+                        "eaton-c39",
                         "hdot-cx",
                         "saf-d-grid",
                         "neutrik-powercon-20a",
@@ -328,6 +334,7 @@
                         "5gbase-t",
                         "10gbase-t",
                         "10gbase-cx4",
+                        "100base-x-sfp",
                         "1000base-x-gbic",
                         "1000base-x-sfp",
                         "10gbase-x-sfpp",
@@ -379,6 +386,7 @@
                         "ieee802.11ay",
                         "ieee802.11be",
                         "ieee802.15.1",
+                        "ieee802.15.4",
                         "other-wireless",
                         "gsm",
                         "cdma",
@@ -518,6 +526,14 @@
                         "urm-p4",
                         "urm-p8",
                         "splice",
+                        "usb-a",
+                        "usb-b",
+                        "usb-c",
+                        "usb-mini-a",
+                        "usb-mini-b",
+                        "usb-micro-a",
+                        "usb-micro-b",
+                        "usb-micro-ab",
                         "other"
                     ]
                 }
@@ -575,6 +591,14 @@
                         "urm-p4",
                         "urm-p8",
                         "splice",
+                        "usb-a",
+                        "usb-b",
+                        "usb-c",
+                        "usb-mini-a",
+                        "usb-mini-b",
+                        "usb-micro-a",
+                        "usb-micro-b",
+                        "usb-micro-ab",
                         "other"
                     ]
                 }

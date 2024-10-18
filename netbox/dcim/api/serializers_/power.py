@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.choices import *
 from dcim.models import PowerFeed, PowerPanel
 from netbox.api.fields import ChoiceField, RelatedObjectCountField

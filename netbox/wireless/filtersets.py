@@ -6,7 +6,7 @@ from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 

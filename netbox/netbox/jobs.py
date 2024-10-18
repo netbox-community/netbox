@@ -68,6 +68,8 @@ class JobRunner(ABC):
         finally:
             if job.interval:
                 new_scheduled_time = (job.scheduled or job.started) + timedelta(minutes=job.interval)
+                if job.object and getattr(job.object, "python_class", None):
+                    kwargs["job_timeout"] = job.object.python_class.job_timeout
                 cls.enqueue(
                     instance=job.object,
                     user=job.user,
@@ -100,7 +102,8 @@ class JobRunner(ABC):
         This method is a wrapper of `Job.enqueue()` using `handle()` as function callback. See its documentation for
         parameters.
         """
-        return Job.enqueue(cls.handle, name=cls.name, *args, **kwargs)
+        name = kwargs.pop('name', None) or cls.name
+        return Job.enqueue(cls.handle, name=name, *args, **kwargs)
 
     @classmethod
     @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])

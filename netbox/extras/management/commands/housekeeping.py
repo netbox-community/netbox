@@ -95,7 +95,7 @@ class Command(BaseCommand):
             self.stdout.write("[*] Checking for latest release")
         if settings.ISOLATED_DEPLOYMENT:
             if options['verbosity']:
-                self.stdout.write(f"\tSkipping: ISOLATED_DEPLOYMENT is enabled")
+                self.stdout.write("\tSkipping: ISOLATED_DEPLOYMENT is enabled")
         elif settings.RELEASE_CHECK_URL:
             headers = {
                 'Accept': 'application/vnd.github.v3+json',
@@ -129,7 +129,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"\tRequest error: {exc}", self.style.ERROR)
         else:
             if options['verbosity']:
-                self.stdout.write(f"\tSkipping: RELEASE_CHECK_URL not set")
+                self.stdout.write("\tSkipping: RELEASE_CHECK_URL not set")
 
         if options['verbosity']:
             self.stdout.write("Finished.", self.style.SUCCESS)

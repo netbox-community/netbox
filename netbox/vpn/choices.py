@@ -219,6 +219,7 @@ class L2VPNTypeChoices(ChoiceSet):
     TYPE_VXLAN_EVPN = 'vxlan-evpn'
     TYPE_MPLS_EVPN = 'mpls-evpn'
     TYPE_PBB_EVPN = 'pbb-evpn'
+    TYPE_EVPN_VPWS = 'evpn-vpws'
 
     CHOICES = (
         ('VPLS', (
@@ -232,6 +233,7 @@ class L2VPNTypeChoices(ChoiceSet):
         ('L2VPN E-VPN', (
             (TYPE_MPLS_EVPN, 'MPLS EVPN'),
             (TYPE_PBB_EVPN, 'PBB EVPN'),
+            (TYPE_EVPN_VPWS, 'EVPN VPWS')
         )),
         ('E-Line', (
             (TYPE_EPL, 'EPL'),

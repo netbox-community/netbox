@@ -588,6 +588,9 @@ class BaseInterfaceTable(NetBoxTable):
     def value_ip_addresses(self, value):
         return ",".join([str(obj.address) for obj in value.all()])
 
+    def value_tagged_vlans(self, value):
+        return ",".join([str(obj) for obj in value.all()])
+
 
 class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
     device = tables.Column(
@@ -684,7 +687,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-virtual': lambda record: "true" if record.is_virtual else "false",
             'data-mark-connected': lambda record: "true" if record.mark_connected else "false",
             'data-cable-status': lambda record: record.cable.status if record.cable else "",
-            'data-type': lambda record: record.type
+            'data-type': lambda record: record.type,
+            'data-connected': lambda record: "connected" if record.mark_connected or record.cable else "disconnected"
         }
 
 

@@ -50,7 +50,7 @@
           </thead>
           <tbody>
             {% for script in module.scripts.all %}
-              {% with last_job=script.get_latest_jobs|get_key:script.name %}
+              {% with last_job=script.get_latest_jobs|first %}
                 <tr>
                   <td>
                     {% if script.is_executable %}
