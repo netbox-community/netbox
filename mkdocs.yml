@@ -156,6 +156,7 @@ nav:
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
+            - Google: 'administration/authentication/google.md'
             - Microsoft Entra ID: 'administration/authentication/microsoft-entra-id.md'
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
