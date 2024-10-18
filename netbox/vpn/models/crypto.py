@@ -35,7 +35,8 @@ class IKEProposal(PrimaryModel):
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication algorithm'),
         choices=AuthenticationAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     group = models.PositiveSmallIntegerField(
         verbose_name=_('group'),
@@ -76,7 +77,8 @@ class IKEPolicy(PrimaryModel):
     mode = models.CharField(
         verbose_name=_('mode'),
         choices=IKEModeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     proposals = models.ManyToManyField(
         to='vpn.IKEProposal',
@@ -128,12 +130,14 @@ class IPSecProposal(PrimaryModel):
     encryption_algorithm = models.CharField(
         verbose_name=_('encryption'),
         choices=EncryptionAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication'),
         choices=AuthenticationAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     sa_lifetime_seconds = models.PositiveIntegerField(
         verbose_name=_('SA lifetime (seconds)'),

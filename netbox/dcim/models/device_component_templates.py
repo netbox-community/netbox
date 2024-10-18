@@ -203,7 +203,8 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     component_model = ConsolePort
@@ -237,7 +238,8 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     component_model = ConsoleServerPort
@@ -272,7 +274,8 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=PowerPortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     maximum_draw = models.PositiveIntegerField(
         verbose_name=_('maximum draw'),
@@ -334,7 +337,8 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=PowerOutletTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPortTemplate',
@@ -348,6 +352,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
+        null=True,
         help_text=_('Phase (for three-phase feeds)')
     )
 
@@ -434,18 +439,21 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE type')
     )
     rf_role = models.CharField(
         max_length=30,
         choices=WirelessRoleChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless role')
     )
 
