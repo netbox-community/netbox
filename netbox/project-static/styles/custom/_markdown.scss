@@ -28,14 +28,17 @@
 
 }
 
-// Remove the bottom margin of <p> elements inside a table cell
-td > .rendered-markdown {
-  max-height: 200px;
-  overflow-y: scroll;
-
+// Remove the bottom margin of the last <p> elements in markdown
+.rendered-markdown {
   p:last-of-type {
     margin-bottom: 0;
   }
+}
+
+// fix layout of rendered markdown inside a table cell
+td > .rendered-markdown {
+  max-height: 200px;
+  overflow-y: scroll;
 }
 
 // Markdown preview

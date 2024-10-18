@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
+{% load render_table from django_tables2 %}
 
 {% block title %}{{ plugin.title_long }}{% endblock %}
 
@@ -93,8 +94,8 @@
       <div class="col col-6">
         <div class="card">
           <h2 class="card-header">{% trans "Version History" %}</h2>
-          <div class="htmx-container table-responsive" id="object_list">
-            {% include 'htmx/table.html' %}
+          <div class="table-responsive">
+            {% render_table table 'inc/table.html' %}
           </div>
         </div>
       </div>
