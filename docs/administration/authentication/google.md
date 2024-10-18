@@ -4,18 +4,19 @@ This guide explains how to configure single sign-on (SSO) support for NetBox usi
 
 ## Google OAuth2 Configuration
 
+1. Log into [console.cloud.google.com](https://console.cloud.google.com/).
+2. Create new project for NetBox.
+3. Under "APIs and Services" click "OAuth consent screen" and enter the required information.
+4. Under "Credentials," click "Create Credentials" and select "OAuth 2.0 Client ID." Select type "Web application."
+    - "Authorized JavaScript origins" should follow the format `http[s]://<netbox>[:<port>]`
+    - "Authorized redirect URIs" should follow the format `http[s]://<netbox>[:<port>]/oauth/complete/google-oauth2/`
+5. Copy the "Client ID" and "Client Secret" values somewhere convenient.
 
-1. Go to https://console.cloud.google.com/
-1. Create new project for Netbox
-1. Under ‘APIs and Services’ click ‘OAuth consent screen’ and complete the fields
-1. Under ‘Credentials’ click ‘Create Credentials’ and select ‘OAuth 2.0 Client ID' web application’. Select type ‘Web application’
-    - ‘Authorized JavaScript origins’ should look like: `http[s]://<netbox hostname>[:<port>]`
-    - ‘Authorized redirect URIs’ should look like: `http[s]://<netbox hostname>[:<port>]/oauth/complete/google-oauth2/`
-1. Copy the ‘Client ID’ and ‘Client Secret’ values somewhere convenient
+!!! note
+    Google requires the NetBox hostname to use a public top-level-domain (e.g. `.com`, `.net`). The use of IP addresses is not permitted (except `127.0.0.1`).
 
-NOTE: Google requires the Netbox hostname to use a public top-level-domain (e.g. `.com`, `.net`) . You cannot use an IP address (except `127.0.0.1`).
+For more information, consult [Google's documentation](https://developers.google.com/identity/protocols/oauth2/web-server#prerequisites).
 
-For more information, consult Google's documentation: https://developers.google.com/identity/protocols/oauth2/web-server#prerequisites
 ## NetBox Configuration
 
 ### 1. Enter configuration parameters
