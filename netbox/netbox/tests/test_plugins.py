@@ -203,3 +203,10 @@ class PluginTest(TestCase):
         self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
         self.assertEqual(get_plugin_config(plugin, 'bar'), None)
         self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
+
+
+    def test_events_pipeline(self):
+        """
+        Check that events pipeline is registered.
+        """
+        self.assertIn('netbox.tests.dummy_plugin.events.process_events_queue', settings.EVENTS_PIPELINE)

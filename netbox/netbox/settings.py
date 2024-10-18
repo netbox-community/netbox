@@ -110,9 +110,9 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
+EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
-))
+])
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
@@ -787,6 +787,10 @@ STRAWBERRY_DJANGO = {
 
 PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
 
+EVENTS_PIPELINE = list(EVENTS_PIPELINE)
+if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
+    EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
+
 # Register any configured plugins
 for plugin_name in PLUGINS:
     try:
@@ -856,6 +860,13 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+
+    events_pipeline = plugin_config.events_pipeline
+    if events_pipeline:
+        if type(events_pipeline) in (list, tuple):
+            EVENTS_PIPELINE.extend(events_pipeline)
+        else:
+            raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
