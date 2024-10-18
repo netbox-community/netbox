@@ -42,7 +42,8 @@ class Cable(PrimaryModel):
         verbose_name=_('type'),
         max_length=50,
         choices=CableTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     status = models.CharField(
         verbose_name=_('status'),
@@ -78,6 +79,7 @@ class Cable(PrimaryModel):
         max_length=50,
         choices=CableLengthUnitChoices,
         blank=True,
+        null=True
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
@@ -206,7 +208,7 @@ class Cable(PrimaryModel):
 
         # Clear length_unit if no length is defined
         if self.length is None:
-            self.length_unit = ''
+            self.length_unit = None
 
         super().save(*args, **kwargs)
 
@@ -365,7 +367,7 @@ class CableTermination(ChangeLoggedModel):
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
         termination.cable = None
-        termination.cable_end = ''
+        termination.cable_end = None
         termination.save()
 
         super().delete(*args, **kwargs)

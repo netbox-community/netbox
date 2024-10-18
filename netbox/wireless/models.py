@@ -24,13 +24,15 @@ class WirelessAuthenticationBase(models.Model):
         max_length=50,
         choices=WirelessAuthTypeChoices,
         blank=True,
+        null=True,
         verbose_name=_("authentication type"),
     )
     auth_cipher = models.CharField(
         verbose_name=_('authentication cipher'),
         max_length=50,
         choices=WirelessAuthCipherChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     auth_psk = models.CharField(
         max_length=PSK_MAX_LENGTH,

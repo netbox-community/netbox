@@ -592,7 +592,7 @@ class DeviceTypeTestCase(
             'part_number': '123ABC',
             'u_height': 2,
             'is_full_depth': True,
-            'subdevice_role': '',  # CharField
+            'subdevice_role': None,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }

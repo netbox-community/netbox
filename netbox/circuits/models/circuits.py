@@ -187,7 +187,8 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         verbose_name=_('priority'),
         max_length=50,
         choices=CircuitPriorityChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     prerequisite_models = (
         'circuits.Circuit',

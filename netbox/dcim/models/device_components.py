@@ -142,8 +142,9 @@ class CabledObjectModel(models.Model):
     cable_end = models.CharField(
         verbose_name=_('cable end'),
         max_length=1,
+        choices=CableEndChoices,
         blank=True,
-        choices=CableEndChoices
+        null=True
     )
     mark_connected = models.BooleanField(
         verbose_name=_('mark connected'),
@@ -283,6 +284,7 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
@@ -309,6 +311,7 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
@@ -339,6 +342,7 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
         max_length=50,
         choices=PowerPortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     maximum_draw = models.PositiveIntegerField(
@@ -454,6 +458,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=PowerOutletTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     power_port = models.ForeignKey(
@@ -468,6 +473,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
+        null=True,
         help_text=_('Phase (for three-phase feeds)')
     )
     color = ColorField(
@@ -522,6 +528,7 @@ class BaseInterface(models.Model):
         max_length=50,
         choices=InterfaceModeChoices,
         blank=True,
+        null=True,
         help_text=_('IEEE 802.1Q tagging strategy')
     )
     parent = models.ForeignKey(
@@ -624,12 +631,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=30,
         choices=WirelessRoleChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless role')
     )
     rf_channel = models.CharField(
         max_length=50,
         choices=WirelessChannelChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless channel')
     )
     rf_channel_frequency = models.DecimalField(
@@ -658,12 +667,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE type')
     )
     wireless_link = models.ForeignKey(

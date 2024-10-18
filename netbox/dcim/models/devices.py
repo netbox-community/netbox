@@ -118,6 +118,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         max_length=50,
         choices=SubdeviceRoleChoices,
         blank=True,
+        null=True,
         verbose_name=_('parent/child status'),
         help_text=_('Parent devices house child devices in device bays. Leave blank '
                     'if this device type is neither a parent nor a child.')
@@ -126,7 +127,8 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         verbose_name=_('airflow'),
         max_length=50,
         choices=DeviceAirflowChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     front_image = models.ImageField(
         upload_to='devicetype-images',
@@ -387,7 +389,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         verbose_name=_('airflow'),
         max_length=50,
         choices=ModuleAirflowChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
@@ -632,6 +635,7 @@ class Device(
     face = models.CharField(
         max_length=50,
         blank=True,
+        null=True,
         choices=DeviceFaceChoices,
         verbose_name=_('rack face')
     )
@@ -645,7 +649,8 @@ class Device(
         verbose_name=_('airflow'),
         max_length=50,
         choices=DeviceAirflowChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
