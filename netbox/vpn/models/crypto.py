@@ -1,9 +1,15 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import PrimaryModel
+from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
+from ipam.fields import IPNetworkField
+from netbox.models import PrimaryModel, CustomFieldsMixin, CustomLinksMixin, TagsMixin, \
+    ChangeLoggedModel
 from vpn.choices import *
 
 __all__ = (
@@ -12,7 +18,11 @@ __all__ = (
     'IPSecPolicy',
     'IPSecProfile',
     'IPSecProposal',
+    'WireguardConfig',
 )
+
+
+WIREGUARD_DEFAULT_PORT = 51820
 
 
 #
@@ -255,3 +265,94 @@ class IPSecProfile(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('vpn:ipsecprofile', args=[self.pk])
+
+
+class WireguardConfig(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLoggedModel):
+    tunnel_interface_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    tunnel_interface_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    tunnel_interface = GenericForeignKey(
+        ct_field='tunnel_interface_type',
+        fk_field='tunnel_interface_id'
+    )
+    private_key = models.TextField(
+        verbose_name=_('private key'),
+        blank=True,
+    )
+    public_key = models.TextField(
+        verbose_name=_('public key'),
+        blank=True
+    )
+    listen_port = models.PositiveIntegerField(
+        verbose_name=_('listen port'),
+        default=WIREGUARD_DEFAULT_PORT,
+        validators=[
+            MinValueValidator(SERVICE_PORT_MIN),
+            MaxValueValidator(SERVICE_PORT_MAX)
+        ]
+    )
+    allowed_ips = ArrayField(
+        base_field=IPNetworkField(),
+        blank=True,
+        null=True,
+        verbose_name=_('allowed ips'),
+        help_text=_(
+            "Represents the permissible IPv4/IPv6 networks for use by other peers in their "
+            "'allowed_ips' configuration while creating a tunnel with this peer. "
+            "Ex: '10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64'"
+        ),
+    )
+    fwmark = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('fwmark'),
+        help_text=_('Optional. Set a 32-bit integer firewall mark (fwmark) for outgoing packets'),
+    )
+    persistent_keepalive_interval = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('persistent keepalive interval'),
+        help_text=_('Persistant keepalive interval in seconds, 0 disables this feature'),
+    )
+
+    class Meta:
+        ordering = ('pk',)
+        indexes = (
+            models.Index(fields=('tunnel_interface_type', 'tunnel_interface_id')),
+        )
+        constraints = (
+            models.UniqueConstraint(
+                fields=('tunnel_interface_type', 'tunnel_interface_id'),
+                name='%(app_label)s_%(class)s_tunnel_interface',
+                violation_error_message=_("An tunnel_interface may only have one wireguard configration.")
+            ),
+        )
+        verbose_name = _('wireguard config')
+        verbose_name_plural = _('wireguard configs')
+
+    def __str__(self):
+        return f'{self.tunnel_interface.name}: Wireguard config'
+
+    def get_absolute_url(self):
+        return reverse('vpn:wireguardconfig', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Check that the selected termination object is not already
+        if getattr(self.tunnel_interface, 'wireguard_config', None) and self.tunnel_interface.wireguard_config.pk != self.pk:
+            raise ValidationError({
+                'tunnel_interface': _("{name} already has a Wireguard config").format(
+                    name=self.tunnel_interface.name,
+                )
+            })
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.tunnel_interface
+        return objectchange
