@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema_field
 from netaddr.core import AddrFormatError
 
 from circuits.models import Provider
-from dcim.models import Device, Interface, Region, Site, SiteGroup
+from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import (
@@ -332,41 +332,56 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
+    scope_type = ContentTypeFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region',
+        field_name='_region',
         lookup_expr='in',
         label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='site__region',
+        field_name='_region',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='site__group',
+        field_name='_sitegroup',
         lookup_expr='in',
         label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='site__group',
+        field_name='_sitegroup',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        field_name='_site',
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
+        field_name='_site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site (slug)'),
+    )
+    location_id = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        label=_('Location (ID)'),
+    )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
@@ -393,7 +408,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ('id', 'is_pool', 'mark_utilized', 'description')
+        fields = ('id', 'scope_id', 'is_pool', 'mark_utilized', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

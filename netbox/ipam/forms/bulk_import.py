@@ -167,12 +167,10 @@ class PrefixImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
-    site = CSVModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(model__in=PREFIX_SCOPE_TYPES),
         required=False,
-        to_field_name='name',
-        help_text=_('Assigned site')
+        label=_('Scope type (app & model)')
     )
     vlan_group = CSVModelChoiceField(
         label=_('VLAN group'),
@@ -204,9 +202,12 @@ class PrefixImportForm(NetBoxModelImportForm):
     class Meta:
         model = Prefix
         fields = (
-            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
-            'description', 'comments', 'tags',
+            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan', 'status', 'role', 'scope_type', 'scope_id', 'is_pool',
+            'mark_utilized', 'description', 'comments', 'tags',
         )
+        labels = {
+            'scope_id': 'Scope ID',
+        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

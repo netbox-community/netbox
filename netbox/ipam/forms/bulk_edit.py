@@ -204,24 +204,18 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PrefixBulkEditForm(NetBoxModelBulkEditForm):
-    region = DynamicModelChoiceField(
-        label=_('Region'),
-        queryset=Region.objects.all(),
-        required=False
-    )
-    site_group = DynamicModelChoiceField(
-        label=_('Site group'),
-        queryset=SiteGroup.objects.all(),
-        required=False
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
         required=False,
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
@@ -282,13 +276,27 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     model = Prefix
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
-        FieldSet('region', 'site_group', 'site', name=_('Site')),
         FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
     nullable_fields = (
-        'site', 'vlan', 'vrf', 'tenant', 'role', 'description', 'comments',
+        'vlan', 'vrf', 'tenant', 'role', 'scope', 'description', 'comments',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
