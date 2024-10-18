@@ -19,6 +19,7 @@ __all__ = (
     'ServiceTemplateFilter',
     'VLANFilter',
     'VLANGroupFilter',
+    'VLANTranslationPolicyFilter',
     'VRFFilter',
 )
 
@@ -110,6 +111,12 @@ class VLANFilter(BaseFilterMixin):
 @strawberry_django.filter(models.VLANGroup, lookups=True)
 @autotype_decorator(filtersets.VLANGroupFilterSet)
 class VLANGroupFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.VLANTranslationPolicy, lookups=True)
+@autotype_decorator(filtersets.VLANTranslationPolicyFilterSet)
+class VLANTranslationPolicyFilter(BaseFilterMixin):
     pass
 
 
