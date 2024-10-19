@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 05:01+0000\n"
+"POT-Creation-Date: 2024-10-19 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7888,15 +7888,15 @@ msgstr ""
 msgid "Database changes have been reverted automatically."
 msgstr ""
 
-#: netbox/extras/jobs.py:56
+#: netbox/extras/jobs.py:55
 msgid "Script aborted with error: "
 msgstr ""
 
-#: netbox/extras/jobs.py:66
+#: netbox/extras/jobs.py:65
 msgid "An exception occurred: "
 msgstr ""
 
-#: netbox/extras/jobs.py:71
+#: netbox/extras/jobs.py:70
 msgid "Database changes have been reverted due to error."
 msgstr ""
 
