@@ -283,11 +283,6 @@ class VLANTranslationPolicy(PrimaryModel):
         max_length=100,
         unique=True,
     )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True,
-    )
 
     class Meta:
         verbose_name = _('VLAN translation policy')
@@ -304,23 +299,41 @@ class VLANTranslationRule(NetBoxModel):
         related_name='rules',
         on_delete=models.CASCADE,
     )
-    local_vid = models.IntegerField()
-    remote_vid = models.IntegerField()
+    local_vid = models.PositiveSmallIntegerField(
+        verbose_name=_('Local VLAN ID'),
+            validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text=_("Numeric VLAN ID (1-4094)")
+    )
+    remote_vid = models.PositiveSmallIntegerField(
+        verbose_name=_('Remote VLAN ID'),
+            validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text=_("Numeric VLAN ID (1-4094)")
+    )
 
     class Meta:
         verbose_name = _('VLAN translation rule')
         ordering = ('policy', 'local_vid', 'remote_vid',)
-        # Unique constraints are TBD
-        # constraints = (
-        #     models.UniqueConstraint(
-        #         fields=('policy', 'local_vid'),
-        #         name='%(app_label)s_%(class)s_unique_policy_local_vid'
-        #     ),
-        #     models.UniqueConstraint(
-        #         fields=('policy', 'remote_vid'),
-        #         name='%(app_label)s_%(class)s_unique_policy_remote_vid'
-        #     ),
-        # )
+        constraints = (
+            models.UniqueConstraint(
+                fields=('policy', 'local_vid'),
+                name='%(app_label)s_%(class)s_unique_policy_local_vid'
+            ),
+            models.UniqueConstraint(
+                fields=('policy', 'remote_vid'),
+                name='%(app_label)s_%(class)s_unique_policy_remote_vid'
+            ),
+        )
 
     def __str__(self):
         return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.policy
+        return objectchange
