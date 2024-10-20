@@ -106,6 +106,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
             'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination',
             'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'vlan_translation_policy',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
