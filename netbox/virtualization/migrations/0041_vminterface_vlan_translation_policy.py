@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0071_vlantranslationpolicy_vlantranslationrule'),
+        ('ipam', '0073_vlantranslationpolicy_vlantranslationrule'),
         ('virtualization', '0040_convert_disk_size'),
     ]
 

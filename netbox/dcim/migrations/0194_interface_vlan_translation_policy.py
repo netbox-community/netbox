@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0193_poweroutlet_color'),
-        ('ipam', '0071_vlantranslationpolicy_vlantranslationrule'),
+        ('ipam', '0073_vlantranslationpolicy_vlantranslationrule'),
     ]
 
     operations = [

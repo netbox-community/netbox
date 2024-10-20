@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('extras', '0121_customfield_related_object_filter'),
-        ('ipam', '0070_vlangroup_vlan_id_ranges'),
+        ('ipam', '0072_prefix_cached_relations'),
     ]
 
     operations = [
