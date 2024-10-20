@@ -707,6 +707,13 @@ class VLANTranslationPolicyForm(NetBoxModelForm):
 
 
 class VLANTranslationRuleForm(NetBoxModelForm):
+    policy = DynamicModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        null_option='None',
+        selector=True
+    )
 
     fieldsets = (
         FieldSet('policy', 'local_vid', 'remote_vid', name=_('VLAN Translation Rule')),

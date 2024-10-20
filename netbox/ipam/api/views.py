@@ -144,7 +144,7 @@ class VLANViewSet(NetBoxModelViewSet):
 
 
 class VLANTranslationPolicyViewSet(NetBoxModelViewSet):
-    queryset = VLANTranslationPolicy.objects.prefetch_related('rules')
+    queryset = VLANTranslationPolicy.objects.all()
     serializer_class = serializers.VLANTranslationPolicySerializer
     filterset_class = filtersets.VLANTranslationPolicyFilterSet
 

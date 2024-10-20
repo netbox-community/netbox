@@ -1037,7 +1037,7 @@ class VLANTranslationPolicyBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# VLAN Translation Policies
+# VLAN Translation Rules
 #
 
 class VLANTranslationRuleListView(generic.ObjectListView):
