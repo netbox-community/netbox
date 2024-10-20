@@ -7,7 +7,6 @@ from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import VLANTranslationPolicy
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
@@ -300,17 +299,6 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
     )
     mac_address = MultiValueMACAddressFilter(
         label=_('MAC address'),
-    )
-    vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan_translation_policy',
-        queryset=VLANTranslationPolicy.objects.all(),
-        label=_('VLAN Translation Policy (ID)'),
-    )
-    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan_translation_policy__name',
-        queryset=VLANTranslationPolicy.objects.all(),
-        to_field_name='name',
-        label=_('VLAN Translation Policy (name)'),
     )
 
     class Meta:

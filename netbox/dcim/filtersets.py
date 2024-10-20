@@ -1629,6 +1629,17 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         to_field_name='identifier',
         label=_('L2VPN'),
     )
+    vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy',
+        queryset=VLANTranslationPolicy.objects.all(),
+        label=_('VLAN Translation Policy (ID)'),
+    )
+    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy__name',
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        label=_('VLAN Translation Policy'),
+    )
 
     def filter_vlan_id(self, queryset, name, value):
         value = value.strip()
@@ -1732,17 +1743,6 @@ class InterfaceFilterSet(
     wireless_link_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLink.objects.all(),
         label=_('Wireless link')
-    )
-    vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan_translation_policy',
-        queryset=VLANTranslationPolicy.objects.all(),
-        label=_('VLAN Translation Policy (ID)'),
-    )
-    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan_translation_policy__name',
-        queryset=VLANTranslationPolicy.objects.all(),
-        to_field_name='name',
-        label=_('VLAN Translation Policy'),
     )
 
     class Meta:

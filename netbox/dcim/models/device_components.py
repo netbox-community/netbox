@@ -540,6 +540,13 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
+    vlan_translation_policy = models.ForeignKey(
+        to='ipam.VLANTranslationPolicy',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('VLAN Translation Policy'),
+    )
 
     class Meta:
         abstract = True
@@ -724,13 +731,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface',
-    )
-    vlan_translation_policy = models.ForeignKey(
-        to='ipam.VLANTranslationPolicy',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name=_('VLAN Translation Policy'),
     )
 
     clone_fields = (
