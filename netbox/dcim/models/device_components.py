@@ -542,7 +542,7 @@ class BaseInterface(models.Model):
     )
     vlan_translation_policy = models.ForeignKey(
         to='ipam.VLANTranslationPolicy',
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         verbose_name=_('VLAN Translation Policy'),
