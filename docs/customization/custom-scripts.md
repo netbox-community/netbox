@@ -72,6 +72,9 @@ script_order = (MyCustomScript, AnotherCustomScript)
 
 Script attributes are defined under a class named `Meta` within the script. These are optional, but encouraged.
 
+!!! warning
+    These are also defined and used as properties on the base custom script class, so don't use the same names as variables or override them in your custom script.
+
 ### `name`
 
 This is the human-friendly names of your script. If omitted, the class name will be used.

@@ -16,7 +16,7 @@ Under the Azure Active Directory dashboard, navigate to **Add > App registration
 
 Enter a name for the registration (e.g. "NetBox") and ensure that the "single tenant" option is selected.
 
-Under "Redirect URI", select "Web" for the platform and enter the path to your NetBox installation, ending with `/oauth/complete/entraid-oauth2/`. Note that this URI **must** begin with `https://` unless you are referencing localhost (for development purposes).
+Under "Redirect URI", select "Web" for the platform and enter the path to your NetBox installation, ending with `/oauth/complete/azuread-oauth2/`. Note that this URI **must** begin with `https://` unless you are referencing localhost (for development purposes).
 
 ![App registration parameters](../../media/authentication/azure_ad_app_registration.png)
 

@@ -62,22 +62,7 @@ $issue-$description
 
 The description should be just two or three words to imply the focus of the work being performed. For example, bug #1234 to fix a TypeError exception when creating a device might be named `1234-device-typerror`. This ensures that branches are always follow some logical ordering (e.g. when running `git branch -a`) and helps other developers quickly identify the purpose of each.
 
-### 3. Enable Pre-Commit Hooks
-
-NetBox ships with a [git pre-commit hook](https://githooks.com/) script that automatically checks for style compliance and missing database migrations prior to committing changes. This helps avoid erroneous commits that result in CI test failures. You are encouraged to enable it by creating a link to `scripts/git-hooks/pre-commit`:
-
-```no-highlight
-cd .git/hooks/
-ln -s ../../scripts/git-hooks/pre-commit
-```
-For the pre-commit hooks to work, you will also need to install the [ruff](https://docs.astral.sh/ruff/) linter:
-
-```no-highlight
-python -m pip install ruff
-```
-...and set up the yarn packages as shown in the [Web UI Development Guide](web-ui.md)
-
-### 4. Create a Python Virtual Environment
+### 3. Create a Python Virtual Environment
 
 A [virtual environment](https://docs.python.org/3/tutorial/venv.html) (or "venv" for short) is like a container for a set of Python packages. These allow you to build environments suited to specific projects without interfering with system packages or other projects. When installed per the documentation, NetBox uses a virtual environment in production.
 
@@ -101,13 +86,33 @@ source ~/.venv/netbox/bin/activate
 
 Notice that the console prompt changes to indicate the active environment. This updates the necessary system environment variables to ensure that any Python scripts are run within the virtual environment.
 
-### 5. Install Required Packages
+### 4. Install Required Packages
 
 With the virtual environment activated, install the project's required Python packages using the `pip` module. Required packages are defined in `requirements.txt`. Each line in this file specifies the name and specific version of a required package.
 
 ```no-highlight
 python -m pip install -r requirements.txt
 ```
+
+### 5. Install Pre-Commit
+
+NetBox uses [`pre-commit`](https://pre-commit.com/) to automatically validate code when commiting new changes. This includes the following operations:
+
+* Run the `ruff` Python linter
+* Run Django's internal system check
+* Check for missing database migrations
+* Validate any changes to the documentation with `mkdocs`
+* Validate Typescript & Sass styling with `yarn`
+* Ensure that any modified static front end assets have been recompiled
+
+Enable `pre-commit` with the following commands _prior_ to commiting any changes:
+
+```no-highlight
+python -m pip install ruff pre-commit
+pre-commit install
+```
+
+You may also need to set up the yarn packages as shown in the [Web UI Development Guide](web-ui.md).
 
 ### 6. Configure NetBox
 

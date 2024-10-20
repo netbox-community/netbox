@@ -662,6 +662,14 @@ class CablePath(models.Model):
                         rear_port_id=remote_terminations[0].pk,
                         rear_port_position__in=position_stack.pop()
                     )
+                # If all rear ports have a single position, we can just get the front ports
+                elif all([rp.positions == 1 for rp in remote_terminations]):
+                    front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
+
+                    if len(front_ports) != len(remote_terminations):
+                        # Some rear ports does not have a front port
+                        is_split = True
+                        break
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
                     is_split = True

@@ -114,6 +114,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `max_version`         | Maximum version of NetBox with which the plugin is compatible                                                            |
 | `middleware`          | A list of middleware classes to append after NetBox's build-in middleware                                                |
 | `queues`              | A list of custom background task queues to create                                                                        |
+| `events_pipeline`     | A list of handlers to add to [`EVENTS_PIPELINE`](./miscellaneous.md#events_pipeline), identified by dotted paths         |
 | `search_extensions`   | The dotted path to the list of search index classes (default: `search.indexes`)                                          |
 | `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                           |
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)              |

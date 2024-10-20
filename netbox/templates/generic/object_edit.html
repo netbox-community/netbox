@@ -67,9 +67,9 @@ Context:
         {% endblock form %}
       </div>
 
-      <div class="text-end my-3">
+      <div class="btn-float-group-right">
         {% block buttons %}
-          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          <a href="{{ return_url }}" class="btn btn-outline-secondary btn-float">{% trans "Cancel" %}</a>
           {% if object.pk %}
             <button type="submit" name="_update" class="btn btn-primary">
               {% trans "Save" %}
@@ -79,7 +79,7 @@ Context:
               <button type="submit" name="_create" class="btn btn-primary">
                 {% trans "Create" %}
               </button>
-              <button type="submit" name="_addanother" class="btn btn-outline-primary">
+              <button type="submit" name="_addanother" class="btn btn-outline-primary btn-float">
                 {% trans "Create & Add Another" %}
               </button>
             </div>
