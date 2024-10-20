@@ -362,7 +362,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags', 'vlan_translation_policy',
         ]
         labels = {
             'mode': '802.1Q Mode',
