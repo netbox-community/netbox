@@ -306,7 +306,7 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         queryset=VLANTranslationPolicy.objects.all(),
         label=_('VLAN Translation Policy (ID)'),
     )
-    vlan_translation_policy_name = django_filters.ModelMultipleChoiceFilter(
+    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan_translation_policy__name',
         queryset=VLANTranslationPolicy.objects.all(),
         to_field_name='name',

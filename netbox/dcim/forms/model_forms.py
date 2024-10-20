@@ -7,7 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
-from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
+from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from users.models import User
@@ -1381,6 +1381,11 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         empty_value=None,
         required=False,
         label=_('WWN')
+    )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
     )
 
     fieldsets = (

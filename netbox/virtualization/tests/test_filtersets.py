@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
-from ipam.models import IPAddress, VRF, VLANTranslationPolicy
+from ipam.models import IPAddress, VLANTranslationPolicy, VRF
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.choices import *
@@ -671,7 +671,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
         params = {'vlan_translation_policy_id': [vlan_translation_policies[0].pk, vlan_translation_policies[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'vlan_translation_policy_name': [vlan_translation_policies[0].name, vlan_translation_policies[1].name]}
+        params = {'vlan_translation_policy': [vlan_translation_policies[0].name, vlan_translation_policies[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

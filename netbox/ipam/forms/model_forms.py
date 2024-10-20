@@ -710,8 +710,6 @@ class VLANTranslationRuleForm(NetBoxModelForm):
     policy = DynamicModelChoiceField(
         label=_('Policy'),
         queryset=VLANTranslationPolicy.objects.all(),
-        required=False,
-        null_option='None',
         selector=True
     )
 
