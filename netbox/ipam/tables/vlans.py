@@ -130,6 +130,13 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
+    qinq_role = columns.ChoiceFieldColumn(
+        verbose_name=_('Q-in-Q role')
+    )
+    qinq_svlan = tables.Column(
+        verbose_name=_('Q-in-Q SVLAN'),
+        linkify=True
+    )
     l2vpn = tables.Column(
         accessor=tables.A('l2vpn_termination__l2vpn'),
         linkify=True,
@@ -152,7 +159,7 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         model = VLAN
         fields = (
             'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
-            'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
+            'qinq_role', 'qinq_svlan', 'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {

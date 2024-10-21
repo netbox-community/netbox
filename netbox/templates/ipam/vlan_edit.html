@@ -19,6 +19,14 @@
 
   <div class="field-group my-5">
     <div class="row">
+      <h2 class="col-9 offset-3">{% trans "Q-in-Q (802.1ad)" %}</h2>
+    </div>
+    {% render_field form.qinq_role %}
+    {% render_field form.qinq_svlan %}
+  </div>
+
+  <div class="field-group my-5">
+    <div class="row">
       <h2 class="col-9 offset-3">{% trans "Tenancy" %}</h2>
     </div>
     {% render_field form.tenant_group %}
