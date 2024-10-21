@@ -1,9 +1,12 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
+from circuits.constants import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
@@ -230,6 +233,22 @@ class CircuitTermination(
         max_length=1,
         choices=CircuitTerminationSideChoices,
         verbose_name=_('termination')
+    )
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
     site = models.ForeignKey(
         to='dcim.Site',
