@@ -589,6 +589,63 @@ class DeviceTestCase(TestCase):
         device2.full_clean()
         device2.save()
 
+    def test_device_mismatched_site_location(self):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+        )
+        for location in locations:
+            location.save()
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Same site, should pass
+        Device(name='device1', site=sites[0], location=locations[0], device_type=device_type, role=device_role).full_clean()
+
+        # Mismatched site, should fail
+        with self.assertRaises(ValidationError):
+            Device(name='device2', site=sites[0], location=locations[1], device_type=device_type, role=device_role).full_clean()
+
+    def test_device_mismatched_rack_location(self):
+        site = Site.objects.first()
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=site),
+            Location(name='Location 2', slug='location-2', site=site),
+        )
+        for location in locations:
+            location.save()
+
+        rack = Rack.objects.create(name='Rack 1', site=site, location=locations[0])
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device should use location from rack
+        with self.assertRaises(ValidationError):
+            Device(name='device1', site=site, location=locations[1], rack=rack, device_type=device_type, role=device_role).full_clean()
+
+    def test_device_rack_clone_fields(self):
+        site = Site.objects.first()
+        location = Location(name='Location 1', slug='location-1', site=site)
+        location.save()
+
+        rack = Rack.objects.create(name='Rack 1', site=site, location=location)
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device should use location from rack
+        device = Device.objects.create(name='device1', site=site, rack=rack, device_type=device_type, role=device_role)
+        self.assertEqual(device.location, location)
+
     def test_device_mismatched_site_cluster(self):
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         Cluster.objects.create(name='Cluster 1', type=cluster_type)
