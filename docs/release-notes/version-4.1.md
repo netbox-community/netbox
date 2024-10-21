@@ -2,13 +2,21 @@
 
 ## v4.1.5 (FUTURE)
 
+### Enhancements
+
+* [#17789](https://github.com/netbox-community/netbox/issues/17789) - Provide a single "scope" field for bulk editing VLAN group scope assignments
+
 ### Bug Fixes
 
+* [#17374](https://github.com/netbox-community/netbox/issues/17374) - Fix styling of highlighted table rows in dark mode
+* [#17635](https://github.com/netbox-community/netbox/issues/17635) - Ensure AbortTransaction is caught when running a custom script with `commit=False`
 * [#17710](https://github.com/netbox-community/netbox/issues/17710) - Remove cached fields on CableTermination model from GraphQL API
 * [#17740](https://github.com/netbox-community/netbox/issues/17740) - Ensure support for image attachments with a `.webp` file extension
 * [#17749](https://github.com/netbox-community/netbox/issues/17749) - Restore missing `devicetypes` and `children` fields for several objects in GraphQL API
 * [#17754](https://github.com/netbox-community/netbox/issues/17754) - Remove paginator from version history table under plugin view
 * [#17759](https://github.com/netbox-community/netbox/issues/17759) - Retain `job_timeout` value when scheduling a recurring custom script
+* [#17774](https://github.com/netbox-community/netbox/issues/17774) - Fix SSO login support for Entra ID (formerly Azure AD)
+* [#17802](https://github.com/netbox-community/netbox/issues/17802) - Fix background color for bulk rename buttons in list views
 
 ---
 
