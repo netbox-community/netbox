@@ -737,7 +737,6 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         renamed_pks = []
 
         for obj in selected_objects:
-
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
@@ -751,7 +750,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 except re.error:
                     obj.new_name = obj.name
             else:
-                obj.new_name = obj.name.replace(find, replace)
+                obj.new_name = (obj.name or '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -785,6 +784,10 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                 )
                             )
                             return redirect(self.get_return_url(request))
+
+                except IntegrityError as e:
+                    messages.error(self.request, ", ".join(e.args))
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
