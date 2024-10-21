@@ -359,10 +359,10 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], term_side='A', site=sites[0]),
-            CircuitTermination(circuit=circuits[0], term_side='Z', site=sites[1]),
-            CircuitTermination(circuit=circuits[1], term_side='A', site=sites[0]),
-            CircuitTermination(circuit=circuits[1], term_side='Z', site=sites[1]),
+            CircuitTermination(circuit=circuits[0], term_side='A', scope=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side='Z', scope=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side='A', scope=sites[0]),
+            CircuitTermination(circuit=circuits[1], term_side='Z', scope=sites[1]),
         )
         CircuitTermination.objects.bulk_create(circuit_terminations)
 

@@ -71,8 +71,8 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         Circuit.objects.bulk_create(circuits)
 
         CircuitTermination.objects.bulk_create((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
-            CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[0], scope=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], scope=sites[0], term_side='A'),
         ))
 
     def test_q(self):
@@ -233,9 +233,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = ((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A'),
-            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A'),
-            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A'),
+            CircuitTermination(circuit=circuits[0], scope=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[1], scope=sites[1], term_side='A'),
+            CircuitTermination(circuit=circuits[2], scope=sites[2], term_side='A'),
             CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
@@ -384,12 +384,12 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = ((
-            CircuitTermination(circuit=circuits[0], site=sites[0], term_side='A', port_speed=1000, upstream_speed=1000, xconnect_id='ABC', description='foobar1'),
-            CircuitTermination(circuit=circuits[0], site=sites[1], term_side='Z', port_speed=1000, upstream_speed=1000, xconnect_id='DEF', description='foobar2'),
-            CircuitTermination(circuit=circuits[1], site=sites[1], term_side='A', port_speed=2000, upstream_speed=2000, xconnect_id='GHI'),
-            CircuitTermination(circuit=circuits[1], site=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
-            CircuitTermination(circuit=circuits[2], site=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
-            CircuitTermination(circuit=circuits[2], site=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
+            CircuitTermination(circuit=circuits[0], scope=sites[0], term_side='A', port_speed=1000, upstream_speed=1000, xconnect_id='ABC', description='foobar1'),
+            CircuitTermination(circuit=circuits[0], scope=sites[1], term_side='Z', port_speed=1000, upstream_speed=1000, xconnect_id='DEF', description='foobar2'),
+            CircuitTermination(circuit=circuits[1], scope=sites[1], term_side='A', port_speed=2000, upstream_speed=2000, xconnect_id='GHI'),
+            CircuitTermination(circuit=circuits[1], scope=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
+            CircuitTermination(circuit=circuits[2], scope=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
+            CircuitTermination(circuit=circuits[2], scope=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
             CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
