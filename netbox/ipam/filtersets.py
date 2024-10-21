@@ -37,6 +37,8 @@ __all__ = (
     'ServiceTemplateFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
+    'VLANTranslationPolicyFilterSet',
+    'VLANTranslationRuleFilterSet',
     'VRFFilterSet',
 )
 
@@ -1102,6 +1104,43 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             Q(vminterfaces_as_tagged=value) |
             Q(vminterfaces_as_untagged=value)
         )
+
+
+class VLANTranslationPolicyFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ('id', 'policy', 'local_vid', 'remote_vid')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(policy__name__icontains=value)
+        )
+        try:
+            int_value = int(value.strip())
+            qs_filter |= Q(local_vid=int_value)
+            qs_filter |= Q(remote_vid=int_value)
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):

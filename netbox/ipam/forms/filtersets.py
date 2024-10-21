@@ -28,6 +28,8 @@ __all__ = (
     'ServiceTemplateFilterForm',
     'VLANFilterForm',
     'VLANGroupFilterForm',
+    'VLANTranslationPolicyFilterForm',
+    'VLANTranslationRuleFilterForm',
     'VRFFilterForm',
 )
 
@@ -459,6 +461,37 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     )
 
     tag = TagFilterField(model)
+
+
+class VLANTranslationPolicyFilterForm(NetBoxModelFilterSetForm):
+    model = VLANTranslationPolicy
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'description', name=_('Attributes')),
+    )
+    name = forms.CharField(
+        required=False,
+        label=_('Name')
+    )
+    description = forms.CharField(
+        required=False,
+        label=_('Name')
+    )
+    tag = TagFilterField(model)
+
+
+class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
+    model = VLANTranslationRule
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('policy', 'local_vid', 'remote_vid', name=_('Attributes')),
+    )
+    tag = TagFilterField(model)
+    policy = DynamicModelMultipleChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
 
 class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):

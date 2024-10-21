@@ -67,6 +67,10 @@
                     <th scope="row">{% trans "Tunnel" %}</th>
                     <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
                 </tr>
+                <tr>
+                    <th scope="row">{% trans "VLAN Translation" %}</th>
+                    <td>{{ object.vlan_translation_policy|linkify|placeholder }}</td>
+                </tr>
             </table>
         </div>
         {% include 'inc/panels/tags.html' %}
@@ -98,6 +102,11 @@
 <div class="row mb-3">
     <div class="col col-md-12">
         {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col col-md-12">
+        {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation" %}
     </div>
 </div>
 <div class="row mb-3">

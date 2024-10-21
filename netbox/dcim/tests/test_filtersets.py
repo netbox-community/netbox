@@ -4,7 +4,7 @@ from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import ASN, IPAddress, RIR, VRF
+from ipam.models import ASN, IPAddress, RIR, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
@@ -3669,6 +3669,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
 
+        vlan_translation_policies = (
+            VLANTranslationPolicy(name='Policy 1'),
+            VLANTranslationPolicy(name='Policy 2'),
+            VLANTranslationPolicy(name='Policy 3'),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
         interfaces = (
             Interface(
                 device=devices[0],
@@ -3686,7 +3693,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 speed=1000000,
                 duplex='half',
                 poe_mode=InterfacePoEModeChoices.MODE_PSE,
-                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF,
+                vlan_translation_policy=vlan_translation_policies[0],
             ),
             Interface(
                 device=devices[1],
@@ -3711,7 +3719,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 speed=1000000,
                 duplex='full',
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
-                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF,
+                vlan_translation_policy=vlan_translation_policies[0],
             ),
             Interface(
                 device=devices[3],
@@ -3729,7 +3738,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 speed=100000,
                 duplex='half',
                 poe_mode=InterfacePoEModeChoices.MODE_PSE,
-                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
+                vlan_translation_policy=vlan_translation_policies[1],
             ),
             Interface(
                 device=devices[4],
@@ -3742,7 +3752,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 speed=100000,
                 duplex='full',
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
-                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
+                vlan_translation_policy=vlan_translation_policies[1],
             ),
             Interface(
                 device=devices[4],
@@ -4015,6 +4026,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
         params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_vlan_translation_policy(self):
+        vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
+        params = {'vlan_translation_policy_id': [vlan_translation_policies[0].pk, vlan_translation_policies[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'vlan_translation_policy': [vlan_translation_policies[0].name, vlan_translation_policies[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
