@@ -1,44 +1,37 @@
-{% extends 'dcim/moduletype/base.html' %}
+{% extends 'generic/object_children.html' %}
 {% load render_table from django_tables2 %}
 {% load helpers %}
 {% load i18n %}
 
-{% block content %}
-  {% if perms.dcim.change_moduletype %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="card">
-            <div class="htmx-container table-responsive" id="object_list">
-              {% include 'htmx/table.html' %}
-            </div>
-            <div class="card-footer d-print-none">
-                {% if table.rows %}
-                    <button type="submit" name="_edit" {% formaction %}="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-warning">
-                        <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> {% trans "Rename" %}
-                    </button>
-                    <button type="submit" name="_edit" {% formaction %}="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-warning">
-                        <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
-                    </button>
-                    <button type="submit" name="_delete" {% formaction %}="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-danger">
-                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-                    </button>
-                {% endif %}
-                <div class="float-end">
-                    <a href="{% url table.Meta.model|viewname:"add" %}?module_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary">
-                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                        {% trans "Add" %} {{ title }}
-                    </a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-        </div>
-    </form>
-  {% else %}
-    <div class="card">
-      <h2 class="card-header">{{ title }}</h2>
-      <div class="htmx-container table-responsive" id="object_list">
-        {% include 'htmx/table.html' %}
-      </div>
-    </div>
-  {% endif %}
-{% endblock content %}
+{% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {%  include 'dcim/inc/devicetype_breadcrumbs.html' %}
+{% endblock %}
+
+{% block extra_controls %}
+  {%  include 'dcim/inc/moduletype_buttons.html' %}
+{% endblock %}
+
+{% block bulk_edit_controls %}
+    {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
+        {% if 'bulk_edit' in actions and bulk_edit_view %}
+            <button type="submit" name="_edit"
+                    {% formaction %}="{% url bulk_edit_view %}?device={{ object.pk }}&return_url={{ return_url }}"
+                    class="btn btn-warning">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
+            </button>
+        {% endif %}
+    {% endwith %}
+    {% with bulk_rename_view=child_model|validated_viewname:"bulk_rename" %}
+        {% if 'bulk_rename' in actions and bulk_rename_view %}
+            <button type="submit" name="_rename"
+                    {% formaction %}="{% url bulk_rename_view %}?return_url={{ return_url }}"
+                    class="btn btn-outline-warning">
+                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename Selected
+            </button>
+        {% endif %}
+    {% endwith %}
+{% endblock bulk_edit_controls %}
+
