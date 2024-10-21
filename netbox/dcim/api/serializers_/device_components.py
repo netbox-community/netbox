@@ -196,6 +196,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         required=False,
         many=True
     )
+    qinq_svlan = VLANSerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     wireless_link = NestedWirelessLinkSerializer(read_only=True, allow_null=True)
@@ -222,10 +223,10 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'id', 'url', 'display_url', 'display', 'device', 'vdcs', 'module', 'name', 'label', 'type', 'enabled',
             'parent', 'bridge', 'lag', 'mtu', 'mac_address', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description',
             'mode', 'rf_role', 'rf_channel', 'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width',
-            'tx_power', 'untagged_vlan', 'tagged_vlans', 'mark_connected', 'cable', 'cable_end', 'wireless_link',
-            'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'l2vpn_termination', 'connected_endpoints',
-            'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
-            'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'mark_connected', 'cable', 'cable_end',
+            'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'l2vpn_termination',
+            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
+            'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 

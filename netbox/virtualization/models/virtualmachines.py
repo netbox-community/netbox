@@ -322,20 +322,6 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         max_length=100,
         blank=True
     )
-    untagged_vlan = models.ForeignKey(
-        to='ipam.VLAN',
-        on_delete=models.SET_NULL,
-        related_name='vminterfaces_as_untagged',
-        null=True,
-        blank=True,
-        verbose_name=_('untagged VLAN')
-    )
-    tagged_vlans = models.ManyToManyField(
-        to='ipam.VLAN',
-        related_name='vminterfaces_as_tagged',
-        blank=True,
-        verbose_name=_('tagged VLANs')
-    )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
         content_type_field='assigned_object_type',

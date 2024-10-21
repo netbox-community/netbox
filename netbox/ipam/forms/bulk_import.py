@@ -440,6 +440,11 @@ class VLANImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned VLAN group')
     )
+    qinq_role = CSVChoiceField(
+        label=_('Q-in-Q role'),
+        choices=VLANStatusChoices,
+        help_text=_('Operational status')
+    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -459,10 +464,20 @@ class VLANImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Functional role')
     )
+    qinq_svlan = CSVModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=_("Service VLAN (for Q-in-Q/802.1ad customer VLANs)")
+    )
 
     class Meta:
         model = VLAN
-        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
+        fields = (
+            'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'qinq_role', 'qinq_svlan',
+            'comments', 'tags',
+        )
 
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):

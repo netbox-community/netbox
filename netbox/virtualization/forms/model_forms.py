@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.forms.common import InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -338,6 +339,16 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
             'available_on_virtualmachine': '$virtual_machine',
         }
     )
+    qinq_svlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('Q-in-Q Service VLAN'),
+        query_params={
+            'group_id': '$vlan_group',
+            'available_on_virtualmachine': '$virtual_machine',
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -349,14 +360,14 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         FieldSet('vrf', 'mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', name=_('802.1Q Switching')),
     )
 
     class Meta:
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'tags',
         ]
         labels = {
             'mode': '802.1Q Mode',

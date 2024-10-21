@@ -120,6 +120,10 @@ The "native" (untagged) VLAN for the interface. Valid only when one of the above
 
 The tagged VLANs which are configured to be carried by this interface. Valid only for the "tagged" 802.1Q mode above.
 
+### Q-in-Q SVLAN
+
+The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
+
 ### Wireless Role
 
 Indicates the configured role for wireless interfaces (access point or station).
