@@ -318,7 +318,7 @@ class VLANTranslationRule(NetBoxModel):
 
     class Meta:
         verbose_name = _('VLAN translation rule')
-        ordering = ('policy', 'local_vid', 'remote_vid',)
+        ordering = ('policy', 'local_vid',)
         constraints = (
             models.UniqueConstraint(
                 fields=('policy', 'local_vid'),

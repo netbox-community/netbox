@@ -260,7 +260,6 @@ class VLANTranslationPolicyTable(NetBoxTable):
     )
     description = tables.Column(
         verbose_name=_('Description'),
-        # linkify=True
     )
     tags = columns.TagColumn(
         url_name='ipam:vlantranslationpolicy_list'

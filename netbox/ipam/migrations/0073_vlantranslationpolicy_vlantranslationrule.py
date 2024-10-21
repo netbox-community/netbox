@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'VLAN translation rule',
-                'ordering': ('policy', 'local_vid', 'remote_vid'),
+                'ordering': ('policy', 'local_vid',),
             },
         ),
         migrations.AddConstraint(
