@@ -467,6 +467,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('group_id', 'status', 'role_id', 'vid', 'l2vpn_id', name=_('Attributes')),
+        FieldSet('qinq_role', 'qinq_svlan', name=_('Q-in-Q/802.1ad')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', 'site_id')
@@ -512,6 +513,17 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     vid = forms.IntegerField(
         required=False,
         label=_('VLAN ID')
+    )
+    qinq_role = forms.MultipleChoiceField(
+        label=_('Q-in-Q role'),
+        choices=VLANQinQRoleChoices,
+        required=False
+    )
+    qinq_svlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Q-in-Q SVLAN')
     )
     l2vpn_id = DynamicModelMultipleChoiceField(
         queryset=L2VPN.objects.all(),
