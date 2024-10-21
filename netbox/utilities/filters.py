@@ -18,6 +18,7 @@ __all__ = (
     'MultiValueTimeFilter',
     'MultiValueWWNFilter',
     'NullableCharFieldFilter',
+    'NullableMultipleChoiceFilter',
     'NumericArrayFilter',
     'TreeNodeMultipleChoiceFilter',
 )
@@ -141,6 +142,16 @@ class NullableCharFieldFilter(django_filters.CharFilter):
             return super().filter(qs, value)
         qs = self.get_method(qs)(**{'{}__isnull'.format(self.field_name): True})
         return qs.distinct() if self.distinct else qs
+
+
+class NullableMultipleChoiceFilter(django_filters.MultipleChoiceFilter):
+    """
+    Similar to NullableCharFieldFilter, but allows multiple values including the special NULL string.
+    """
+    def filter(self, qs, value):
+        if settings.FILTERS_NULL_CHOICE_VALUE in value:
+            value.append('')
+        return super().filter(qs, value)
 
 
 class NumericArrayFilter(django_filters.NumberFilter):

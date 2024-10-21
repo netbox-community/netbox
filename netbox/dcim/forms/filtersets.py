@@ -10,7 +10,7 @@ from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice, add_empty_filtering_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
@@ -1052,7 +1052,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
-        choices=add_blank_choice(CableTypeChoices),
+        choices=add_empty_filtering_choice(add_blank_choice(CableTypeChoices)),
         required=False
     )
     status = forms.MultipleChoiceField(

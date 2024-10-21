@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
@@ -5240,10 +5241,10 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_type(self):
         params = {'type': [CableTypeChoices.TYPE_CAT3, CableTypeChoices.TYPE_CAT5E]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'type__empty': 'true'}
+        params = {'type': [settings.FILTERS_NULL_CHOICE_VALUE]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
-        params = {'type__empty': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'type': [settings.FILTERS_NULL_CHOICE_VALUE, CableTypeChoices.TYPE_CAT3]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 10)
 
     def test_status(self):
         params = {'status': [LinkStatusChoices.STATUS_CONNECTED]}
