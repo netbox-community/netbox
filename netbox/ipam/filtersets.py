@@ -1123,10 +1123,14 @@ class VLANTranslationPolicyFilterSet(NetBoxModelFilterSet):
 
 
 class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
+    policy_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLANTranslationPolicy.objects.all(),
+        label=_('VLAN Translation Policy (ID)'),
+    )
 
     class Meta:
         model = VLANTranslationRule
-        fields = ('id', 'policy', 'local_vid', 'remote_vid')
+        fields = ('id', 'policy_id', 'local_vid', 'remote_vid')
 
     def search(self, queryset, name, value):
         if not value.strip():
