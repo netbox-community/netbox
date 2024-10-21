@@ -1,9 +1,12 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
+from circuits.constants import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
@@ -232,12 +235,21 @@ class CircuitTermination(
         choices=CircuitTerminationSideChoices,
         verbose_name=_('termination')
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        related_name='circuit_terminations',
+        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        related_name='+',
         blank=True,
         null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
     provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
@@ -274,6 +286,36 @@ class CircuitTermination(
         verbose_name=_('description'),
         max_length=200,
         blank=True
+    )
+
+    # Cached associations to enable efficient filtering
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _sitegroup = models.ForeignKey(
+        to='dcim.SiteGroup',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
     )
 
     class Meta:

@@ -1,14 +1,16 @@
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
+from circuits.constants import *
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
-from utilities.forms.widgets import DatePicker, NumberWithOptions
+from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
@@ -144,10 +146,17 @@ class CircuitTerminationForm(NetBoxModelForm):
         queryset=Circuit.objects.all(),
         selector=True
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        widget=HTMXSelect(),
         required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
         selector=True
     )
     provider_network = DynamicModelChoiceField(
@@ -161,7 +170,7 @@ class CircuitTerminationForm(NetBoxModelForm):
         FieldSet(
             'circuit', 'term_side', 'description', 'tags',
             TabbedGroups(
-                FieldSet('site', name=_('Site')),
+                FieldSet('scope_type', 'scope', name=_('Scope')),
                 FieldSet('provider_network', name=_('Provider Network')),
             ),
             'mark_connected', name=_('Circuit Termination')
@@ -172,7 +181,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'site', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
+            'circuit', 'term_side', 'scope_type', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
@@ -183,6 +192,36 @@ class CircuitTerminationForm(NetBoxModelForm):
                 options=CircuitTerminationPortSpeedChoices
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope:
+            initial['scope'] = instance.scope
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and scope_type_id != self.instance.scope_type_id:
+                self.initial['scope'] = None
+
+    def clean(self):
+        super().clean()
+
+        # Assign the selected scope (if any)
+        self.instance.scope = self.cleaned_data.get('scope')
 
 
 class CircuitGroupForm(TenancyForm, NetBoxModelForm):

@@ -197,10 +197,12 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
     )
     provider_network = DynamicModelChoiceField(
         label=_('Provider Network'),
@@ -226,14 +228,28 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet(
             'description',
             TabbedGroups(
-                FieldSet('site', name=_('Site')),
+                FieldSet('scope_type', 'scope', name=_('Scope')),
                 FieldSet('provider_network', name=_('Provider Network')),
             ),
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
     )
-    nullable_fields = ('description')
+    nullable_fields = ('description', 'scope')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
 
 
 class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
