@@ -784,6 +784,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
         max_length=50,
         choices=IPAddressRoleChoices,
         blank=True,
+        null=True,
         help_text=_('The functional role of this IP')
     )
     assigned_object_type = models.ForeignKey(

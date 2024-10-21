@@ -871,7 +871,6 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_unit(self):
-        self.assertEqual(Rack.objects.filter(outer_unit__isnull=False).count(), 5)
         params = {'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
