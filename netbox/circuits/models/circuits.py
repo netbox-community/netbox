@@ -250,13 +250,6 @@ class CircuitTermination(
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    # site = models.ForeignKey(
-    #     to='dcim.Site',
-    #     on_delete=models.PROTECT,
-    #     related_name='circuit_terminations',
-    #     blank=True,
-    #     null=True
-    # )
     provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
         on_delete=models.PROTECT,
