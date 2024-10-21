@@ -392,6 +392,56 @@ class IPSecProfileBulkDeleteView(generic.BulkDeleteView):
     table = tables.IPSecProfileTable
 
 
+#
+# Wireguard configs
+#
+
+
+# TODO: Fix..
+class WireguardConfigListView(generic.ObjectListView):
+    queryset = WireguardConfig.objects.all()
+#    filterset = filtersets.WireguardConfigFilterSet
+#    filterset_form = forms.WireguardConfigFilterForm
+    table = tables.WireguardConfigTable
+
+
+@register_model_view(WireguardConfig)
+class WireguardConfigView(generic.ObjectView):
+    queryset = WireguardConfig.objects.all()
+
+
+@register_model_view(WireguardConfig, 'edit')
+class WireguardConfigEditView(generic.ObjectEditView):
+    queryset = WireguardConfig.objects.all()
+    form = forms.WireguardConfigForm
+
+
+@register_model_view(WireguardConfig, 'delete')
+class WireguardConfigDeleteView(generic.ObjectDeleteView):
+    queryset = WireguardConfig.objects.all()
+
+
+# TODO: Fix..
+class WireguardConfigBulkImportView(generic.BulkImportView):
+    queryset = WireguardConfig.objects.all()
+#    model_form = forms.WireguardConfigImportForm
+
+
+# TODO: Fix..
+class WireguardConfigBulkEditView(generic.BulkEditView):
+    queryset = WireguardConfig.objects.all()
+#    filterset = filtersets.WireguardConfigFilterSet
+    table = tables.WireguardConfigTable
+#    form = forms.WireguardConfigBulkEditForm
+
+
+# TODO: Fix..
+class WireguardConfigBulkDeleteView(generic.BulkDeleteView):
+    queryset = WireguardConfig.objects.all()
+#    filterset = filtersets.WireguardConfigFilterSet
+    table = tables.WireguardConfigTable
+
+
 # L2VPN
 
 class L2VPNListView(generic.ObjectListView):
