@@ -250,13 +250,13 @@ class CircuitTermination(
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.PROTECT,
-        related_name='circuit_terminations',
-        blank=True,
-        null=True
-    )
+    # site = models.ForeignKey(
+    #     to='dcim.Site',
+    #     on_delete=models.PROTECT,
+    #     related_name='circuit_terminations',
+    #     blank=True,
+    #     null=True
+    # )
     provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
         on_delete=models.PROTECT,
@@ -292,6 +292,36 @@ class CircuitTermination(
         verbose_name=_('description'),
         max_length=200,
         blank=True
+    )
+
+    # Cached associations to enable efficient filtering
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _sitegroup = models.ForeignKey(
+        to='dcim.SiteGroup',
+        on_delete=models.CASCADE,
+        related_name='_circuit_terminations',
+        blank=True,
+        null=True
     )
 
     class Meta:
