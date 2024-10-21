@@ -294,7 +294,7 @@ class VLANTranslationRuleTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'local_vid', 'remote_vid', 'policy')
+        default_columns = ('pk', 'id', 'local_vid', 'remote_vid', 'policy')
 
 
 class InterfaceVLANTranslationTable(NetBoxTable):
