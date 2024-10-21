@@ -702,7 +702,7 @@ class VLANTranslationPolicyForm(NetBoxModelForm):
     class Meta:
         model = VLANTranslationPolicy
         fields = [
-            'name', 'description',
+            'name', 'description', 'tags',
         ]
 
 
