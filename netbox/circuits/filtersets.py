@@ -3,11 +3,11 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.filtersets import CabledObjectFilterSet
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import TreeNodeMultipleChoiceFilter
+from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -263,16 +263,57 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         queryset=Circuit.objects.all(),
         label=_('Circuit'),
     )
-    # site_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Site.objects.all(),
-    #     label=_('Site (ID)'),
-    # )
-    # site = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='site__slug',
-    #     queryset=Site.objects.all(),
-    #     to_field_name='slug',
-    #     label=_('Site (slug)'),
-    # )
+    scope_type = ContentTypeFilter()
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        field_name='_site',
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='_site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label=_('Site (slug)'),
+    )
+    location_id = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        label=_('Location (ID)'),
+    )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
         label=_('ProviderNetwork (ID)'),
