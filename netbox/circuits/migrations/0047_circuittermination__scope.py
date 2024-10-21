@@ -19,7 +19,7 @@ def copy_site_assignments(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0045_circuit_distance'),
+        ('circuits', '0046_charfield_null_choices'),
         ('contenttypes', '0002_remove_content_type_name'),
         ('dcim', '0193_poweroutlet_color'),
     ]

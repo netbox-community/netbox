@@ -22,7 +22,7 @@ def populate_denormalized_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0046_circuittermination__scope'),
+        ('circuits', '0047_circuittermination__scope'),
     ]
 
     operations = [
