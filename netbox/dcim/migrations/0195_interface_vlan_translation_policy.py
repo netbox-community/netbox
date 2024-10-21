@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0073_vlantranslationpolicy_vlantranslationrule'),
-        ('virtualization', '0040_convert_disk_size'),
+        ('dcim', '0194_charfield_null_choices'),
+        ('ipam', '0074_vlantranslationpolicy_vlantranslationrule'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='vminterface',
+            model_name='interface',
             name='vlan_translation_policy',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='ipam.vlantranslationpolicy'),
         ),

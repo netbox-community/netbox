@@ -487,6 +487,11 @@ class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
         FieldSet('policy', 'local_vid', 'remote_vid', name=_('Attributes')),
     )
     tag = TagFilterField(model)
+    policy = DynamicModelMultipleChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
 
 class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
