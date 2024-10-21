@@ -28,6 +28,7 @@ __all__ = (
     'VLANType',
     'VLANGroupType',
     'VLANTranslationPolicyType',
+    'VLANTranslationRuleType',
     'VRFType',
 )
 
@@ -277,10 +278,19 @@ class VLANGroupType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.VLANTranslationPolicy,
-    exclude=('scope_type', 'scope_id'),
+    fields='__all__',
     filters=VLANTranslationPolicyFilter
 )
 class VLANTranslationPolicyType(NetBoxObjectType):
+    pass
+
+
+@strawberry_django.type(
+    models.VLANTranslationRule,
+    fields='__all__',
+    filters=VLANTranslationRuleFilter
+)
+class VLANTranslationRuleType(NetBoxObjectType):
     pass
 
 
