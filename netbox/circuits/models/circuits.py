@@ -339,10 +339,35 @@ class CircuitTermination(
         super().clean()
 
         # Must define either site *or* provider network
-        if self.site is None and self.provider_network is None:
-            raise ValidationError(_("A circuit termination must attach to either a site or a provider network."))
-        if self.site and self.provider_network:
-            raise ValidationError(_("A circuit termination cannot attach to both a site and a provider network."))
+        if self.scope is None and self.provider_network is None:
+            raise ValidationError(_("A circuit termination must attach to either a scope or a provider network."))
+        if self.scope and self.provider_network:
+            raise ValidationError(_("A circuit termination cannot attach to both a scope and a provider network."))
+
+    def save(self, *args, **kwargs):
+        # Cache objects associated with the terminating object (for filtering)
+        self.cache_related_objects()
+
+        super().save(*args, **kwargs)
+
+    def cache_related_objects(self):
+        self._region = self._sitegroup = self._site = self._location = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'region'):
+                self._region = self.scope
+            elif scope_type == apps.get_model('dcim', 'sitegroup'):
+                self._sitegroup = self.scope
+            elif scope_type == apps.get_model('dcim', 'site'):
+                self._region = self.scope.region
+                self._sitegroup = self.scope.group
+                self._site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                self._region = self.scope.site.region
+                self._sitegroup = self.scope.site.group
+                self._site = self.scope.site
+                self._location = self.scope
+    cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
