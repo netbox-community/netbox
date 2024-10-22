@@ -257,7 +257,7 @@ class CircuitTypeBulkDeleteView(generic.BulkDeleteView):
 
 class CircuitListView(generic.ObjectListView):
     queryset = Circuit.objects.prefetch_related(
-        'tenant__group', 'termination_a__site', 'termination_z__site',
+        'tenant__group', 'termination_a___site', 'termination_z___site',
         'termination_a__provider_network', 'termination_z__provider_network',
     )
     filterset = filtersets.CircuitFilterSet
@@ -298,7 +298,7 @@ class CircuitBulkImportView(generic.BulkImportView):
 
 class CircuitBulkEditView(generic.BulkEditView):
     queryset = Circuit.objects.prefetch_related(
-        'termination_a__site', 'termination_z__site',
+        'termination_a___site', 'termination_z___site',
         'termination_a__provider_network', 'termination_z__provider_network',
     )
     filterset = filtersets.CircuitFilterSet
@@ -308,7 +308,7 @@ class CircuitBulkEditView(generic.BulkEditView):
 
 class CircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = Circuit.objects.prefetch_related(
-        'termination_a__site', 'termination_z__site',
+        'termination_a___site', 'termination_z___site',
         'termination_a__provider_network', 'termination_z__provider_network',
     )
     filterset = filtersets.CircuitFilterSet

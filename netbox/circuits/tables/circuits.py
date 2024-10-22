@@ -112,7 +112,8 @@ class CircuitTerminationTable(NetBoxTable):
     )
     site = tables.Column(
         verbose_name=_('Site'),
-        linkify=True
+        linkify=True,
+        accessor='_site'
     )
     provider_network = tables.Column(
         verbose_name=_('Provider Network'),

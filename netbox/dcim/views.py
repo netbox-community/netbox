@@ -404,7 +404,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                         scope_id=instance.pk
                     ), 'site'),
                     (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
-                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
+                    (Circuit.objects.restrict(request.user, 'view').filter(terminations___site=instance).distinct(),
                      'site_id'),
                 ),
             ),

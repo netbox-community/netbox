@@ -1,13 +1,14 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
+from circuits.constants import *
 from circuits.models import *
-from dcim.models import Site
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 
 __all__ = (
     'CircuitImportForm',
@@ -127,11 +128,10 @@ class BaseCircuitTerminationImportForm(forms.ModelForm):
         label=_('Termination'),
         choices=CircuitTerminationSideChoices,
     )
-    site = CSVModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        to_field_name='name',
-        required=False
+    scope_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        required=False,
+        label=_('Scope type (app & model)')
     )
     provider_network = CSVModelChoiceField(
         label=_('Provider network'),
@@ -145,9 +145,12 @@ class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'scope_type', 'scope_id', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description'
         ]
+        labels = {
+            'scope_id': 'Scope ID',
+        }
 
 
 class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTerminationImportForm):
@@ -155,9 +158,12 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'scope_type', 'scope_id', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description', 'tags'
         ]
+        labels = {
+            'scope_id': 'Scope ID',
+        }
 
 
 class CircuitGroupImportForm(NetBoxModelImportForm):

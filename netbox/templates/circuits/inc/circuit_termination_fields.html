@@ -1,16 +1,16 @@
 {% load helpers %}
 {% load i18n %}
 
-{% if termination.site %}
+{% if termination.scope %}
   <tr>
-    <th scope="row">{% trans "Site" %}</th>
-    <td>
-      {% if termination.site.region %}
-        {{ termination.site.region|linkify }} /
-      {% endif %}
-      {{ termination.site|linkify }}
-    </td>
+    <th scope="row">{% trans "Scope" %}</th>
+    {% if termination.scope %}
+      <td>{{ termination.scope|linkify }} ({% trans termination.scope_type.name %})</td>
+    {% else %}
+      <td>{{ ''|placeholder }}</td>
+    {% endif %}
   </tr>
+
   <tr>
     <th scope="row">{% trans "Termination" %}</th>
     <td>

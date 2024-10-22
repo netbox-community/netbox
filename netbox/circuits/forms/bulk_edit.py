@@ -1,17 +1,19 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
+from circuits.constants import CIRCUIT_TERMINATION_SCOPE_TYPES
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice, get_field_value
+from utilities.forms.fields import ColorField, CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet, TabbedGroups
-from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, NumberWithOptions
+from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -197,10 +199,18 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
+        required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
     )
     provider_network = DynamicModelChoiceField(
         label=_('Provider Network'),
@@ -226,14 +236,28 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet(
             'description',
             TabbedGroups(
-                FieldSet('site', name=_('Site')),
+                FieldSet('scope_type', 'scope', name=_('Scope')),
                 FieldSet('provider_network', name=_('Provider Network')),
             ),
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
     )
-    nullable_fields = ('description')
+    nullable_fields = ('description', 'scope')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
 
 
 class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):

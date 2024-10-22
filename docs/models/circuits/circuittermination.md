@@ -21,13 +21,13 @@ Designates the termination as forming either the A or Z end of the circuit.
 
 If selected, the circuit termination will be considered "connected" even if no cable has been connected to it in NetBox.
 
-### Site
+### Scope
 
-The [site](../dcim/site.md) with which this circuit termination is associated. Once created, a cable can be connected between the circuit termination and a device interface (or similar component).
+The [region](../dcim/region.md), [site](../dcim/site.md) or [location](../dcim/location.md) with which this circuit termination is associated. Once created, a cable can be connected between the circuit termination and a device interface (or similar component).
 
 ### Provider Network
 
-Circuits which do not connect to a site modeled by NetBox can instead be terminated to a [provider network](./providernetwork.md) representing an unknown network operated by a [provider](./provider.md).
+Circuits which do not connect to a scope modeled by NetBox can instead be terminated to a [provider network](./providernetwork.md) representing an unknown network operated by a [provider](./provider.md).
 
 ### Port Speed
 

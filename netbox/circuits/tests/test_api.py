@@ -181,9 +181,9 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], term_side=SIDE_A, site=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side=SIDE_A, scope=sites[0]),
             CircuitTermination(circuit=circuits[0], term_side=SIDE_Z, provider_network=provider_networks[0]),
-            CircuitTermination(circuit=circuits[1], term_side=SIDE_A, site=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side=SIDE_A, scope=sites[1]),
             CircuitTermination(circuit=circuits[1], term_side=SIDE_Z, provider_network=provider_networks[1]),
         )
         CircuitTermination.objects.bulk_create(circuit_terminations)
@@ -192,7 +192,8 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
             {
                 'circuit': circuits[2].pk,
                 'term_side': SIDE_A,
-                'site': sites[0].pk,
+                'scope_type': 'dcim.site',
+                'scope_id': sites[0].pk,
                 'port_speed': 200000,
             },
             {
