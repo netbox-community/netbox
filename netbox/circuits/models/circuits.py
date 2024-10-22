@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models

@@ -240,7 +240,8 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
         ))
-        CircuitTermination.objects.bulk_create(circuit_terminations)
+        for ct in circuit_terminations:
+            ct.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
