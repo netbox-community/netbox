@@ -5290,9 +5290,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_site(self):
         site = Site.objects.all()[:2]
         params = {'site_id': [site[0].pk, site[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
         params = {'site': [site[0].slug, site[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
 
     def test_tenant(self):
         tenant = Tenant.objects.all()[:2]
