@@ -297,8 +297,7 @@ class VLANTranslationRule(NetBoxModel):
     policy = models.ForeignKey(
         to=VLANTranslationPolicy,
         related_name='rules',
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.CASCADE,
     )
     local_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Local VLAN ID'),
