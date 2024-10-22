@@ -374,10 +374,11 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+        site = sites[0].pk
         cls.csv_data = (
-            "circuit,term_side,site,description",
-            "Circuit 3,A,Site 1,Foo",
-            "Circuit 3,Z,Site 1,Bar",
+            "circuit,term_side,scope_type,scope_id,description",
+            f"Circuit 3,A,dcim.site,{site},Foo",
+            f"Circuit 3,Z,dcim.site,{site},Bar",
         )
 
         cls.csv_update_data = (
