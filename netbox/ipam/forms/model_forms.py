@@ -714,13 +714,13 @@ class VLANTranslationRuleForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('policy', 'local_vid', 'remote_vid', name=_('VLAN Translation Rule')),
+        FieldSet('policy', 'local_vid', 'remote_vid', 'tags', name=_('VLAN Translation Rule')),
     )
 
     class Meta:
         model = VLANTranslationRule
         fields = [
-            'policy', 'local_vid', 'remote_vid',
+            'policy', 'local_vid', 'remote_vid', 'tags',
         ]
 
 
