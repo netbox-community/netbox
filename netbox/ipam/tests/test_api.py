@@ -1065,10 +1065,6 @@ class VLANTranslationPolicyTest(APIViewTestCases.APIViewTestCase):
 class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
     model = VLANTranslationRule
     brief_fields = ['id', 'local_vid', 'policy', 'remote_vid',]
-    bulk_update_data = {
-        'policy': '109',
-        'remote_vid': '209',
-    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1103,7 +1099,6 @@ class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
-        print(VLANTranslationRule.objects.all().values('id', 'policy'))
 
         cls.create_data = [
             {

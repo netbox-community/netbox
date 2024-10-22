@@ -291,7 +291,7 @@ class VLANTranslationPolicyType(NetBoxObjectType):
     filters=VLANTranslationRuleFilter
 )
 class VLANTranslationRuleType(NetBoxObjectType):
-    policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
+    policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] = strawberry_django.field(select_related=["policy"])
 
 
 @strawberry_django.type(

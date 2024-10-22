@@ -315,6 +315,9 @@ class VLANTranslationRule(NetBoxModel):
         ),
         help_text=_("Numeric VLAN ID (1-4094)")
     )
+    prerequisite_models = (
+        'ipam.VLANTranslationPolicy',
+    )
 
     class Meta:
         verbose_name = _('VLAN translation rule')
@@ -331,8 +334,7 @@ class VLANTranslationRule(NetBoxModel):
         )
 
     def __str__(self):
-        return f'{self.local_vid} -> {self.remote_vid}'
-        # return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
+        return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
