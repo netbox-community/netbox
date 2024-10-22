@@ -554,12 +554,19 @@ class VLANTranslationPolicyBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
+    policy = DynamicModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        selector=True
+    )
+    local_vid = forms.IntegerField(required=False)
+    remote_vid = forms.IntegerField(required=False)
 
     model = VLANTranslationRule
     fieldsets = (
         FieldSet('policy', 'local_vid', 'remote_vid'),
     )
-    nullable_fields = ('description',)
+    fields = ('policy', 'local_vid', 'remote_vid')
 
 
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):

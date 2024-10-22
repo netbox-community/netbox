@@ -953,8 +953,6 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
 
-        tags = create_tags('Alpha', 'Bravo', 'Charlie')
-
         cls.form_data = {
             'policy': vlan_translation_policies[0].pk,
             'local_vid': 300,
@@ -962,37 +960,22 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "policy_id,local_vid,remote_vid",
+            "policy,local_vid,remote_vid",
             f"{vlan_translation_policies[0].pk},103,203",
             f"{vlan_translation_policies[0].pk},104,204",
             f"{vlan_translation_policies[1].pk},105,205",
         )
 
         cls.csv_update_data = (
-            "id,policy_id,local_vid,remote_vid",
+            "id,policy,local_vid,remote_vid",
             f"{vlan_translation_rules[0].pk},{vlan_translation_policies[1].pk},105,205",
             f"{vlan_translation_rules[1].pk},{vlan_translation_policies[1].pk},106,206",
             f"{vlan_translation_rules[2].pk},{vlan_translation_policies[0].pk},107,207",
         )
 
         cls.bulk_edit_data = {
-            'tags': [t.pk for t in tags],
+            'policy': vlan_translation_policies[2].pk,
         }
-
-    # def test_bulk_edit_objects_with_permission(self):
-    #     pass
-    #
-    # def test_bulk_edit_objects_with_constrained_permission(self):
-    #     pass
-    #
-    # def test_bulk_import_objects_with_permission(self):
-    #     pass
-    #
-    # def test_bulk_import_objects_with_constrained_permission(self):
-    #     pass
-    #
-    # def test_bulk_update_objects_with_permission(self):
-    #     pass
 
 
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
