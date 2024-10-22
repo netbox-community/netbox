@@ -70,10 +70,12 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Circuit.objects.bulk_create(circuits)
 
-        CircuitTermination.objects.bulk_create((
+        circuit_terminations = (
             CircuitTermination(circuit=circuits[0], scope=sites[0], term_side='A'),
             CircuitTermination(circuit=circuits[1], scope=sites[0], term_side='A'),
-        ))
+        )
+        for ct in circuit_terminations:
+            ct.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -396,7 +398,8 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
             CircuitTermination(circuit=circuits[6], provider_network=provider_networks[0], term_side='A', mark_connected=True),
         ))
-        CircuitTermination.objects.bulk_create(circuit_terminations)
+        for ct in circuit_terminations:
+            ct.save()
 
         Cable(a_terminations=[circuit_terminations[0]], b_terminations=[circuit_terminations[1]]).save()
 

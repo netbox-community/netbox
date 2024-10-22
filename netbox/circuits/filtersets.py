@@ -333,7 +333,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     class Meta:
         model = CircuitTermination
         fields = (
-            'id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
+            'id', 'scope_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
             'pp_info', 'cable_end',
         )
 
