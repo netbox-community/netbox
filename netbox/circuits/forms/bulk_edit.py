@@ -1,17 +1,19 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
+from circuits.constants import CIRCUIT_TERMINATION_SCOPE_TYPES
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import add_blank_choice, get_field_value
+from utilities.forms.fields import ColorField, CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet, TabbedGroups
-from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, NumberWithOptions
+from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -196,6 +198,12 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Description'),
         max_length=200,
         required=False
+    )
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
+        required=False,
+        label=_('Scope type')
     )
     scope = DynamicModelChoiceField(
         label=_('Scope'),

@@ -382,7 +382,7 @@ class CircuitTermination(
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.prefetch_related('site').get(
+            return CircuitTermination.objects.prefetch_related('scope').get(
                 circuit=self.circuit,
                 term_side=peer_side
             )

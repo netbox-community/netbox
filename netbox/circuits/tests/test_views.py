@@ -364,7 +364,8 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             CircuitTermination(circuit=circuits[1], term_side='A', scope=sites[0]),
             CircuitTermination(circuit=circuits[1], term_side='Z', scope=sites[1]),
         )
-        CircuitTermination.objects.bulk_create(circuit_terminations)
+        for ct in circuit_terminations:
+            ct.save()
 
         cls.form_data = {
             'circuit': circuits[2].pk,
