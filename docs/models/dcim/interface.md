@@ -142,3 +142,7 @@ The configured channel width of a wireless interface, in MHz. This is typically 
 ### Wireless LANs
 
 The [wireless LANs](../wireless/wirelesslan.md) for which this interface carries traffic. (Valid for wireless interfaces only.)
+
+### VLAN Translation Policy
+
+The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

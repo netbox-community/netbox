@@ -8,7 +8,7 @@ Each model should define, at a minimum:
 
 * A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 * A `__str__()` method returning a user-friendly string representation of the instance
-* A `get_absolute_url()` method returning an instance's direct URL (using `reverse()`)
+* A `get_absolute_url()` method if necessary; a standard version of the method is defined in the `NetBoxFeatureSet` base class, but you will need to provide your own (returning an instance's direct URL using `reverse()`) if not subclassing that base class
 
 ## 2. Define field choices
 
