@@ -282,7 +282,7 @@ class VLANGroupType(OrganizationalObjectType):
     filters=VLANTranslationPolicyFilter
 )
 class VLANTranslationPolicyType(NetBoxObjectType):
-    pass
+    rules: List[Annotated["VLANTranslationRuleType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -291,7 +291,7 @@ class VLANTranslationPolicyType(NetBoxObjectType):
     filters=VLANTranslationRuleFilter
 )
 class VLANTranslationRuleType(NetBoxObjectType):
-    pass
+    policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')]
 
 
 @strawberry_django.type(

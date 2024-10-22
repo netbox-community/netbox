@@ -118,7 +118,7 @@ class VLANTranslationRuleSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = VLANTranslationRule
-        fields = ['policy', 'local_vid', 'remote_vid']
+        fields = ['id', 'policy', 'local_vid', 'remote_vid']
 
 
 class VLANTranslationPolicySerializer(NetBoxModelSerializer):

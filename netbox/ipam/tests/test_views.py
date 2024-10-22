@@ -912,6 +912,89 @@ class VLANTranslationPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VLANTranslationRule
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar3',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        vlan_translation_rules = (
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=100,
+                remote_vid=200,
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=101,
+                remote_vid=201,
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[1],
+                local_vid=102,
+                remote_vid=202,
+            ),
+        )
+        VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'policy': vlan_translation_policies[0].pk,
+            'local_vid': 300,
+            'remote_vid': 400,
+        }
+
+        cls.csv_data = (
+            "policy_id,local_vid,remote_vid",
+            f"{vlan_translation_policies[0].pk},103,203",
+            f"{vlan_translation_policies[0].pk},104,204",
+            f"{vlan_translation_policies[1].pk},105,205",
+        )
+
+        cls.csv_update_data = (
+            "id,policy_id,local_vid,remote_vid",
+            f"{vlan_translation_rules[0].pk},{vlan_translation_policies[1].pk},105,205",
+            f"{vlan_translation_rules[1].pk},{vlan_translation_policies[1].pk},106,206",
+            f"{vlan_translation_rules[2].pk},{vlan_translation_policies[0].pk},107,207",
+        )
+
+        cls.bulk_edit_data = {
+            'tags': [t.pk for t in tags],
+        }
+
+    # def test_bulk_edit_objects_with_permission(self):
+    #     pass
+    #
+    # def test_bulk_edit_objects_with_constrained_permission(self):
+    #     pass
+    #
+    # def test_bulk_import_objects_with_permission(self):
+    #     pass
+    #
+    # def test_bulk_import_objects_with_constrained_permission(self):
+    #     pass
+    #
+    # def test_bulk_update_objects_with_permission(self):
+    #     pass
+
+
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
 
