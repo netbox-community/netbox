@@ -5117,7 +5117,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
-        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', site=sites[0])
+        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', scope=sites[0])
 
         # Cables
         cables = (

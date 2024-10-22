@@ -1,5 +1,7 @@
 import datetime
+import json
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 
@@ -201,16 +203,25 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 "terminations": [
                   {
                     "term_side": "A",
-                    "site": "Site 1"
+                    "scope_type": "dcim.site",
+                    "scope_id": "1"
                   },
                   {
                     "term_side": "Z",
-                    "site": "Site 1"
+                    "scope_type": "dcim.site",
+                    "scope_id": "1"
                   }
                 ]
               }
             ]
         """
+
+        # Fix up the scope site id
+        site = Site.objects.first()
+        data = json.loads(json_data)
+        data[0]["terminations"][0]["scope_id"] = data[0]["terminations"][1]["scope_id"] = site.id
+        json_data = json.dumps(data)
+
         initial_count = self._get_queryset().count()
         data = {
             'data': json_data,
@@ -370,7 +381,8 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'circuit': circuits[2].pk,
             'term_side': 'A',
-            'site': sites[2].pk,
+            'scope_type': ContentType.objects.get_for_model(Site).pk,
+            'scope': sites[2].pk,
             'description': 'New description',
         }
 
