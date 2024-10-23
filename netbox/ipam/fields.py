@@ -105,6 +105,8 @@ IPAddressField.register_lookup(lookups.NetIn)
 IPAddressField.register_lookup(lookups.NetHostContained)
 IPAddressField.register_lookup(lookups.NetFamily)
 IPAddressField.register_lookup(lookups.NetMaskLength)
+IPAddressField.register_lookup(lookups.Host)
+IPAddressField.register_lookup(lookups.Inet)
 
 
 class ASNField(models.BigIntegerField):
