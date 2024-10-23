@@ -76,14 +76,14 @@ class Migration(migrations.Migration):
             reverse_code=migrations.RunPython.noop
         ),
 
+        migrations.RemoveConstraint(
+            model_name='cluster',
+            name='virtualization_cluster_unique_site_name',
+        ),
         # Delete the site ForeignKey
         migrations.RemoveField(
             model_name='cluster',
             name='site',
-        ),
-        migrations.RemoveConstraint(
-            model_name='cluster',
-            name='virtualization_cluster_unique_site_name',
         ),
         migrations.AddConstraint(
             model_name='cluster',
@@ -91,5 +91,4 @@ class Migration(migrations.Migration):
                 fields=('_site', 'name'), name='virtualization_cluster_unique__site_name'
             ),
         ),
-
     ]
