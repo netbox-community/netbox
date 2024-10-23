@@ -38,42 +38,42 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
 
 
 class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        label=_('Region (ID)'),
-    )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Region (slug)'),
-    )
-    site_group_id = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        label=_('Site group (ID)'),
-    )
-    site_group = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Site group (slug)'),
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        label=_('Site (ID)'),
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label=_('Site (slug)'),
-    )
+    # region_id = TreeNodeMultipleChoiceFilter(
+    #     queryset=Region.objects.all(),
+    #     field_name='site__region',
+    #     lookup_expr='in',
+    #     label=_('Region (ID)'),
+    # )
+    # region = TreeNodeMultipleChoiceFilter(
+    #     queryset=Region.objects.all(),
+    #     field_name='site__region',
+    #     lookup_expr='in',
+    #     to_field_name='slug',
+    #     label=_('Region (slug)'),
+    # )
+    # site_group_id = TreeNodeMultipleChoiceFilter(
+    #     queryset=SiteGroup.objects.all(),
+    #     field_name='site__group',
+    #     lookup_expr='in',
+    #     label=_('Site group (ID)'),
+    # )
+    # site_group = TreeNodeMultipleChoiceFilter(
+    #     queryset=SiteGroup.objects.all(),
+    #     field_name='site__group',
+    #     lookup_expr='in',
+    #     to_field_name='slug',
+    #     label=_('Site group (slug)'),
+    # )
+    # site_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=Site.objects.all(),
+    #     label=_('Site (ID)'),
+    # )
+    # site = django_filters.ModelMultipleChoiceFilter(
+    #     field_name='site__slug',
+    #     queryset=Site.objects.all(),
+    #     to_field_name='slug',
+    #     label=_('Site (slug)'),
+    # )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label=_('Parent group (ID)'),
