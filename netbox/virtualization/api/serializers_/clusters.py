@@ -1,8 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-
-from dcim.api.serializers_.sites import SiteSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
@@ -51,7 +49,6 @@ class ClusterSerializer(NetBoxModelSerializer):
     group = ClusterGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
-    site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=CLUSTER_SCOPE_TYPES

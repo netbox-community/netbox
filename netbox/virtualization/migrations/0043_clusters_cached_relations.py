@@ -81,5 +81,15 @@ class Migration(migrations.Migration):
             model_name='cluster',
             name='site',
         ),
+        migrations.RemoveConstraint(
+            model_name='cluster',
+            name='virtualization_cluster_unique_site_name',
+        ),
+        migrations.AddConstraint(
+            model_name='cluster',
+            constraint=models.UniqueConstraint(
+                fields=('_site', 'name'), name='virtualization_cluster_unique__site_name'
+            ),
+        ),
 
     ]

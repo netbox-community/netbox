@@ -148,8 +148,8 @@ class Cluster(ContactsMixin, PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
             models.UniqueConstraint(
-                fields=('site', 'name'),
-                name='%(app_label)s_%(class)s_unique_site_name'
+                fields=('_site', 'name'),
+                name='%(app_label)s_%(class)s_unique__site_name'
             ),
         )
         verbose_name = _('cluster')
