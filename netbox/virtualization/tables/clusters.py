@@ -75,7 +75,8 @@ class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     site = tables.Column(
         verbose_name=_('Site'),
-        linkify=True
+        linkify=True,
+        accessor='_site'
     )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
