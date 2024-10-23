@@ -78,6 +78,8 @@ Create the following for each model:
 
 Create a GraphQL object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
 
+**Note:** GraphQL unit tests may fail citing null values on a non-nullable field if related objects are prefetched. You may need to fix this by setting the type annotation to be `= strawberry_django.field(select_related=["policy"])` or similar.
+
 Also extend the schema class defined in `graphql/schema.py` with the individual object and object list fields per the established convention.
 
 ## 14. Add tests
