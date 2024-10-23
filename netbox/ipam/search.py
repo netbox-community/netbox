@@ -161,6 +161,27 @@ class VLANGroupIndex(SearchIndex):
 
 
 @register_search
+class VLANTranslationPolicyIndex(SearchIndex):
+    model = models.VLANTranslationPolicy
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
+class VLANTranslationRuleIndex(SearchIndex):
+    model = models.VLANTranslationRule
+    fields = (
+        ('policy', 100),
+        ('local_vid', 200),
+        ('remote_vid', 200),
+    )
+    display_attrs = ('policy', 'local_vid', 'remote_vid')
+
+
+@register_search
 class VRFIndex(SearchIndex):
     model = models.VRF
     fields = (

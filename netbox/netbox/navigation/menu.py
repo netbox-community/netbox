@@ -194,6 +194,8 @@ IPAM_MENU = Menu(
             items=(
                 get_model_item('ipam', 'vlan', _('VLANs')),
                 get_model_item('ipam', 'vlangroup', _('VLAN Groups')),
+                get_model_item('ipam', 'vlantranslationpolicy', _('VLAN Translation Policies')),
+                get_model_item('ipam', 'vlantranslationrule', _('VLAN Translation Rules')),
             ),
         ),
         MenuGroup(

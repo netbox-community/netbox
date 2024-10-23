@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
-from ipam.models import IPAddress, VRF
+from ipam.models import IPAddress, VLANTranslationPolicy, VRF
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.choices import *
@@ -561,6 +561,13 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VirtualMachine.objects.bulk_create(vms)
 
+        vlan_translation_policies = (
+            VLANTranslationPolicy(name='Policy 1'),
+            VLANTranslationPolicy(name='Policy 2'),
+            VLANTranslationPolicy(name='Policy 3'),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
         interfaces = (
             VMInterface(
                 virtual_machine=vms[0],
@@ -569,7 +576,8 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=100,
                 mac_address='00-00-00-00-00-01',
                 vrf=vrfs[0],
-                description='foobar1'
+                description='foobar1',
+                vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
                 virtual_machine=vms[1],
@@ -578,7 +586,8 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=200,
                 mac_address='00-00-00-00-00-02',
                 vrf=vrfs[1],
-                description='foobar2'
+                description='foobar2',
+                vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
                 virtual_machine=vms[2],
@@ -656,6 +665,13 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vlan_translation_policy(self):
+        vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
+        params = {'vlan_translation_policy_id': [vlan_translation_policies[0].pk, vlan_translation_policies[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vlan_translation_policy': [vlan_translation_policies[0].name, vlan_translation_policies[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

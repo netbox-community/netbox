@@ -53,5 +53,11 @@ class IPAMQuery:
     vlan_group: VLANGroupType = strawberry_django.field()
     vlan_group_list: List[VLANGroupType] = strawberry_django.field()
 
+    vlan_translation_policy: VLANTranslationPolicyType = strawberry_django.field()
+    vlan_translation_policy_list: List[VLANTranslationPolicyType] = strawberry_django.field()
+
+    vlan_translation_rule: VLANTranslationRuleType = strawberry_django.field()
+    vlan_translation_rule_list: List[VLANTranslationRuleType] = strawberry_django.field()
+
     vrf: VRFType = strawberry_django.field()
     vrf_list: List[VRFType] = strawberry_django.field()

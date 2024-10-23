@@ -547,6 +547,13 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
+    vlan_translation_policy = models.ForeignKey(
+        to='ipam.VLANTranslationPolicy',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name=_('VLAN Translation Policy'),
+    )
 
     class Meta:
         abstract = True

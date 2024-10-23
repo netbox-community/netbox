@@ -143,6 +143,18 @@ class VLANViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.VLANFilterSet
 
 
+class VLANTranslationPolicyViewSet(NetBoxModelViewSet):
+    queryset = VLANTranslationPolicy.objects.all()
+    serializer_class = serializers.VLANTranslationPolicySerializer
+    filterset_class = filtersets.VLANTranslationPolicyFilterSet
+
+
+class VLANTranslationRuleViewSet(NetBoxModelViewSet):
+    queryset = VLANTranslationRule.objects.all()
+    serializer_class = serializers.VLANTranslationRuleSerializer
+    filterset_class = filtersets.VLANTranslationRuleFilterSet
+
+
 class ServiceTemplateViewSet(NetBoxModelViewSet):
     queryset = ServiceTemplate.objects.all()
     serializer_class = serializers.ServiceTemplateSerializer
