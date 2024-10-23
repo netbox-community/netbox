@@ -112,7 +112,8 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
             Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
             Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         cls.create_data = [
             {

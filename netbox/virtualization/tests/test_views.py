@@ -117,11 +117,12 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ClusterType.objects.bulk_create(clustertypes)
 
         clusters = (
-            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
-            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
-            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
+            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
+            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
+            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -131,7 +132,8 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type': clustertypes[1].pk,
             'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
-            'site': sites[1].pk,
+            'scope_type': ContentType.objects.get_for_model(Site).pk,
+            'scope': sites[1].pk,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -155,7 +157,6 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type': clustertypes[1].pk,
             'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
-            'site': sites[1].pk,
             'comments': 'New comments',
         }
 

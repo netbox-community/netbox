@@ -238,7 +238,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 
         # Assign site from cluster if not set
         if self.cluster and not self.site:
-            self.site = self.cluster.site
+            self.site = self.cluster._site
 
         super().save(*args, **kwargs)
 
