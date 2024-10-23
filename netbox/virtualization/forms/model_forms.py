@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -13,8 +14,12 @@ from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms import get_field_value
+from utilities.forms.fields import ContentTypeChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
+from utilities.templatetags.builtins.filters import bettertitle
+from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -67,24 +72,56 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
+        widget=HTMXSelect(),
         required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
         selector=True
     )
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'type', 'group', 'site', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
         )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope:
+            initial['scope'] = instance.scope
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and scope_type_id != self.instance.scope_type_id:
+                self.initial['scope'] = None
 
 
 class ClusterAddDevicesForm(forms.Form):
