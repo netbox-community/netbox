@@ -3,13 +3,13 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.filtersets import CommonInterfaceFilterSet
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Location, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -38,42 +38,57 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
 
 
 class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    # region_id = TreeNodeMultipleChoiceFilter(
-    #     queryset=Region.objects.all(),
-    #     field_name='site__region',
-    #     lookup_expr='in',
-    #     label=_('Region (ID)'),
-    # )
-    # region = TreeNodeMultipleChoiceFilter(
-    #     queryset=Region.objects.all(),
-    #     field_name='site__region',
-    #     lookup_expr='in',
-    #     to_field_name='slug',
-    #     label=_('Region (slug)'),
-    # )
-    # site_group_id = TreeNodeMultipleChoiceFilter(
-    #     queryset=SiteGroup.objects.all(),
-    #     field_name='site__group',
-    #     lookup_expr='in',
-    #     label=_('Site group (ID)'),
-    # )
-    # site_group = TreeNodeMultipleChoiceFilter(
-    #     queryset=SiteGroup.objects.all(),
-    #     field_name='site__group',
-    #     lookup_expr='in',
-    #     to_field_name='slug',
-    #     label=_('Site group (slug)'),
-    # )
-    # site_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Site.objects.all(),
-    #     label=_('Site (ID)'),
-    # )
-    # site = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='site__slug',
-    #     queryset=Site.objects.all(),
-    #     to_field_name='slug',
-    #     label=_('Site (slug)'),
-    # )
+    scope_type = ContentTypeFilter()
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        field_name='_site',
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='_site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label=_('Site (slug)'),
+    )
+    location_id = TreeNodeMultipleChoiceFilter(
+       queryset=Location.objects.all(),
+       field_name='_location',
+       lookup_expr='in',
+       label=_('Location (ID)'),
+    )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label=_('Parent group (ID)'),
