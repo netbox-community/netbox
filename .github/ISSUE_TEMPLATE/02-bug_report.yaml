@@ -32,7 +32,7 @@ body:
         - I volunteer to perform this work (if approved)
         - I'm a NetBox Labs customer
         - N/A
-      default: 3
+      default: 2
     validations:
       required: true
   - type: input
