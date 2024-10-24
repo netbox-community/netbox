@@ -116,7 +116,7 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Cluster
-        fields = ('id', 'name', 'description')
+        fields = ('id', 'name', 'description', 'scope_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
