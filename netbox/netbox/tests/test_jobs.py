@@ -5,7 +5,7 @@ from django.utils import timezone
 from django_rq import get_queue
 
 from ..jobs import *
-from core.models import Job
+from core.models import DataSource, Job
 from core.choices import JobStatusChoices
 
 
@@ -68,7 +68,7 @@ class EnqueueTest(JobRunnerTestCase):
     """
 
     def test_enqueue(self):
-        instance = Job()
+        instance = DataSource()
         for i in range(1, 3):
             job = TestJobRunner.enqueue(instance, schedule_at=self.get_schedule_at())
 
@@ -76,13 +76,13 @@ class EnqueueTest(JobRunnerTestCase):
             self.assertEqual(TestJobRunner.get_jobs(instance).count(), i)
 
     def test_enqueue_once(self):
-        job = TestJobRunner.enqueue_once(instance=Job(), schedule_at=self.get_schedule_at())
+        job = TestJobRunner.enqueue_once(instance=DataSource(), schedule_at=self.get_schedule_at())
 
         self.assertIsInstance(job, Job)
         self.assertEqual(job.name, TestJobRunner.__name__)
 
     def test_enqueue_once_twice_same(self):
-        instance = Job()
+        instance = DataSource()
         schedule_at = self.get_schedule_at()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
         job2 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
@@ -91,7 +91,7 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
     def test_enqueue_once_twice_different_schedule_at(self):
-        instance = Job()
+        instance = DataSource()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at())
         job2 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
 
@@ -100,7 +100,7 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
     def test_enqueue_once_twice_different_interval(self):
-        instance = Job()
+        instance = DataSource()
         schedule_at = self.get_schedule_at()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at)
         job2 = TestJobRunner.enqueue_once(instance, schedule_at=schedule_at, interval=60)
@@ -112,7 +112,7 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
     def test_enqueue_once_with_enqueue(self):
-        instance = Job()
+        instance = DataSource()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
         job2 = TestJobRunner.enqueue(instance, schedule_at=self.get_schedule_at())
 
@@ -120,7 +120,7 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 2)
 
     def test_enqueue_once_after_enqueue(self):
-        instance = Job()
+        instance = DataSource()
         job1 = TestJobRunner.enqueue(instance, schedule_at=self.get_schedule_at())
         job2 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
 
