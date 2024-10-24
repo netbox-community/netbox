@@ -2,15 +2,17 @@ import json
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, Tag
-from utilities.forms import CSVModelForm
+from utilities.forms import CSVModelForm, get_field_value
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.mixins import CheckLastUpdatedMixin
+from utilities.templatetags.builtins.filters import bettertitle
 from .mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 
 __all__ = (
@@ -18,6 +20,7 @@ __all__ = (
     'NetBoxModelImportForm',
     'NetBoxModelBulkEditForm',
     'NetBoxModelFilterSetForm',
+    'ScopeForm',
 )
 
 
@@ -186,3 +189,21 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
+
+
+class ScopeForm(forms.Form):
+
+    def _set_scoped_values():
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and scope_type_id != self.instance.scope_type_id:
+                self.initial['scope'] = None

@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -8,17 +7,15 @@ from dcim.forms.common import InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, ScopeForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms import get_field_value
 from utilities.forms.fields import ContentTypeChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
-from utilities.templatetags.builtins.filters import bettertitle
 from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
@@ -62,7 +59,7 @@ class ClusterGroupForm(NetBoxModelForm):
         )
 
 
-class ClusterForm(TenancyForm, NetBoxModelForm):
+class ClusterForm(TenancyForm, ScopeForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all()
@@ -108,20 +105,7 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
-
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
-
-            if self.instance and scope_type_id != self.instance.scope_type_id:
-                self.initial['scope'] = None
+        self._set_scoped_values()
 
     def clean(self):
         super().clean()
