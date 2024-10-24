@@ -25,6 +25,7 @@ __all__ = (
     'ChangeLoggedModelFilterSet',
     'NetBoxModelFilterSet',
     'OrganizationalModelFilterSet',
+    'ScopedFilterSet',
 )
 
 
@@ -328,7 +329,7 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ScopeModelFilterSet(BaseFilterSet):
+class ScopedFilterSet(BaseFilterSet):
     """
     Provides additional filtering functionality for location, site, etc.. for Scoped models.
     """

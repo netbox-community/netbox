@@ -20,7 +20,7 @@ __all__ = (
     'NetBoxModelImportForm',
     'NetBoxModelBulkEditForm',
     'NetBoxModelFilterSetForm',
-    'ScopeForm',
+    'ScopedForm',
 )
 
 
@@ -191,7 +191,7 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
 
 
-class ScopeForm(forms.Form):
+class ScopedForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
