@@ -157,11 +157,12 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=clustertype, site=sites[0], group=clustergroup),
-            Cluster(name='Cluster 2', type=clustertype, site=sites[1], group=clustergroup),
+            Cluster(name='Cluster 1', type=clustertype, scope=sites[0], group=clustergroup),
+            Cluster(name='Cluster 2', type=clustertype, scope=sites[1], group=clustergroup),
             Cluster(name='Cluster 3', type=clustertype),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         device1 = create_test_device('device1', site=sites[0], cluster=clusters[0])
         device2 = create_test_device('device2', site=sites[1], cluster=clusters[1])

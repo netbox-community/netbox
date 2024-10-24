@@ -123,6 +123,12 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
             if self.instance and scope_type_id != self.instance.scope_type_id:
                 self.initial['scope'] = None
 
+    def clean(self):
+        super().clean()
+
+        # Assign the selected scope (if any)
+        self.instance.scope = self.cleaned_data.get('scope')
+
 
 class ClusterAddDevicesForm(forms.Form):
     region = DynamicModelChoiceField(

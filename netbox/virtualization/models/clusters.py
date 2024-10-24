@@ -164,13 +164,21 @@ class Cluster(ContactsMixin, PrimaryModel):
     def clean(self):
         super().clean()
 
+        site = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'site'):
+                site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                site = self.scope.site
+
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
-        if not self._state.adding and self.site:
-            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=self.site).count():
+        if not self._state.adding and site:
+            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=site).count():
                 raise ValidationError({
                     'site': _(
                         "{count} devices are assigned as hosts for this cluster but are not in site {site}"
-                    ).format(count=nonsite_devices, site=self.site)
+                    ).format(count=nonsite_devices, site=site)
                 })
 
     def save(self, *args, **kwargs):
