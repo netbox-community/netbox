@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.features import CachedLocationScopeMixin, ContactsMixin
+from netbox.models.features import CachedScopeMixin, ContactsMixin
 from virtualization.choices import *
 from virtualization.constants import CLUSTER_SCOPE_TYPES
 
@@ -44,7 +44,7 @@ class ClusterGroup(ContactsMixin, OrganizationalModel):
         verbose_name_plural = _('cluster groups')
 
 
-class Cluster(ContactsMixin, CachedLocationScopeMixin, PrimaryModel):
+class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """

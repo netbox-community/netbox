@@ -24,8 +24,8 @@ from utilities.views import register_model_view
 
 __all__ = (
     'BookmarksMixin',
-    'CachedLocationScopeMixin',
     'ChangeLoggingMixin',
+    'CachedScopeMixin',
     'CloningMixin',
     'ContactsMixin',
     'CustomFieldsMixin',
@@ -582,7 +582,7 @@ class SyncedDataMixin(models.Model):
         ))
 
 
-class CachedLocationScopeMixin(models.Model):
+class CachedScopeMixin(models.Model):
     """
     Cached associations for scope to enable efficient filtering - must define scope and scope_type on model
     """
