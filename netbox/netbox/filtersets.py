@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
+from dcim.models import Location, Region, Site, SiteGroup
 from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter
 from extras.models import CustomField, SavedFilter
@@ -325,3 +326,60 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
             models.Q(slug__icontains=value) |
             models.Q(description__icontains=value)
         )
+
+
+class ScopeModelFilterSet(BaseFilterSet):
+    """
+    Provides additional filtering functionality for location, site, etc.. for Scoped models.
+    """
+    scope_type = filters.ContentTypeFilter()
+    region_id = filters.TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = filters.TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='_region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = filters.TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = filters.TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='_sitegroup',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        field_name='_site',
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='_site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label=_('Site (slug)'),
+    )
+    location_id = filters.TreeNodeMultipleChoiceFilter(
+       queryset=Location.objects.all(),
+       field_name='_location',
+       lookup_expr='in',
+       label=_('Location (ID)'),
+    )
+    location = filters.TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )

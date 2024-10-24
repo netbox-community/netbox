@@ -96,23 +96,6 @@ class ClusterForm(TenancyForm, ScopeForm, NetBoxModelForm):
             'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
         )
 
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
-
-        if instance is not None and instance.scope:
-            initial['scope'] = instance.scope
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-        self._set_scoped_values()
-
-    def clean(self):
-        super().clean()
-
-        # Assign the selected scope (if any)
-        self.instance.scope = self.cleaned_data.get('scope')
-
 
 class ClusterAddDevicesForm(forms.Form):
     region = DynamicModelChoiceField(

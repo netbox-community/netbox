@@ -193,7 +193,24 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
 
 class ScopeForm(forms.Form):
 
-    def _set_scoped_values():
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.scope:
+            initial['scope'] = instance.scope
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+        self._set_scoped_values()
+
+    def clean(self):
+        super().clean()
+
+        # Assign the selected scope (if any)
+        self.instance.scope = self.cleaned_data.get('scope')
+
+    def _set_scoped_values(self):
         if scope_type_id := get_field_value(self, 'scope_type'):
             try:
                 scope_type = ContentType.objects.get(pk=scope_type_id)
