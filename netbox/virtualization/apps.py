@@ -17,7 +17,7 @@ class VirtualizationConfig(AppConfig):
 
         # Register denormalized fields
         denormalized.register(VirtualMachine, 'cluster', {
-            'site': 'site',
+            'site': '_site',
         })
 
         # Register counters

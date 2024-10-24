@@ -7,14 +7,16 @@ from dcim.forms.common import InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, ScopedForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.fields import ContentTypeChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
+from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -57,7 +59,7 @@ class ClusterGroupForm(NetBoxModelForm):
         )
 
 
-class ClusterForm(TenancyForm, NetBoxModelForm):
+class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all()
@@ -67,23 +69,31 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
+        widget=HTMXSelect(),
         required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
         selector=True
     )
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'type', 'group', 'site', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
         )
 
 

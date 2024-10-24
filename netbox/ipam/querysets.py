@@ -148,7 +148,7 @@ class VLANQuerySet(RestrictedQuerySet):
 
         # Find all relevant VLANGroups
         q = Q()
-        site = vm.site or vm.cluster.site
+        site = vm.site or vm.cluster._site
         if vm.cluster:
             # Add VLANGroups scoped to the assigned cluster (or its group)
             q |= Q(

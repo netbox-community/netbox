@@ -1,12 +1,14 @@
-from django.contrib.contenttypes.fields import GenericRelation
+from django.apps import apps
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.features import ContactsMixin
+from netbox.models.features import CachedScopeMixin, ContactsMixin
 from virtualization.choices import *
+from virtualization.constants import CLUSTER_SCOPE_TYPES
 
 __all__ = (
     'Cluster',
@@ -42,7 +44,7 @@ class ClusterGroup(ContactsMixin, OrganizationalModel):
         verbose_name_plural = _('cluster groups')
 
 
-class Cluster(ContactsMixin, PrimaryModel):
+class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -76,12 +78,21 @@ class Cluster(ContactsMixin, PrimaryModel):
         blank=True,
         null=True
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        related_name='clusters',
+        limit_choices_to=models.Q(model__in=CLUSTER_SCOPE_TYPES),
+        related_name='+',
         blank=True,
         null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
     )
 
     # Generic relations
@@ -93,7 +104,7 @@ class Cluster(ContactsMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'type', 'group', 'status', 'tenant', 'site',
+        'scope_type', 'scope_id', 'type', 'group', 'status', 'tenant',
     )
     prerequisite_models = (
         'virtualization.ClusterType',
@@ -107,8 +118,8 @@ class Cluster(ContactsMixin, PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
             models.UniqueConstraint(
-                fields=('site', 'name'),
-                name='%(app_label)s_%(class)s_unique_site_name'
+                fields=('_site', 'name'),
+                name='%(app_label)s_%(class)s_unique__site_name'
             ),
         )
         verbose_name = _('cluster')
@@ -123,11 +134,19 @@ class Cluster(ContactsMixin, PrimaryModel):
     def clean(self):
         super().clean()
 
+        site = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'site'):
+                site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                site = self.scope.site
+
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
-        if not self._state.adding and self.site:
-            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=self.site).count():
+        if not self._state.adding and site:
+            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=site).count():
                 raise ValidationError({
                     'site': _(
                         "{count} devices are assigned as hosts for this cluster but are not in site {site}"
-                    ).format(count=nonsite_devices, site=self.site)
+                    ).format(count=nonsite_devices, site=site)
                 })

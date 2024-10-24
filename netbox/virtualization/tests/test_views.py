@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -117,11 +118,12 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ClusterType.objects.bulk_create(clustertypes)
 
         clusters = (
-            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
-            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
-            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[0]),
+            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
+            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
+            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -131,7 +133,8 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type': clustertypes[1].pk,
             'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
-            'site': sites[1].pk,
+            'scope_type': ContentType.objects.get_for_model(Site).pk,
+            'scope': sites[1].pk,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -155,7 +158,6 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type': clustertypes[1].pk,
             'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
-            'site': sites[1].pk,
             'comments': 'New comments',
         }
 
@@ -201,10 +203,11 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
         clusters = (
-            Cluster(name='Cluster 1', type=clustertype, site=sites[0]),
-            Cluster(name='Cluster 2', type=clustertype, site=sites[1]),
+            Cluster(name='Cluster 1', type=clustertype, scope=sites[0]),
+            Cluster(name='Cluster 2', type=clustertype, scope=sites[1]),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         devices = (
             create_test_device('device1', site=sites[0], cluster=clusters[0]),
@@ -292,7 +295,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
-        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, site=site)
+        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, scope=site)
         virtualmachines = (
             VirtualMachine(name='Virtual Machine 1', site=site, cluster=cluster, role=role),
             VirtualMachine(name='Virtual Machine 2', site=site, cluster=cluster, role=role),

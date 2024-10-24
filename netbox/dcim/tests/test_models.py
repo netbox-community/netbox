@@ -601,11 +601,12 @@ class DeviceTestCase(TestCase):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type, site=sites[0]),
-            Cluster(name='Cluster 2', type=cluster_type, site=sites[1]),
-            Cluster(name='Cluster 3', type=cluster_type, site=None),
+            Cluster(name='Cluster 1', type=cluster_type, scope=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, scope=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, scope=None),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()

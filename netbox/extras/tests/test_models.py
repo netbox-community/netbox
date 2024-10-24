@@ -274,7 +274,7 @@ class ConfigContextTest(TestCase):
             name="Cluster",
             group=cluster_group,
             type=cluster_type,
-            site=site,
+            scope=site,
         )
 
         region_context = ConfigContext.objects.create(
@@ -366,7 +366,7 @@ class ConfigContextTest(TestCase):
         """
         site = Site.objects.first()
         cluster_type = ClusterType.objects.create(name="Cluster Type")
-        cluster = Cluster.objects.create(name="Cluster", type=cluster_type, site=site)
+        cluster = Cluster.objects.create(name="Cluster", type=cluster_type, scope=site)
         vm_role = DeviceRole.objects.first()
 
         # Create a ConfigContext associated with the site
