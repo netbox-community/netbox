@@ -31,7 +31,6 @@ body:
       options:
         - I volunteer to perform this work (if approved)
         - I'm a NetBox Labs customer
-        - This is preventing me from using NetBox
         - N/A
       default: 3
     validations:

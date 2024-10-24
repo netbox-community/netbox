@@ -36,7 +36,6 @@ body:
       options:
         - I volunteer to perform this work (if approved)
         - I'm a NetBox Labs customer
-        - This is a very minor change
         - N/A
       default: 3
     validations:
