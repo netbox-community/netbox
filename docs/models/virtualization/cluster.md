@@ -25,4 +25,4 @@ The cluster's operational status.
 
 ### Scope
 
-The [region](../dcim/region.md), [site](../dcim/site.md) or [location](../dcim/location.md) with which this cluster is associated.
+The [region](../dcim/region.md), [site](../dcim/site.md), [site group](../dcim/sitegroup.md) or [location](../dcim/location.md) with which this cluster is associated.

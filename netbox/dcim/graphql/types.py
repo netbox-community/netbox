@@ -461,6 +461,10 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     children: List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
 
+    @strawberry_django.field
+    def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self._clusters.all()
+
 
 @strawberry_django.type(
     models.Manufacturer,
@@ -704,6 +708,10 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
     def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
+    @strawberry_django.field
+    def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self._clusters.all()
+
 
 @strawberry_django.type(
     models.Site,
@@ -747,6 +755,10 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
     @strawberry_django.field
     def parent(self) -> Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
+
+    @strawberry_django.field
+    def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self._clusters.all()
 
 
 @strawberry_django.type(
