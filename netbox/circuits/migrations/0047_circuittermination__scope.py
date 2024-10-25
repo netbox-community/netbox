@@ -15,6 +15,11 @@ def copy_site_assignments(apps, schema_editor):
         scope_id=models.F('site_id')
     )
 
+    ProviderNetwork = apps.get_model('circuits', 'ProviderNetwork')
+    CircuitTermination.objects.filter(provider_network__isnull=False).update(
+        scope_type=ContentType.objects.get_for_model(ProviderNetwork),
+        scope_id=models.F('provider_network_id')
+    )
 
 class Migration(migrations.Migration):
 
@@ -41,11 +46,6 @@ class Migration(migrations.Migration):
                 related_name='+',
                 to='contenttypes.contenttype',
             ),
-        ),
-        migrations.RenameField(
-            model_name='circuittermination',
-            old_name='provider_network',
-            new_name='_provider_network',
         ),
 
         # Copy over existing site assignments

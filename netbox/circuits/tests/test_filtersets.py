@@ -238,9 +238,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[0], scope=sites[0], term_side='A'),
             CircuitTermination(circuit=circuits[1], scope=sites[1], term_side='A'),
             CircuitTermination(circuit=circuits[2], scope=sites[2], term_side='A'),
-            CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
-            CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
-            CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
+            CircuitTermination(circuit=circuits[3], scope=provider_networks[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], scope=provider_networks[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], scope=provider_networks[2], term_side='A'),
         ))
         for ct in circuit_terminations:
             ct.save()
@@ -393,10 +393,10 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[1], scope=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
             CircuitTermination(circuit=circuits[2], scope=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
             CircuitTermination(circuit=circuits[2], scope=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
-            CircuitTermination(circuit=circuits[3], provider_network=provider_networks[0], term_side='A'),
-            CircuitTermination(circuit=circuits[4], provider_network=provider_networks[1], term_side='A'),
-            CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
-            CircuitTermination(circuit=circuits[6], provider_network=provider_networks[0], term_side='A', mark_connected=True),
+            CircuitTermination(circuit=circuits[3], scope=provider_networks[0], term_side='A'),
+            CircuitTermination(circuit=circuits[4], scope=provider_networks[1], term_side='A'),
+            CircuitTermination(circuit=circuits[5], scope=provider_networks[2], term_side='A'),
+            CircuitTermination(circuit=circuits[6], scope=provider_networks[0], term_side='A', mark_connected=True),
         ))
         for ct in circuit_terminations:
             ct.save()

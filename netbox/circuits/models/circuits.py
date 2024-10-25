@@ -340,10 +340,8 @@ class CircuitTermination(
         super().clean()
 
         # Must define either site *or* provider network
-        if self.scope is None and self.provider_network is None:
+        if self.scope is None:
             raise ValidationError(_("A circuit termination must attach to either a scope or a provider network."))
-        if self.scope and self.provider_network:
-            raise ValidationError(_("A circuit termination cannot attach to both a scope and a provider network."))
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)

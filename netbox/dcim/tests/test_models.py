@@ -764,7 +764,7 @@ class CableTestCase(TestCase):
         circuit2 = Circuit.objects.create(provider=provider, type=circuittype, cid='2')
         CircuitTermination.objects.create(circuit=circuit1, scope=site, term_side='A')
         CircuitTermination.objects.create(circuit=circuit1, scope=site, term_side='Z')
-        CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')
+        CircuitTermination.objects.create(circuit=circuit2, scope=provider_network, term_side='A')
 
     def test_cable_creation(self):
         """

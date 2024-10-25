@@ -1366,7 +1366,7 @@ class CablePathTestCase(TestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider)
         circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, scope=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, provider_network=providernetwork, term_side='Z')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, scope=providernetwork, term_side='Z')
 
         # Create cable 1
         cable1 = Cable(
