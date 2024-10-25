@@ -11,7 +11,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import get_field_value
 from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
+from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 from utilities.templatetags.builtins.filters import bettertitle
 
@@ -162,20 +162,11 @@ class CircuitTerminationForm(NetBoxModelForm):
         disabled=True,
         selector=True
     )
-    provider_network = DynamicModelChoiceField(
-        label=_('Provider network'),
-        queryset=ProviderNetwork.objects.all(),
-        required=False,
-        selector=True
-    )
 
     fieldsets = (
         FieldSet(
             'circuit', 'term_side', 'description', 'tags',
-            TabbedGroups(
-                FieldSet('scope_type', 'scope', name=_('Scope')),
-                FieldSet('provider_network', name=_('Provider Network')),
-            ),
+            FieldSet('scope_type', 'scope', name=_('Scope')),
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
@@ -184,7 +175,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'scope_type', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
+            'circuit', 'term_side', 'scope_type', 'mark_connected', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {

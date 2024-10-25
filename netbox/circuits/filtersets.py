@@ -173,7 +173,7 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         label=_('Provider account (account)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='terminations__provider_network',
+        field_name='terminations___provider_network',
         queryset=ProviderNetwork.objects.all(),
         label=_('Provider network (ID)'),
     )
@@ -316,6 +316,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
+        field_name='_provider_network',
         label=_('ProviderNetwork (ID)'),
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(

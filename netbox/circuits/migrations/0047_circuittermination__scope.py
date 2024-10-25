@@ -42,6 +42,11 @@ class Migration(migrations.Migration):
                 to='contenttypes.contenttype',
             ),
         ),
+        migrations.RenameField(
+            model_name='circuittermination',
+            old_name='provider_network',
+            new_name='_provider_network',
+        ),
 
         # Copy over existing site assignments
         migrations.RunPython(

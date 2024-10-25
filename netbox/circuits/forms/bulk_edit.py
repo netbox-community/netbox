@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import ColorField, CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.rendering import FieldSet, TabbedGroups
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions
 
 __all__ = (
@@ -212,11 +212,6 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         disabled=True,
         selector=True
     )
-    provider_network = DynamicModelChoiceField(
-        label=_('Provider Network'),
-        queryset=ProviderNetwork.objects.all(),
-        required=False
-    )
     port_speed = forms.IntegerField(
         required=False,
         label=_('Port speed (Kbps)'),
@@ -235,10 +230,7 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet(
             'description',
-            TabbedGroups(
-                FieldSet('scope_type', 'scope', name=_('Scope')),
-                FieldSet('provider_network', name=_('Provider Network')),
-            ),
+            FieldSet('scope_type', 'scope', name=_('Scope')),
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),

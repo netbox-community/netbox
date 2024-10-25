@@ -133,19 +133,13 @@ class BaseCircuitTerminationImportForm(forms.ModelForm):
         required=False,
         label=_('Scope type (app & model)')
     )
-    provider_network = CSVModelChoiceField(
-        label=_('Provider network'),
-        queryset=ProviderNetwork.objects.all(),
-        to_field_name='name',
-        required=False
-    )
 
 
 class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'scope_type', 'scope_id', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'scope_type', 'scope_id', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description'
         ]
         labels = {
@@ -158,7 +152,7 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'scope_type', 'scope_id', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'scope_type', 'scope_id', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description', 'tags'
         ]
         labels = {

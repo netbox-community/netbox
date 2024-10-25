@@ -252,13 +252,6 @@ class CircuitTermination(
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    provider_network = models.ForeignKey(
-        to='circuits.ProviderNetwork',
-        on_delete=models.PROTECT,
-        related_name='circuit_terminations',
-        blank=True,
-        null=True
-    )
     port_speed = models.PositiveIntegerField(
         verbose_name=_('port speed (Kbps)'),
         blank=True,
@@ -290,6 +283,13 @@ class CircuitTermination(
     )
 
     # Cached associations to enable efficient filtering
+    _provider_network = models.ForeignKey(
+        to='circuits.ProviderNetwork',
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.CASCADE,
@@ -352,7 +352,7 @@ class CircuitTermination(
         super().save(*args, **kwargs)
 
     def cache_related_objects(self):
-        self._region = self._sitegroup = self._site = self._location = None
+        self._provider_network = self._region = self._sitegroup = self._site = self._location = None
         if self.scope_type:
             scope_type = self.scope_type.model_class()
             if scope_type == apps.get_model('dcim', 'region'):
@@ -368,6 +368,8 @@ class CircuitTermination(
                 self._sitegroup = self.scope.site.group
                 self._site = self.scope.site
                 self._location = self.scope
+            elif scope_type == apps.get_model('circuits', 'providernetwork'):
+                self._provider_network = self.scope
     cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
