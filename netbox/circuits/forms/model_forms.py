@@ -166,7 +166,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             'circuit', 'term_side', 'description', 'tags',
-            FieldSet('scope_type', 'scope', name=_('Scope')),
+            'scope_type', 'scope',
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),

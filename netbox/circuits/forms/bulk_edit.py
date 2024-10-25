@@ -230,7 +230,7 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet(
             'description',
-            FieldSet('scope_type', 'scope', name=_('Scope')),
+            'scope_type', 'scope',
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
