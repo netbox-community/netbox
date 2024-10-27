@@ -1,6 +1,5 @@
 import logging
 
-from django.core.management.base import CommandError
 from django_rq.management.commands.rqworker import Command as _Command
 
 from netbox.registry import registry
@@ -19,13 +18,10 @@ class Command(_Command):
     def handle(self, *args, **options):
         # Setup system jobs.
         for job in registry['system_jobs'].values():
-            if getattr(job.Meta, 'system_enabled', True):
-                try:
-                    logger.debug(f"Scheduling system job {job.name}")
-                    job.enqueue_once(interval=getattr(job.Meta, 'system_interval'))
-
-                except AttributeError as e:
-                    raise CommandError(f"Job {job.name} is missing required attribute in Meta: {e.name}")
+            interval = getattr(job.Meta, 'system_interval', 0)
+            if interval:
+                logger.debug(f"Scheduling system job {job.name}")
+                job.enqueue_once(interval=interval)
 
         # Run the worker with scheduler functionality
         options['with_scheduler'] = True

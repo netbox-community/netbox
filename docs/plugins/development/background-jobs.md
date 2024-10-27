@@ -40,13 +40,9 @@ You can schedule the background job from within your code (e.g. from a model's `
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
 
-#### `system_enabled`
-
-When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls whether a job will be scheduled. By default, this attribute is `True`.
-
 #### `system_interval` *(required for system jobs)*
 
-When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls the interval of the scheduled job.
+When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls the interval of the scheduled job. If the interval evaluates to `False` (i.e. set to `0` or `None`), the job won't be scheduled.
 
 ### Scheduled Jobs
 
