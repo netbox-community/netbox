@@ -1,9 +1,11 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
+from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
 from .choices import *
@@ -71,7 +73,7 @@ class WirelessLANGroup(NestedGroupModel):
         verbose_name_plural = _('wireless LAN groups')
 
 
-class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
+class WirelessLAN(WirelessAuthenticationBase, CachedScopeMixin, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
     """
@@ -106,8 +108,24 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         blank=True,
         null=True
     )
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        limit_choices_to=models.Q(model__in=WIRELESSLAN_SCOPE_TYPES),
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
+    )
 
-    clone_fields = ('ssid', 'group', 'tenant', 'description')
+    clone_fields = ('ssid', 'group', 'scope_type', 'scope_id', 'tenant', 'description')
 
     class Meta:
         ordering = ('ssid', 'pk')
