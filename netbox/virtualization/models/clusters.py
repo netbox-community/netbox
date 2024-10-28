@@ -5,8 +5,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
+from dcim.models.mixins import CachedScopeMixin
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.features import CachedScopeMixin, ContactsMixin
+from netbox.models.features import ContactsMixin
 from virtualization.choices import *
 from virtualization.constants import CLUSTER_SCOPE_TYPES
 
