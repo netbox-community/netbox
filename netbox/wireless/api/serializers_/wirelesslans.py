@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from drf_spectacular.utils import extend_schema_field
 from ipam.api.serializers_.vlans import VLANSerializer
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
@@ -45,3 +46,11 @@ class WirelessLANSerializer(NetBoxModelSerializer):
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_scope(self, obj):
+        if obj.scope_id is None:
+            return None
+        serializer = get_serializer_for_model(obj.scope)
+        context = {'request': self.context['request']}
+        return serializer(obj.scope, nested=True, context=context).data
