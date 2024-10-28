@@ -34,12 +34,14 @@ class WirelessLANSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
+    scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
+    scope = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = WirelessLAN
         fields = [
-            'id', 'url', 'display_url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'tenant',
-            'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'scope_type', 'scope_id',
+            'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')

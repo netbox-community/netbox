@@ -1,16 +1,19 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
+from dcim.models import Site
 from ipam.models import VLAN
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
+from utilities.forms.widgets import HTMXSelect
 from wireless.choices import *
-from wireless.constants import SSID_MAX_LENGTH
+from wireless.constants import WIRELESSLAN_SCOPE_TYPES, SSID_MAX_LENGTH
 from wireless.models import *
 
 __all__ = (
@@ -79,6 +82,19 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Pre-shared key')
     )
+    scope_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=WIRELESSLAN_SCOPE_TYPES),
+        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
+        required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -89,10 +105,11 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('group', 'ssid', 'status', 'vlan', 'tenant', 'description'),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     nullable_fields = (
-        'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
+        'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'scope', 'comments',
     )
 
 

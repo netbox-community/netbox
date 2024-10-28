@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
@@ -6,8 +7,9 @@ from ipam.models import VLAN
 from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from wireless.choices import *
+from wireless.constants import WIRELESSLAN_SCOPE_TYPES
 from wireless.models import *
 
 __all__ = (
@@ -71,13 +73,21 @@ class WirelessLANImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Authentication cipher')
     )
+    scope_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(model__in=WIRELESSLAN_SCOPE_TYPES),
+        required=False,
+        label=_('Scope type (app & model)')
+    )
 
     class Meta:
         model = WirelessLAN
         fields = (
-            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments', 'tags',
+            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'scope_type', 'scope_id',
+            'description', 'comments', 'tags',
         )
+        labels = {
+            'scope_id': 'Scope ID',
+        }
 
 
 class WirelessLinkImportForm(NetBoxModelImportForm):

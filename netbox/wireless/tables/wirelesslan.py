@@ -51,6 +51,13 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
+    scope_type = columns.ContentTypeColumn(
+        verbose_name=_('Scope Type'),
+    )
+    scope = tables.Column(
+        verbose_name=_('Scope'),
+        linkify=True
+    )
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )
@@ -65,7 +72,7 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
         model = WirelessLAN
         fields = (
             'pk', 'ssid', 'group', 'status', 'tenant', 'tenant_group', 'vlan', 'interface_count', 'auth_type',
-            'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'auth_cipher', 'auth_psk', 'scope', 'scope_type', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'ssid', 'group', 'status', 'description', 'vlan', 'auth_type', 'interface_count')
 
