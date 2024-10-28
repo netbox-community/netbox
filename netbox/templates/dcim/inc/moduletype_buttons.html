@@ -1,0 +1,38 @@
+{% load buttons %}
+{% load helpers %}
+{% load i18n %}
+
+
+{% if perms.dcim.change_devicetype %}
+  <div class="dropdown">
+    <button type="button" class="btn btn-primary dropdown-toggle"data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Components" %}
+    </button>
+    <ul class="dropdown-menu">
+      {% if perms.dcim.add_consoleporttemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:consoleporttemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_consoleports' pk=object.pk %}">{% trans "Console Ports" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_consoleserverporttemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:consoleserverporttemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_consoleserverports' pk=object.pk %}">{% trans "Console Server Ports" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_powerporttemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:powerporttemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_powerports' pk=object.pk %}">{% trans "Power Ports" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_poweroutlettemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:poweroutlettemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_poweroutlets' pk=object.pk %}">{% trans "Power Outlets" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_interfacetemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:interfacetemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_interfaces' pk=object.pk %}">{% trans "Interfaces" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_frontporttemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:frontporttemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_frontports' pk=object.pk %}">{% trans "Front Ports" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_rearporttemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:rearporttemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_rearports' pk=object.pk %}">{% trans "Rear Ports" %}</a></li>
+      {% endif %}
+      {% if perms.dcim.add_modulebaytemplate %}
+        <li><a class="dropdown-item" href="{% url 'dcim:modulebaytemplate_add' %}?module_type={{ object.pk }}&return_url={% url 'dcim:moduletype_modulebays' pk=object.pk %}">{% trans "Module Bays" %}</a></li>
+      {% endif %}
+    </ul>
+  </div>
+{% endif %}
