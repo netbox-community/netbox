@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Location, Site
 from ipam.models import VLAN
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, ScopedForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, InlineFields
@@ -38,7 +38,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
         ]
 
 
-class WirelessLANForm(TenancyForm, NetBoxModelForm):
+class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
@@ -84,6 +84,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
                 attrs={'data-toggle': 'password'}
             ),
         }
+
 
 
 class WirelessLinkForm(TenancyForm, NetBoxModelForm):
