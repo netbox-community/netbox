@@ -359,11 +359,13 @@
       {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
   </div>
-  <div class="row mb-3">
-    <div class="col col-md-12">
-      {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation" %}
+  {% if object.vlan_translation_policy %}
+    <div class="row mb-3">
+      <div class="col col-md-12">
+        {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation" %}
+      </div>
     </div>
-  </div>
+  {% endif %}
   {% if object.is_bridge %}
     <div class="row mb-3">
       <div class="col col-md-12">
