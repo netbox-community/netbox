@@ -9,6 +9,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
 from dcim.models import Interface, Site
+from ipam.tables import VLANTranslationRuleTable
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.query import count_related
@@ -1002,8 +1003,12 @@ class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VLANTranslationPolicy.objects.all()
 
     def get_extra_context(self, request, instance):
+        vlan_translation_table = VLANTranslationRuleTable(
+            data=instance.rules.all(),
+            orderable=False
+        )
         return {
-            'related_models': self.get_related_models(request, instance),
+            'vlan_translation_table': vlan_translation_table,
         }
 
 

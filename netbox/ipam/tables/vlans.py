@@ -18,7 +18,6 @@ __all__ = (
     'VLANVirtualMachinesTable',
     'VLANTranslationPolicyTable',
     'VLANTranslationRuleTable',
-    'InterfaceVLANTranslationTable',
 )
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
@@ -295,26 +294,3 @@ class VLANTranslationRuleTable(NetBoxTable):
             'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'id', 'local_vid', 'remote_vid', 'policy')
-
-
-class InterfaceVLANTranslationTable(NetBoxTable):
-    policy = tables.Column(
-        verbose_name=_('Policy'),
-        linkify=True
-    )
-    local_vid = tables.Column(
-        verbose_name=_('Local VID'),
-        linkify=True,
-    )
-    remote_vid = tables.Column(
-        verbose_name=_('Remote VID'),
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = VLANTranslationRule
-        fields = ('local_vid', 'remote_vid')
-        default_columns = ('pk', 'local_vid', 'remote_vid', 'policy')
-
-    def __init__(self, interface, *args, **kwargs):
-        self.interface = interface
-        super().__init__(*args, **kwargs)

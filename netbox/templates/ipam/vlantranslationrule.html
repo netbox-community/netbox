@@ -12,7 +12,7 @@
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Policy" %}</th>
-                        <td>{{ object.policy|placeholder }}</td>
+                        <td>{{ object.policy|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Local VID" %}</th>

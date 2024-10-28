@@ -29,6 +29,11 @@
             {% plugin_right_page object %}
         </div>
     </div>
+    <div class="row mb-3">
+        <div class="col col-md-12">
+            {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation Rules" %}
+        </div>
+    </div>
     <div class="row">
         <div class="col col-md-12">
             {% plugin_full_width_page object %}
