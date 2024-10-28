@@ -965,6 +965,13 @@ class Device(
                 )
             })
 
+        if self.cluster and self.cluster._location is not None and self.cluster._location != self.location:
+            raise ValidationError({
+                'cluster': _("The assigned cluster belongs to a different location ({location})").format(
+                    site=self.cluster._location
+                )
+            })
+
         # Validate virtual chassis assignment
         if self.virtual_chassis and self.vc_position is None:
             raise ValidationError({

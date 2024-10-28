@@ -135,19 +135,28 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     def clean(self):
         super().clean()
 
-        site = None
+        site = location = None
         if self.scope_type:
             scope_type = self.scope_type.model_class()
             if scope_type == apps.get_model('dcim', 'site'):
                 site = self.scope
             elif scope_type == apps.get_model('dcim', 'location'):
-                site = self.scope.site
+                location = self.scope
+                site = location.site
 
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
-        if not self._state.adding and site:
-            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=site).count():
-                raise ValidationError({
-                    'site': _(
-                        "{count} devices are assigned as hosts for this cluster but are not in site {site}"
-                    ).format(count=nonsite_devices, site=site)
-                })
+        if not self._state.adding:
+            if site:
+                if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=site).count():
+                    raise ValidationError({
+                        'scope': _(
+                            "{count} devices are assigned as hosts for this cluster but are not in site {site}"
+                        ).format(count=nonsite_devices, site=site)
+                    })
+            if location:
+                if nonlocation_devices := Device.objects.filter(cluster=self).exclude(location=location).count():
+                    raise ValidationError({
+                        'scope': _(
+                            "{count} devices are assigned as hosts for this cluster but are not in location {location}"
+                        ).format(count=nonlocation_devices, location=location)
+                    })

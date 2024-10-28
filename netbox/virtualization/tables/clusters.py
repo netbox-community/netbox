@@ -73,10 +73,12 @@ class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
-    site = tables.Column(
-        verbose_name=_('Site'),
-        linkify=True,
-        accessor='_site'
+    scope_type = columns.ContentTypeColumn(
+        verbose_name=_('Scope Type'),
+    )
+    scope = tables.Column(
+        verbose_name=_('Scope'),
+        linkify=True
     )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
@@ -98,7 +100,7 @@ class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cluster
         fields = (
-            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'tenant_group', 'site', 'description', 'comments',
-            'device_count', 'vm_count', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'tenant_group', 'scope', 'scope_type', 'description',
+            'comments', 'device_count', 'vm_count', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'type', 'group', 'status', 'tenant', 'site', 'device_count', 'vm_count')
