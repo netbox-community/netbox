@@ -1976,6 +1976,11 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'policy_id': [policies[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_policy(self):
+        policies = VLANTranslationPolicy.objects.all()[:2]
+        params = {'policy': [policies[0].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_local_vid(self):
         params = {'local_vid': [100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
