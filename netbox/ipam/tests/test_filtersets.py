@@ -1954,16 +1954,19 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
                 policy=vlan_translation_policies[0],
                 local_vid=100,
                 remote_vid=200,
+                description='foo',
             ),
             VLANTranslationRule(
                 policy=vlan_translation_policies[0],
                 local_vid=101,
                 remote_vid=201,
+                description='bar',
             ),
             VLANTranslationRule(
                 policy=vlan_translation_policies[1],
                 local_vid=100,
                 remote_vid=200,
+                description='baz',
             ),
         )
         VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
@@ -1979,6 +1982,10 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_remote_vid(self):
         params = {'remote_vid': [200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foo', 'bar']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

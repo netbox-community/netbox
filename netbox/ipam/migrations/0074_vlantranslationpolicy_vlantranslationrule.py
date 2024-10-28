@@ -43,6 +43,7 @@ class Migration(migrations.Migration):
                 ('local_vid', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(4094)])),
                 ('remote_vid', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(4094)])),
                 ('policy', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rules', to='ipam.vlantranslationpolicy')),
+                ('description', models.CharField(blank=True, max_length=200)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={

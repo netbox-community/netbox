@@ -299,6 +299,11 @@ class VLANTranslationRule(NetBoxModel):
         related_name='rules',
         on_delete=models.CASCADE,
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
     local_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Local VLAN ID'),
             validators=(

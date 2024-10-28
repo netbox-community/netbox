@@ -1130,7 +1130,7 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = VLANTranslationRule
-        fields = ('id', 'policy_id', 'local_vid', 'remote_vid')
+        fields = ('id', 'policy_id', 'local_vid', 'remote_vid', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

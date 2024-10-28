@@ -467,13 +467,9 @@ class VLANTranslationPolicyFilterForm(NetBoxModelFilterSetForm):
     model = VLANTranslationPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'description', name=_('Attributes')),
+        FieldSet('name', name=_('Attributes')),
     )
     name = forms.CharField(
-        required=False,
-        label=_('Name')
-    )
-    description = forms.CharField(
         required=False,
         label=_('Name')
     )
