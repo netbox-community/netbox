@@ -226,7 +226,7 @@ class VirtualMachineFilterSet(
         label=_('Platform (slug)'),
     )
     mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces__mac_address',
+        field_name='interfaces___mac_address',
         label=_('MAC address'),
     )
     has_primary_ip = django_filters.BooleanFilter(
@@ -297,7 +297,7 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('Bridged interface (ID)'),
     )
-    mac_address = MultiValueMACAddressFilter(
+    _mac_address = MultiValueMACAddressFilter(
         label=_('MAC address'),
     )
 

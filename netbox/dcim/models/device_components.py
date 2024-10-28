@@ -12,7 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
 from netbox.choices import ColorChoices
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import OrganizationalModel, NetBoxModel, PrimaryModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -31,6 +31,7 @@ __all__ = (
     'Interface',
     'InventoryItem',
     'InventoryItemRole',
+    'MACAddress',
     'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
@@ -509,7 +510,7 @@ class BaseInterface(models.Model):
         verbose_name=_('enabled'),
         default=True
     )
-    mac_address = MACAddressField(
+    _mac_address = MACAddressField(
         null=True,
         blank=True,
         verbose_name=_('MAC address')
@@ -574,6 +575,12 @@ class BaseInterface(models.Model):
     @property
     def count_fhrp_groups(self):
         return self.fhrp_group_assignments.count()
+
+    @property
+    def mac_address(self):
+        if macaddress := self.macaddress_set.first():
+            return macaddress.mac_address
+        return None
 
 
 class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
@@ -1323,3 +1330,29 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     def get_status_color(self):
         return InventoryItemStatusChoices.colors.get(self.status)
+
+
+class MACAddress(PrimaryModel):
+    mac_address = MACAddressField(
+        null=True,
+        blank=True,
+        verbose_name=_('MAC address')
+    )
+    interface = models.ForeignKey(
+        to='dcim.Interface',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name=_('Interface')
+    )
+    vm_interface = models.ForeignKey(
+        to='virtualization.VMInterface',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name=_('VM Interface')
+    )
+    is_primary = models.BooleanField(
+        verbose_name=_('is primary for interface'),
+        default=False
+    )

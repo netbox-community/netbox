@@ -906,7 +906,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
-            'mark_connected', 'mac_address', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'mark_connected', '_mac_address', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
             'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
         )
 

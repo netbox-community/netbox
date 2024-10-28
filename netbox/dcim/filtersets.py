@@ -1099,7 +1099,7 @@ class DeviceFilterSet(
         label=_('Is full depth'),
     )
     mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces__mac_address',
+        field_name='interfaces___mac_address',
         label=_('MAC address'),
     )
     serial = MultiValueCharFilter(
@@ -1689,7 +1689,7 @@ class InterfaceFilterSet(
     duplex = django_filters.MultipleChoiceFilter(
         choices=InterfaceDuplexChoices
     )
-    mac_address = MultiValueMACAddressFilter()
+    # mac_address = MultiValueMACAddressFilter()
     wwn = MultiValueWWNFilter()
     poe_mode = django_filters.MultipleChoiceFilter(
         choices=InterfacePoEModeChoices

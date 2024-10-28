@@ -95,7 +95,7 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     filters=VMInterfaceFilter
 )
 class VMInterfaceType(IPAddressesMixin, ComponentType):
-    mac_address: str | None
+    _mac_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
