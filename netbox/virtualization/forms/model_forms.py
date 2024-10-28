@@ -354,8 +354,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         FieldSet('vrf', 'mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
-        FieldSet('vlan_translation_policy', name=_('VLAN Translation'))
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vlan_translation_policy', name=_('802.1Q Switching')),
     )
 
     class Meta:
