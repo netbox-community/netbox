@@ -28,6 +28,7 @@ Pillow==10.4.0
 psycopg[c,pool]==3.2.3
 PyYAML==6.0.2
 requests==2.32.3
+rq==1.16.2
 social-auth-app-django==5.4.2
 social-auth-core==4.5.4
 strawberry-graphql==0.246.2
