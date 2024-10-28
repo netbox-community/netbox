@@ -1,6 +1,6 @@
 # NetBox v4.1
 
-## v4.1.5 (FUTURE)
+## v4.1.5 (2024-10-28)
 
 ### Enhancements
 
@@ -8,8 +8,11 @@
 
 ### Bug Fixes
 
+* [#17358](https://github.com/netbox-community/netbox/issues/17358) - Fix validation of overlapping IP ranges
 * [#17374](https://github.com/netbox-community/netbox/issues/17374) - Fix styling of highlighted table rows in dark mode
+* [#17460](https://github.com/netbox-community/netbox/issues/17460) - Ensure bulk action buttons are consistent for device type components
 * [#17635](https://github.com/netbox-community/netbox/issues/17635) - Ensure AbortTransaction is caught when running a custom script with `commit=False`
+* [#17685](https://github.com/netbox-community/netbox/issues/17685) - Ensure background jobs are validated before being scheduled
 * [#17710](https://github.com/netbox-community/netbox/issues/17710) - Remove cached fields on CableTermination model from GraphQL API
 * [#17740](https://github.com/netbox-community/netbox/issues/17740) - Ensure support for image attachments with a `.webp` file extension
 * [#17749](https://github.com/netbox-community/netbox/issues/17749) - Restore missing `devicetypes` and `children` fields for several objects in GraphQL API
@@ -17,6 +20,7 @@
 * [#17759](https://github.com/netbox-community/netbox/issues/17759) - Retain `job_timeout` value when scheduling a recurring custom script
 * [#17774](https://github.com/netbox-community/netbox/issues/17774) - Fix SSO login support for Entra ID (formerly Azure AD)
 * [#17802](https://github.com/netbox-community/netbox/issues/17802) - Fix background color for bulk rename buttons in list views
+* [#17838](https://github.com/netbox-community/netbox/issues/17838) - Adjust `manage.py` to reference `python3` executable
 
 ---
 
