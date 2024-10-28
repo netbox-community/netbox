@@ -118,7 +118,7 @@ requests
 
 # rq
 # https://github.com/rq/rq/blob/master/CHANGES.md
-rq<=2.0
+rq<2.0
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
