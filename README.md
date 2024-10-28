@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
+  <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo_light.svg" width="400" alt="NetBox logo" />
   <p><strong>The cornerstone of every automated network</strong></p>
   <a href="https://github.com/netbox-community/netbox/releases"><img src="https://img.shields.io/github/v/release/netbox-community/netbox" alt="Latest release" /></a>
   <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
