@@ -42,7 +42,7 @@ django-rich
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
-django-rq
+django-rq<3.0
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
