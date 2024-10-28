@@ -515,10 +515,12 @@ class VMInterfaceView(generic.ObjectView):
             exclude=('virtual_machine',),
             orderable=False
         )
-        vlan_translation_table = VLANTranslationRuleTable(
-            data=instance.vlan_translation_policy.rules.all() if instance.vlan_translation_policy else [],
-            orderable=False
-        )
+        vlan_translation_table = None
+        if instance.vlan_translation_policy:
+            vlan_translation_table = VLANTranslationRuleTable(
+                data=instance.vlan_translation_policy.rules.all(),
+                orderable=False
+            )
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []

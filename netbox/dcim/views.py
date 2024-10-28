@@ -2579,10 +2579,12 @@ class InterfaceView(generic.ObjectView):
             data=vlans,
             orderable=False
         )
-        vlan_translation_table = VLANTranslationRuleTable(
-            data=instance.vlan_translation_policy.rules.all() if instance.vlan_translation_policy else [],
-            orderable=False
-        )
+        vlan_translation_table = None
+        if instance.vlan_translation_policy:
+            vlan_translation_table = VLANTranslationRuleTable(
+                data=instance.vlan_translation_policy.rules.all(),
+                orderable=False
+            )
 
         return {
             'vdc_table': vdc_table,
