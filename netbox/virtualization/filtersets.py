@@ -2,12 +2,12 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from dcim.filtersets import CommonInterfaceFilterSet
+from dcim.filtersets import CommonInterfaceFilterSet, ScopedFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet, ScopedFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
