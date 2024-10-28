@@ -164,7 +164,7 @@ class Cable(PrimaryModel):
         if self.length is not None and not self.length_unit:
             raise ValidationError(_("Must specify a unit when setting a cable length"))
 
-        if self._state.adding and (not self.a_terminations or not self.b_terminations):
+        if self._state.adding and self.pk is None and (not self.a_terminations or not self.b_terminations):
             raise ValidationError(_("Must define A and B terminations when creating a new cable."))
 
         if self._terminations_modified:

@@ -42,7 +42,7 @@ django-rich
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
-django-rq
+django-rq<3.0
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
@@ -115,6 +115,10 @@ PyYAML
 # Requests
 # https://github.com/psf/requests/blob/main/HISTORY.md
 requests
+
+# rq
+# https://github.com/rq/rq/blob/master/CHANGES.md
+rq<2.0
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
