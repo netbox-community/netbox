@@ -576,7 +576,7 @@ class BaseInterface(models.Model):
     def clean(self):
         super().clean()
 
-        # Virtual Interfaces cannot have a Cable attached
+        # SVLAN can be defined only for Q-in-Q interfaces
         if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
             raise ValidationError({
                 'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")

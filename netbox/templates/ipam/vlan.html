@@ -64,7 +64,13 @@
                     </tr>
                     <tr>
                       <th scope="row">{% trans "Q-in-Q Role" %}</th>
-                      <td>{% badge object.get_qinq_role_display bg_color=object.get_qinq_role_color %}</td>
+                      <td>
+                        {% if object.qinq_role %}
+                          {% badge object.get_qinq_role_display bg_color=object.get_qinq_role_color %}
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
                     </tr>
                     {% if object.qinq_role == 'c-vlan' %}
                       <tr>

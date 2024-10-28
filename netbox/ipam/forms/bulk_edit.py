@@ -526,9 +526,17 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     qinq_role = forms.ChoiceField(
-        label=_('Status'),
+        label=_('Q-in-Q role'),
         choices=add_blank_choice(VLANQinQRoleChoices),
         required=False
+    )
+    qinq_svlan = DynamicModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        query_params={
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
     )
     comments = CommentField()
 

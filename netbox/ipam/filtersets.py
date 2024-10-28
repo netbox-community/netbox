@@ -1040,14 +1040,13 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='get_for_virtualmachine'
     )
     qinq_role = django_filters.MultipleChoiceFilter(
-        choices=VLANQinQRoleChoices,
-        null_value=None
+        choices=VLANQinQRoleChoices
     )
     qinq_svlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
         label=_('Q-in-Q SVLAN (ID)'),
     )
-    qinq_svlan_vid = django_filters.NumberFilter(
+    qinq_svlan_vid = MultiValueNumberFilter(
         field_name='qinq_svlan__vid',
         label=_('Q-in-Q SVLAN number (1-4094)'),
     )

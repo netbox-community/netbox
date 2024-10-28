@@ -440,11 +440,6 @@ class VLANImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned VLAN group')
     )
-    qinq_role = CSVChoiceField(
-        label=_('Q-in-Q role'),
-        choices=VLANStatusChoices,
-        help_text=_('Operational status')
-    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -463,6 +458,12 @@ class VLANImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text=_('Functional role')
+    )
+    qinq_role = CSVChoiceField(
+        label=_('Q-in-Q role'),
+        choices=VLANStatusChoices,
+        required=False,
+        help_text=_('Operational status')
     )
     qinq_svlan = CSVModelChoiceField(
         label=_('Q-in-Q SVLAN'),

@@ -33,4 +33,4 @@ For VLANs which comprise a Q-in-Q/IEEE 802.1ad topology, this field indicates wh
 
 ### Q-in-Q Service VLAN
 
-The designated parent service VLAN for a Q-in-Q customer VLAN.
+The designated parent service VLAN for a Q-in-Q customer VLAN. This may be set only for Q-in-Q custom VLANs.

@@ -4,7 +4,8 @@ from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import ASN, IPAddress, RIR, VRF
+from ipam.choices import VLANQinQRoleChoices
+from ipam.models import ASN, IPAddress, RIR, VLAN, VRF
 from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
@@ -3520,7 +3521,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
-    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'vdcs')
+    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan', 'vdcs')
 
     @classmethod
     def setUpTestData(cls):
@@ -3669,6 +3670,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
 
+        vlans = (
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(name='SVLAN 2', vid=1002, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(name='SVLAN 3', vid=1003, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        )
+        VLAN.objects.bulk_create(vlans)
+
         interfaces = (
             Interface(
                 device=devices[0],
@@ -3742,7 +3750,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 speed=100000,
                 duplex='full',
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
-                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[0]
             ),
             Interface(
                 device=devices[4],
@@ -3751,7 +3761,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=InterfaceTypeChoices.TYPE_OTHER,
                 enabled=True,
                 mgmt_only=True,
-                tx_power=40
+                tx_power=40,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[1]
             ),
             Interface(
                 device=devices[4],
@@ -3760,7 +3772,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=InterfaceTypeChoices.TYPE_OTHER,
                 enabled=False,
                 mgmt_only=False,
-                tx_power=40
+                tx_power=40,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[2]
             ),
             Interface(
                 device=devices[4],
@@ -4015,6 +4029,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
         params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_vlan(self):
+        vlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()
+        params = {'vlan_id': vlan.pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'vlan': vlan.vid}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
