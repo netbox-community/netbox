@@ -35,7 +35,10 @@ class RenderConfigMixin(models.Model):
 
 class CachedScopeMixin(models.Model):
     """
-    Cached associations for scope to enable efficient filtering
+    Mixin for adding a GFK Scope to a model that can point to a Region, SiteGroup, Site, or Location.  Includes
+    cached fields for each to allow efficient filtering.  Must do any appropriate validation in the clean method
+    as this does not have any as validation is generally model specific.
+
     """
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
