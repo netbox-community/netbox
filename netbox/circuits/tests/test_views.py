@@ -203,23 +203,23 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 "terminations": [
                   {
                     "term_side": "A",
-                    "scope_type": "dcim.site",
-                    "scope_id": "1"
+                    "termination_type": "dcim.site",
+                    "termination_id": "1"
                   },
                   {
                     "term_side": "Z",
-                    "scope_type": "dcim.site",
-                    "scope_id": "1"
+                    "termination_type": "dcim.site",
+                    "termination_id": "1"
                   }
                 ]
               }
             ]
         """
 
-        # Fix up the scope site id
+        # Fix up the termination site id
         site = Site.objects.first()
         data = json.loads(json_data)
-        data[0]["terminations"][0]["scope_id"] = data[0]["terminations"][1]["scope_id"] = site.id
+        data[0]["terminations"][0]["termination_id"] = data[0]["terminations"][1]["termination_id"] = site.id
         json_data = json.dumps(data)
 
         initial_count = self._get_queryset().count()
@@ -370,10 +370,10 @@ class  TestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], term_side='A', scope=sites[0]),
-            CircuitTermination(circuit=circuits[0], term_side='Z', scope=sites[1]),
-            CircuitTermination(circuit=circuits[1], term_side='A', scope=sites[0]),
-            CircuitTermination(circuit=circuits[1], term_side='Z', scope=sites[1]),
+            CircuitTermination(circuit=circuits[0], term_side='A', termination=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side='Z', termination=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side='A', termination=sites[0]),
+            CircuitTermination(circuit=circuits[1], term_side='Z', termination=sites[1]),
         )
         for ct in circuit_terminations:
             ct.save()
@@ -381,14 +381,14 @@ class  TestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'circuit': circuits[2].pk,
             'term_side': 'A',
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[2].pk,
+            'termination_type': ContentType.objects.get_for_model(Site).pk,
+            'termination': sites[2].pk,
             'description': 'New description',
         }
 
         site = sites[0].pk
         cls.csv_data = (
-            "circuit,term_side,scope_type,scope_id,description",
+            "circuit,term_side,termination_type,termination_id,description",
             f"Circuit 3,A,dcim.site,{site},Foo",
             f"Circuit 3,Z,dcim.site,{site},Bar",
         )

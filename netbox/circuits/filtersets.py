@@ -263,7 +263,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         queryset=Circuit.objects.all(),
         label=_('Circuit'),
     )
-    scope_type = ContentTypeFilter()
+    termination_type = ContentTypeFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='_region',
@@ -334,7 +334,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     class Meta:
         model = CircuitTermination
         fields = (
-            'id', 'scope_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
+            'id', 'termination_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
             'pp_info', 'cable_end',
         )
 

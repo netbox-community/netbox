@@ -1,11 +1,11 @@
 {% load helpers %}
 {% load i18n %}
 
-{% if termination.scope %}
+{% if termination.termination %}
   <tr>
-    <th scope="row">{% trans "Scope" %}</th>
-    {% if termination.scope %}
-      <td>{{ termination.scope|linkify }} ({% trans termination.scope_type.name %})</td>
+    <th scope="row">{% trans "Termination" %}</th>
+    {% if termination.termination %}
+      <td>{{ termination.termination|linkify }} ({% trans termination.termination_type.name %})</td>
     {% else %}
       <td>{{ ''|placeholder }}</td>
     {% endif %}

@@ -236,21 +236,21 @@ class CircuitTermination(
         choices=CircuitTerminationSideChoices,
         verbose_name=_('termination')
     )
-    scope_type = models.ForeignKey(
+    termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         related_name='+',
         blank=True,
         null=True
     )
-    scope_id = models.PositiveBigIntegerField(
+    termination_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
-    scope = GenericForeignKey(
-        ct_field='scope_type',
-        fk_field='scope_id'
+    termination = GenericForeignKey(
+        ct_field='termination_type',
+        fk_field='termination_id'
     )
     port_speed = models.PositiveIntegerField(
         verbose_name=_('port speed (Kbps)'),
@@ -293,28 +293,28 @@ class CircuitTermination(
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.CASCADE,
-        related_name='_circuit_terminations',
+        related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
-        related_name='_circuit_terminations',
+        related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _region = models.ForeignKey(
         to='dcim.Region',
         on_delete=models.CASCADE,
-        related_name='_circuit_terminations',
+        related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _sitegroup = models.ForeignKey(
         to='dcim.SiteGroup',
         on_delete=models.CASCADE,
-        related_name='_circuit_terminations',
+        related_name='circuit_terminations',
         blank=True,
         null=True
     )
@@ -340,8 +340,8 @@ class CircuitTermination(
         super().clean()
 
         # Must define either site *or* provider network
-        if self.scope is None:
-            raise ValidationError(_("A circuit termination must attach to either a scope or a provider network."))
+        if self.termination is None:
+            raise ValidationError(_("A circuit termination must attach to termination."))
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)
@@ -351,23 +351,23 @@ class CircuitTermination(
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._sitegroup = self._site = self._location = None
-        if self.scope_type:
-            scope_type = self.scope_type.model_class()
-            if scope_type == apps.get_model('dcim', 'region'):
-                self._region = self.scope
-            elif scope_type == apps.get_model('dcim', 'sitegroup'):
-                self._sitegroup = self.scope
-            elif scope_type == apps.get_model('dcim', 'site'):
-                self._region = self.scope.region
-                self._sitegroup = self.scope.group
-                self._site = self.scope
-            elif scope_type == apps.get_model('dcim', 'location'):
-                self._region = self.scope.site.region
-                self._sitegroup = self.scope.site.group
-                self._site = self.scope.site
-                self._location = self.scope
-            elif scope_type == apps.get_model('circuits', 'providernetwork'):
-                self._provider_network = self.scope
+        if self.termination_type:
+            termination_type = self.termination_type.model_class()
+            if termination_type == apps.get_model('dcim', 'region'):
+                self._region = self.termination
+            elif termination_type == apps.get_model('dcim', 'sitegroup'):
+                self._sitegroup = self.termination
+            elif termination_type == apps.get_model('dcim', 'site'):
+                self._region = self.termination.region
+                self._sitegroup = self.termination.group
+                self._site = self.termination
+            elif termination_type == apps.get_model('dcim', 'location'):
+                self._region = self.termination.site.region
+                self._sitegroup = self.termination.site.group
+                self._site = self.termination.site
+                self._location = self.termination
+            elif termination_type == apps.get_model('circuits', 'providernetwork'):
+                self._provider_network = self.termination
     cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
@@ -382,7 +382,7 @@ class CircuitTermination(
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.prefetch_related('scope').get(
+            return CircuitTermination.objects.prefetch_related('termination').get(
                 circuit=self.circuit,
                 term_side=peer_side
             )

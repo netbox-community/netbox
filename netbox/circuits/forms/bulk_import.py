@@ -128,10 +128,10 @@ class BaseCircuitTerminationImportForm(forms.ModelForm):
         label=_('Termination'),
         choices=CircuitTerminationSideChoices,
     )
-    scope_type = CSVContentTypeField(
-        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+    termination_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         required=False,
-        label=_('Scope type (app & model)')
+        label=_('Termination type (app & model)')
     )
 
 
@@ -139,11 +139,11 @@ class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'scope_type', 'scope_id', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'termination_type', 'termination_id', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description'
         ]
         labels = {
-            'scope_id': 'Scope ID',
+            'termination_id': 'Termination ID',
         }
 
 
@@ -152,11 +152,11 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'scope_type', 'scope_id', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'circuit', 'term_side', 'termination_type', 'termination_id', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description', 'tags'
         ]
         labels = {
-            'scope_id': 'Scope ID',
+            'termination_id': 'Termination ID',
         }
 
 

@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
-from circuits.constants import CIRCUIT_TERMINATION_SCOPE_TYPES
+from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
@@ -199,14 +199,14 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_SCOPE_TYPES),
+    termination_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
         required=False,
-        label=_('Scope type')
+        label=_('Termination type')
     )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
+    termination = DynamicModelChoiceField(
+        label=_('Termination'),
         queryset=Site.objects.none(),  # Initial queryset
         required=False,
         disabled=True,
@@ -230,24 +230,24 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet(
             'description',
-            'scope_type', 'scope',
+            'termination_type', 'termination',
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
     )
-    nullable_fields = ('description', 'scope')
+    nullable_fields = ('description', 'termination')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if scope_type_id := get_field_value(self, 'scope_type'):
+        if termination_type_id := get_field_value(self, 'termination_type'):
             try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+                termination_type = ContentType.objects.get(pk=termination_type_id)
+                model = termination_type.model_class()
+                self.fields['termination'].queryset = model.objects.all()
+                self.fields['termination'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['termination'].disabled = False
+                self.fields['termination'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 

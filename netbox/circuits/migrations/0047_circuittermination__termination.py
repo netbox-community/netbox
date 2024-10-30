@@ -4,21 +4,21 @@ from django.db import migrations, models
 
 def copy_site_assignments(apps, schema_editor):
     """
-    Copy site ForeignKey values to the scope GFK.
+    Copy site ForeignKey values to the Termination GFK.
     """
     ContentType = apps.get_model('contenttypes', 'ContentType')
     CircuitTermination = apps.get_model('circuits', 'CircuitTermination')
     Site = apps.get_model('dcim', 'Site')
 
     CircuitTermination.objects.filter(site__isnull=False).update(
-        scope_type=ContentType.objects.get_for_model(Site),
-        scope_id=models.F('site_id')
+        termination_type=ContentType.objects.get_for_model(Site),
+        termination_id=models.F('site_id')
     )
 
     ProviderNetwork = apps.get_model('circuits', 'ProviderNetwork')
     CircuitTermination.objects.filter(provider_network__isnull=False).update(
-        scope_type=ContentType.objects.get_for_model(ProviderNetwork),
-        scope_id=models.F('provider_network_id')
+        termination_type=ContentType.objects.get_for_model(ProviderNetwork),
+        termination_id=models.F('provider_network_id')
     )
 
 class Migration(migrations.Migration):
@@ -32,12 +32,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='circuittermination',
-            name='scope_id',
+            name='termination_id',
             field=models.PositiveBigIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='circuittermination',
-            name='scope_type',
+            name='termination_type',
             field=models.ForeignKey(
                 blank=True,
                 limit_choices_to=models.Q(('model__in', ('region', 'sitegroup', 'site', 'location', 'providernetwork'))),

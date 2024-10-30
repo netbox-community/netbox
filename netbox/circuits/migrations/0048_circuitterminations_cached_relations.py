@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 def populate_denormalized_fields(apps, schema_editor):
     """
-    Copy site ForeignKey values to the scope GFK.
+    Copy site ForeignKey values to the Termination GFK.
     """
     CircuitTermination = apps.get_model('circuits', 'CircuitTermination')
 
@@ -22,7 +22,7 @@ def populate_denormalized_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0047_circuittermination__scope'),
+        ('circuits', '0047_circuittermination__termination'),
     ]
 
     operations = [
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='_circuit_terminations',
+                related_name='circuit_terminations',
                 to='dcim.location',
             ),
         ),
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='_circuit_terminations',
+                related_name='circuit_terminations',
                 to='dcim.region',
             ),
         ),
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='_circuit_terminations',
+                related_name='circuit_terminations',
                 to='dcim.site',
             ),
         ),
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='_circuit_terminations',
+                related_name='circuit_terminations',
                 to='dcim.sitegroup',
             ),
         ),
