@@ -8,7 +8,7 @@ Each model should define, at a minimum:
 
 * A `Meta` class specifying a deterministic ordering (if ordered by fields other than the primary ID)
 * A `__str__()` method returning a user-friendly string representation of the instance
-* A `get_absolute_url()` method returning an instance's direct URL (using `reverse()`)
+* A `get_absolute_url()` method if necessary; a standard version of the method is defined in the `NetBoxFeatureSet` base class, but you will need to provide your own (returning an instance's direct URL using `reverse()`) if not subclassing that base class
 
 ## 2. Define field choices
 
@@ -77,6 +77,8 @@ Create the following for each model:
 ## 13. GraphQL API components
 
 Create a GraphQL object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
+
+**Note:** GraphQL unit tests may fail citing null values on a non-nullable field if related objects are prefetched. You may need to fix this by setting the type annotation to be `= strawberry_django.field(select_related=["policy"])` or similar.
 
 Also extend the schema class defined in `graphql/schema.py` with the individual object and object list fields per the established convention.
 

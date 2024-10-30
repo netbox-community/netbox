@@ -1,8 +1,19 @@
-{% extends 'dcim/moduletype/base.html' %}
+{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
+
+{% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {%  include 'dcim/inc/devicetype_breadcrumbs.html' %}
+{% endblock %}
+
+{% block extra_controls %}
+  {%  include 'dcim/inc/moduletype_buttons.html' %}
+{% endblock %}
 
 {% block content %}
   <div class="row">

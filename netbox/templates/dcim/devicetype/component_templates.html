@@ -18,21 +18,8 @@
             <button type="submit" name="_rename"
                     {% formaction %}="{% url bulk_rename_view %}?return_url={{ return_url }}"
                     class="btn btn-outline-warning">
-                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename Selected
             </button>
         {% endif %}
     {% endwith %}
 {% endblock bulk_edit_controls %}
-
-{% block bulk_extra_controls %}
-    {{ block.super }}
-    {% if request.user|can_add:child_model %}
-        <div class="bulk-button-group">
-            <a href="{% url table.Meta.model|viewname:"add" %}?device_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary">
-                <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                {% trans "Add" %} {{ title }}
-            </a>
-        </div>
-    {% endif %}
-{% endblock bulk_extra_controls %}
-
