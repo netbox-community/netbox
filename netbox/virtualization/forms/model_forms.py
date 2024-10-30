@@ -4,10 +4,11 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
+from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
-from netbox.forms import NetBoxModelForm, ScopedForm
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
