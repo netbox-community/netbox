@@ -26,26 +26,26 @@ __all__ = (
 class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations___site__region',
+        field_name='circuits__terminations___region',
         lookup_expr='in',
         label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='circuits__terminations___site__region',
+        field_name='circuits__terminations___region',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='circuits__terminations___site__group',
+        field_name='circuits__terminations___site_group',
         lookup_expr='in',
         label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='circuits__terminations___site__group',
+        field_name='circuits__terminations___site_group',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Site group (slug)'),
@@ -193,26 +193,26 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
     )
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='terminations___site__region',
+        field_name='terminations___region',
         lookup_expr='in',
         label=_('Region (ID)'),
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='terminations___site__region',
+        field_name='terminations___region',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Region (slug)'),
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='terminations___site__group',
+        field_name='terminations___site_group',
         lookup_expr='in',
         label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='terminations___site__group',
+        field_name='terminations___site_group',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Site group (slug)'),

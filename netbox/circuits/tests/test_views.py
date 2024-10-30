@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
@@ -192,35 +191,30 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_terminations(self):
-        json_data = """
+        site = Site.objects.first()
+        json_data = f"""
             [
-              {
+              {{
                 "cid": "Circuit 7",
                 "provider": "Provider 1",
                 "type": "Circuit Type 1",
                 "status": "active",
                 "description": "Testing Import",
                 "terminations": [
-                  {
+                  {{
                     "term_side": "A",
                     "termination_type": "dcim.site",
-                    "termination_id": "1"
-                  },
-                  {
+                    "termination_id": "{site.pk}"
+                  }},
+                  {{
                     "term_side": "Z",
                     "termination_type": "dcim.site",
-                    "termination_id": "1"
-                  }
+                    "termination_id": "{site.pk}"
+                  }}
                 ]
-              }
+              }}
             ]
         """
-
-        # Fix up the termination site id
-        site = Site.objects.first()
-        data = json.loads(json_data)
-        data[0]["terminations"][0]["termination_id"] = data[0]["terminations"][1]["termination_id"] = site.id
-        json_data = json.dumps(data)
 
         initial_count = self._get_queryset().count()
         data = {

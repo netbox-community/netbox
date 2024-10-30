@@ -143,7 +143,7 @@ class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
             'pp_info', 'description'
         ]
         labels = {
-            'termination_id': 'Termination ID',
+            'termination_id': _('Termination ID'),
         }
 
 
@@ -156,7 +156,7 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
             'pp_info', 'description', 'tags'
         ]
         labels = {
-            'termination_id': 'Termination ID',
+            'termination_id': _('Termination ID'),
         }
 
 
