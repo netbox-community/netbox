@@ -16,7 +16,7 @@ from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
-from ipam.tables import InterfaceVLANTable
+from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
@@ -516,6 +516,14 @@ class VMInterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get VLAN translation rules
+        vlan_translation_table = None
+        if instance.vlan_translation_policy:
+            vlan_translation_table = VLANTranslationRuleTable(
+                data=instance.vlan_translation_policy.rules.all(),
+                orderable=False
+            )
+
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -533,6 +541,7 @@ class VMInterfaceView(generic.ObjectView):
         return {
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
+            'vlan_translation_table': vlan_translation_table,
         }
 
 

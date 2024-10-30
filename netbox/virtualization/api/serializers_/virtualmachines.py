@@ -8,7 +8,7 @@ from dcim.api.serializers_.sites import SiteSerializer
 from dcim.choices import InterfaceModeChoices
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
-from ipam.api.serializers_.vlans import VLANSerializer
+from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
@@ -89,6 +89,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         required=False,
         many=True
     )
+    vlan_translation_policy = VLANTranslationPolicySerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
@@ -105,6 +106,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
             'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination',
             'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'vlan_translation_policy',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 

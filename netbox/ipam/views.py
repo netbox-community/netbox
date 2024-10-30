@@ -9,6 +9,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
 from dcim.models import Interface, Site
+from ipam.tables import VLANTranslationRuleTable
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.query import count_related
@@ -984,6 +985,110 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
         if not get_table_ordering(request, self.table):
             return add_available_vlans(queryset, parent)
         return queryset
+
+
+#
+# VLAN Translation Policies
+#
+
+class VLANTranslationPolicyListView(generic.ObjectListView):
+    queryset = VLANTranslationPolicy.objects.all()
+    filterset = filtersets.VLANTranslationPolicyFilterSet
+    filterset_form = forms.VLANTranslationPolicyFilterForm
+    table = tables.VLANTranslationPolicyTable
+
+
+@register_model_view(VLANTranslationPolicy)
+class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = VLANTranslationPolicy.objects.all()
+
+    def get_extra_context(self, request, instance):
+        vlan_translation_table = VLANTranslationRuleTable(
+            data=instance.rules.all(),
+            orderable=False
+        )
+        return {
+            'vlan_translation_table': vlan_translation_table,
+        }
+
+
+@register_model_view(VLANTranslationPolicy, 'edit')
+class VLANTranslationPolicyEditView(generic.ObjectEditView):
+    queryset = VLANTranslationPolicy.objects.all()
+    form = forms.VLANTranslationPolicyForm
+
+
+@register_model_view(VLANTranslationPolicy, 'delete')
+class VLANTranslationPolicyDeleteView(generic.ObjectDeleteView):
+    queryset = VLANTranslationPolicy.objects.all()
+
+
+class VLANTranslationPolicyBulkImportView(generic.BulkImportView):
+    queryset = VLANTranslationPolicy.objects.all()
+    model_form = forms.VLANTranslationPolicyImportForm
+
+
+class VLANTranslationPolicyBulkEditView(generic.BulkEditView):
+    queryset = VLANTranslationPolicy.objects.all()
+    filterset = filtersets.VLANTranslationPolicyFilterSet
+    table = tables.VLANTranslationPolicyTable
+    form = forms.VLANTranslationPolicyBulkEditForm
+
+
+class VLANTranslationPolicyBulkDeleteView(generic.BulkDeleteView):
+    queryset = VLANTranslationPolicy.objects.all()
+    filterset = filtersets.VLANTranslationPolicyFilterSet
+    table = tables.VLANTranslationPolicyTable
+
+
+#
+# VLAN Translation Rules
+#
+
+class VLANTranslationRuleListView(generic.ObjectListView):
+    queryset = VLANTranslationRule.objects.all()
+    filterset = filtersets.VLANTranslationRuleFilterSet
+    filterset_form = forms.VLANTranslationRuleFilterForm
+    table = tables.VLANTranslationRuleTable
+
+
+@register_model_view(VLANTranslationRule)
+class VLANTranslationRuleView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = VLANTranslationRule.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(VLANTranslationRule, 'edit')
+class VLANTranslationRuleEditView(generic.ObjectEditView):
+    queryset = VLANTranslationRule.objects.all()
+    form = forms.VLANTranslationRuleForm
+
+
+@register_model_view(VLANTranslationRule, 'delete')
+class VLANTranslationRuleDeleteView(generic.ObjectDeleteView):
+    queryset = VLANTranslationRule.objects.all()
+
+
+class VLANTranslationRuleBulkImportView(generic.BulkImportView):
+    queryset = VLANTranslationRule.objects.all()
+    model_form = forms.VLANTranslationRuleImportForm
+
+
+class VLANTranslationRuleBulkEditView(generic.BulkEditView):
+    queryset = VLANTranslationRule.objects.all()
+    filterset = filtersets.VLANTranslationRuleFilterSet
+    table = tables.VLANTranslationRuleTable
+    form = forms.VLANTranslationRuleBulkEditForm
+
+
+class VLANTranslationRuleBulkDeleteView(generic.BulkDeleteView):
+    queryset = VLANTranslationRule.objects.all()
+    filterset = filtersets.VLANTranslationRuleFilterSet
+    table = tables.VLANTranslationRuleTable
 
 
 #
