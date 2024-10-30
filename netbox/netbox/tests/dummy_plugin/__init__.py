@@ -17,6 +17,9 @@ class DummyPluginConfig(PluginConfig):
         'testing-medium',
         'testing-high'
     ]
+    events_pipeline = [
+        'netbox.tests.dummy_plugin.events.process_events_queue'
+    ]
 
 
 config = DummyPluginConfig
