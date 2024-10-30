@@ -8,7 +8,7 @@ from packaging import version
 
 from netbox.registry import registry
 from netbox.search import register_search
-from netbox.utils import register_data_backend, register_system_job
+from netbox.utils import register_data_backend
 from .navigation import *
 from .registration import *
 from .templates import *
@@ -26,7 +26,6 @@ registry['plugins'].update({
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
-    'system_jobs': 'jobs.system_jobs',
     'graphql_schema': 'graphql.schema',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
@@ -74,7 +73,6 @@ class PluginConfig(AppConfig):
     # Optional plugin resources
     search_indexes = None
     data_backends = None
-    system_jobs = None
     graphql_schema = None
     menu = None
     menu_items = None
@@ -113,11 +111,6 @@ class PluginConfig(AppConfig):
         data_backends = self._load_resource('data_backends') or []
         for backend in data_backends:
             register_data_backend()(backend)
-
-        # Register system jobs (if defined)
-        system_jobs = self._load_resource('system_jobs') or []
-        for job in system_jobs:
-            register_system_job()(job)
 
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):

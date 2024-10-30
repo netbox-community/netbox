@@ -9,10 +9,23 @@ from rq.timeouts import JobTimeoutException
 from core.choices import JobStatusChoices
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
+from netbox.registry import registry
 
 __all__ = (
     'JobRunner',
+    'system_job',
 )
+
+
+def system_job():
+    """
+    Decorator for registering a `JobRunner` class as system background job.
+    """
+    def _wrapper(cls):
+        registry['system_jobs'][cls.name] = cls
+        return cls
+
+    return _wrapper
 
 
 class JobRunner(ABC):
