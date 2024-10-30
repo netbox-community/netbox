@@ -385,6 +385,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     wireless_link: Annotated["WirelessLinkType", strawberry.lazy('wireless.graphql.types')] | None
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
+    vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
 
     vdcs: List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]
     tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]

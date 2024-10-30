@@ -1,0 +1,45 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-4">
+      <div class="card">
+        <h2 class="card-header">{% trans "VLAN Translation Rule" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Policy" %}</th>
+            <td>{{ object.policy|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Local VID" %}</th>
+            <td>{{ object.local_vid }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Remote VID" %}</th>
+            <td>{{ object.remote_vid }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description }}</td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-8">
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}
