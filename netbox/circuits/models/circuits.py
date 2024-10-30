@@ -234,7 +234,7 @@ class CircuitTermination(
     term_side = models.CharField(
         max_length=1,
         choices=CircuitTerminationSideChoices,
-        verbose_name=_('termination')
+        verbose_name=_('termination side')
     )
     termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
