@@ -515,6 +515,8 @@ class VMInterfaceView(generic.ObjectView):
             exclude=('virtual_machine',),
             orderable=False
         )
+
+        # Get VLAN translation rules
         vlan_translation_table = None
         if instance.vlan_translation_policy:
             vlan_translation_table = VLANTranslationRuleTable(

@@ -284,6 +284,9 @@ class VLANTranslationRuleTable(NetBoxTable):
     remote_vid = tables.Column(
         verbose_name=_('Remote VID'),
     )
+    description = tables.Column(
+        verbose_name=_('Description'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:vlantranslationrule_list'
     )
@@ -291,6 +294,6 @@ class VLANTranslationRuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLANTranslationRule
         fields = (
-            'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'description', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'id', 'local_vid', 'remote_vid', 'policy')
+        default_columns = ('pk', 'policy', 'local_vid', 'remote_vid', 'description')
