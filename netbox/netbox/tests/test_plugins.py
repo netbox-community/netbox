@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from core.choices import JobIntervalChoices
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
@@ -135,8 +136,8 @@ class PluginTest(TestCase):
         """
         Check registered system jobs.
         """
-        self.assertIn(DummySystemJob.name, registry['system_jobs'])
-        self.assertIs(registry['system_jobs'][DummySystemJob.name], DummySystemJob)
+        self.assertIn(DummySystemJob, registry['system_jobs'])
+        self.assertEqual(registry['system_jobs'][DummySystemJob]['interval'], JobIntervalChoices.INTERVAL_HOURLY)
 
     def test_queues(self):
         """

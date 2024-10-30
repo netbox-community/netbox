@@ -17,11 +17,13 @@ class Command(_Command):
     """
     def handle(self, *args, **options):
         # Setup system jobs.
-        for job in registry['system_jobs'].values():
-            interval = getattr(job.Meta, 'system_interval', 0)
-            if interval:
-                logger.debug(f"Scheduling system job {job.name}")
-                job.enqueue_once(interval=interval)
+        for job, kwargs in registry['system_jobs'].items():
+            try:
+                interval = kwargs['interval']
+            except KeyError:
+                raise TypeError("System job must specify an interval (in minutes).")
+            logger.debug(f"Scheduling system job {job.name} (interval={interval})")
+            job.enqueue_once(**kwargs)
 
         # Run the worker with scheduler functionality
         options['with_scheduler'] = True

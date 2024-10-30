@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import classproperty
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
@@ -17,12 +18,17 @@ __all__ = (
 )
 
 
-def system_job():
+def system_job(interval):
     """
     Decorator for registering a `JobRunner` class as system background job.
     """
+    if type(interval) is not int:
+        raise ImproperlyConfigured("System job interval must be an integer (minutes).")
+
     def _wrapper(cls):
-        registry['system_jobs'][cls.name] = cls
+        registry['system_jobs'][cls] = {
+            'interval': interval
+        }
         return cls
 
     return _wrapper
