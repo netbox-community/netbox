@@ -31,7 +31,7 @@ class ComponentType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Cluster,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_sitegroup'),
+    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
     filters=ClusterFilter
 )
 class ClusterType(VLANGroupsMixin, NetBoxObjectType):

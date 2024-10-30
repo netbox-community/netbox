@@ -2354,13 +2354,13 @@ class ScopedFilterSet(BaseFilterSet):
     )
     site_group_id = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='_sitegroup',
+        field_name='_site_group',
         lookup_expr='in',
         label=_('Site group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
-        field_name='_sitegroup',
+        field_name='_site_group',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Site group (slug)'),

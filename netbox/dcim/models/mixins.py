@@ -75,7 +75,7 @@ class CachedScopeMixin(models.Model):
         blank=True,
         null=True
     )
-    _sitegroup = models.ForeignKey(
+    _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
         on_delete=models.CASCADE,
         related_name='_%(class)ss',
@@ -93,20 +93,20 @@ class CachedScopeMixin(models.Model):
         super().save(*args, **kwargs)
 
     def cache_related_objects(self):
-        self._region = self._sitegroup = self._site = self._location = None
+        self._region = self._site_group = self._site = self._location = None
         if self.scope_type:
             scope_type = self.scope_type.model_class()
             if scope_type == apps.get_model('dcim', 'region'):
                 self._region = self.scope
             elif scope_type == apps.get_model('dcim', 'sitegroup'):
-                self._sitegroup = self.scope
+                self._site_group = self.scope
             elif scope_type == apps.get_model('dcim', 'site'):
                 self._region = self.scope.region
-                self._sitegroup = self.scope.group
+                self._site_group = self.scope.group
                 self._site = self.scope
             elif scope_type == apps.get_model('dcim', 'location'):
                 self._region = self.scope.site.region
-                self._sitegroup = self.scope.site.group
+                self._site_group = self.scope.site.group
                 self._site = self.scope.site
                 self._location = self.scope
     cache_related_objects.alters_data = True
