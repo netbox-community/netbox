@@ -30,19 +30,15 @@ class MyTestJob(JobRunner):
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
 !!! tip
-    A set of predefined intervals can be used from `core.choices.JobIntervalChoices`.
+    A set of predefined intervals is available at `core.choices.JobIntervalChoices` for convenience.
 
 ### Attributes
 
-`JobRunner` attributes are defined under a class named `Meta` within the job. These are optional (unless specified otherwise), but encouraged.
+`JobRunner` attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
 
 #### `name`
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
-
-#### `system_interval` *(required for system jobs)*
-
-When the `JobRunner` is defined as [system job](#system-jobs), this attribute controls the interval of the scheduled job. If the interval evaluates to `False` (i.e. set to `0` or `None`), the job won't be scheduled.
 
 ### Scheduled Jobs
 
@@ -73,22 +69,21 @@ class MyModel(NetBoxModel):
 
 ### System Jobs
 
-Some plugins may implement background jobs that are decoupled from any object and the request-response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be created using *system jobs*. The `JobRunner` class has everything included to provide this type of job as well. Just add the appropriate metadata to let NetBox schedule all background jobs automatically.
-
-!!! info
-    All system jobs are automatically scheduled just before the `./manage.py rqworker` command is started and the job queue is processed. The schedules are also checked at each restart of this process.
+Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
 
 #### Example
 
 ```python title="jobs.py"
 from core.choices import JobIntervalChoices
-from netbox.jobs import JobRunner
+from netbox.jobs import JobRunner, system_job
 from .models import MyModel
 
+# Specify a predefined choice or an integer indicating
+# the number of minutes between job executions
+@system_job(interval=JobIntervalChoices.INTERVAL_HOURLY)
 class MyHousekeepingJob(JobRunner):
     class Meta:
         name = "My Housekeeping Job"
-        system_interval = JobIntervalChoices.INTERVAL_HOURLY  # or integer for n minutes
 
     def run(self, *args, **kwargs):
         MyModel.objects.filter(foo='bar').delete()
@@ -97,6 +92,9 @@ system_jobs = (
     MyHousekeepingJob,
 )
 ```
+
+!!! note
+    Ensure that any system jobs are imported on initialization. Otherwise, they won't be registered. This can be achieved by extending the PluginConfig's `ready()` method.
 
 ## Task queues
 
