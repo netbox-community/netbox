@@ -1,3 +1,4 @@
+from dcim.constants import LOCATION_SCOPE_TYPES
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -5,7 +6,6 @@ from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountF
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from virtualization.choices import *
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from utilities.api import get_serializer_for_model
 
@@ -51,7 +51,7 @@ class ClusterSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
-            model__in=CLUSTER_SCOPE_TYPES
+            model__in=LOCATION_SCOPE_TYPES
         ),
         allow_null=True,
         required=False,

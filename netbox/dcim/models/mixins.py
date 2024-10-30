@@ -1,5 +1,7 @@
 from django.apps import apps
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from dcim.constants import LOCATION_SCOPE_TYPES
 
 __all__ = (
     'CachedScopeMixin',
@@ -33,8 +35,25 @@ class RenderConfigMixin(models.Model):
 
 class CachedScopeMixin(models.Model):
     """
-    Cached associations for scope to enable efficient filtering - must define scope and scope_type on model
+    Cached associations for scope to enable efficient filtering
     """
+    scope_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        limit_choices_to=models.Q(model__in=LOCATION_SCOPE_TYPES),
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    scope_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    scope = GenericForeignKey(
+        ct_field='scope_type',
+        fk_field='scope_id'
+    )
+
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.CASCADE,

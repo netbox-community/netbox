@@ -1,15 +1,14 @@
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
+from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 from virtualization.choices import *
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -38,7 +37,7 @@ class ClusterGroupImportForm(NetBoxModelImportForm):
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterImportForm(NetBoxModelImportForm):
+class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
     type = CSVModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -56,11 +55,6 @@ class ClusterImportForm(NetBoxModelImportForm):
         label=_('Status'),
         choices=ClusterStatusChoices,
         help_text=_('Operational status')
-    )
-    scope_type = CSVContentTypeField(
-        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
-        required=False,
-        label=_('Scope type (app & model)')
     )
     site = CSVModelChoiceField(
         label=_('Site'),

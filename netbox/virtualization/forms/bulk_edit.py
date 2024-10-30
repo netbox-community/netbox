@@ -1,20 +1,19 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
+from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import BulkRenameForm, add_blank_choice, get_field_value
-from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import BulkRenameForm, add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import BulkEditNullBooleanSelect, HTMXSelect
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.choices import *
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -57,7 +56,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class ClusterBulkEditForm(NetBoxModelBulkEditForm):
+class ClusterBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -79,19 +78,6 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
-    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -107,21 +93,6 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'group', 'scope', 'tenant', 'description', 'comments',
     )
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
 
 
 class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):

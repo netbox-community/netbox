@@ -14,10 +14,8 @@ from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.fields import ContentTypeChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -69,19 +67,6 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
         label=_('Group'),
         queryset=ClusterGroup.objects.all(),
         required=False
-    )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
-        widget=HTMXSelect(),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
     )
     comments = CommentField()
 
