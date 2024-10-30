@@ -42,9 +42,9 @@ def populate_macaddress_objects(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0194_charfield_null_choices'),
+        ('dcim', '0195_interface_vlan_translation_policy'),
         ('extras', '0122_charfield_null_choices'),
-        ('virtualization', '0042_rename_mac_address_vminterface__mac_address'),
+        ('virtualization', '0043_rename_mac_address_vminterface__mac_address'),
     ]
 
     operations = [

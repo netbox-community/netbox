@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0195_rename_mac_address_interface__mac_address_macaddress'),
+        ('virtualization', '0043_rename_mac_address_vminterface__mac_address'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='interface',
+            model_name='vminterface',
             name='_mac_address',
         ),
     ]
