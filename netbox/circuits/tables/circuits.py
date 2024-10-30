@@ -115,16 +115,33 @@ class CircuitTerminationTable(NetBoxTable):
         linkify=True,
         accessor='_site'
     )
+    site_group = tables.Column(
+        verbose_name=_('Site Group'),
+        linkify=True,
+        accessor='_sitegroup'
+    )
+    region = tables.Column(
+        verbose_name=_('Region'),
+        linkify=True,
+        accessor='_region'
+    )
+    location = tables.Column(
+        verbose_name=_('Location'),
+        linkify=True,
+        accessor='_location'
+    )
     provider_network = tables.Column(
         verbose_name=_('Provider Network'),
-        linkify=True
+        linkify=True,
+        accessor='_provider_network'
     )
 
     class Meta(NetBoxTable.Meta):
         model = CircuitTermination
         fields = (
-            'pk', 'id', 'circuit', 'provider', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'pp_info', 'description', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'circuit', 'provider', 'term_side', '_site', 'site_group', 'region', 'location',
+            'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'id', 'circuit', 'provider', 'term_side', 'description')
 
