@@ -311,7 +311,7 @@ class CircuitTermination(
         blank=True,
         null=True
     )
-    _sitegroup = models.ForeignKey(
+    _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
         on_delete=models.CASCADE,
         related_name='circuit_terminations',
@@ -350,20 +350,20 @@ class CircuitTermination(
         super().save(*args, **kwargs)
 
     def cache_related_objects(self):
-        self._provider_network = self._region = self._sitegroup = self._site = self._location = None
+        self._provider_network = self._region = self._site_group = self._site = self._location = None
         if self.termination_type:
             termination_type = self.termination_type.model_class()
             if termination_type == apps.get_model('dcim', 'region'):
                 self._region = self.termination
             elif termination_type == apps.get_model('dcim', 'sitegroup'):
-                self._sitegroup = self.termination
+                self._site_group = self.termination
             elif termination_type == apps.get_model('dcim', 'site'):
                 self._region = self.termination.region
-                self._sitegroup = self.termination.group
+                self._site_group = self.termination.group
                 self._site = self.termination
             elif termination_type == apps.get_model('dcim', 'location'):
                 self._region = self.termination.site.region
-                self._sitegroup = self.termination.site.group
+                self._site_group = self.termination.site.group
                 self._site = self.termination.site
                 self._location = self.termination
             elif termination_type == apps.get_model('circuits', 'providernetwork'):

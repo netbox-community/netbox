@@ -59,7 +59,7 @@ class ProviderNetworkType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.CircuitTermination,
-    exclude=('termination_type', 'termination_id', '_location', '_region', '_site', '_sitegroup', '_provider_network'),
+    exclude=('termination_type', 'termination_id', '_location', '_region', '_site', '_site_group', '_provider_network'),
     filters=CircuitTerminationFilter
 )
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):

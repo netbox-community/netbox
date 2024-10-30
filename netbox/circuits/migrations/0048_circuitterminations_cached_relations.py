@@ -12,11 +12,11 @@ def populate_denormalized_fields(apps, schema_editor):
     terminations = CircuitTermination.objects.filter(site__isnull=False).prefetch_related('site')
     for termination in terminations:
         termination._region_id = termination.site.region_id
-        termination._sitegroup_id = termination.site.group_id
+        termination._site_group_id = termination.site.group_id
         termination._site_id = termination.site_id
         # Note: Location cannot be set prior to migration
 
-    CircuitTermination.objects.bulk_update(terminations, ['_region', '_sitegroup', '_site'])
+    CircuitTermination.objects.bulk_update(terminations, ['_region', '_site_group', '_site'])
 
 
 class Migration(migrations.Migration):
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='circuittermination',
-            name='_sitegroup',
+            name='_site_group',
             field=models.ForeignKey(
                 blank=True,
                 null=True,
