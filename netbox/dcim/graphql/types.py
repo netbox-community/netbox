@@ -730,7 +730,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 
     @strawberry_django.field
     def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
-        return self._circuit_terminations.all()
+        return self.circuit_terminations.all()
 
 
 @strawberry_django.type(
