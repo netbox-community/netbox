@@ -377,7 +377,7 @@ class FrontPortTemplateType(ModularComponentTemplateType):
     filters=InterfaceFilter
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
-    _mac_address: str | None
+    # _mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None

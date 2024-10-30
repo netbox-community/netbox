@@ -11,6 +11,9 @@ def populate_macaddress_objects(apps, schema_editor):
     Interface = apps.get_model('dcim', 'Interface')
     VMInterface = apps.get_model('virtualization', 'VMInterface')
     MACAddress = apps.get_model('dcim', 'MACAddress')
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    interface_ct = ContentType.objects.get_for_model(Interface)
+    vminterface_ct = ContentType.objects.get_for_model(VMInterface)
     mac_addresses = []
     print()
     print('Converting MAC addresses...')
@@ -18,14 +21,18 @@ def populate_macaddress_objects(apps, schema_editor):
         mac_addresses.append(
             MACAddress(
                 mac_address=interface._mac_address,
-                interface=interface,
+                assigned_object_type=interface_ct,
+                assigned_object_id=interface.id,
+                # interface=interface,
             )
         )
-    for vm_interface in VMInterface.objects.filter(_mac_address__isnull=False):
+    for vminterface in VMInterface.objects.filter(_mac_address__isnull=False):
         mac_addresses.append(
             MACAddress(
-                mac_address=vm_interface._mac_address,
-                vm_interface=vm_interface,
+                mac_address=vminterface._mac_address,
+                assigned_object_type=vminterface_ct,
+                assigned_object_id=vminterface.id,
+                # vm_interface=vm_interface,
             )
         )
     MACAddress.objects.bulk_create(mac_addresses)
@@ -57,9 +64,11 @@ class Migration(migrations.Migration):
                 ('comments', models.TextField(blank=True)),
                 ('mac_address', dcim.fields.MACAddressField(blank=True, null=True)),
                 ('is_primary', models.BooleanField(default=False)),
-                ('interface', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='dcim.interface')),
+                # ('interface', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='dcim.interface')),
+                ('assigned_object_id', models.PositiveBigIntegerField(blank=True, null=True)),
+                ('assigned_object_type', models.ForeignKey(blank=True, limit_choices_to=models.Q(models.Q(models.Q(('app_label', 'dcim'), ('model', 'interface')), models.Q(('app_label', 'virtualization'), ('model', 'vminterface')), _connector='OR')), null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('vm_interface', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='virtualization.vminterface')),
+                # ('vm_interface', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='virtualization.vminterface')),
             ],
             options={
                 'abstract': False,

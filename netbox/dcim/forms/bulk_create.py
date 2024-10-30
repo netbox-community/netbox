@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import *
+from dcim.fields import MACAddressField
 from extras.models import Tag
 from netbox.forms.mixins import CustomFieldsMixin
 from utilities.forms import form_from_model
@@ -15,6 +16,7 @@ __all__ = (
     # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
     'InventoryItemBulkCreateForm',
+    'MACAddressBulkCreateForm',
     'ModuleBayBulkCreateForm',
     'PowerOutletBulkCreateForm',
     'PowerPortBulkCreateForm',
@@ -74,6 +76,12 @@ class PowerOutletBulkCreateForm(
 ):
     model = PowerOutlet
     field_order = ('name', 'label', 'type', 'feed_leg', 'description', 'tags')
+
+
+class MACAddressBulkCreateForm(forms.Form):
+    pattern = MACAddressField(
+        # label=_('Address pattern')
+    )
 
 
 class InterfaceBulkCreateForm(

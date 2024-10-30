@@ -38,6 +38,7 @@ __all__ = (
     'InventoryItemRoleBulkEditForm',
     'InventoryItemTemplateBulkEditForm',
     'LocationBulkEditForm',
+    'MACAddressBulkEditForm',
     'ManufacturerBulkEditForm',
     'ModuleBulkEditForm',
     'ModuleBayBulkEditForm',
@@ -1389,10 +1390,28 @@ class PowerOutletBulkEditForm(
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
+class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = MACAddress
+    fieldsets = (
+        FieldSet('description'),
+        # FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
+    )
+    nullable_fields = (
+        'description', 'comments',
+    )
+
+
 class InterfaceBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', '_mac_address', 'wwn', 'mtu', 'mgmt_only',
+        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu', 'mgmt_only',
         'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
         'tx_power', 'wireless_lans'
     ])

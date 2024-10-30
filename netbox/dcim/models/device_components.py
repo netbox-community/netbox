@@ -510,11 +510,6 @@ class BaseInterface(models.Model):
         verbose_name=_('enabled'),
         default=True
     )
-    _mac_address = MACAddressField(
-        null=True,
-        blank=True,
-        verbose_name=_('MAC address')
-    )
     mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -578,7 +573,7 @@ class BaseInterface(models.Model):
 
     @property
     def mac_address(self):
-        if macaddress := self.macaddress_set.first():
+        if macaddress := self.mac_addresses.order_by('-is_primary').first():
             return macaddress.mac_address
         return None
 
@@ -721,6 +716,12 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
+    )
+    mac_addresses = GenericRelation(
+        to='dcim.MACAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface'
@@ -1338,21 +1339,44 @@ class MACAddress(PrimaryModel):
         blank=True,
         verbose_name=_('MAC address')
     )
-    interface = models.ForeignKey(
-        to='dcim.Interface',
+    # interface = models.ForeignKey(
+    #     to='dcim.Interface',
+    #     on_delete=models.PROTECT,
+    #     null=True,
+    #     blank=True,
+    #     verbose_name=_('Interface')
+    # )
+    # vm_interface = models.ForeignKey(
+    #     to='virtualization.VMInterface',
+    #     on_delete=models.PROTECT,
+    #     null=True,
+    #     blank=True,
+    #     verbose_name=_('VM Interface')
+    # )
+    assigned_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
-        null=True,
+        related_name='+',
         blank=True,
-        verbose_name=_('Interface')
+        null=True
     )
-    vm_interface = models.ForeignKey(
-        to='virtualization.VMInterface',
-        on_delete=models.PROTECT,
-        null=True,
+    assigned_object_id = models.PositiveBigIntegerField(
         blank=True,
-        verbose_name=_('VM Interface')
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
     )
     is_primary = models.BooleanField(
         verbose_name=_('is primary for interface'),
         default=False
     )
+
+    class Meta:
+        verbose_name = _('MAC address')
+        verbose_name_plural = _('MAC addresses')
+
+    def __str__(self):
+        return str(self.mac_address)

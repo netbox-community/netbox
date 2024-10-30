@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
-    RearPort, VirtualDeviceContext,
+    RearPort, VirtualDeviceContext, MACAddress,
 )
 from ipam.api.serializers_.vlans import VLANSerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
@@ -33,6 +33,7 @@ __all__ = (
     'FrontPortSerializer',
     'InterfaceSerializer',
     'InventoryItemSerializer',
+    'MACAddressSerializer',
     'ModuleBaySerializer',
     'PowerOutletSerializer',
     'PowerPortSerializer',
@@ -363,3 +364,11 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         serializer = get_serializer_for_model(obj.component)
         context = {'request': self.context['request']}
         return serializer(obj.component, nested=True, context=context).data
+
+
+class MACAddressSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = MACAddress
+        fields = ['mac_address',]
+        brief_fields = ('mac_address',)

@@ -10,6 +10,9 @@ Interfaces in NetBox represent network interfaces used to exchange data with con
 
 ## Fields
 
+!!! note
+    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
+
 ### Device
 
 The device to which this interface belongs.
@@ -44,10 +47,6 @@ The operation duplex (full, half, or auto).
 ### VRF
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
-
-### MAC Address
-
-The 48-bit MAC address (for Ethernet interfaces).
 
 ### WWN
 

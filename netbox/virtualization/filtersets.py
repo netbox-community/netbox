@@ -9,7 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueCharFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 
@@ -225,10 +225,10 @@ class VirtualMachineFilterSet(
         to_field_name='slug',
         label=_('Platform (slug)'),
     )
-    mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces___mac_address',
-        label=_('MAC address'),
-    )
+    # mac_address = MultiValueMACAddressFilter(
+    #     field_name='interfaces___mac_address',
+    #     label=_('MAC address'),
+    # )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label=_('Has a primary IP'),
@@ -297,9 +297,9 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('Bridged interface (ID)'),
     )
-    _mac_address = MultiValueMACAddressFilter(
-        label=_('MAC address'),
-    )
+    # _mac_address = MultiValueMACAddressFilter(
+    #     label=_('MAC address'),
+    # )
 
     class Meta:
         model = VMInterface

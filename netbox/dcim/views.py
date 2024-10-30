@@ -2520,6 +2520,78 @@ register_model_view(PowerOutlet, 'trace', kwargs={'model': PowerOutlet})(PathTra
 
 
 #
+# MAC addresses
+#
+
+class MACAddressListView(generic.ObjectListView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    filterset_form = forms.MACAddressFilterForm
+    table = tables.MACAddressTable
+    template_name = 'dcim/component_list.html'
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_rename': {'change'},
+    }
+
+
+@register_model_view(MACAddress)
+class MACAddressView(generic.ObjectView):
+    queryset = MACAddress.objects.all()
+
+
+# class MACAddressCreateView(generic.ComponentCreateView):
+#     queryset = MACAddress.objects.all()
+#     form = forms.MACAddressForm
+#     model_form = forms.MACAddressForm
+
+
+@register_model_view(MACAddress, 'edit')
+class MACAddressEditView(generic.ObjectEditView):
+    queryset = MACAddress.objects.all()
+    form = forms.MACAddressForm
+
+
+@register_model_view(MACAddress, 'delete')
+class MACAddressDeleteView(generic.ObjectDeleteView):
+    queryset = MACAddress.objects.all()
+
+
+class MACAddressBulkCreateView(generic.BulkCreateView):
+    queryset = MACAddress.objects.all()
+    form = forms.MACAddressBulkCreateForm
+    model_form = forms.MACAddressBulkAddForm
+    pattern_target = 'mac_address'
+    template_name = 'dcim/macaddress_bulk_add.html'
+
+
+class MACAddressBulkImportView(generic.BulkImportView):
+    queryset = MACAddress.objects.all()
+    model_form = forms.MACAddressImportForm
+
+
+class MACAddressBulkEditView(generic.BulkEditView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    table = tables.MACAddressTable
+    form = forms.MACAddressBulkEditForm
+
+
+class MACAddressBulkRenameView(generic.BulkRenameView):
+    queryset = MACAddress.objects.all()
+
+
+class MACAddressBulkDisconnectView(BulkDisconnectView):
+    queryset = MACAddress.objects.all()
+
+
+class MACAddressBulkDeleteView(generic.BulkDeleteView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    table = tables.MACAddressTable
+
+
+#
 # Interfaces
 #
 
@@ -2552,7 +2624,7 @@ class InterfaceView(generic.ObjectView):
 
         # Get bridge interfaces
         bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
-        bridge_interfaces_tables = tables.InterfaceTable(
+        bridge_interfaces_table = tables.InterfaceTable(
             bridge_interfaces,
             exclude=('device', 'parent'),
             orderable=False
@@ -2560,9 +2632,16 @@ class InterfaceView(generic.ObjectView):
 
         # Get child interfaces
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
-        child_interfaces_tables = tables.InterfaceTable(
+        child_interfaces_table = tables.InterfaceTable(
             child_interfaces,
             exclude=('device', 'parent'),
+            orderable=False
+        )
+
+        # Get MAC addresses
+        mac_addresses_table = tables.MACAddressTable(
+            data=instance.mac_addresses,
+            exclude=('assigned_object',),
             orderable=False
         )
 
@@ -2582,8 +2661,9 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
-            'bridge_interfaces_table': bridge_interfaces_tables,
-            'child_interfaces_table': child_interfaces_tables,
+            'bridge_interfaces_table': bridge_interfaces_table,
+            'child_interfaces_table': child_interfaces_table,
+            'mac_addresses_table': mac_addresses_table,
             'vlan_table': vlan_table,
         }
 

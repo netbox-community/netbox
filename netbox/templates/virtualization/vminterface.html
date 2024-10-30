@@ -97,6 +97,24 @@
 </div>
 <div class="row mb-3">
     <div class="col col-md-12">
+        <div class="card">
+            <h2 class="card-header">
+                {% trans "MAC Addresses" %}
+                {% if perms.ipam.add_macaddress %}
+                    <div class="card-actions">
+                        <a href="{% url 'dcim:macaddress_add' %}?virtual_machine={{ object.device.pk }}&vminterface={{ object.pk }}&return_url={{ object.get_absolute_url }}"
+                           class="btn btn-ghost-primary btn-sm">
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add MAC Address" %}
+                        </a>
+                    </div>
+                {% endif %}
+            </h2>
+            {% htmx_table 'dcim:macaddress_list' vminterface_id=object.pk %}
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col col-md-12">
         {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
 </div>
