@@ -2322,10 +2322,17 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             PowerOutlet(device=devices[1], name='Power Outlet 2'),
         ))
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
-            Interface(device=devices[1], name='Interface 2', mac_address='00-00-00-00-00-02'),
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[1], name='Interface 2'),
         )
         Interface.objects.bulk_create(interfaces)
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[1].mac_addresses.set([mac_addresses[1]])
         rear_ports = (
             RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
             RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
@@ -2494,10 +2501,6 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_airflow(self):
         params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_mac_address(self):
-        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
         params = {'serial': ['ABC', 'DEF']}
