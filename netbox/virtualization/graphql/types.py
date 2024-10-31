@@ -101,6 +101,7 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     qinq_svlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
+    vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
 
     tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
     bridge_interfaces: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]

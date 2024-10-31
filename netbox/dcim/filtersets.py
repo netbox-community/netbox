@@ -8,7 +8,7 @@ from circuits.models import CircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import ASN, IPAddress, VRF
+from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
@@ -1628,6 +1628,17 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         queryset=L2VPN.objects.all(),
         to_field_name='identifier',
         label=_('L2VPN'),
+    )
+    vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy',
+        queryset=VLANTranslationPolicy.objects.all(),
+        label=_('VLAN Translation Policy (ID)'),
+    )
+    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy__name',
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        label=_('VLAN Translation Policy'),
     )
 
     def filter_vlan_id(self, queryset, name, value):

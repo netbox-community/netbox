@@ -60,3 +60,7 @@ The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 ### VRF
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
+
+### VLAN Translation Policy
+
+The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

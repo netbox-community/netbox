@@ -344,7 +344,7 @@ class CableTermination(ChangeLoggedModel):
             )
 
         # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
-        if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:
+        if self.termination_type.model == 'circuittermination' and self.termination._provider_network is not None:
             raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
 
     def save(self, *args, **kwargs):
@@ -690,19 +690,19 @@ class CablePath(models.Model):
                 ).first()
                 if circuit_termination is None:
                     break
-                elif circuit_termination.provider_network:
+                elif circuit_termination._provider_network:
                     # Circuit terminates to a ProviderNetwork
                     path.extend([
                         [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination.provider_network)],
+                        [object_to_path_node(circuit_termination._provider_network)],
                     ])
                     is_complete = True
                     break
-                elif circuit_termination.site and not circuit_termination.cable:
-                    # Circuit terminates to a Site
+                elif circuit_termination.termination and not circuit_termination.cable:
+                    # Circuit terminates to a Region/Site/etc.
                     path.extend([
                         [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination.site)],
+                        [object_to_path_node(circuit_termination.termination)],
                     ])
                     break
 

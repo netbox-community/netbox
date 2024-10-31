@@ -7,7 +7,7 @@ from dcim.forms.common import InterfaceCommonForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import IPAddress, VLAN, VLANGroup, VRF
+from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
@@ -354,23 +354,31 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         required=False,
         label=_('VRF')
     )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
         FieldSet('vrf', 'mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', name=_('802.1Q Switching')),
+        FieldSet(
+            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            name=_('802.1Q Switching')
+        ),
     )
 
     class Meta:
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'tags',
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
         ]
         labels = {
-            'mode': '802.1Q Mode',
+            'mode': _('802.1Q Mode'),
         }
         widgets = {
             'mode': HTMXSelect(),

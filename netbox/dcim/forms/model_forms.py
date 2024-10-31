@@ -8,7 +8,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
+from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from users.models import User
@@ -1393,6 +1393,11 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('WWN')
     )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
     fieldsets = (
         FieldSet(
@@ -1402,7 +1407,10 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', name=_('802.1Q Switching')),
+        FieldSet(
+            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            name=_('802.1Q Switching')
+        ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
             name=_('Wireless')
@@ -1415,7 +1423,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
             'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(

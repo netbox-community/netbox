@@ -29,6 +29,8 @@ __all__ = (
     'ServiceTemplateImportForm',
     'VLANImportForm',
     'VLANGroupImportForm',
+    'VLANTranslationPolicyImportForm',
+    'VLANTranslationRuleImportForm',
     'VRFImportForm',
 )
 
@@ -479,6 +481,20 @@ class VLANImportForm(NetBoxModelImportForm):
             'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'qinq_role', 'qinq_svlan',
             'comments', 'tags',
         )
+
+
+class VLANTranslationPolicyImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ('name', 'description', 'tags')
+
+
+class VLANTranslationRuleImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ('policy', 'local_vid', 'remote_vid')
 
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):

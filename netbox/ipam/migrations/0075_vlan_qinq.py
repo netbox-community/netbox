@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0073_charfield_null_choices'),
+        ('ipam', '0074_vlantranslationpolicy_vlantranslationrule'),
     ]
 
     operations = [
