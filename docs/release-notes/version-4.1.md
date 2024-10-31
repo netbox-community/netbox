@@ -1,5 +1,13 @@
 # NetBox v4.1
 
+## v4.1.6 (2024-10-31)
+
+### Bug Fixes
+
+* [#17700](https://github.com/netbox-community/netbox/issues/17700) - Fix warning when no scripts are found within a script module
+* [#17884](https://github.com/netbox-community/netbox/issues/17884) - Fix translation support for certain tab headings
+* [#17885](https://github.com/netbox-community/netbox/issues/17885) - Fix regression preventing custom scripts from executing
+
 ## v4.1.5 (2024-10-28)
 
 ### Enhancements
