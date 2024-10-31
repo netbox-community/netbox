@@ -282,6 +282,12 @@ class VLAN(PrimaryModel):
                 'qinq_svlan': _("Only Q-in-Q customer VLANs maybe assigned to a service VLAN.")
             })
 
+        # A Q-in-Q customer VLAN must be assigned to a service VLAN
+        if self.qinq_role == VLANQinQRoleChoices.ROLE_CUSTOMER and not self.qinq_svlan:
+            raise ValidationError({
+                'qinq_role': _("A Q-in-Q customer VLAN must be assigned to a service VLAN.")
+            })
+
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)
 

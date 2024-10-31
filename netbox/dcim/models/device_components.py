@@ -567,7 +567,7 @@ class BaseInterface(models.Model):
         related_name='%(class)ss_svlan',
         null=True,
         blank=True,
-        verbose_name=_('Q-inQ SVLAN')
+        verbose_name=_('Q-in-Q SVLAN')
     )
 
     class Meta:
