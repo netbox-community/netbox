@@ -1,11 +1,16 @@
+from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+
 from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices
+from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType
 from dcim.api.serializers_.cables import CabledObjectSerializer
-from dcim.api.serializers_.sites import SiteSerializer
-from netbox.api.fields import ChoiceField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
+from utilities.api import get_serializer_for_model
 
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
 
@@ -33,15 +38,32 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
 
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
-    site = SiteSerializer(nested=True, allow_null=True)
+    termination_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES
+        ),
+        allow_null=True,
+        required=False,
+        default=None
+    )
+    termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
+    termination = serializers.SerializerMethodField(read_only=True)
     provider_network = ProviderNetworkSerializer(nested=True, allow_null=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display_url', 'display', 'site', 'provider_network', 'port_speed', 'upstream_speed',
+            'id', 'url', 'display_url', 'display', 'termination_type', 'termination_id', 'termination', 'provider_network', 'port_speed', 'upstream_speed',
             'xconnect_id', 'description',
         ]
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_termination(self, obj):
+        if obj.termination_id is None:
+            return None
+        serializer = get_serializer_for_model(obj.termination)
+        context = {'request': self.context['request']}
+        return serializer(obj.termination, nested=True, context=context).data
 
 
 class CircuitGroupSerializer(NetBoxModelSerializer):
@@ -95,17 +117,34 @@ class CircuitSerializer(NetBoxModelSerializer):
 
 class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):
     circuit = CircuitSerializer(nested=True)
-    site = SiteSerializer(nested=True, required=False, allow_null=True)
+    termination_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES
+        ),
+        allow_null=True,
+        required=False,
+        default=None
+    )
+    termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
+    termination = serializers.SerializerMethodField(read_only=True)
     provider_network = ProviderNetworkSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'site', 'provider_network', 'port_speed',
+            'id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'termination_type', 'termination_id', 'termination', 'provider_network', 'port_speed',
             'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_end',
             'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'circuit', 'term_side', 'description', 'cable', '_occupied')
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_termination(self, obj):
+        if obj.termination_id is None:
+            return None
+        serializer = get_serializer_for_model(obj.termination)
+        context = {'request': self.context['request']}
+        return serializer(obj.termination, nested=True, context=context).data
 
 
 class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):

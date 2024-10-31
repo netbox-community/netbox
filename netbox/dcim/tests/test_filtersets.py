@@ -5135,7 +5135,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
-        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', site=sites[0])
+        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', termination=sites[0])
 
         # Cables
         cables = (
@@ -5308,9 +5308,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_site(self):
         site = Site.objects.all()[:2]
         params = {'site_id': [site[0].pk, site[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
         params = {'site': [site[0].slug, site[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
 
     def test_tenant(self):
         tenant = Tenant.objects.all()[:2]

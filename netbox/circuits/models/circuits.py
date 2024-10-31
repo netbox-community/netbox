@@ -1,9 +1,13 @@
+from django.apps import apps
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
+from circuits.constants import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
@@ -230,21 +234,23 @@ class CircuitTermination(
     term_side = models.CharField(
         max_length=1,
         choices=CircuitTerminationSideChoices,
-        verbose_name=_('termination')
+        verbose_name=_('termination side')
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
+    termination_type = models.ForeignKey(
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        related_name='circuit_terminations',
+        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
+        related_name='+',
         blank=True,
         null=True
     )
-    provider_network = models.ForeignKey(
-        to='circuits.ProviderNetwork',
-        on_delete=models.PROTECT,
-        related_name='circuit_terminations',
+    termination_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
+    )
+    termination = GenericForeignKey(
+        ct_field='termination_type',
+        fk_field='termination_id'
     )
     port_speed = models.PositiveIntegerField(
         verbose_name=_('port speed (Kbps)'),
@@ -276,6 +282,43 @@ class CircuitTermination(
         blank=True
     )
 
+    # Cached associations to enable efficient filtering
+    _provider_network = models.ForeignKey(
+        to='circuits.ProviderNetwork',
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.CASCADE,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.CASCADE,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+    _site_group = models.ForeignKey(
+        to='dcim.SiteGroup',
+        on_delete=models.CASCADE,
+        related_name='circuit_terminations',
+        blank=True,
+        null=True
+    )
+
     class Meta:
         ordering = ['circuit', 'term_side']
         constraints = (
@@ -297,10 +340,35 @@ class CircuitTermination(
         super().clean()
 
         # Must define either site *or* provider network
-        if self.site is None and self.provider_network is None:
-            raise ValidationError(_("A circuit termination must attach to either a site or a provider network."))
-        if self.site and self.provider_network:
-            raise ValidationError(_("A circuit termination cannot attach to both a site and a provider network."))
+        if self.termination is None:
+            raise ValidationError(_("A circuit termination must attach to termination."))
+
+    def save(self, *args, **kwargs):
+        # Cache objects associated with the terminating object (for filtering)
+        self.cache_related_objects()
+
+        super().save(*args, **kwargs)
+
+    def cache_related_objects(self):
+        self._provider_network = self._region = self._site_group = self._site = self._location = None
+        if self.termination_type:
+            termination_type = self.termination_type.model_class()
+            if termination_type == apps.get_model('dcim', 'region'):
+                self._region = self.termination
+            elif termination_type == apps.get_model('dcim', 'sitegroup'):
+                self._site_group = self.termination
+            elif termination_type == apps.get_model('dcim', 'site'):
+                self._region = self.termination.region
+                self._site_group = self.termination.group
+                self._site = self.termination
+            elif termination_type == apps.get_model('dcim', 'location'):
+                self._region = self.termination.site.region
+                self._site_group = self.termination.site.group
+                self._site = self.termination.site
+                self._location = self.termination
+            elif termination_type == apps.get_model('circuits', 'providernetwork'):
+                self._provider_network = self.termination
+    cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
@@ -314,7 +382,7 @@ class CircuitTermination(
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:
-            return CircuitTermination.objects.prefetch_related('site').get(
+            return CircuitTermination.objects.prefetch_related('termination').get(
                 circuit=self.circuit,
                 term_side=peer_side
             )

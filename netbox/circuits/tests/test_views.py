@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 
@@ -190,27 +191,31 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_terminations(self):
-        json_data = """
+        site = Site.objects.first()
+        json_data = f"""
             [
-              {
+              {{
                 "cid": "Circuit 7",
                 "provider": "Provider 1",
                 "type": "Circuit Type 1",
                 "status": "active",
                 "description": "Testing Import",
                 "terminations": [
-                  {
+                  {{
                     "term_side": "A",
-                    "site": "Site 1"
-                  },
-                  {
+                    "termination_type": "dcim.site",
+                    "termination_id": "{site.pk}"
+                  }},
+                  {{
                     "term_side": "Z",
-                    "site": "Site 1"
-                  }
+                    "termination_type": "dcim.site",
+                    "termination_id": "{site.pk}"
+                  }}
                 ]
-              }
+              }}
             ]
         """
+
         initial_count = self._get_queryset().count()
         data = {
             'data': json_data,
@@ -336,7 +341,7 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class  TestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CircuitTermination
 
     @classmethod
@@ -359,24 +364,27 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = (
-            CircuitTermination(circuit=circuits[0], term_side='A', site=sites[0]),
-            CircuitTermination(circuit=circuits[0], term_side='Z', site=sites[1]),
-            CircuitTermination(circuit=circuits[1], term_side='A', site=sites[0]),
-            CircuitTermination(circuit=circuits[1], term_side='Z', site=sites[1]),
+            CircuitTermination(circuit=circuits[0], term_side='A', termination=sites[0]),
+            CircuitTermination(circuit=circuits[0], term_side='Z', termination=sites[1]),
+            CircuitTermination(circuit=circuits[1], term_side='A', termination=sites[0]),
+            CircuitTermination(circuit=circuits[1], term_side='Z', termination=sites[1]),
         )
-        CircuitTermination.objects.bulk_create(circuit_terminations)
+        for ct in circuit_terminations:
+            ct.save()
 
         cls.form_data = {
             'circuit': circuits[2].pk,
             'term_side': 'A',
-            'site': sites[2].pk,
+            'termination_type': ContentType.objects.get_for_model(Site).pk,
+            'termination': sites[2].pk,
             'description': 'New description',
         }
 
+        site = sites[0].pk
         cls.csv_data = (
-            "circuit,term_side,site,description",
-            "Circuit 3,A,Site 1,Foo",
-            "Circuit 3,Z,Site 1,Bar",
+            "circuit,term_side,termination_type,termination_id,description",
+            f"Circuit 3,A,dcim.site,{site},Foo",
+            f"Circuit 3,Z,dcim.site,{site},Bar",
         )
 
         cls.csv_update_data = (

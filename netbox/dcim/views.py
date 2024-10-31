@@ -242,6 +242,10 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___region=instance).distinct(),
+                        'region_id'
+                    ),
                 ),
             ),
         }
@@ -324,6 +328,10 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___site_group=instance).distinct(),
+                        'site_group_id'
+                    ),
                 ),
             ),
         }
@@ -404,8 +412,10 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                         scope_id=instance.pk
                     ), 'site'),
                     (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
-                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
-                     'site_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___site=instance).distinct(),
+                        'site_id'
+                    ),
                 ),
             ),
         }
@@ -475,7 +485,17 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
         return {
-            'related_models': self.get_related_models(request, locations, [CableTermination]),
+            'related_models': self.get_related_models(
+                request,
+                locations,
+                [CableTermination],
+                (
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___location=instance).distinct(),
+                        'location_id'
+                    ),
+                ),
+            ),
         }
 
 

@@ -1167,7 +1167,7 @@ class CablePathTestCase(TestCase):
         [IF1] --C1-- [CT1]
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
 
         # Create cable 1
         cable1 = Cable(
@@ -1198,7 +1198,7 @@ class CablePathTestCase(TestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
 
         # Create cable 1
         cable1 = Cable(
@@ -1214,7 +1214,7 @@ class CablePathTestCase(TestCase):
         )
 
         # Create CT2
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='Z')
 
         # Check for partial path to site
         self.assertPathExists(
@@ -1266,7 +1266,7 @@ class CablePathTestCase(TestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
 
         # Create cable 1
         cable1 = Cable(
@@ -1282,7 +1282,7 @@ class CablePathTestCase(TestCase):
         )
 
         # Create CT2
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='Z')
 
         # Check for partial path to site
         self.assertPathExists(
@@ -1335,8 +1335,8 @@ class CablePathTestCase(TestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         site2 = Site.objects.create(name='Site 2', slug='site-2')
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=site2, term_side='Z')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=site2, term_side='Z')
 
         # Create cable 1
         cable1 = Cable(
@@ -1365,8 +1365,8 @@ class CablePathTestCase(TestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider)
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, provider_network=providernetwork, term_side='Z')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=providernetwork, term_side='Z')
 
         # Create cable 1
         cable1 = Cable(
@@ -1413,8 +1413,8 @@ class CablePathTestCase(TestCase):
         frontport2_2 = FrontPort.objects.create(
             device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
         )
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='Z')
 
         # Create cables
         cable1 = Cable(
@@ -1499,10 +1499,10 @@ class CablePathTestCase(TestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         circuit2 = Circuit.objects.create(provider=self.circuit.provider, type=self.circuit.type, cid='Circuit 2')
-        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='A')
-        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, site=self.site, term_side='Z')
-        circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='A')
-        circuittermination4 = CircuitTermination.objects.create(circuit=circuit2, site=self.site, term_side='Z')
+        circuittermination1 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
+        circuittermination2 = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='Z')
+        circuittermination3 = CircuitTermination.objects.create(circuit=circuit2, termination=self.site, term_side='A')
+        circuittermination4 = CircuitTermination.objects.create(circuit=circuit2, termination=self.site, term_side='Z')
 
         # Create cables
         cable1 = Cable(
