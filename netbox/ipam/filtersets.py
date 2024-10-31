@@ -1041,6 +1041,17 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
+    qinq_role = django_filters.MultipleChoiceFilter(
+        choices=VLANQinQRoleChoices
+    )
+    qinq_svlan_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLAN.objects.all(),
+        label=_('Q-in-Q SVLAN (ID)'),
+    )
+    qinq_svlan_vid = MultiValueNumberFilter(
+        field_name='qinq_svlan__vid',
+        label=_('Q-in-Q SVLAN number (1-4094)'),
+    )
     l2vpn_id = django_filters.ModelMultipleChoiceFilter(
         field_name='l2vpn_terminations__l2vpn',
         queryset=L2VPN.objects.all(),

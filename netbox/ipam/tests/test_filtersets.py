@@ -1630,6 +1630,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site 4', slug='site-4', region=regions[0], group=site_groups[0]),
             Site(name='Site 5', slug='site-5', region=regions[1], group=site_groups[1]),
             Site(name='Site 6', slug='site-6', region=regions[2], group=site_groups[2]),
+            Site(name='Site 7', slug='site-7'),
         )
         Site.objects.bulk_create(sites)
 
@@ -1784,8 +1785,20 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
 
             # Create one globally available VLAN
             VLAN(vid=1000, name='Global VLAN'),
+
+            # Create some Q-in-Q service VLANs
+            VLAN(vid=2001, name='SVLAN 1', site=sites[6], qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(vid=2002, name='SVLAN 2', site=sites[6], qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(vid=2003, name='SVLAN 3', site=sites[6], qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
+
+        # Create Q-in-Q customer VLANs
+        VLAN.objects.bulk_create([
+            VLAN(vid=3001, name='CVLAN 1', site=sites[6], qinq_svlan=vlans[29], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
+            VLAN(vid=3002, name='CVLAN 2', site=sites[6], qinq_svlan=vlans[30], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
+            VLAN(vid=3003, name='CVLAN 3', site=sites[6], qinq_svlan=vlans[31], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
+        ])
 
         # Assign VLANs to device interfaces
         interfaces[0].untagged_vlan = vlans[0]
@@ -1896,6 +1909,17 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         vminterface_id = VMInterface.objects.first().pk
         params = {'vminterface_id': vminterface_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_qinq_role(self):
+        params = {'qinq_role': [VLANQinQRoleChoices.ROLE_SERVICE, VLANQinQRoleChoices.ROLE_CUSTOMER]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_qinq_svlan(self):
+        vlans = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE)[:2]
+        params = {'qinq_svlan_id': [vlans[0].pk, vlans[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'qinq_svlan_vid': [vlans[0].vid, vlans[1].vid]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class VLANTranslationPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):

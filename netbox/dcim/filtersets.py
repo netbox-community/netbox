@@ -1647,7 +1647,8 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(untagged_vlan_id=value) |
-            Q(tagged_vlans=value)
+            Q(tagged_vlans=value) |
+            Q(qinq_svlan=value)
         )
 
     def filter_vlan(self, queryset, name, value):
@@ -1656,7 +1657,8 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(untagged_vlan_id__vid=value) |
-            Q(tagged_vlans__vid=value)
+            Q(tagged_vlans__vid=value) |
+            Q(qinq_svlan__vid=value)
         )
 
 
