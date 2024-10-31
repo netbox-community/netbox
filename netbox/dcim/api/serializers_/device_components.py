@@ -164,6 +164,14 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
+class MACAddressSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = MACAddress
+        fields = ['mac_address',]
+        brief_fields = ('mac_address',)
+
+
 class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
     device = DeviceSerializer(nested=True)
     vdcs = SerializedPKRelatedField(
@@ -210,12 +218,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    mac_address = serializers.CharField(
-        required=False,
-        default=None,
-        allow_blank=True,
-        allow_null=True
-    )
+    mac_address = MACAddressSerializer(read_only=True, allow_null=True)
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
 
     class Meta:
@@ -365,11 +368,3 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         serializer = get_serializer_for_model(obj.component)
         context = {'request': self.context['request']}
         return serializer(obj.component, nested=True, context=context).data
-
-
-class MACAddressSerializer(NetBoxModelSerializer):
-
-    class Meta:
-        model = MACAddress
-        fields = ['mac_address',]
-        brief_fields = ('mac_address',)
