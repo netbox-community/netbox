@@ -44,6 +44,9 @@ class DCIMQuery:
     front_port_template: FrontPortTemplateType = strawberry_django.field()
     front_port_template_list: List[FrontPortTemplateType] = strawberry_django.field()
 
+    mac_address: MACAddressType = strawberry_django.field()
+    mac_address_list: List[MACAddressType] = strawberry_django.field()
+
     interface: InterfaceType = strawberry_django.field()
     interface_list: List[InterfaceType] = strawberry_django.field()
 

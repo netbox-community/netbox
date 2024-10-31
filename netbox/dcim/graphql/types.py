@@ -34,6 +34,7 @@ __all__ = (
     'InventoryItemRoleType',
     'InventoryItemTemplateType',
     'LocationType',
+    'MACAddressType',
     'ManufacturerType',
     'ModularComponentType',
     'ModuleType',
@@ -372,12 +373,20 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.MACAddress,
+    fields='__all__',
+    filters=MACAddressFilter
+)
+class MACAddressType(NetBoxObjectType):
+    mac_address: str
+
+
+@strawberry_django.type(
     models.Interface,
     exclude=('_path',),
     filters=InterfaceFilter
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
-    # _mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
@@ -393,6 +402,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
     member_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     child_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    mac_addresses: List[Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
