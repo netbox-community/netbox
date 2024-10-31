@@ -18,10 +18,8 @@ __all__ = (
 
 
 CIRCUITTERMINATION_LINK = """
-{% if value.site %}
-  <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
-{% elif value.provider_network %}
-  <a href="{{ value.provider_network.get_absolute_url }}">{{ value.provider_network }}</a>
+{% if value.termination %}
+  <a href="{{ value.termination.get_absolute_url }}">{{ value.termination }}</a>
 {% endif %}
 """
 
@@ -63,12 +61,12 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Account')
     )
     status = columns.ChoiceFieldColumn()
-    termination_a = tables.TemplateColumn(
+    termination_a = columns.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
         orderable=False,
         verbose_name=_('Side A')
     )
-    termination_z = tables.TemplateColumn(
+    termination_z = columns.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
         orderable=False,
         verbose_name=_('Side Z')
