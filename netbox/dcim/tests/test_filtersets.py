@@ -3672,6 +3672,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
 
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+            MACAddress(mac_address='00-00-00-00-00-03'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
         vlan_translation_policies = (
             VLANTranslationPolicy(name='Policy 1'),
             VLANTranslationPolicy(name='Policy 2'),
@@ -3690,7 +3697,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mgmt_only=True,
                 mtu=100,
                 mode=InterfaceModeChoices.MODE_ACCESS,
-                mac_address='00-00-00-00-00-01',
                 description='First',
                 vrf=vrfs[0],
                 speed=1000000,
@@ -3716,7 +3722,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mgmt_only=True,
                 mtu=200,
                 mode=InterfaceModeChoices.MODE_TAGGED,
-                mac_address='00-00-00-00-00-02',
                 description='Second',
                 vrf=vrfs[1],
                 speed=1000000,
@@ -3735,7 +3740,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mgmt_only=False,
                 mtu=300,
                 mode=InterfaceModeChoices.MODE_TAGGED_ALL,
-                mac_address='00-00-00-00-00-03',
                 description='Third',
                 vrf=vrfs[2],
                 speed=100000,
@@ -3802,6 +3806,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         interfaces[5].vdcs.set([vdcs[0]])
         interfaces[6].vdcs.set([vdcs[0]])
         interfaces[7].vdcs.set([vdcs[1]])
+
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[2].mac_addresses.set([mac_addresses[1]])
+        interfaces[3].mac_addresses.set([mac_addresses[2]])
 
         # Cables
         Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[5]]).save()
@@ -3979,10 +3987,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
         params = {'kind': 'virtual'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
-
-    def test_mac_address(self):
-        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
