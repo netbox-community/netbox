@@ -608,14 +608,16 @@ class MACAddressTable(NetBoxTable):
         verbose_name=_('Primary MAC'),
         false_mark=None
     )
-    # interface = tables.Column(
-    #     verbose_name=_('Interface'),
-    #     linkify=True
-    # )
-    # vm_interface = tables.Column(
-    #     verbose_name=_('VM Interface'),
-    #     linkify=True
-    # )
+    assigned_device = tables.Column(
+        accessor='assigned_object__device',
+        verbose_name=_('Device'),
+        linkify=True
+    )
+    assigned_vm = tables.Column(
+        accessor='assigned_object__virtual_machine',
+        verbose_name=_('Virtual Machine'),
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
@@ -623,7 +625,8 @@ class MACAddressTable(NetBoxTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.MACAddress
         fields = (
-            'pk', 'id', 'mac_address', 'assigned_object', 'created', 'last_updated', 'is_primary'
+            'pk', 'id', 'mac_address', 'assigned_object', 'created', 'last_updated', 'is_primary',
+            'assigned_device', 'assigned_vm',
         )
         default_columns = ('pk', 'mac_address', 'assigned_object', 'is_primary')
 
