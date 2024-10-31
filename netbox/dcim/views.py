@@ -2529,10 +2529,6 @@ class MACAddressListView(generic.ObjectListView):
     filterset_form = forms.MACAddressFilterForm
     table = tables.MACAddressTable
     template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
 
 
 @register_model_view(MACAddress)
