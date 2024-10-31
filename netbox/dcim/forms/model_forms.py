@@ -1538,6 +1538,14 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'mode': '802.1Q Mode',
         }
 
+    def clean_mac_address(self):
+        return MACAddress.objects.create(mac_address=self.cleaned_data['mac_address'])
+
+    def save(self, commit=True):
+        result = super().save(commit=commit)
+        self.instance.mac_addresses.add(self.cleaned_data['mac_address'])
+        return result
+
 
 class FrontPortForm(ModularDeviceComponentForm):
     rear_port = DynamicModelChoiceField(
