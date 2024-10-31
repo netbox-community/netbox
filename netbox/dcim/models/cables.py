@@ -698,11 +698,11 @@ class CablePath(models.Model):
                     ])
                     is_complete = True
                     break
-                elif circuit_termination._site and not circuit_termination.cable:
-                    # Circuit terminates to a Site
+                elif circuit_termination.termination and not circuit_termination.cable:
+                    # Circuit terminates to a Region/Site/etc.
                     path.extend([
                         [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination._site)],
+                        [object_to_path_node(circuit_termination.termination)],
                     ])
                     break
 
