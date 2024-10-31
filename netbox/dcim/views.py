@@ -11,14 +11,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, VLANGroup
-from ipam.tables import InterfaceVLANTable
+from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
@@ -242,6 +242,10 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___region=instance).distinct(),
+                        'region_id'
+                    ),
                 ),
             ),
         }
@@ -324,6 +328,10 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___site_group=instance).distinct(),
+                        'site_group_id'
+                    ),
                 ),
             ),
         }
@@ -404,8 +412,10 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                         scope_id=instance.pk
                     ), 'site'),
                     (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
-                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(),
-                     'site_id'),
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___site=instance).distinct(),
+                        'site_id'
+                    ),
                 ),
             ),
         }
@@ -475,7 +485,17 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
         return {
-            'related_models': self.get_related_models(request, locations, [CableTermination]),
+            'related_models': self.get_related_models(
+                request,
+                locations,
+                [CableTermination],
+                (
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations___location=instance).distinct(),
+                        'location_id'
+                    ),
+                ),
+            ),
         }
 
 
@@ -2580,11 +2600,20 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get VLAN translation rules
+        vlan_translation_table = None
+        if instance.vlan_translation_policy:
+            vlan_translation_table = VLANTranslationRuleTable(
+                data=instance.vlan_translation_policy.rules.all(),
+                orderable=False
+            )
+
         return {
             'vdc_table': vdc_table,
             'bridge_interfaces_table': bridge_interfaces_tables,
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
+            'vlan_translation_table': vlan_translation_table,
         }
 
 

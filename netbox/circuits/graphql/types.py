@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -59,13 +59,21 @@ class ProviderNetworkType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.CircuitTermination,
-    fields='__all__',
+    exclude=('termination_type', 'termination_id', '_location', '_region', '_site', '_site_group', '_provider_network'),
     filters=CircuitTerminationFilter
 )
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
     circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
-    provider_network: Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')] | None
-    site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
+
+    @strawberry_django.field
+    def termination(self) -> Annotated[Union[
+        Annotated["LocationType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')],
+    ], strawberry.union("CircuitTerminationTerminationType")] | None:
+        return self.termination
 
 
 @strawberry_django.type(

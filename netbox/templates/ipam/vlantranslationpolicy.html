@@ -1,0 +1,55 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-4">
+      <div class="card">
+        <h2 class="card-header">{% trans "VLAN Translation Policy" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-8">
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "VLAN Translation Rules" %}
+          {% if perms.ipam.add_vlantranslationrule %}
+            <div class="card-actions">
+              <a href="{% url 'ipam:vlantranslationrule_add' %}?device={{ object.device.pk }}&policy={{ object.pk }}&return_url={{ object.get_absolute_url }}"
+                 class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Rule" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'ipam:vlantranslationrule_list' policy_id=object.pk %}
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

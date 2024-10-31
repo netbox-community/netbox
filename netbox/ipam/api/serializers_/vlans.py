@@ -5,7 +5,7 @@ from rest_framework import serializers
 from dcim.api.serializers_.sites import SiteSerializer
 from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
-from ipam.models import VLAN, VLANGroup
+from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VLANTranslationRule
 from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
@@ -18,6 +18,8 @@ __all__ = (
     'CreateAvailableVLANSerializer',
     'VLANGroupSerializer',
     'VLANSerializer',
+    'VLANTranslationPolicySerializer',
+    'VLANTranslationRuleSerializer',
 )
 
 
@@ -110,3 +112,19 @@ class CreateAvailableVLANSerializer(NetBoxModelSerializer):
     def validate(self, data):
         # Bypass model validation since we don't have a VID yet
         return data
+
+
+class VLANTranslationRuleSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ['id', 'policy', 'local_vid', 'remote_vid']
+
+
+class VLANTranslationPolicySerializer(NetBoxModelSerializer):
+    rules = VLANTranslationRuleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ['id', 'url', 'name', 'description', 'display', 'rules']
+        brief_fields = ('id', 'url', 'name', 'description', 'display')
