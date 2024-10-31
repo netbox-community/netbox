@@ -26,7 +26,7 @@ netaddr==1.3.0
 nh3==0.2.18
 Pillow==11.0.0
 psycopg[c,pool]==3.2.3
-psycopg2=2.9.10
+psycopg2==2.9.10
 PyYAML==6.0.2
 requests==2.32.3
 rq==1.16.2
