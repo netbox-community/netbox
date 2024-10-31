@@ -168,8 +168,6 @@ class BaseFilterSet(django_filters.FilterSet):
         # Get properties of the existing filter for later use
         field_name = existing_filter.field_name
         field = get_model_field(cls._meta.model, field_name)
-        if field is None:
-            raise ValueError('Invalid field name/lookup on {}: {}'.format(existing_filter_name, field_name))
 
         # Create new filters for each lookup expression in the map
         for lookup_name, lookup_expr in lookup_map.items():
@@ -181,6 +179,8 @@ class BaseFilterSet(django_filters.FilterSet):
                     # The filter field has been explicitly defined on the filterset class so we must manually
                     # create the new filter with the same type because there is no guarantee the defined type
                     # is the same as the default type for the field
+                    if field is None:
+                        raise ValueError('Invalid field name/lookup on {}: {}'.format(existing_filter_name, field_name))
                     resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
                     filter_cls = type(existing_filter)
                     if lookup_expr == 'empty':
