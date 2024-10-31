@@ -195,7 +195,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
-        FieldSet('enabled', 'vrf_id', 'l2vpn_id', name=_('Attributes')),
+        FieldSet('enabled', 'mac_address', 'vrf_id', 'l2vpn_id', name=_('Attributes')),
     )
     selector_fields = ('filter_id', 'q', 'virtual_machine_id')
     cluster_id = DynamicModelMultipleChoiceField(
@@ -218,10 +218,10 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    # mac_address = forms.CharField(
-    #     required=False,
-    #     label=_('MAC address')
-    # )
+    mac_address = forms.CharField(
+        required=False,
+        label=_('MAC address')
+    )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,

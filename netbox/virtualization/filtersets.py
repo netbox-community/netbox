@@ -9,7 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
-from utilities.filters import MultiValueCharFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueCharFilter, TreeNodeMultipleChoiceFilter, MultiValueMACAddressFilter
 from .choices import *
 from .models import *
 
@@ -297,9 +297,10 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('Bridged interface (ID)'),
     )
-    # _mac_address = MultiValueMACAddressFilter(
-    #     label=_('MAC address'),
-    # )
+    mac_address = MultiValueMACAddressFilter(
+        field_name='mac_addresses__mac_address',
+        label=_('MAC address'),
+    )
 
     class Meta:
         model = VMInterface

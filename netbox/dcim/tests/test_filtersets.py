@@ -3988,6 +3988,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'kind': 'virtual'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
+    def test_mac_address(self):
+        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_type(self):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

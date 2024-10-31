@@ -1344,7 +1344,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only', name=_('Attributes')),
-        FieldSet('vrf_id', 'l2vpn_id', 'wwn', name=_('Addressing')),
+        FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
@@ -1399,10 +1399,10 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    # mac_address = forms.CharField(
-    #     required=False,
-    #     label=_('MAC address')
-    # )
+    mac_address = forms.CharField(
+        required=False,
+        label=_('MAC address')
+    )
     wwn = forms.CharField(
         required=False,
         label=_('WWN')

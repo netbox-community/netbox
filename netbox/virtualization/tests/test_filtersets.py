@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
 from ipam.models import IPAddress, VLANTranslationPolicy, VRF
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
@@ -568,13 +568,19 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
 
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+            MACAddress(mac_address='00-00-00-00-00-03'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
         interfaces = (
             VMInterface(
                 virtual_machine=vms[0],
                 name='Interface 1',
                 enabled=True,
                 mtu=100,
-                mac_address='00-00-00-00-00-01',
                 vrf=vrfs[0],
                 description='foobar1',
                 vlan_translation_policy=vlan_translation_policies[0],
@@ -584,7 +590,6 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Interface 2',
                 enabled=True,
                 mtu=200,
-                mac_address='00-00-00-00-00-02',
                 vrf=vrfs[1],
                 description='foobar2',
                 vlan_translation_policy=vlan_translation_policies[0],
@@ -594,12 +599,15 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Interface 3',
                 enabled=False,
                 mtu=300,
-                mac_address='00-00-00-00-00-03',
                 vrf=vrfs[2],
                 description='foobar3'
             ),
         )
         VMInterface.objects.bulk_create(interfaces)
+
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[1].mac_addresses.set([mac_addresses[1]])
+        interfaces[2].mac_addresses.set([mac_addresses[2]])
 
     def test_q(self):
         params = {'q': 'foobar1'}
