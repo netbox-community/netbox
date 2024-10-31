@@ -362,12 +362,23 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         VirtualMachine.objects.bulk_create(vms)
 
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+            MACAddress(mac_address='00-00-00-00-00-03'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
         interfaces = (
-            VMInterface(virtual_machine=vms[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
-            VMInterface(virtual_machine=vms[1], name='Interface 2', mac_address='00-00-00-00-00-02'),
-            VMInterface(virtual_machine=vms[2], name='Interface 3', mac_address='00-00-00-00-00-03'),
+            VMInterface(virtual_machine=vms[0], name='Interface 1'),
+            VMInterface(virtual_machine=vms[1], name='Interface 2'),
+            VMInterface(virtual_machine=vms[2], name='Interface 3'),
         )
         VMInterface.objects.bulk_create(interfaces)
+
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[1].mac_addresses.set([mac_addresses[1]])
+        interfaces[2].mac_addresses.set([mac_addresses[2]])
 
         # Assign primary IPs for filtering
         ipaddresses = (
