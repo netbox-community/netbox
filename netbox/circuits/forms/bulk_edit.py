@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
@@ -11,9 +12,12 @@ from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, get_field_value
-from utilities.forms.fields import ColorField, CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import (
+    ColorField, CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+)
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions
+from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
     'CircuitBulkEditForm',
