@@ -225,10 +225,10 @@ class VirtualMachineFilterSet(
         to_field_name='slug',
         label=_('Platform (slug)'),
     )
-    # mac_address = MultiValueMACAddressFilter(
-    #     field_name='interfaces___mac_address',
-    #     label=_('MAC address'),
-    # )
+    mac_address = MultiValueMACAddressFilter(
+        field_name='interfaces__mac_addresses__mac_address',
+        label=_('MAC address'),
+    )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label=_('Has a primary IP'),

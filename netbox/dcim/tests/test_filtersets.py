@@ -2502,6 +2502,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_mac_address(self):
+        params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_serial(self):
         params = {'serial': ['ABC', 'DEF']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
