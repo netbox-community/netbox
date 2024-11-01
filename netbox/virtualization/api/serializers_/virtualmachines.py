@@ -2,7 +2,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.serializers_.devices import DeviceSerializer
-from dcim.api.serializers_.device_components import MACAddressSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
@@ -95,7 +94,11 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    mac_address = MACAddressSerializer(read_only=True, allow_null=True)
+    mac_address = serializers.CharField(
+        required=False,
+        default=None,
+        allow_null=True
+    )
 
     class Meta:
         model = VMInterface

@@ -1521,6 +1521,11 @@ class InterfaceBulkEditForm(
             'group_id': '$wireless_lan_group',
         }
     )
+    mac_address = forms.CharField(
+        empty_value=None,
+        required=False,
+        label=_('MAC Address')
+    )
 
     model = Interface
     fieldsets = (

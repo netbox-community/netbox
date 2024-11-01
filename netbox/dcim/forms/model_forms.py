@@ -1539,11 +1539,18 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
 
     def clean_mac_address(self):
-        return MACAddress.objects.create(mac_address=self.cleaned_data['mac_address'])
+        if self.cleaned_data['mac_address'] and (
+            not self.instance.pk or
+            not MACAddress.objects.filter(mac_address=self.cleaned_data['mac_address'], interface=self.instance).exists()
+        ):
+            mac_address = MACAddress.objects.create(mac_address=self.cleaned_data['mac_address'])
+            return mac_address
+        return None
 
     def save(self, commit=True):
         result = super().save(commit=commit)
-        self.instance.mac_addresses.add(self.cleaned_data['mac_address'])
+        if self.cleaned_data['mac_address']:
+            self.instance.mac_addresses.add(self.cleaned_data['mac_address'])
         return result
 
 

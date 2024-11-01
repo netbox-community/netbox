@@ -218,7 +218,12 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    mac_address = MACAddressSerializer(read_only=True, allow_null=True)
+    mac_address = serializers.CharField(
+        required=False,
+        default=None,
+        allow_blank=True,
+        allow_null=True
+    )
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
 
     class Meta:
