@@ -97,7 +97,8 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     mac_address = serializers.CharField(
         required=False,
         default=None,
-        allow_null=True
+        allow_null=True,
+        read_only=True
     )
 
     class Meta:

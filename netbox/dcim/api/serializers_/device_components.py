@@ -222,7 +222,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         required=False,
         default=None,
         allow_blank=True,
-        allow_null=True
+        allow_null=True,
+        read_only=True
     )
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
 
