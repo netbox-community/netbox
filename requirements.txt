@@ -9,7 +9,7 @@ django-pglocks==1.0.4
 django-prometheus==2.3.1
 django-redis==5.4.0
 django-rich==1.13.0
-django-rq==2.10.2
+django-rq==3.0
 django-taggit==6.1.0
 django-tables2==2.7.0
 django-timezone-field==7.0
@@ -28,7 +28,7 @@ Pillow==11.0.0
 psycopg[c,pool]==3.2.3
 PyYAML==6.0.2
 requests==2.32.3
-rq==1.16.2
+rq==2.0
 social-auth-app-django==5.4.2
 social-auth-core==4.5.4
 strawberry-graphql==0.247.0
