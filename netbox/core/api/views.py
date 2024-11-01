@@ -12,6 +12,8 @@ from core import filtersets
 from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
+from core.utils import get_rq_jobs_from_status
+from django_rq.queues import get_queue
 from django_rq.utils import get_statistics
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
@@ -82,7 +84,7 @@ class BackgroundQueueViewSet(ViewSet):
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
-        return "RQ"
+        return "BackgroundQueueViewSet"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
@@ -92,3 +94,56 @@ class BackgroundQueueViewSet(ViewSet):
         data = get_statistics(run_maintenance_tasks=True)["queues"]
         serializer = serializers.BackgroundQueueSerializer(data, many=True)
         return Response(serializer.data)
+
+
+class BackgroundTaskViewSet(ViewSet):
+    serializer_class = serializers.BackgroundTaskSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "BackgroundTaskViewSet"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request, queue_name):
+        """
+        Return the UserConfig for the currently authenticated User.
+        """
+        queue = get_queue(queue_name)
+        data = queue.get_jobs()
+        serializer = serializers.BackgroundTaskSerializer(data, many=True)
+        return Response(serializer.data)
+
+
+class BaseBackgroundTaskViewSet(ViewSet):
+    serializer_class = serializers.BackgroundTaskSerializer
+    permission_classes = [IsAdminUser]
+    registry = None
+
+    def get_view_name(self):
+        return "BackgroundTaskViewSet"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request, queue_name):
+        """
+        Return the UserConfig for the currently authenticated User.
+        """
+        queue = get_queue(queue_name)
+        data = get_rq_jobs_from_status(queue, self.registry)
+        serializer = serializers.BackgroundTaskSerializer(data, many=True)
+        return Response(serializer.data)
+
+
+class BackgroundTaskDeferredViewSet(BaseBackgroundTaskViewSet):
+    registry = "deferred"
+
+
+class BackgroundTaskFailedViewSet(BaseBackgroundTaskViewSet):
+    registry = "failed"
+
+
+class BackgroundTaskFinishedViewSet(BaseBackgroundTaskViewSet):
+    registry = "finished"
+
+
+class BackgroundTaskStartedViewSet(BaseBackgroundTaskViewSet):
+    registry = "started"
