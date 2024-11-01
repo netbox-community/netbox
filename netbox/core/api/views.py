@@ -1,17 +1,21 @@
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from core import filtersets
 from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
+from django_rq.utils import get_statistics
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from rest_framework.permissions import IsAdminUser
 from . import serializers
 
 
@@ -71,3 +75,20 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     queryset = ObjectChange.objects.valid_models()
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
+
+
+class BackgroundQueueViewSet(ViewSet):
+    serializer_class = serializers.BackgroundQueueSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "RQ"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request):
+        """
+        Return the UserConfig for the currently authenticated User.
+        """
+        data = get_statistics(run_maintenance_tasks=True)["queues"]
+        serializer = serializers.BackgroundQueueSerializer(data, many=True)
+        return Response(serializer.data)
