@@ -21,7 +21,7 @@ def populate_denormalized_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('virtualization', '0043_cluster_scope'),
+        ('virtualization', '0044_cluster_scope'),
     ]
 
     operations = [
