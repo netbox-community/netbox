@@ -15,6 +15,7 @@ from utilities.forms.widgets import HTMXSelect
 __all__ = (
     'ScopedBulkEditForm',
     'ScopedForm',
+    'ScopedImportForm',
 )
 
 
@@ -94,6 +95,7 @@ class ScopedBulkEditForm(forms.Form):
                 self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
+
 
 class ScopedImportForm(forms.Form):
     scope_type = CSVContentTypeField(
