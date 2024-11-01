@@ -1675,11 +1675,12 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type, group=cluster_groups[0], site=sites[0]),
-            Cluster(name='Cluster 2', type=cluster_type, group=cluster_groups[1], site=sites[1]),
-            Cluster(name='Cluster 3', type=cluster_type, group=cluster_groups[2], site=sites[2]),
+            Cluster(name='Cluster 1', type=cluster_type, group=cluster_groups[0], scope=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, group=cluster_groups[1], scope=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, group=cluster_groups[2], scope=sites[2]),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         virtual_machines = (
             VirtualMachine(name='Virtual Machine 1', cluster=clusters[0]),

@@ -958,10 +958,17 @@ class Device(
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
-        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
+        if self.cluster and self.cluster._site is not None and self.cluster._site != self.site:
             raise ValidationError({
                 'cluster': _("The assigned cluster belongs to a different site ({site})").format(
-                    site=self.cluster.site
+                    site=self.cluster._site
+                )
+            })
+
+        if self.cluster and self.cluster._location is not None and self.cluster._location != self.location:
+            raise ValidationError({
+                'cluster': _("The assigned cluster belongs to a different location ({location})").format(
+                    site=self.cluster._location
                 )
             })
 

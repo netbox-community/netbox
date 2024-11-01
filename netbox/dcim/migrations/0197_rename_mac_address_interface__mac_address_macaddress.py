@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0196_qinq_svlan'),
         ('extras', '0122_charfield_null_choices'),
-        ('virtualization', '0044_rename_mac_address_vminterface__mac_address'),
+        ('virtualization', '0046_rename_mac_address_vminterface__mac_address'),
     ]
 
     operations = [

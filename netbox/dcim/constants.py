@@ -124,6 +124,11 @@ COMPATIBLE_TERMINATION_TYPES = {
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
 }
 
+# Models which can serve to scope an object by location
+LOCATION_SCOPE_TYPES = (
+    'region', 'sitegroup', 'site', 'location',
+)
+
 
 #
 # MAC addresses

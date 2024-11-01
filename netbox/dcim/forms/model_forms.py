@@ -913,6 +913,13 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         if self.instance.pk:
             self.fields['module_type'].disabled = True
 
+        # Reset help_text to the value from the model field, if it has been overwritten with ExpandableNameField
+        for field in self.fields:
+            model_help_text = getattr(self._meta.model, field).field.help_text
+            if self.fields[field].help_text and model_help_text:
+                self.fields[field].help_text += ' '
+            self.fields[field].help_text += model_help_text
+
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
