@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import classproperty
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
@@ -9,10 +10,28 @@ from rq.timeouts import JobTimeoutException
 from core.choices import JobStatusChoices
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
+from netbox.registry import registry
 
 __all__ = (
     'JobRunner',
+    'system_job',
 )
+
+
+def system_job(interval):
+    """
+    Decorator for registering a `JobRunner` class as system background job.
+    """
+    if type(interval) is not int:
+        raise ImproperlyConfigured("System job interval must be an integer (minutes).")
+
+    def _wrapper(cls):
+        registry['system_jobs'][cls] = {
+            'interval': interval
+        }
+        return cls
+
+    return _wrapper
 
 
 class JobRunner(ABC):
@@ -129,7 +148,7 @@ class JobRunner(ABC):
         if job:
             # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
             # delete the existing job and schedule a new job instead.
-            if (schedule_at and job.scheduled == schedule_at) and (job.interval == interval):
+            if (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 

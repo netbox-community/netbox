@@ -29,6 +29,9 @@ class MyTestJob(JobRunner):
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
+!!! tip
+    A set of predefined intervals is available at `core.choices.JobIntervalChoices` for convenience.
+
 ### Attributes
 
 `JobRunner` attributes are defined under a class named `Meta` within the job. These are optional, but encouraged.
@@ -46,26 +49,52 @@ As described above, jobs can be scheduled for immediate execution or at any late
 
 #### Example
 
+```python title="models.py"
+from django.db import models
+from core.choices import JobIntervalChoices
+from netbox.models import NetBoxModel
+from .jobs import MyTestJob
+
+class MyModel(NetBoxModel):
+    foo = models.CharField()
+
+    def save(self, *args, **kwargs):
+        MyTestJob.enqueue_once(instance=self, interval=JobIntervalChoices.INTERVAL_HOURLY)
+        return super().save(*args, **kwargs)
+
+    def sync(self):
+        MyTestJob.enqueue(instance=self)
+```
+
+
+### System Jobs
+
+Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
+
+#### Example
+
 ```python title="jobs.py"
-from netbox.jobs import JobRunner
+from core.choices import JobIntervalChoices
+from netbox.jobs import JobRunner, system_job
+from .models import MyModel
 
-
+# Specify a predefined choice or an integer indicating
+# the number of minutes between job executions
+@system_job(interval=JobIntervalChoices.INTERVAL_HOURLY)
 class MyHousekeepingJob(JobRunner):
     class Meta:
-        name = "Housekeeping"
+        name = "My Housekeeping Job"
 
     def run(self, *args, **kwargs):
-        # your logic goes here
+        MyModel.objects.filter(foo='bar').delete()
+
+system_jobs = (
+    MyHousekeepingJob,
+)
 ```
 
-```python title="__init__.py"
-from netbox.plugins import PluginConfig
-
-class MyPluginConfig(PluginConfig):
-    def ready(self):
-        from .jobs import MyHousekeepingJob
-        MyHousekeepingJob.setup(interval=60)
-```
+!!! note
+    Ensure that any system jobs are imported on initialization. Otherwise, they won't be registered. This can be achieved by extending the PluginConfig's `ready()` method.
 
 ## Task queues
 
