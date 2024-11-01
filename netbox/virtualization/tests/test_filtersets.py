@@ -138,7 +138,7 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=cluster_types[0],
                 group=cluster_groups[0],
                 status=ClusterStatusChoices.STATUS_PLANNED,
-                site=sites[0],
+                scope=sites[0],
                 tenant=tenants[0],
                 description='foobar1'
             ),
@@ -147,7 +147,7 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=cluster_types[1],
                 group=cluster_groups[1],
                 status=ClusterStatusChoices.STATUS_STAGING,
-                site=sites[1],
+                scope=sites[1],
                 tenant=tenants[1],
                 description='foobar2'
             ),
@@ -156,12 +156,13 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type=cluster_types[2],
                 group=cluster_groups[2],
                 status=ClusterStatusChoices.STATUS_ACTIVE,
-                site=sites[2],
+                scope=sites[2],
                 tenant=tenants[2],
                 description='foobar3'
             ),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -274,11 +275,12 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], site=sites[0]),
-            Cluster(name='Cluster 2', type=cluster_types[1], group=cluster_groups[1], site=sites[1]),
-            Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], site=sites[2]),
+            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], scope=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_types[1], group=cluster_groups[1], scope=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], scope=sites[2]),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),

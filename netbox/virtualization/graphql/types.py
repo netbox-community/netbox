@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -31,17 +31,24 @@ class ComponentType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Cluster,
-    fields='__all__',
+    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
     filters=ClusterFilter
 )
 class ClusterType(VLANGroupsMixin, NetBoxObjectType):
     type: Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')] | None
     group: Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
-    site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
-
     virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+
+    @strawberry_django.field
+    def scope(self) -> Annotated[Union[
+        Annotated["LocationType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("ClusterScopeType")] | None:
+         return self.scope
 
 
 @strawberry_django.type(

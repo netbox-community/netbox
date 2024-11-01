@@ -23,6 +23,6 @@ The cluster's operational status.
 !!! tip
     Additional statuses may be defined by setting `Cluster.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
-### Site
+### Scope
 
-The [site](../dcim/site.md) with which the cluster is associated.
+The [region](../dcim/region.md), [site](../dcim/site.md), [site group](../dcim/sitegroup.md) or [location](../dcim/location.md) with which this cluster is associated.

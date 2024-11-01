@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.forms.mixins import ScopedBulkEditForm
+from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
@@ -55,7 +56,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class ClusterBulkEditForm(NetBoxModelBulkEditForm):
+class ClusterBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -77,25 +78,6 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    region = DynamicModelChoiceField(
-        label=_('Region'),
-        queryset=Region.objects.all(),
-        required=False,
-    )
-    site_group = DynamicModelChoiceField(
-        label=_('Site group'),
-        queryset=SiteGroup.objects.all(),
-        required=False,
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
-    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -106,10 +88,10 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     model = Cluster
     fieldsets = (
         FieldSet('type', 'group', 'status', 'tenant', 'description'),
-        FieldSet('region', 'site_group', 'site', name=_('Site')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
     )
     nullable_fields = (
-        'group', 'site', 'tenant', 'description', 'comments',
+        'group', 'scope', 'tenant', 'description', 'comments',
     )
 
 

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
+from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
@@ -58,7 +59,7 @@ class ClusterGroupForm(NetBoxModelForm):
         )
 
 
-class ClusterForm(TenancyForm, NetBoxModelForm):
+class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all()
@@ -68,23 +69,18 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        selector=True
-    )
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'type', 'group', 'site', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
         )
 
 
