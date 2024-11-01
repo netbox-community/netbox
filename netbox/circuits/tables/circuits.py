@@ -18,10 +18,8 @@ __all__ = (
 
 
 CIRCUITTERMINATION_LINK = """
-{% if value.site %}
-  <a href="{{ value.site.get_absolute_url }}">{{ value.site }}</a>
-{% elif value.provider_network %}
-  <a href="{{ value.provider_network.get_absolute_url }}">{{ value.provider_network }}</a>
+{% if value.termination %}
+  <a href="{{ value.termination.get_absolute_url }}">{{ value.termination }}</a>
 {% endif %}
 """
 
@@ -63,12 +61,12 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Account')
     )
     status = columns.ChoiceFieldColumn()
-    termination_a = tables.TemplateColumn(
+    termination_a = columns.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
         orderable=False,
         verbose_name=_('Side A')
     )
-    termination_z = tables.TemplateColumn(
+    termination_z = columns.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
         orderable=False,
         verbose_name=_('Side Z')
@@ -110,22 +108,54 @@ class CircuitTerminationTable(NetBoxTable):
         linkify=True,
         accessor='circuit.provider'
     )
+    term_side = tables.Column(
+        verbose_name=_('Side')
+    )
+    termination_type = columns.ContentTypeColumn(
+        verbose_name=_('Termination Type'),
+    )
+    termination = tables.Column(
+        verbose_name=_('Termination Point'),
+        linkify=True
+    )
+
+    # Termination types
     site = tables.Column(
         verbose_name=_('Site'),
-        linkify=True
+        linkify=True,
+        accessor='_site'
+    )
+    site_group = tables.Column(
+        verbose_name=_('Site Group'),
+        linkify=True,
+        accessor='_sitegroup'
+    )
+    region = tables.Column(
+        verbose_name=_('Region'),
+        linkify=True,
+        accessor='_region'
+    )
+    location = tables.Column(
+        verbose_name=_('Location'),
+        linkify=True,
+        accessor='_location'
     )
     provider_network = tables.Column(
         verbose_name=_('Provider Network'),
-        linkify=True
+        linkify=True,
+        accessor='_provider_network'
     )
 
     class Meta(NetBoxTable.Meta):
         model = CircuitTermination
         fields = (
-            'pk', 'id', 'circuit', 'provider', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'pp_info', 'description', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'circuit', 'provider', 'term_side', 'termination_type', 'termination', 'site_group', 'region',
+            'site', 'location', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'description', 'created', 'last_updated', 'actions',
         )
-        default_columns = ('pk', 'id', 'circuit', 'provider', 'term_side', 'description')
+        default_columns = (
+            'pk', 'id', 'circuit', 'provider', 'term_side', 'termination_type', 'termination', 'description',
+        )
 
 
 class CircuitGroupTable(NetBoxTable):

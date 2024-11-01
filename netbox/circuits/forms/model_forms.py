@@ -1,14 +1,19 @@
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
+from circuits.constants import *
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
-from utilities.forms.widgets import DatePicker, NumberWithOptions
+from utilities.forms import get_field_value
+from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.rendering import FieldSet, InlineFields
+from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
+from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
     'CircuitForm',
@@ -144,26 +149,24 @@ class CircuitTerminationForm(NetBoxModelForm):
         queryset=Circuit.objects.all(),
         selector=True
     )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+    termination_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
+        widget=HTMXSelect(),
         required=False,
-        selector=True
+        label=_('Termination type')
     )
-    provider_network = DynamicModelChoiceField(
-        label=_('Provider network'),
-        queryset=ProviderNetwork.objects.all(),
+    termination = DynamicModelChoiceField(
+        label=_('Termination'),
+        queryset=Site.objects.none(),  # Initial queryset
         required=False,
+        disabled=True,
         selector=True
     )
 
     fieldsets = (
         FieldSet(
             'circuit', 'term_side', 'description', 'tags',
-            TabbedGroups(
-                FieldSet('site', name=_('Site')),
-                FieldSet('provider_network', name=_('Provider Network')),
-            ),
+            'termination_type', 'termination',
             'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
@@ -172,7 +175,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'site', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
+            'circuit', 'term_side', 'termination_type', 'mark_connected', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
@@ -183,6 +186,36 @@ class CircuitTerminationForm(NetBoxModelForm):
                 options=CircuitTerminationPortSpeedChoices
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.termination:
+            initial['termination'] = instance.termination
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if termination_type_id := get_field_value(self, 'termination_type'):
+            try:
+                termination_type = ContentType.objects.get(pk=termination_type_id)
+                model = termination_type.model_class()
+                self.fields['termination'].queryset = model.objects.all()
+                self.fields['termination'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['termination'].disabled = False
+                self.fields['termination'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and termination_type_id != self.instance.termination_type_id:
+                self.initial['termination'] = None
+
+    def clean(self):
+        super().clean()
+
+        # Assign the selected termination (if any)
+        self.instance.termination = self.cleaned_data.get('termination')
 
 
 class CircuitGroupForm(TenancyForm, NetBoxModelForm):

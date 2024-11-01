@@ -4,7 +4,8 @@ from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
-from ipam.models import ASN, IPAddress, RIR, VLANTranslationPolicy, VRF
+from ipam.choices import VLANQinQRoleChoices
+from ipam.models import ASN, IPAddress, RIR, VLAN, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
@@ -3527,7 +3528,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
-    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'vdcs')
+    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan', 'vdcs')
 
     @classmethod
     def setUpTestData(cls):
@@ -3683,6 +3684,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
+        vlans = (
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(name='SVLAN 2', vid=1002, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+            VLAN(name='SVLAN 3', vid=1003, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        )
+        VLAN.objects.bulk_create(vlans)
+
         vlan_translation_policies = (
             VLANTranslationPolicy(name='Policy 1'),
             VLANTranslationPolicy(name='Policy 2'),
@@ -3764,6 +3772,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 duplex='full',
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
                 poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[0],
                 vlan_translation_policy=vlan_translation_policies[1],
             ),
             Interface(
@@ -3773,7 +3783,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=InterfaceTypeChoices.TYPE_OTHER,
                 enabled=True,
                 mgmt_only=True,
-                tx_power=40
+                tx_power=40,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[1]
             ),
             Interface(
                 device=devices[4],
@@ -3782,7 +3794,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=InterfaceTypeChoices.TYPE_OTHER,
                 enabled=False,
                 mgmt_only=False,
-                tx_power=40
+                tx_power=40,
+                mode=InterfaceModeChoices.MODE_Q_IN_Q,
+                qinq_svlan=vlans[2]
             ),
             Interface(
                 device=devices[4],
@@ -4041,6 +4055,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         vdc = VirtualDeviceContext.objects.filter(device=devices, name='VDC 2')
         params = {'vdc_identifier': vdc.values_list('identifier', flat=True)}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_vlan(self):
+        vlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()
+        params = {'vlan_id': vlan.pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'vlan': vlan.vid}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_vlan_translation_policy(self):
         vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
@@ -5150,7 +5171,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
-        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', site=sites[0])
+        circuit_termination = CircuitTermination.objects.create(circuit=circuit, term_side='A', termination=sites[0])
 
         # Cables
         cables = (
@@ -5323,9 +5344,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_site(self):
         site = Site.objects.all()[:2]
         params = {'site_id': [site[0].pk, site[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
         params = {'site': [site[0].slug, site[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 12)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 11)
 
     def test_tenant(self):
         tenant = Tenant.objects.all()[:2]

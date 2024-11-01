@@ -4,6 +4,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
@@ -270,6 +271,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
             VLAN(name='VLAN 1', vid=1),
             VLAN(name='VLAN 2', vid=2),
             VLAN(name='VLAN 3', vid=3),
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -306,6 +308,12 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'vrf': vrfs[2].pk,
+            },
+            {
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Interface 7',
+                'mode': InterfaceModeChoices.MODE_Q_IN_Q,
+                'qinq_svlan': vlans[3].pk,
             },
         ]
 

@@ -527,15 +527,29 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    qinq_role = forms.ChoiceField(
+        label=_('Q-in-Q role'),
+        choices=add_blank_choice(VLANQinQRoleChoices),
+        required=False
+    )
+    qinq_svlan = DynamicModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        query_params={
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     comments = CommentField()
 
     model = VLAN
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'description'),
+        FieldSet('qinq_role', 'qinq_svlan', name=_('Q-in-Q')),
         FieldSet('region', 'site_group', 'site', 'group', name=_('Site & Group')),
     )
     nullable_fields = (
-        'site', 'group', 'tenant', 'role', 'description', 'comments',
+        'site', 'group', 'tenant', 'role', 'description', 'qinq_role', 'qinq_svlan', 'comments',
     )
 
 
