@@ -37,6 +37,8 @@ class InterfaceCommonForm(forms.Form):
             del self.fields['vlan_group']
             del self.fields['untagged_vlan']
             del self.fields['tagged_vlans']
+        if interface_mode != InterfaceModeChoices.MODE_Q_IN_Q:
+            del self.fields['qinq_svlan']
 
     def clean(self):
         super().clean()

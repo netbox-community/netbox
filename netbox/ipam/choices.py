@@ -157,6 +157,17 @@ class VLANStatusChoices(ChoiceSet):
     ]
 
 
+class VLANQinQRoleChoices(ChoiceSet):
+
+    ROLE_SERVICE = 's-vlan'
+    ROLE_CUSTOMER = 'c-vlan'
+
+    CHOICES = [
+        (ROLE_SERVICE, _('Service'), 'blue'),
+        (ROLE_CUSTOMER, _('Customer'), 'orange'),
+    ]
+
+
 #
 # Services
 #

@@ -547,16 +547,47 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
+    untagged_vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='%(class)ss_as_untagged',
+        null=True,
+        blank=True,
+        verbose_name=_('untagged VLAN')
+    )
+    tagged_vlans = models.ManyToManyField(
+        to='ipam.VLAN',
+        related_name='%(class)ss_as_tagged',
+        blank=True,
+        verbose_name=_('tagged VLANs')
+    )
+    qinq_svlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='%(class)ss_svlan',
+        null=True,
+        blank=True,
+        verbose_name=_('Q-in-Q SVLAN')
+    )
     vlan_translation_policy = models.ForeignKey(
         to='ipam.VLANTranslationPolicy',
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        verbose_name=_('VLAN Translation Policy'),
+        verbose_name=_('VLAN Translation Policy')
     )
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        super().clean()
+
+        # SVLAN can be defined only for Q-in-Q interfaces
+        if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
+            raise ValidationError({
+                'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
+            })
 
     def save(self, *args, **kwargs):
 
@@ -696,20 +727,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         related_name='interfaces',
         blank=True,
         verbose_name=_('wireless LANs')
-    )
-    untagged_vlan = models.ForeignKey(
-        to='ipam.VLAN',
-        on_delete=models.SET_NULL,
-        related_name='interfaces_as_untagged',
-        null=True,
-        blank=True,
-        verbose_name=_('untagged VLAN')
-    )
-    tagged_vlans = models.ManyToManyField(
-        to='ipam.VLAN',
-        related_name='interfaces_as_tagged',
-        blank=True,
-        verbose_name=_('tagged VLANs')
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',

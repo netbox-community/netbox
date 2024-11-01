@@ -236,7 +236,7 @@ class ServiceTemplateType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.VLAN,
-    fields='__all__',
+    exclude=('qinq_svlan',),
     filters=VLANFilter
 )
 class VLANType(NetBoxObjectType):
@@ -251,6 +251,10 @@ class VLANType(NetBoxObjectType):
     prefixes: List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]
     interfaces_as_tagged: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     vminterfaces_as_tagged: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
+
+    @strawberry_django.field
+    def qinq_svlan(self) -> Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None:
+        return self.qinq_svlan
 
 
 @strawberry_django.type(

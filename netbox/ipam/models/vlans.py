@@ -204,6 +204,21 @@ class VLAN(PrimaryModel):
         null=True,
         help_text=_("The primary function of this VLAN")
     )
+    qinq_svlan = models.ForeignKey(
+        to='self',
+        on_delete=models.PROTECT,
+        related_name='qinq_cvlans',
+        blank=True,
+        null=True
+    )
+    qinq_role = models.CharField(
+        verbose_name=_('Q-in-Q role'),
+        max_length=50,
+        choices=VLANQinQRoleChoices,
+        blank=True,
+        null=True,
+        help_text=_("Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)")
+    )
     l2vpn_terminations = GenericRelation(
         to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
@@ -214,7 +229,7 @@ class VLAN(PrimaryModel):
     objects = VLANQuerySet.as_manager()
 
     clone_fields = [
-        'site', 'group', 'tenant', 'status', 'role', 'description',
+        'site', 'group', 'tenant', 'status', 'role', 'description', 'qinq_role', 'qinq_svlan',
     ]
 
     class Meta:
@@ -227,6 +242,14 @@ class VLAN(PrimaryModel):
             models.UniqueConstraint(
                 fields=('group', 'name'),
                 name='%(app_label)s_%(class)s_unique_group_name'
+            ),
+            models.UniqueConstraint(
+                fields=('qinq_svlan', 'vid'),
+                name='%(app_label)s_%(class)s_unique_qinq_svlan_vid'
+            ),
+            models.UniqueConstraint(
+                fields=('qinq_svlan', 'name'),
+                name='%(app_label)s_%(class)s_unique_qinq_svlan_name'
             ),
         )
         verbose_name = _('VLAN')
@@ -255,8 +278,23 @@ class VLAN(PrimaryModel):
                     ).format(ranges=ranges_to_string(self.group.vid_ranges), group=self.group)
                 })
 
+        # Only Q-in-Q customer VLANs may be assigned to a service VLAN
+        if self.qinq_svlan and self.qinq_role != VLANQinQRoleChoices.ROLE_CUSTOMER:
+            raise ValidationError({
+                'qinq_svlan': _("Only Q-in-Q customer VLANs maybe assigned to a service VLAN.")
+            })
+
+        # A Q-in-Q customer VLAN must be assigned to a service VLAN
+        if self.qinq_role == VLANQinQRoleChoices.ROLE_CUSTOMER and not self.qinq_svlan:
+            raise ValidationError({
+                'qinq_role': _("A Q-in-Q customer VLAN must be assigned to a service VLAN.")
+            })
+
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)
+
+    def get_qinq_role_color(self):
+        return VLANQinQRoleChoices.colors.get(self.qinq_role)
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN
