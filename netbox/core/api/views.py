@@ -147,3 +147,17 @@ class BackgroundTaskFinishedViewSet(BaseBackgroundTaskViewSet):
 
 class BackgroundTaskStartedViewSet(BaseBackgroundTaskViewSet):
     registry = "started"
+
+
+class BackgroundTaskQueuedViewSet(BaseBackgroundTaskViewSet):
+    registry = "queued"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request, queue_name):
+        """
+        Return the UserConfig for the currently authenticated User.
+        """
+        queue = get_queue(queue_name)
+        data = queue.get_jobs()
+        serializer = serializers.BackgroundTaskSerializer(data, many=True)
+        return Response(serializer.data)

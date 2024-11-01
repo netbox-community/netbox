@@ -14,16 +14,17 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_jobs, get_statistics, stop_jobs
+from django_rq.utils import get_statistics, stop_jobs
 from rq import requeue_job
 from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
+from rq.job import Job as RQ_Job
 from rq.registry import (
-    DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, ScheduledJobRegistry, StartedJobRegistry,
+    DeferredJobRegistry, FinishedJobRegistry, ScheduledJobRegistry,
 )
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
+from core.utils import get_rq_jobs_from_status
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -347,40 +348,12 @@ class BackgroundTaskListView(TableMixin, BaseRQView):
     table = tables.BackgroundTaskTable
 
     def get_table_data(self, request, queue, status):
-        jobs = []
 
         # Call get_jobs() to returned queued tasks
         if status == RQJobStatus.QUEUED:
             return queue.get_jobs()
 
-        # For other statuses, determine the registry to list (or raise a 404 for invalid statuses)
-        try:
-            registry_cls = {
-                RQJobStatus.STARTED: StartedJobRegistry,
-                RQJobStatus.DEFERRED: DeferredJobRegistry,
-                RQJobStatus.FINISHED: FinishedJobRegistry,
-                RQJobStatus.FAILED: FailedJobRegistry,
-                RQJobStatus.SCHEDULED: ScheduledJobRegistry,
-            }[status]
-        except KeyError:
-            raise Http404
-        registry = registry_cls(queue.name, queue.connection)
-
-        job_ids = registry.get_job_ids()
-        if status != RQJobStatus.DEFERRED:
-            jobs = get_jobs(queue, job_ids, registry)
-        else:
-            # Deferred jobs require special handling
-            for job_id in job_ids:
-                try:
-                    jobs.append(RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
-                except NoSuchJobError:
-                    pass
-
-        if jobs and status == RQJobStatus.SCHEDULED:
-            for job in jobs:
-                job.scheduled_at = registry.get_scheduled_time(job)
-
+        jobs = get_rq_jobs_from_status(queue, status)
         return jobs
 
     def get(self, request, queue_index, status):

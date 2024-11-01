@@ -15,6 +15,7 @@ router.register('background-tasks/(?P<queue_name>[\w-]+)/deferred', views.Backgr
 router.register('background-tasks/(?P<queue_name>[\w-]+)/failed', views.BackgroundTaskFailedViewSet, basename='BackgroundTaskFailed')
 router.register('background-tasks/(?P<queue_name>[\w-]+)/finished', views.BackgroundTaskFinishedViewSet, basename='BackgroundTaskFinished')
 router.register('background-tasks/(?P<queue_name>[\w-]+)/started', views.BackgroundTaskStartedViewSet, basename='BackgroundTaskStarted')
+router.register('background-tasks/(?P<queue_name>[\w-]+)/queued', views.BackgroundTaskQueuedViewSet, basename='BackgroundTaskQueued')
 
 app_name = 'core-api'
 urlpatterns = router.urls
