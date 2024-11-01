@@ -1625,15 +1625,6 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
         label=_('VM interface (ID)'),
     )
 
-    # assigned_to_interface = django_filters.BooleanFilter(
-    #     method='_assigned_to_interface',
-    #     label=_('Is assigned to an interface'),
-    # )
-    # assigned = django_filters.BooleanFilter(
-    #     method='_assigned',
-    #     label=_('Is assigned'),
-    # )
-
     class Meta:
         model = MACAddress
         fields = ('id', 'description', 'interface', 'assigned_object_type', 'assigned_object_id')
@@ -1646,106 +1637,6 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
                 Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
-
-    def search_by_parent(self, queryset, name, value):
-        if not value:
-            return queryset
-        q = Q()
-        for prefix in value:
-            try:
-                query = str(netaddr.IPNetwork(prefix.strip()).cidr)
-                q |= Q(address__net_host_contained=query)
-            except (AddrFormatError, ValueError):
-                return queryset.none()
-        return queryset.filter(q)
-
-    def parse_inet_addresses(self, value):
-        '''
-        Parse networks or IP addresses and cast to a format
-        acceptable by the Postgres inet type.
-
-        Skips invalid values.
-        '''
-        parsed = []
-        for addr in value:
-            if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
-                parsed.append(addr)
-                continue
-            try:
-                network = netaddr.IPNetwork(addr)
-                parsed.append(str(network))
-            except (AddrFormatError, ValueError):
-                continue
-        return parsed
-
-    def filter_address(self, queryset, name, value):
-        # Let's first parse the addresses passed
-        # as argument. If they are all invalid,
-        # we return an empty queryset
-        value = self.parse_inet_addresses(value)
-        if (len(value) == 0):
-            return queryset.none()
-
-        try:
-            return queryset.filter(address__net_in=value)
-        except ValidationError:
-            return queryset.none()
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def filter_present_in_vrf(self, queryset, name, vrf):
-        if vrf is None:
-            return queryset.none
-        return queryset.filter(
-            Q(vrf=vrf) |
-            Q(vrf__export_targets__in=vrf.import_targets.all())
-        ).distinct()
-
-    def filter_device(self, queryset, name, value):
-        devices = Device.objects.filter(**{'{}__in'.format(name): value})
-        if not devices.exists():
-            return queryset.none()
-        interface_ids = []
-        for device in devices:
-            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-        return queryset.filter(
-            interface__in=interface_ids
-        )
-
-    def filter_virtual_machine(self, queryset, name, value):
-        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
-        if not virtual_machines.exists():
-            return queryset.none()
-        interface_ids = []
-        for vm in virtual_machines:
-            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
-        return queryset.filter(
-            vminterface__in=interface_ids
-        )
-
-    def _assigned_to_interface(self, queryset, name, value):
-        content_types = ContentType.objects.get_for_models(Interface, VMInterface).values()
-        if value:
-            return queryset.filter(
-                assigned_object_type__in=content_types,
-                assigned_object_id__isnull=False
-            )
-        else:
-            return queryset.exclude(
-                assigned_object_type__in=content_types,
-                assigned_object_id__isnull=False
-            )
-
-    def _assigned(self, queryset, name, value):
-        if value:
-            return queryset.exclude(
-                assigned_object_type__isnull=True,
-                assigned_object_id__isnull=True
-            )
-        else:
-            return queryset.filter(
-                assigned_object_type__isnull=True,
-                assigned_object_id__isnull=True
-            )
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):

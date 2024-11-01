@@ -1355,28 +1355,6 @@ class MACAddressForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
-        # Initialize primary_for_parent if IP address is already assigned
-        if self.instance.pk and self.instance.assigned_object:
-            # parent = getattr(self.instance.assigned_object, 'parent_object', None)
-            # if parent and (
-            #     self.instance.address.version == 4 and parent.primary_ip4_id == self.instance.pk or
-            #     self.instance.address.version == 6 and parent.primary_ip6_id == self.instance.pk
-            # ):
-            #     self.initial['primary_for_parent'] = True
-
-            if type(instance.assigned_object) is Interface:
-                self.fields['interface'].widget.add_query_params({
-                    'device_id': instance.assigned_object.device.pk,
-                })
-            elif type(instance.assigned_object) is VMInterface:
-                self.fields['vminterface'].widget.add_query_params({
-                    'virtual_machine_id': instance.assigned_object.virtual_machine.pk,
-                })
-
-        # Disable object assignment fields if the IP address is designated as primary
-        if self.initial.get('primary_for_parent'):
-            self.fields['interface'].disabled = True
-            self.fields['vminterface'].disabled = True
 
     def clean(self):
         super().clean()

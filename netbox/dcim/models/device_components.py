@@ -1363,20 +1363,6 @@ class MACAddress(PrimaryModel):
         blank=True,
         verbose_name=_('MAC address')
     )
-    # interface = models.ForeignKey(
-    #     to='dcim.Interface',
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    #     blank=True,
-    #     verbose_name=_('Interface')
-    # )
-    # vm_interface = models.ForeignKey(
-    #     to='virtualization.VMInterface',
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    #     blank=True,
-    #     verbose_name=_('VM Interface')
-    # )
     assigned_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
