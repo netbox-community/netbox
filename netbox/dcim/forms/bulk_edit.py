@@ -6,6 +6,7 @@ from timezone_field import TimeZoneFormField
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from virtualization.models import Cluster
 from extras.models import ConfigTemplate
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
@@ -721,6 +722,14 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
+    cluster = DynamicModelChoiceField(
+        label=_('Cluster'),
+        queryset=Cluster.objects.all(),
+        required=False,
+        query_params={
+            'site_id': ['$site', 'null']
+        },
+    )
     comments = CommentField()
 
     model = Device
@@ -729,6 +738,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('site', 'location', name=_('Location')),
         FieldSet('manufacturer', 'device_type', 'airflow', 'serial', name=_('Hardware')),
         FieldSet('config_template', name=_('Configuration')),
+        FieldSet('cluster', name=_('Virtualization')),
     )
     nullable_fields = (
         'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'comments',
