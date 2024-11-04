@@ -586,3 +586,24 @@ class TestVLANGroup(TestCase):
         vlangroup.vid_ranges = string_to_ranges('2-2')
         vlangroup.full_clean()
         vlangroup.save()
+
+
+class TestVLAN(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        VLAN.objects.bulk_create((
+            VLAN(name='VLAN 1', vid=1, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        ))
+
+    def test_qinq_role(self):
+        svlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()
+
+        vlan = VLAN(
+            name='VLAN X',
+            vid=999,
+            qinq_role=VLANQinQRoleChoices.ROLE_SERVICE,
+            qinq_svlan=svlan
+        )
+        with self.assertRaises(ValidationError):
+            vlan.full_clean()

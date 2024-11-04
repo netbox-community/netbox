@@ -4,6 +4,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
@@ -112,7 +113,8 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
             Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
             Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         cls.create_data = [
             {
@@ -156,11 +158,12 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=clustertype, site=sites[0], group=clustergroup),
-            Cluster(name='Cluster 2', type=clustertype, site=sites[1], group=clustergroup),
+            Cluster(name='Cluster 1', type=clustertype, scope=sites[0], group=clustergroup),
+            Cluster(name='Cluster 2', type=clustertype, scope=sites[1], group=clustergroup),
             Cluster(name='Cluster 3', type=clustertype),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         device1 = create_test_device('device1', site=sites[0], cluster=clusters[0])
         device2 = create_test_device('device2', site=sites[1], cluster=clusters[1])
@@ -270,6 +273,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
             VLAN(name='VLAN 1', vid=1),
             VLAN(name='VLAN 2', vid=2),
             VLAN(name='VLAN 3', vid=3),
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -306,6 +310,12 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
                 'tagged_vlans': [vlans[0].pk, vlans[1].pk],
                 'untagged_vlan': vlans[2].pk,
                 'vrf': vrfs[2].pk,
+            },
+            {
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Interface 7',
+                'mode': InterfaceModeChoices.MODE_Q_IN_Q,
+                'qinq_svlan': vlans[3].pk,
             },
         ]
 

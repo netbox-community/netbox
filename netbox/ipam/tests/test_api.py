@@ -980,6 +980,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
             VLAN(name='VLAN 1', vid=1, group=vlan_groups[0]),
             VLAN(name='VLAN 2', vid=2, group=vlan_groups[0]),
             VLAN(name='VLAN 3', vid=3, group=vlan_groups[0]),
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -998,6 +999,12 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
                 'vid': 6,
                 'name': 'VLAN 6',
                 'group': vlan_groups[1].pk,
+            },
+            {
+                'vid': 2001,
+                'name': 'CVLAN 1',
+                'qinq_role': VLANQinQRoleChoices.ROLE_CUSTOMER,
+                'qinq_svlan': vlans[3].pk,
             },
         ]
 

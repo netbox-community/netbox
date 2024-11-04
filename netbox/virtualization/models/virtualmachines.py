@@ -181,7 +181,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
             })
 
         # Validate site for cluster & VM
-        if self.cluster and self.site and self.cluster.site and self.cluster.site != self.site:
+        if self.cluster and self.site and self.cluster._site and self.cluster._site != self.site:
             raise ValidationError({
                 'cluster': _(
                     'The selected cluster ({cluster}) is not assigned to this site ({site}).'
@@ -238,7 +238,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 
         # Assign site from cluster if not set
         if self.cluster and not self.site:
-            self.site = self.cluster.site
+            self.site = self.cluster._site
 
         super().save(*args, **kwargs)
 
@@ -321,20 +321,6 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         naturalize_function=naturalize_interface,
         max_length=100,
         blank=True
-    )
-    untagged_vlan = models.ForeignKey(
-        to='ipam.VLAN',
-        on_delete=models.SET_NULL,
-        related_name='vminterfaces_as_untagged',
-        null=True,
-        blank=True,
-        verbose_name=_('untagged VLAN')
-    )
-    tagged_vlans = models.ManyToManyField(
-        to='ipam.VLAN',
-        related_name='vminterfaces_as_tagged',
-        blank=True,
-        verbose_name=_('tagged VLANs')
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
