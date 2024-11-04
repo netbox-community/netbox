@@ -1,7 +1,8 @@
+from django.contrib.contenttypes.models import ContentType
 from wireless.choices import *
 from wireless.models import *
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
-from dcim.models import Interface
+from dcim.models import Interface, Site
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
@@ -56,6 +57,12 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -98,6 +105,8 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ssid': 'WLAN2',
             'group': groups[1].pk,
             'status': WirelessLANStatusChoices.STATUS_DISABLED,
+            'scope_type': ContentType.objects.get_for_model(Site).pk,
+            'scope': sites[1].pk,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }
