@@ -28,7 +28,7 @@ class WirelessLANGroupType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.WirelessLAN,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_sitegroup'),
+    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
     filters=WirelessLANFilter
 )
 class WirelessLANType(NetBoxObjectType):
