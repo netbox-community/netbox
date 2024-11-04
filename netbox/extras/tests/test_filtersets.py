@@ -1167,6 +1167,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'tunnelgroup',
         'tunneltermination',
         'virtualchassis',
+        'virtualcircuit',
+        'virtualcircuittermination',
         'virtualdevicecontext',
         'virtualdisk',
         'virtualmachine',

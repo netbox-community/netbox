@@ -404,3 +404,103 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
             Q(circuit__cid__icontains=value) |
             Q(group__name__icontains=value)
         )
+
+
+class VirtualCircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_network__provider',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_network__provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
+    )
+    provider_account_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_account',
+        queryset=ProviderAccount.objects.all(),
+        label=_('Provider account (ID)'),
+    )
+    provider_account = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_account__account',
+        queryset=Provider.objects.all(),
+        to_field_name='account',
+        label=_('Provider account (account)'),
+    )
+    provider_network_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProviderNetwork.objects.all(),
+        label=_('Provider network (ID)'),
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=CircuitStatusChoices,
+        null_value=None
+    )
+
+    class Meta:
+        model = VirtualCircuit
+        fields = ('id', 'cid', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(cid__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        ).distinct()
+
+
+class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    virtual_circuit_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VirtualCircuit.objects.all(),
+        label=_('Virtual circuit'),
+    )
+    role = django_filters.MultipleChoiceFilter(
+        choices=VirtualCircuitTerminationRoleChoices,
+        null_value=None
+    )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit__provider_network__provider',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit__provider_network__provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
+    )
+    provider_account_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit__provider_account',
+        queryset=ProviderAccount.objects.all(),
+        label=_('Provider account (ID)'),
+    )
+    provider_account = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit__provider_account__account',
+        queryset=Provider.objects.all(),
+        to_field_name='account',
+        label=_('Provider account (account)'),
+    )
+    provider_network_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ProviderNetwork.objects.all(),
+        field_name='virtual_circuit__provider_network',
+        label=_('Provider network (ID)'),
+    )
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = ('id', 'interface_id')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(circuit__cid__icontains=value) |
+            Q(description__icontains=value)
+        ).distinct()
