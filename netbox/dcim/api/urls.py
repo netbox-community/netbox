@@ -42,6 +42,7 @@ router.register('virtual-device-contexts', views.VirtualDeviceContextViewSet)
 router.register('modules', views.ModuleViewSet)
 
 # Device components
+router.register('mac-addresses', views.MACAddressViewSet)
 router.register('console-ports', views.ConsolePortViewSet)
 router.register('console-server-ports', views.ConsoleServerPortViewSet)
 router.register('power-ports', views.PowerPortViewSet)

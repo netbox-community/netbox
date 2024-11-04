@@ -408,6 +408,12 @@ class ModuleViewSet(NetBoxModelViewSet):
 # Device components
 #
 
+class MACAddressViewSet(NetBoxModelViewSet):
+    queryset = MACAddress.objects.all()
+    serializer_class = serializers.MACAddressSerializer
+    filterset_class = filtersets.MACAddressFilterSet
+
+
 class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = ConsolePort.objects.prefetch_related(
         '_path', 'cable__terminations',
