@@ -52,6 +52,19 @@ class ComponentCreateForm(forms.Form):
     # ComponentCreateView when creating objects.
     replication_fields = ('name', 'label')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Components attached to a module need to present this standardized substitution help text.
+        if 'module' in self.fields:
+            help_text_parts = []
+            if self.fields['name'].help_text:
+                help_text_parts.append(self.fields['name'].help_text)
+            help_text_parts.append(_(
+                "The string <code>{module}</code> will be replaced with the position of the assigned module, if any."
+            ))
+            self.fields['name'].help_text = ' '.join([str(x) for x in help_text_parts])
+
     def clean(self):
         super().clean()
 
@@ -242,14 +255,6 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 
     class Meta(model_forms.InterfaceForm.Meta):
         exclude = ('name', 'label')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if 'module' in self.fields:
-            self.fields['name'].help_text += _(
-                "The string <code>{module}</code> will be replaced with the position of the assigned module, if any."
-            )
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
