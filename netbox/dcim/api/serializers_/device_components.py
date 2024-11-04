@@ -168,7 +168,7 @@ class MACAddressSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = MACAddress
-        fields = ['mac_address',]
+        fields = ['mac_address', 'is_primary']
         brief_fields = ('mac_address',)
 
 
@@ -226,6 +226,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         allow_null=True,
         read_only=True
     )
+    mac_addresses = MACAddressSerializer(many=True, read_only=True)
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
 
     class Meta:
@@ -238,6 +239,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'cable', 'cable_end', 'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf',
             'l2vpn_termination', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
             'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'mac_addresses',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
