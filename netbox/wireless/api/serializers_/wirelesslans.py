@@ -5,6 +5,7 @@ from ipam.api.serializers_.vlans import VLANSerializer
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
+from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .nested import NestedWirelessLANGroupSerializer
