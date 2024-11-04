@@ -56,3 +56,7 @@ The tagged VLANs which are configured to be carried by this interface. Valid onl
 ### VRF
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
+
+### VLAN Translation Policy
+
+The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

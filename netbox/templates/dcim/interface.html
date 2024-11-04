@@ -133,6 +133,10 @@
             <th scope="row">{% trans "VRF" %}</th>
             <td>{{ object.vrf|linkify|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "VLAN Translation" %}</th>
+            <td>{{ object.vlan_translation_policy|linkify|placeholder }}</td>
+          </tr>
         </table>
       </div>
       {% if not object.is_virtual %}
@@ -355,6 +359,13 @@
       {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
   </div>
+  {% if object.vlan_translation_policy %}
+    <div class="row mb-3">
+      <div class="col col-md-12">
+        {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation" %}
+      </div>
+    </div>
+  {% endif %}
   {% if object.is_bridge %}
     <div class="row mb-3">
       <div class="col col-md-12">

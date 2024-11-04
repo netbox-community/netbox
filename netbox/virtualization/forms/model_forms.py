@@ -4,19 +4,18 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
+from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
-from ipam.models import IPAddress, VLAN, VLANGroup, VRF
-from netbox.forms import NetBoxModelForm, ScopedForm
+from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.fields import ContentTypeChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 from virtualization.models import *
 
 __all__ = (
@@ -68,19 +67,6 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
         label=_('Group'),
         queryset=ClusterGroup.objects.all(),
         required=False
-    )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CLUSTER_SCOPE_TYPES),
-        widget=HTMXSelect(),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
     )
     comments = CommentField()
 
@@ -353,20 +339,25 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         required=False,
         label=_('VRF')
     )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
         FieldSet('vrf', 'mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vlan_translation_policy', name=_('802.1Q Switching')),
     )
 
     class Meta:
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'tags', 'vlan_translation_policy',
         ]
         labels = {
             'mode': '802.1Q Mode',

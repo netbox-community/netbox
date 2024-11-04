@@ -1020,6 +1020,112 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
         self.assertTrue(content['detail'].startswith('Unable to delete object.'))
 
 
+class VLANTranslationPolicyTest(APIViewTestCases.APIViewTestCase):
+    model = VLANTranslationPolicy
+    brief_fields = ['description', 'display', 'id', 'name', 'url',]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar3',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        cls.create_data = [
+            {
+                'name': 'Policy 4',
+                'description': 'foobar4',
+            },
+            {
+                'name': 'Policy 5',
+                'description': 'foobar5',
+            },
+            {
+                'name': 'Policy 6',
+                'description': 'foobar6',
+            },
+        ]
+
+
+class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
+    model = VLANTranslationRule
+    brief_fields = ['id', 'local_vid', 'policy', 'remote_vid',]
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        vlan_translation_rules = (
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=100,
+                remote_vid=200,
+                description='foo',
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=101,
+                remote_vid=201,
+                description='bar',
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[1],
+                local_vid=102,
+                remote_vid=202,
+                description='baz',
+            ),
+        )
+        VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
+
+        cls.create_data = [
+            {
+                'policy': vlan_translation_policies[0].pk,
+                'local_vid': 300,
+                'remote_vid': 400,
+            },
+            {
+                'policy': vlan_translation_policies[0].pk,
+                'local_vid': 301,
+                'remote_vid': 401,
+            },
+            {
+                'policy': vlan_translation_policies[1].pk,
+                'local_vid': 302,
+                'remote_vid': 402,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'policy': vlan_translation_policies[1].pk,
+        }
+
+
 class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'ports', 'protocol', 'url']

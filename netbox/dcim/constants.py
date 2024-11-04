@@ -123,3 +123,8 @@ COMPATIBLE_TERMINATION_TYPES = {
     'powerport': ['poweroutlet', 'powerfeed'],
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
 }
+
+# models values for ContentTypes which may be Cluster scope types
+LOCATION_SCOPE_TYPES = (
+    'region', 'sitegroup', 'site', 'location',
+)

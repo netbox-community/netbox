@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -9,7 +9,6 @@ from dcim.models.mixins import CachedScopeMixin
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from virtualization.choices import *
-from virtualization.constants import CLUSTER_SCOPE_TYPES
 
 __all__ = (
     'Cluster',
@@ -78,22 +77,6 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
         related_name='clusters',
         blank=True,
         null=True
-    )
-    scope_type = models.ForeignKey(
-        to='contenttypes.ContentType',
-        on_delete=models.PROTECT,
-        limit_choices_to=models.Q(model__in=CLUSTER_SCOPE_TYPES),
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    scope_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    scope = GenericForeignKey(
-        ct_field='scope_type',
-        fk_field='scope_id'
     )
 
     # Generic relations

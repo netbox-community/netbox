@@ -1,18 +1,19 @@
 {% load helpers %}
 {% load i18n %}
 
-{% if termination.site %}
   <tr>
-    <th scope="row">{% trans "Site" %}</th>
-    <td>
-      {% if termination.site.region %}
-        {{ termination.site.region|linkify }} /
-      {% endif %}
-      {{ termination.site|linkify }}
-    </td>
+    <th scope="row">{% trans "Termination point" %}</th>
+    {% if termination.termination %}
+      <td>
+        {{ termination.termination|linkify }}
+        <div class="fs-5 text-muted">{% trans termination.termination_type.name|bettertitle %}</div>
+      </td>
+    {% else %}
+      <td>{{ ''|placeholder }}</td>
+    {% endif %}
   </tr>
   <tr>
-    <th scope="row">{% trans "Termination" %}</th>
+    <th scope="row">{% trans "Connection" %}</th>
     <td>
       {% if termination.mark_connected %}
         <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
@@ -57,12 +58,6 @@
       {% endif %}
     </td>
   </tr>
-{% else %}
-  <tr>
-    <th scope="row">{% trans "Provider Network" %}</th>
-    <td>{{ termination.provider_network.provider|linkify }} / {{ termination.provider_network|linkify }}</td>
-  </tr>
-{% endif %}
   <tr>
       <th scope="row">{% trans "Speed" %}</th>
       <td>

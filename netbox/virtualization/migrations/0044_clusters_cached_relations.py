@@ -4,24 +4,24 @@ from django.db import migrations, models
 
 def populate_denormalized_fields(apps, schema_editor):
     """
-    Copy site ForeignKey values to the scope GFK.
+    Copy the denormalized fields for _region, _site_group and _site from existing site field.
     """
     Cluster = apps.get_model('virtualization', 'Cluster')
 
     clusters = Cluster.objects.filter(site__isnull=False).prefetch_related('site')
     for cluster in clusters:
         cluster._region_id = cluster.site.region_id
-        cluster._sitegroup_id = cluster.site.group_id
+        cluster._site_group_id = cluster.site.group_id
         cluster._site_id = cluster.site_id
         # Note: Location cannot be set prior to migration
 
-    Cluster.objects.bulk_update(clusters, ['_region', '_sitegroup', '_site'])
+    Cluster.objects.bulk_update(clusters, ['_region', '_site_group', '_site'])
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('virtualization', '0042_cluster_scope'),
+        ('virtualization', '0043_cluster_scope'),
     ]
 
     operations = [
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='cluster',
-            name='_sitegroup',
+            name='_site_group',
             field=models.ForeignKey(
                 blank=True,
                 null=True,
