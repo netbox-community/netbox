@@ -1,19 +1,17 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
-from dcim.models import Site
+from dcim.forms.mixins import ScopedBulkEditForm
 from ipam.models import VLAN
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import HTMXSelect
 from wireless.choices import *
-from wireless.constants import WIRELESSLAN_SCOPE_TYPES, SSID_MAX_LENGTH
+from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *
 
 __all__ = (
@@ -42,7 +40,7 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('parent', 'description')
 
 
-class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
+class WirelessLANBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(WirelessLANStatusChoices),
@@ -81,19 +79,6 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
     auth_psk = forms.CharField(
         required=False,
         label=_('Pre-shared key')
-    )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=WIRELESSLAN_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
     )
     description = forms.CharField(
         label=_('Description'),
