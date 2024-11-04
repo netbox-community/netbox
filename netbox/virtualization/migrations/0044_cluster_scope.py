@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('virtualization', '0042_vminterface_vlan_translation_policy'),
+        ('virtualization', '0043_qinq_svlan'),
     ]
 
     operations = [

@@ -124,7 +124,7 @@ COMPATIBLE_TERMINATION_TYPES = {
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
 }
 
-# models values for ContentTypes which may be Cluster scope types
+# Models which can serve to scope an object by location
 LOCATION_SCOPE_TYPES = (
     'region', 'sitegroup', 'site', 'location',
 )

@@ -11,6 +11,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
+from .nested import NestedVLANSerializer
 from .roles import RoleSerializer
 
 __all__ = (
@@ -64,6 +65,8 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = RoleSerializer(nested=True, required=False, allow_null=True)
+    qinq_role = ChoiceField(choices=VLANQinQRoleChoices, required=False)
+    qinq_svlan = NestedVLANSerializer(required=False, allow_null=True, default=None)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
 
     # Related object counts
@@ -73,8 +76,8 @@ class VLANSerializer(NetBoxModelSerializer):
         model = VLAN
         fields = [
             'id', 'url', 'display_url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role',
-            'description', 'comments', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated',
-            'prefix_count',
+            'description', 'qinq_role', 'qinq_svlan', 'comments', 'l2vpn_termination', 'tags', 'custom_fields',
+            'created', 'last_updated', 'prefix_count',
         ]
         brief_fields = ('id', 'url', 'display', 'vid', 'name', 'description')
 

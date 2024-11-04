@@ -1,15 +1,13 @@
-from django.contrib.contenttypes.models import ContentType
 from django.forms import PasswordInput
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Location, Site
+from dcim.forms.mixins import ScopedForm
 from ipam.models import VLAN
-from netbox.forms import NetBoxModelForm, ScopedForm
+from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, SlugField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, InlineFields
-from utilities.forms.widgets import HTMXSelect
-from wireless.constants import WIRELESSLAN_SCOPE_TYPES
 from wireless.models import *
 
 __all__ = (
@@ -49,19 +47,6 @@ class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
         required=False,
         selector=True,
         label=_('VLAN')
-    )
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=WIRELESSLAN_SCOPE_TYPES),
-        widget=HTMXSelect(),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
     )
     comments = CommentField()
 

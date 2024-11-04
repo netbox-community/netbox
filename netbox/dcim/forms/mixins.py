@@ -15,6 +15,7 @@ from utilities.forms.widgets import HTMXSelect
 __all__ = (
     'ScopedBulkEditForm',
     'ScopedForm',
+    'ScopedImportForm',
 )
 
 

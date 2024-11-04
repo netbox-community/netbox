@@ -89,6 +89,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         required=False,
         many=True
     )
+    qinq_svlan = VLANSerializer(nested=True, required=False, allow_null=True)
     vlan_translation_policy = VLANTranslationPolicySerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
@@ -104,9 +105,9 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         model = VMInterface
         fields = [
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
-            'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination',
-            'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
-            'vlan_translation_policy',
+            'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
+            'vlan_translation_policy', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated',
+            'count_ipaddresses', 'count_fhrp_groups',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
