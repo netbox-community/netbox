@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
-from dcim.models import Interface, Region, Site, SiteGroup
+from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
@@ -133,6 +133,13 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Site.objects.bulk_create(sites)
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -163,7 +170,7 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
                 auth_psk='PSK2',
                 description='foobar2',
-                scope=sites[1]
+                scope=locations[0]
             ),
             WirelessLAN(
                 ssid='WLAN3',
@@ -175,7 +182,7 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
                 auth_psk='PSK3',
                 description='foobar3',
-                scope=sites[2]
+                scope=locations[1]
             ),
         )
         for wireless_lan in wireless_lans:
@@ -263,6 +270,18 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:1]
+        params = {'location_id': [locations[0].pk,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'location': [locations[0].slug,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+    def test_scope_type(self):
+        params = {'scope_type': 'dcim.location'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
