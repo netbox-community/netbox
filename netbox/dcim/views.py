@@ -2556,12 +2556,6 @@ class MACAddressView(generic.ObjectView):
     queryset = MACAddress.objects.all()
 
 
-# class MACAddressCreateView(generic.ComponentCreateView):
-#     queryset = MACAddress.objects.all()
-#     form = forms.MACAddressForm
-#     model_form = forms.MACAddressForm
-
-
 @register_model_view(MACAddress, 'edit')
 class MACAddressEditView(generic.ObjectEditView):
     queryset = MACAddress.objects.all()
@@ -2571,14 +2565,6 @@ class MACAddressEditView(generic.ObjectEditView):
 @register_model_view(MACAddress, 'delete')
 class MACAddressDeleteView(generic.ObjectDeleteView):
     queryset = MACAddress.objects.all()
-
-
-class MACAddressBulkCreateView(generic.BulkCreateView):
-    queryset = MACAddress.objects.all()
-    form = forms.MACAddressBulkCreateForm
-    model_form = forms.MACAddressBulkAddForm
-    pattern_target = 'mac_address'
-    template_name = 'dcim/macaddress_bulk_add.html'
 
 
 class MACAddressBulkImportView(generic.BulkImportView):

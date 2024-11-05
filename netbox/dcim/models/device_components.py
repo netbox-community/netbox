@@ -1385,8 +1385,9 @@ class MACAddress(PrimaryModel):
     )
 
     class Meta:
+        ordering = ('mac_address',)
         verbose_name = _('MAC address')
         verbose_name_plural = _('MAC addresses')
 
     def __str__(self):
-        return str(self.mac_address)
+        return f'{str(self.mac_address)} {self.assigned_object}'

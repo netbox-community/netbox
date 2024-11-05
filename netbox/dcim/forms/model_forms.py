@@ -44,7 +44,6 @@ __all__ = (
     'InventoryItemTemplateForm',
     'LocationForm',
     'MACAddressForm',
-    'MACAddressBulkAddForm',
     'ManufacturerForm',
     'ModuleForm',
     'ModuleBayForm',
@@ -1383,15 +1382,6 @@ class MACAddressForm(NetBoxModelForm):
             self.add_error(
                 'is_primary', _("Only IP addresses assigned to an interface can be designated as primary IPs.")
             )
-
-
-class MACAddressBulkAddForm(NetBoxModelForm):
-
-    class Meta:
-        model = MACAddress
-        fields = [
-            'mac_address', 'description', 'tags',
-        ]
 
 
 class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):

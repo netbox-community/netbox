@@ -253,7 +253,6 @@ urlpatterns = [
     # MAC addresses
     path('mac-addresses/', views.MACAddressListView.as_view(), name='macaddress_list'),
     path('mac-addresses/add/', views.MACAddressEditView.as_view(), name='macaddress_add'),
-    path('mac-addresses/bulk-add/', views.MACAddressBulkCreateView.as_view(), name='macaddress_bulk_add'),
     path('mac-addresses/import/', views.MACAddressBulkImportView.as_view(), name='macaddress_import'),
     path('mac-addresses/edit/', views.MACAddressBulkEditView.as_view(), name='macaddress_bulk_edit'),
     path('mac-addresses/rename/', views.MACAddressBulkRenameView.as_view(), name='macaddress_bulk_rename'),

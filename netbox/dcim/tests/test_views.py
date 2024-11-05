@@ -2554,7 +2554,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
             'enabled': True,
             'lag': interfaces[3].pk,
-            # 'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
             'speed': 1000000,
