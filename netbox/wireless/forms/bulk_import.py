@@ -80,7 +80,7 @@ class WirelessLANImportForm(ScopedImportForm, NetBoxModelImportForm):
             'description', 'comments', 'tags',
         )
         labels = {
-            'scope_id': 'Scope ID',
+            'scope_id': _('Scope ID'),
         }
 
 

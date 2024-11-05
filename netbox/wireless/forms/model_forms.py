@@ -71,7 +71,6 @@ class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
         }
 
 
-
 class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),

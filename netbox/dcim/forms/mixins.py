@@ -96,6 +96,7 @@ class ScopedBulkEditForm(forms.Form):
             except ObjectDoesNotExist:
                 pass
 
+
 class ScopedImportForm(forms.Form):
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),

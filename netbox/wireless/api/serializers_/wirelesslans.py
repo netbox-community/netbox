@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
+from dcim.constants import LOCATION_SCOPE_TYPES
+from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from ipam.api.serializers_.vlans import VLANSerializer
-from netbox.api.fields import ChoiceField
+from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
@@ -36,6 +38,14 @@ class WirelessLANSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
+    scope_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            model__in=LOCATION_SCOPE_TYPES
+        ),
+        allow_null=True,
+        required=False,
+        default=None
+    )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
 
