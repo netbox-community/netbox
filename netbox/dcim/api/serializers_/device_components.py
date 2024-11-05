@@ -6,7 +6,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
-    RearPort, VirtualDeviceContext, MACAddress,
+    RearPort, VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
@@ -21,7 +21,7 @@ from wireless.choices import *
 from wireless.models import WirelessLAN
 from .base import ConnectedEndpointsSerializer
 from .cables import CabledObjectSerializer
-from .devices import DeviceSerializer, ModuleSerializer, VirtualDeviceContextSerializer
+from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
@@ -33,7 +33,6 @@ __all__ = (
     'FrontPortSerializer',
     'InterfaceSerializer',
     'InventoryItemSerializer',
-    'MACAddressSerializer',
     'ModuleBaySerializer',
     'PowerOutletSerializer',
     'PowerPortSerializer',
@@ -162,14 +161,6 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
             'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
-
-
-class MACAddressSerializer(NetBoxModelSerializer):
-
-    class Meta:
-        model = MACAddress
-        fields = ['mac_address', 'is_primary']
-        brief_fields = ('mac_address',)
 
 
 class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):

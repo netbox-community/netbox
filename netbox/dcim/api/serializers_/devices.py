@@ -5,7 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.models import Device, DeviceBay, Module, VirtualDeviceContext
+from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
@@ -23,6 +23,7 @@ from .virtualchassis import VirtualChassisSerializer
 __all__ = (
     'DeviceSerializer',
     'DeviceWithConfigContextSerializer',
+    'MACAddressSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
 )
@@ -153,3 +154,11 @@ class ModuleSerializer(NetBoxModelSerializer):
             'asset_tag', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
+
+
+class MACAddressSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = MACAddress
+        fields = ['mac_address', 'is_primary']
+        brief_fields = ('mac_address',)
