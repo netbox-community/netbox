@@ -9,6 +9,7 @@ router.register('data-sources', views.DataSourceViewSet)
 router.register('data-files', views.DataFileViewSet)
 router.register('jobs', views.JobViewSet)
 router.register('object-changes', views.ObjectChangeViewSet)
+router.register('background-workers', views.BackgroundWorkerViewSet, basename='BackgroundWorkers')
 router.register('background-queues', views.BackgroundQueueViewSet, basename='BackgroundQueues')
 router.register('background-tasks/(?P<queue_name>[\w-]+)', views.BackgroundTaskViewSet, basename='BackgroundTasks')
 router.register('background-tasks/(?P<queue_name>[\w-]+)/deferred', views.BackgroundTaskDeferredViewSet, basename='BackgroundTaskDeferred')
@@ -16,6 +17,7 @@ router.register('background-tasks/(?P<queue_name>[\w-]+)/failed', views.Backgrou
 router.register('background-tasks/(?P<queue_name>[\w-]+)/finished', views.BackgroundTaskFinishedViewSet, basename='BackgroundTaskFinished')
 router.register('background-tasks/(?P<queue_name>[\w-]+)/started', views.BackgroundTaskStartedViewSet, basename='BackgroundTaskStarted')
 router.register('background-tasks/(?P<queue_name>[\w-]+)/queued', views.BackgroundTaskQueuedViewSet, basename='BackgroundTaskQueued')
+router.register('background-tasks/(?P<queue_name>[\w-]+)/workers', views.BackgroundTaskWorkerViewSet, basename='BackgroundTaskWorkers')
 
 app_name = 'core-api'
 urlpatterns = router.urls

@@ -3,6 +3,7 @@ from rest_framework import serializers
 __all__ = (
     'BackgroundTaskSerializer',
     'BackgroundQueueSerializer',
+    'BackgroundWorkerSerializer',
 )
 
 
@@ -10,12 +11,22 @@ class BackgroundTaskSerializer(serializers.Serializer):
     id = serializers.CharField()
     description = serializers.CharField()
     origin = serializers.CharField()
+    func_name = serializers.CharField()
+    args = serializers.ListField(child=serializers.CharField())
+    kwargs = serializers.DictField()
+    result = serializers.CharField()
+    timeout = serializers.IntegerField()
+    result_ttl = serializers.IntegerField()
+    created_at = serializers.CharField()
     enqueued_at = serializers.CharField()
     started_at = serializers.CharField()
     ended_at = serializers.DictField()
     worker_name = serializers.DictField()
     position = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    meta = serializers.DictField()
+    last_heartbeat = serializers.CharField()
+
     is_finished = serializers.BooleanField()
     is_queued = serializers.BooleanField()
     is_failed = serializers.BooleanField()
@@ -45,3 +56,17 @@ class BackgroundQueueSerializer(serializers.Serializer):
     deferred_jobs = serializers.IntegerField()
     failed_jobs = serializers.IntegerField()
     scheduled_jobs = serializers.IntegerField()
+
+
+class BackgroundWorkerSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    state = serializers.SerializerMethodField()
+    birth_date = serializers.CharField()
+    queue_names = serializers.ListField(child=serializers.CharField())
+    pid = serializers.CharField()
+    successful_job_count = serializers.IntegerField()
+    failed_job_count = serializers.IntegerField()
+    total_working_time = serializers.IntegerField()
+
+    def get_state(self, obj):
+        return obj.get_state()

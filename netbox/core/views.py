@@ -17,7 +17,7 @@ from django_rq.settings import QUEUES_MAP, QUEUES_LIST
 from django_rq.utils import get_statistics, stop_jobs
 from rq import requeue_job
 from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job
+from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
 from rq.registry import (
     DeferredJobRegistry, FinishedJobRegistry, ScheduledJobRegistry,
 )
