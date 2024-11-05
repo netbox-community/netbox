@@ -10,9 +10,9 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MACAddressField, WWNField
+from dcim.fields import WWNField
 from netbox.choices import ColorChoices
-from netbox.models import OrganizationalModel, NetBoxModel, PrimaryModel
+from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -31,7 +31,6 @@ __all__ = (
     'Interface',
     'InventoryItem',
     'InventoryItemRole',
-    'MACAddress',
     'ModuleBay',
     'PathEndpoint',
     'PowerOutlet',
@@ -1355,39 +1354,3 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     def get_status_color(self):
         return InventoryItemStatusChoices.colors.get(self.status)
-
-
-class MACAddress(PrimaryModel):
-    mac_address = MACAddressField(
-        null=True,
-        blank=True,
-        verbose_name=_('MAC address')
-    )
-    assigned_object_type = models.ForeignKey(
-        to='contenttypes.ContentType',
-        limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
-        on_delete=models.PROTECT,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    assigned_object_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
-    assigned_object = GenericForeignKey(
-        ct_field='assigned_object_type',
-        fk_field='assigned_object_id'
-    )
-    is_primary = models.BooleanField(
-        verbose_name=_('is primary for interface'),
-        default=False
-    )
-
-    class Meta:
-        ordering = ('mac_address',)
-        verbose_name = _('MAC address')
-        verbose_name_plural = _('MAC addresses')
-
-    def __str__(self):
-        return f'{str(self.mac_address)} {self.assigned_object}'

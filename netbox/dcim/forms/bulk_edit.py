@@ -1275,6 +1275,28 @@ class InventoryItemTemplateBulkEditForm(BulkEditForm):
 
 
 #
+# Addressing
+#
+
+class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = MACAddress
+    fieldsets = (
+        FieldSet('description'),
+        # FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
+    )
+    nullable_fields = (
+        'description', 'comments',
+    )
+
+
+#
 # Device components
 #
 
@@ -1388,24 +1410,6 @@ class PowerOutletBulkEditForm(
         else:
             self.fields['power_port'].choices = ()
             self.fields['power_port'].widget.attrs['disabled'] = True
-
-
-class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
-
-    model = MACAddress
-    fieldsets = (
-        FieldSet('description'),
-        # FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
-    )
-    nullable_fields = (
-        'description', 'comments',
-    )
 
 
 class InterfaceBulkEditForm(

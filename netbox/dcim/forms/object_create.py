@@ -23,7 +23,6 @@ __all__ = (
     'InventoryItemCreateForm',
     'InventoryItemTemplateCreateForm',
     'ModuleBayCreateForm',
-    # 'MACAddressCreateForm',
     'ModuleBayTemplateCreateForm',
     'PowerOutletCreateForm',
     'PowerOutletTemplateCreateForm',
@@ -237,12 +236,6 @@ class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
 
     class Meta(model_forms.PowerOutletForm.Meta):
         exclude = ('name', 'label')
-
-
-# class MACAddressCreateForm(ComponentCreateForm, model_forms.MACAddressForm):
-#
-#     class Meta(model_forms.MACAddressForm.Meta):
-#         exclude = ('name', 'label')
 
 
 class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
