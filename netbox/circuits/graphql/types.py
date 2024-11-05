@@ -129,7 +129,7 @@ class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     fields='__all__',
     filters=VirtualCircuitTerminationFilter
 )
-class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
+class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     virtual_circuit: Annotated["VirtualCircuitType", strawberry.lazy('circuits.graphql.types')]
     interface: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]
 
@@ -144,4 +144,4 @@ class VirtualCircuitType(NetBoxObjectType):
     provider_account: ProviderAccountType | None
     tenant: TenantType | None
 
-    virtual_terminations: List[VirtualCircuitTerminationType]
+    terminations: List[VirtualCircuitTerminationType]

@@ -190,4 +190,4 @@ class VirtualCircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSer
             'id', 'url', 'display_url', 'display', 'virtual_circuit', 'role', 'interface', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'virtual_circuit', 'role', 'interface')
+        brief_fields = ('id', 'url', 'display', 'virtual_circuit', 'role', 'interface', 'description')
