@@ -6,7 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from rest_framework.views import APIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from core import filtersets
 from core.choices import DataSourceStatusChoices
@@ -20,7 +21,6 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from rest_framework.permissions import IsAdminUser
 from rq.worker import Worker
-from rq.worker_registration import clean_worker_registry
 from . import serializers
 
 
@@ -82,21 +82,20 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     filterset_class = filtersets.ObjectChangeFilterSet
 
 
-class BackgroundQueueViewSet(ViewSet):
-    serializer_class = serializers.BackgroundQueueSerializer
+class QueueListView(APIView):
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
-        return "BackgroundQueueViewSet"
+        return "Background Queues"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request):
+    def get(self, request, format=None):
         data = get_statistics(run_maintenance_tasks=True)["queues"]
         serializer = serializers.BackgroundQueueSerializer(data, many=True)
         return Response(serializer.data)
 
 
-class BackgroundWorkerViewSet(ViewSet):
+class WorkerListView(APIView):
     serializer_class = serializers.BackgroundQueueSerializer
     permission_classes = [IsAdminUser]
 
@@ -104,7 +103,7 @@ class BackgroundWorkerViewSet(ViewSet):
         return "Background Workers"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request):
+    def get(self, request, format=None):
         # all the RQ queues should use the same connection
         config = QUEUES_LIST[0]
         workers = Worker.all(get_redis_connection(config['connection_config']))
@@ -112,15 +111,15 @@ class BackgroundWorkerViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class BackgroundTaskViewSet(ViewSet):
+class TaskListView(APIView):
     serializer_class = serializers.BackgroundTaskSerializer
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
-        return "BackgroundTaskViewSet"
+        return "Background Tasks"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request, queue_name):
+    def get(self, request, format=None):
         """
         Return the UserConfig for the currently authenticated User.
         """
@@ -130,7 +129,7 @@ class BackgroundTaskViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class BaseBackgroundTaskViewSet(ViewSet):
+class BaseTaskView(APIView):
     serializer_class = serializers.BackgroundTaskSerializer
     permission_classes = [IsAdminUser]
     registry = None
@@ -139,67 +138,50 @@ class BaseBackgroundTaskViewSet(ViewSet):
         return "Background Tasks"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request, queue_name):
+    def get(self, request, queue_name, format=None):
         queue = get_queue(queue_name)
         data = get_rq_jobs_from_status(queue, self.registry)
         serializer = serializers.BackgroundTaskSerializer(data, many=True)
         return Response(serializer.data)
 
 
-class BackgroundTaskDeferredViewSet(BaseBackgroundTaskViewSet):
+class DeferredTaskListView(BaseTaskView):
     registry = "deferred"
 
     def get_view_name(self):
         return "Deferred Tasks"
 
 
-class BackgroundTaskFailedViewSet(BaseBackgroundTaskViewSet):
+class FailedTaskListView(BaseTaskView):
     registry = "failed"
 
     def get_view_name(self):
         return "Failed Tasks"
 
 
-class BackgroundTaskFinishedViewSet(BaseBackgroundTaskViewSet):
+class FinishedTaskListView(BaseTaskView):
     registry = "finished"
 
     def get_view_name(self):
         return "Finished Tasks"
 
 
-class BackgroundTaskStartedViewSet(BaseBackgroundTaskViewSet):
+class StartedTaskListView(BaseTaskView):
     registry = "started"
 
     def get_view_name(self):
         return "Started Tasks"
 
 
-class BackgroundTaskQueuedViewSet(BaseBackgroundTaskViewSet):
+class QueuedTaskListView(BaseTaskView):
     registry = "queued"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request, queue_name):
+    def get(self, request, format=None):
         """
         Return the UserConfig for the currently authenticated User.
         """
         queue = get_queue(queue_name)
         data = queue.get_jobs()
         serializer = serializers.BackgroundTaskSerializer(data, many=True)
-        return Response(serializer.data)
-
-
-class BackgroundTaskWorkerViewSet(ViewSet):
-    serializer_class = serializers.BackgroundQueueSerializer
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Workers"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request, queue_name):
-        queue = get_queue(queue_name)
-        clean_worker_registry(queue)
-        all_workers = Worker.all(queue.connection)
-        workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
-        serializer = serializers.BackgroundWorkerSerializer(workers, many=True)
         return Response(serializer.data)
