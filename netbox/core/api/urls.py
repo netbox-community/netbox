@@ -30,13 +30,14 @@ router.register('background-workers/<str:key>/', views.WorkerView.as_view(), nam
 urlpatterns = (
     path('background-queues/', views.QueueListView.as_view()),
     path('background-workers/', views.WorkerListView.as_view()),
-    # path('background-workers/<str:key>/', views.WorkerView.as_view()),
+    path('background-workers/<str:worker_name>/', views.WorkerDetailView.as_view()),
     path('background-tasks/<str:queue_name>/', views.TaskListView.as_view()),
     path('background-tasks/<str:queue_name>/deferred/', views.DeferredTaskListView.as_view()),
     path('background-tasks/<str:queue_name>/failed/', views.FailedTaskListView.as_view()),
     path('background-tasks/<str:queue_name>/finished/', views.FinishedTaskListView.as_view()),
     path('background-tasks/<str:queue_name>/started/', views.StartedTaskListView.as_view()),
     path('background-tasks/<str:queue_name>/queued/', views.QueuedTaskListView.as_view()),
+    path('background-task/<str:task_id>/', views.TaskDetailView.as_view()),
     # path('background-tasks/<str:queue_name>/workers', views.BackgroundWorkerListView.as_view()),
 
     path('', include(router.urls)),
