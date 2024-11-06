@@ -3,7 +3,6 @@ from importlib import import_module
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls import include
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path
 from django.utils.module_loading import import_string, module_has_submodule
 

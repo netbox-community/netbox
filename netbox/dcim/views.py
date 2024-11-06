@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from jinja2.exceptions import TemplateError
 
@@ -3261,10 +3261,10 @@ class CableEditView(generic.ObjectEditView):
         doesn't currently provide a hook for dynamic class resolution.
         """
         a_terminations_type = CABLE_TERMINATION_TYPES.get(
-            request.GET.get('a_terminations_type') or request.POST.get('a_terminations_type')
+            request.POST.get('a_terminations_type') or request.GET.get('a_terminations_type')
         )
         b_terminations_type = CABLE_TERMINATION_TYPES.get(
-            request.GET.get('b_terminations_type') or request.POST.get('b_terminations_type')
+            request.POST.get('b_terminations_type') or request.GET.get('b_terminations_type')
         )
 
         if obj.pk:

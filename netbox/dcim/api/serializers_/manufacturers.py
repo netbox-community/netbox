@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from dcim.models import Manufacturer
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer

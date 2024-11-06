@@ -8,10 +8,8 @@ from drf_spectacular.plumbing import (
     build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
-from rest_framework import serializers
-from rest_framework.relations import ManyRelatedField
 
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
 
 # see netbox.api.routers.NetBoxRouter

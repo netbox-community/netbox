@@ -51,11 +51,11 @@ class UserPreferencesTest(TestCase):
 
         # Check that table ordering preference has been recorded
         self.user.refresh_from_db()
-        ordering = self.user.config.get(f'tables.SiteTable.ordering')
+        ordering = self.user.config.get('tables.SiteTable.ordering')
         self.assertEqual(ordering, ['status'])
 
         # Check that a recorded preference is honored by default
-        self.user.config.set(f'tables.SiteTable.ordering', ['-status'], commit=True)
+        self.user.config.set('tables.SiteTable.ordering', ['-status'], commit=True)
         table = SiteTable(Site.objects.all())
         request = RequestFactory().get(url)
         request.user = self.user

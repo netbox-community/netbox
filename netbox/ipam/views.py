@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet

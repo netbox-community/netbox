@@ -116,6 +116,10 @@ PyYAML
 # https://github.com/psf/requests/blob/main/HISTORY.md
 requests
 
+# rq
+# https://github.com/rq/rq/blob/master/CHANGES.md
+rq
+
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
 social-auth-core

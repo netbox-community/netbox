@@ -13,8 +13,6 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import ObjectType
 from core.signals import job_end, job_start
-from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
@@ -118,10 +116,11 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         # TODO: Employ dynamic registration
-        if self.object_type.model == 'reportmodule':
-            return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
-        if self.object_type.model == 'scriptmodule':
-            return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
+        if self.object_type:
+            if self.object_type.model == 'reportmodule':
+                return reverse('extras:report_result', kwargs={'job_pk': self.pk})
+            elif self.object_type.model == 'scriptmodule':
+                return reverse('extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
@@ -131,7 +130,7 @@ class Job(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('jobs'):
+        if self.object_type and self.object_type not in ObjectType.objects.with_feature('jobs'):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -154,7 +153,7 @@ class Job(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
+        rq_queue_name = get_queue_for_model(self.object_type.model if self.object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.job_id))
 
@@ -224,7 +223,7 @@ class Job(models.Model):
         rq_queue_name = get_queue_for_model(object_type.model if object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
-        job = Job.objects.create(
+        job = Job(
             object_type=object_type,
             object_id=object_id,
             name=name,
@@ -234,6 +233,8 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4()
         )
+        job.full_clean()
+        job.save()
 
         # Run the job immediately, rather than enqueuing it as a background task. Note that this is a synchronous
         # (blocking) operation, and execution will pause until the job completes.

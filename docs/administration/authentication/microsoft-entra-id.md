@@ -1,8 +1,8 @@
-# Microsoft Azure AD
+# Microsoft Entra ID
 
-This guide explains how to configure single sign-on (SSO) support for NetBox using [Microsoft Azure Active Directory (AD)](https://azure.microsoft.com/en-us/services/active-directory/) as an authentication backend.
+This guide explains how to configure single sign-on (SSO) support for NetBox using [Microsoft Entra ID](https://www.microsoft.com/en-us/security/business/identity-access/microsoft-entra-id) as an authentication backend.
 
-## Azure AD Configuration
+## Entra ID Configuration
 
 ### 1. Create a test user (optional)
 
