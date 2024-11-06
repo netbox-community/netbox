@@ -189,7 +189,7 @@ class TaskDeleteView(APIView):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
         delete_rq_job(task_id)
-        return HttpResponse(status=204)
+        return HttpResponse(status=200)
 
 
 class TaskRequeueView(APIView):
@@ -201,7 +201,7 @@ class TaskRequeueView(APIView):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
         requeue_rq_job(task_id)
-        return HttpResponse(status=204)
+        return HttpResponse(status=200)
 
 
 class TaskEnqueueView(APIView):
@@ -213,7 +213,7 @@ class TaskEnqueueView(APIView):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
         enqueue_rq_job(task_id)
-        return HttpResponse(status=204)
+        return HttpResponse(status=200)
 
 
 class TaskStopView(APIView):
@@ -226,11 +226,9 @@ class TaskStopView(APIView):
     def get(self, request, task_id, format=None):
         stopped_jobs = stop_rq_job(job_id)
         if len(stopped_jobs) == 1:
-            pass
-            # messages.success(request, _('Job {id} has been stopped.').format(id=job_id))
+            return HttpResponse(status=200)
         else:
-            pass
-            # messages.error(request, _('Failed to stop job {id}').format(id=job_id))
+            return HttpResponse(status=204)
 
 
 class BaseTaskListView(APIView):
