@@ -139,9 +139,6 @@ class TaskListView(APIView):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, queue_name, format=None):
-        """
-        Return the UserConfig for the currently authenticated User.
-        """
         try:
             queue = get_queue(queue_name)
         except KeyError:
@@ -283,9 +280,6 @@ class QueuedTaskListView(BaseTaskListView):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, queue_name, format=None):
-        """
-        Return the UserConfig for the currently authenticated User.
-        """
         try:
             queue = get_queue(queue_name)
         except KeyError:
