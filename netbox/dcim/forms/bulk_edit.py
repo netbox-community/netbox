@@ -13,7 +13,7 @@ from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.rendering import FieldSet, InlineFields
+from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from wireless.models import WirelessLAN, WirelessLANGroup
 from wireless.choices import WirelessRoleChoices
@@ -1536,7 +1536,13 @@ class InterfaceBulkEditForm(
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'add_tagged_vlans', 'remove_tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', name=_('802.1Q Switching')),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('tagged_vlans', name=_('Assignment')),
+                FieldSet('add_tagged_vlans', 'remove_tagged_vlans', name=_('Add/Remove')),
+            ),
+        ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
             name=_('Wireless')

@@ -2616,7 +2616,9 @@ class InterfaceBulkEditView(generic.BulkEditView):
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
-    def extra_object_field_operations(self, form, obj):
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
         # Add/remove tagged VLANs
         if obj.mode == InterfaceModeChoices.MODE_TAGGED:
             if form.cleaned_data.get('add_tagged_vlans', None):
