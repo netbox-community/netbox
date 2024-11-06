@@ -14,17 +14,13 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_statistics, stop_jobs
-from rq import requeue_job
+from django_rq.utils import get_statistics
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
-from rq.registry import (
-    DeferredJobRegistry, FinishedJobRegistry, ScheduledJobRegistry,
-)
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
-from core.utils import get_rq_jobs_from_status
+from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -420,19 +416,7 @@ class BackgroundTaskDeleteView(BaseRQView):
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-            # all the RQ queues should use the same connection
-            config = QUEUES_LIST[0]
-            try:
-                job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-            except NoSuchJobError:
-                raise Http404(_("Job {job_id} not found").format(job_id=job_id))
-
-            queue_index = QUEUES_MAP[job.origin]
-            queue = get_queue_by_index(queue_index)
-
-            # Remove job id from queue and delete the actual job
-            queue.connection.lrem(queue.key, 0, job.id)
-            job.delete()
+            delete_rq_job(job_id)
             messages.success(request, _('Job {id} has been deleted.').format(id=job_id))
         else:
             messages.error(request, _('Error deleting job {id}: {error}').format(id=job_id, error=form.errors[0]))
@@ -443,17 +427,7 @@ class BackgroundTaskDeleteView(BaseRQView):
 class BackgroundTaskRequeueView(BaseRQView):
 
     def get(self, request, job_id):
-        # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {id} not found.").format(id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+        requeue_rq_job(job_id)
         messages.success(request, _('Job {id} has been re-enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
@@ -462,33 +436,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {id} not found.").format(id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        try:
-            # _enqueue_job is new in RQ 1.14, this is used to enqueue
-            # job regardless of its dependencies
-            queue._enqueue_job(job)
-        except AttributeError:
-            queue.enqueue_job(job)
-
-        # Remove job from correct registry if needed
-        if job.get_status() == RQJobStatus.DEFERRED:
-            registry = DeferredJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-        elif job.get_status() == RQJobStatus.FINISHED:
-            registry = FinishedJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-        elif job.get_status() == RQJobStatus.SCHEDULED:
-            registry = ScheduledJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-
+        enqueue_rq_job(job_id)
         messages.success(request, _('Job {id} has been enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
@@ -496,17 +444,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
 class BackgroundTaskStopView(BaseRQView):
 
     def get(self, request, job_id):
-        # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        stopped_jobs = stop_jobs(queue, job_id)[0]
+        stopped_jobs = stop_rq_job(job_id)
         if len(stopped_jobs) == 1:
             messages.success(request, _('Job {id} has been stopped.').format(id=job_id))
         else:

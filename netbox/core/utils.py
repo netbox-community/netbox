@@ -1,5 +1,9 @@
 from django.http import Http404
-from django_rq.utils import get_jobs
+from django.utils.translation import gettext_lazy as _
+from django_rq.queues import get_queue_by_index, get_redis_connection
+from django_rq.settings import QUEUES_MAP, QUEUES_LIST
+from django_rq.utils import get_jobs, stop_jobs
+from rq import requeue_job
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
 from rq.registry import (
@@ -42,3 +46,73 @@ def get_rq_jobs_from_status(queue, status):
             job.scheduled_at = registry.get_scheduled_time(job)
 
     return jobs
+
+
+def delete_rq_job(job_id):
+    config = QUEUES_LIST[0]
+    try:
+        job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+    except NoSuchJobError:
+        raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+    queue_index = QUEUES_MAP[job.origin]
+    queue = get_queue_by_index(queue_index)
+
+    # Remove job id from queue and delete the actual job
+    queue.connection.lrem(queue.key, 0, job.id)
+    job.delete()
+
+
+def requeue_rq_job(job_id):
+    config = QUEUES_LIST[0]
+    try:
+        job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+    except NoSuchJobError:
+        raise Http404(_("Job {id} not found.").format(id=job_id))
+
+    queue_index = QUEUES_MAP[job.origin]
+    queue = get_queue_by_index(queue_index)
+
+    requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+
+
+def enqueue_rq_job(job_id):
+    config = QUEUES_LIST[0]
+    try:
+        job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+    except NoSuchJobError:
+        raise Http404(_("Job {id} not found.").format(id=job_id))
+
+    queue_index = QUEUES_MAP[job.origin]
+    queue = get_queue_by_index(queue_index)
+
+    try:
+        # _enqueue_job is new in RQ 1.14, this is used to enqueue
+        # job regardless of its dependencies
+        queue._enqueue_job(job)
+    except AttributeError:
+        queue.enqueue_job(job)
+
+    # Remove job from correct registry if needed
+    if job.get_status() == RQJobStatus.DEFERRED:
+        registry = DeferredJobRegistry(queue.name, queue.connection)
+        registry.remove(job)
+    elif job.get_status() == RQJobStatus.FINISHED:
+        registry = FinishedJobRegistry(queue.name, queue.connection)
+        registry.remove(job)
+    elif job.get_status() == RQJobStatus.SCHEDULED:
+        registry = ScheduledJobRegistry(queue.name, queue.connection)
+        registry.remove(job)
+
+
+def stop_rq_job(job_id):
+    config = QUEUES_LIST[0]
+    try:
+        job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+    except NoSuchJobError:
+        raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+    queue_index = QUEUES_MAP[job.origin]
+    queue = get_queue_by_index(queue_index)
+
+    return stop_jobs(queue, job_id)[0]

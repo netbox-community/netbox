@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
@@ -14,7 +14,7 @@ from core import filtersets
 from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
-from core.utils import get_rq_jobs_from_status
+from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from django_rq.queues import get_queue, get_redis_connection
 from django_rq.utils import get_statistics
 from django_rq.settings import QUEUES_LIST
@@ -152,7 +152,22 @@ class TaskListView(APIView):
         return Response(serializer.data)
 
 
-class TaskDetailView(APIView):
+class BaseTaskView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Background Task"
+
+    def get_task_from_id(self, task_id):
+        config = QUEUES_LIST[0]
+        task = RQ_Job.fetch(task_id, connection=get_redis_connection(config['connection_config']))
+        if not task:
+            raise Http404
+
+        return task
+
+
+class TaskDetailView(BaseTaskView):
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -160,19 +175,65 @@ class TaskDetailView(APIView):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
-        """
-        Return the UserConfig for the currently authenticated User.
-        """
-        config = QUEUES_LIST[0]
-        task = RQ_Job.fetch(task_id, connection=get_redis_connection(config['connection_config']))
-        if not task:
-            raise Http404
-
+        task = self.get_task_from_id(task_id)
         serializer = serializers.BackgroundTaskSerializer(task)
         return Response(serializer.data)
 
 
-class BaseTaskView(APIView):
+class TaskDeleteView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Background Task"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request, task_id, format=None):
+        delete_rq_job(task_id)
+        return HttpResponse(status=204)
+
+
+class TaskRequeueView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Background Task"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request, task_id, format=None):
+        requeue_rq_job(task_id)
+        return HttpResponse(status=204)
+
+
+class TaskEnqueueView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Background Task"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request, task_id, format=None):
+        enqueue_rq_job(task_id)
+        return HttpResponse(status=204)
+
+
+class TaskStopView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_view_name(self):
+        return "Background Task"
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request, task_id, format=None):
+        stopped_jobs = stop_rq_job(job_id)
+        if len(stopped_jobs) == 1:
+            pass
+            # messages.success(request, _('Job {id} has been stopped.').format(id=job_id))
+        else:
+            pass
+            # messages.error(request, _('Failed to stop job {id}').format(id=job_id))
+
+
+class BaseTaskListView(APIView):
     permission_classes = [IsAdminUser]
     registry = None
 
@@ -191,35 +252,35 @@ class BaseTaskView(APIView):
         return Response(serializer.data)
 
 
-class DeferredTaskListView(BaseTaskView):
+class DeferredTaskListView(BaseTaskListView):
     registry = "deferred"
 
     def get_view_name(self):
         return "Deferred Tasks"
 
 
-class FailedTaskListView(BaseTaskView):
+class FailedTaskListView(BaseTaskListView):
     registry = "failed"
 
     def get_view_name(self):
         return "Failed Tasks"
 
 
-class FinishedTaskListView(BaseTaskView):
+class FinishedTaskListView(BaseTaskListView):
     registry = "finished"
 
     def get_view_name(self):
         return "Finished Tasks"
 
 
-class StartedTaskListView(BaseTaskView):
+class StartedTaskListView(BaseTaskListView):
     registry = "started"
 
     def get_view_name(self):
         return "Started Tasks"
 
 
-class QueuedTaskListView(BaseTaskView):
+class QueuedTaskListView(BaseTaskListView):
     registry = "queued"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})

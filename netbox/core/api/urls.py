@@ -13,20 +13,6 @@ router.register('data-files', views.DataFileViewSet)
 router.register('jobs', views.JobViewSet)
 router.register('object-changes', views.ObjectChangeViewSet)
 
-
-# Background Tasks
-"""
-router.register('background-queues/', views.BackgroundQueueListView.as_view(), name='background_queue_list'),
-router.register('background-queues/<int:queue_index>/<str:status>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
-router.register('background-tasks/<str:job_id>/', views.BackgroundTaskView.as_view(), name='background_task'),
-router.register('background-tasks/<str:job_id>/delete/', views.BackgroundTaskDeleteView.as_view(), name='background_task_delete'),
-router.register('background-tasks/<str:job_id>/requeue/', views.BackgroundTaskRequeueView.as_view(), name='background_task_requeue'),
-router.register('background-tasks/<str:job_id>/enqueue/', views.BackgroundTaskEnqueueView.as_view(), name='background_task_enqueue'),
-router.register('background-tasks/<str:job_id>/stop/', views.BackgroundTaskStopView.as_view(), name='background_task_stop'),
-router.register('background-workers/<int:queue_index>/', views.WorkerListView.as_view(), name='worker_list'),
-router.register('background-workers/<str:key>/', views.WorkerView.as_view(), name='worker'),
-"""
-
 urlpatterns = (
     path('background-queues/', views.QueueListView.as_view()),
     path('background-workers/', views.WorkerListView.as_view()),
@@ -38,7 +24,10 @@ urlpatterns = (
     path('background-tasks/<str:queue_name>/started/', views.StartedTaskListView.as_view()),
     path('background-tasks/<str:queue_name>/queued/', views.QueuedTaskListView.as_view()),
     path('background-task/<str:task_id>/', views.TaskDetailView.as_view()),
-    # path('background-tasks/<str:queue_name>/workers', views.BackgroundWorkerListView.as_view()),
+    path('background-task/<str:task_id>/delete/', views.TaskDeleteView.as_view()),
+    path('background-task/<str:task_id>/requeue/', views.TaskRequeueView.as_view()),
+    path('background-task/<str:task_id>/enqueue/', views.TaskEnqueueView.as_view()),
+    path('background-task/<str:task_id>/stop/', views.TaskStopView.as_view()),
 
     path('', include(router.urls)),
 )
