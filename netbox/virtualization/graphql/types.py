@@ -48,7 +48,7 @@ class ClusterType(VLANGroupsMixin, NetBoxObjectType):
         Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
         Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
     ], strawberry.union("ClusterScopeType")] | None:
-         return self.scope
+        return self.scope
 
 
 @strawberry_django.type(
