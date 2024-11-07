@@ -15,8 +15,9 @@ from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
-from wireless.models import WirelessLAN, WirelessLANGroup
+from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
+from wireless.models import WirelessLAN, WirelessLANGroup
 
 __all__ = (
     'CableBulkEditForm',
@@ -721,6 +722,14 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
+    cluster = DynamicModelChoiceField(
+        label=_('Cluster'),
+        queryset=Cluster.objects.all(),
+        required=False,
+        query_params={
+            'site_id': ['$site', 'null']
+        },
+    )
     comments = CommentField()
 
     model = Device
@@ -729,9 +738,10 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('site', 'location', name=_('Location')),
         FieldSet('manufacturer', 'device_type', 'airflow', 'serial', name=_('Hardware')),
         FieldSet('config_template', name=_('Configuration')),
+        FieldSet('cluster', name=_('Virtualization')),
     )
     nullable_fields = (
-        'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'comments',
+        'location', 'tenant', 'platform', 'serial', 'airflow', 'description', 'cluster', 'comments',
     )
 
 
