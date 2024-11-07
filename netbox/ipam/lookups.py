@@ -108,8 +108,8 @@ class NetIn(Lookup):
         return self.rhs
 
     def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+        lhs = self.process_lhs(qn, connection)[0]
+        rhs_params = self.process_rhs(qn, connection)[1]
         with_mask, without_mask = [], []
         for address in rhs_params[0]:
             if '/' in address:

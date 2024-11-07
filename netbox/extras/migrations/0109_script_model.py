@@ -30,7 +30,7 @@ def get_python_name(scriptmodule):
     """
     Return the Python name of a ScriptModule's file on disk.
     """
-    path, filename = os.path.split(scriptmodule.file_path)
+    filename = os.path.split(scriptmodule.file_path)[0]
     return os.path.splitext(filename)[0]
 
 
@@ -128,7 +128,7 @@ def update_event_rules(apps, schema_editor):
 
     for eventrule in EventRule.objects.filter(action_object_type=scriptmodule_ct):
         name = eventrule.action_parameters.get('script_name')
-        obj, created = Script.objects.get_or_create(
+        obj, __ = Script.objects.get_or_create(
             module_id=eventrule.action_object_id,
             name=name,
             defaults={'is_executable': False}
