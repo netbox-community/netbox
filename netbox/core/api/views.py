@@ -85,6 +85,9 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
 
 
 class QueueListView(APIView):
+    """
+    Retrieve a list of RQ Queues.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -98,6 +101,9 @@ class QueueListView(APIView):
 
 
 class WorkerListView(APIView):
+    """
+    Retrieve a list of RQ Workers.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -113,6 +119,9 @@ class WorkerListView(APIView):
 
 
 class WorkerDetailView(APIView):
+    """
+    Retrieve the details of the specified RQ Worker.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -132,6 +141,9 @@ class WorkerDetailView(APIView):
 
 
 class TaskListView(APIView):
+    """
+    Retrieve a list of RQ Tasks in the specified Queue.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -165,6 +177,9 @@ class BaseTaskView(APIView):
 
 
 class TaskDetailView(BaseTaskView):
+    """
+    Retrieve the details of the specified RQ Task.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -178,6 +193,9 @@ class TaskDetailView(BaseTaskView):
 
 
 class TaskDeleteView(APIView):
+    """
+    Deletes the specified RQ Task.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -190,6 +208,9 @@ class TaskDeleteView(APIView):
 
 
 class TaskRequeueView(APIView):
+    """
+    Requeues the specified RQ Task.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -202,6 +223,9 @@ class TaskRequeueView(APIView):
 
 
 class TaskEnqueueView(APIView):
+    """
+    Enqueues the specified RQ Task.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -214,6 +238,9 @@ class TaskEnqueueView(APIView):
 
 
 class TaskStopView(APIView):
+    """
+    Stops the specified RQ Task.
+    """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -248,6 +275,9 @@ class BaseTaskListView(APIView):
 
 
 class DeferredTaskListView(BaseTaskListView):
+    """
+    Retrieve a list of Deferred RQ Tasks in the specified Queue.
+    """
     registry = "deferred"
 
     def get_view_name(self):
@@ -255,6 +285,9 @@ class DeferredTaskListView(BaseTaskListView):
 
 
 class FailedTaskListView(BaseTaskListView):
+    """
+    Retrieve a list of Failed RQ Tasks in the specified Queue.
+    """
     registry = "failed"
 
     def get_view_name(self):
@@ -262,6 +295,9 @@ class FailedTaskListView(BaseTaskListView):
 
 
 class FinishedTaskListView(BaseTaskListView):
+    """
+    Retrieve a list of Finished RQ Tasks in the specified Queue.
+    """
     registry = "finished"
 
     def get_view_name(self):
@@ -269,6 +305,9 @@ class FinishedTaskListView(BaseTaskListView):
 
 
 class StartedTaskListView(BaseTaskListView):
+    """
+    Retrieve a list of Started RQ Tasks in the specified Queue.
+    """
     registry = "started"
 
     def get_view_name(self):
@@ -276,6 +315,9 @@ class StartedTaskListView(BaseTaskListView):
 
 
 class QueuedTaskListView(BaseTaskListView):
+    """
+    Retrieve a list of Queued RQ Tasks in the specified Queue.
+    """
     registry = "queued"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})

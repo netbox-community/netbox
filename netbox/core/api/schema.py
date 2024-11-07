@@ -254,9 +254,6 @@ class NetBoxAutoSchema(AutoSchema):
         """
         Generate a docstring for the method. It also takes into account whether the method is for list or detail.
         """
-        if not hasattr(self.view, 'queryset'):
-            return None
-
         model_name = self.view.queryset.model._meta.verbose_name
 
         # Determine if the method is for list or detail.
