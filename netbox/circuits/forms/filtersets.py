@@ -350,7 +350,7 @@ class VirtualCircuitTerminationFilterForm(NetBoxModelFilterSetForm):
         label=_('Virtual circuit')
     )
     role = forms.MultipleChoiceField(
-        label=_('ROle'),
+        label=_('Role'),
         choices=VirtualCircuitTerminationRoleChoices,
         required=False
     )
