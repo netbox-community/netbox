@@ -256,13 +256,10 @@ class BackgroundTaskTestCase(TestCase):
         worker.prepare_job_execution(job)
 
         self.assertEqual(job.get_status(), JobStatus.STARTED)
-
-        # Stop those jobs using the view
-        started_job_registry = StartedJobRegistry(queue.name, connection=queue.connection)
-        # self.assertEqual(len(started_job_registry), 1)
         response = self.client.get(reverse('core-api:background_task_stop', args=[job.id]), **self.header)
         self.assertEqual(response.status_code, 200)
         worker.monitor_work_horse(job, queue)  # Sets the job as Failed and removes from Started
+        started_job_registry = StartedJobRegistry(queue.name, connection=queue.connection)
         self.assertEqual(len(started_job_registry), 0)
 
         canceled_job_registry = FailedJobRegistry(queue.name, connection=queue.connection)
