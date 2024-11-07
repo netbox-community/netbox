@@ -33,7 +33,7 @@ To download translated strings automatically, you'll need to:
 Once you have the client set up, run the following command:
 
 ```no-highlight
-tx pull
+TX_TOKEN=$TOKEN tx pull
 ```
 
 This will download all portable (`.po`) translation files from Transifex, updating them locally as needed.
