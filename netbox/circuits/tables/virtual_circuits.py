@@ -43,7 +43,7 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     )
 
     class Meta(NetBoxTable.Meta):
-        model = Circuit
+        model = VirtualCircuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'status', 'tenant', 'tenant_group',
             'description', 'comments', 'tags', 'created', 'last_updated',

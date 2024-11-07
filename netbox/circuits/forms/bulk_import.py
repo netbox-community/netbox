@@ -188,13 +188,13 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
     provider_network = CSVModelChoiceField(
         label=_('Provider network'),
         queryset=ProviderNetwork.objects.all(),
-        to_field_name='cid',
+        to_field_name='name',
         help_text=_('The network to which this virtual circuit belongs')
     )
     provider_account = CSVModelChoiceField(
         label=_('Provider account'),
         queryset=ProviderAccount.objects.all(),
-        to_field_name='name',
+        to_field_name='account',
         help_text=_('Assigned provider account (if any)'),
         required=False
     )
@@ -214,7 +214,7 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'status', 'tenant','description', 'comments', 'tags',
+            'cid', 'provider_network', 'provider_account', 'status', 'tenant', 'description', 'comments', 'tags',
         ]
 
 
@@ -238,5 +238,5 @@ class VirtualCircuitTerminationImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualCircuitTermination
         fields = [
-            'virtual_circuit', 'description', 'tags'
+            'virtual_circuit', 'role', 'interface', 'description', 'tags'
         ]

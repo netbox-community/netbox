@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.filtersets import CabledObjectFilterSet
-from dcim.models import Location, Region, Site, SiteGroup
+from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
@@ -20,6 +20,8 @@ __all__ = (
     'ProviderNetworkFilterSet',
     'ProviderAccountFilterSet',
     'ProviderFilterSet',
+    'VirtualCircuitFilterSet',
+    'VirtualCircuitTerminationFilterSet',
 )
 
 
@@ -483,7 +485,7 @@ class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_circuit__provider_account__account',
-        queryset=Provider.objects.all(),
+        queryset=ProviderAccount.objects.all(),
         to_field_name='account',
         label=_('Provider account (account)'),
     )
@@ -492,15 +494,20 @@ class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
         field_name='virtual_circuit__provider_network',
         label=_('Provider network (ID)'),
     )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Interface.objects.all(),
+        field_name='interface',
+        label=_('Interface (ID)'),
+    )
 
     class Meta:
         model = VirtualCircuitTermination
-        fields = ('id', 'interface_id')
+        fields = ('id', 'interface_id', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(circuit__cid__icontains=value) |
+            Q(virtual_circuit__cid__icontains=value) |
             Q(description__icontains=value)
         ).distinct()
