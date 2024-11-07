@@ -64,7 +64,7 @@ class ClusterSerializer(NetBoxModelSerializer):
         decimal_places=2,
     )
     allocated_memory = serializers.IntegerField()
-    allocated_disk_space =  serializers.IntegerField()
+    allocated_disk_space = serializers.IntegerField()
 
     # Related object counts
     device_count = RelatedObjectCountField('devices')
