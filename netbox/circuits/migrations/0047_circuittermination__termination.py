@@ -21,6 +21,7 @@ def copy_site_assignments(apps, schema_editor):
         termination_id=models.F('provider_network_id')
     )
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

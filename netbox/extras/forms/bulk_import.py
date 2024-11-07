@@ -223,7 +223,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 from extras.scripts import get_module_and_script
                 module_name, script_name = action_object.split('.', 1)
                 try:
-                    module, script = get_module_and_script(module_name, script_name)
+                    script = get_module_and_script(module_name, script_name)[1]
                 except ObjectDoesNotExist:
                     raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
                 self.instance.action_object = script
