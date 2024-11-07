@@ -1,7 +1,7 @@
 from django.urls import reverse
 
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Interface
+from dcim.models import Interface, Site
 from tenancy.models import Tenant
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from wireless.choices import *
@@ -53,6 +53,12 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -94,6 +100,8 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
                 'status': WirelessLANStatusChoices.STATUS_DISABLED,
                 'tenant': tenants[0].pk,
                 'auth_type': WirelessAuthTypeChoices.TYPE_WPA_ENTERPRISE,
+                'scope_type': 'dcim.site',
+                'scope_id': sites[1].pk,
             },
         ]
 

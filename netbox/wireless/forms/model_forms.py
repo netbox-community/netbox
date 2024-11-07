@@ -2,6 +2,7 @@ from django.forms import PasswordInput
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Location, Site
+from dcim.forms.mixins import ScopedForm
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
@@ -35,7 +36,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
         ]
 
 
-class WirelessLANForm(TenancyForm, NetBoxModelForm):
+class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
@@ -51,6 +52,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         FieldSet('ssid', 'group', 'vlan', 'status', 'description', 'tags', name=_('Wireless LAN')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -59,7 +61,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         model = WirelessLAN
         fields = [
             'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'description', 'comments', 'tags',
+            'scope_type', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(
