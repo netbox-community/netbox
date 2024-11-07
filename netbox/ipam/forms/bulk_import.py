@@ -204,7 +204,7 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
             'mark_utilized', 'description', 'comments', 'tags',
         )
         labels = {
-            'scope_id': 'Scope ID',
+            'scope_id': _('Scope ID'),
         }
 
     def __init__(self, data=None, *args, **kwargs):
