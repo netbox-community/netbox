@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -139,3 +141,18 @@ class VirtualCircuitTermination(
     @property
     def parent_object(self):
         return self.virtual_circuit
+
+    @cached_property
+    def peer_terminations(self):
+        if self.role == VirtualCircuitTerminationRoleChoices.ROLE_PEER:
+            return self.virtual_circuit.terminations.exclude(pk=self.pk).filter(
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER
+            )
+        if self.role == VirtualCircuitTerminationRoleChoices.ROLE_HUB:
+            return self.virtual_circuit.terminations.filter(
+                role=VirtualCircuitTerminationRoleChoices.ROLE_SPOKE
+            )
+        if self.role == VirtualCircuitTerminationRoleChoices.ROLE_SPOKE:
+            return self.virtual_circuit.terminations.filter(
+                role=VirtualCircuitTerminationRoleChoices.ROLE_HUB
+            )
