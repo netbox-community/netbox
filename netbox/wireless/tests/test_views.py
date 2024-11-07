@@ -112,10 +112,10 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "group,ssid,status,tenant",
-            f"Wireless LAN Group 2,WLAN4,{WirelessLANStatusChoices.STATUS_ACTIVE},{tenants[0].name}",
-            f"Wireless LAN Group 2,WLAN5,{WirelessLANStatusChoices.STATUS_DISABLED},{tenants[1].name}",
-            f"Wireless LAN Group 2,WLAN6,{WirelessLANStatusChoices.STATUS_RESERVED},{tenants[2].name}",
+            "group,ssid,status,tenant,scope_type,scope_id",
+            f"Wireless LAN Group 2,WLAN4,{WirelessLANStatusChoices.STATUS_ACTIVE},{tenants[0].name},,",
+            f"Wireless LAN Group 2,WLAN5,{WirelessLANStatusChoices.STATUS_DISABLED},{tenants[1].name},dcim.site,{sites[0].pk}",
+            f"Wireless LAN Group 2,WLAN6,{WirelessLANStatusChoices.STATUS_RESERVED},{tenants[2].name},dcim.site,{sites[1].pk}",
         )
 
         cls.csv_update_data = (
