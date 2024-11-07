@@ -23,6 +23,14 @@
           <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
         </tr>
         <tr>
+          <th scope="row">{% trans "Scope" %}</th>
+          {% if object.scope %}
+            <td>{{ object.scope|linkify }} ({% trans object.scope_type.name %})</td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
+        </tr>
+        <tr>
           <th scope="row">{% trans "Description" %}</th>
           <td>{{ object.description|placeholder }}</td>
         </tr>

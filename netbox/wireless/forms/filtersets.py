@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
+from dcim.models import Location, Region, Site, SiteGroup
 from netbox.choices import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
@@ -33,6 +34,7 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('ssid', 'group_id', 'status', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -64,6 +66,31 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     auth_psk = forms.CharField(
         label=_('Pre-shared key'),
         required=False
+    )
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
+        },
+        label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
     )
     tag = TagFilterField(model)
 
