@@ -59,6 +59,12 @@ class ClusterSerializer(NetBoxModelSerializer):
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
+    allocated_virtual_cpus = serializers.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+    )
+    allocated_memory = serializers.IntegerField()
+    allocated_disk_space =  serializers.IntegerField()
 
     # Related object counts
     device_count = RelatedObjectCountField('devices')
@@ -69,7 +75,7 @@ class ClusterSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'scope_id', 'scope',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'virtualmachine_count',
+            'virtualmachine_count', 'allocated_virtual_cpus', 'allocated_memory', 'allocated_disk_space'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'virtualmachine_count')
 
