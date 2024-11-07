@@ -221,7 +221,7 @@ class TaskStopView(APIView):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
-        stopped_jobs = stop_rq_job(job_id)
+        stopped_jobs = stop_rq_job(task_id)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)
         else:
