@@ -60,11 +60,13 @@ class ClusterSerializer(NetBoxModelSerializer):
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     allocated_virtual_cpus = serializers.DecimalField(
+        read_only=True,
         max_digits=8,
         decimal_places=2,
+
     )
-    allocated_memory = serializers.IntegerField()
-    allocated_disk_space = serializers.IntegerField()
+    allocated_memory = serializers.IntegerField(read_only=True)
+    allocated_disk_space = serializers.IntegerField(read_only=True)
 
     # Related object counts
     device_count = RelatedObjectCountField('devices')
