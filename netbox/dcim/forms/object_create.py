@@ -57,13 +57,11 @@ class ComponentCreateForm(forms.Form):
 
         # Components attached to a module need to present this standardized substitution help text.
         if 'module' in self.fields:
-            help_text_parts = []
-            if self.fields['name'].help_text:
-                help_text_parts.append(self.fields['name'].help_text)
-            help_text_parts.append(_(
-                "The string <code>{module}</code> will be replaced with the position of the assigned module, if any."
-            ))
-            self.fields['name'].help_text = ' '.join([str(x) for x in help_text_parts])
+            self.fields['name'].help_text = _(
+                "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are "
+                "not supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The string <code>{module}</code> will be "
+                "replaced with the position of the assigned module, if any."
+            )
 
     def clean(self):
         super().clean()
