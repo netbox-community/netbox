@@ -104,7 +104,7 @@
               <td><a href="{% url 'core:background_task' job.id %}">{{ dependency_id }}</a></td>
             </tr>
           {% endif %}
-          {% if exc_info %}
+          {% if job.exc_info %}
             <tr>
               <th scope="row">{% trans "Exception" %}</th>
               <td><pre>{% if job.exc_info %}{{ job.exc_info|linebreaks }}{% endif %}</pre></td>
