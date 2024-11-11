@@ -155,8 +155,6 @@ class L2VPNTermination(NetBoxModel):
             return self.assigned_object.virtual_machine
         elif obj_type.model == 'interface':
             return self.assigned_object.device
-        elif obj_type.model == 'vminterface':
-            return self.assigned_object.virtual_machine
         return None
 
     @property
