@@ -171,7 +171,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     )
     disk = forms.IntegerField(
         required=False,
-        label=_('Disk (GB)')
+        label=_('Disk (MB)')
     )
     description = forms.CharField(
         label=_('Description'),
