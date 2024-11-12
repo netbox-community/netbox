@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
+from django.views.static import serve
 from django_tables2 import RequestConfig
 from packaging import version
 
@@ -23,6 +24,7 @@ from utilities.views import ConditionalLoginRequiredMixin
 
 __all__ = (
     'HomeView',
+    'MediaView',
     'SearchView',
 )
 
@@ -115,3 +117,11 @@ class SearchView(ConditionalLoginRequiredMixin, View):
             'form': form,
             'table': table,
         })
+
+
+class MediaView(ConditionalLoginRequiredMixin, View):
+    """
+    Wrap Django's serve() view to enforce LOGIN_REQUIRED for static media.
+    """
+    def get(self, request, path):
+        return serve(request, path, document_root=settings.MEDIA_ROOT)
