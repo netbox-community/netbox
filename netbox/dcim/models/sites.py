@@ -143,7 +143,8 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        help_text=_("Full name of the site")
+        help_text=_("Full name of the site"),
+        db_collation="natural_sort"
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -245,7 +246,7 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     )
 
     class Meta:
-        ordering = ('_name',)
+        ordering = ('name',)
         verbose_name = _('site')
         verbose_name_plural = _('sites')
 
