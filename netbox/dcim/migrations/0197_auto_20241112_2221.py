@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         CreateCollation(
             "natural_sort",
             provider="icu",
-            locale="und-u-kn-true",
+            locale="und-u-ks-level2-kn-true",
         ),
     ]
