@@ -3,7 +3,7 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.contenttypes.fields import GenericRel
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
@@ -541,6 +541,17 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
+    def post_save_operations(self, form, obj):
+        """
+        This method is called for each object in _update_objects. Override to perform additional object-level
+        operations that are specific to a particular ModelForm.
+        """
+        # Add/remove tags
+        if form.cleaned_data.get('add_tags', None):
+            obj.tags.add(*form.cleaned_data['add_tags'])
+        if form.cleaned_data.get('remove_tags', None):
+            obj.tags.remove(*form.cleaned_data['remove_tags'])
+
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', {})
         standard_fields = [
@@ -576,7 +587,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             for name, model_field in model_fields.items():
                 # Handle nullification
                 if name in form.nullable_fields and name in nullified_fields:
-                    setattr(obj, name, None if model_field.null else '')
+                    if type(model_field) is GenericForeignKey:
+                        setattr(obj, name, None)
+                    else:
+                        setattr(obj, name, None if model_field.null else '')
                 # Normal fields
                 elif name in form.changed_data:
                     setattr(obj, name, form.cleaned_data[name])
@@ -609,11 +623,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 elif form.cleaned_data[name]:
                     getattr(obj, name).set(form.cleaned_data[name])
 
-            # Add/remove tags
-            if form.cleaned_data.get('add_tags', None):
-                obj.tags.add(*form.cleaned_data['add_tags'])
-            if form.cleaned_data.get('remove_tags', None):
-                obj.tags.remove(*form.cleaned_data['remove_tags'])
+            self.post_save_operations(form, obj)
 
         # Rebuild the tree for MPTT models
         if issubclass(self.queryset.model, MPTTModel):
@@ -688,7 +698,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = self.form(initial=initial_data)
+            form = self.form(request.POST, initial=initial_data)
             restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited

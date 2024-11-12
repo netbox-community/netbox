@@ -1,6 +1,6 @@
 # Style Guide
 
-NetBox generally follows the [Django style guide](https://docs.djangoproject.com/en/stable/internals/contributing/writing-code/coding-style/), which is itself based on [PEP 8](https://www.python.org/dev/peps/pep-0008/). [Pycodestyle](https://github.com/pycqa/pycodestyle) is used to validate code formatting, ignoring certain violations.
+NetBox generally follows the [Django style guide](https://docs.djangoproject.com/en/stable/internals/contributing/writing-code/coding-style/), which is itself based on [PEP 8](https://www.python.org/dev/peps/pep-0008/). [ruff](https://docs.astral.sh/ruff/) is used for linting (with certain [exceptions](#linter-exceptions)).
 
 ## Code
 
@@ -20,32 +20,32 @@ NetBox generally follows the [Django style guide](https://docs.djangoproject.com
 
 * Nested API serializers generate minimal representations of an object. These are stored separately from the primary serializers to avoid circular dependencies. Always import nested serializers from other apps directly. For example, from within the DCIM app you would write `from ipam.api.nested_serializers import NestedIPAddressSerializer`.
 
-### PEP 8 Exceptions
+### Linting
 
-NetBox ignores certain PEP8 assertions. These are listed below.
+The [ruff](https://docs.astral.sh/ruff/) linter is used to enforce code style. A [pre-commit hook](./getting-started.md#3-enable-pre-commit-hooks) which runs this automatically is included with NetBox. To invoke `ruff` manually, run:
 
-#### Wildcard Imports
+```
+ruff check netbox/
+```
+
+#### Linter Exceptions
+
+The following rules are ignored when linting.
+
+##### [E501](https://docs.astral.sh/ruff/rules/line-too-long/): Line too long
+
+NetBox does not enforce a hard restriction on line length, although a maximum length of 120 characters is strongly encouraged for Python code where possible. The maximum length does not apply to HTML templates or to automatically generated code (e.g. database migrations).
+
+##### [F403](https://docs.astral.sh/ruff/rules/undefined-local-with-import-star/): Undefined local with import star
 
 Wildcard imports (for example, `from .constants import *`) are acceptable under any of the following conditions:
 
 * The library being import contains only constant declarations (e.g. `constants.py`)
 * The library being imported explicitly defines `__all__`
 
-#### Maximum Line Length (E501)
+##### [F405](https://docs.astral.sh/ruff/rules/undefined-local-with-import-star-usage/): Undefined local with import star usage
 
-NetBox does not restrict lines to a maximum length of 79 characters. We use a maximum line length of 120 characters, however this is not enforced by CI. The maximum length does not apply to HTML templates or to automatically generated code (e.g. database migrations).
-
-#### Line Breaks Following Binary Operators (W504)
-
-Line breaks are permitted following binary operators.
-
-### Enforcing Code Style
-
-The [`pycodestyle`](https://pypi.org/project/pycodestyle/) utility (formerly `pep8`) is used by the CI process to enforce code style. A [pre-commit hook](./getting-started.md#3-enable-pre-commit-hooks) which runs this automatically is included with NetBox. To invoke `pycodestyle` manually, run:
-
-```
-pycodestyle --ignore=W504,E501 netbox/
-```
+The justification for ignoring this rule is the same as F403 above.
 
 ### Introducing New Dependencies
 
@@ -76,4 +76,4 @@ When adding a new dependency, a short description of the package and the URL of 
 
 * When referring to NetBox in writing, use the proper form "NetBox," with the letters N and B capitalized. The lowercase form "netbox" should be used in code, filenames, etc. but never "Netbox" or any other deviation.
 
-* There is an SVG form of the NetBox logo at [docs/netbox_logo.svg](../netbox_logo.svg). It is preferred to use this logo for all purposes as it scales to arbitrary sizes without loss of resolution. If a raster image is required, the SVG logo should be converted to a PNG image of the prescribed size.
+* There are SVG forms of the NetBox logo for both [light mode](../netbox_logo_light.svg) and [dark mode](../netbox_logo_dark.svg) available. It is preferred to use the SVG logo for all purposes as it scales to arbitrary sizes without loss of resolution. If a raster image is required, the SVG logo should be converted to a PNG image of the desired size.

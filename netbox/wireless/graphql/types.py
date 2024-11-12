@@ -23,6 +23,7 @@ class WirelessLANGroupType(OrganizationalObjectType):
     parent: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
 
     wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
+    children: List[Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]]
 
 
 @strawberry_django.type(

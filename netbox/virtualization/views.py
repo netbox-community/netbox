@@ -6,7 +6,7 @@ from django.db.models import Prefetch, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import RedirectView
 from jinja2.exceptions import TemplateError
 
@@ -657,7 +657,7 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_vminterface'
+        return 'virtualization.add_vminterface'
 
 
 class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
@@ -671,4 +671,4 @@ class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
     default_return_url = 'virtualization:virtualmachine_list'
 
     def get_required_permission(self):
-        return f'virtualization.add_virtualdisk'
+        return 'virtualization.add_virtualdisk'

@@ -580,15 +580,15 @@ class IPRange(ContactsMixin, PrimaryModel):
                 })
 
             # Check for overlapping ranges
-            overlapping_range = IPRange.objects.exclude(pk=self.pk).filter(vrf=self.vrf).filter(
-                Q(start_address__gte=self.start_address, start_address__lte=self.end_address) |  # Starts inside
-                Q(end_address__gte=self.start_address, end_address__lte=self.end_address) |  # Ends inside
-                Q(start_address__lte=self.start_address, end_address__gte=self.end_address)  # Starts & ends outside
-            ).first()
-            if overlapping_range:
+            overlapping_ranges = IPRange.objects.exclude(pk=self.pk).filter(vrf=self.vrf).filter(
+                Q(start_address__host__inet__gte=self.start_address.ip, start_address__host__inet__lte=self.end_address.ip) |  # Starts inside
+                Q(end_address__host__inet__gte=self.start_address.ip, end_address__host__inet__lte=self.end_address.ip) |  # Ends inside
+                Q(start_address__host__inet__lte=self.start_address.ip, end_address__host__inet__gte=self.end_address.ip)  # Starts & ends outside
+            )
+            if overlapping_ranges.exists():
                 raise ValidationError(
                     _("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
-                        overlapping_range=overlapping_range,
+                        overlapping_range=overlapping_ranges.first(),
                         vrf=self.vrf
                     ))
 

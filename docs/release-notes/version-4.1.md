@@ -1,11 +1,44 @@
 # NetBox v4.1
 
-## v4.1.4 (FUTURE)
+## v4.1.6 (2024-10-31)
+
+### Bug Fixes
+
+* [#17700](https://github.com/netbox-community/netbox/issues/17700) - Fix warning when no scripts are found within a script module
+* [#17884](https://github.com/netbox-community/netbox/issues/17884) - Fix translation support for certain tab headings
+* [#17885](https://github.com/netbox-community/netbox/issues/17885) - Fix regression preventing custom scripts from executing
+
+## v4.1.5 (2024-10-28)
+
+### Enhancements
+
+* [#17789](https://github.com/netbox-community/netbox/issues/17789) - Provide a single "scope" field for bulk editing VLAN group scope assignments
+
+### Bug Fixes
+
+* [#17358](https://github.com/netbox-community/netbox/issues/17358) - Fix validation of overlapping IP ranges
+* [#17374](https://github.com/netbox-community/netbox/issues/17374) - Fix styling of highlighted table rows in dark mode
+* [#17460](https://github.com/netbox-community/netbox/issues/17460) - Ensure bulk action buttons are consistent for device type components
+* [#17635](https://github.com/netbox-community/netbox/issues/17635) - Ensure AbortTransaction is caught when running a custom script with `commit=False`
+* [#17685](https://github.com/netbox-community/netbox/issues/17685) - Ensure background jobs are validated before being scheduled
+* [#17710](https://github.com/netbox-community/netbox/issues/17710) - Remove cached fields on CableTermination model from GraphQL API
+* [#17740](https://github.com/netbox-community/netbox/issues/17740) - Ensure support for image attachments with a `.webp` file extension
+* [#17749](https://github.com/netbox-community/netbox/issues/17749) - Restore missing `devicetypes` and `children` fields for several objects in GraphQL API
+* [#17754](https://github.com/netbox-community/netbox/issues/17754) - Remove paginator from version history table under plugin view
+* [#17759](https://github.com/netbox-community/netbox/issues/17759) - Retain `job_timeout` value when scheduling a recurring custom script
+* [#17774](https://github.com/netbox-community/netbox/issues/17774) - Fix SSO login support for Entra ID (formerly Azure AD)
+* [#17802](https://github.com/netbox-community/netbox/issues/17802) - Fix background color for bulk rename buttons in list views
+* [#17838](https://github.com/netbox-community/netbox/issues/17838) - Adjust `manage.py` to reference `python3` executable
+
+---
+
+## v4.1.4 (2024-10-15)
 
 ### Enhancements
 
 * [#11671](https://github.com/netbox-community/netbox/issues/11671) - Display device's rack position in cable traces
 * [#15829](https://github.com/netbox-community/netbox/issues/15829) - Rename Microsoft Azure AD SSO backend to Microsoft Entra ID
+* [#16009](https://github.com/netbox-community/netbox/issues/16009) - Float form & bulk operation buttons within UI
 * [#17079](https://github.com/netbox-community/netbox/issues/17079) - Introduce additional choices for device airflow direction
 * [#17216](https://github.com/netbox-community/netbox/issues/17216) - Add EVPN-VPWS L2VPN type
 * [#17655](https://github.com/netbox-community/netbox/issues/17655) - Limit the display of tagged VLANs within interface tables
@@ -14,12 +47,16 @@
 ### Bug Fixes
 
 * [#16024](https://github.com/netbox-community/netbox/issues/16024) - Fix AND/OR filtering in GraphQL API for selection fields
+* [#17400](https://github.com/netbox-community/netbox/issues/17400) - Fix cable tracing across split paths
 * [#17562](https://github.com/netbox-community/netbox/issues/17562) - Fix GraphQL API query support for custom field choices
 * [#17566](https://github.com/netbox-community/netbox/issues/17566) - Fix AttributeError exception resulting from background jobs with no associated object type
+* [#17614](https://github.com/netbox-community/netbox/issues/17614) - Disallow removal of a master device from its virtual chassis
 * [#17636](https://github.com/netbox-community/netbox/issues/17636) - Fix filtering of related objects when adding a power port, rear port, or inventory item template to a device type
+* [#17644](https://github.com/netbox-community/netbox/issues/17644) - Correct sizing of logo & SSO icons on login page
 * [#17648](https://github.com/netbox-community/netbox/issues/17648) - Fix AttributeError exception when attempting to delete a background job under certain conditions
 * [#17663](https://github.com/netbox-community/netbox/issues/17663) - Fix extended lookups for choice field filters
 * [#17671](https://github.com/netbox-community/netbox/issues/17671) - Fix the display of rack types in global search results
+* [#17713](https://github.com/netbox-community/netbox/issues/17713) - Fix UnboundLocalError exception when attempting to sync data source in parallel
 
 ---
 

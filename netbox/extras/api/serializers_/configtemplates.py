@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from extras.models import ConfigTemplate
 from netbox.api.serializers import ValidatedModelSerializer

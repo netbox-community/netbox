@@ -31,16 +31,15 @@ body:
       options:
         - I volunteer to perform this work (if approved)
         - I'm a NetBox Labs customer
-        - This is preventing me from using NetBox
         - N/A
-      default: 3
+      default: 2
     validations:
       required: true
   - type: input
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v4.1.3
+      placeholder: v4.1.6
     validations:
       required: true
   - type: dropdown

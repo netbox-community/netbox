@@ -164,7 +164,7 @@ class Cable(PrimaryModel):
         if self.length is not None and not self.length_unit:
             raise ValidationError(_("Must specify a unit when setting a cable length"))
 
-        if self._state.adding and (not self.a_terminations or not self.b_terminations):
+        if self._state.adding and self.pk is None and (not self.a_terminations or not self.b_terminations):
             raise ValidationError(_("Must define A and B terminations when creating a new cable."))
 
         if self._terminations_modified:
@@ -666,6 +666,14 @@ class CablePath(models.Model):
                         rear_port_id=remote_terminations[0].pk,
                         rear_port_position__in=position_stack.pop()
                     )
+                # If all rear ports have a single position, we can just get the front ports
+                elif all([rp.positions == 1 for rp in remote_terminations]):
+                    front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
+
+                    if len(front_ports) != len(remote_terminations):
+                        # Some rear ports does not have a front port
+                        is_split = True
+                        break
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
                     is_split = True

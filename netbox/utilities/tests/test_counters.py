@@ -85,7 +85,7 @@ class CountersTest(TestCase):
     def test_mptt_child_delete(self):
         device1, device2 = Device.objects.all()
         inventory_item1 = InventoryItem.objects.create(device=device1, name='Inventory Item 1')
-        inventory_item2 = InventoryItem.objects.create(device=device1, name='Inventory Item 2', parent=inventory_item1)
+        InventoryItem.objects.create(device=device1, name='Inventory Item 2', parent=inventory_item1)
         device1.refresh_from_db()
         self.assertEqual(device1.inventory_item_count, 2)
 

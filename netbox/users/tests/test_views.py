@@ -1,8 +1,6 @@
-from django.test import override_settings
-
 from core.models import ObjectType
 from users.models import *
-from utilities.testing import ViewTestCases, create_test_user, extract_form_failures
+from utilities.testing import ViewTestCases, create_test_user
 
 
 class UserTestCase(

@@ -1,6 +1,5 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.module_loading import import_string
 from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
@@ -15,8 +14,8 @@ from rq import Worker
 
 from core.models import ObjectType
 from extras import filtersets
-from extras.models import *
 from extras.jobs import ScriptJob
+from extras.models import *
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata

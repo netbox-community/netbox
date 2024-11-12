@@ -90,7 +90,20 @@ This will automatically update the schema file at `contrib/generated_schema.json
 
 ### Update & Compile Translations
 
-Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. Follow the documented process for [updating translated strings](./translations.md#updating-translated-strings) to do this.
+Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. First, retrieve any updated translation files using the Transifex CLI client:
+
+```no-highlight
+tx pull
+```
+
+Then, compile these portable (`.po`) files for use in the application:
+
+```no-highlight
+./manage.py compilemessages
+```
+
+!!! tip
+    Consult the translation documentation for more detail on [updating translated strings](./translations.md#updating-translated-strings) if you've not set up the Transifex client already.
 
 ### Update Version and Changelog
 

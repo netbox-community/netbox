@@ -118,9 +118,9 @@ class Job(models.Model):
         # TODO: Employ dynamic registration
         if self.object_type:
             if self.object_type.model == 'reportmodule':
-                return reverse(f'extras:report_result', kwargs={'job_pk': self.pk})
+                return reverse('extras:report_result', kwargs={'job_pk': self.pk})
             elif self.object_type.model == 'scriptmodule':
-                return reverse(f'extras:script_result', kwargs={'job_pk': self.pk})
+                return reverse('extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 
     def get_status_color(self):
@@ -130,7 +130,7 @@ class Job(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('jobs'):
+        if self.object_type and self.object_type not in ObjectType.objects.with_feature('jobs'):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -223,7 +223,7 @@ class Job(models.Model):
         rq_queue_name = get_queue_for_model(object_type.model if object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
-        job = Job.objects.create(
+        job = Job(
             object_type=object_type,
             object_id=object_id,
             name=name,
@@ -233,6 +233,8 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4()
         )
+        job.full_clean()
+        job.save()
 
         # Run the job immediately, rather than enqueuing it as a background task. Note that this is a synchronous
         # (blocking) operation, and execution will pause until the job completes.

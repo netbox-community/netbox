@@ -112,7 +112,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.CableTermination,
-    exclude=('termination_type', 'termination_id'),
+    exclude=('termination_type', 'termination_id', '_device', '_rack', '_location', '_site'),
     filters=CableTerminationFilter
 )
 class CableTerminationType(NetBoxObjectType):
@@ -243,6 +243,7 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBo
     consoleserverports: List[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlets: List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
     frontports: List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
+    devicebays: List[Annotated["DeviceBayType", strawberry.lazy('dcim.graphql.types')]]
     modulebays: List[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
     services: List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]
     inventoryitems: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]

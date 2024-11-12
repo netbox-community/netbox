@@ -16,26 +16,31 @@ To update the English `.po` file from which all translations are derived, use th
 
 Then, commit the change and push to the `develop` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
 
+!!! note
+    It is typically not necessary to update source strings manually, as this is done nightly by a [GitHub action](https://github.com/netbox-community/netbox/blob/develop/.github/workflows/update-translation-strings.yml).
+
 ## Updating Translated Strings
 
 Typically, translated strings need to be updated only as part of the NetBox [release process](./release-checklist.md).
 
 Check the Transifex dashboard for languages that are not marked _ready for use_, being sure to click _Show all languages_ if it appears at the bottom of the list. Use machine translation to round out any not-ready languages. It's not necessary to review the machine translation immediately as the translation teams will handle that aspect; the goal at this stage is to get translations included in the Transifex pull request.
 
-To update translated strings, start by initiating a sync from Transifex. From the Transifex dashboard, navigate to Settings > Integrations > GitHub > Manage, and click the **Manual Sync** button at top right.
+To download translated strings automatically, you'll need to:
 
-![Transifex manual sync](../media/development/transifex_sync.png)
+1. Install the [Transifex CLI client](https://github.com/transifex/cli)
+2. Generate a [Transifex API token](https://app.transifex.com/user/settings/api/)
 
-Enter a threshold percentage of 1 (to ensure all translations are captured) and select the `develop` branch, then click **Sync**. This will initiate a pull request to GitHub to update any newly modified translation (`.po`) files.
+Once you have the client set up, run the following command:
 
-!!! tip
-    The new PR should appear within a few minutes. If it does not, check that there are in fact new translations to be added.
+```no-highlight
+TX_TOKEN=$TOKEN tx pull
+```
 
-![Transifex pull request](../media/development/transifex_pull_request.png)
+This will download all portable (`.po`) translation files from Transifex, updating them locally as needed.
 
-Once the PR has been merged, the updated strings need to be compiled into new `.mo` files so they can be used by the application. Update the `develop` branch locally to pull in the changes from the Transifex PR, then run Django's [`compilemessages`](https://docs.djangoproject.com/en/stable/ref/django-admin/#django-admin-compilemessages) management command:
+Once retrieved, the updated strings need to be compiled into new `.mo` files so they can be used by the application. Run Django's [`compilemessages`](https://docs.djangoproject.com/en/stable/ref/django-admin/#django-admin-compilemessages) management command to compile them:
 
-```nohighlight
+```no-highlight
 ./manage.py compilemessages
 ```
 
