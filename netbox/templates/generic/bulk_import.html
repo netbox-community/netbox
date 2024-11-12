@@ -129,6 +129,8 @@ Context:
                 <td>
                   {% if field.required %}
                     {% checkmark True true="Required" %}
+                  {% elif field.conditional %}
+                    {% tag "Conditional" %}
                   {% else %}
                     {{ ''|placeholder }}
                   {% endif %}

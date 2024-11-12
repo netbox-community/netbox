@@ -57,6 +57,11 @@ class CSVModelChoiceField(forms.ModelChoiceField):
         'invalid_choice': _('Object not found: %(value)s'),
     }
 
+    def __init__(self, conditional=False, *args, **kwargs):
+        # Used to trigger conditional validation in the forms
+        self.conditional = conditional
+        super().__init__(*args, **kwargs)
+
     def to_python(self, value):
         try:
             return super().to_python(value)

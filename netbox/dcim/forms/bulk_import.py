@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from circuits.models import Circuit
 from extras.models import ConfigTemplate
 from ipam.models import VRF, IPAddress
 from netbox.forms import NetBoxModelImportForm
@@ -1171,7 +1172,17 @@ class CableImportForm(NetBoxModelImportForm):
         label=_('Side A device'),
         queryset=Device.objects.all(),
         to_field_name='name',
+        required=False,
+        conditional=True,
         help_text=_('Device name')
+    )
+    side_a_circuit = CSVModelChoiceField(
+        label=_('Side A circuit'),
+        queryset=Circuit.objects.all(),
+        to_field_name='cid',
+        required=False,
+        conditional=True,
+        help_text=_('Circuit ID'),
     )
     side_a_type = CSVContentTypeField(
         label=_('Side A type'),
@@ -1189,7 +1200,17 @@ class CableImportForm(NetBoxModelImportForm):
         label=_('Side B device'),
         queryset=Device.objects.all(),
         to_field_name='name',
+        required=False,
+        conditional=True,
         help_text=_('Device name')
+    )
+    side_b_circuit = CSVModelChoiceField(
+        label=_('Side A device'),
+        queryset=Circuit.objects.all(),
+        to_field_name='cid',
+        required=False,
+        conditional=True,
+        help_text=_('Circuit ID'),
     )
     side_b_type = CSVContentTypeField(
         label=_('Side B type'),
@@ -1232,7 +1253,7 @@ class CableImportForm(NetBoxModelImportForm):
     class Meta:
         model = Cable
         fields = [
-            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
+            'side_a_device', 'side_a_circuit', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_circuit', 'side_b_type', 'side_b_name', 'type',
             'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
 
@@ -1245,18 +1266,40 @@ class CableImportForm(NetBoxModelImportForm):
         assert side in 'ab', f"Invalid side designation: {side}"
 
         device = self.cleaned_data.get(f'side_{side}_device')
+        circuit = self.cleaned_data.get(f'side_{side}_circuit')
         content_type = self.cleaned_data.get(f'side_{side}_type')
         name = self.cleaned_data.get(f'side_{side}_name')
-        if not device or not content_type or not name:
+
+        if not (device or circuit) or not content_type or not name:
             return None
+        
+        if device and circuit:
+            raise forms.ValidationError(
+                _("Side {side_upper}: Both `device` and `circuit` cannot be specified at the same time").format(side_upper=side.upper())
+            )
 
         model = content_type.model_class()
         try:
-            if device.virtual_chassis and device.virtual_chassis.master == device and \
-                    model.objects.filter(device=device, name=name).count() == 0:
-                termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
-            else:
-                termination_object = model.objects.get(device=device, name=name)
+            
+            # Should never happen as we return None above if we don't have a device or circuit
+            assert device or circuit
+            
+            if device:
+                if device.virtual_chassis and device.virtual_chassis.master == device and \
+                        model.objects.filter(device=device, name=name).count() == 0:
+                    termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
+                else:
+                    termination_object = model.objects.get(device=device, name=name)
+                self.fields[f'side_{side}_circuit'].required = False
+            elif circuit:
+                termination_object = model.objects.get(circuit=circuit, term_side=name.upper())
+                if termination_object.provider_network is not None:
+                    raise forms.ValidationError(
+                        _("Side {side_upper}: {circuit} {termination_object} is already connected to a Provider Network").format(
+                            side_upper=side.upper(), circuit=circuit, termination_object=termination_object
+                        )
+                    )
+            
             if termination_object.cable is not None and termination_object.cable != self.instance:
                 raise forms.ValidationError(
                     _("Side {side_upper}: {device} {termination_object} is already connected").format(
