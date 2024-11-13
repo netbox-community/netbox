@@ -698,7 +698,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = self.form(request.POST, initial=initial_data)
+            form = self.form(initial=initial_data)
             restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
