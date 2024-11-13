@@ -923,6 +923,14 @@ class MACAddressForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
+    def clean_is_primary(self):
+        # If setting this MACAddress to primary, unset all the rest on this interface
+        if is_primary := self.cleaned_data['is_primary']:
+            if interface := self.cleaned_data['interface']:
+                interface.mac_addresses.all().update(is_primary=False)
+            if vminterface := self.cleaned_data['vminterface']:
+                vminterface.mac_addresses.all().update(is_primary=False)
+        return is_primary
 
     def clean(self):
         super().clean()
