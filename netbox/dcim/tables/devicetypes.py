@@ -163,9 +163,7 @@ class ComponentTemplateTable(NetBoxTable):
     id = tables.Column(
         verbose_name=_('ID')
     )
-    name = tables.Column(
-        order_by=('_name',)
-    )
+    name = tables.Column()
 
     class Meta(NetBoxTable.Meta):
         exclude = ('id', )

@@ -132,7 +132,6 @@ class PlatformTable(NetBoxTable):
 class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
-        order_by=('_name',),
         template_code=DEVICE_LINK,
         linkify=True
     )
@@ -288,7 +287,6 @@ class DeviceComponentTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True,
-        order_by=('_name',)
     )
     device_status = columns.ChoiceFieldColumn(
         accessor=tables.A('device__status'),
@@ -391,7 +389,6 @@ class DeviceConsolePortTable(ConsolePortTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-console"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -433,7 +430,6 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-console-network-outline"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -482,7 +478,6 @@ class DevicePowerPortTable(PowerPortTable):
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-power-plug-outline"></i> <a href="{{ record.get_absolute_url }}">'
                       '{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -531,7 +526,6 @@ class DevicePowerOutletTable(PowerOutletTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-power-socket"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -736,7 +730,6 @@ class DeviceFrontPortTable(FrontPortTable):
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -783,7 +776,6 @@ class DeviceRearPortTable(RearPortTable):
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-square-rounded{% if not record.cable %}-outline{% endif %}"></i> '
                       '<a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -846,7 +838,6 @@ class DeviceDeviceBayTable(DeviceBayTable):
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-circle{% if record.installed_device %}slice-8{% else %}outline{% endif %}'
                       '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
@@ -915,7 +906,6 @@ class DeviceModuleBayTable(ModuleBayTable):
     name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True,
-        order_by=Accessor('_name')
     )
     actions = columns.ActionsColumn(
         extra_buttons=MODULEBAY_BUTTONS
@@ -982,7 +972,6 @@ class DeviceInventoryItemTable(InventoryItemTable):
         verbose_name=_('Name'),
         template_code='<a href="{{ record.get_absolute_url }}" style="padding-left: {{ record.level }}0px">'
                       '{{ value }}</a>',
-        order_by=Accessor('_name'),
         attrs={'td': {'class': 'text-nowrap'}}
     )
 
