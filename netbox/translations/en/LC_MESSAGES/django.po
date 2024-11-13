@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-08 05:01+0000\n"
+"POT-Creation-Date: 2024-11-13 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2452,11 +2452,11 @@ msgstr ""
 msgid "Failed to stop job {id}"
 msgstr ""
 
-#: netbox/core/views.py:678
+#: netbox/core/views.py:674
 msgid "Plugins catalog could not be loaded"
 msgstr ""
 
-#: netbox/core/views.py:712
+#: netbox/core/views.py:708
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr ""
@@ -11141,7 +11141,7 @@ msgstr ""
 msgid "{class_name} must implement get_children()"
 msgstr ""
 
-#: netbox/netbox/views/misc.py:44
+#: netbox/netbox/views/misc.py:46
 msgid ""
 "There was an error loading the dashboard configuration. A default dashboard "
 "is in use."
@@ -14848,12 +14848,12 @@ msgid "Memory (MB)"
 msgstr ""
 
 #: netbox/virtualization/forms/bulk_edit.py:174
-msgid "Disk (GB)"
+msgid "Disk (MB)"
 msgstr ""
 
 #: netbox/virtualization/forms/bulk_edit.py:334
 #: netbox/virtualization/forms/filtersets.py:251
-msgid "Size (GB)"
+msgid "Size (MB)"
 msgstr ""
 
 #: netbox/virtualization/forms/bulk_import.py:44
