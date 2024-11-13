@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from utilities.templatetags.helpers import humanize_megabytes
+from utilities.templatetags.helpers import humanize_disk_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
@@ -123,7 +123,7 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         )
 
     def render_disk(self, value):
-        return humanize_megabytes(value)
+        return humanize_disk_megabytes(value)
 
 
 #
@@ -212,7 +212,7 @@ class VirtualDiskTable(NetBoxTable):
         }
 
     def render_size(self, value):
-        return humanize_megabytes(value)
+        return humanize_disk_megabytes(value)
 
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):

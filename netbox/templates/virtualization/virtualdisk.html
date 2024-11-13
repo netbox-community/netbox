@@ -29,7 +29,7 @@
             <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Size" %}</th>
             <td>
               {% if object.size %}
-                {{ object.size|humanize_megabytes }}
+                {{ object.size|humanize_disk_megabytes }}
               {% else %}
                 {{ ''|placeholder }}
               {% endif %}

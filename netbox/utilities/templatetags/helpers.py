@@ -8,6 +8,7 @@ from django.urls import NoReverseMatch, reverse
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.views import get_viewname
+from netbox.settings import DISK_UNIT_DIVISOR, RAM_UNIT_DIVISOR
 
 __all__ = (
     'applied_filters',
@@ -15,7 +16,8 @@ __all__ = (
     'divide',
     'get_item',
     'get_key',
-    'humanize_megabytes',
+    'humanize_disk_megabytes',
+    'humanize_ram_megabytes',
     'humanize_speed',
     'icon_from_status',
     'kg_to_pounds',
@@ -83,18 +85,16 @@ def humanize_speed(speed):
     else:
         return '{} Kbps'.format(speed)
 
-
-@register.filter()
-def humanize_megabytes(mb):
+def _humanize_megabytes(mb, divisor=1000):
     """
     Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
     """
     if not mb:
         return ""
 
-    PB_SIZE = 1000000000
-    TB_SIZE = 1000000
-    GB_SIZE = 1000
+    PB_SIZE = divisor**3
+    TB_SIZE = divisor**2
+    GB_SIZE = divisor
 
     if mb >= PB_SIZE:
         return f"{mb / PB_SIZE:.2f} PB"
@@ -103,6 +103,22 @@ def humanize_megabytes(mb):
     if mb >= GB_SIZE:
         return f"{mb / GB_SIZE:.2f} GB"
     return f"{mb} MB"
+
+@register.filter()
+def humanize_disk_megabytes(mb):
+    """
+    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
+    Use the DISK_UNIT_DIVISOR setting to determine the divisor. Default is 1000.
+    """
+    return _humanize_megabytes(mb, DISK_UNIT_DIVISOR)
+
+@register.filter()
+def humanize_ram_megabytes(mb):
+    """
+    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
+    Use the RAM_UNIT_DIVISOR setting to determine the divisor. Default is 1000.
+    """
+    return _humanize_megabytes(mb, RAM_UNIT_DIVISOR)
 
 
 @register.filter()
