@@ -130,7 +130,7 @@ Context:
                   {% if field.required %}
                     {% checkmark True true="Required" %}
                   {% elif field.conditional %}
-                    {% tag "Conditional" %}
+                    <span class="badge bg-yellow text-yellow-fg" >{% trans "Conditional" %}</span>
                   {% else %}
                     {{ ''|placeholder }}
                   {% endif %}
