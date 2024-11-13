@@ -303,4 +303,24 @@ class Migration(migrations.Migration):
             name='name',
             field=models.CharField(db_collation='natural_sort', max_length=64),
         ),
+        migrations.AlterField(
+            model_name='powerfeed',
+            name='name',
+            field=models.CharField(db_collation='natural_sort', max_length=100),
+        ),
+        migrations.AlterField(
+            model_name='powerpanel',
+            name='name',
+            field=models.CharField(db_collation='natural_sort', max_length=100),
+        ),
+        migrations.AlterField(
+            model_name='virtualchassis',
+            name='name',
+            field=models.CharField(db_collation='natural_sort', max_length=64),
+        ),
+        migrations.AlterField(
+            model_name='virtualdevicecontext',
+            name='name',
+            field=models.CharField(db_collation='natural_sort', max_length=64),
+        ),
     ]

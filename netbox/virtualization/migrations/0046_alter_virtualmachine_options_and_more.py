@@ -34,4 +34,9 @@ class Migration(migrations.Migration):
             name='name',
             field=models.CharField(db_collation='natural_sort', max_length=64),
         ),
+        migrations.AlterField(
+            model_name='cluster',
+            name='name',
+            field=models.CharField(db_collation='natural_sort', max_length=100),
+        ),
     ]

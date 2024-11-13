@@ -1315,7 +1315,8 @@ class VirtualChassis(PrimaryModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
+        max_length=64,
+        db_collation="natural_sort"
     )
     domain = models.CharField(
         verbose_name=_('domain'),
@@ -1377,7 +1378,8 @@ class VirtualDeviceContext(PrimaryModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
+        max_length=64,
+        db_collation="natural_sort"
     )
     status = models.CharField(
         verbose_name=_('status'),

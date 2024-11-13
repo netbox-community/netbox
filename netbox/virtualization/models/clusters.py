@@ -50,7 +50,8 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     type = models.ForeignKey(
         verbose_name=_('type'),
