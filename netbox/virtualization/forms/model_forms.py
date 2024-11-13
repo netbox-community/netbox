@@ -62,12 +62,14 @@ class ClusterGroupForm(NetBoxModelForm):
 class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
-        queryset=ClusterType.objects.all()
+        queryset=ClusterType.objects.all(),
+        quick_add=True
     )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=ClusterGroup.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     comments = CommentField()
 

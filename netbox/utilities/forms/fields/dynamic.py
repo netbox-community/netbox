@@ -2,7 +2,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.forms import BoundField
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 from utilities.forms import widgets
 from utilities.views import get_viewname
@@ -66,6 +66,7 @@ class DynamicModelChoiceMixin:
             choice (DEPRECATED: pass `context={'disabled': '$fieldname'}` instead)
         context: A mapping of <option> template variables to their API data keys (optional; see below)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
+        quick_add: Include a button to quickly create a new related object for assignment
 
     Context keys:
         value: The name of the attribute which contains the option's value (default: 'id')
@@ -90,6 +91,7 @@ class DynamicModelChoiceMixin:
             disabled_indicator=None,
             context=None,
             selector=False,
+            quick_add=False,
             **kwargs
     ):
         self.model = queryset.model
@@ -99,6 +101,7 @@ class DynamicModelChoiceMixin:
         self.disabled_indicator = disabled_indicator
         self.context = context or {}
         self.selector = selector
+        self.quick_add = quick_add
 
         super().__init__(queryset, **kwargs)
 
@@ -120,6 +123,12 @@ class DynamicModelChoiceMixin:
         # Include object selector?
         if self.selector:
             attrs['selector'] = self.model._meta.label_lower
+
+        # Include quick add?
+        if self.quick_add:
+            app_label = self.model._meta.app_label
+            model_name = self.model._meta.model_name
+            attrs['quick_add'] = reverse_lazy(f'{app_label}:{model_name}_add')
 
         return attrs
 

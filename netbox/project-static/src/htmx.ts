@@ -4,11 +4,16 @@ import { initSelects } from './select';
 import { initObjectSelector } from './objectSelector';
 import { initBootstrap } from './bs';
 import { initMessages } from './messages';
+import { initQuickAdd } from './quickAdd';
 
 function initDepedencies(): void {
-  for (const init of [initButtons, initClipboard, initSelects, initObjectSelector, initBootstrap, initMessages]) {
-    init();
-  }
+  initButtons();
+  initClipboard();
+  initSelects();
+  initObjectSelector();
+  initQuickAdd();
+  initBootstrap();
+  initMessages();
 }
 
 /**
