@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
             name='virtualmachine',
             options={'ordering': ('name', 'pk')},
         ),
+        migrations.AlterModelOptions(
+            name='virtualdisk',
+            options={'ordering': ('virtual_machine', 'name')},
+        ),
         migrations.RemoveField(
             model_name='virtualmachine',
             name='_name',
@@ -30,13 +34,12 @@ class Migration(migrations.Migration):
             field=models.CharField(db_collation='natural_sort', max_length=64),
         ),
         migrations.AlterField(
-            model_name='vminterface',
-            name='name',
-            field=models.CharField(db_collation='natural_sort', max_length=64),
-        ),
-        migrations.AlterField(
             model_name='cluster',
             name='name',
             field=models.CharField(db_collation='natural_sort', max_length=100),
+        ),
+        migrations.RemoveField(
+            model_name='virtualdisk',
+            name='_name',
         ),
     ]

@@ -267,17 +267,6 @@ class ComponentModel(NetBoxModel):
         on_delete=models.CASCADE,
         related_name='%(class)ss'
     )
-    name = models.CharField(
-        verbose_name=_('name'),
-        max_length=64,
-        db_collation="natural_sort"
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        naturalize_function=naturalize_interface,
-        max_length=100,
-        blank=True
-    )
     description = models.CharField(
         verbose_name=_('description'),
         max_length=200,
@@ -286,7 +275,6 @@ class ComponentModel(NetBoxModel):
 
     class Meta:
         abstract = True
-        ordering = ('virtual_machine', CollateAsChar('_name'))
         constraints = (
             models.UniqueConstraint(
                 fields=('virtual_machine', 'name'),
@@ -308,6 +296,16 @@ class ComponentModel(NetBoxModel):
 
 
 class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=64,
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
+        blank=True
+    )
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
@@ -355,6 +353,7 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
     class Meta(ComponentModel.Meta):
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
+        ordering = ('virtual_machine', CollateAsChar('_name'))
 
     def clean(self):
         super().clean()
@@ -406,6 +405,11 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
 
 
 class VirtualDisk(ComponentModel, TrackingModelMixin):
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=64,
+        db_collation="natural_sort"
+    )
     size = models.PositiveIntegerField(
         verbose_name=_('size (MB)'),
     )
@@ -413,3 +417,4 @@ class VirtualDisk(ComponentModel, TrackingModelMixin):
     class Meta(ComponentModel.Meta):
         verbose_name = _('virtual disk')
         verbose_name_plural = _('virtual disks')
+        ordering = ('virtual_machine', 'name')

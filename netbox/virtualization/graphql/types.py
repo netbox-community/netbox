@@ -25,7 +25,6 @@ class ComponentType(NetBoxObjectType):
     """
     Base type for device/VM components
     """
-    _name: str
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
 
 
@@ -101,6 +100,7 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     filters=VMInterfaceFilter
 )
 class VMInterfaceType(IPAddressesMixin, ComponentType):
+    _name: str
     mac_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
