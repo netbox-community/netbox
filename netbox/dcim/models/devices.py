@@ -23,7 +23,7 @@ from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
+from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
@@ -582,13 +582,8 @@ class Device(
         verbose_name=_('name'),
         max_length=64,
         blank=True,
-        null=True
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True,
-        null=True
+        null=True,
+        db_collation="natural_sort"
     )
     serial = models.CharField(
         max_length=50,
@@ -775,7 +770,7 @@ class Device(
     )
 
     class Meta:
-        ordering = ('_name', 'pk')  # Name may be null
+        ordering = ('name', 'pk')  # Name may be null
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'site', 'tenant',

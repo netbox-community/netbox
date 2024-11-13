@@ -8,7 +8,6 @@ from dcim.choices import *
 from dcim.constants import *
 from netbox.models import NestedGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-from utilities.fields import NaturalOrderingField
 
 __all__ = (
     'Location',
@@ -145,11 +144,6 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         unique=True,
         help_text=_("Full name of the site"),
         db_collation="natural_sort"
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
     )
     slug = models.SlugField(
         verbose_name=_('slug'),

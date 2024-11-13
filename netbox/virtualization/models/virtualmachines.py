@@ -69,12 +69,8 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
+        max_length=64,
+        db_collation="natural_sort"
     )
     status = models.CharField(
         max_length=50,
@@ -152,7 +148,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     )
 
     class Meta:
-        ordering = ('_name', 'pk')  # Name may be non-unique
+        ordering = ('name', 'pk')  # Name may be non-unique
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'cluster', 'tenant',
@@ -273,7 +269,8 @@ class ComponentModel(NetBoxModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
+        max_length=64,
+        db_collation="natural_sort"
     )
     _name = NaturalOrderingField(
         target_field='name',
