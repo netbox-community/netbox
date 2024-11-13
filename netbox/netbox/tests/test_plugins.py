@@ -213,7 +213,6 @@ class PluginTest(TestCase):
         self.assertEqual(get_plugin_config(plugin, 'bar'), None)
         self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
 
-
     def test_events_pipeline(self):
         """
         Check that events pipeline is registered.
