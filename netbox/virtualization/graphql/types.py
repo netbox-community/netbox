@@ -77,7 +77,6 @@ class ClusterTypeType(OrganizationalObjectType):
     filters=VirtualMachineFilter
 )
 class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
-    _name: str
     interface_count: BigInt
     virtual_disk_count: BigInt
     interface_count: BigInt

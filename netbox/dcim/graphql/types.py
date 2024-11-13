@@ -76,7 +76,6 @@ class ComponentType(
     """
     Base type for device/VM components
     """
-    _name: str
     device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]
 
 
@@ -93,7 +92,6 @@ class ComponentTemplateType(
     """
     Base type for device/VM components
     """
-    _name: str
     device_type: Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]
 
 
@@ -181,7 +179,7 @@ class ConsolePortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
     filters=ConsolePortTemplateFilter
 )
 class ConsolePortTemplateType(ModularComponentTemplateType):
-    _name: str
+    pass
 
 
 @strawberry_django.type(
@@ -199,7 +197,7 @@ class ConsoleServerPortType(ModularComponentType, CabledObjectMixin, PathEndpoin
     filters=ConsoleServerPortTemplateFilter
 )
 class ConsoleServerPortTemplateType(ModularComponentTemplateType):
-    _name: str
+    pass
 
 
 @strawberry_django.type(
@@ -208,7 +206,6 @@ class ConsoleServerPortTemplateType(ModularComponentTemplateType):
     filters=DeviceFilter
 )
 class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-    _name: str
     console_port_count: BigInt
     console_server_port_count: BigInt
     power_port_count: BigInt
@@ -273,7 +270,7 @@ class DeviceBayType(ComponentType):
     filters=DeviceBayTemplateFilter
 )
 class DeviceBayTemplateType(ComponentTemplateType):
-    _name: str
+    pass
 
 
 @strawberry_django.type(
@@ -282,7 +279,6 @@ class DeviceBayTemplateType(ComponentTemplateType):
     filters=InventoryItemTemplateFilter
 )
 class InventoryItemTemplateType(ComponentTemplateType):
-    _name: str
     role: Annotated["InventoryItemRoleType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
@@ -366,7 +362,6 @@ class FrontPortType(ModularComponentType, CabledObjectMixin):
     filters=FrontPortTemplateFilter
 )
 class FrontPortTemplateType(ModularComponentTemplateType):
-    _name: str
     color: str
     rear_port: Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]
 
@@ -377,6 +372,7 @@ class FrontPortTemplateType(ModularComponentTemplateType):
     filters=InterfaceFilter
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
+    _name: str
     mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
@@ -527,7 +523,7 @@ class ModuleBayType(ModularComponentType):
     filters=ModuleBayTemplateFilter
 )
 class ModuleBayTemplateType(ModularComponentTemplateType):
-    _name: str
+    pass
 
 
 @strawberry_django.type(
@@ -588,7 +584,6 @@ class PowerOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
     filters=PowerOutletTemplateFilter
 )
 class PowerOutletTemplateType(ModularComponentTemplateType):
-    _name: str
     power_port: Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')] | None
 
 
@@ -620,8 +615,6 @@ class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     filters=PowerPortTemplateFilter
 )
 class PowerPortTemplateType(ModularComponentTemplateType):
-    _name: str
-
     poweroutlet_templates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
@@ -640,7 +633,6 @@ class RackTypeType(NetBoxObjectType):
     filters=RackFilter
 )
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-    _name: str
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     location: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -693,7 +685,6 @@ class RearPortType(ModularComponentType, CabledObjectMixin):
     filters=RearPortTemplateFilter
 )
 class RearPortTemplateType(ModularComponentTemplateType):
-    _name: str
     color: str
 
     frontport_templates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
@@ -729,7 +720,6 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
     filters=SiteFilter
 )
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-    _name: str
     time_zone: str | None
     region: Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None
     group: Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None
