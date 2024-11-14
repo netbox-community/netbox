@@ -131,13 +131,11 @@ def get_annotations_for_serializer(serializer_class, fields_to_include=None):
         if field_name in fields_to_include and type(field) is RelatedObjectCountField:
             try:
                 related_field = model._meta.get_field(field.relation).field
-                related_field_name = related_field.name
             except FieldDoesNotExist:
                 # Handle RelatedObjectCountField with no related_name given
                 related_field = getattr(model, field.relation).field
-                related_field_name = field_name
 
-            annotations[field_name] = count_related(related_field.model, related_field_name)
+            annotations[field_name] = count_related(related_field.model, related_field.name)
 
     return annotations
 
