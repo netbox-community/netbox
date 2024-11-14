@@ -80,5 +80,3 @@ class ClusterSerializer(NetBoxModelSerializer):
         serializer = get_serializer_for_model(obj.scope)
         context = {'request': self.context['request']}
         return serializer(obj.scope, nested=True, context=context).data
-
-
