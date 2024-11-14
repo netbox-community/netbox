@@ -4,7 +4,7 @@
 
 ## Fields
 
-!!! note
+!!! note "Changed in NetBox v4.2"
     The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
 ### Virtual Machine

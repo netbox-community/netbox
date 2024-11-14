@@ -12,6 +12,7 @@ __all__ = (
     'ConsolePortBulkCreateForm',
     'ConsoleServerPortBulkCreateForm',
     'DeviceBayBulkCreateForm',
+    # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
     'InventoryItemBulkCreateForm',
     'ModuleBayBulkCreateForm',

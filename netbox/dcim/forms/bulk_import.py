@@ -777,19 +777,7 @@ class MACAddressImportForm(NetBoxModelImportForm):
         if self.cleaned_data.get('interface'):
             self.instance.assigned_object = self.cleaned_data['interface']
 
-        mac_address = super().save(*args, **kwargs)
-
-        # Set as primary for device/VM
-        # TODO: set as primary for interface
-        # if self.cleaned_data.get('is_primary'):
-        #     parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
-        #     if self.instance.address.version == 4:
-        #         parent.primary_ip4 = ipaddress
-        #     elif self.instance.address.version == 6:
-        #         parent.primary_ip6 = ipaddress
-        #     parent.save()
-
-        return mac_address
+        return super().save(*args, **kwargs)
 
 
 #
