@@ -608,7 +608,7 @@ class BaseInterface(models.Model):
     def count_fhrp_groups(self):
         return self.fhrp_group_assignments.count()
 
-    @property
+    @cached_property
     def mac_address(self):
         if macaddress := self.mac_addresses.order_by('-is_primary').first():
             return macaddress.mac_address
