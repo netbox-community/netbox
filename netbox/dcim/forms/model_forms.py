@@ -936,7 +936,7 @@ class MACAddressForm(NetBoxModelForm):
             })
         elif selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
-            if self.instance.pk and self.instance.assigned_object and self.cleaned_data['is_primary'] and assigned_object != self.instance.assigned_object:
+            if self.instance.pk and self.instance.assigned_object and self.instance.is_primary and assigned_object != self.instance.assigned_object:
                 raise ValidationError(
                     _("Cannot reassign MAC address while it is designated as the primary MAC for the interface")
                 )
