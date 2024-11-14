@@ -1529,16 +1529,11 @@ class InterfaceBulkEditForm(
             'group_id': '$wireless_lan_group',
         }
     )
-    mac_address = forms.CharField(
-        empty_value=None,
-        required=False,
-        label=_('MAC Address')
-    )
 
     model = Interface
     fieldsets = (
         FieldSet('module', 'type', 'label', 'speed', 'duplex', 'description'),
-        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),

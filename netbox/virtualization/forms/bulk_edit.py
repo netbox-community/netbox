@@ -242,11 +242,6 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('VRF')
     )
-    mac_address = forms.CharField(
-        empty_value=None,
-        required=False,
-        label=_('MAC Address')
-    )
 
     model = VMInterface
     fieldsets = (
