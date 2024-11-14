@@ -358,7 +358,7 @@
       <div class="card">
         <h2 class="card-header">
           {% trans "MAC Addresses" %}
-          {% if perms.ipam.add_macaddress %}
+          {% if perms.dcim.add_macaddress %}
             <div class="card-actions">
               <a href="{% url 'dcim:macaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add MAC Address" %}

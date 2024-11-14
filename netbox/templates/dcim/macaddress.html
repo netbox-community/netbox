@@ -11,6 +11,13 @@
         <h2 class="card-header">{% trans "MAC Address" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
+            <th scope="row">{% trans "MAC Address" %}</th>
+            <td>
+              <span id="macaddress_{{ object.pk }}">{{ object.mac_address|placeholder }}</span>
+              {% copy_content object.pk prefix="macaddress_" %}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
@@ -18,9 +25,7 @@
             <th scope="row">{% trans "Assignment" %}</th>
             <td>
               {% if object.assigned_object %}
-                {% if object.assigned_object.parent_object %}
-                  {{ object.assigned_object.parent_object|linkify }} /
-                {% endif %}
+                {{ object.assigned_object.parent_object|linkify }} /
                 {{ object.assigned_object|linkify }}
               {% else %}
                 {{ ''|placeholder }}

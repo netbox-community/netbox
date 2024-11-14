@@ -2548,7 +2548,6 @@ class MACAddressListView(generic.ObjectListView):
     filterset = filtersets.MACAddressFilterSet
     filterset_form = forms.MACAddressFilterForm
     table = tables.MACAddressTable
-    template_name = 'dcim/component_list.html'
 
 
 @register_model_view(MACAddress)
@@ -2632,13 +2631,6 @@ class InterfaceView(generic.ObjectView):
             orderable=False
         )
 
-        # Get MAC addresses
-        mac_addresses_table = tables.MACAddressTable(
-            data=instance.mac_addresses,
-            exclude=('assigned_object',),
-            orderable=False
-        )
-
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -2665,7 +2657,6 @@ class InterfaceView(generic.ObjectView):
             'vdc_table': vdc_table,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
-            'mac_addresses_table': mac_addresses_table,
             'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }

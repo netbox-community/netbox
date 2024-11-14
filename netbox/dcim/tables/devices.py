@@ -43,6 +43,16 @@ MODULEBAY_STATUS = """
 {% badge record.installed_module.get_status_display bg_color=record.installed_module.get_status_color %}
 """
 
+MACADDRESS_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}" id="macaddress_{{ record.pk }}">{{ record.mac_address }}</a>
+{% endif %}
+"""
+
+MACADDRESS_COPY_BUTTON = """
+{% copy_content record.pk prefix="macaddress_" %}
+"""
+
 
 #
 # Device roles
@@ -599,9 +609,9 @@ class BaseInterfaceTable(NetBoxTable):
 
 
 class MACAddressTable(NetBoxTable):
-    mac_address = tables.Column(
-        verbose_name=_('MAC Address'),
-        linkify=True
+    mac_address = tables.TemplateColumn(
+        template_code=MACADDRESS_LINK,
+        verbose_name=_('MAC Address')
     )
     assigned_object = tables.Column(
         linkify=True,
@@ -624,6 +634,9 @@ class MACAddressTable(NetBoxTable):
     )
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=MACADDRESS_COPY_BUTTON
     )
 
     class Meta(DeviceComponentTable.Meta):
