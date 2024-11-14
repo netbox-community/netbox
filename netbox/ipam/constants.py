@@ -23,11 +23,6 @@ VRF_RD_MAX_LENGTH = 21
 PREFIX_LENGTH_MIN = 1
 PREFIX_LENGTH_MAX = 127  # IPv6
 
-# models values for ContentTypes which may be Prefix scope types
-PREFIX_SCOPE_TYPES = (
-    'region', 'sitegroup', 'site', 'location',
-)
-
 
 #
 # IPAddresses
