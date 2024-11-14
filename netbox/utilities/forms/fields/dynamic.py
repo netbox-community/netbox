@@ -66,7 +66,7 @@ class DynamicModelChoiceMixin:
             choice (DEPRECATED: pass `context={'disabled': '$fieldname'}` instead)
         context: A mapping of <option> template variables to their API data keys (optional; see below)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
-        quick_add: Include a button to quickly create a new related object for assignment
+        quick_add: Include a widget to quickly create a new related object for assignment
 
     Context keys:
         value: The name of the attribute which contains the option's value (default: 'id')

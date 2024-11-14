@@ -239,6 +239,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             'form': form,
         }
 
+        # If the form is being displayed within a "quick add" widget,
+        # use the appropriate template
         if request.GET.get('_quickadd'):
             return render(request, 'htmx/quick_add.html', context)
 
@@ -262,6 +264,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectEditView')
         obj = self.get_object(**kwargs)
+        model = self.queryset.model
 
         # Take a snapshot for change logging (if editing an existing object)
         if obj.pk and hasattr(obj, 'snapshot'):
@@ -334,14 +337,15 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             logger.debug("Form validation failed")
 
         context = {
+            'model': model,
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
             **self.get_extra_context(request, obj),
         }
 
+        # Form was submitted via a "quick add" widget
         if '_quickadd' in request.POST:
-            context['model'] = self.queryset.model
             return render(request, 'htmx/quick_add.html', context)
 
         return render(request, self.template_name, context)

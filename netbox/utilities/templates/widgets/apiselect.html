@@ -2,6 +2,7 @@
 <div class="d-flex">
   {% include 'django/forms/widgets/select.html' %}
   {% if widget.attrs.selector and not widget.attrs.disabled %}
+    {# Opens the object selector modal #}
     <button
       type="button"
       title="{% trans "Open selector" %}"
@@ -15,6 +16,7 @@
     </button>
   {% endif %}
   {% if widget.attrs.quick_add and not widget.attrs.disabled %}
+    {# Opens the quick add modal #}
     <button
       type="button"
       title="{% trans "Quick add" %}"

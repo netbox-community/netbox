@@ -51,6 +51,7 @@ class ProviderAccountForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
+        selector=True,
         quick_add=True
     )
     comments = CommentField()
@@ -66,6 +67,7 @@ class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
+        selector=True,
         quick_add=True
     )
     comments = CommentField()
