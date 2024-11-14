@@ -724,7 +724,7 @@ class MACAddressImportForm(NetBoxModelImportForm):
     )
     is_primary = forms.BooleanField(
         label=_('Is primary'),
-        help_text=_('Make this the primary MAC for the assigned interface'),
+        help_text=_('Make this the primary MAC address for the assigned interface'),
         required=False
     )
 
@@ -764,11 +764,11 @@ class MACAddressImportForm(NetBoxModelImportForm):
         # TODO: scope to interface rather than device/VM
         if is_primary and not device and not virtual_machine:
             raise forms.ValidationError({
-                "is_primary": _("No device or virtual machine specified; cannot set as primary MAC")
+                "is_primary": _("No device or virtual machine specified; cannot set as primary")
             })
         if is_primary and not interface:
             raise forms.ValidationError({
-                "is_primary": _("No interface specified; cannot set as primary MAC")
+                "is_primary": _("No interface specified; cannot set as primary")
             })
 
     def save(self, *args, **kwargs):

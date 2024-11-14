@@ -609,7 +609,7 @@ class MACAddressTable(NetBoxTable):
         verbose_name=_('Interface')
     )
     is_primary = columns.BooleanColumn(
-        verbose_name=_('Primary MAC'),
+        verbose_name=_('Primary for Interface'),
         false_mark=None
     )
     assigned_device = tables.Column(
