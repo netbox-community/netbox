@@ -47,7 +47,6 @@ class ClusterViewSet(NetBoxModelViewSet):
 # Virtual machines
 #
 
-
 class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.all()
     filterset_class = filtersets.VirtualMachineFilterSet
