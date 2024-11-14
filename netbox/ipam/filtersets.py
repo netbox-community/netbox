@@ -1,6 +1,6 @@
 import django_filters
 import netaddr
-from dcim.filterset_mixins import ScopedFilterSet
+from dcim.base_filtersets import ScopedFilterSet
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
