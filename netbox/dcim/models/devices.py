@@ -1484,8 +1484,6 @@ class VirtualDeviceContext(PrimaryModel):
 
 class MACAddress(PrimaryModel):
     mac_address = MACAddressField(
-        null=True,
-        blank=True,
         verbose_name=_('MAC address')
     )
     assigned_object_type = models.ForeignKey(
@@ -1506,7 +1504,7 @@ class MACAddress(PrimaryModel):
     )
     is_primary = models.BooleanField(
         verbose_name=_('is primary for interface'),
-        default=False
+        default=True
     )
 
     class Meta:
@@ -1515,7 +1513,7 @@ class MACAddress(PrimaryModel):
         verbose_name_plural = _('MAC addresses')
 
     def __str__(self):
-        return f'{str(self.mac_address)} {self.assigned_object}'
+        return str(self.mac_address)
 
     def clean(self):
         super().clean()
