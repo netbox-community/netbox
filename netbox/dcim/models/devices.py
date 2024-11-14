@@ -1516,3 +1516,12 @@ class MACAddress(PrimaryModel):
 
     def __str__(self):
         return f'{str(self.mac_address)} {self.assigned_object}'
+
+    def clean(self):
+        super().clean()
+
+        if self.is_primary and self.assigned_object:
+            if self.assigned_object.mac_addresses.filter(is_primary=True).exists():
+                raise ValidationError({
+                    'is_primary': _("There is already a primary MAC address for this interface.")
+                })
