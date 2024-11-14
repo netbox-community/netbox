@@ -1519,7 +1519,7 @@ class MACAddress(PrimaryModel):
         super().clean()
 
         if self.is_primary and self.assigned_object:
-            if self.assigned_object.mac_addresses.filter(is_primary=True).exists():
+            if self.assigned_object.mac_addresses.filter(is_primary=True).exclude(pk=self.pk).exists():
                 raise ValidationError({
                     'is_primary': _("There is already a primary MAC address for this interface.")
                 })

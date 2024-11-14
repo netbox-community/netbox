@@ -1627,7 +1627,7 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = MACAddress
-        fields = ('id', 'description', 'interface', 'assigned_object_type', 'assigned_object_id')
+        fields = ('id', 'description', 'is_primary', 'assigned_object_type', 'assigned_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

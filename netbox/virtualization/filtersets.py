@@ -9,7 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
-from utilities.filters import MultiValueCharFilter, TreeNodeMultipleChoiceFilter, MultiValueMACAddressFilter
+from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
 from .models import *
 

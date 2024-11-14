@@ -1289,7 +1289,6 @@ class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
     model = MACAddress
     fieldsets = (
         FieldSet('description'),
-        # FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
         'description', 'comments',
