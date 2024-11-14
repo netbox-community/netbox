@@ -255,7 +255,6 @@ urlpatterns = [
     path('mac-addresses/add/', views.MACAddressEditView.as_view(), name='macaddress_add'),
     path('mac-addresses/import/', views.MACAddressBulkImportView.as_view(), name='macaddress_import'),
     path('mac-addresses/edit/', views.MACAddressBulkEditView.as_view(), name='macaddress_bulk_edit'),
-    path('mac-addresses/rename/', views.MACAddressBulkRenameView.as_view(), name='macaddress_bulk_rename'),
     path('mac-addresses/delete/', views.MACAddressBulkDeleteView.as_view(), name='macaddress_bulk_delete'),
     path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),
 

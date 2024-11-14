@@ -97,8 +97,6 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
     mac_address = serializers.CharField(
-        required=False,
-        default=None,
         allow_null=True,
         read_only=True
     )

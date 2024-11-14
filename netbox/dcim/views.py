@@ -2579,14 +2579,6 @@ class MACAddressBulkEditView(generic.BulkEditView):
     form = forms.MACAddressBulkEditForm
 
 
-class MACAddressBulkRenameView(generic.BulkRenameView):
-    queryset = MACAddress.objects.all()
-
-
-class MACAddressBulkDisconnectView(BulkDisconnectView):
-    queryset = MACAddress.objects.all()
-
-
 class MACAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = MACAddress.objects.all()
     filterset = filtersets.MACAddressFilterSet
