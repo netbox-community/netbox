@@ -544,6 +544,11 @@ class DevicePowerOutletTable(PowerOutletTable):
 
 
 class BaseInterfaceTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+        order_by=('_name',)
+    )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
@@ -591,7 +596,7 @@ class BaseInterfaceTable(NetBoxTable):
         return ",".join([str(obj) for obj in value.all()])
 
 
-class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpointTable):
+class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpointTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={

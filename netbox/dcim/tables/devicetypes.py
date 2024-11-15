@@ -218,6 +218,10 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        order_by=('_name',)
+    )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
