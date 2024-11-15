@@ -1,40 +1,9 @@
-import dcim.fields
 import django.db.models.deletion
 import taggit.managers
-import utilities.json
 from django.db import migrations, models
 
-
-def populate_macaddress_objects(apps, schema_editor):
-    Interface = apps.get_model('dcim', 'Interface')
-    VMInterface = apps.get_model('virtualization', 'VMInterface')
-    MACAddress = apps.get_model('dcim', 'MACAddress')
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    interface_ct = ContentType.objects.get_for_model(Interface)
-    vminterface_ct = ContentType.objects.get_for_model(VMInterface)
-    mac_addresses = []
-    print()
-    print('Converting MAC addresses...')
-    for interface in Interface.objects.filter(_mac_address__isnull=False):
-        mac_addresses.append(
-            MACAddress(
-                mac_address=interface._mac_address,
-                assigned_object_type=interface_ct,
-                assigned_object_id=interface.id,
-                # interface=interface,
-            )
-        )
-    for vminterface in VMInterface.objects.filter(_mac_address__isnull=False):
-        mac_addresses.append(
-            MACAddress(
-                mac_address=vminterface._mac_address,
-                assigned_object_type=vminterface_ct,
-                assigned_object_id=vminterface.id,
-                # vm_interface=vm_interface,
-            )
-        )
-    MACAddress.objects.bulk_create(mac_addresses)
-    print(f'Created {len(mac_addresses)} MAC address objects.')
+import dcim.fields
+import utilities.json
 
 
 class Migration(migrations.Migration):
@@ -42,15 +11,9 @@ class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0198_natural_ordering'),
         ('extras', '0122_charfield_null_choices'),
-        ('virtualization', '0047_vminterface_rename_mac_address'),
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='interface',
-            old_name='mac_address',
-            new_name='_mac_address',
-        ),
         migrations.CreateModel(
             name='MACAddress',
             fields=[
@@ -71,8 +34,4 @@ class Migration(migrations.Migration):
                 'ordering': ('mac_address',)
             },
         ),
-        migrations.RunPython(
-            code=populate_macaddress_objects,
-            reverse_code=migrations.RunPython.noop
-        )
     ]
