@@ -1,4 +1,6 @@
+line-length = 120
+
 [lint]
-extend-select = ["E1", "E2", "E3", "W"]
-ignore = ["E501", "F403", "F405"]
+extend-select = ["E1", "E2", "E3", "E501", "W"]
+ignore = ["F403", "F405"]
 preview = true
