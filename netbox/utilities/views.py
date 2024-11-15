@@ -272,7 +272,7 @@ def get_viewname(model, action=None, rest_api=False):
     return viewname
 
 
-def register_model_view(model, name='', path=None, kwargs=None):
+def register_model_view(model, name='', path=None, detail=True, kwargs=None):
     """
     This decorator can be used to "attach" a view to any model in NetBox. This is typically used to inject
     additional tabs within a model's detail view. For example, to add a custom tab to NetBox's dcim.Site model:
@@ -289,6 +289,7 @@ def register_model_view(model, name='', path=None, kwargs=None):
         name: The string used to form the view's name for URL resolution (e.g. via `reverse()`). This will be appended
             to the name of the base view for the model using an underscore. If blank, the model name will be used.
         path: The URL path by which the view can be reached (optional). If not provided, `name` will be used.
+        detail: True if the path applied to an individual object; False if it attaches to the base (list) path.
         kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional).
     """
     def _wrapper(cls):
@@ -301,7 +302,8 @@ def register_model_view(model, name='', path=None, kwargs=None):
         registry['views'][app_label][model_name].append({
             'name': name,
             'view': cls,
-            'path': path or name,
+            'path': path if path is not None else name,
+            'detail': detail,
             'kwargs': kwargs or {},
         })
 
