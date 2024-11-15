@@ -688,8 +688,7 @@ class RackElevationListView(generic.ObjectListView):
         sort = request.GET.get('sort', 'name')
         if sort not in ORDERING_CHOICES:
             sort = 'name'
-        sort_field = sort.replace("name", "_name")  # Use natural ordering
-        racks = racks.order_by(sort_field)
+        racks = racks.order_by(sort)
 
         # Pagination
         per_page = get_paginate_count(request)
@@ -731,8 +730,8 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
             peer_racks = peer_racks.filter(location=instance.location)
         else:
             peer_racks = peer_racks.filter(location__isnull=True)
-        next_rack = peer_racks.filter(_name__gt=instance._name).first()
-        prev_rack = peer_racks.filter(_name__lt=instance._name).reverse().first()
+        next_rack = peer_racks.filter(name__gt=instance.name).first()
+        prev_rack = peer_racks.filter(name__lt=instance.name).reverse().first()
 
         # Determine any additional parameters to pass when embedding the rack elevations
         svg_extra = '&'.join([

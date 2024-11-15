@@ -111,7 +111,6 @@ class RackTypeTable(NetBoxTable):
 class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
-        order_by=('_name',),
         linkify=True
     )
     location = tables.Column(

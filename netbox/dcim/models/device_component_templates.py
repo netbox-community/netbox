@@ -44,12 +44,8 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
         max_length=64,
         help_text=_(
             "{module} is accepted as a substitution for the module bay position when attached to a module type."
-        )
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
+        ),
+        db_collation="natural_sort"
     )
     label = models.CharField(
         verbose_name=_('label'),
@@ -65,7 +61,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
 
     class Meta:
         abstract = True
-        ordering = ('device_type', '_name')
+        ordering = ('device_type', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'name'),
@@ -125,7 +121,7 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     class Meta:
         abstract = True
-        ordering = ('device_type', 'module_type', '_name')
+        ordering = ('device_type', 'module_type', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'name'),
@@ -782,7 +778,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
     component_model = InventoryItem
 
     class Meta:
-        ordering = ('device_type__id', 'parent__id', '_name')
+        ordering = ('device_type__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
         )

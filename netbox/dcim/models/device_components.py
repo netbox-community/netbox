@@ -50,12 +50,8 @@ class ComponentModel(NetBoxModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
+        max_length=64,
+        db_collation="natural_sort"
     )
     label = models.CharField(
         verbose_name=_('label'),
@@ -71,7 +67,7 @@ class ComponentModel(NetBoxModel):
 
     class Meta:
         abstract = True
-        ordering = ('device', '_name')
+        ordering = ('device', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'name'),
@@ -1301,7 +1297,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
 
     class Meta:
-        ordering = ('device__id', 'parent__id', '_name')
+        ordering = ('device__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
         )
