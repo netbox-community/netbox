@@ -871,7 +871,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_T1 = '100base-t1'
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
-    TYPE_1GE_LX_FIXED= '1000base-lx'
+    TYPE_1GE_LX_FIXED = '1000base-lx'
     TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
