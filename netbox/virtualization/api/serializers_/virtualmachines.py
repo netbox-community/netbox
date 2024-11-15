@@ -101,7 +101,6 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         read_only=True
     )
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
-    ip_addresses = IPAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
     class Meta:
         model = VMInterface
@@ -109,7 +108,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
             'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
             'vlan_translation_policy', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated',
-            'count_ipaddresses', 'count_fhrp_groups', 'mac_addresses', 'ip_addresses',
+            'count_ipaddresses', 'count_fhrp_groups', 'mac_addresses',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 

@@ -20,7 +20,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import Cluster, ClusterGroup, VMInterface
+from virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from wireless.models import WirelessLAN, WirelessLink
@@ -1659,7 +1659,7 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
     def filter_device(self, queryset, name, value):
-        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        devices = Device.objects.filter(**{f'{name}__in': value})
         if not devices.exists():
             return queryset.none()
         interface_ids = []
@@ -1670,7 +1670,7 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
         )
 
     def filter_virtual_machine(self, queryset, name, value):
-        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        virtual_machines = VirtualMachine.objects.filter(**{f'{name}__in': value})
         if not virtual_machines.exists():
             return queryset.none()
         interface_ids = []

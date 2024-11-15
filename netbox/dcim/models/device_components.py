@@ -606,7 +606,7 @@ class BaseInterface(models.Model):
 
     @cached_property
     def mac_address(self):
-        if macaddress := self.mac_addresses.order_by('-is_primary').first():
+        if macaddress := self.mac_addresses.order_by('-is_primary', 'mac_address').first():
             return macaddress.mac_address
         return None
 

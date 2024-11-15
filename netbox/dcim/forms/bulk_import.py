@@ -1233,10 +1233,9 @@ class MACAddressImportForm(NetBoxModelImportForm):
         is_primary = self.cleaned_data.get('is_primary')
 
         # Validate is_primary
-        # TODO: scope to interface rather than device/VM
-        if is_primary and not device and not virtual_machine:
+        if interface and not device and not virtual_machine:
             raise forms.ValidationError({
-                "is_primary": _("No device or virtual machine specified; cannot set as primary")
+                "interface": _("Must specify the parent device or VM when assigning an interface")
             })
         if is_primary and not interface:
             raise forms.ValidationError({

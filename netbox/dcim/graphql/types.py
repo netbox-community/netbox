@@ -369,11 +369,18 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.MACAddress,
-    fields='__all__',
+    exclude=('assigned_object_type', 'assigned_object_id'),
     filters=MACAddressFilter
 )
 class MACAddressType(NetBoxObjectType):
     mac_address: str
+
+    @strawberry_django.field
+    def assigned_object(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("MACAddressAssignmentType")] | None:
+        return self.assigned_object
 
 
 @strawberry_django.type(

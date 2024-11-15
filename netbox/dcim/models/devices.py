@@ -1516,7 +1516,12 @@ class MACAddress(PrimaryModel):
         super().clean()
 
         if self.is_primary and self.assigned_object:
-            if self.assigned_object.mac_addresses.filter(is_primary=True).exclude(pk=self.pk).exists():
+            peer_macs = MACAddress.objects.exclude(pk=self.pk).filter(
+                assigned_object_type=self.assigned_object_type,
+                assigned_object_id=self.assigned_object_id,
+                is_primary=True
+            )
+            if peer_macs.exists():
                 raise ValidationError({
-                    'is_primary': _("There is already a primary MAC address for this interface.")
+                    'is_primary': _("A primary MAC address is already designated for this interface.")
                 })

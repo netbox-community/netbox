@@ -1583,13 +1583,20 @@ class MACAddressFilterForm(NetBoxModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('mac_address', name=_('Addressing')),
+        FieldSet('mac_address', 'is_primary', name=_('Addressing')),
         FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
     )
     selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
     mac_address = forms.CharField(
         required=False,
         label=_('MAC address')
+    )
+    is_primary = forms.NullBooleanField(
+        required=False,
+        label=_('Is primary'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
