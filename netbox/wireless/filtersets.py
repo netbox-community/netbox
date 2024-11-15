@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
-from dcim.filtersets import ScopedFilterSet
+from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet

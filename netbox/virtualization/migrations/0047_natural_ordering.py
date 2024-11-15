@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('virtualization', '0045_clusters_cached_relations'),
+        ('virtualization', '0046_alter_cluster__location_alter_cluster__region_and_more'),
         ('dcim', '0197_natural_sort_collation'),
     ]
 

@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Site
+from dcim.forms.mixins import ScopedImportForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -154,7 +155,7 @@ class RoleImportForm(NetBoxModelImportForm):
         fields = ('name', 'slug', 'weight', 'description', 'tags')
 
 
-class PrefixImportForm(NetBoxModelImportForm):
+class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -168,11 +169,6 @@ class PrefixImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
-    )
-    scope_type = CSVContentTypeField(
-        queryset=ContentType.objects.filter(model__in=PREFIX_SCOPE_TYPES),
-        required=False,
-        label=_('Scope type (app & model)')
     )
     vlan_group = CSVModelChoiceField(
         label=_('VLAN group'),
@@ -208,7 +204,7 @@ class PrefixImportForm(NetBoxModelImportForm):
             'mark_utilized', 'description', 'comments', 'tags',
         )
         labels = {
-            'scope_id': 'Scope ID',
+            'scope_id': _('Scope ID'),
         }
 
     def __init__(self, data=None, *args, **kwargs):
