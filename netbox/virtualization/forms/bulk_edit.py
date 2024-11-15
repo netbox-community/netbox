@@ -279,7 +279,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
                 # Check interface sites.  First interface should set site, further interfaces will either continue the
                 # loop or reset back to no site and break the loop.
                 for interface in interfaces:
-                    vm_site = interface.virtual_machine.site or interface.virtual_machine.cluster.site
+                    vm_site = interface.virtual_machine.site or interface.virtual_machine.cluster._site
                     if site is None:
                         site = vm_site
                     elif vm_site is not site:
