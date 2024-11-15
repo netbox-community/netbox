@@ -1,16 +1,19 @@
 import decimal
 
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
-from netbox.api.fields import ChoiceField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
+from utilities.api import get_serializer_for_model
 from virtualization.api.serializers_.clusters import ClusterSerializer
 from .devicetypes import *
 from .platforms import PlatformSerializer
@@ -157,8 +160,22 @@ class ModuleSerializer(NetBoxModelSerializer):
 
 
 class MACAddressSerializer(NetBoxModelSerializer):
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(MACADDRESS_ASSIGNMENT_MODELS),
+        required=False,
+        allow_null=True
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = MACAddress
-        fields = ['mac_address', 'is_primary']
+        fields = ['mac_address', 'is_primary', 'assigned_object_type', 'assigned_object']
         brief_fields = ('mac_address',)
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_assigned_object(self, obj):
+        if obj.assigned_object is None:
+            return None
+        serializer = get_serializer_for_model(obj.assigned_object)
+        context = {'request': self.context['request']}
+        return serializer(obj.assigned_object, nested=True, context=context).data
