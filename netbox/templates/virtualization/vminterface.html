@@ -56,8 +56,15 @@
                     <td>{{ object.mtu|placeholder }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">{% trans "MAC Address" %}</th>
-                    <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
+                  <th scope="row">{% trans "MAC Address" %}</th>
+                  <td>
+                    {% if object.mac_address %}
+                      <span class="font-monospace">{{ object.mac_address }}</span>
+                      <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+                    {% else %}
+                      {{ ''|placeholder }}
+                    {% endif %}
+                  </td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "802.1Q Mode" %}</th>

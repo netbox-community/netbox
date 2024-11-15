@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
-from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
@@ -358,7 +358,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
-        FieldSet('vrf', 'mac_address', name=_('Addressing')),
+        FieldSet('vrf', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
         FieldSet(
@@ -370,8 +370,8 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
     class Meta:
         model = VMInterface
         fields = [
-            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
         ]
         labels = {
             'mode': _('802.1Q Mode'),
@@ -379,14 +379,6 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         widgets = {
             'mode': HTMXSelect(),
         }
-
-    def clean_mac_address(self):
-        return MACAddress.objects.create(mac_address=self.cleaned_data['mac_address'])
-
-    def save(self, commit=True):
-        result = super().save(commit=commit)
-        self.instance.mac_addresses.add(self.cleaned_data['mac_address'])
-        return result
 
 
 class VirtualDiskForm(VMComponentForm):

@@ -1128,7 +1128,7 @@ class MACAddressTable(NetBoxTable):
         verbose_name=_('Parent')
     )
     is_primary = columns.BooleanColumn(
-        verbose_name=_('Primary for Interface'),
+        verbose_name=_('Primary'),
         false_mark=None
     )
     tags = columns.TagColumn(
@@ -1141,6 +1141,7 @@ class MACAddressTable(NetBoxTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.MACAddress
         fields = (
-            'pk', 'id', 'mac_address', 'assigned_object', 'created', 'last_updated', 'is_primary',
+            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'is_primary', 'created',
+            'last_updated',
         )
-        default_columns = ('pk', 'mac_address', 'assigned_object', 'is_primary')
+        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object', 'is_primary')

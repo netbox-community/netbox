@@ -12,11 +12,6 @@ __all__ = (
 
 
 class InterfaceCommonForm(forms.Form):
-    mac_address = forms.CharField(
-        empty_value=None,
-        required=False,
-        label=_('MAC address')
-    )
     mtu = forms.IntegerField(
         required=False,
         min_value=INTERFACE_MTU_MIN,

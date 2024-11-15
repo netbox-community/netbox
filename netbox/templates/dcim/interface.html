@@ -123,11 +123,24 @@
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "MAC Address" %}</th>
-            <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
+            <td>
+              {% if object.mac_address %}
+                <span class="font-monospace">{{ object.mac_address }}</span>
+                <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "WWN" %}</th>
-            <td><span class="font-monospace">{{ object.wwn|placeholder }}</span></td>
+            <td>
+              {% if object.wwn %}
+                <span class="font-monospace">{{ object.wwn }}</span>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "VRF" %}</th>

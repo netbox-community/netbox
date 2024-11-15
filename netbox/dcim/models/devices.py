@@ -1500,7 +1500,7 @@ class MACAddress(PrimaryModel):
         fk_field='assigned_object_id'
     )
     is_primary = models.BooleanField(
-        verbose_name=_('is primary for interface'),
+        verbose_name=_('is primary'),
         default=True
     )
 

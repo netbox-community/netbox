@@ -1405,7 +1405,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
         ),
-        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
@@ -1422,8 +1422,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
-            'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
+            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge',
+            'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
         ]
@@ -1436,21 +1436,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         labels = {
             'mode': '802.1Q Mode',
         }
-
-    def clean_mac_address(self):
-        if self.cleaned_data['mac_address'] and (
-            not self.instance.pk or
-            not MACAddress.objects.filter(mac_address=self.cleaned_data['mac_address'], interface=self.instance).exists()
-        ):
-            mac_address = MACAddress.objects.create(mac_address=self.cleaned_data['mac_address'])
-            return mac_address
-        return None
-
-    def save(self, commit=True):
-        result = super().save(commit=commit)
-        if self.cleaned_data['mac_address']:
-            self.instance.mac_addresses.add(self.cleaned_data['mac_address'])
-        return result
 
 
 class FrontPortForm(ModularDeviceComponentForm):

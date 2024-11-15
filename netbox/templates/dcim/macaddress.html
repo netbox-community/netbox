@@ -6,7 +6,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col col-md-4">
+    <div class="col col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "MAC Address" %}</h2>
         <table class="table table-hover attr-table">
@@ -33,7 +33,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Primary MAC address for Interface" %}</th>
+            <th scope="row">{% trans "Primary for interface" %}</th>
             <td>{% checkmark object.is_primary %}</td>
           </tr>
         </table>
@@ -42,7 +42,7 @@
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
-    <div class="col col-md-8">
+    <div class="col col-md-6">
       {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
     </div>
