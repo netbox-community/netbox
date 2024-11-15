@@ -35,7 +35,8 @@ class VLANGroup(OrganizationalModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),

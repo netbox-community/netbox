@@ -4,13 +4,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('virtualization', '0045_clusters_cached_relations'),
+        ('virtualization', '0047_vminterface_rename_mac_address'),
     ]
 
     operations = [
-        migrations.RenameField(
+        migrations.RemoveField(
             model_name='vminterface',
-            old_name='mac_address',
-            new_name='_mac_address',
+            name='_mac_address',
         ),
     ]
