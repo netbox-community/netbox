@@ -10,6 +10,12 @@ __all__ = (
     'ModuleCommonForm'
 )
 
+COMPONENT_BULK_CREATE_HELP_TEXT = (
+    "Alphanumeric ranges are supported for bulk creation. Mixed cases and types "
+    "within a single range are not supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The string "
+    "<code>{module}</code> will be replaced with the position of the assigned module, if any."
+)
+
 
 class InterfaceCommonForm(forms.Form):
     mac_address = forms.CharField(

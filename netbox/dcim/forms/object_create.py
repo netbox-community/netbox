@@ -7,6 +7,7 @@ from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultiple
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import APISelect
 from . import model_forms
+from .common import COMPONENT_BULK_CREATE_HELP_TEXT
 
 __all__ = (
     'ComponentCreateForm',
@@ -57,11 +58,7 @@ class ComponentCreateForm(forms.Form):
 
         # Components attached to a module need to present this standardized substitution help text.
         if 'module' in self.fields:
-            self.fields['name'].help_text = _(
-                "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are "
-                "not supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The string <code>{module}</code> will be "
-                "replaced with the position of the assigned module, if any."
-            )
+            self.fields['name'].help_text = _(COMPONENT_BULK_CREATE_HELP_TEXT)
 
     def clean(self):
         super().clean()

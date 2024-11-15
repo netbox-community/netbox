@@ -19,7 +19,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
-from .common import InterfaceCommonForm, ModuleCommonForm
+from .common import COMPONENT_BULK_CREATE_HELP_TEXT, InterfaceCommonForm, ModuleCommonForm
 
 __all__ = (
     'CableForm',
@@ -908,6 +908,9 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         # Disable reassignment of ModuleType when editing an existing instance
         if self.instance.pk:
             self.fields['module_type'].disabled = True
+
+        # Components attached to a module need to present this standardized substitution help text.
+        self.fields['name'].help_text = _(COMPONENT_BULK_CREATE_HELP_TEXT)
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
