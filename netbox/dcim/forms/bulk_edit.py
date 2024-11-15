@@ -1275,32 +1275,6 @@ class InventoryItemTemplateBulkEditForm(BulkEditForm):
 
 
 #
-# Addressing
-#
-
-class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    is_primary = forms.NullBooleanField(
-        label=_('Is primary'),
-        required=False,
-        widget=BulkEditNullBooleanSelect(),
-    )
-    comments = CommentField()
-
-    model = MACAddress
-    fieldsets = (
-        FieldSet('description', 'is_primary'),
-    )
-    nullable_fields = (
-        'description', 'comments',
-    )
-
-
-#
 # Device components
 #
 
@@ -1746,3 +1720,29 @@ class VirtualDeviceContextBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('device', 'status', 'tenant'),
     )
     nullable_fields = ('device', 'tenant', )
+
+
+#
+# Addressing
+#
+
+class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    is_primary = forms.NullBooleanField(
+        label=_('Is primary'),
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+    )
+    comments = CommentField()
+
+    model = MACAddress
+    fieldsets = (
+        FieldSet('description', 'is_primary'),
+    )
+    nullable_fields = (
+        'description', 'comments',
+    )

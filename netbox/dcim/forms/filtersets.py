@@ -1203,35 +1203,6 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 
 
 #
-# Addressing
-#
-
-class MACAddressFilterForm(NetBoxModelFilterSetForm):
-    model = MACAddress
-    fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('mac_address', name=_('Addressing')),
-        FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
-    )
-    selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
-    mac_address = forms.CharField(
-        required=False,
-        label=_('MAC address')
-    )
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        label=_('Assigned Device'),
-    )
-    virtual_machine_id = DynamicModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        label=_('Assigned VM'),
-    )
-    tag = TagFilterField(model)
-
-
-#
 # Device components
 #
 
@@ -1601,6 +1572,35 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 
 class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
     model = InventoryItemRole
+    tag = TagFilterField(model)
+
+
+#
+# Addressing
+#
+
+class MACAddressFilterForm(NetBoxModelFilterSetForm):
+    model = MACAddress
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('mac_address', name=_('Addressing')),
+        FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
+    )
+    selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
+    mac_address = forms.CharField(
+        required=False,
+        label=_('MAC address')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
+    )
     tag = TagFilterField(model)
 
 
