@@ -21,7 +21,8 @@ class Provider(ContactsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        help_text=_('Full name of the provider')
+        help_text=_('Full name of the provider'),
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -95,7 +96,8 @@ class ProviderNetwork(PrimaryModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     provider = models.ForeignKey(
         to='circuits.Provider',

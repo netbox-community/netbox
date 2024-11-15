@@ -25,7 +25,6 @@ class ComponentType(NetBoxObjectType):
     """
     Base type for device/VM components
     """
-    _name: str
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
 
 
@@ -77,7 +76,6 @@ class ClusterTypeType(OrganizationalObjectType):
     filters=VirtualMachineFilter
 )
 class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
-    _name: str
     interface_count: BigInt
     virtual_disk_count: BigInt
     interface_count: BigInt
@@ -102,6 +100,7 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     filters=VMInterfaceFilter
 )
 class VMInterfaceType(IPAddressesMixin, ComponentType):
+    _name: str
     mac_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
