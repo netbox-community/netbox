@@ -94,24 +94,8 @@ The following colors are supported:
 
 !!! tip "Dynamic Configuration Parameter"
 
-This is a mapping of models to [custom validators](../customization/custom-validation.md) against which an object is evaluated immediately prior to its deletion. If validation fails, the object is not deleted. An example is provided below:
-
-Example prevents the deletion of a site entry:
-```python
-PROTECTION_RULES = {
-    "dcim.site": [
-        {
-            "status": {
-                "eq": "decommissioning"
-            }
-        },
-        "my_plugin.validators.Validator1",
-    ]
-}
-```
-
-### Configuration via Web UI
-Example prevents the deletion of a device entry:
+This is a mapping of models to [custom validators](../customization/custom-validation.md) against which an object is evaluated immediately prior to its deletion. If validation fails, the object is not deleted. The configuration can be carried out in the menu under “System/Configuration History/Custom validators”. 
+In the example, a device can only be deleted when it is set to the “decommissioning” status. Paths such as “dcim.device” can be found in the top right-hand corner when you open the page of a device. For a rack it would therefore be “dcim.rack”.
 
 ```python
 {
@@ -124,13 +108,3 @@ Example prevents the deletion of a device entry:
     ]
 }
 ```
-[![NetBox UI](./media/screenshots/Configuration-History-Protection-rules-Example.png)](./media/screenshots/Configuration-History-Protection-rules-Example.png)
-
-If you navigate to a device, rack or site, you will find the path in the top right-hand corner:
-
-[![NetBox UI](./media/screenshots/Device-Type-Path-Example.png)](./media/screenshots/Device-Type-Path-Example.png)
-
-Examples:
-- dcim.device
-- dcim.site
-- dcim.rack
