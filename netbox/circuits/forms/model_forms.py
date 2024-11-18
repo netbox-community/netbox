@@ -303,11 +303,15 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
         selector=True,
         query_params={
             'kind': 'virtual',
+            'virtual_circuit_termination_id': 'null',
+        },
+        context={
+            'parent': 'device',
         }
     )
 
     fieldsets = (
-        FieldSet('virtual_circuit', 'role', 'description', 'tags', 'interface'),
+        FieldSet('virtual_circuit', 'role', 'interface', 'description', 'tags'),
     )
 
     class Meta:

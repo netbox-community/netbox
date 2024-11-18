@@ -156,3 +156,9 @@ class VirtualCircuitTermination(
             return self.virtual_circuit.terminations.filter(
                 role=VirtualCircuitTerminationRoleChoices.ROLE_HUB
             )
+
+    def clean(self):
+        super().clean()
+
+        if self.interface and not self.interface.is_virtual:
+            raise ValidationError("Virtual circuits may be terminated only to virtual interfaces.")
