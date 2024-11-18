@@ -134,7 +134,7 @@ class BackgroundTaskTestCase(TestCase):
         get_queue('low').connection.flushall()
 
     def test_background_queue_list(self):
-        url = reverse('core-api:background_queue_list')
+        url = reverse('core-api:rqqueue-list')
 
         # Attempt to load view without permission
         self.user.is_staff = False
@@ -155,7 +155,7 @@ class BackgroundTaskTestCase(TestCase):
         queue = get_queue('default')
         queue.enqueue(self.dummy_job_default)
 
-        response = self.client.get(reverse('core-api:background_task_list', args=["default",]), **self.header)
+        response = self.client.get(reverse('core-api:rqtask-list', args=["default",]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn('BackgroundTaskTestCase.dummy_job_default', str(response.content))
 
@@ -165,7 +165,7 @@ class BackgroundTaskTestCase(TestCase):
 
         registry = FinishedJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
-        response = self.client.get(reverse('core-api:background_tasks_finished', args=["default",]), **self.header)
+        response = self.client.get(reverse('core-api:rqtask-finished', args=["default",]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(job.id, str(response.content))
 
@@ -175,7 +175,7 @@ class BackgroundTaskTestCase(TestCase):
 
         registry = FailedJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
-        response = self.client.get(reverse('core-api:background_tasks_failed', args=["default"]), **self.header)
+        response = self.client.get(reverse('core-api:rqtask-failed', args=["default"]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(job.id, str(response.content))
 
@@ -185,7 +185,7 @@ class BackgroundTaskTestCase(TestCase):
 
         registry = DeferredJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
-        response = self.client.get(reverse('core-api:background_tasks_deferred', args=["default",]), **self.header)
+        response = self.client.get(reverse('core-api:rqtask-deferred', args=["default",]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(job.id, str(response.content))
 

@@ -59,7 +59,8 @@ class BackgroundQueueSerializer(serializers.Serializer):
 
 
 class BackgroundWorkerSerializer(serializers.Serializer):
-    name = serializers.CharField()
+    name = serializers.HyperlinkedIdentityField(view_name='core-api:rqworker-detail', lookup_field='name')
+
     state = serializers.SerializerMethodField()
     birth_date = serializers.CharField()
     queue_names = serializers.ListField(child=serializers.CharField())

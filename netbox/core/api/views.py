@@ -124,7 +124,7 @@ class BaseRQListView(viewsets.ViewSet):
         paginator = LimitOffsetListPagination()
         data = paginator.paginate_list(data, request)
 
-        serializer = self.serializer_class(data, many=True)
+        serializer = self.serializer_class(data, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
 
@@ -133,6 +133,7 @@ class QueueViewSet(BaseRQListView):
     Retrieve a list of RQ Queues.
     """
     serializer_class = serializers.BackgroundQueueSerializer
+    lookup_field = 'name'
 
     def get_view_name(self):
         return "Background Queues"
@@ -146,6 +147,7 @@ class WorkerViewSet(BaseRQListView):
     Retrieve a list of RQ Workers.
     """
     serializer_class = serializers.BackgroundWorkerSerializer
+    lookup_field = 'name'
 
     def get_view_name(self):
         return "Background Workers"
@@ -154,18 +156,18 @@ class WorkerViewSet(BaseRQListView):
         config = QUEUES_LIST[0]
         return Worker.all(get_redis_connection(config['connection_config']))
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, name=None):
         # all the RQ queues should use the same connection
-        if not pk:
+        if not name:
             raise Http404
 
         config = QUEUES_LIST[0]
         workers = Worker.all(get_redis_connection(config['connection_config']))
-        worker = next((item for item in workers if item.name == pk), None)
+        worker = next((item for item in workers if item.name == name), None)
         if not worker:
             raise Http404
 
-        serializer = serializers.BackgroundWorkerSerializer(worker)
+        serializer = serializers.BackgroundWorkerSerializer(worker, context={'request': request})
         return Response(serializer.data)
 
 
@@ -186,7 +188,7 @@ class TaskListView(APIView):
             raise Http404
 
         data = queue.get_jobs()
-        serializer = serializers.BackgroundTaskSerializer(data, many=True)
+        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -217,7 +219,7 @@ class TaskDetailView(BaseTaskView):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def get(self, request, task_id, format=None):
         task = self.get_task_from_id(task_id)
-        serializer = serializers.BackgroundTaskSerializer(task)
+        serializer = serializers.BackgroundTaskSerializer(task, context={'request': request})
         return Response(serializer.data)
 
 
@@ -284,78 +286,46 @@ class TaskStopView(APIView):
             return HttpResponse(status=204)
 
 
-class BaseTaskListView(APIView):
+class TaskViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
-    registry = None
+    registry = "default"
 
     def get_view_name(self):
         return "Background Tasks"
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, queue_name, format=None):
+    def get_response(self, request, queue_name, status=None):
         try:
             queue = get_queue(queue_name)
         except KeyError:
             raise Http404
 
-        data = get_rq_jobs_from_status(queue, self.registry)
-        serializer = serializers.BackgroundTaskSerializer(data, many=True)
+        if not status:
+            data = queue.get_jobs()
+
+        data = get_rq_jobs_from_status(queue, status)
+
+        paginator = LimitOffsetListPagination()
+        data = paginator.paginate_list(data, request)
+
+        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
         return Response(serializer.data)
-
-
-class DeferredTaskListView(BaseTaskListView):
-    """
-    Retrieve a list of Deferred RQ Tasks in the specified Queue.
-    """
-    registry = "deferred"
-
-    def get_view_name(self):
-        return "Deferred Tasks"
-
-
-class FailedTaskListView(BaseTaskListView):
-    """
-    Retrieve a list of Failed RQ Tasks in the specified Queue.
-    """
-    registry = "failed"
-
-    def get_view_name(self):
-        return "Failed Tasks"
-
-
-class FinishedTaskListView(BaseTaskListView):
-    """
-    Retrieve a list of Finished RQ Tasks in the specified Queue.
-    """
-    registry = "finished"
-
-    def get_view_name(self):
-        return "Finished Tasks"
-
-
-class StartedTaskListView(BaseTaskListView):
-    """
-    Retrieve a list of Started RQ Tasks in the specified Queue.
-    """
-    registry = "started"
-
-    def get_view_name(self):
-        return "Started Tasks"
-
-
-class QueuedTaskListView(BaseTaskListView):
-    """
-    Retrieve a list of Queued RQ Tasks in the specified Queue.
-    """
-    registry = "queued"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, queue_name, format=None):
-        try:
-            queue = get_queue(queue_name)
-        except KeyError:
-            raise Http404
+    def list(self, request, queue_name):
+        return self.get_response(request, queue_name, None)
 
-        data = queue.get_jobs()
-        serializer = serializers.BackgroundTaskSerializer(data, many=True)
-        return Response(serializer.data)
+    @action(methods=["GET"], detail=False)
+    def deferred(self, request, queue_name):
+        return self.get_response(request, queue_name, "deferred")
+
+    @action(methods=["GET"], detail=False)
+    def finished(self, request, queue_name):
+        return self.get_response(request, queue_name, "finished")
+
+    @action(methods=["GET"], detail=False)
+    def started(self, request, queue_name):
+        return self.get_response(request, queue_name, "started")
+
+    @action(methods=["GET"], detail=False)
+    def queued(self, request, queue_name):
+        return self.cget_response(request, queue_name, None)
