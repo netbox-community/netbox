@@ -16,6 +16,9 @@ from rq.registry import (
 
 
 def get_rq_jobs_from_status(queue, status):
+    """
+    Return the RQ jobs with the given status.
+    """
     jobs = []
 
     try:
@@ -49,6 +52,9 @@ def get_rq_jobs_from_status(queue, status):
 
 
 def delete_rq_job(job_id):
+    """
+    Deletes the specified RQ job.
+    """
     config = QUEUES_LIST[0]
     try:
         job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
@@ -64,6 +70,9 @@ def delete_rq_job(job_id):
 
 
 def requeue_rq_job(job_id):
+    """
+    Requeues the specified RQ job.
+    """
     config = QUEUES_LIST[0]
     try:
         job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
@@ -77,6 +86,9 @@ def requeue_rq_job(job_id):
 
 
 def enqueue_rq_job(job_id):
+    """
+    Enqueues the specified RQ job.
+    """
     config = QUEUES_LIST[0]
     try:
         job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
@@ -106,6 +118,9 @@ def enqueue_rq_job(job_id):
 
 
 def stop_rq_job(job_id):
+    """
+    Stops the specified RQ job.
+    """
     config = QUEUES_LIST[0]
     try:
         job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)

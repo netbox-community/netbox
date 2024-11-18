@@ -202,7 +202,7 @@ class TaskDeleteView(APIView):
         return "Background Task"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, task_id, format=None):
+    def post(self, request, task_id, format=None):
         delete_rq_job(task_id)
         return HttpResponse(status=200)
 
@@ -217,7 +217,7 @@ class TaskRequeueView(APIView):
         return "Background Task"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, task_id, format=None):
+    def post(self, request, task_id, format=None):
         requeue_rq_job(task_id)
         return HttpResponse(status=200)
 
@@ -232,7 +232,7 @@ class TaskEnqueueView(APIView):
         return "Background Task"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, task_id, format=None):
+    def post(self, request, task_id, format=None):
         enqueue_rq_job(task_id)
         return HttpResponse(status=200)
 
@@ -247,7 +247,7 @@ class TaskStopView(APIView):
         return "Background Task"
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, task_id, format=None):
+    def post(self, request, task_id, format=None):
         stopped_jobs = stop_rq_job(task_id)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)

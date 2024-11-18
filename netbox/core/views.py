@@ -349,8 +349,7 @@ class BackgroundTaskListView(TableMixin, BaseRQView):
         if status == RQJobStatus.QUEUED:
             return queue.get_jobs()
 
-        jobs = get_rq_jobs_from_status(queue, status)
-        return jobs
+        return get_rq_jobs_from_status(queue, status)
 
     def get(self, request, queue_index, status):
         queue = get_queue_by_index(queue_index)
