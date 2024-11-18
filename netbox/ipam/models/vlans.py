@@ -103,7 +103,7 @@ class VLANGroup(OrganizationalModel):
         # Validate max VID
         for vid_range in self.vid_ranges:
             if vid_range.lower > VLAN_VID_MAX or vid_range.upper > VLAN_VID_MAX:
-                raise ValidationError({'vid_ranges': _("VLAN ID cannot exceed 4094")})
+                raise ValidationError({'vid_ranges': _("Child vid cannot exceed {value}").format(value=VLAN_VID_MAX)})
             if vid_range.lower > vid_range.upper:
                 raise ValidationError({
                     'vid_ranges': _(
