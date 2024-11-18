@@ -113,12 +113,14 @@ class SiteForm(TenancyForm, NetBoxModelForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=SiteGroup.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
@@ -207,7 +209,8 @@ class RackRoleForm(NetBoxModelForm):
 class RackTypeForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
-        queryset=Manufacturer.objects.all()
+        queryset=Manufacturer.objects.all(),
+        quick_add=True
     )
     comments = CommentField()
     slug = SlugField(
@@ -349,7 +352,8 @@ class ManufacturerForm(NetBoxModelForm):
 class DeviceTypeForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
-        queryset=Manufacturer.objects.all()
+        queryset=Manufacturer.objects.all(),
+        quick_add=True
     )
     default_platform = DynamicModelChoiceField(
         label=_('Default platform'),
@@ -437,7 +441,8 @@ class PlatformForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     config_template = DynamicModelChoiceField(
         label=_('Config template'),
@@ -509,7 +514,8 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     role = DynamicModelChoiceField(
         label=_('Device role'),
-        queryset=DeviceRole.objects.all()
+        queryset=DeviceRole.objects.all(),
+        quick_add=True
     )
     platform = DynamicModelChoiceField(
         label=_('Platform'),
@@ -751,7 +757,8 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
-        selector=True
+        selector=True,
+        quick_add=True
     )
     rack = DynamicModelChoiceField(
         label=_('Rack'),

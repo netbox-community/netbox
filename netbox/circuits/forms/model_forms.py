@@ -50,7 +50,9 @@ class ProviderForm(NetBoxModelForm):
 class ProviderAccountForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
-        queryset=Provider.objects.all()
+        queryset=Provider.objects.all(),
+        selector=True,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -64,7 +66,9 @@ class ProviderAccountForm(NetBoxModelForm):
 class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
-        queryset=Provider.objects.all()
+        queryset=Provider.objects.all(),
+        selector=True,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -97,7 +101,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
-        selector=True
+        selector=True,
+        quick_add=True
     )
     provider_account = DynamicModelChoiceField(
         label=_('Provider account'),
@@ -108,7 +113,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         }
     )
     type = DynamicModelChoiceField(
-        queryset=CircuitType.objects.all()
+        queryset=CircuitType.objects.all(),
+        quick_add=True
     )
     comments = CommentField()
 

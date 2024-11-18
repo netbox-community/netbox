@@ -2,8 +2,9 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from dcim.constants import LOCATION_SCOPE_TYPES
 from ipam.choices import *
-from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, PREFIX_SCOPE_TYPES
+from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -47,7 +48,7 @@ class PrefixSerializer(NetBoxModelSerializer):
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
-            model__in=PREFIX_SCOPE_TYPES
+            model__in=LOCATION_SCOPE_TYPES
         ),
         allow_null=True,
         required=False,

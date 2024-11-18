@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0199_macaddress'),
-        ('virtualization', '0046_natural_ordering'),
+        ('virtualization', '0047_natural_ordering'),
     ]
 
     operations = [

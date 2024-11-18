@@ -11,11 +11,11 @@ def populate_denormalized_fields(apps, schema_editor):
     prefixes = Prefix.objects.filter(site__isnull=False).prefetch_related('site')
     for prefix in prefixes:
         prefix._region_id = prefix.site.region_id
-        prefix._sitegroup_id = prefix.site.group_id
+        prefix._site_group_id = prefix.site.group_id
         prefix._site_id = prefix.site_id
         # Note: Location cannot be set prior to migration
 
-    Prefix.objects.bulk_update(prefixes, ['_region', '_sitegroup', '_site'])
+    Prefix.objects.bulk_update(prefixes, ['_region', '_site_group', '_site'])
 
 
 class Migration(migrations.Migration):
@@ -29,22 +29,22 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prefix',
             name='_location',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='_prefixes', to='dcim.location'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.location'),
         ),
         migrations.AddField(
             model_name='prefix',
             name='_region',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='_prefixes', to='dcim.region'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.region'),
         ),
         migrations.AddField(
             model_name='prefix',
             name='_site',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='_prefixes', to='dcim.site'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.site'),
         ),
         migrations.AddField(
             model_name='prefix',
-            name='_sitegroup',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='_prefixes', to='dcim.sitegroup'),
+            name='_site_group',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.sitegroup'),
         ),
 
         # Populate denormalized FK values
