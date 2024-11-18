@@ -1647,7 +1647,7 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = MACAddress
-        fields = ('id', 'description', 'is_primary', 'assigned_object_type', 'assigned_object_id')
+        fields = ('id', 'description', 'assigned_object_type', 'assigned_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1788,6 +1788,17 @@ class InterfaceFilterSet(
     mac_address = MultiValueMACAddressFilter(
         field_name='mac_addresses__mac_address',
         label=_('MAC Address')
+    )
+    primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address',
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address (ID)'),
+    )
+    primary_mac_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address__mac_address',
+        queryset=MACAddress.objects.all(),
+        to_field_name='mac_address',
+        label=_('Primary MAC address'),
     )
     wwn = MultiValueWWNFilter()
     poe_mode = django_filters.MultipleChoiceFilter(

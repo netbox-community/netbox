@@ -358,7 +358,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
-        FieldSet('vrf', name=_('Addressing')),
+        FieldSet('vrf', 'primary_mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
         FieldSet(
@@ -371,7 +371,8 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
+            'tags',
         ]
         labels = {
             'mode': _('802.1Q Mode'),

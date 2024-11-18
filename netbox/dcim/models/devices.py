@@ -1499,10 +1499,6 @@ class MACAddress(PrimaryModel):
         ct_field='assigned_object_type',
         fk_field='assigned_object_id'
     )
-    is_primary = models.BooleanField(
-        verbose_name=_('is primary'),
-        default=True
-    )
 
     class Meta:
         ordering = ('mac_address',)
@@ -1511,17 +1507,3 @@ class MACAddress(PrimaryModel):
 
     def __str__(self):
         return str(self.mac_address)
-
-    def clean(self):
-        super().clean()
-
-        if self.is_primary and self.assigned_object:
-            peer_macs = MACAddress.objects.exclude(pk=self.pk).filter(
-                assigned_object_type=self.assigned_object_type,
-                assigned_object_id=self.assigned_object_id,
-                is_primary=True
-            )
-            if peer_macs.exists():
-                raise ValidationError({
-                    'is_primary': _("A primary MAC address is already designated for this interface.")
-                })

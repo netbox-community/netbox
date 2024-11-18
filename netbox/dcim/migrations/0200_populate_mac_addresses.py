@@ -1,4 +1,5 @@
-from django.db import migrations
+import django.db.models.deletion
+from django.db import migrations, models
 
 
 def populate_mac_addresses(apps, schema_editor):
@@ -9,13 +10,17 @@ def populate_mac_addresses(apps, schema_editor):
 
     mac_addresses = [
         MACAddress(
-            mac_address=interface._mac_address,
+            mac_address=interface.mac_address,
             assigned_object_type=interface_ct,
             assigned_object_id=interface.pk
         )
-        for interface in Interface.objects.filter(_mac_address__isnull=False)
+        for interface in Interface.objects.filter(mac_address__isnull=False)
     ]
     MACAddress.objects.bulk_create(mac_addresses, batch_size=100)
+
+    # TODO: Optimize interface updates
+    for mac_address in mac_addresses:
+        Interface.objects.filter(pk=mac_address.assigned_object_id).update(primary_mac_address=mac_address)
 
 
 class Migration(migrations.Migration):
@@ -25,11 +30,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Rename mac_address field to avoid conflict with property
-        migrations.RenameField(
+        migrations.AddField(
             model_name='interface',
-            old_name='mac_address',
-            new_name='_mac_address',
+            name='primary_mac_address',
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.macaddress'
+            ),
         ),
         migrations.RunPython(
             code=populate_mac_addresses,
@@ -37,6 +47,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='interface',
-            name='_mac_address',
+            name='mac_address',
         ),
     ]

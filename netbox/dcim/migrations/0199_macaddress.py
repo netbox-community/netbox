@@ -24,7 +24,6 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('mac_address', dcim.fields.MACAddressField()),
-                ('is_primary', models.BooleanField(default=True)),
                 ('assigned_object_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('assigned_object_type', models.ForeignKey(blank=True, limit_choices_to=models.Q(models.Q(models.Q(('app_label', 'dcim'), ('model', 'interface')), models.Q(('app_label', 'virtualization'), ('model', 'vminterface')), _connector='OR')), null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),

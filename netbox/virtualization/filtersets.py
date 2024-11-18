@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.filtersets import CommonInterfaceFilterSet, ScopedFilterSet
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
@@ -264,6 +264,17 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
     mac_address = MultiValueMACAddressFilter(
         field_name='mac_addresses__mac_address',
         label=_('MAC address'),
+    )
+    primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address',
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address (ID)'),
+    )
+    primary_mac_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address__mac_address',
+        queryset=MACAddress.objects.all(),
+        to_field_name='mac_address',
+        label=_('Primary MAC address'),
     )
 
     class Meta:

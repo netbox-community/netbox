@@ -567,6 +567,14 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('VLAN Translation Policy')
     )
+    primary_mac_address = models.OneToOneField(
+        to='dcim.MACAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name=_('primary MAC address')
+    )
 
     class Meta:
         abstract = True
@@ -578,6 +586,14 @@ class BaseInterface(models.Model):
         if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
             raise ValidationError({
                 'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
+            })
+
+        # Check that the primary MAC address (if any) is assigned to this interface
+        if self.primary_mac_address and self.primary_mac_address.assigned_object != self:
+            raise ValidationError({
+                'primary_mac_address': _("MAC address {mac_address} is not assigned to this interface.").format(
+                    mac_address=self.primary_mac_address
+                )
             })
 
     def save(self, *args, **kwargs):
@@ -606,9 +622,8 @@ class BaseInterface(models.Model):
 
     @cached_property
     def mac_address(self):
-        if macaddress := self.mac_addresses.order_by('-is_primary', 'mac_address').first():
-            return macaddress.mac_address
-        return None
+        if self.primary_mac_address:
+            return self.primary_mac_address.mac_address
 
 
 class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):

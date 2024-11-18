@@ -153,8 +153,8 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
-            'created', 'last_updated',
+            'vrf', 'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
+            'tagged_vlans', 'qinq_svlan', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 

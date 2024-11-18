@@ -5891,26 +5891,20 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         mac_addresses = (
             # Device MACs
-            MACAddress(mac_address='00-00-00-01-01-01', assigned_object=interfaces[0], is_primary=True),
-            MACAddress(mac_address='00-00-00-02-01-01', assigned_object=interfaces[1], is_primary=True),
-            MACAddress(mac_address='00-00-00-03-01-01', assigned_object=interfaces[2], is_primary=True),
-            MACAddress(mac_address='00-00-00-03-01-02', assigned_object=interfaces[2], is_primary=False),
+            MACAddress(mac_address='00-00-00-01-01-01', assigned_object=interfaces[0]),
+            MACAddress(mac_address='00-00-00-02-01-01', assigned_object=interfaces[1]),
+            MACAddress(mac_address='00-00-00-03-01-01', assigned_object=interfaces[2]),
+            MACAddress(mac_address='00-00-00-03-01-02', assigned_object=interfaces[2]),
             # VM MACs
-            MACAddress(mac_address='00-00-00-04-01-01', assigned_object=vm_interfaces[0], is_primary=True),
-            MACAddress(mac_address='00-00-00-05-01-01', assigned_object=vm_interfaces[1], is_primary=True),
-            MACAddress(mac_address='00-00-00-06-01-01', assigned_object=vm_interfaces[2], is_primary=True),
-            MACAddress(mac_address='00-00-00-06-01-02', assigned_object=vm_interfaces[2], is_primary=False),
+            MACAddress(mac_address='00-00-00-04-01-01', assigned_object=vm_interfaces[0]),
+            MACAddress(mac_address='00-00-00-05-01-01', assigned_object=vm_interfaces[1]),
+            MACAddress(mac_address='00-00-00-06-01-01', assigned_object=vm_interfaces[2]),
+            MACAddress(mac_address='00-00-00-06-01-02', assigned_object=vm_interfaces[2]),
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-01-01-01', '00-00-00-02-01-01']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_is_primary(self):
-        params = {'is_primary': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
-        params = {'is_primary': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):

@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -1405,7 +1404,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
         ),
-        FieldSet('vrf', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'primary_mac_address', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
@@ -1425,7 +1424,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge',
             'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
+            'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
@@ -1740,10 +1740,6 @@ class MACAddressForm(NetBoxModelForm):
         queryset=VMInterface.objects.all(),
         required=False,
     )
-    is_primary = forms.BooleanField(
-        required=False,
-        label=_('Primary for interface'),
-    )
 
     fieldsets = (
         FieldSet(
@@ -1754,14 +1750,13 @@ class MACAddressForm(NetBoxModelForm):
                 FieldSet('interface', name=_('Device')),
                 FieldSet('vminterface', name=_('Virtual Machine')),
             ),
-            'is_primary', name=_('Assignment')
         ),
     )
 
     class Meta:
         model = MACAddress
         fields = [
-            'mac_address', 'interface', 'vminterface', 'is_primary', 'description', 'tags',
+            'mac_address', 'interface', 'vminterface', 'description', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -1790,18 +1785,6 @@ class MACAddressForm(NetBoxModelForm):
                 selected_objects[1]: _("A MAC address can only be assigned to a single object.")
             })
         elif selected_objects:
-            assigned_object = self.cleaned_data[selected_objects[0]]
-            if self.instance.pk and self.instance.assigned_object and self.instance.is_primary and assigned_object != self.instance.assigned_object:
-                raise ValidationError(
-                    _("Cannot reassign MAC address while it is designated as the primary for the interface")
-                )
-            self.instance.assigned_object = assigned_object
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
         else:
             self.instance.assigned_object = None
-
-        # Primary MAC address assignment is only available if an interface has been assigned.
-        interface = self.cleaned_data.get('interface') or self.cleaned_data.get('vminterface')
-        if self.cleaned_data.get('is_primary') and not interface:
-            self.add_error(
-                'is_primary', _("Only IP addresses assigned to an interface can be designated as primary IPs.")
-            )

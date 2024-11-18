@@ -1732,17 +1732,10 @@ class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    is_primary = forms.NullBooleanField(
-        label=_('Is primary'),
-        required=False,
-        widget=BulkEditNullBooleanSelect(),
-    )
     comments = CommentField()
 
     model = MACAddress
     fieldsets = (
-        FieldSet('description', 'is_primary'),
+        FieldSet('description'),
     )
-    nullable_fields = (
-        'description', 'comments',
-    )
+    nullable_fields = ('description', 'comments')

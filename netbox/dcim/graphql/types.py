@@ -390,7 +390,6 @@ class MACAddressType(NetBoxObjectType):
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     _name: str
-    mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
@@ -398,6 +397,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     wireless_link: Annotated["WirelessLinkType", strawberry.lazy('wireless.graphql.types')] | None
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
+    primary_mac_address: Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')] | None
     qinq_svlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
 

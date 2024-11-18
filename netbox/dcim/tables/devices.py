@@ -599,6 +599,10 @@ class BaseInterfaceTable(NetBoxTable):
         verbose_name=_('Q-in-Q SVLAN'),
         linkify=True
     )
+    primary_mac_address = tables.Column(
+        verbose_name=_('MAC Address'),
+        linkify=True
+    )
 
     def value_ip_addresses(self, value):
         return ",".join([str(obj.address) for obj in value.all()])
@@ -649,11 +653,11 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf',
-            'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
-            'inventory_items', 'created', 'last_updated',
+            'speed', 'speed_formatted', 'duplex', 'mode', 'primary_mac_address', 'wwn', 'poe_mode', 'poe_type',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
+            'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'qinq_svlan', 'inventory_items', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -1127,10 +1131,6 @@ class MACAddressTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Parent')
     )
-    is_primary = columns.BooleanColumn(
-        verbose_name=_('Primary'),
-        false_mark=None
-    )
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
@@ -1141,7 +1141,6 @@ class MACAddressTable(NetBoxTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.MACAddress
         fields = (
-            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'is_primary', 'created',
-            'last_updated',
+            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object', 'is_primary')
+        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object')

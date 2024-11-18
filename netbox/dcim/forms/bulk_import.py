@@ -1203,8 +1203,7 @@ class MACAddressImportForm(NetBoxModelImportForm):
     class Meta:
         model = MACAddress
         fields = [
-            'mac_address', 'device', 'virtual_machine', 'interface', 'is_primary',
-            'description', 'comments', 'tags',
+            'mac_address', 'device', 'virtual_machine', 'interface', 'is_primary', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -1230,25 +1229,27 @@ class MACAddressImportForm(NetBoxModelImportForm):
         device = self.cleaned_data.get('device')
         virtual_machine = self.cleaned_data.get('virtual_machine')
         interface = self.cleaned_data.get('interface')
-        is_primary = self.cleaned_data.get('is_primary')
 
-        # Validate is_primary
+        # Validate interface assignment
         if interface and not device and not virtual_machine:
             raise forms.ValidationError({
                 "interface": _("Must specify the parent device or VM when assigning an interface")
-            })
-        if is_primary and not interface:
-            raise forms.ValidationError({
-                "is_primary": _("No interface specified; cannot set as primary")
             })
 
     def save(self, *args, **kwargs):
 
         # Set interface assignment
-        if self.cleaned_data.get('interface'):
-            self.instance.assigned_object = self.cleaned_data['interface']
+        if interface := self.cleaned_data.get('interface'):
+            self.instance.assigned_object = interface
 
-        return super().save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
+
+        # Assign the MAC address as primary for its interface, if designated as such
+        if interface and self.cleaned_data['is_primary'] and self.instance.pk:
+            interface.primary_mac_address = self.instance
+            interface.save()
+
+        return instance
 
 
 #

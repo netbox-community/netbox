@@ -169,8 +169,11 @@ class MACAddressSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = MACAddress
-        fields = ['mac_address', 'is_primary', 'assigned_object_type', 'assigned_object']
-        brief_fields = ('mac_address',)
+        fields = [
+            'id', 'url', 'display_url', 'display', 'mac_address', 'assigned_object_type', 'assigned_object',
+            'description', 'comments',
+        ]
+        brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, obj):
