@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
+from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
 from .choices import *
@@ -51,7 +52,8 @@ class WirelessLANGroup(NestedGroupModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -71,7 +73,7 @@ class WirelessLANGroup(NestedGroupModel):
         verbose_name_plural = _('wireless LAN groups')
 
 
-class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
+class WirelessLAN(WirelessAuthenticationBase, CachedScopeMixin, PrimaryModel):
     """
     A wireless network formed among an arbitrary number of access point and clients.
     """
@@ -107,7 +109,7 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         null=True
     )
 
-    clone_fields = ('ssid', 'group', 'tenant', 'description')
+    clone_fields = ('ssid', 'group', 'scope_type', 'scope_id', 'tenant', 'description')
 
     class Meta:
         ordering = ('ssid', 'pk')

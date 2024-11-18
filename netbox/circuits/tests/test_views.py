@@ -341,7 +341,7 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class  TestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class TestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CircuitTermination
 
     @classmethod

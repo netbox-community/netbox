@@ -19,7 +19,7 @@ from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.conversion import to_grams
 from utilities.data import array_to_string, drange
-from utilities.fields import ColorField, NaturalOrderingField
+from utilities.fields import ColorField
 from .device_components import PowerPort
 from .devices import Device, Module
 from .power import PowerFeed
@@ -255,12 +255,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
         max_length=100,
-        blank=True
+        db_collation="natural_sort"
     )
     facility_id = models.CharField(
         max_length=50,
@@ -340,7 +336,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     )
 
     class Meta:
-        ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
+        ordering = ('site', 'location', 'name', 'pk')  # (site, location, name) may be non-unique
         constraints = (
             # Name and facility_id must be unique *only* within a Location
             models.UniqueConstraint(

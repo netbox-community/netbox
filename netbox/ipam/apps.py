@@ -18,7 +18,7 @@ class IPAMConfig(AppConfig):
         # Register denormalized fields
         denormalized.register(Prefix, '_site', {
             '_region': 'region',
-            '_sitegroup': 'group',
+            '_site_group': 'group',
         })
         denormalized.register(Prefix, '_location', {
             '_site': 'site',

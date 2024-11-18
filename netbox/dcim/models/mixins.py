@@ -59,28 +59,24 @@ class CachedScopeMixin(models.Model):
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.CASCADE,
-        related_name='_%(class)ss',
         blank=True,
         null=True
     )
     _site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.CASCADE,
-        related_name='_%(class)ss',
         blank=True,
         null=True
     )
     _region = models.ForeignKey(
         to='dcim.Region',
         on_delete=models.CASCADE,
-        related_name='_%(class)ss',
         blank=True,
         null=True
     )
     _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
         on_delete=models.CASCADE,
-        related_name='_%(class)ss',
         blank=True,
         null=True
     )

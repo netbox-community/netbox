@@ -3,17 +3,17 @@ from django.db import migrations, models
 
 
 def copy_site_assignments(apps, schema_editor):
-     """
-     Copy site ForeignKey values to the scope GFK.
-     """
-     ContentType = apps.get_model('contenttypes', 'ContentType')
-     Cluster = apps.get_model('virtualization', 'Cluster')
-     Site = apps.get_model('dcim', 'Site')
+    """
+    Copy site ForeignKey values to the scope GFK.
+    """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    Cluster = apps.get_model('virtualization', 'Cluster')
+    Site = apps.get_model('dcim', 'Site')
 
-     Cluster.objects.filter(site__isnull=False).update(
-         scope_type=ContentType.objects.get_for_model(Site),
-         scope_id=models.F('site_id')
-     )
+    Cluster.objects.filter(site__isnull=False).update(
+        scope_type=ContentType.objects.get_for_model(Site),
+        scope_id=models.F('site_id')
+    )
 
 
 class Migration(migrations.Migration):

@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
+from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
@@ -205,20 +206,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class PrefixBulkEditForm(NetBoxModelBulkEditForm):
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
-        label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
-    )
+class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -285,20 +273,6 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'vlan', 'vrf', 'tenant', 'role', 'scope', 'description', 'comments',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
