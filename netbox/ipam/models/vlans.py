@@ -99,7 +99,11 @@ class VLANGroup(OrganizationalModel):
         # Validate VID ranges
         if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
+
+        # Validate max VID
         for vid_range in self.vid_ranges:
+            if vid_range.lower > VLAN_VID_MAX or vid_range.upper > VLAN_VID_MAX:
+                raise ValidationError({'vid_ranges': _("VLAN ID cannot exceed 4094")})
             if vid_range.lower > vid_range.upper:
                 raise ValidationError({
                     'vid_ranges': _(
