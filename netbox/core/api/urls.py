@@ -12,11 +12,10 @@ router.register('data-sources', views.DataSourceViewSet)
 router.register('data-files', views.DataFileViewSet)
 router.register('jobs', views.JobViewSet)
 router.register('object-changes', views.ObjectChangeViewSet)
+router.register('background-queues', views.QueueViewSet, basename='RQQueue')
+router.register('background-workers', views.WorkerViewSet, basename='RQWorker')
 
 urlpatterns = (
-    path('background-queues/', views.QueueListView.as_view(), name="background_queue_list"),
-    path('background-workers/', views.WorkerListView.as_view(), name="background_worker_list"),
-    path('background-workers/<str:worker_name>/', views.WorkerDetailView.as_view(), name="background_worker_detail"),
     path('background-tasks/<str:queue_name>/', views.TaskListView.as_view(), name="background_task_list"),
     path('background-tasks/<str:queue_name>/deferred/', views.DeferredTaskListView.as_view(), name="background_tasks_deferred"),
     path('background-tasks/<str:queue_name>/failed/', views.FailedTaskListView.as_view(), name="background_tasks_failed"),

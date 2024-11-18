@@ -204,7 +204,7 @@ class BackgroundTaskTestCase(TestCase):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
 
-        response = self.client.get(reverse('core-api:background_task_delete', args=[job.id]), **self.header)
+        response = self.client.post(reverse('core-api:background_task_delete', args=[job.id]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RQ_Job.exists(job.id, connection=queue.connection))
         queue = get_queue('default')
@@ -220,7 +220,7 @@ class BackgroundTaskTestCase(TestCase):
         self.assertTrue(job.is_failed)
 
         # Re-enqueue the failed job and check that its status has been reset
-        response = self.client.get(reverse('core-api:background_task_requeue', args=[job.id]), **self.header)
+        response = self.client.post(reverse('core-api:background_task_requeue', args=[job.id]), **self.header)
         self.assertEqual(response.status_code, 200)
         job = RQ_Job.fetch(job.id, queue.connection)
         self.assertFalse(job.is_failed)
@@ -240,7 +240,7 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIsNone(job.enqueued_at)
 
         # Force-enqueue the deferred job
-        response = self.client.get(reverse('core-api:background_task_enqueue', args=[job.id]), **self.header)
+        response = self.client.post(reverse('core-api:background_task_enqueue', args=[job.id]), **self.header)
         self.assertEqual(response.status_code, 200)
 
         # Check that job's status is updated correctly
@@ -256,7 +256,7 @@ class BackgroundTaskTestCase(TestCase):
         worker.prepare_job_execution(job)
 
         self.assertEqual(job.get_status(), JobStatus.STARTED)
-        response = self.client.get(reverse('core-api:background_task_stop', args=[job.id]), **self.header)
+        response = self.client.post(reverse('core-api:background_task_stop', args=[job.id]), **self.header)
         self.assertEqual(response.status_code, 200)
         worker.monitor_work_horse(job, queue)  # Sets the job as Failed and removes from Started
         started_job_registry = StartedJobRegistry(queue.name, connection=queue.connection)

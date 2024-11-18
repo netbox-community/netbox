@@ -20,6 +20,8 @@ from django_rq.utils import get_statistics
 from django_rq.settings import QUEUES_LIST
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from rest_framework import viewsets
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAdminUser
 from rq.job import Job as RQ_Job
 from rq.worker import Worker
@@ -84,55 +86,82 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     filterset_class = filtersets.ObjectChangeFilterSet
 
 
-class QueueListView(APIView):
+class LimitOffsetListPagination(LimitOffsetPagination):
+    """
+    DRF LimitOffset Paginator but for list instead of queryset
+    """
+    count = 0
+    offset = 0
+
+    def paginate_list(self, data, request, view=None):
+        self.request = request
+        self.limit = self.get_limit(request)
+        self.count = len(data)
+        self.offset = self.get_offset(request)
+
+        if self.limit is None:
+            self.limit = self.count
+
+        if self.count == 0 or self.offset > self.count:
+            return []
+
+        if self.count > self.limit and self.template is not None:
+            self.display_page_controls = True
+
+        return data[self.offset:self.offset + self.limit]
+
+
+class BaseRQListView(viewsets.ViewSet):
     """
     Retrieve a list of RQ Queues.
     """
     permission_classes = [IsAdminUser]
+    serializer_class = None
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request):
+        data = self.get_data()
+        paginator = LimitOffsetListPagination()
+        data = paginator.paginate_list(data, request)
+
+        serializer = self.serializer_class(data, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
+class QueueViewSet(BaseRQListView):
+    """
+    Retrieve a list of RQ Queues.
+    """
+    serializer_class = serializers.BackgroundQueueSerializer
 
     def get_view_name(self):
         return "Background Queues"
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, format=None):
-        data = get_statistics(run_maintenance_tasks=True)["queues"]
-        serializer = serializers.BackgroundQueueSerializer(data, many=True)
-        return Response(serializer.data)
+    def get_data(self):
+        return get_statistics(run_maintenance_tasks=True)["queues"]
 
 
-class WorkerListView(APIView):
+class WorkerViewSet(BaseRQListView):
     """
     Retrieve a list of RQ Workers.
     """
-    permission_classes = [IsAdminUser]
+    serializer_class = serializers.BackgroundWorkerSerializer
 
     def get_view_name(self):
         return "Background Workers"
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, format=None):
+    def get_data(self):
+        config = QUEUES_LIST[0]
+        return Worker.all(get_redis_connection(config['connection_config']))
+
+    def retrieve(self, request, pk=None):
         # all the RQ queues should use the same connection
+        if not pk:
+            raise Http404
+
         config = QUEUES_LIST[0]
         workers = Worker.all(get_redis_connection(config['connection_config']))
-        serializer = serializers.BackgroundWorkerSerializer(workers, many=True)
-        return Response(serializer.data)
-
-
-class WorkerDetailView(APIView):
-    """
-    Retrieve the details of the specified RQ Worker.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Worker"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, worker_name, format=None):
-        # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        workers = Worker.all(get_redis_connection(config['connection_config']))
-        worker = next((item for item in workers if item.name == worker_name), None)
+        worker = next((item for item in workers if item.name == pk), None)
         if not worker:
             raise Http404
 
