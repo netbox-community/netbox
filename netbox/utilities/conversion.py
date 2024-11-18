@@ -10,7 +10,7 @@ __all__ = (
 )
 
 
-def to_grams(weight, unit):
+def to_grams(weight, unit) -> float:
     """
     Convert the given weight to kilograms.
     """

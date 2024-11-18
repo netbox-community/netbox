@@ -37,7 +37,7 @@ class WeightMixin(models.Model):
 
         # Store the given weight (if any) in grams for use in database ordering
         if self.weight and self.weight_unit:
-            self._abs_weight = to_grams(self.weight, self.weight_unit)
+            self._abs_weight = int(to_grams(self.weight, self.weight_unit))
         else:
             self._abs_weight = None
 
