@@ -250,6 +250,14 @@ urlpatterns = [
     path('power-outlets/<int:pk>/', include(get_model_urls('dcim', 'poweroutlet'))),
     path('devices/power-outlets/add/', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
 
+    # MAC addresses
+    path('mac-addresses/', views.MACAddressListView.as_view(), name='macaddress_list'),
+    path('mac-addresses/add/', views.MACAddressEditView.as_view(), name='macaddress_add'),
+    path('mac-addresses/import/', views.MACAddressBulkImportView.as_view(), name='macaddress_import'),
+    path('mac-addresses/edit/', views.MACAddressBulkEditView.as_view(), name='macaddress_bulk_edit'),
+    path('mac-addresses/delete/', views.MACAddressBulkDeleteView.as_view(), name='macaddress_bulk_delete'),
+    path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),
+
     # Interfaces
     path('interfaces/', views.InterfaceListView.as_view(), name='interface_list'),
     path('interfaces/add/', views.InterfaceCreateView.as_view(), name='interface_add'),

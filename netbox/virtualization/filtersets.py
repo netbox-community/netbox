@@ -2,9 +2,10 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from dcim.filtersets import CommonInterfaceFilterSet
 from dcim.base_filtersets import ScopedFilterSet
+from dcim.filtersets import CommonInterfaceFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import MACAddress
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
@@ -191,7 +192,7 @@ class VirtualMachineFilterSet(
         label=_('Platform (slug)'),
     )
     mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces__mac_address',
+        field_name='interfaces__mac_addresses__mac_address',
         label=_('MAC address'),
     )
     has_primary_ip = django_filters.BooleanFilter(
@@ -263,7 +264,19 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         label=_('Bridged interface (ID)'),
     )
     mac_address = MultiValueMACAddressFilter(
+        field_name='mac_addresses__mac_address',
         label=_('MAC address'),
+    )
+    primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address',
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address (ID)'),
+    )
+    primary_mac_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address__mac_address',
+        queryset=MACAddress.objects.all(),
+        to_field_name='mac_address',
+        label=_('Primary MAC address'),
     )
 
     class Meta:

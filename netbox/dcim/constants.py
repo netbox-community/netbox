@@ -128,3 +128,13 @@ COMPATIBLE_TERMINATION_TYPES = {
 LOCATION_SCOPE_TYPES = (
     'region', 'sitegroup', 'site', 'location',
 )
+
+
+#
+# MAC addresses
+#
+
+MACADDRESS_ASSIGNMENT_MODELS = Q(
+    Q(app_label='dcim', model='interface') |
+    Q(app_label='virtualization', model='vminterface')
+)

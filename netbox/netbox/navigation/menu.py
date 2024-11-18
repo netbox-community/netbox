@@ -89,6 +89,12 @@ DEVICES_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label=_('Addressing'),
+            items=(
+                get_model_item('dcim', 'macaddress', _('MAC Addresses')),
+            ),
+        ),
+        MenuGroup(
             label=_('Device Components'),
             items=(
                 get_model_item('dcim', 'interface', _('Interfaces')),

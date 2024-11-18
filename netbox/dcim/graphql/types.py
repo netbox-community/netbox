@@ -34,6 +34,7 @@ __all__ = (
     'InventoryItemRoleType',
     'InventoryItemTemplateType',
     'LocationType',
+    'MACAddressType',
     'ManufacturerType',
     'ModularComponentType',
     'ModuleType',
@@ -367,13 +368,28 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.MACAddress,
+    exclude=('assigned_object_type', 'assigned_object_id'),
+    filters=MACAddressFilter
+)
+class MACAddressType(NetBoxObjectType):
+    mac_address: str
+
+    @strawberry_django.field
+    def assigned_object(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("MACAddressAssignmentType")] | None:
+        return self.assigned_object
+
+
+@strawberry_django.type(
     models.Interface,
     exclude=('_path',),
     filters=InterfaceFilter
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     _name: str
-    mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
@@ -381,6 +397,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     wireless_link: Annotated["WirelessLinkType", strawberry.lazy('wireless.graphql.types')] | None
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
+    primary_mac_address: Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')] | None
     qinq_svlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
 
@@ -390,6 +407,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
     member_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     child_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    mac_addresses: List[Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

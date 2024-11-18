@@ -3,7 +3,9 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.models import MACAddress
 from utilities.forms import get_field_value
+from utilities.forms.fields import DynamicModelChoiceField
 
 __all__ = (
     'InterfaceCommonForm',
@@ -12,16 +14,16 @@ __all__ = (
 
 
 class InterfaceCommonForm(forms.Form):
-    mac_address = forms.CharField(
-        empty_value=None,
-        required=False,
-        label=_('MAC address')
-    )
     mtu = forms.IntegerField(
         required=False,
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
         label=_('MTU')
+    )
+    primary_mac_address = DynamicModelChoiceField(
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address'),
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -39,6 +41,10 @@ class InterfaceCommonForm(forms.Form):
             del self.fields['tagged_vlans']
         if interface_mode != InterfaceModeChoices.MODE_Q_IN_Q:
             del self.fields['qinq_svlan']
+
+        if self.instance and self.instance.pk:
+            filter_name = f'{self._meta.model._meta.model_name}_id'
+            self.fields['primary_mac_address'].widget.add_query_param(filter_name, self.instance.pk)
 
     def clean(self):
         super().clean()

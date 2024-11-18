@@ -1135,6 +1135,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'l2vpn',
         'l2vpntermination',
         'location',
+        'macaddress',
         'manufacturer',
         'module',
         'modulebay',

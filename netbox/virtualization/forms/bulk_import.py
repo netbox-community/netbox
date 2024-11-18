@@ -182,7 +182,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
     class Meta:
         model = VMInterface
         fields = (
-            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode',
             'vrf', 'tags'
         )
 

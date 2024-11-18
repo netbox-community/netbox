@@ -123,11 +123,24 @@
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "MAC Address" %}</th>
-            <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
+            <td>
+              {% if object.mac_address %}
+                <span class="font-monospace">{{ object.mac_address }}</span>
+                <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "WWN" %}</th>
-            <td><span class="font-monospace">{{ object.wwn|placeholder }}</span></td>
+            <td>
+              {% if object.wwn %}
+                <span class="font-monospace">{{ object.wwn }}</span>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "VRF" %}</th>
@@ -350,7 +363,23 @@
           {% endif %}
         </h2>
         {% htmx_table 'ipam:ipaddress_list' interface_id=object.pk %}
-        
+      </div>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "MAC Addresses" %}
+          {% if perms.dcim.add_macaddress %}
+            <div class="card-actions">
+              <a href="{% url 'dcim:macaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add MAC Address" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'dcim:macaddress_list' interface_id=object.pk %}
       </div>
     </div>
   </div>

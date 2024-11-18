@@ -29,6 +29,7 @@ __all__ = (
     'InterfaceTable',
     'InventoryItemRoleTable',
     'InventoryItemTable',
+    'MACAddressTable',
     'ModuleBayTable',
     'PlatformTable',
     'PowerOutletTable',
@@ -40,6 +41,16 @@ __all__ = (
 
 MODULEBAY_STATUS = """
 {% badge record.installed_module.get_status_display bg_color=record.installed_module.get_status_color %}
+"""
+
+MACADDRESS_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}" id="macaddress_{{ record.pk }}">{{ record.mac_address }}</a>
+{% endif %}
+"""
+
+MACADDRESS_COPY_BUTTON = """
+{% copy_content record.pk prefix="macaddress_" %}
 """
 
 
@@ -588,6 +599,10 @@ class BaseInterfaceTable(NetBoxTable):
         verbose_name=_('Q-in-Q SVLAN'),
         linkify=True
     )
+    primary_mac_address = tables.Column(
+        verbose_name=_('MAC Address'),
+        linkify=True
+    )
 
     def value_ip_addresses(self, value):
         return ",".join([str(obj.address) for obj in value.all()])
@@ -638,11 +653,11 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf',
-            'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
-            'inventory_items', 'created', 'last_updated',
+            'speed', 'speed_formatted', 'duplex', 'mode', 'primary_mac_address', 'wwn', 'poe_mode', 'poe_type',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
+            'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'qinq_svlan', 'inventory_items', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -1098,3 +1113,34 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
         default_columns = (
             'pk', 'name', 'identifier', 'status', 'tenant', 'primary_ip',
         )
+
+
+class MACAddressTable(NetBoxTable):
+    mac_address = tables.TemplateColumn(
+        template_code=MACADDRESS_LINK,
+        verbose_name=_('MAC Address')
+    )
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Interface')
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent_object',
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Parent')
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:macaddress_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=MACADDRESS_COPY_BUTTON
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = models.MACAddress
+        fields = (
+            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object')

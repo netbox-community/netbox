@@ -10,7 +10,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MACAddressField, WWNField
+from dcim.fields import WWNField
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -505,11 +505,6 @@ class BaseInterface(models.Model):
         verbose_name=_('enabled'),
         default=True
     )
-    mac_address = MACAddressField(
-        null=True,
-        blank=True,
-        verbose_name=_('MAC address')
-    )
     mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -572,6 +567,14 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('VLAN Translation Policy')
     )
+    primary_mac_address = models.OneToOneField(
+        to='dcim.MACAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name=_('primary MAC address')
+    )
 
     class Meta:
         abstract = True
@@ -583,6 +586,14 @@ class BaseInterface(models.Model):
         if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
             raise ValidationError({
                 'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
+            })
+
+        # Check that the primary MAC address (if any) is assigned to this interface
+        if self.primary_mac_address and self.primary_mac_address.assigned_object != self:
+            raise ValidationError({
+                'primary_mac_address': _("MAC address {mac_address} is not assigned to this interface.").format(
+                    mac_address=self.primary_mac_address
+                )
             })
 
     def save(self, *args, **kwargs):
@@ -608,6 +619,11 @@ class BaseInterface(models.Model):
     @property
     def count_fhrp_groups(self):
         return self.fhrp_group_assignments.count()
+
+    @cached_property
+    def mac_address(self):
+        if self.primary_mac_address:
+            return self.primary_mac_address.mac_address
 
 
 class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
@@ -734,6 +750,12 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
+    )
+    mac_addresses = GenericRelation(
+        to='dcim.MACAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface'
