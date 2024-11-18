@@ -2,7 +2,8 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from dcim.filtersets import CommonInterfaceFilterSet, ScopedFilterSet
+from dcim.filtersets import CommonInterfaceFilterSet
+from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
