@@ -1,0 +1,28 @@
+{% load form_helpers %}
+{% load helpers %}
+{% load i18n %}
+
+<div class="modal-header">
+  <h2 class="modal-title">
+    {% trans "Quick Add" %} {{ model|meta:"verbose_name"|bettertitle }}
+  </h2>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body row">
+  <form
+      hx-post="{% url model|viewname:"add" %}?_quickadd=True&target={{ request.GET.target }}"
+      hx-target="#htmx-modal-content"
+      enctype="multipart/form-data"
+  >
+    {% csrf_token %}
+    {% include 'htmx/form.html' %}
+    <div class="text-end">
+      <button type="button" class="btn btn-outline-secondary btn-float" data-bs-dismiss="modal" aria-label="Cancel">
+        {% trans "Cancel" %}
+      </button>
+      <button type="submit" name="_quickadd" class="btn btn-primary">
+        {% trans "Create" %}
+      </button>
+    </div>
+  </form>
+</div>
