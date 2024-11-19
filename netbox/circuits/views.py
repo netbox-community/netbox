@@ -571,15 +571,15 @@ class VirtualCircuitDeleteView(generic.ObjectDeleteView):
 class VirtualCircuitBulkImportView(generic.BulkImportView):
     queryset = VirtualCircuit.objects.all()
     model_form = forms.VirtualCircuitImportForm
-    # additional_permissions = [
-    #     'circuits.add_circuittermination',
-    # ]
-    # related_object_forms = {
-    #     'terminations': forms.VirtualCircuitTerminationImportRelatedForm,
-    # }
+    additional_permissions = [
+        'circuits.add_virtualcircuittermination',
+    ]
+    related_object_forms = {
+        'terminations': forms.VirtualCircuitTerminationImportRelatedForm,
+    }
 
     def prep_related_object_data(self, parent, data):
-        data.update({'circuit': parent})
+        data.update({'virtual_circuit': parent})
         return data
 
 

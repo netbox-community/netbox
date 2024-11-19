@@ -23,6 +23,7 @@ __all__ = (
     'ProviderNetworkImportForm',
     'VirtualCircuitImportForm',
     'VirtualCircuitTerminationImportForm',
+    'VirtualCircuitTerminationImportRelatedForm',
 )
 
 
@@ -218,7 +219,7 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
         ]
 
 
-class VirtualCircuitTerminationImportForm(NetBoxModelImportForm):
+class BaseVirtualCircuitTerminationImportForm(forms.ModelForm):
     virtual_circuit = CSVModelChoiceField(
         label=_('Virtual circuit'),
         queryset=VirtualCircuit.objects.all(),
@@ -235,8 +236,20 @@ class VirtualCircuitTerminationImportForm(NetBoxModelImportForm):
         to_field_name='pk',
     )
 
+
+class VirtualCircuitTerminationImportRelatedForm(BaseVirtualCircuitTerminationImportForm):
+
     class Meta:
         model = VirtualCircuitTermination
         fields = [
-            'virtual_circuit', 'role', 'interface', 'description', 'tags'
+            'virtual_circuit', 'role', 'interface', 'description',
+        ]
+
+
+class VirtualCircuitTerminationImportForm(NetBoxModelImportForm, BaseVirtualCircuitTerminationImportForm):
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = [
+            'virtual_circuit', 'role', 'interface', 'description', 'tags',
         ]

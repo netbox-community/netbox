@@ -524,6 +524,13 @@ class CircuitGroupAssignmentTestCase(
 class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualCircuit
 
+    def setUp(self):
+        super().setUp()
+
+        self.add_permissions(
+            'circuits.add_virtualcircuittermination',
+        )
+
     @classmethod
     def setUpTestData(cls):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
@@ -556,6 +563,14 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)
+
+        device = create_test_device('Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        )
+        Interface.objects.bulk_create(interfaces)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -590,6 +605,55 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_terminations(self):
+        interfaces = Interface.objects.filter(type=InterfaceTypeChoices.TYPE_VIRTUAL)
+        json_data = f"""
+            [
+              {{
+                "cid": "Virtual Circuit 7",
+                "provider_network": "Provider Network 1",
+                "status": "active",
+                "terminations": [
+                  {{
+                    "role": "hub",
+                    "interface": {interfaces[0].pk}
+                  }},
+                  {{
+                    "role": "spoke",
+                    "interface": {interfaces[1].pk}
+                  }},
+                  {{
+                    "role": "spoke",
+                    "interface": {interfaces[2].pk}
+                  }}
+                ]
+              }}
+            ]
+        """
+
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': json_data,
+            'format': ImportFormatChoices.JSON,
+        }
+
+        # Assign model-level permission
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Try GET with model-level permission
+        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+
+        # Test POST with permission
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
 
 class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
