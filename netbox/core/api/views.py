@@ -299,10 +299,10 @@ class TaskViewSet(viewsets.ViewSet):
         except KeyError:
             raise Http404
 
-        if not status:
+        if status:
+            data = get_rq_jobs_from_status(queue, status)
+        else:
             data = queue.get_jobs()
-
-        data = get_rq_jobs_from_status(queue, status)
 
         paginator = LimitOffsetListPagination()
         data = paginator.paginate_list(data, request)
@@ -317,6 +317,10 @@ class TaskViewSet(viewsets.ViewSet):
     @action(methods=["GET"], detail=False)
     def deferred(self, request, queue_name):
         return self.get_response(request, queue_name, "deferred")
+
+    @action(methods=["GET"], detail=False)
+    def failed(self, request, queue_name):
+        return self.get_response(request, queue_name, "failed")
 
     @action(methods=["GET"], detail=False)
     def finished(self, request, queue_name):

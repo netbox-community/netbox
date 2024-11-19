@@ -273,7 +273,7 @@ class BackgroundTaskTestCase(TestCase):
         worker2 = get_worker('high')
         worker2.register_birth()
 
-        response = self.client.get(reverse('core-api:background_worker_list'), **self.header)
+        response = self.client.get(reverse('core-api:rqworker-list'), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(worker1.name), str(response.content))
 
@@ -281,7 +281,7 @@ class BackgroundTaskTestCase(TestCase):
         worker1 = get_worker('default', name=uuid.uuid4().hex)
         worker1.register_birth()
 
-        response = self.client.get(reverse('core-api:background_worker_detail', args=[worker1.name]), **self.header)
+        response = self.client.get(reverse('core-api:rqworker-detail', args=[worker1.name]), **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(worker1.name), str(response.content))
         self.assertIn('birth_date', str(response.content))
