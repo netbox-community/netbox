@@ -124,8 +124,8 @@ class QueueViewSet(BaseRQListView):
             raise Http404
 
         for queue in queues:
-            if queue.name == name:
-                return Response(self.serializer_class(data, context={'request': request}))
+            if queue['name'] == name:
+                return Response(self.serializer_class(queue, context={'request': request}).data)
 
         raise Http404
 
