@@ -108,6 +108,7 @@ class BaseRQListView(viewsets.ViewSet):
 class QueueViewSet(BaseRQListView):
     """
     Retrieve a list of RQ Queues.
+    Note: Queue names are not URL safe so not returning a detail view.
     """
     serializer_class = serializers.BackgroundQueueSerializer
     lookup_field = 'name'
@@ -117,17 +118,6 @@ class QueueViewSet(BaseRQListView):
 
     def get_data(self):
         return get_statistics(run_maintenance_tasks=True)["queues"]
-
-    def retrieve(self, request, name):
-        queues = self.get_data()
-        if not queues:
-            raise Http404
-
-        for queue in queues:
-            if queue['name'] == name:
-                return Response(self.serializer_class(queue, context={'request': request}).data)
-
-        raise Http404
 
 
 class WorkerViewSet(BaseRQListView):

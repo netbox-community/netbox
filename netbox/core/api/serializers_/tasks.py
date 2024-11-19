@@ -47,7 +47,7 @@ class BackgroundTaskSerializer(serializers.Serializer):
 
 class BackgroundQueueSerializer(serializers.Serializer):
     name = serializers.CharField()
-    url = serializers.SerializerMethodField()
+    # Note: Queue names are not url safe so not returning a url field
     jobs = serializers.IntegerField()
     oldest_job_timestamp = serializers.CharField()
     index = serializers.IntegerField()
