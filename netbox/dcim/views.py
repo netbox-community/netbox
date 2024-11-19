@@ -215,6 +215,7 @@ class PathTraceView(generic.ObjectView):
 # Regions
 #
 
+@register_model_view(Region, 'list', path='', detail=False)
 class RegionListView(generic.ObjectListView):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
@@ -251,6 +252,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Region, 'add', detail=False)
 @register_model_view(Region, 'edit')
 class RegionEditView(generic.ObjectEditView):
     queryset = Region.objects.all()
@@ -262,11 +264,13 @@ class RegionDeleteView(generic.ObjectDeleteView):
     queryset = Region.objects.all()
 
 
+@register_model_view(Region, 'import', detail=False)
 class RegionBulkImportView(generic.BulkImportView):
     queryset = Region.objects.all()
     model_form = forms.RegionImportForm
 
 
+@register_model_view(Region, 'bulk_edit', path='edit', detail=False)
 class RegionBulkEditView(generic.BulkEditView):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
@@ -280,6 +284,7 @@ class RegionBulkEditView(generic.BulkEditView):
     form = forms.RegionBulkEditForm
 
 
+@register_model_view(Region, 'bulk_delete', path='delete', detail=False)
 class RegionBulkDeleteView(generic.BulkDeleteView):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
@@ -301,6 +306,7 @@ class RegionContactsView(ObjectContactsView):
 # Site groups
 #
 
+@register_model_view(SiteGroup, 'list', path='', detail=False)
 class SiteGroupListView(generic.ObjectListView):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
@@ -337,6 +343,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(SiteGroup, 'add', detail=False)
 @register_model_view(SiteGroup, 'edit')
 class SiteGroupEditView(generic.ObjectEditView):
     queryset = SiteGroup.objects.all()
@@ -348,11 +355,13 @@ class SiteGroupDeleteView(generic.ObjectDeleteView):
     queryset = SiteGroup.objects.all()
 
 
+@register_model_view(SiteGroup, 'import', detail=False)
 class SiteGroupBulkImportView(generic.BulkImportView):
     queryset = SiteGroup.objects.all()
     model_form = forms.SiteGroupImportForm
 
 
+@register_model_view(SiteGroup, 'bulk_edit', path='edit', detail=False)
 class SiteGroupBulkEditView(generic.BulkEditView):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
@@ -366,6 +375,7 @@ class SiteGroupBulkEditView(generic.BulkEditView):
     form = forms.SiteGroupBulkEditForm
 
 
+@register_model_view(SiteGroup, 'bulk_delete', path='delete', detail=False)
 class SiteGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
@@ -387,6 +397,7 @@ class SiteGroupContactsView(ObjectContactsView):
 # Sites
 #
 
+@register_model_view(Site, 'list', path='', detail=False)
 class SiteListView(generic.ObjectListView):
     queryset = Site.objects.annotate(
         device_count=count_related(Device, 'site')
@@ -421,6 +432,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Site, 'add', detail=False)
 @register_model_view(Site, 'edit')
 class SiteEditView(generic.ObjectEditView):
     queryset = Site.objects.all()
@@ -432,11 +444,13 @@ class SiteDeleteView(generic.ObjectDeleteView):
     queryset = Site.objects.all()
 
 
+@register_model_view(Site, 'import', detail=False)
 class SiteBulkImportView(generic.BulkImportView):
     queryset = Site.objects.all()
     model_form = forms.SiteImportForm
 
 
+@register_model_view(Site, 'bulk_edit', path='edit', detail=False)
 class SiteBulkEditView(generic.BulkEditView):
     queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
@@ -444,6 +458,7 @@ class SiteBulkEditView(generic.BulkEditView):
     form = forms.SiteBulkEditForm
 
 
+@register_model_view(Site, 'bulk_delete', path='delete', detail=False)
 class SiteBulkDeleteView(generic.BulkDeleteView):
     queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
@@ -459,6 +474,7 @@ class SiteContactsView(ObjectContactsView):
 # Locations
 #
 
+@register_model_view(Location, 'list', path='', detail=False)
 class LocationListView(generic.ObjectListView):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
@@ -499,6 +515,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Location, 'add', detail=False)
 @register_model_view(Location, 'edit')
 class LocationEditView(generic.ObjectEditView):
     queryset = Location.objects.all()
@@ -510,11 +527,13 @@ class LocationDeleteView(generic.ObjectDeleteView):
     queryset = Location.objects.all()
 
 
+@register_model_view(Location, 'import', detail=False)
 class LocationBulkImportView(generic.BulkImportView):
     queryset = Location.objects.all()
     model_form = forms.LocationImportForm
 
 
+@register_model_view(Location, 'bulk_edit', path='edit', detail=False)
 class LocationBulkEditView(generic.BulkEditView):
     queryset = Location.objects.add_related_count(
         Location.objects.all(),
@@ -528,6 +547,7 @@ class LocationBulkEditView(generic.BulkEditView):
     form = forms.LocationBulkEditForm
 
 
+@register_model_view(Location, 'bulk_delete', path='delete', detail=False)
 class LocationBulkDeleteView(generic.BulkDeleteView):
     queryset = Location.objects.add_related_count(
         Location.objects.all(),
@@ -549,6 +569,7 @@ class LocationContactsView(ObjectContactsView):
 # Rack roles
 #
 
+@register_model_view(RackRole, 'list', path='', detail=False)
 class RackRoleListView(generic.ObjectListView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
@@ -568,6 +589,7 @@ class RackRoleView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(RackRole, 'add', detail=False)
 @register_model_view(RackRole, 'edit')
 class RackRoleEditView(generic.ObjectEditView):
     queryset = RackRole.objects.all()
@@ -579,11 +601,13 @@ class RackRoleDeleteView(generic.ObjectDeleteView):
     queryset = RackRole.objects.all()
 
 
+@register_model_view(RackRole, 'import', detail=False)
 class RackRoleBulkImportView(generic.BulkImportView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleImportForm
 
 
+@register_model_view(RackRole, 'bulk_edit', path='edit', detail=False)
 class RackRoleBulkEditView(generic.BulkEditView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
@@ -593,6 +617,7 @@ class RackRoleBulkEditView(generic.BulkEditView):
     form = forms.RackRoleBulkEditForm
 
 
+@register_model_view(RackRole, 'bulk_delete', path='delete', detail=False)
 class RackRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = RackRole.objects.annotate(
         rack_count=count_related(Rack, 'role')
@@ -605,6 +630,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 # RackTypes
 #
 
+@register_model_view(RackType, 'list', path='', detail=False)
 class RackTypeListView(generic.ObjectListView):
     queryset = RackType.objects.annotate(
         instance_count=count_related(Rack, 'rack_type')
@@ -624,6 +650,7 @@ class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(RackType, 'add', detail=False)
 @register_model_view(RackType, 'edit')
 class RackTypeEditView(generic.ObjectEditView):
     queryset = RackType.objects.all()
@@ -635,11 +662,13 @@ class RackTypeDeleteView(generic.ObjectDeleteView):
     queryset = RackType.objects.all()
 
 
+@register_model_view(RackType, 'import', detail=False)
 class RackTypeBulkImportView(generic.BulkImportView):
     queryset = RackType.objects.all()
     model_form = forms.RackTypeImportForm
 
 
+@register_model_view(RackType, 'bulk_edit', path='edit', detail=False)
 class RackTypeBulkEditView(generic.BulkEditView):
     queryset = RackType.objects.all()
     filterset = filtersets.RackTypeFilterSet
@@ -647,6 +676,7 @@ class RackTypeBulkEditView(generic.BulkEditView):
     form = forms.RackTypeBulkEditForm
 
 
+@register_model_view(RackType, 'bulk_delete', path='delete', detail=False)
 class RackTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = RackType.objects.all()
     filterset = filtersets.RackTypeFilterSet
@@ -657,6 +687,7 @@ class RackTypeBulkDeleteView(generic.BulkDeleteView):
 # Racks
 #
 
+@register_model_view(Rack, 'list', path='', detail=False)
 class RackListView(generic.ObjectListView):
     queryset = Rack.objects.annotate(
         device_count=count_related(Device, 'rack')
@@ -787,6 +818,7 @@ class RackNonRackedView(generic.ObjectChildrenView):
         )
 
 
+@register_model_view(Rack, 'add', detail=False)
 @register_model_view(Rack, 'edit')
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
@@ -798,11 +830,13 @@ class RackDeleteView(generic.ObjectDeleteView):
     queryset = Rack.objects.all()
 
 
+@register_model_view(Rack, 'import', detail=False)
 class RackBulkImportView(generic.BulkImportView):
     queryset = Rack.objects.all()
     model_form = forms.RackImportForm
 
 
+@register_model_view(Rack, 'bulk_edit', path='edit', detail=False)
 class RackBulkEditView(generic.BulkEditView):
     queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
@@ -810,6 +844,7 @@ class RackBulkEditView(generic.BulkEditView):
     form = forms.RackBulkEditForm
 
 
+@register_model_view(Rack, 'bulk_delete', path='delete', detail=False)
 class RackBulkDeleteView(generic.BulkDeleteView):
     queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
@@ -825,6 +860,7 @@ class RackContactsView(ObjectContactsView):
 # Rack reservations
 #
 
+@register_model_view(RackReservation, 'list', path='', detail=False)
 class RackReservationListView(generic.ObjectListView):
     queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
@@ -837,6 +873,7 @@ class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.all()
 
 
+@register_model_view(RackReservation, 'add', detail=False)
 @register_model_view(RackReservation, 'edit')
 class RackReservationEditView(generic.ObjectEditView):
     queryset = RackReservation.objects.all()
@@ -855,6 +892,7 @@ class RackReservationDeleteView(generic.ObjectDeleteView):
     queryset = RackReservation.objects.all()
 
 
+@register_model_view(RackReservation, 'import', detail=False)
 class RackReservationImportView(generic.BulkImportView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationImportForm
@@ -870,6 +908,7 @@ class RackReservationImportView(generic.BulkImportView):
         return instance
 
 
+@register_model_view(RackReservation, 'bulk_edit', path='edit', detail=False)
 class RackReservationBulkEditView(generic.BulkEditView):
     queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
@@ -877,6 +916,7 @@ class RackReservationBulkEditView(generic.BulkEditView):
     form = forms.RackReservationBulkEditForm
 
 
+@register_model_view(RackReservation, 'bulk_delete', path='delete', detail=False)
 class RackReservationBulkDeleteView(generic.BulkDeleteView):
     queryset = RackReservation.objects.all()
     filterset = filtersets.RackReservationFilterSet
@@ -887,6 +927,7 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 # Manufacturers
 #
 
+@register_model_view(Manufacturer, 'list', path='', detail=False)
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
@@ -909,6 +950,7 @@ class ManufacturerView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Manufacturer, 'add', detail=False)
 @register_model_view(Manufacturer, 'edit')
 class ManufacturerEditView(generic.ObjectEditView):
     queryset = Manufacturer.objects.all()
@@ -920,11 +962,13 @@ class ManufacturerDeleteView(generic.ObjectDeleteView):
     queryset = Manufacturer.objects.all()
 
 
+@register_model_view(Manufacturer, 'import', detail=False)
 class ManufacturerBulkImportView(generic.BulkImportView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerImportForm
 
 
+@register_model_view(Manufacturer, 'bulk_edit', path='edit', detail=False)
 class ManufacturerBulkEditView(generic.BulkEditView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
@@ -937,6 +981,7 @@ class ManufacturerBulkEditView(generic.BulkEditView):
     form = forms.ManufacturerBulkEditForm
 
 
+@register_model_view(Manufacturer, 'bulk_delete', path='delete', detail=False)
 class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=count_related(DeviceType, 'manufacturer'),
@@ -957,6 +1002,7 @@ class ManufacturerContactsView(ObjectContactsView):
 # Device types
 #
 
+@register_model_view(DeviceType, 'list', path='', detail=False)
 class DeviceTypeListView(generic.ObjectListView):
     queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
@@ -980,6 +1026,7 @@ class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(DeviceType, 'add', detail=False)
 @register_model_view(DeviceType, 'edit')
 class DeviceTypeEditView(generic.ObjectEditView):
     queryset = DeviceType.objects.all()
@@ -1141,6 +1188,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     )
 
 
+@register_model_view(DeviceType, 'import', detail=False)
 class DeviceTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_devicetype',
@@ -1175,6 +1223,7 @@ class DeviceTypeImportView(generic.BulkImportView):
         return data
 
 
+@register_model_view(DeviceType, 'bulk_edit', path='edit', detail=False)
 class DeviceTypeBulkEditView(generic.BulkEditView):
     queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
@@ -1184,6 +1233,7 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
     form = forms.DeviceTypeBulkEditForm
 
 
+@register_model_view(DeviceType, 'bulk_delete', path='delete', detail=False)
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceType.objects.annotate(
         instance_count=count_related(Device, 'device_type')
@@ -1196,6 +1246,7 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 # Module types
 #
 
+@register_model_view(ModuleType, 'list', path='', detail=False)
 class ModuleTypeListView(generic.ObjectListView):
     queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
@@ -1219,6 +1270,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ModuleType, 'add', detail=False)
 @register_model_view(ModuleType, 'edit')
 class ModuleTypeEditView(generic.ObjectEditView):
     queryset = ModuleType.objects.all()
@@ -1350,6 +1402,7 @@ class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
     )
 
 
+@register_model_view(ModuleType, 'import', detail=False)
 class ModuleTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_moduletype',
@@ -1378,6 +1431,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         return data
 
 
+@register_model_view(ModuleType, 'bulk_edit', path='edit', detail=False)
 class ModuleTypeBulkEditView(generic.BulkEditView):
     queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
@@ -1387,6 +1441,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
     form = forms.ModuleTypeBulkEditForm
 
 
+@register_model_view(ModuleType, 'bulk_delete', path='delete', detail=False)
 class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ModuleType.objects.annotate(
         instance_count=count_related(Module, 'module_type')
@@ -1399,6 +1454,7 @@ class ModuleTypeBulkDeleteView(generic.BulkDeleteView):
 # Console port templates
 #
 
+@register_model_view(ConsolePortTemplate, 'add', detail=False)
 class ConsolePortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsolePortTemplate.objects.all()
     form = forms.ConsolePortTemplateCreateForm
@@ -1416,16 +1472,19 @@ class ConsolePortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ConsolePortTemplate.objects.all()
 
 
+@register_model_view(ConsolePortTemplate, 'bulk_edit', path='edit', detail=False)
 class ConsolePortTemplateBulkEditView(generic.BulkEditView):
     queryset = ConsolePortTemplate.objects.all()
     table = tables.ConsolePortTemplateTable
     form = forms.ConsolePortTemplateBulkEditForm
 
 
+@register_model_view(ConsolePortTemplate, 'bulk_rename', path='rename', detail=False)
 class ConsolePortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ConsolePortTemplate.objects.all()
 
 
+@register_model_view(ConsolePortTemplate, 'bulk_delete', path='delete', detail=False)
 class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ConsolePortTemplate.objects.all()
     table = tables.ConsolePortTemplateTable
@@ -1435,6 +1494,7 @@ class ConsolePortTemplateBulkDeleteView(generic.BulkDeleteView):
 # Console server port templates
 #
 
+@register_model_view(ConsoleServerPortTemplate, 'add', detail=False)
 class ConsoleServerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = ConsoleServerPortTemplate.objects.all()
     form = forms.ConsoleServerPortTemplateCreateForm
@@ -1452,16 +1512,19 @@ class ConsoleServerPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ConsoleServerPortTemplate.objects.all()
 
 
+@register_model_view(ConsoleServerPortTemplate, 'bulk_edit', path='edit', detail=False)
 class ConsoleServerPortTemplateBulkEditView(generic.BulkEditView):
     queryset = ConsoleServerPortTemplate.objects.all()
     table = tables.ConsoleServerPortTemplateTable
     form = forms.ConsoleServerPortTemplateBulkEditForm
 
 
+@register_model_view(ConsoleServerPortTemplate, 'bulk_rename', detail=False)
 class ConsoleServerPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ConsoleServerPortTemplate.objects.all()
 
 
+@register_model_view(ConsoleServerPortTemplate, 'bulk_delete', path='delete', detail=False)
 class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ConsoleServerPortTemplate.objects.all()
     table = tables.ConsoleServerPortTemplateTable
@@ -1471,6 +1534,7 @@ class ConsoleServerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 # Power port templates
 #
 
+@register_model_view(PowerPortTemplate, 'add', detail=False)
 class PowerPortTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerPortTemplate.objects.all()
     form = forms.PowerPortTemplateCreateForm
@@ -1488,16 +1552,19 @@ class PowerPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = PowerPortTemplate.objects.all()
 
 
+@register_model_view(PowerPortTemplate, 'bulk_edit', path='edit', detail=False)
 class PowerPortTemplateBulkEditView(generic.BulkEditView):
     queryset = PowerPortTemplate.objects.all()
     table = tables.PowerPortTemplateTable
     form = forms.PowerPortTemplateBulkEditForm
 
 
+@register_model_view(PowerPortTemplate, 'bulk_rename', path='rename', detail=False)
 class PowerPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = PowerPortTemplate.objects.all()
 
 
+@register_model_view(PowerPortTemplate, 'bulk_delete', path='delete', detail=False)
 class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerPortTemplate.objects.all()
     table = tables.PowerPortTemplateTable
@@ -1507,6 +1574,7 @@ class PowerPortTemplateBulkDeleteView(generic.BulkDeleteView):
 # Power outlet templates
 #
 
+@register_model_view(PowerOutletTemplate, 'add', detail=False)
 class PowerOutletTemplateCreateView(generic.ComponentCreateView):
     queryset = PowerOutletTemplate.objects.all()
     form = forms.PowerOutletTemplateCreateForm
@@ -1524,16 +1592,19 @@ class PowerOutletTemplateDeleteView(generic.ObjectDeleteView):
     queryset = PowerOutletTemplate.objects.all()
 
 
+@register_model_view(PowerOutletTemplate, 'bulk_edit', path='edit', detail=False)
 class PowerOutletTemplateBulkEditView(generic.BulkEditView):
     queryset = PowerOutletTemplate.objects.all()
     table = tables.PowerOutletTemplateTable
     form = forms.PowerOutletTemplateBulkEditForm
 
 
+@register_model_view(PowerOutletTemplate, 'bulk_rename', path='rename', detail=False)
 class PowerOutletTemplateBulkRenameView(generic.BulkRenameView):
     queryset = PowerOutletTemplate.objects.all()
 
 
+@register_model_view(PowerOutletTemplate, 'bulk_delete', path='delete', detail=False)
 class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = PowerOutletTemplate.objects.all()
     table = tables.PowerOutletTemplateTable
@@ -1543,6 +1614,7 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 # Interface templates
 #
 
+@register_model_view(InterfaceTemplate, 'add', detail=False)
 class InterfaceTemplateCreateView(generic.ComponentCreateView):
     queryset = InterfaceTemplate.objects.all()
     form = forms.InterfaceTemplateCreateForm
@@ -1560,16 +1632,19 @@ class InterfaceTemplateDeleteView(generic.ObjectDeleteView):
     queryset = InterfaceTemplate.objects.all()
 
 
+@register_model_view(InterfaceTemplate, 'bulk_edit', path='edit', detail=False)
 class InterfaceTemplateBulkEditView(generic.BulkEditView):
     queryset = InterfaceTemplate.objects.all()
     table = tables.InterfaceTemplateTable
     form = forms.InterfaceTemplateBulkEditForm
 
 
+@register_model_view(InterfaceTemplate, 'bulk_rename', path='rename', detail=False)
 class InterfaceTemplateBulkRenameView(generic.BulkRenameView):
     queryset = InterfaceTemplate.objects.all()
 
 
+@register_model_view(InterfaceTemplate, 'bulk_delete', path='delete', detail=False)
 class InterfaceTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = InterfaceTemplate.objects.all()
     table = tables.InterfaceTemplateTable
@@ -1579,6 +1654,7 @@ class InterfaceTemplateBulkDeleteView(generic.BulkDeleteView):
 # Front port templates
 #
 
+@register_model_view(FrontPortTemplate, 'add', detail=False)
 class FrontPortTemplateCreateView(generic.ComponentCreateView):
     queryset = FrontPortTemplate.objects.all()
     form = forms.FrontPortTemplateCreateForm
@@ -1596,16 +1672,19 @@ class FrontPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = FrontPortTemplate.objects.all()
 
 
+@register_model_view(FrontPortTemplate, 'bulk_edit', path='edit', detail=False)
 class FrontPortTemplateBulkEditView(generic.BulkEditView):
     queryset = FrontPortTemplate.objects.all()
     table = tables.FrontPortTemplateTable
     form = forms.FrontPortTemplateBulkEditForm
 
 
+@register_model_view(FrontPortTemplate, 'bulk_rename', path='rename', detail=False)
 class FrontPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = FrontPortTemplate.objects.all()
 
 
+@register_model_view(FrontPortTemplate, 'bulk_delete', path='delete', detail=False)
 class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = FrontPortTemplate.objects.all()
     table = tables.FrontPortTemplateTable
@@ -1615,6 +1694,7 @@ class FrontPortTemplateBulkDeleteView(generic.BulkDeleteView):
 # Rear port templates
 #
 
+@register_model_view(RearPortTemplate, 'add', detail=False)
 class RearPortTemplateCreateView(generic.ComponentCreateView):
     queryset = RearPortTemplate.objects.all()
     form = forms.RearPortTemplateCreateForm
@@ -1632,16 +1712,19 @@ class RearPortTemplateDeleteView(generic.ObjectDeleteView):
     queryset = RearPortTemplate.objects.all()
 
 
+@register_model_view(RearPortTemplate, 'bulk_edit', path='edit', detail=False)
 class RearPortTemplateBulkEditView(generic.BulkEditView):
     queryset = RearPortTemplate.objects.all()
     table = tables.RearPortTemplateTable
     form = forms.RearPortTemplateBulkEditForm
 
 
+@register_model_view(RearPortTemplate, 'bulk_rename', path='rename', detail=False)
 class RearPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = RearPortTemplate.objects.all()
 
 
+@register_model_view(RearPortTemplate, 'bulk_delete', path='delete', detail=False)
 class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = RearPortTemplate.objects.all()
     table = tables.RearPortTemplateTable
@@ -1651,6 +1734,7 @@ class RearPortTemplateBulkDeleteView(generic.BulkDeleteView):
 # Module bay templates
 #
 
+@register_model_view(ModuleBayTemplate, 'add', detail=False)
 class ModuleBayTemplateCreateView(generic.ComponentCreateView):
     queryset = ModuleBayTemplate.objects.all()
     form = forms.ModuleBayTemplateCreateForm
@@ -1668,16 +1752,19 @@ class ModuleBayTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ModuleBayTemplate.objects.all()
 
 
+@register_model_view(ModuleBayTemplate, 'bulk_edit', path='edit', detail=False)
 class ModuleBayTemplateBulkEditView(generic.BulkEditView):
     queryset = ModuleBayTemplate.objects.all()
     table = tables.ModuleBayTemplateTable
     form = forms.ModuleBayTemplateBulkEditForm
 
 
+@register_model_view(ModuleBayTemplate, 'bulk_rename', path='rename', detail=False)
 class ModuleBayTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ModuleBayTemplate.objects.all()
 
 
+@register_model_view(ModuleBayTemplate, 'bulk_delete', path='delete', detail=False)
 class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ModuleBayTemplate.objects.all()
     table = tables.ModuleBayTemplateTable
@@ -1687,6 +1774,7 @@ class ModuleBayTemplateBulkDeleteView(generic.BulkDeleteView):
 # Device bay templates
 #
 
+@register_model_view(DeviceBayTemplate, 'add', detail=False)
 class DeviceBayTemplateCreateView(generic.ComponentCreateView):
     queryset = DeviceBayTemplate.objects.all()
     form = forms.DeviceBayTemplateCreateForm
@@ -1704,16 +1792,19 @@ class DeviceBayTemplateDeleteView(generic.ObjectDeleteView):
     queryset = DeviceBayTemplate.objects.all()
 
 
+@register_model_view(DeviceBayTemplate, 'bulk_edit', path='edit', detail=False)
 class DeviceBayTemplateBulkEditView(generic.BulkEditView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
     form = forms.DeviceBayTemplateBulkEditForm
 
 
+@register_model_view(DeviceBayTemplate, 'bulk_rename', path='rename', detail=False)
 class DeviceBayTemplateBulkRenameView(generic.BulkRenameView):
     queryset = DeviceBayTemplate.objects.all()
 
 
+@register_model_view(DeviceBayTemplate, 'bulk_delete', path='delete', detail=False)
 class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceBayTemplate.objects.all()
     table = tables.DeviceBayTemplateTable
@@ -1723,6 +1814,7 @@ class DeviceBayTemplateBulkDeleteView(generic.BulkDeleteView):
 # Inventory item templates
 #
 
+@register_model_view(InventoryItemTemplate, 'add', detail=False)
 class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateCreateForm
@@ -1751,16 +1843,19 @@ class InventoryItemTemplateDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItemTemplate.objects.all()
 
 
+@register_model_view(InventoryItemTemplate, 'bulk_edit', path='edit', detail=False)
 class InventoryItemTemplateBulkEditView(generic.BulkEditView):
     queryset = InventoryItemTemplate.objects.all()
     table = tables.InventoryItemTemplateTable
     form = forms.InventoryItemTemplateBulkEditForm
 
 
+@register_model_view(InventoryItemTemplate, 'bulk_rename', path='rename', detail=False)
 class InventoryItemTemplateBulkRenameView(generic.BulkRenameView):
     queryset = InventoryItemTemplate.objects.all()
 
 
+@register_model_view(InventoryItemTemplate, 'bulk_delete', path='delete', detail=False)
 class InventoryItemTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItemTemplate.objects.all()
     table = tables.InventoryItemTemplateTable
