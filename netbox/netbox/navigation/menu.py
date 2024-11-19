@@ -285,6 +285,13 @@ CIRCUITS_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label=_('Virtual Circuits'),
+            items=(
+                get_model_item('circuits', 'virtualcircuit', _('Virtual Circuits')),
+                get_model_item('circuits', 'virtualcircuittermination', _('Virtual Circuit Terminations')),
+            ),
+        ),
+        MenuGroup(
             label=_('Providers'),
             items=(
                 get_model_item('circuits', 'provider', _('Providers')),

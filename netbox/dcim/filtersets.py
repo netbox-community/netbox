@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
-from circuits.models import CircuitTermination
+from circuits.models import CircuitTermination, VirtualCircuit, VirtualCircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
@@ -1841,6 +1841,16 @@ class InterfaceFilterSet(
     wireless_link_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLink.objects.all(),
         label=_('Wireless link')
+    )
+    virtual_circuit_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit_termination__virtual_circuit',
+        queryset=VirtualCircuit.objects.all(),
+        label=_('Virtual circuit (ID)'),
+    )
+    virtual_circuit_termination_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit_termination',
+        queryset=VirtualCircuitTermination.objects.all(),
+        label=_('Virtual circuit termination (ID)'),
     )
 
     class Meta:

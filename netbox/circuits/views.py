@@ -537,3 +537,109 @@ class CircuitGroupAssignmentBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitGroupAssignment.objects.all()
     filterset = filtersets.CircuitGroupAssignmentFilterSet
     table = tables.CircuitGroupAssignmentTable
+
+
+#
+# Virtual circuits
+#
+
+class VirtualCircuitListView(generic.ObjectListView):
+    queryset = VirtualCircuit.objects.annotate(
+        termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
+    )
+    filterset = filtersets.VirtualCircuitFilterSet
+    filterset_form = forms.VirtualCircuitFilterForm
+    table = tables.VirtualCircuitTable
+
+
+@register_model_view(VirtualCircuit)
+class VirtualCircuitView(generic.ObjectView):
+    queryset = VirtualCircuit.objects.all()
+
+
+@register_model_view(VirtualCircuit, 'edit')
+class VirtualCircuitEditView(generic.ObjectEditView):
+    queryset = VirtualCircuit.objects.all()
+    form = forms.VirtualCircuitForm
+
+
+@register_model_view(VirtualCircuit, 'delete')
+class VirtualCircuitDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualCircuit.objects.all()
+
+
+class VirtualCircuitBulkImportView(generic.BulkImportView):
+    queryset = VirtualCircuit.objects.all()
+    model_form = forms.VirtualCircuitImportForm
+    additional_permissions = [
+        'circuits.add_virtualcircuittermination',
+    ]
+    related_object_forms = {
+        'terminations': forms.VirtualCircuitTerminationImportRelatedForm,
+    }
+
+    def prep_related_object_data(self, parent, data):
+        data.update({'virtual_circuit': parent})
+        return data
+
+
+class VirtualCircuitBulkEditView(generic.BulkEditView):
+    queryset = VirtualCircuit.objects.annotate(
+        termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
+    )
+    filterset = filtersets.VirtualCircuitFilterSet
+    table = tables.VirtualCircuitTable
+    form = forms.VirtualCircuitBulkEditForm
+
+
+class VirtualCircuitBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualCircuit.objects.annotate(
+        termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
+    )
+    filterset = filtersets.VirtualCircuitFilterSet
+    table = tables.VirtualCircuitTable
+
+
+#
+# Virtual circuit terminations
+#
+
+class VirtualCircuitTerminationListView(generic.ObjectListView):
+    queryset = VirtualCircuitTermination.objects.all()
+    filterset = filtersets.VirtualCircuitTerminationFilterSet
+    filterset_form = forms.VirtualCircuitTerminationFilterForm
+    table = tables.VirtualCircuitTerminationTable
+
+
+@register_model_view(VirtualCircuitTermination)
+class VirtualCircuitTerminationView(generic.ObjectView):
+    queryset = VirtualCircuitTermination.objects.all()
+
+
+@register_model_view(VirtualCircuitTermination, 'edit')
+class VirtualCircuitTerminationEditView(generic.ObjectEditView):
+    queryset = VirtualCircuitTermination.objects.all()
+    form = forms.VirtualCircuitTerminationForm
+
+
+@register_model_view(VirtualCircuitTermination, 'delete')
+class VirtualCircuitTerminationDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualCircuitTermination.objects.all()
+
+
+class VirtualCircuitTerminationBulkImportView(generic.BulkImportView):
+    queryset = VirtualCircuitTermination.objects.all()
+    model_form = forms.VirtualCircuitTerminationImportForm
+
+
+class VirtualCircuitTerminationBulkEditView(generic.BulkEditView):
+    queryset = VirtualCircuitTermination.objects.all()
+    filterset = filtersets.VirtualCircuitTerminationFilterSet
+    table = tables.VirtualCircuitTerminationTable
+    form = forms.VirtualCircuitTerminationBulkEditForm
+
+
+class VirtualCircuitTerminationBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualCircuitTermination.objects.all()
+    filterset = filtersets.VirtualCircuitTerminationFilterSet
+    table = tables.VirtualCircuitTerminationTable

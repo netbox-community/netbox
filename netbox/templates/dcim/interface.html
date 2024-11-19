@@ -152,7 +152,41 @@
           </tr>
         </table>
       </div>
-      {% if not object.is_virtual %}
+      {% if object.is_virtual and object.virtual_circuit_termination %}
+        <div class="card">
+          <h2 class="card-header">{% trans "Virtual Circuit" %}</h2>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Provider" %}</th>
+              <td>{{ object.virtual_circuit_termination.virtual_circuit.provider|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Provider Network" %}</th>
+              <td>{{ object.virtual_circuit_termination.virtual_circuit.provider_network|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Circuit ID" %}</th>
+              <td>{{ object.virtual_circuit_termination.virtual_circuit|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Role" %}</th>
+              <td>{{ object.virtual_circuit_termination.get_role_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Connections" %}</th>
+              <td>
+                {% for termination in object.virtual_circuit_termination.peer_terminations %}
+                  <a href="{{ termination.interface.parent_object.get_absolute_url }}">{{ termination.interface.parent_object }}</a>
+                  <i class="mdi mdi-chevron-right"></i>
+                  <a href="{{ termination.interface.get_absolute_url }}">{{ termination.interface }}</a>
+                  ({{ termination.get_role_display }})
+                  {% if not forloop.last %}<br />{% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          </table>
+        </div>
+      {% elif not object.is_virtual %}
         <div class="card">
           <h2 class="card-header">{% trans "Connection" %}</h2>
           {% if object.mark_connected %}

@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from circuits.constants import *
 from circuits.models import *
+from dcim.models import Interface
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -20,6 +21,9 @@ __all__ = (
     'ProviderImportForm',
     'ProviderAccountImportForm',
     'ProviderNetworkImportForm',
+    'VirtualCircuitImportForm',
+    'VirtualCircuitTerminationImportForm',
+    'VirtualCircuitTerminationImportRelatedForm',
 )
 
 
@@ -179,3 +183,73 @@ class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
     class Meta:
         model = CircuitGroupAssignment
         fields = ('circuit', 'group', 'priority')
+
+
+class VirtualCircuitImportForm(NetBoxModelImportForm):
+    provider_network = CSVModelChoiceField(
+        label=_('Provider network'),
+        queryset=ProviderNetwork.objects.all(),
+        to_field_name='name',
+        help_text=_('The network to which this virtual circuit belongs')
+    )
+    provider_account = CSVModelChoiceField(
+        label=_('Provider account'),
+        queryset=ProviderAccount.objects.all(),
+        to_field_name='account',
+        help_text=_('Assigned provider account (if any)'),
+        required=False
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=CircuitStatusChoices,
+        help_text=_('Operational status')
+    )
+    tenant = CSVModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned tenant')
+    )
+
+    class Meta:
+        model = VirtualCircuit
+        fields = [
+            'cid', 'provider_network', 'provider_account', 'status', 'tenant', 'description', 'comments', 'tags',
+        ]
+
+
+class BaseVirtualCircuitTerminationImportForm(forms.ModelForm):
+    virtual_circuit = CSVModelChoiceField(
+        label=_('Virtual circuit'),
+        queryset=VirtualCircuit.objects.all(),
+        to_field_name='cid',
+    )
+    role = CSVChoiceField(
+        label=_('Role'),
+        choices=VirtualCircuitTerminationRoleChoices,
+        help_text=_('Operational role')
+    )
+    interface = CSVModelChoiceField(
+        label=_('Interface'),
+        queryset=Interface.objects.all(),
+        to_field_name='pk',
+    )
+
+
+class VirtualCircuitTerminationImportRelatedForm(BaseVirtualCircuitTerminationImportForm):
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = [
+            'virtual_circuit', 'role', 'interface', 'description',
+        ]
+
+
+class VirtualCircuitTerminationImportForm(NetBoxModelImportForm, BaseVirtualCircuitTerminationImportForm):
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = [
+            'virtual_circuit', 'role', 'interface', 'description', 'tags',
+        ]

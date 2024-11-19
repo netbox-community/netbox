@@ -7,7 +7,8 @@ from django.urls import reverse
 from circuits.choices import *
 from circuits.models import *
 from core.models import ObjectType
-from dcim.models import Cable, Interface, Site
+from dcim.choices import InterfaceTypeChoices
+from dcim.models import Cable, Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.models import ASN, RIR
 from netbox.choices import ImportFormatChoices
 from users.models import ObjectPermission
@@ -341,7 +342,7 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class TestCase(ViewTestCases.PrimaryObjectViewTestCase):
+class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CircuitTermination
 
     @classmethod
@@ -517,4 +518,320 @@ class CircuitGroupAssignmentTestCase(
 
         cls.bulk_edit_data = {
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
+        }
+
+
+class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VirtualCircuit
+
+    def setUp(self):
+        super().setUp()
+
+        self.add_permissions(
+            'circuits.add_virtualcircuittermination',
+        )
+
+    @classmethod
+    def setUpTestData(cls):
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        provider_networks = (
+            ProviderNetwork(provider=provider, name='Provider Network 1'),
+            ProviderNetwork(provider=provider, name='Provider Network 2'),
+        )
+        ProviderNetwork.objects.bulk_create(provider_networks)
+        provider_accounts = (
+            ProviderAccount(provider=provider, account='Provider Account 1'),
+            ProviderAccount(provider=provider, account='Provider Account 2'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        virtual_circuits = (
+            VirtualCircuit(
+                provider_network=provider_networks[0],
+                provider_account=provider_accounts[0],
+                cid='Virtual Circuit 1'
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[0],
+                provider_account=provider_accounts[0],
+                cid='Virtual Circuit 2'
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[0],
+                provider_account=provider_accounts[0],
+                cid='Virtual Circuit 3'
+            ),
+        )
+        VirtualCircuit.objects.bulk_create(virtual_circuits)
+
+        device = create_test_device('Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'cid': 'Virtual Circuit X',
+            'provider_network': provider_networks[1].pk,
+            'provider_account': provider_accounts[1].pk,
+            'status': CircuitStatusChoices.STATUS_PLANNED,
+            'description': 'A new virtual circuit',
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "cid,provider_network,provider_account,status",
+            f"Virtual Circuit 4,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
+            f"Virtual Circuit 5,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
+            f"Virtual Circuit 6,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
+        )
+
+        cls.csv_update_data = (
+            "id,cid,description,status",
+            f"{virtual_circuits[0].pk},Virtual Circuit A,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"{virtual_circuits[1].pk},Virtual Circuit B,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            f"{virtual_circuits[2].pk},Virtual Circuit C,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+        )
+
+        cls.bulk_edit_data = {
+            'provider_network': provider_networks[1].pk,
+            'provider_account': provider_accounts[1].pk,
+            'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'description': 'New description',
+            'comments': 'New comments',
+        }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_terminations(self):
+        interfaces = Interface.objects.filter(type=InterfaceTypeChoices.TYPE_VIRTUAL)
+        json_data = f"""
+            [
+              {{
+                "cid": "Virtual Circuit 7",
+                "provider_network": "Provider Network 1",
+                "status": "active",
+                "terminations": [
+                  {{
+                    "role": "hub",
+                    "interface": {interfaces[0].pk}
+                  }},
+                  {{
+                    "role": "spoke",
+                    "interface": {interfaces[1].pk}
+                  }},
+                  {{
+                    "role": "spoke",
+                    "interface": {interfaces[2].pk}
+                  }}
+                ]
+              }}
+            ]
+        """
+
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': json_data,
+            'format': ImportFormatChoices.JSON,
+        }
+
+        # Assign model-level permission
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Try GET with model-level permission
+        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+
+        # Test POST with permission
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertEqual(self._get_queryset().count(), initial_count + 1)
+
+
+class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VirtualCircuitTermination
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        devices = (
+            Device(site=site, name='hub', device_type=device_type, role=device_role),
+            Device(site=site, name='spoke1', device_type=device_type, role=device_role),
+            Device(site=site, name='spoke2', device_type=device_type, role=device_role),
+            Device(site=site, name='spoke3', device_type=device_type, role=device_role),
+        )
+        Device.objects.bulk_create(devices)
+
+        physical_interfaces = (
+            Interface(device=devices[0], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(physical_interfaces)
+
+        virtual_interfaces = (
+            # Point-to-point VCs
+            Interface(
+                device=devices[0],
+                name='eth0.1',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[0],
+                name='eth0.2',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[0],
+                name='eth0.3',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[1],
+                name='eth0.1',
+                parent=physical_interfaces[1],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[2],
+                name='eth0.1',
+                parent=physical_interfaces[2],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[3],
+                name='eth0.1',
+                parent=physical_interfaces[3],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+
+            # Hub and spoke VCs
+            Interface(
+                device=devices[0],
+                name='eth0.9',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[1],
+                name='eth0.9',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[2],
+                name='eth0.9',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[3],
+                name='eth0.9',
+                parent=physical_interfaces[0],
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+        )
+        Interface.objects.bulk_create(virtual_interfaces)
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
+        provider_account = ProviderAccount.objects.create(provider=provider, account='Provider Account 1')
+
+        virtual_circuits = (
+            VirtualCircuit(
+                provider_network=provider_network,
+                provider_account=provider_account,
+                cid='Virtual Circuit 1'
+            ),
+            VirtualCircuit(
+                provider_network=provider_network,
+                provider_account=provider_account,
+                cid='Virtual Circuit 2'
+            ),
+            VirtualCircuit(
+                provider_network=provider_network,
+                provider_account=provider_account,
+                cid='Virtual Circuit 3'
+            ),
+            VirtualCircuit(
+                provider_network=provider_network,
+                provider_account=provider_account,
+                cid='Virtual Circuit 4'
+            ),
+        )
+        VirtualCircuit.objects.bulk_create(virtual_circuits)
+
+        virtual_circuit_terminations = (
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[0],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[0]
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[0],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[3]
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[1],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[1]
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[1],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[4]
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[2],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[2]
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[2],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[5]
+            ),
+        )
+        VirtualCircuitTermination.objects.bulk_create(virtual_circuit_terminations)
+
+        cls.form_data = {
+            'virtual_circuit': virtual_circuits[3].pk,
+            'role': VirtualCircuitTerminationRoleChoices.ROLE_HUB,
+            'interface': virtual_interfaces[6].pk
+        }
+
+        cls.csv_data = (
+            "virtual_circuit,role,interface,description",
+            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_HUB},{virtual_interfaces[6].pk},Hub",
+            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[7].pk},Spoke 1",
+            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[8].pk},Spoke 2",
+            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[9].pk},Spoke 3",
+        )
+
+        cls.csv_update_data = (
+            "id,role,description",
+            f"{virtual_circuit_terminations[0].pk},{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},New description",
+            f"{virtual_circuit_terminations[1].pk},{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},New description",
+            f"{virtual_circuit_terminations[2].pk},{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},New description",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
         }

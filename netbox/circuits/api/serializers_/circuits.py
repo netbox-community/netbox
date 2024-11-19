@@ -2,9 +2,13 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices
+from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
-from circuits.models import Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType
+from circuits.models import (
+    Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType, VirtualCircuit,
+    VirtualCircuitTermination,
+)
+from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
@@ -20,6 +24,8 @@ __all__ = (
     'CircuitGroupSerializer',
     'CircuitTerminationSerializer',
     'CircuitTypeSerializer',
+    'VirtualCircuitSerializer',
+    'VirtualCircuitTerminationSerializer',
 )
 
 
@@ -156,3 +162,32 @@ class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
             'id', 'url', 'display_url', 'display', 'group', 'circuit', 'priority', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'group', 'circuit', 'priority')
+
+
+class VirtualCircuitSerializer(NetBoxModelSerializer):
+    provider_network = ProviderNetworkSerializer(nested=True)
+    provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
+    status = ChoiceField(choices=CircuitStatusChoices, required=False)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+
+    class Meta:
+        model = VirtualCircuit
+        fields = [
+            'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'status', 'tenant',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'provider_network', 'cid', 'description')
+
+
+class VirtualCircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+    virtual_circuit = VirtualCircuitSerializer(nested=True)
+    role = ChoiceField(choices=VirtualCircuitTerminationRoleChoices, required=False)
+    interface = InterfaceSerializer(nested=True)
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = [
+            'id', 'url', 'display_url', 'display', 'virtual_circuit', 'role', 'interface', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'virtual_circuit', 'role', 'interface', 'description')

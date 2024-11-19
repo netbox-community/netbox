@@ -649,6 +649,14 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         url_name='dcim:interface_list'
     )
 
+    # Override PathEndpointTable.connection to accommodate virtual circuits
+    connection = columns.TemplateColumn(
+        accessor='_path__destinations',
+        template_code=INTERFACE_LINKTERMINATION,
+        verbose_name=_('Connection'),
+        orderable=False
+    )
+
     class Meta(DeviceComponentTable.Meta):
         model = models.Interface
         fields = (

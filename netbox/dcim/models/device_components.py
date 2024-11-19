@@ -998,6 +998,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
 
+    @cached_property
+    def connected_endpoints(self):
+        # If this is a virtual interface, return the remote endpoint of the connected
+        # virtual circuit, if any.
+        if self.is_virtual and hasattr(self, 'virtual_circuit_termination'):
+            return self.virtual_circuit_termination.peer_terminations
+        return super().connected_endpoints
+
 
 #
 # Pass-through ports
