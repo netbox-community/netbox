@@ -218,6 +218,9 @@ class TaskDetailViewSet(viewsets.ViewSet):
 
 
 class TaskViewSet(viewsets.ViewSet):
+    """
+    Background Task API.
+    """
     permission_classes = [IsAdminUser]
     registry = "default"
 
