@@ -13,7 +13,7 @@ from core import filtersets
 from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
-from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
+from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from django_rq.queues import get_queue, get_redis_connection
 from django_rq.utils import get_statistics
 from django_rq.settings import QUEUES_LIST
@@ -92,6 +92,9 @@ class BaseRQListView(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = None
 
+    def get_data(self):
+        raise NotImplementedError()
+
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
         data = self.get_data()
@@ -114,6 +117,17 @@ class QueueViewSet(BaseRQListView):
 
     def get_data(self):
         return get_statistics(run_maintenance_tasks=True)["queues"]
+
+    def retrieve(self, request, name):
+        queues = self.get_data()
+        if not queues:
+            raise Http404
+
+        for queue in queues:
+            if queue.name == name:
+                return Response(self.serializer_class(data, context={'request': request}))
+
+        raise Http404
 
 
 class WorkerViewSet(BaseRQListView):
@@ -142,14 +156,40 @@ class WorkerViewSet(BaseRQListView):
         return Response(serializer.data)
 
 
-class TaskDetailViewSet(viewsets.ViewSet):
+class TaskViewSet(viewsets.ViewSet):
     """
     Retrieve the details of the specified RQ Task.
     """
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
-        return "Background Task"
+        return "Background Tasks"
+
+    def get_response(self, request, queue_name, status=None):
+        try:
+            queue = get_queue(queue_name)
+        except KeyError:
+            raise Http404
+
+        if status:
+            data = get_rq_jobs_from_status(queue, status)
+        else:
+            data = queue.get_jobs()
+
+        paginator = LimitOffsetListPagination()
+        data = paginator.paginate_list(data, request)
+
+        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request):
+        data = get_rq_jobs()
+        paginator = LimitOffsetListPagination()
+        data = paginator.paginate_list(data, request)
+
+        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
+        return Response(serializer.data)
 
     def get_task_from_id(self, task_id):
         config = QUEUES_LIST[0]
@@ -187,54 +227,3 @@ class TaskDetailViewSet(viewsets.ViewSet):
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=204)
-
-
-class TaskViewSet(viewsets.ViewSet):
-    """
-    Background Task API.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Tasks"
-
-    def get_response(self, request, queue_name, status=None):
-        try:
-            queue = get_queue(queue_name)
-        except KeyError:
-            raise Http404
-
-        if status:
-            data = get_rq_jobs_from_status(queue, status)
-        else:
-            data = queue.get_jobs()
-
-        paginator = LimitOffsetListPagination()
-        data = paginator.paginate_list(data, request)
-
-        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
-        return Response(serializer.data)
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request, queue_name):
-        return self.get_response(request, queue_name, None)
-
-    @action(methods=["GET"], detail=False)
-    def deferred(self, request, queue_name):
-        return self.get_response(request, queue_name, "deferred")
-
-    @action(methods=["GET"], detail=False)
-    def failed(self, request, queue_name):
-        return self.get_response(request, queue_name, "failed")
-
-    @action(methods=["GET"], detail=False)
-    def finished(self, request, queue_name):
-        return self.get_response(request, queue_name, "finished")
-
-    @action(methods=["GET"], detail=False)
-    def started(self, request, queue_name):
-        return self.get_response(request, queue_name, "started")
-
-    @action(methods=["GET"], detail=False)
-    def queued(self, request, queue_name):
-        return self.get_response(request, queue_name, None)

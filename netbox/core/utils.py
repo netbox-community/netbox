@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
-from django_rq.queues import get_queue_by_index, get_redis_connection
+from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
 from django_rq.utils import get_jobs, stop_jobs
 from rq import requeue_job
@@ -49,6 +49,16 @@ def get_rq_jobs_from_status(queue, status):
             job.scheduled_at = registry.get_scheduled_time(job)
 
     return jobs
+
+
+def get_rq_jobs():
+    jobs = set()
+
+    for queue in QUEUES_LIST:
+        queue = get_queue(queue['name'])
+        jobs.update(queue.get_jobs())
+
+    return list(jobs)
 
 
 def delete_rq_job(job_id):
