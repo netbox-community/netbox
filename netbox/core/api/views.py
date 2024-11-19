@@ -7,7 +7,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from core import filtersets
@@ -171,28 +170,10 @@ class WorkerViewSet(BaseRQListView):
         return Response(serializer.data)
 
 
-class TaskListView(APIView):
+class TaskDetailViewSet(viewsets.ViewSet):
     """
-    Retrieve a list of RQ Tasks in the specified Queue.
+    Retrieve the details of the specified RQ Task.
     """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Tasks"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, queue_name, format=None):
-        try:
-            queue = get_queue(queue_name)
-        except KeyError:
-            raise Http404
-
-        data = queue.get_jobs()
-        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
-        return Response(serializer.data)
-
-
-class BaseTaskView(APIView):
     permission_classes = [IsAdminUser]
 
     def get_view_name(self):
@@ -206,80 +187,30 @@ class BaseTaskView(APIView):
 
         return task
 
-
-class TaskDetailView(BaseTaskView):
-    """
-    Retrieve the details of the specified RQ Task.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Task"
-
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def get(self, request, task_id, format=None):
-        task = self.get_task_from_id(task_id)
+    def retrieve(self, request, pk):
+        task = self.get_task_from_id(pk)
         serializer = serializers.BackgroundTaskSerializer(task, context={'request': request})
         return Response(serializer.data)
 
-
-class TaskDeleteView(APIView):
-    """
-    Deletes the specified RQ Task.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Task"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def post(self, request, task_id, format=None):
-        delete_rq_job(task_id)
+    @action(methods=["POST"], detail=True)
+    def delete(self, request, pk):
+        delete_rq_job(pk)
         return HttpResponse(status=200)
 
-
-class TaskRequeueView(APIView):
-    """
-    Requeues the specified RQ Task.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Task"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def post(self, request, task_id, format=None):
-        requeue_rq_job(task_id)
+    @action(methods=["POST"], detail=True)
+    def requeue(self, request, pk):
+        requeue_rq_job(pk)
         return HttpResponse(status=200)
 
-
-class TaskEnqueueView(APIView):
-    """
-    Enqueues the specified RQ Task.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Task"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def post(self, request, task_id, format=None):
-        enqueue_rq_job(task_id)
+    @action(methods=["POST"], detail=True)
+    def enqueue(self, request, pk):
+        enqueue_rq_job(pk)
         return HttpResponse(status=200)
 
-
-class TaskStopView(APIView):
-    """
-    Stops the specified RQ Task.
-    """
-    permission_classes = [IsAdminUser]
-
-    def get_view_name(self):
-        return "Background Task"
-
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def post(self, request, task_id, format=None):
-        stopped_jobs = stop_rq_job(task_id)
+    @action(methods=["POST"], detail=True)
+    def stop(self, request, pk):
+        stopped_jobs = stop_rq_job(pk)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)
         else:
