@@ -5,6 +5,7 @@ from django_rq.workers import get_worker
 from django.urls import reverse
 from django.utils import timezone
 from rq.job import Job as RQ_Job, JobStatus
+from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, TestCase
