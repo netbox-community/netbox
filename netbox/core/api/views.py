@@ -13,8 +13,8 @@ from core import filtersets
 from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
-from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
-from django_rq.queues import get_queue, get_redis_connection
+from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
+from django_rq.queues import get_redis_connection
 from django_rq.utils import get_statistics
 from django_rq.settings import QUEUES_LIST
 from netbox.api.metadata import ContentTypeMetadata
@@ -154,23 +154,6 @@ class TaskViewSet(BaseRQListView):
 
     def get_view_name(self):
         return "Background Tasks"
-
-    def get_response(self, request, queue_name, status=None):
-        try:
-            queue = get_queue(queue_name)
-        except KeyError:
-            raise Http404
-
-        if status:
-            data = get_rq_jobs_from_status(queue, status)
-        else:
-            data = queue.get_jobs()
-
-        paginator = LimitOffsetListPagination()
-        data = paginator.paginate_list(data, request)
-
-        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
-        return Response(serializer.data)
 
     def get_data(self):
         return get_rq_jobs()

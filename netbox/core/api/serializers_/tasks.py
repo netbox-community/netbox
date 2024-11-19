@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 
 __all__ = (
     'BackgroundTaskSerializer',
@@ -38,10 +37,10 @@ class BackgroundTaskSerializer(serializers.Serializer):
     is_scheduled = serializers.BooleanField()
     is_stopped = serializers.BooleanField()
 
-    def get_position(self, obj):
+    def get_position(self, obj) -> int:
         return obj.get_position()
 
-    def get_status(self, obj):
+    def get_status(self, obj) -> str:
         return obj.get_status()
 
 
@@ -59,10 +58,6 @@ class BackgroundQueueSerializer(serializers.Serializer):
     deferred_jobs = serializers.IntegerField()
     failed_jobs = serializers.IntegerField()
     scheduled_jobs = serializers.IntegerField()
-
-    def get_url(self, obj):
-        request = self.context.get('request')
-        return reverse('core-api:rqqueue-detail', kwargs={'name': obj['name']}, request=request)
 
 
 class BackgroundWorkerSerializer(serializers.Serializer):
