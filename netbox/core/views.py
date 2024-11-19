@@ -111,7 +111,7 @@ class DataSourceBulkImportView(generic.BulkImportView):
     model_form = forms.DataSourceImportForm
 
 
-@register_model_view(DataSource, 'bulk_edit', detail=False)
+@register_model_view(DataSource, 'bulk_edit', path='edit', detail=False)
 class DataSourceBulkEditView(generic.BulkEditView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -121,7 +121,7 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
-@register_model_view(DataSource, 'bulk_delete', detail=False)
+@register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -155,7 +155,7 @@ class DataFileDeleteView(generic.ObjectDeleteView):
     queryset = DataFile.objects.all()
 
 
-@register_model_view(DataFile, 'bulk_delete', detail=False)
+@register_model_view(DataFile, 'bulk_delete', path='delete', detail=False)
 class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
@@ -188,7 +188,7 @@ class JobDeleteView(generic.ObjectDeleteView):
     queryset = Job.objects.all()
 
 
-@register_model_view(Job, 'bulk_delete', detail=False)
+@register_model_view(Job, 'bulk_delete', path='delete', detail=False)
 class JobBulkDeleteView(generic.BulkDeleteView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
@@ -293,7 +293,7 @@ class ConfigRevisionDeleteView(generic.ObjectDeleteView):
     queryset = ConfigRevision.objects.all()
 
 
-@register_model_view(ConfigRevision, 'bulk_delete', detail=False)
+@register_model_view(ConfigRevision, 'bulk_delete', path='delete', detail=False)
 class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet
