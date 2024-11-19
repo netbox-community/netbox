@@ -156,11 +156,11 @@ class WorkerViewSet(BaseRQListView):
         return Response(serializer.data)
 
 
-class TaskViewSet(viewsets.ViewSet):
+class TaskViewSet(BaseRQListView):
     """
     Retrieve the details of the specified RQ Task.
     """
-    permission_classes = [IsAdminUser]
+    serializer_class = serializers.BackgroundTaskSerializer
 
     def get_view_name(self):
         return "Background Tasks"
@@ -182,14 +182,8 @@ class TaskViewSet(viewsets.ViewSet):
         serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
         return Response(serializer.data)
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def list(self, request):
-        data = get_rq_jobs()
-        paginator = LimitOffsetListPagination()
-        data = paginator.paginate_list(data, request)
-
-        serializer = serializers.BackgroundTaskSerializer(data, many=True, context={'request': request})
-        return Response(serializer.data)
+    def get_data(self):
+        return get_rq_jobs()
 
     def get_task_from_id(self, task_id):
         config = QUEUES_LIST[0]
