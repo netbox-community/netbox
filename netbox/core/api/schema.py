@@ -35,7 +35,10 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
 
         elif direction == "response":
             value = build_cf
-            label = {**build_basic_type(OpenApiTypes.STR), "enum": list(OrderedDict.fromkeys(self.target.choices.values()))}
+            label = {
+                **build_basic_type(OpenApiTypes.STR),
+                "enum": list(OrderedDict.fromkeys(self.target.choices.values()))
+            }
 
             return build_object_type(
                 properties={

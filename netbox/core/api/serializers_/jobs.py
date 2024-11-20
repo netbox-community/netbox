@@ -22,7 +22,7 @@ class JobSerializer(BaseModelSerializer):
     class Meta:
         model = Job
         fields = [
-            'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled', 'interval',
-            'started', 'completed', 'user', 'data', 'error', 'job_id',
+            'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled',
+            'interval', 'started', 'completed', 'user', 'data', 'error', 'job_id',
         ]
         brief_fields = ('url', 'created', 'completed', 'user', 'status')
