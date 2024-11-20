@@ -243,9 +243,41 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0], tenant=tenants[0], status=SiteStatusChoices.STATUS_ACTIVE, facility='Facility 1', latitude=10, longitude=10, description='foobar1'),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1], tenant=tenants[1], status=SiteStatusChoices.STATUS_PLANNED, facility='Facility 2', latitude=20, longitude=20, description='foobar2'),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2], tenant=tenants[2], status=SiteStatusChoices.STATUS_RETIRED, facility='Facility 3', latitude=30, longitude=30),
+            Site(
+                name='Site 1',
+                slug='site-1',
+                region=regions[0],
+                group=groups[0],
+                tenant=tenants[0],
+                status=SiteStatusChoices.STATUS_ACTIVE,
+                facility='Facility 1',
+                latitude=10,
+                longitude=10,
+                description='foobar1',
+            ),
+            Site(
+                name='Site 2',
+                slug='site-2',
+                region=regions[1],
+                group=groups[1],
+                tenant=tenants[1],
+                status=SiteStatusChoices.STATUS_PLANNED,
+                facility='Facility 2',
+                latitude=20,
+                longitude=20,
+                description='foobar2',
+            ),
+            Site(
+                name='Site 3',
+                slug='site-3',
+                region=regions[2],
+                group=groups[2],
+                tenant=tenants[2],
+                status=SiteStatusChoices.STATUS_RETIRED,
+                facility='Facility 3',
+                latitude=30,
+                longitude=30,
+            ),
         )
         Site.objects.bulk_create(sites)
         sites[0].asns.set([asns[0]])
@@ -361,9 +393,33 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
             location.save()
 
         locations = (
-            Location(name='Location 1A', slug='location-1a', site=sites[0], parent=parent_locations[0], status=LocationStatusChoices.STATUS_PLANNED, facility='Facility 1', description='foobar1'),
-            Location(name='Location 2A', slug='location-2a', site=sites[1], parent=parent_locations[1], status=LocationStatusChoices.STATUS_STAGING, facility='Facility 2', description='foobar2'),
-            Location(name='Location 3A', slug='location-3a', site=sites[2], parent=parent_locations[2], status=LocationStatusChoices.STATUS_DECOMMISSIONING, facility='Facility 3', description='foobar3'),
+            Location(
+                name='Location 1A',
+                slug='location-1a',
+                site=sites[0],
+                parent=parent_locations[0],
+                status=LocationStatusChoices.STATUS_PLANNED,
+                facility='Facility 1',
+                description='foobar1',
+            ),
+            Location(
+                name='Location 2A',
+                slug='location-2a',
+                site=sites[1],
+                parent=parent_locations[1],
+                status=LocationStatusChoices.STATUS_STAGING,
+                facility='Facility 2',
+                description='foobar2',
+            ),
+            Location(
+                name='Location 3A',
+                slug='location-3a',
+                site=sites[2],
+                parent=parent_locations[2],
+                status=LocationStatusChoices.STATUS_DECOMMISSIONING,
+                facility='Facility 3',
+                description='foobar3',
+            ),
         )
         for location in locations:
             location.save()
@@ -1222,10 +1278,22 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
-        FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
-        ))
+        FrontPortTemplate.objects.bulk_create(
+            (
+                FrontPortTemplate(
+                    device_type=device_types[0],
+                    name='Front Port 1',
+                    type=PortTypeChoices.TYPE_8P8C,
+                    rear_port=rear_ports[0],
+                ),
+                FrontPortTemplate(
+                    device_type=device_types[1],
+                    name='Front Port 2',
+                    type=PortTypeChoices.TYPE_8P8C,
+                    rear_port=rear_ports[1],
+                ),
+            )
+        )
         ModuleBayTemplate.objects.bulk_create((
             ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1'),
             ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2'),
@@ -1435,10 +1503,22 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             RearPortTemplate(module_type=module_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
-        FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(module_type=module_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPortTemplate(module_type=module_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
-        ))
+        FrontPortTemplate.objects.bulk_create(
+            (
+                FrontPortTemplate(
+                    module_type=module_types[0],
+                    name='Front Port 1',
+                    type=PortTypeChoices.TYPE_8P8C,
+                    rear_port=rear_ports[0],
+                ),
+                FrontPortTemplate(
+                    module_type=module_types[1],
+                    name='Front Port 2',
+                    type=PortTypeChoices.TYPE_8P8C,
+                    rear_port=rear_ports[1],
+                ),
+            )
+        )
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -1893,11 +1973,19 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         ModuleType.objects.bulk_create(module_types)
 
-        ModuleBayTemplate.objects.bulk_create((
-            ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1', description='foobar1'),
-            ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]),
-            ModuleBayTemplate(device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]),
-        ))
+        ModuleBayTemplate.objects.bulk_create(
+            (
+                ModuleBayTemplate(
+                    device_type=device_types[0], name='Module Bay 1', description='foobar1'
+                ),
+                ModuleBayTemplate(
+                    device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]
+                ),
+                ModuleBayTemplate(
+                    device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]
+                ),
+            )
+        )
 
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
@@ -1996,9 +2084,15 @@ class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
             item.save()
 
         child_inventory_item_templates = (
-            InventoryItemTemplate(device_type=device_types[0], name='Inventory Item 1A', parent=inventory_item_templates[0]),
-            InventoryItemTemplate(device_type=device_types[1], name='Inventory Item 2A', parent=inventory_item_templates[1]),
-            InventoryItemTemplate(device_type=device_types[2], name='Inventory Item 3A', parent=inventory_item_templates[2]),
+            InventoryItemTemplate(
+                device_type=device_types[0], name='Inventory Item 1A', parent=inventory_item_templates[0]
+            ),
+            InventoryItemTemplate(
+                device_type=device_types[1], name='Inventory Item 2A', parent=inventory_item_templates[1]
+            ),
+            InventoryItemTemplate(
+                device_type=device_types[2], name='Inventory Item 3A', parent=inventory_item_templates[2]
+            ),
         )
         for item in child_inventory_item_templates:
             item.save()
@@ -2848,10 +2942,41 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -3029,10 +3154,41 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -3058,9 +3214,15 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         ConsolePort.objects.bulk_create(console_ports)
 
         console_server_ports = (
-            ConsoleServerPort(device=devices[0], module=modules[0], name='Console Server Port 1', label='A', description='First'),
-            ConsoleServerPort(device=devices[1], module=modules[1], name='Console Server Port 2', label='B', description='Second'),
-            ConsoleServerPort(device=devices[2], module=modules[2], name='Console Server Port 3', label='C', description='Third'),
+            ConsoleServerPort(
+                device=devices[0], module=modules[0], name='Console Server Port 1', label='A', description='First'
+            ),
+            ConsoleServerPort(
+                device=devices[1], module=modules[1], name='Console Server Port 2', label='B', description='Second'
+            ),
+            ConsoleServerPort(
+                device=devices[2], module=modules[2], name='Console Server Port 3', label='C', description='Third'
+            ),
         )
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
@@ -3210,10 +3372,41 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -3239,9 +3432,33 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         PowerOutlet.objects.bulk_create(power_outlets)
 
         power_ports = (
-            PowerPort(device=devices[0], module=modules[0], name='Power Port 1', label='A', maximum_draw=100, allocated_draw=50, description='First'),
-            PowerPort(device=devices[1], module=modules[1], name='Power Port 2', label='B', maximum_draw=200, allocated_draw=100, description='Second'),
-            PowerPort(device=devices[2], module=modules[2], name='Power Port 3', label='C', maximum_draw=300, allocated_draw=150, description='Third'),
+            PowerPort(
+                device=devices[0],
+                module=modules[0],
+                name='Power Port 1',
+                label='A',
+                maximum_draw=100,
+                allocated_draw=50,
+                description='First',
+            ),
+            PowerPort(
+                device=devices[1],
+                module=modules[1],
+                name='Power Port 2',
+                label='B',
+                maximum_draw=200,
+                allocated_draw=100,
+                description='Second',
+            ),
+            PowerPort(
+                device=devices[2],
+                module=modules[2],
+                name='Power Port 3',
+                label='C',
+                maximum_draw=300,
+                allocated_draw=150,
+                description='Third',
+            ),
         )
         PowerPort.objects.bulk_create(power_ports)
 
@@ -3399,10 +3616,41 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -3428,9 +3676,33 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         PowerPort.objects.bulk_create(power_ports)
 
         power_outlets = (
-            PowerOutlet(device=devices[0], module=modules[0], name='Power Outlet 1', label='A', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A, description='First', color='ff0000'),
-            PowerOutlet(device=devices[1], module=modules[1], name='Power Outlet 2', label='B', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B, description='Second', color='00ff00'),
-            PowerOutlet(device=devices[2], module=modules[2], name='Power Outlet 3', label='C', feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C, description='Third', color='0000ff'),
+            PowerOutlet(
+                device=devices[0],
+                module=modules[0],
+                name='Power Outlet 1',
+                label='A',
+                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
+                description='First',
+                color='ff0000',
+            ),
+            PowerOutlet(
+                device=devices[1],
+                module=modules[1],
+                name='Power Outlet 2',
+                label='B',
+                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B,
+                description='Second',
+                color='00ff00',
+            ),
+            PowerOutlet(
+                device=devices[2],
+                module=modules[2],
+                name='Power Outlet 3',
+                label='C',
+                feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C,
+                description='Third',
+                color='0000ff',
+            ),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
@@ -3672,8 +3944,12 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         # Virtual Device Context Creation
         vdcs = (
-            VirtualDeviceContext(device=devices[4], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
-            VirtualDeviceContext(device=devices[4], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(
+                device=devices[4], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE
+            ),
+            VirtualDeviceContext(
+                device=devices[4], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED
+            ),
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
 
@@ -3886,9 +4162,24 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         # Create child interfaces
         parent_interface = Interface.objects.first()
         child_interfaces = (
-            Interface(device=parent_interface.device, name='Child 1', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(device=parent_interface.device, name='Child 2', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(device=parent_interface.device, name='Child 3', parent=parent_interface, type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(
+                device=parent_interface.device,
+                name='Child 1',
+                parent=parent_interface,
+                type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            ),
+            Interface(
+                device=parent_interface.device,
+                name='Child 2',
+                parent=parent_interface,
+                type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            ),
+            Interface(
+                device=parent_interface.device,
+                name='Child 3',
+                parent=parent_interface,
+                type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            ),
         )
         Interface.objects.bulk_create(child_interfaces)
 
@@ -3899,9 +4190,24 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         # Create bridged interfaces
         bridge_interface = Interface.objects.first()
         bridged_interfaces = (
-            Interface(device=bridge_interface.device, name='Bridged 1', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=bridge_interface.device, name='Bridged 2', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=bridge_interface.device, name='Bridged 3', bridge=bridge_interface, type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(
+                device=bridge_interface.device,
+                name='Bridged 1',
+                bridge=bridge_interface,
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            ),
+            Interface(
+                device=bridge_interface.device,
+                name='Bridged 2',
+                bridge=bridge_interface,
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            ),
+            Interface(
+                device=bridge_interface.device,
+                name='Bridged 3',
+                bridge=bridge_interface,
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            ),
         )
         Interface.objects.bulk_create(bridged_interfaces)
 
@@ -4134,10 +4440,41 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -4167,12 +4504,63 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=devices[0], module=modules[0], name='Front Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, rear_port=rear_ports[0], rear_port_position=1, description='First'),
-            FrontPort(device=devices[1], module=modules[1], name='Front Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, rear_port=rear_ports[1], rear_port_position=2, description='Second'),
-            FrontPort(device=devices[2], module=modules[2], name='Front Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, rear_port=rear_ports[2], rear_port_position=3, description='Third'),
-            FrontPort(device=devices[3], name='Front Port 4', label='D', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[3], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 5', label='E', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[4], rear_port_position=1),
-            FrontPort(device=devices[3], name='Front Port 6', label='F', type=PortTypeChoices.TYPE_FC, rear_port=rear_ports[5], rear_port_position=1),
+            FrontPort(
+                device=devices[0],
+                module=modules[0],
+                name='Front Port 1',
+                label='A',
+                type=PortTypeChoices.TYPE_8P8C,
+                color=ColorChoices.COLOR_RED,
+                rear_port=rear_ports[0],
+                rear_port_position=1,
+                description='First',
+            ),
+            FrontPort(
+                device=devices[1],
+                module=modules[1],
+                name='Front Port 2',
+                label='B',
+                type=PortTypeChoices.TYPE_110_PUNCH,
+                color=ColorChoices.COLOR_GREEN,
+                rear_port=rear_ports[1],
+                rear_port_position=2,
+                description='Second',
+            ),
+            FrontPort(
+                device=devices[2],
+                module=modules[2],
+                name='Front Port 3',
+                label='C',
+                type=PortTypeChoices.TYPE_BNC,
+                color=ColorChoices.COLOR_BLUE,
+                rear_port=rear_ports[2],
+                rear_port_position=3,
+                description='Third',
+            ),
+            FrontPort(
+                device=devices[3],
+                name='Front Port 4',
+                label='D',
+                type=PortTypeChoices.TYPE_FC,
+                rear_port=rear_ports[3],
+                rear_port_position=1,
+            ),
+            FrontPort(
+                device=devices[3],
+                name='Front Port 5',
+                label='E',
+                type=PortTypeChoices.TYPE_FC,
+                rear_port=rear_ports[4],
+                rear_port_position=1,
+            ),
+            FrontPort(
+                device=devices[3],
+                name='Front Port 6',
+                label='F',
+                type=PortTypeChoices.TYPE_FC,
+                rear_port=rear_ports[5],
+                rear_port_position=1,
+            ),
         )
         FrontPort.objects.bulk_create(front_ports)
 
@@ -4324,10 +4712,41 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3], status='offline'),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                status='offline'
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -4347,9 +4766,36 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         Module.objects.bulk_create(modules)
 
         rear_ports = (
-            RearPort(device=devices[0], module=modules[0], name='Rear Port 1', label='A', type=PortTypeChoices.TYPE_8P8C, color=ColorChoices.COLOR_RED, positions=1, description='First'),
-            RearPort(device=devices[1], module=modules[1], name='Rear Port 2', label='B', type=PortTypeChoices.TYPE_110_PUNCH, color=ColorChoices.COLOR_GREEN, positions=2, description='Second'),
-            RearPort(device=devices[2], module=modules[2], name='Rear Port 3', label='C', type=PortTypeChoices.TYPE_BNC, color=ColorChoices.COLOR_BLUE, positions=3, description='Third'),
+            RearPort(
+                device=devices[0],
+                module=modules[0],
+                name='Rear Port 1',
+                label='A',
+                type=PortTypeChoices.TYPE_8P8C,
+                color=ColorChoices.COLOR_RED,
+                positions=1,
+                description='First',
+            ),
+            RearPort(
+                device=devices[1],
+                module=modules[1],
+                name='Rear Port 2',
+                label='B',
+                type=PortTypeChoices.TYPE_110_PUNCH,
+                color=ColorChoices.COLOR_GREEN,
+                positions=2,
+                description='Second',
+            ),
+            RearPort(
+                device=devices[2],
+                module=modules[2],
+                name='Rear Port 3',
+                label='C',
+                type=PortTypeChoices.TYPE_BNC,
+                color=ColorChoices.COLOR_BLUE,
+                positions=3,
+                description='Third',
+            ),
             RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
             RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
             RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
@@ -4506,9 +4952,33 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -4654,9 +5124,33 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0], status='active'),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1], status='planned'),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2], status='offline'),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -4788,9 +5282,30 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -4808,9 +5323,48 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         inventory_items = (
-            InventoryItem(device=devices[0], role=roles[0], manufacturer=manufacturers[0], name='Inventory Item 1', label='A', part_id='1001', serial='ABC', asset_tag='1001', discovered=True, status=ModuleStatusChoices.STATUS_ACTIVE, description='First', component=components[0]),
-            InventoryItem(device=devices[1], role=roles[1], manufacturer=manufacturers[1], name='Inventory Item 2', label='B', part_id='1002', serial='DEF', asset_tag='1002', discovered=True, status=ModuleStatusChoices.STATUS_PLANNED, description='Second', component=components[1]),
-            InventoryItem(device=devices[2], role=roles[2], manufacturer=manufacturers[2], name='Inventory Item 3', label='C', part_id='1003', serial='GHI', asset_tag='1003', discovered=False, status=ModuleStatusChoices.STATUS_FAILED, description='Third', component=components[2]),
+            InventoryItem(
+                device=devices[0],
+                role=roles[0],
+                manufacturer=manufacturers[0],
+                name='Inventory Item 1',
+                label='A',
+                part_id='1001',
+                serial='ABC',
+                asset_tag='1001',
+                discovered=True,
+                status=ModuleStatusChoices.STATUS_ACTIVE,
+                description='First',
+                component=components[0],
+            ),
+            InventoryItem(
+                device=devices[1],
+                role=roles[1],
+                manufacturer=manufacturers[1],
+                name='Inventory Item 2',
+                label='B',
+                part_id='1002',
+                serial='DEF',
+                asset_tag='1002',
+                discovered=True,
+                status=ModuleStatusChoices.STATUS_PLANNED,
+                description='Second',
+                component=components[1],
+            ),
+            InventoryItem(
+                device=devices[2],
+                role=roles[2],
+                manufacturer=manufacturers[2],
+                name='Inventory Item 3',
+                label='C',
+                part_id='1003',
+                serial='GHI',
+                asset_tag='1003',
+                discovered=False,
+                status=ModuleStatusChoices.STATUS_FAILED,
+                description='Third',
+                component=components[2],
+            ),
         )
         for i in inventory_items:
             i.save()
@@ -5127,12 +5681,60 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, role=role, site=sites[0], rack=racks[0], location=locations[0], position=1),
-            Device(name='Device 2', device_type=device_type, role=role, site=sites[0], rack=racks[0], location=locations[0], position=2),
-            Device(name='Device 3', device_type=device_type, role=role, site=sites[1], rack=racks[1], location=locations[1], position=1),
-            Device(name='Device 4', device_type=device_type, role=role, site=sites[1], rack=racks[1], location=locations[1], position=2),
-            Device(name='Device 5', device_type=device_type, role=role, site=sites[2], rack=racks[2], location=locations[2], position=1),
-            Device(name='Device 6', device_type=device_type, role=role, site=sites[2], rack=racks[2], location=locations[2], position=2),
+            Device(
+                name='Device 1',
+                device_type=device_type,
+                role=role,
+                site=sites[0],
+                rack=racks[0],
+                location=locations[0],
+                position=1,
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_type,
+                role=role,
+                site=sites[0],
+                rack=racks[0],
+                location=locations[0],
+                position=2,
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_type,
+                role=role,
+                site=sites[1],
+                rack=racks[1],
+                location=locations[1],
+                position=1,
+            ),
+            Device(
+                name='Device 4',
+                device_type=device_type,
+                role=role,
+                site=sites[1],
+                rack=racks[1],
+                location=locations[1],
+                position=2,
+            ),
+            Device(
+                name='Device 5',
+                device_type=device_type,
+                role=role,
+                site=sites[2],
+                rack=racks[2],
+                location=locations[2],
+                position=1,
+            ),
+            Device(
+                name='Device 6',
+                device_type=device_type,
+                role=role,
+                site=sites[2],
+                rack=racks[2],
+                location=locations[2],
+                position=2,
+            ),
         )
         Device.objects.bulk_create(devices)
 

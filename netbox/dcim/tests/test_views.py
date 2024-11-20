@@ -196,9 +196,27 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
-            Location(name='Location 2', slug='location-2', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
-            Location(name='Location 3', slug='location-3', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(
+                name='Location 1',
+                slug='location-1',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
+            Location(
+                name='Location 2',
+                slug='location-2',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
+            Location(
+                name='Location 3',
+                slug='location-3',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
         )
         for location in locations:
             location.save()
@@ -346,9 +364,24 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], model='RackType 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
-            RackType(manufacturer=manufacturers[0], model='RackType 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
-            RackType(manufacturer=manufacturers[0], model='RackType 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 3',
+                slug='rack-type-3',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
         )
         RackType.objects.bulk_create(rack_types)
 
@@ -692,9 +725,15 @@ class DeviceTypeTestCase(
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
+            ),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
 
@@ -1081,9 +1120,15 @@ class ModuleTypeTestCase(
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPortTemplate(module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPortTemplate(module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
+            ),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
 
@@ -1453,11 +1498,19 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         )
         RearPortTemplate.objects.bulk_create(rearports)
 
-        FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1),
-        ))
+        FrontPortTemplate.objects.bulk_create(
+            (
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1
+                ),
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1
+                ),
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1
+                ),
+            )
+        )
 
         cls.form_data = {
             'device_type': devicetype.pk,
@@ -1550,7 +1603,12 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT)
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
 
         DeviceBayTemplate.objects.bulk_create((
             DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 1'),
@@ -1584,12 +1642,20 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
-        devicetype = DeviceType.objects.create(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'
+        )
 
         inventory_item_templates = (
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturers[0]
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturers[0]
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturers[0]
+            ),
         )
         for item in inventory_item_templates:
             item.save()
@@ -1741,9 +1807,30 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Platform.objects.bulk_create(platforms)
 
         devices = (
-            Device(name='Device 1', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
-            Device(name='Device 2', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
-            Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
+            Device(
+                name='Device 1',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            Device(
+                name='Device 2',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            Device(
+                name='Device 3',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -1778,10 +1865,22 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "role,manufacturer,device_type,status,name,site,location,rack,position,face,virtual_chassis,vc_position,vc_priority",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front,Virtual Chassis 1,1,10",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front,Virtual Chassis 1,2,20",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front,Virtual Chassis 1,3,30",
+            (
+                "role,manufacturer,device_type,status,name,site,location,rack,position,face,virtual_chassis,"
+                "vc_position,vc_priority"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front,"
+                "Virtual Chassis 1,1,10"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front,"
+                "Virtual Chassis 1,2,20"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front,"
+                "Virtual Chassis 1,3,30"
+            ),
         )
 
         cls.csv_update_data = (
@@ -2884,9 +2983,15 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         InventoryItemRole.objects.bulk_create(roles)
 
-        inventory_item1 = InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
-        inventory_item2 = InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
-        inventory_item3 = InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
+        inventory_item1 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer
+        )
+        inventory_item2 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer
+        )
+        inventory_item3 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer
+        )
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 

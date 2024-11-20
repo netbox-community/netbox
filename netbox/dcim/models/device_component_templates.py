@@ -311,7 +311,9 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         if self.maximum_draw is not None and self.allocated_draw is not None:
             if self.allocated_draw > self.maximum_draw:
                 raise ValidationError({
-                    'allocated_draw': _("Allocated draw cannot exceed the maximum draw ({maximum_draw}W).").format(maximum_draw=self.maximum_draw)
+                    'allocated_draw': _(
+                        "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
+                    ).format(maximum_draw=self.maximum_draw)
                 })
 
     def to_yaml(self):
@@ -365,11 +367,15 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         if self.power_port:
             if self.device_type and self.power_port.device_type != self.device_type:
                 raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same device type").format(power_port=self.power_port)
+                    _("Parent power port ({power_port}) must belong to the same device type").format(
+                        power_port=self.power_port
+                    )
                 )
             if self.module_type and self.power_port.module_type != self.module_type:
                 raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same module type").format(power_port=self.power_port)
+                    _("Parent power port ({power_port}) must belong to the same module type").format(
+                        power_port=self.power_port
+                    )
                 )
 
     def instantiate(self, **kwargs):
@@ -467,11 +473,15 @@ class InterfaceTemplate(ModularComponentTemplateModel):
                 raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
             if self.device_type and self.device_type != self.bridge.device_type:
                 raise ValidationError({
-                    'bridge': _("Bridge interface ({bridge}) must belong to the same device type").format(bridge=self.bridge)
+                    'bridge': _(
+                        "Bridge interface ({bridge}) must belong to the same device type"
+                    ).format(bridge=self.bridge)
                 })
             if self.module_type and self.module_type != self.bridge.module_type:
                 raise ValidationError({
-                    'bridge': _("Bridge interface ({bridge}) must belong to the same module type").format(bridge=self.bridge)
+                    'bridge': _(
+                        "Bridge interface ({bridge}) must belong to the same module type"
+                    ).format(bridge=self.bridge)
                 })
 
         if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
@@ -714,7 +724,9 @@ class DeviceBayTemplate(ComponentTemplateModel):
     def clean(self):
         if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
             raise ValidationError(
-                _("Subdevice role of device type ({device_type}) must be set to \"parent\" to allow device bays.").format(device_type=self.device_type)
+                _(
+                    'Subdevice role of device type ({device_type}) must be set to "parent" to allow device bays.'
+                ).format(device_type=self.device_type)
             )
 
     def to_yaml(self):
