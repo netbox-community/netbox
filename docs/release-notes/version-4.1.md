@@ -1,5 +1,22 @@
 # NetBox v4.1
 
+## v4.1.7 (FUTURE)
+
+### Enhancements
+
+* [#15239](https://github.com/netbox-community/netbox/issues/15239) - Enable adding/removing individual VLANs while bulk editing device interfaces
+* [#17871](https://github.com/netbox-community/netbox/issues/17871) - Enable the assignment/removal of virtualization cluster via device bulk edit
+
+### Bug Fixes
+
+* [#17901](https://github.com/netbox-community/netbox/issues/17901) - Ensure GraphiQL UI resources are served locally
+* [#17963](https://github.com/netbox-community/netbox/issues/17963) - Fix selection of all listed objects during bulk edit
+* [#17969](https://github.com/netbox-community/netbox/issues/17969) - Fix system info export when a config revision exists
+* [#17972](https://github.com/netbox-community/netbox/issues/17972) - Force evaluation of `LOGIN_REQUIRED` when requesting static media
+* [#17986](https://github.com/netbox-community/netbox/issues/17986) - Correct labels for virtual machine & virtual disk size properties
+
+---
+
 ## v4.1.6 (2024-10-31)
 
 ### Bug Fixes

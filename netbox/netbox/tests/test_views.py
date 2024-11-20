@@ -1,7 +1,7 @@
 import urllib.parse
 
 from django.urls import reverse
-from django.test import override_settings
+from django.test import Client, override_settings
 
 from dcim.models import Site
 from netbox.constants import EMPTY_TABLE_TEXT
@@ -74,3 +74,21 @@ class SearchViewTestCase(TestCase):
         self.assertHttpStatus(response, 200)
         content = str(response.content)
         self.assertIn(EMPTY_TABLE_TEXT, content)
+
+
+class MediaViewTestCase(TestCase):
+
+    def test_media_login_required(self):
+        url = reverse('media', kwargs={'path': 'foo.txt'})
+        response = Client().get(url)
+
+        # Unauthenticated request should redirect to login page
+        self.assertHttpStatus(response, 302)
+
+    @override_settings(LOGIN_REQUIRED=False)
+    def test_media_login_not_required(self):
+        url = reverse('media', kwargs={'path': 'foo.txt'})
+        response = Client().get(url)
+
+        # Unauthenticated request should return a 404 (not found)
+        self.assertHttpStatus(response, 404)

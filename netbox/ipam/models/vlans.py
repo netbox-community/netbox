@@ -97,15 +97,31 @@ class VLANGroup(OrganizationalModel):
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
         # Validate VID ranges
-        if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
-            raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
         for vid_range in self.vid_ranges:
-            if vid_range.lower > vid_range.upper:
+            lower_vid = vid_range.lower if vid_range.lower_inc else vid_range.lower + 1
+            upper_vid = vid_range.upper if vid_range.upper_inc else vid_range.upper - 1
+            if lower_vid < VLAN_VID_MIN:
+                raise ValidationError({
+                    'vid_ranges': _("Starting VLAN ID in range ({value}) cannot be less than {minimum}").format(
+                        value=lower_vid, minimum=VLAN_VID_MIN
+                    )
+                })
+            if upper_vid > VLAN_VID_MAX:
+                raise ValidationError({
+                    'vid_ranges': _("Ending VLAN ID in range ({value}) cannot exceed {maximum}").format(
+                        value=upper_vid, maximum=VLAN_VID_MAX
+                    )
+                })
+            if lower_vid > upper_vid:
                 raise ValidationError({
                     'vid_ranges': _(
-                        "Maximum child VID must be greater than or equal to minimum child VID ({value})"
-                    ).format(value=vid_range)
+                        "Ending VLAN ID in range must be greater than or equal to the starting VLAN ID ({range})"
+                    ).format(range=f'{lower_vid}-{upper_vid}')
                 })
+
+        # Check for overlapping VID ranges
+        if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
+            raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0

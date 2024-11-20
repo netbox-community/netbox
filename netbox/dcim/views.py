@@ -35,7 +35,7 @@ from virtualization.forms import VirtualMachineFilterForm
 from virtualization.models import VirtualMachine
 from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
-from .choices import DeviceFaceChoices
+from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
 
 CABLE_TERMINATION_TYPES = {
@@ -2615,6 +2615,16 @@ class InterfaceBulkEditView(generic.BulkEditView):
     filterset = filtersets.InterfaceFilterSet
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
+
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
+        # Add/remove tagged VLANs
+        if obj.mode == InterfaceModeChoices.MODE_TAGGED:
+            if form.cleaned_data.get('add_tagged_vlans', None):
+                obj.tagged_vlans.add(*form.cleaned_data['add_tagged_vlans'])
+            if form.cleaned_data.get('remove_tagged_vlans', None):
+                obj.tagged_vlans.remove(*form.cleaned_data['remove_tagged_vlans'])
 
 
 class InterfaceBulkRenameView(generic.BulkRenameView):

@@ -346,3 +346,32 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIn(str(worker1.name), str(response.content))
         self.assertIn('Birth', str(response.content))
         self.assertIn('Total working time', str(response.content))
+
+
+class SystemTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.user.is_staff = True
+        self.user.save()
+
+    def test_system_view_default(self):
+        # Test UI render
+        response = self.client.get(reverse('core:system'))
+        self.assertEqual(response.status_code, 200)
+
+        # Test export
+        response = self.client.get(f"{reverse('core:system')}?export=true")
+        self.assertEqual(response.status_code, 200)
+
+    def test_system_view_with_config_revision(self):
+        ConfigRevision.objects.create()
+
+        # Test UI render
+        response = self.client.get(reverse('core:system'))
+        self.assertEqual(response.status_code, 200)
+
+        # Test export
+        response = self.client.get(f"{reverse('core:system')}?export=true")
+        self.assertEqual(response.status_code, 200)
