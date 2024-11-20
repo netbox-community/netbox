@@ -121,7 +121,10 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit', name=_('Attributes')),
+        FieldSet(
+            'type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
+            name=_('Attributes')
+        ),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),

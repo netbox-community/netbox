@@ -226,12 +226,80 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1', distance=10, distance_unit=DistanceUnitChoices.UNIT_FOOT),
-            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2', distance=20, distance_unit=DistanceUnitChoices.UNIT_METER),
-            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED, distance=30, distance_unit=DistanceUnitChoices.UNIT_METER),
-            Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
-            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(
+                provider=providers[0],
+                provider_account=provider_accounts[0],
+                tenant=tenants[0],
+                type=circuit_types[0],
+                cid='Test Circuit 1',
+                install_date='2020-01-01',
+                termination_date='2021-01-01',
+                commit_rate=1000,
+                status=CircuitStatusChoices.STATUS_ACTIVE,
+                description='foobar1',
+                distance=10,
+                distance_unit=DistanceUnitChoices.UNIT_FOOT,
+            ),
+            Circuit(
+                provider=providers[0],
+                provider_account=provider_accounts[0],
+                tenant=tenants[0],
+                type=circuit_types[0],
+                cid='Test Circuit 2',
+                install_date='2020-01-02',
+                termination_date='2021-01-02',
+                commit_rate=2000,
+                status=CircuitStatusChoices.STATUS_ACTIVE,
+                description='foobar2',
+                distance=20,
+                distance_unit=DistanceUnitChoices.UNIT_METER,
+            ),
+            Circuit(
+                provider=providers[0],
+                provider_account=provider_accounts[1],
+                tenant=tenants[1],
+                type=circuit_types[0],
+                cid='Test Circuit 3',
+                install_date='2020-01-03',
+                termination_date='2021-01-03',
+                commit_rate=3000,
+                status=CircuitStatusChoices.STATUS_PLANNED,
+                distance=30,
+                distance_unit=DistanceUnitChoices.UNIT_METER,
+            ),
+            Circuit(
+                provider=providers[1],
+                provider_account=provider_accounts[1],
+                tenant=tenants[1],
+                type=circuit_types[1],
+                cid='Test Circuit 4',
+                install_date='2020-01-04',
+                termination_date='2021-01-04',
+                commit_rate=4000,
+                status=CircuitStatusChoices.STATUS_PLANNED,
+            ),
+            Circuit(
+                provider=providers[1],
+                provider_account=provider_accounts[2],
+                tenant=tenants[2],
+                type=circuit_types[1],
+                cid='Test Circuit 5',
+                install_date='2020-01-05',
+                termination_date='2021-01-05',
+                commit_rate=5000,
+                status=CircuitStatusChoices.STATUS_OFFLINE,
+            ),
+            Circuit(
+                provider=providers[1],
+                provider_account=provider_accounts[2],
+                tenant=tenants[2],
+                type=circuit_types[1],
+                cid='Test Circuit 6',
+                install_date='2020-01-06',
+                termination_date='2021-01-06',
+                commit_rate=6000,
+                status=CircuitStatusChoices.STATUS_OFFLINE,
+            ),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -387,18 +455,64 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Circuit.objects.bulk_create(circuits)
 
-        circuit_terminations = ((
-            CircuitTermination(circuit=circuits[0], termination=sites[0], term_side='A', port_speed=1000, upstream_speed=1000, xconnect_id='ABC', description='foobar1'),
-            CircuitTermination(circuit=circuits[0], termination=sites[1], term_side='Z', port_speed=1000, upstream_speed=1000, xconnect_id='DEF', description='foobar2'),
-            CircuitTermination(circuit=circuits[1], termination=sites[1], term_side='A', port_speed=2000, upstream_speed=2000, xconnect_id='GHI'),
-            CircuitTermination(circuit=circuits[1], termination=sites[2], term_side='Z', port_speed=2000, upstream_speed=2000, xconnect_id='JKL'),
-            CircuitTermination(circuit=circuits[2], termination=sites[2], term_side='A', port_speed=3000, upstream_speed=3000, xconnect_id='MNO'),
-            CircuitTermination(circuit=circuits[2], termination=sites[0], term_side='Z', port_speed=3000, upstream_speed=3000, xconnect_id='PQR'),
+        circuit_terminations = (
+            CircuitTermination(
+                circuit=circuits[0],
+                termination=sites[0],
+                term_side='A',
+                port_speed=1000,
+                upstream_speed=1000,
+                xconnect_id='ABC',
+                description='foobar1',
+            ),
+            CircuitTermination(
+                circuit=circuits[0],
+                termination=sites[1],
+                term_side='Z',
+                port_speed=1000,
+                upstream_speed=1000,
+                xconnect_id='DEF',
+                description='foobar2',
+            ),
+            CircuitTermination(
+                circuit=circuits[1],
+                termination=sites[1],
+                term_side='A',
+                port_speed=2000,
+                upstream_speed=2000,
+                xconnect_id='GHI',
+            ),
+            CircuitTermination(
+                circuit=circuits[1],
+                termination=sites[2],
+                term_side='Z',
+                port_speed=2000,
+                upstream_speed=2000,
+                xconnect_id='JKL',
+            ),
+            CircuitTermination(
+                circuit=circuits[2],
+                termination=sites[2],
+                term_side='A',
+                port_speed=3000,
+                upstream_speed=3000,
+                xconnect_id='MNO',
+            ),
+            CircuitTermination(
+                circuit=circuits[2],
+                termination=sites[0],
+                term_side='Z',
+                port_speed=3000,
+                upstream_speed=3000,
+                xconnect_id='PQR',
+            ),
             CircuitTermination(circuit=circuits[3], termination=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], termination=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], termination=provider_networks[2], term_side='A'),
-            CircuitTermination(circuit=circuits[6], termination=provider_networks[0], term_side='A', mark_connected=True),
-        ))
+            CircuitTermination(
+                circuit=circuits[6], termination=provider_networks[0], term_side='A', mark_connected=True
+            ),
+        )
         for ct in circuit_terminations:
             ct.save()
 

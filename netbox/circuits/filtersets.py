@@ -241,7 +241,9 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Circuit
-        fields = ('id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit')
+        fields = (
+            'id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -336,8 +338,8 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     class Meta:
         model = CircuitTermination
         fields = (
-            'id', 'termination_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
-            'pp_info', 'cable_end',
+            'id', 'termination_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description',
+            'mark_connected', 'pp_info', 'cable_end',
         )
 
     def search(self, queryset, name, value):
