@@ -105,7 +105,7 @@ class BaseRQListView(viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
 
-class QueueViewSet(BaseRQListView):
+class BackgroundQueueViewSet(BaseRQListView):
     """
     Retrieve a list of RQ Queues.
     Note: Queue names are not URL safe so not returning a detail view.
@@ -120,7 +120,7 @@ class QueueViewSet(BaseRQListView):
         return get_statistics(run_maintenance_tasks=True)["queues"]
 
 
-class WorkerViewSet(BaseRQListView):
+class BackgroundWorkerViewSet(BaseRQListView):
     """
     Retrieve a list of RQ Workers.
     """
@@ -146,7 +146,7 @@ class WorkerViewSet(BaseRQListView):
         return Response(serializer.data)
 
 
-class TaskViewSet(BaseRQListView):
+class BackgroundTaskViewSet(BaseRQListView):
     """
     Retrieve the details of the specified RQ Task.
     """
