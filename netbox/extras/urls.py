@@ -7,128 +7,68 @@ from utilities.urls import get_model_urls
 app_name = 'extras'
 urlpatterns = [
 
-    # Custom fields
-    path('custom-fields/', views.CustomFieldListView.as_view(), name='customfield_list'),
-    path('custom-fields/add/', views.CustomFieldEditView.as_view(), name='customfield_add'),
-    path('custom-fields/import/', views.CustomFieldBulkImportView.as_view(), name='customfield_import'),
-    path('custom-fields/edit/', views.CustomFieldBulkEditView.as_view(), name='customfield_bulk_edit'),
-    path('custom-fields/delete/', views.CustomFieldBulkDeleteView.as_view(), name='customfield_bulk_delete'),
+    path('custom-fields/', include(get_model_urls('extras', 'customfield', detail=False))),
     path('custom-fields/<int:pk>/', include(get_model_urls('extras', 'customfield'))),
 
-    # Custom field choices
-    path('custom-field-choices/', views.CustomFieldChoiceSetListView.as_view(), name='customfieldchoiceset_list'),
-    path('custom-field-choices/add/', views.CustomFieldChoiceSetEditView.as_view(), name='customfieldchoiceset_add'),
-    path('custom-field-choices/import/', views.CustomFieldChoiceSetBulkImportView.as_view(), name='customfieldchoiceset_import'),
-    path('custom-field-choices/edit/', views.CustomFieldChoiceSetBulkEditView.as_view(), name='customfieldchoiceset_bulk_edit'),
-    path('custom-field-choices/delete/', views.CustomFieldChoiceSetBulkDeleteView.as_view(), name='customfieldchoiceset_bulk_delete'),
+    path('custom-field-choices/', include(get_model_urls('extras', 'customfieldchoiceset', detail=False))),
     path('custom-field-choices/<int:pk>/', include(get_model_urls('extras', 'customfieldchoiceset'))),
 
-    # Custom links
-    path('custom-links/', views.CustomLinkListView.as_view(), name='customlink_list'),
-    path('custom-links/add/', views.CustomLinkEditView.as_view(), name='customlink_add'),
-    path('custom-links/import/', views.CustomLinkBulkImportView.as_view(), name='customlink_import'),
-    path('custom-links/edit/', views.CustomLinkBulkEditView.as_view(), name='customlink_bulk_edit'),
-    path('custom-links/delete/', views.CustomLinkBulkDeleteView.as_view(), name='customlink_bulk_delete'),
+    path('custom-links/', include(get_model_urls('extras', 'customlink', detail=False))),
     path('custom-links/<int:pk>/', include(get_model_urls('extras', 'customlink'))),
 
-    # Export templates
-    path('export-templates/', views.ExportTemplateListView.as_view(), name='exporttemplate_list'),
-    path('export-templates/add/', views.ExportTemplateEditView.as_view(), name='exporttemplate_add'),
-    path('export-templates/import/', views.ExportTemplateBulkImportView.as_view(), name='exporttemplate_import'),
-    path('export-templates/edit/', views.ExportTemplateBulkEditView.as_view(), name='exporttemplate_bulk_edit'),
-    path('export-templates/delete/', views.ExportTemplateBulkDeleteView.as_view(), name='exporttemplate_bulk_delete'),
-    path('export-templates/sync/', views.ExportTemplateBulkSyncDataView.as_view(), name='exporttemplate_bulk_sync'),
+    path('export-templates/', include(get_model_urls('extras', 'exporttemplate', detail=False))),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
-    # Saved filters
-    path('saved-filters/', views.SavedFilterListView.as_view(), name='savedfilter_list'),
-    path('saved-filters/add/', views.SavedFilterEditView.as_view(), name='savedfilter_add'),
-    path('saved-filters/import/', views.SavedFilterBulkImportView.as_view(), name='savedfilter_import'),
-    path('saved-filters/edit/', views.SavedFilterBulkEditView.as_view(), name='savedfilter_bulk_edit'),
-    path('saved-filters/delete/', views.SavedFilterBulkDeleteView.as_view(), name='savedfilter_bulk_delete'),
+    path('saved-filters/', include(get_model_urls('extras', 'savedfilter', detail=False))),
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
 
-    # Bookmarks
-    path('bookmarks/add/', views.BookmarkCreateView.as_view(), name='bookmark_add'),
-    path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
+    path('bookmarks/', include(get_model_urls('extras', 'bookmark', detail=False))),
     path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
 
-    # Notification groups
-    path('notification-groups/', views.NotificationGroupListView.as_view(), name='notificationgroup_list'),
-    path('notification-groups/add/', views.NotificationGroupEditView.as_view(), name='notificationgroup_add'),
-    path('notification-groups/import/', views.NotificationGroupBulkImportView.as_view(), name='notificationgroup_import'),
-    path('notification-groups/edit/', views.NotificationGroupBulkEditView.as_view(), name='notificationgroup_bulk_edit'),
-    path('notification-groups/delete/', views.NotificationGroupBulkDeleteView.as_view(), name='notificationgroup_bulk_delete'),
+    path('notification-groups/', include(get_model_urls('extras', 'notificationgroup', detail=False))),
     path('notification-groups/<int:pk>/', include(get_model_urls('extras', 'notificationgroup'))),
 
-    # Notifications
     path('notifications/', views.NotificationsView.as_view(), name='notifications'),
-    path('notifications/delete/', views.NotificationBulkDeleteView.as_view(), name='notification_bulk_delete'),
+    path('notifications/', include(get_model_urls('extras', 'notification', detail=False))),
     path('notifications/<int:pk>/', include(get_model_urls('extras', 'notification'))),
 
-    # Subscriptions
-    path('subscriptions/add/', views.SubscriptionCreateView.as_view(), name='subscription_add'),
-    path('subscriptions/delete/', views.SubscriptionBulkDeleteView.as_view(), name='subscription_bulk_delete'),
+    path('subscriptions/', include(get_model_urls('extras', 'subscription', detail=False))),
     path('subscriptions/<int:pk>/', include(get_model_urls('extras', 'subscription'))),
 
-    # Webhooks
-    path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
-    path('webhooks/add/', views.WebhookEditView.as_view(), name='webhook_add'),
-    path('webhooks/import/', views.WebhookBulkImportView.as_view(), name='webhook_import'),
-    path('webhooks/edit/', views.WebhookBulkEditView.as_view(), name='webhook_bulk_edit'),
-    path('webhooks/delete/', views.WebhookBulkDeleteView.as_view(), name='webhook_bulk_delete'),
+    path('webhooks/', include(get_model_urls('extras', 'webhook', detail=False))),
     path('webhooks/<int:pk>/', include(get_model_urls('extras', 'webhook'))),
 
-    # Event rules
-    path('event-rules/', views.EventRuleListView.as_view(), name='eventrule_list'),
-    path('event-rules/add/', views.EventRuleEditView.as_view(), name='eventrule_add'),
-    path('event-rules/import/', views.EventRuleBulkImportView.as_view(), name='eventrule_import'),
-    path('event-rules/edit/', views.EventRuleBulkEditView.as_view(), name='eventrule_bulk_edit'),
-    path('event-rules/delete/', views.EventRuleBulkDeleteView.as_view(), name='eventrule_bulk_delete'),
+    path('event-rules/', include(get_model_urls('extras', 'eventrule', detail=False))),
     path('event-rules/<int:pk>/', include(get_model_urls('extras', 'eventrule'))),
 
-    # Tags
-    path('tags/', views.TagListView.as_view(), name='tag_list'),
-    path('tags/add/', views.TagEditView.as_view(), name='tag_add'),
-    path('tags/import/', views.TagBulkImportView.as_view(), name='tag_import'),
-    path('tags/edit/', views.TagBulkEditView.as_view(), name='tag_bulk_edit'),
-    path('tags/delete/', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
+    path('tags/', include(get_model_urls('extras', 'tag', detail=False))),
     path('tags/<int:pk>/', include(get_model_urls('extras', 'tag'))),
 
-    # Config contexts
-    path('config-contexts/', views.ConfigContextListView.as_view(), name='configcontext_list'),
-    path('config-contexts/add/', views.ConfigContextEditView.as_view(), name='configcontext_add'),
-    path('config-contexts/edit/', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
-    path('config-contexts/delete/', views.ConfigContextBulkDeleteView.as_view(), name='configcontext_bulk_delete'),
-    path('config-contexts/sync/', views.ConfigContextBulkSyncDataView.as_view(), name='configcontext_bulk_sync'),
+    path('config-contexts/', include(get_model_urls('extras', 'configcontext', detail=False))),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
 
-    # Config templates
-    path('config-templates/', views.ConfigTemplateListView.as_view(), name='configtemplate_list'),
-    path('config-templates/add/', views.ConfigTemplateEditView.as_view(), name='configtemplate_add'),
-    path('config-templates/edit/', views.ConfigTemplateBulkEditView.as_view(), name='configtemplate_bulk_edit'),
-    path('config-templates/delete/', views.ConfigTemplateBulkDeleteView.as_view(), name='configtemplate_bulk_delete'),
-    path('config-templates/sync/', views.ConfigTemplateBulkSyncDataView.as_view(), name='configtemplate_bulk_sync'),
+    path('config-templates/', include(get_model_urls('extras', 'configtemplate', detail=False))),
     path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
 
-    # Image attachments
-    path('image-attachments/', views.ImageAttachmentListView.as_view(), name='imageattachment_list'),
-    path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
+    path('image-attachments/', include(get_model_urls('extras', 'imageattachment', detail=False))),
     path('image-attachments/<int:pk>/', include(get_model_urls('extras', 'imageattachment'))),
 
-    # Journal entries
-    path('journal-entries/', views.JournalEntryListView.as_view(), name='journalentry_list'),
-    path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
-    path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
-    path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
-    path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
+    path('journal-entries/', include(get_model_urls('extras', 'journalentry', detail=False))),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
     # User dashboard
     path('dashboard/reset/', views.DashboardResetView.as_view(), name='dashboard_reset'),
     path('dashboard/widgets/add/', views.DashboardWidgetAddView.as_view(), name='dashboardwidget_add'),
-    path('dashboard/widgets/<uuid:id>/configure/', views.DashboardWidgetConfigView.as_view(), name='dashboardwidget_config'),
-    path('dashboard/widgets/<uuid:id>/delete/', views.DashboardWidgetDeleteView.as_view(), name='dashboardwidget_delete'),
+    path(
+        'dashboard/widgets/<uuid:id>/configure/',
+        views.DashboardWidgetConfigView.as_view(),
+        name='dashboardwidget_config'
+    ),
+    path(
+        'dashboard/widgets/<uuid:id>/delete/',
+        views.DashboardWidgetDeleteView.as_view(),
+        name='dashboardwidget_delete'
+    ),
 
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),

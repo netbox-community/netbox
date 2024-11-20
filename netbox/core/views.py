@@ -46,6 +46,7 @@ from .tables import CatalogPluginTable, PluginVersionTable
 # Data sources
 #
 
+@register_model_view(DataSource, 'list', path='', detail=False)
 class DataSourceListView(generic.ObjectListView):
     queryset = DataSource.objects.annotate(
         file_count=count_related(DataFile, 'source')
@@ -92,6 +93,7 @@ class DataSourceSyncView(BaseObjectView):
         return redirect(datasource.get_absolute_url())
 
 
+@register_model_view(DataSource, 'add', detail=False)
 @register_model_view(DataSource, 'edit')
 class DataSourceEditView(generic.ObjectEditView):
     queryset = DataSource.objects.all()
@@ -103,11 +105,13 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
     queryset = DataSource.objects.all()
 
 
+@register_model_view(DataSource, 'import', detail=False)
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm
 
 
+@register_model_view(DataSource, 'bulk_edit', path='edit', detail=False)
 class DataSourceBulkEditView(generic.BulkEditView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -117,6 +121,7 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
+@register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -129,6 +134,7 @@ class DataSourceBulkDeleteView(generic.BulkDeleteView):
 # Data files
 #
 
+@register_model_view(DataFile, 'list', path='', detail=False)
 class DataFileListView(generic.ObjectListView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
@@ -149,6 +155,7 @@ class DataFileDeleteView(generic.ObjectDeleteView):
     queryset = DataFile.objects.all()
 
 
+@register_model_view(DataFile, 'bulk_delete', path='delete', detail=False)
 class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
@@ -159,6 +166,7 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
 # Jobs
 #
 
+@register_model_view(Job, 'list', path='', detail=False)
 class JobListView(generic.ObjectListView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
@@ -170,14 +178,17 @@ class JobListView(generic.ObjectListView):
     }
 
 
+@register_model_view(Job)
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
 
 
+@register_model_view(Job, 'delete')
 class JobDeleteView(generic.ObjectDeleteView):
     queryset = Job.objects.all()
 
 
+@register_model_view(Job, 'bulk_delete', path='delete', detail=False)
 class JobBulkDeleteView(generic.BulkDeleteView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
@@ -188,6 +199,7 @@ class JobBulkDeleteView(generic.BulkDeleteView):
 # Change logging
 #
 
+@register_model_view(ObjectChange, 'list', path='', detail=False)
 class ObjectChangeListView(generic.ObjectListView):
     queryset = ObjectChange.objects.valid_models()
     filterset = filtersets.ObjectChangeFilterSet
@@ -257,6 +269,7 @@ class ObjectChangeView(generic.ObjectView):
 # Config Revisions
 #
 
+@register_model_view(ConfigRevision, 'list', path='', detail=False)
 class ConfigRevisionListView(generic.ObjectListView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet
@@ -269,6 +282,7 @@ class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
 
+@register_model_view(ConfigRevision, 'add', detail=False)
 class ConfigRevisionEditView(generic.ObjectEditView):
     queryset = ConfigRevision.objects.all()
     form = forms.ConfigRevisionForm
@@ -279,12 +293,14 @@ class ConfigRevisionDeleteView(generic.ObjectDeleteView):
     queryset = ConfigRevision.objects.all()
 
 
+@register_model_view(ConfigRevision, 'bulk_delete', path='delete', detail=False)
 class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet
     table = tables.ConfigRevisionTable
 
 
+@register_model_view(ConfigRevision, 'restore')
 class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
