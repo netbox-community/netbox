@@ -93,3 +93,23 @@ class ProviderNetworkViewSet(NetBoxModelViewSet):
     queryset = ProviderNetwork.objects.all()
     serializer_class = serializers.ProviderNetworkSerializer
     filterset_class = filtersets.ProviderNetworkFilterSet
+
+
+#
+# Virtual circuits
+#
+
+class VirtualCircuitViewSet(NetBoxModelViewSet):
+    queryset = VirtualCircuit.objects.all()
+    serializer_class = serializers.VirtualCircuitSerializer
+    filterset_class = filtersets.VirtualCircuitFilterSet
+
+
+#
+# Virtual circuit terminations
+#
+
+class VirtualCircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
+    queryset = VirtualCircuitTermination.objects.all()
+    serializer_class = serializers.VirtualCircuitTerminationSerializer
+    filterset_class = filtersets.VirtualCircuitTerminationFilterSet

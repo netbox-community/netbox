@@ -47,7 +47,8 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         queryset=TunnelGroup.objects.all(),
         label=_('Tunnel Group'),
-        required=False
+        required=False,
+        quick_add=True
     )
     ipsec_profile = DynamicModelChoiceField(
         queryset=IPSecProfile.objects.all(),
@@ -313,7 +314,8 @@ class IKEProposalForm(NetBoxModelForm):
 class IKEPolicyForm(NetBoxModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
-        label=_('Proposals')
+        label=_('Proposals'),
+        quick_add=True
     )
 
     fieldsets = (
@@ -349,7 +351,8 @@ class IPSecProposalForm(NetBoxModelForm):
 class IPSecPolicyForm(NetBoxModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IPSecProposal.objects.all(),
-        label=_('Proposals')
+        label=_('Proposals'),
+        quick_add=True
     )
 
     fieldsets = (

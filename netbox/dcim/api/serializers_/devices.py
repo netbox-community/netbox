@@ -1,16 +1,19 @@
 import decimal
 
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.models import Device, DeviceBay, Module, VirtualDeviceContext
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
+from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
-from netbox.api.fields import ChoiceField, RelatedObjectCountField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
+from utilities.api import get_serializer_for_model
 from virtualization.api.serializers_.clusters import ClusterSerializer
 from .devicetypes import *
 from .platforms import PlatformSerializer
@@ -23,6 +26,7 @@ from .virtualchassis import VirtualChassisSerializer
 __all__ = (
     'DeviceSerializer',
     'DeviceWithConfigContextSerializer',
+    'MACAddressSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
 )
@@ -153,3 +157,28 @@ class ModuleSerializer(NetBoxModelSerializer):
             'asset_tag', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
+
+
+class MACAddressSerializer(NetBoxModelSerializer):
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(MACADDRESS_ASSIGNMENT_MODELS),
+        required=False,
+        allow_null=True
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = MACAddress
+        fields = [
+            'id', 'url', 'display_url', 'display', 'mac_address', 'assigned_object_type', 'assigned_object',
+            'description', 'comments',
+        ]
+        brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_assigned_object(self, obj):
+        if obj.assigned_object is None:
+            return None
+        serializer = get_serializer_for_model(obj.assigned_object)
+        context = {'request': self.context['request']}
+        return serializer(obj.assigned_object, nested=True, context=context).data

@@ -40,7 +40,8 @@ class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),

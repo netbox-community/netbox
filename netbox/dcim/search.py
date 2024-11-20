@@ -99,18 +99,27 @@ class FrontPortIndex(SearchIndex):
 
 
 @register_search
+class MACAddressIndex(SearchIndex):
+    model = models.MACAddress
+    fields = (
+        ('mac_address', 100),
+        ('description', 500),
+    )
+    display_attrs = ('mac_address', 'interface')
+
+
+@register_search
 class InterfaceIndex(SearchIndex):
     model = models.Interface
     fields = (
         ('name', 100),
         ('label', 200),
-        ('mac_address', 300),
         ('wwn', 300),
         ('description', 500),
         ('mtu', 2000),
         ('speed', 2000),
     )
-    display_attrs = ('device', 'label', 'type', 'mac_address', 'wwn', 'description')
+    display_attrs = ('device', 'label', 'type', 'wwn', 'description')
 
 
 @register_search

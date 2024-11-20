@@ -165,4 +165,7 @@ urlpatterns = [
     path('power-feeds/', include(get_model_urls('dcim', 'powerfeed', detail=False))),
     path('power-feeds/<int:pk>/', include(get_model_urls('dcim', 'powerfeed'))),
 
+    path('mac-addresses/', include(get_model_urls('dcim', 'macaddress', detail=False))),
+    path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),
+
 ]

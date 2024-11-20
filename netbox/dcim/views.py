@@ -2716,7 +2716,7 @@ class InterfaceView(generic.ObjectView):
 
         # Get bridge interfaces
         bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
-        bridge_interfaces_tables = tables.InterfaceTable(
+        bridge_interfaces_table = tables.InterfaceTable(
             bridge_interfaces,
             exclude=('device', 'parent'),
             orderable=False
@@ -2724,7 +2724,7 @@ class InterfaceView(generic.ObjectView):
 
         # Get child interfaces
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
-        child_interfaces_tables = tables.InterfaceTable(
+        child_interfaces_table = tables.InterfaceTable(
             child_interfaces,
             exclude=('device', 'parent'),
             orderable=False
@@ -2754,8 +2754,8 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
-            'bridge_interfaces_table': bridge_interfaces_tables,
-            'child_interfaces_table': child_interfaces_tables,
+            'bridge_interfaces_table': bridge_interfaces_table,
+            'child_interfaces_table': child_interfaces_table,
             'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }
@@ -3999,3 +3999,53 @@ class VirtualDeviceContextBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualDeviceContext.objects.all()
     filterset = filtersets.VirtualDeviceContextFilterSet
     table = tables.VirtualDeviceContextTable
+
+
+#
+# MAC addresses
+#
+
+@register_model_view(MACAddress, 'list', path='', detail=False)
+class MACAddressListView(generic.ObjectListView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    filterset_form = forms.MACAddressFilterForm
+    table = tables.MACAddressTable
+
+
+@register_model_view(MACAddress)
+class MACAddressView(generic.ObjectView):
+    queryset = MACAddress.objects.all()
+
+
+@register_model_view(MACAddress, 'add', detail=False)
+@register_model_view(MACAddress, 'edit')
+class MACAddressEditView(generic.ObjectEditView):
+    queryset = MACAddress.objects.all()
+    form = forms.MACAddressForm
+
+
+@register_model_view(MACAddress, 'delete')
+class MACAddressDeleteView(generic.ObjectDeleteView):
+    queryset = MACAddress.objects.all()
+
+
+@register_model_view(MACAddress, 'import', detail=False)
+class MACAddressBulkImportView(generic.BulkImportView):
+    queryset = MACAddress.objects.all()
+    model_form = forms.MACAddressImportForm
+
+
+@register_model_view(MACAddress, 'bulk_edit', path='edit', detail=False)
+class MACAddressBulkEditView(generic.BulkEditView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    table = tables.MACAddressTable
+    form = forms.MACAddressBulkEditForm
+
+
+@register_model_view(MACAddress, 'bulk_delete', path='delete', detail=False)
+class MACAddressBulkDeleteView(generic.BulkDeleteView):
+    queryset = MACAddress.objects.all()
+    filterset = filtersets.MACAddressFilterSet
+    table = tables.MACAddressTable

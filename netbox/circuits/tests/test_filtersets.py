@@ -3,7 +3,8 @@ from django.test import TestCase
 from circuits.choices import *
 from circuits.filtersets import *
 from circuits.models import *
-from dcim.models import Cable, Region, Site, SiteGroup
+from dcim.choices import InterfaceTypeChoices
+from dcim.models import Cable, Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site, SiteGroup
 from ipam.models import ASN, RIR
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant, TenantGroup
@@ -677,4 +678,294 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'provider_id': [providers[0].pk, providers[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualCircuit.objects.all()
+    filterset = VirtualCircuitFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='A'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='B'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2], account='C'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        provider_networks = (
+            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
+            ProviderNetwork(name='Provider Network 2', provider=providers[1]),
+            ProviderNetwork(name='Provider Network 3', provider=providers[2]),
+        )
+        ProviderNetwork.objects.bulk_create(provider_networks)
+
+        virutal_circuits = (
+            VirtualCircuit(
+                provider_network=provider_networks[0],
+                provider_account=provider_accounts[0],
+                tenant=tenants[0],
+                cid='Virtual Circuit 1',
+                status=CircuitStatusChoices.STATUS_PLANNED,
+                description='virtualcircuit1',
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[1],
+                provider_account=provider_accounts[1],
+                tenant=tenants[1],
+                cid='Virtual Circuit 2',
+                status=CircuitStatusChoices.STATUS_ACTIVE,
+                description='virtualcircuit2',
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[2],
+                provider_account=provider_accounts[2],
+                tenant=tenants[2],
+                cid='Virtual Circuit 3',
+                status=CircuitStatusChoices.STATUS_DEPROVISIONING,
+                description='virtualcircuit3',
+            ),
+        )
+        VirtualCircuit.objects.bulk_create(virutal_circuits)
+
+    def test_q(self):
+        params = {'q': 'virtualcircuit1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_cid(self):
+        params = {'cid': ['Virtual Circuit 1', 'Virtual Circuit 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider_account(self):
+        provider_accounts = ProviderAccount.objects.all()[:2]
+        params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider_network(self):
+        provider_networks = ProviderNetwork.objects.all()[:2]
+        params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [CircuitStatusChoices.STATUS_ACTIVE, CircuitStatusChoices.STATUS_PLANNED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['virtualcircuit1', 'virtualcircuit2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualCircuitTermination.objects.all()
+    filterset = VirtualCircuitTerminationFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        devices = (
+            Device(site=site, name='Device 1', device_type=device_type, role=device_role),
+            Device(site=site, name='Device 2', device_type=device_type, role=device_role),
+            Device(site=site, name='Device 3', device_type=device_type, role=device_role),
+        )
+        Device.objects.bulk_create(devices)
+
+        virtual_interfaces = (
+            # Device 1
+            Interface(
+                device=devices[0],
+                name='eth0.1',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[0],
+                name='eth0.2',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            # Device 2
+            Interface(
+                device=devices[1],
+                name='eth0.1',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[1],
+                name='eth0.2',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            # Device 3
+            Interface(
+                device=devices[2],
+                name='eth0.1',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+            Interface(
+                device=devices[2],
+                name='eth0.2',
+                type=InterfaceTypeChoices.TYPE_VIRTUAL
+            ),
+        )
+        Interface.objects.bulk_create(virtual_interfaces)
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+        provider_networks = (
+            ProviderNetwork(provider=providers[0], name='Provider Network 1'),
+            ProviderNetwork(provider=providers[1], name='Provider Network 2'),
+            ProviderNetwork(provider=providers[2], name='Provider Network 3'),
+        )
+        ProviderNetwork.objects.bulk_create(provider_networks)
+        provider_accounts = (
+            ProviderAccount(provider=providers[0], account='Provider Account 1'),
+            ProviderAccount(provider=providers[1], account='Provider Account 2'),
+            ProviderAccount(provider=providers[2], account='Provider Account 3'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+        virtual_circuits = (
+            VirtualCircuit(
+                provider_network=provider_networks[0],
+                provider_account=provider_accounts[0],
+                cid='Virtual Circuit 1'
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[1],
+                provider_account=provider_accounts[1],
+                cid='Virtual Circuit 2'
+            ),
+            VirtualCircuit(
+                provider_network=provider_networks[2],
+                provider_account=provider_accounts[2],
+                cid='Virtual Circuit 3'
+            ),
+        )
+        VirtualCircuit.objects.bulk_create(virtual_circuits)
+
+        virtual_circuit_terminations = (
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[0],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_HUB,
+                interface=virtual_interfaces[0],
+                description='termination1'
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[0],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_SPOKE,
+                interface=virtual_interfaces[3],
+                description='termination2'
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[1],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[1],
+                description='termination3'
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[1],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[4],
+                description='termination4'
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[2],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[2],
+                description='termination5'
+            ),
+            VirtualCircuitTermination(
+                virtual_circuit=virtual_circuits[2],
+                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                interface=virtual_interfaces[5],
+                description='termination6'
+            ),
+        )
+        VirtualCircuitTermination.objects.bulk_create(virtual_circuit_terminations)
+
+    def test_q(self):
+        params = {'q': 'termination1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['termination1', 'termination2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_circuit_id(self):
+        virtual_circuits = VirtualCircuit.objects.filter()[:2]
+        params = {'virtual_circuit_id': [virtual_circuits[0].pk, virtual_circuits[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_provider_network(self):
+        provider_networks = ProviderNetwork.objects.all()[:2]
+        params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_provider_account(self):
+        provider_accounts = ProviderAccount.objects.all()[:2]
+        params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'provider_account': [provider_accounts[0].account, provider_accounts[1].account]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_interface(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

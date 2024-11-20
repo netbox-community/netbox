@@ -33,4 +33,20 @@ urlpatterns = [
 
     path('circuit-group-assignments/', include(get_model_urls('circuits', 'circuitgroupassignment', detail=False))),
     path('circuit-group-assignments/<int:pk>/', include(get_model_urls('circuits', 'circuitgroupassignment'))),
+
+    # Virtual circuits
+    path('virtual-circuits/', views.VirtualCircuitListView.as_view(), name='virtualcircuit_list'),
+    path('virtual-circuits/add/', views.VirtualCircuitEditView.as_view(), name='virtualcircuit_add'),
+    path('virtual-circuits/import/', views.VirtualCircuitBulkImportView.as_view(), name='virtualcircuit_import'),
+    path('virtual-circuits/edit/', views.VirtualCircuitBulkEditView.as_view(), name='virtualcircuit_bulk_edit'),
+    path('virtual-circuits/delete/', views.VirtualCircuitBulkDeleteView.as_view(), name='virtualcircuit_bulk_delete'),
+    path('virtual-circuits/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuit'))),
+
+    # Virtual circuit terminations
+    path('virtual-circuit-terminations/', views.VirtualCircuitTerminationListView.as_view(), name='virtualcircuittermination_list'),
+    path('virtual-circuit-terminations/add/', views.VirtualCircuitTerminationEditView.as_view(), name='virtualcircuittermination_add'),
+    path('virtual-circuit-terminations/import/', views.VirtualCircuitTerminationBulkImportView.as_view(), name='virtualcircuittermination_import'),
+    path('virtual-circuit-terminations/edit/', views.VirtualCircuitTerminationBulkEditView.as_view(), name='virtualcircuittermination_bulk_edit'),
+    path('virtual-circuit-terminations/delete/', views.VirtualCircuitTerminationBulkDeleteView.as_view(), name='virtualcircuittermination_bulk_delete'),
+    path('virtual-circuit-terminations/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuittermination'))),
 ]

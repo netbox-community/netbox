@@ -1,16 +1,21 @@
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
+from circuits.choices import (
+    CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices, VirtualCircuitTerminationRoleChoices,
+)
 from circuits.constants import *
 from circuits.models import *
-from dcim.models import Site
+from dcim.models import Interface, Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import get_field_value
-from utilities.forms.fields import CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import (
+    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField,
+)
 from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 from utilities.templatetags.builtins.filters import bettertitle
@@ -24,6 +29,8 @@ __all__ = (
     'ProviderForm',
     'ProviderAccountForm',
     'ProviderNetworkForm',
+    'VirtualCircuitForm',
+    'VirtualCircuitTerminationForm',
 )
 
 
@@ -50,7 +57,9 @@ class ProviderForm(NetBoxModelForm):
 class ProviderAccountForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
-        queryset=Provider.objects.all()
+        queryset=Provider.objects.all(),
+        selector=True,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -64,7 +73,9 @@ class ProviderAccountForm(NetBoxModelForm):
 class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
-        queryset=Provider.objects.all()
+        queryset=Provider.objects.all(),
+        selector=True,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -97,7 +108,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
-        selector=True
+        selector=True,
+        quick_add=True
     )
     provider_account = DynamicModelChoiceField(
         label=_('Provider account'),
@@ -108,7 +120,8 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         }
     )
     type = DynamicModelChoiceField(
-        queryset=CircuitType.objects.all()
+        queryset=CircuitType.objects.all(),
+        quick_add=True
     )
     comments = CommentField()
 
@@ -248,4 +261,67 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
         model = CircuitGroupAssignment
         fields = [
             'group', 'circuit', 'priority', 'tags',
+        ]
+
+
+class VirtualCircuitForm(TenancyForm, NetBoxModelForm):
+    provider_network = DynamicModelChoiceField(
+        label=_('Provider network'),
+        queryset=ProviderNetwork.objects.all(),
+        selector=True
+    )
+    provider_account = DynamicModelChoiceField(
+        label=_('Provider account'),
+        queryset=ProviderAccount.objects.all(),
+        required=False
+    )
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet(
+            'provider_network', 'provider_account', 'cid', 'status', 'description', 'tags', name=_('Virtual circuit'),
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
+    class Meta:
+        model = VirtualCircuit
+        fields = [
+            'cid', 'provider_network', 'provider_account', 'status', 'description', 'tenant_group', 'tenant',
+            'comments', 'tags',
+        ]
+
+
+class VirtualCircuitTerminationForm(NetBoxModelForm):
+    virtual_circuit = DynamicModelChoiceField(
+        label=_('Virtual circuit'),
+        queryset=VirtualCircuit.objects.all(),
+        selector=True
+    )
+    role = forms.ChoiceField(
+        choices=VirtualCircuitTerminationRoleChoices,
+        widget=HTMXSelect(),
+        label=_('Role')
+    )
+    interface = DynamicModelChoiceField(
+        label=_('Interface'),
+        queryset=Interface.objects.all(),
+        selector=True,
+        query_params={
+            'kind': 'virtual',
+            'virtual_circuit_termination_id': 'null',
+        },
+        context={
+            'parent': 'device',
+        }
+    )
+
+    fieldsets = (
+        FieldSet('virtual_circuit', 'role', 'interface', 'description', 'tags'),
+    )
+
+    class Meta:
+        model = VirtualCircuitTermination
+        fields = [
+            'virtual_circuit', 'role', 'interface', 'description', 'tags',
         ]

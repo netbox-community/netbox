@@ -50,6 +50,19 @@
         <h2 class="card-header">{% trans "Circuits" %}</h2>
         {% htmx_table 'circuits:circuit_list' provider_network_id=object.pk %}
       </div>
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "Virtual Circuits" %}
+          {% if perms.circuits.add_virtualcircuit %}
+            <div class="card-actions">
+              <a href="{% url 'circuits:virtualcircuit_add' %}?provider_network={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Virtual Circuit" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'circuits:virtualcircuit_list' provider_network_id=object.pk %}
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

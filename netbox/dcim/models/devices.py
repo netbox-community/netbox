@@ -3,6 +3,7 @@ import yaml
 
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -16,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.fields import MACAddressField
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
@@ -33,6 +35,7 @@ __all__ = (
     'Device',
     'DeviceRole',
     'DeviceType',
+    'MACAddress',
     'Manufacturer',
     'Module',
     'ModuleType',
@@ -1470,3 +1473,37 @@ class VirtualDeviceContext(PrimaryModel):
                 raise ValidationError({
                     f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
                 })
+
+
+#
+# Addressing
+#
+
+class MACAddress(PrimaryModel):
+    mac_address = MACAddressField(
+        verbose_name=_('MAC address')
+    )
+    assigned_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    assigned_object_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
+    )
+
+    class Meta:
+        ordering = ('mac_address',)
+        verbose_name = _('MAC address')
+        verbose_name_plural = _('MAC addresses')
+
+    def __str__(self):
+        return str(self.mac_address)

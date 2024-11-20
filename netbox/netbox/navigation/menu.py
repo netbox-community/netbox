@@ -89,6 +89,12 @@ DEVICES_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label=_('Addressing'),
+            items=(
+                get_model_item('dcim', 'macaddress', _('MAC Addresses')),
+            ),
+        ),
+        MenuGroup(
             label=_('Device Components'),
             items=(
                 get_model_item('dcim', 'interface', _('Interfaces')),
@@ -276,6 +282,13 @@ CIRCUITS_MENU = Menu(
                 get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
                 get_model_item('circuits', 'circuitgroupassignment', _('Group Assignments')),
                 get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Virtual Circuits'),
+            items=(
+                get_model_item('circuits', 'virtualcircuit', _('Virtual Circuits')),
+                get_model_item('circuits', 'virtualcircuittermination', _('Virtual Circuit Terminations')),
             ),
         ),
         MenuGroup(

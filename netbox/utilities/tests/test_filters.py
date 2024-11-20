@@ -9,7 +9,7 @@ from dcim.choices import *
 from dcim.fields import MACAddressField
 from dcim.filtersets import DeviceFilterSet, SiteFilterSet, InterfaceFilterSet
 from dcim.models import (
-    Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
+    Device, DeviceRole, DeviceType, Interface, MACAddress, Manufacturer, Platform, Rack, Region, Site
 )
 from extras.filters import TagFilter
 from extras.models import TaggedItem
@@ -433,15 +433,32 @@ class DynamicFilterLookupExpressionTest(TestCase):
         )
         Device.objects.bulk_create(devices)
 
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='aa-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+            MACAddress(mac_address='bb-00-00-00-00-02'),
+            MACAddress(mac_address='00-00-00-00-00-03'),
+            MACAddress(mac_address='cc-00-00-00-00-03'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
-            Interface(device=devices[0], name='Interface 2', mac_address='aa-00-00-00-00-01'),
-            Interface(device=devices[1], name='Interface 3', mac_address='00-00-00-00-00-02'),
-            Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
-            Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
-            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03', rf_role=WirelessRoleChoices.ROLE_AP),
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[0], name='Interface 2'),
+            Interface(device=devices[1], name='Interface 3'),
+            Interface(device=devices[1], name='Interface 4'),
+            Interface(device=devices[2], name='Interface 5'),
+            Interface(device=devices[2], name='Interface 6', rf_role=WirelessRoleChoices.ROLE_AP),
         )
         Interface.objects.bulk_create(interfaces)
+
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[1].mac_addresses.set([mac_addresses[1]])
+        interfaces[2].mac_addresses.set([mac_addresses[2]])
+        interfaces[3].mac_addresses.set([mac_addresses[3]])
+        interfaces[4].mac_addresses.set([mac_addresses[4]])
+        interfaces[5].mac_addresses.set([mac_addresses[5]])
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}

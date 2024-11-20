@@ -10,6 +10,20 @@ LINKTERMINATION = """
 {% endfor %}
 """
 
+INTERFACE_LINKTERMINATION = """
+{% load i18n %}
+{% if record.is_virtual and record.virtual_circuit_termination %}
+  {% for termination in record.connected_endpoints %}
+    <a href="{{ termination.interface.parent_object.get_absolute_url }}">{{ termination.interface.parent_object }}</a>
+    <i class="mdi mdi-chevron-right"></i>
+    <a href="{{ termination.interface.get_absolute_url }}">{{ termination.interface }}</a>
+    {% trans "via" %}
+    <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
+    {% if not forloop.last %}<br />{% endif %}
+  {% endfor %}
+{% else %}""" + LINKTERMINATION + """{% endif %}
+"""
+
 CABLE_LENGTH = """
 {% load helpers %}
 {% if record.length %}{{ record.length|floatformat:"-2" }} {{ record.length_unit }}{% endif %}
@@ -313,6 +327,9 @@ INTERFACE_BUTTONS = """
     <ul class="dropdown-menu dropdown-menu-end">
       {% if perms.ipam.add_ipaddress %}
         <li><a class="dropdown-item" href="{% url 'ipam:ipaddress_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">IP Address</a></li>
+      {% endif %}
+      {% if perms.dcim.add_macaddress %}
+        <li><a class="dropdown-item" href="{% url 'dcim:macaddress_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">MAC Address</a></li>
       {% endif %}
       {% if perms.dcim.add_inventoryitem %}
         <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
