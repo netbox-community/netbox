@@ -98,19 +98,25 @@ class VLANGroup(OrganizationalModel):
 
         # Validate VID ranges
         for vid_range in self.vid_ranges:
-            if vid_range.lower < VLAN_VID_MIN:
+            lower_vid = vid_range.lower if vid_range.lower_inc else vid_range.lower + 1
+            upper_vid = vid_range.upper if vid_range.upper_inc else vid_range.upper - 1
+            if lower_vid < VLAN_VID_MIN:
                 raise ValidationError({
-                    'vid_ranges': _("Starting VLAN ID in range cannot be less than {value}").format(value=VLAN_VID_MIN)
+                    'vid_ranges': _("Starting VLAN ID in range ({value}) cannot be less than {minimum}").format(
+                        value=lower_vid, minimum=VLAN_VID_MIN
+                    )
                 })
-            if vid_range.upper > VLAN_VID_MAX:
+            if upper_vid > VLAN_VID_MAX:
                 raise ValidationError({
-                    'vid_ranges': _("Ending VLAN ID in range cannot exceed {value}").format(value=VLAN_VID_MAX)
+                    'vid_ranges': _("Ending VLAN ID in range ({value}) cannot exceed {maximum}").format(
+                        value=upper_vid, maximum=VLAN_VID_MAX
+                    )
                 })
-            if vid_range.lower > vid_range.upper:
+            if lower_vid > upper_vid:
                 raise ValidationError({
                     'vid_ranges': _(
-                        "Ending VLAN ID in range must be greater than or equal to the starting VLAN ID ({value})"
-                    ).format(value=vid_range)
+                        "Ending VLAN ID in range must be greater than or equal to the starting VLAN ID ({range})"
+                    ).format(range=f'{lower_vid}-{upper_vid}')
                 })
 
         # Check for overlapping VID ranges
