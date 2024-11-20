@@ -10,9 +10,7 @@ def populate_mac_addresses(apps, schema_editor):
 
     mac_addresses = [
         MACAddress(
-            mac_address=vminterface.mac_address,
-            assigned_object_type=vminterface_ct,
-            assigned_object_id=vminterface.pk
+            mac_address=vminterface.mac_address, assigned_object_type=vminterface_ct, assigned_object_id=vminterface.pk
         )
         for vminterface in VMInterface.objects.filter(mac_address__isnull=False)
     ]
@@ -24,7 +22,6 @@ def populate_mac_addresses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0199_macaddress'),
         ('virtualization', '0047_natural_ordering'),
@@ -39,13 +36,10 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name='+',
-                to='dcim.macaddress'
+                to='dcim.macaddress',
             ),
         ),
-        migrations.RunPython(
-            code=populate_mac_addresses,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=populate_mac_addresses, reverse_code=migrations.RunPython.noop),
         migrations.RemoveField(
             model_name='vminterface',
             name='mac_address',

@@ -5,7 +5,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('circuits', '0003_extend_tag_support'),
         ('circuits', '0004_rename_cable_peer'),
@@ -14,7 +13,7 @@ class Migration(migrations.Migration):
         ('circuits', '0034_created_datetimefield'),
         ('circuits', '0035_provider_asns'),
         ('circuits', '0036_circuit_termination_date_tags_custom_fields'),
-        ('circuits', '0037_new_cabling_models')
+        ('circuits', '0037_new_cabling_models'),
     ]
 
     dependencies = [

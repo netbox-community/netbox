@@ -11,7 +11,6 @@ def set_null_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenancy', '0015_contactassignment_rename_content_type'),
     ]
@@ -22,8 +21,5 @@ class Migration(migrations.Migration):
             name='priority',
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
-        migrations.RunPython(
-            code=set_null_values,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=set_null_values, reverse_code=migrations.RunPython.noop),
     ]

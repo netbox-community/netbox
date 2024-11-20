@@ -55,9 +55,10 @@ def get_module_scripts(scriptmodule):
     """
     Return a dictionary mapping of name and script class inside the passed ScriptModule.
     """
+
     def get_name(cls):
         # For child objects in submodules use the full import path w/o the root module as the name
-        return cls.full_name.split(".", maxsplit=1)[1]
+        return cls.full_name.split('.', maxsplit=1)[1]
 
     loader = SourceFileLoader(get_python_name(scriptmodule), get_full_path(scriptmodule))
     try:
@@ -100,17 +101,13 @@ def update_scripts(apps, schema_editor):
             )
 
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
-            Job.objects.filter(
-                object_type_id=scriptmodule_ct.id,
-                object_id=module.pk,
-                name=script_name
-            ).update(object_type_id=script_ct.id, object_id=script.pk)
+            Job.objects.filter(object_type_id=scriptmodule_ct.id, object_id=module.pk, name=script_name).update(
+                object_type_id=script_ct.id, object_id=script.pk
+            )
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
-            Job.objects.filter(
-                object_type_id=reportmodule_ct.id,
-                object_id=module.pk,
-                name=script_name
-            ).update(object_type_id=script_ct.id, object_id=script.pk)
+            Job.objects.filter(object_type_id=reportmodule_ct.id, object_id=module.pk, name=script_name).update(
+                object_type_id=script_ct.id, object_id=script.pk
+            )
 
 
 def update_event_rules(apps, schema_editor):
@@ -129,15 +126,12 @@ def update_event_rules(apps, schema_editor):
     for eventrule in EventRule.objects.filter(action_object_type=scriptmodule_ct):
         name = eventrule.action_parameters.get('script_name')
         obj, __ = Script.objects.get_or_create(
-            module_id=eventrule.action_object_id,
-            name=name,
-            defaults={'is_executable': False}
+            module_id=eventrule.action_object_id, name=name, defaults={'is_executable': False}
         )
         EventRule.objects.filter(pk=eventrule.pk).update(action_object_type=script_ct, action_object_id=obj.id)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0108_convert_reports_to_scripts'),
     ]
@@ -148,8 +142,16 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(editable=False, max_length=79)),
-                ('module', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='scripts', to='extras.scriptmodule')),
-                ('is_executable', models.BooleanField(editable=False, default=True))
+                (
+                    'module',
+                    models.ForeignKey(
+                        editable=False,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='scripts',
+                        to='extras.scriptmodule',
+                    ),
+                ),
+                ('is_executable', models.BooleanField(editable=False, default=True)),
             ],
             options={
                 'ordering': ('module', 'name'),
@@ -159,12 +161,6 @@ class Migration(migrations.Migration):
             model_name='script',
             constraint=models.UniqueConstraint(fields=('name', 'module'), name='extras_script_unique_name_module'),
         ),
-        migrations.RunPython(
-            code=update_scripts,
-            reverse_code=migrations.RunPython.noop
-        ),
-        migrations.RunPython(
-            code=update_event_rules,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_scripts, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(code=update_event_rules, reverse_code=migrations.RunPython.noop),
     ]

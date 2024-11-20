@@ -10,9 +10,7 @@ def populate_mac_addresses(apps, schema_editor):
 
     mac_addresses = [
         MACAddress(
-            mac_address=interface.mac_address,
-            assigned_object_type=interface_ct,
-            assigned_object_id=interface.pk
+            mac_address=interface.mac_address, assigned_object_type=interface_ct, assigned_object_id=interface.pk
         )
         for interface in Interface.objects.filter(mac_address__isnull=False)
     ]
@@ -24,7 +22,6 @@ def populate_mac_addresses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0199_macaddress'),
     ]
@@ -38,13 +35,10 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name='+',
-                to='dcim.macaddress'
+                to='dcim.macaddress',
             ),
         ),
-        migrations.RunPython(
-            code=populate_mac_addresses,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=populate_mac_addresses, reverse_code=migrations.RunPython.noop),
         migrations.RemoveField(
             model_name='interface',
             name='mac_address',

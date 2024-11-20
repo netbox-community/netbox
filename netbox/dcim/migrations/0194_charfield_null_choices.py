@@ -69,7 +69,6 @@ def set_null_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0193_poweroutlet_color'),
     ]
@@ -280,8 +279,5 @@ class Migration(migrations.Migration):
             name='cable_end',
             field=models.CharField(blank=True, max_length=1, null=True),
         ),
-        migrations.RunPython(
-            code=set_null_values,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=set_null_values, reverse_code=migrations.RunPython.noop),
     ]

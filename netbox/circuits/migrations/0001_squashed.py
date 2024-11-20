@@ -5,11 +5,9 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     replaces = [
         ('circuits', '0001_initial'),
@@ -98,7 +96,12 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
-                ('provider', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='networks', to='circuits.provider')),
+                (
+                    'provider',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='networks', to='circuits.provider'
+                    ),
+                ),
             ],
             options={
                 'ordering': ('provider', 'name'),

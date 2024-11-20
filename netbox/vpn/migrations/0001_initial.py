@@ -5,7 +5,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -23,7 +22,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
@@ -46,7 +48,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
@@ -70,7 +75,6 @@ class Migration(migrations.Migration):
             name='tags',
             field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
         ),
-
         # IPSec
         migrations.CreateModel(
             name='IPSecProposal',
@@ -78,7 +82,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
@@ -100,7 +107,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
@@ -128,13 +138,26 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('mode', models.CharField()),
-                ('ike_policy', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='ipsec_profiles', to='vpn.ikepolicy')),
-                ('ipsec_policy', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='ipsec_profiles', to='vpn.ipsecpolicy')),
+                (
+                    'ike_policy',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='ipsec_profiles', to='vpn.ikepolicy'
+                    ),
+                ),
+                (
+                    'ipsec_policy',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='ipsec_profiles', to='vpn.ipsecpolicy'
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
@@ -143,7 +166,6 @@ class Migration(migrations.Migration):
                 'ordering': ('name',),
             },
         ),
-
         # Tunnels
         migrations.CreateModel(
             name='TunnelGroup',
@@ -151,7 +173,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
@@ -173,17 +198,47 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('status', models.CharField(default='active', max_length=50)),
-                ('group', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnels', to='vpn.tunnelgroup')),
+                (
+                    'group',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='tunnels',
+                        to='vpn.tunnelgroup',
+                    ),
+                ),
                 ('encapsulation', models.CharField(max_length=50)),
                 ('tunnel_id', models.PositiveBigIntegerField(blank=True, null=True)),
-                ('ipsec_profile', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnels', to='vpn.ipsecprofile')),
+                (
+                    'ipsec_profile',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='tunnels',
+                        to='vpn.ipsecprofile',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnels', to='tenancy.tenant')),
+                (
+                    'tenant',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='tunnels',
+                        to='tenancy.tenant',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'tunnel',
@@ -197,7 +252,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='tunnel',
-            constraint=models.UniqueConstraint(condition=models.Q(('group__isnull', True)), fields=('name',), name='vpn_tunnel_name'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('group__isnull', True)), fields=('name',), name='vpn_tunnel_name'
+            ),
         ),
         migrations.CreateModel(
             name='TunnelTermination',
@@ -205,13 +262,35 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('role', models.CharField(default='peer', max_length=50)),
                 ('termination_id', models.PositiveBigIntegerField(blank=True, null=True)),
-                ('termination_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                ('outside_ip', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnel_termination', to='ipam.ipaddress')),
+                (
+                    'termination_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype'
+                    ),
+                ),
+                (
+                    'outside_ip',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='tunnel_termination',
+                        to='ipam.ipaddress',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tunnel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='terminations', to='vpn.tunnel')),
+                (
+                    'tunnel',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='terminations', to='vpn.tunnel'
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'tunnel termination',
@@ -225,6 +304,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='tunneltermination',
-            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='vpn_tunneltermination_termination', violation_error_message='An object may be terminated to only one tunnel at a time.'),
+            constraint=models.UniqueConstraint(
+                fields=('termination_type', 'termination_id'),
+                name='vpn_tunneltermination_termination',
+                violation_error_message='An object may be terminated to only one tunnel at a time.',
+            ),
         ),
     ]
