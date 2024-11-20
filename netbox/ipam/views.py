@@ -29,6 +29,7 @@ from .utils import add_requested_prefixes, add_available_ipaddresses, add_availa
 # VRFs
 #
 
+@register_model_view(VRF, 'list', path='', detail=False)
 class VRFListView(generic.ObjectListView):
     queryset = VRF.objects.all()
     filterset = filtersets.VRFFilterSet
@@ -57,6 +58,7 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(VRF, 'add', detail=False)
 @register_model_view(VRF, 'edit')
 class VRFEditView(generic.ObjectEditView):
     queryset = VRF.objects.all()
@@ -68,11 +70,13 @@ class VRFDeleteView(generic.ObjectDeleteView):
     queryset = VRF.objects.all()
 
 
+@register_model_view(VRF, 'import', detail=False)
 class VRFBulkImportView(generic.BulkImportView):
     queryset = VRF.objects.all()
     model_form = forms.VRFImportForm
 
 
+@register_model_view(VRF, 'bulk_edit', path='edit', detail=False)
 class VRFBulkEditView(generic.BulkEditView):
     queryset = VRF.objects.all()
     filterset = filtersets.VRFFilterSet
@@ -80,6 +84,7 @@ class VRFBulkEditView(generic.BulkEditView):
     form = forms.VRFBulkEditForm
 
 
+@register_model_view(VRF, 'bulk_delete', path='delete', detail=False)
 class VRFBulkDeleteView(generic.BulkDeleteView):
     queryset = VRF.objects.all()
     filterset = filtersets.VRFFilterSet
@@ -90,6 +95,7 @@ class VRFBulkDeleteView(generic.BulkDeleteView):
 # Route targets
 #
 
+@register_model_view(RouteTarget, 'list', path='', detail=False)
 class RouteTargetListView(generic.ObjectListView):
     queryset = RouteTarget.objects.all()
     filterset = filtersets.RouteTargetFilterSet
@@ -102,6 +108,7 @@ class RouteTargetView(generic.ObjectView):
     queryset = RouteTarget.objects.all()
 
 
+@register_model_view(RouteTarget, 'add', detail=False)
 @register_model_view(RouteTarget, 'edit')
 class RouteTargetEditView(generic.ObjectEditView):
     queryset = RouteTarget.objects.all()
@@ -113,11 +120,13 @@ class RouteTargetDeleteView(generic.ObjectDeleteView):
     queryset = RouteTarget.objects.all()
 
 
+@register_model_view(RouteTarget, 'import', detail=False)
 class RouteTargetBulkImportView(generic.BulkImportView):
     queryset = RouteTarget.objects.all()
     model_form = forms.RouteTargetImportForm
 
 
+@register_model_view(RouteTarget, 'bulk_edit', path='edit', detail=False)
 class RouteTargetBulkEditView(generic.BulkEditView):
     queryset = RouteTarget.objects.all()
     filterset = filtersets.RouteTargetFilterSet
@@ -125,6 +134,7 @@ class RouteTargetBulkEditView(generic.BulkEditView):
     form = forms.RouteTargetBulkEditForm
 
 
+@register_model_view(RouteTarget, 'bulk_delete', path='delete', detail=False)
 class RouteTargetBulkDeleteView(generic.BulkDeleteView):
     queryset = RouteTarget.objects.all()
     filterset = filtersets.RouteTargetFilterSet
@@ -135,6 +145,7 @@ class RouteTargetBulkDeleteView(generic.BulkDeleteView):
 # RIRs
 #
 
+@register_model_view(RIR, 'list', path='', detail=False)
 class RIRListView(generic.ObjectListView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
@@ -154,6 +165,7 @@ class RIRView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(RIR, 'add', detail=False)
 @register_model_view(RIR, 'edit')
 class RIREditView(generic.ObjectEditView):
     queryset = RIR.objects.all()
@@ -165,11 +177,13 @@ class RIRDeleteView(generic.ObjectDeleteView):
     queryset = RIR.objects.all()
 
 
+@register_model_view(RIR, 'import', detail=False)
 class RIRBulkImportView(generic.BulkImportView):
     queryset = RIR.objects.all()
     model_form = forms.RIRImportForm
 
 
+@register_model_view(RIR, 'bulk_edit', path='edit', detail=False)
 class RIRBulkEditView(generic.BulkEditView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
@@ -179,6 +193,7 @@ class RIRBulkEditView(generic.BulkEditView):
     form = forms.RIRBulkEditForm
 
 
+@register_model_view(RIR, 'bulk_delete', path='delete', detail=False)
 class RIRBulkDeleteView(generic.BulkDeleteView):
     queryset = RIR.objects.annotate(
         aggregate_count=count_related(Aggregate, 'rir')
@@ -191,6 +206,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 # ASN ranges
 #
 
+@register_model_view(ASNRange, 'list', path='', detail=False)
 class ASNRangeListView(generic.ObjectListView):
     queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
@@ -224,6 +240,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
         )
 
 
+@register_model_view(ASNRange, 'add', detail=False)
 @register_model_view(ASNRange, 'edit')
 class ASNRangeEditView(generic.ObjectEditView):
     queryset = ASNRange.objects.all()
@@ -235,11 +252,13 @@ class ASNRangeDeleteView(generic.ObjectDeleteView):
     queryset = ASNRange.objects.all()
 
 
+@register_model_view(ASNRange, 'import', detail=False)
 class ASNRangeBulkImportView(generic.BulkImportView):
     queryset = ASNRange.objects.all()
     model_form = forms.ASNRangeImportForm
 
 
+@register_model_view(ASNRange, 'bulk_edit', path='edit', detail=False)
 class ASNRangeBulkEditView(generic.BulkEditView):
     queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
@@ -247,6 +266,7 @@ class ASNRangeBulkEditView(generic.BulkEditView):
     form = forms.ASNRangeBulkEditForm
 
 
+@register_model_view(ASNRange, 'bulk_delete', path='delete', detail=False)
 class ASNRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
@@ -257,6 +277,7 @@ class ASNRangeBulkDeleteView(generic.BulkDeleteView):
 # ASNs
 #
 
+@register_model_view(ASN, 'list', path='', detail=False)
 class ASNListView(generic.ObjectListView):
     queryset = ASN.objects.annotate(
         site_count=count_related(Site, 'asns'),
@@ -284,6 +305,7 @@ class ASNView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ASN, 'add', detail=False)
 @register_model_view(ASN, 'edit')
 class ASNEditView(generic.ObjectEditView):
     queryset = ASN.objects.all()
@@ -295,11 +317,13 @@ class ASNDeleteView(generic.ObjectDeleteView):
     queryset = ASN.objects.all()
 
 
+@register_model_view(ASN, 'import', detail=False)
 class ASNBulkImportView(generic.BulkImportView):
     queryset = ASN.objects.all()
     model_form = forms.ASNImportForm
 
 
+@register_model_view(ASN, 'bulk_edit', path='edit', detail=False)
 class ASNBulkEditView(generic.BulkEditView):
     queryset = ASN.objects.annotate(
         site_count=count_related(Site, 'asns')
@@ -309,6 +333,7 @@ class ASNBulkEditView(generic.BulkEditView):
     form = forms.ASNBulkEditForm
 
 
+@register_model_view(ASN, 'bulk_delete', path='delete', detail=False)
 class ASNBulkDeleteView(generic.BulkDeleteView):
     queryset = ASN.objects.annotate(
         site_count=count_related(Site, 'asns')
@@ -321,6 +346,7 @@ class ASNBulkDeleteView(generic.BulkDeleteView):
 # Aggregates
 #
 
+@register_model_view(Aggregate, 'list', path='', detail=False)
 class AggregateListView(generic.ObjectListView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
@@ -371,6 +397,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         }
 
 
+@register_model_view(Aggregate, 'add', detail=False)
 @register_model_view(Aggregate, 'edit')
 class AggregateEditView(generic.ObjectEditView):
     queryset = Aggregate.objects.all()
@@ -382,11 +409,13 @@ class AggregateDeleteView(generic.ObjectDeleteView):
     queryset = Aggregate.objects.all()
 
 
+@register_model_view(Aggregate, 'import', detail=False)
 class AggregateBulkImportView(generic.BulkImportView):
     queryset = Aggregate.objects.all()
     model_form = forms.AggregateImportForm
 
 
+@register_model_view(Aggregate, 'bulk_edit', path='edit', detail=False)
 class AggregateBulkEditView(generic.BulkEditView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
@@ -396,6 +425,7 @@ class AggregateBulkEditView(generic.BulkEditView):
     form = forms.AggregateBulkEditForm
 
 
+@register_model_view(Aggregate, 'bulk_delete', path='delete', detail=False)
 class AggregateBulkDeleteView(generic.BulkDeleteView):
     queryset = Aggregate.objects.annotate(
         child_count=RawSQL('SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix', ())
@@ -413,6 +443,7 @@ class AggregateContactsView(ObjectContactsView):
 # Prefix/VLAN roles
 #
 
+@register_model_view(Role, 'list', path='', detail=False)
 class RoleListView(generic.ObjectListView):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
@@ -434,6 +465,7 @@ class RoleView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Role, 'add', detail=False)
 @register_model_view(Role, 'edit')
 class RoleEditView(generic.ObjectEditView):
     queryset = Role.objects.all()
@@ -445,11 +477,13 @@ class RoleDeleteView(generic.ObjectDeleteView):
     queryset = Role.objects.all()
 
 
+@register_model_view(Role, 'import', detail=False)
 class RoleBulkImportView(generic.BulkImportView):
     queryset = Role.objects.all()
     model_form = forms.RoleImportForm
 
 
+@register_model_view(Role, 'bulk_edit', path='edit', detail=False)
 class RoleBulkEditView(generic.BulkEditView):
     queryset = Role.objects.all()
     filterset = filtersets.RoleFilterSet
@@ -457,6 +491,7 @@ class RoleBulkEditView(generic.BulkEditView):
     form = forms.RoleBulkEditForm
 
 
+@register_model_view(Role, 'bulk_delete', path='delete', detail=False)
 class RoleBulkDeleteView(generic.BulkDeleteView):
     queryset = Role.objects.all()
     filterset = filtersets.RoleFilterSet
@@ -467,6 +502,7 @@ class RoleBulkDeleteView(generic.BulkDeleteView):
 # Prefixes
 #
 
+@register_model_view(Prefix, 'list', path='', detail=False)
 class PrefixListView(generic.ObjectListView):
     queryset = Prefix.objects.all()
     filterset = filtersets.PrefixFilterSet
@@ -615,6 +651,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         }
 
 
+@register_model_view(Prefix, 'add', detail=False)
 @register_model_view(Prefix, 'edit')
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
@@ -626,11 +663,13 @@ class PrefixDeleteView(generic.ObjectDeleteView):
     queryset = Prefix.objects.all()
 
 
+@register_model_view(Prefix, 'import', detail=False)
 class PrefixBulkImportView(generic.BulkImportView):
     queryset = Prefix.objects.all()
     model_form = forms.PrefixImportForm
 
 
+@register_model_view(Prefix, 'bulk_edit', path='edit', detail=False)
 class PrefixBulkEditView(generic.BulkEditView):
     queryset = Prefix.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.PrefixFilterSet
@@ -638,6 +677,7 @@ class PrefixBulkEditView(generic.BulkEditView):
     form = forms.PrefixBulkEditForm
 
 
+@register_model_view(Prefix, 'bulk_delete', path='delete', detail=False)
 class PrefixBulkDeleteView(generic.BulkDeleteView):
     queryset = Prefix.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.PrefixFilterSet
@@ -653,6 +693,7 @@ class PrefixContactsView(ObjectContactsView):
 # IP Ranges
 #
 
+@register_model_view(IPRange, 'list', path='', detail=False)
 class IPRangeListView(generic.ObjectListView):
     queryset = IPRange.objects.all()
     filterset = filtersets.IPRangeFilterSet
@@ -704,6 +745,7 @@ class IPRangeIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view')
 
 
+@register_model_view(IPRange, 'add', detail=False)
 @register_model_view(IPRange, 'edit')
 class IPRangeEditView(generic.ObjectEditView):
     queryset = IPRange.objects.all()
@@ -715,11 +757,13 @@ class IPRangeDeleteView(generic.ObjectDeleteView):
     queryset = IPRange.objects.all()
 
 
+@register_model_view(IPRange, 'import', detail=False)
 class IPRangeBulkImportView(generic.BulkImportView):
     queryset = IPRange.objects.all()
     model_form = forms.IPRangeImportForm
 
 
+@register_model_view(IPRange, 'bulk_edit', path='edit', detail=False)
 class IPRangeBulkEditView(generic.BulkEditView):
     queryset = IPRange.objects.all()
     filterset = filtersets.IPRangeFilterSet
@@ -727,6 +771,7 @@ class IPRangeBulkEditView(generic.BulkEditView):
     form = forms.IPRangeBulkEditForm
 
 
+@register_model_view(IPRange, 'bulk_delete', path='delete', detail=False)
 class IPRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = IPRange.objects.all()
     filterset = filtersets.IPRangeFilterSet
@@ -742,6 +787,7 @@ class IPRangeContactsView(ObjectContactsView):
 # IP addresses
 #
 
+@register_model_view(IPAddress, 'list', path='', detail=False)
 class IPAddressListView(generic.ObjectListView):
     queryset = IPAddress.objects.all()
     filterset = filtersets.IPAddressFilterSet
@@ -788,6 +834,7 @@ class IPAddressView(generic.ObjectView):
         }
 
 
+@register_model_view(IPAddress, 'add', detail=False)
 @register_model_view(IPAddress, 'edit')
 class IPAddressEditView(generic.ObjectEditView):
     queryset = IPAddress.objects.all()
@@ -818,6 +865,7 @@ class IPAddressEditView(generic.ObjectEditView):
 
 
 # TODO: Standardize or remove this view
+@register_model_view(IPAddress, 'assign', path='assign', detail=False)
 class IPAddressAssignView(generic.ObjectView):
     """
     Search for IPAddresses to be assigned to an Interface.
@@ -862,6 +910,7 @@ class IPAddressDeleteView(generic.ObjectDeleteView):
     queryset = IPAddress.objects.all()
 
 
+@register_model_view(IPAddress, 'bulk_add', path='bulk-add', detail=False)
 class IPAddressBulkCreateView(generic.BulkCreateView):
     queryset = IPAddress.objects.all()
     form = forms.IPAddressBulkCreateForm
@@ -870,11 +919,13 @@ class IPAddressBulkCreateView(generic.BulkCreateView):
     template_name = 'ipam/ipaddress_bulk_add.html'
 
 
+@register_model_view(IPAddress, 'import', detail=False)
 class IPAddressBulkImportView(generic.BulkImportView):
     queryset = IPAddress.objects.all()
     model_form = forms.IPAddressImportForm
 
 
+@register_model_view(IPAddress, 'bulk_edit', path='edit', detail=False)
 class IPAddressBulkEditView(generic.BulkEditView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.IPAddressFilterSet
@@ -882,6 +933,7 @@ class IPAddressBulkEditView(generic.BulkEditView):
     form = forms.IPAddressBulkEditForm
 
 
+@register_model_view(IPAddress, 'bulk_delete', path='delete', detail=False)
 class IPAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.IPAddressFilterSet
@@ -915,6 +967,7 @@ class IPAddressContactsView(ObjectContactsView):
 # VLAN groups
 #
 
+@register_model_view(VLANGroup, 'list', path='', detail=False)
 class VLANGroupListView(generic.ObjectListView):
     queryset = VLANGroup.objects.annotate_utilization()
     filterset = filtersets.VLANGroupFilterSet
@@ -932,6 +985,7 @@ class VLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(VLANGroup, 'add', detail=False)
 @register_model_view(VLANGroup, 'edit')
 class VLANGroupEditView(generic.ObjectEditView):
     queryset = VLANGroup.objects.all()
@@ -943,11 +997,13 @@ class VLANGroupDeleteView(generic.ObjectDeleteView):
     queryset = VLANGroup.objects.all()
 
 
+@register_model_view(VLANGroup, 'import', detail=False)
 class VLANGroupBulkImportView(generic.BulkImportView):
     queryset = VLANGroup.objects.all()
     model_form = forms.VLANGroupImportForm
 
 
+@register_model_view(VLANGroup, 'bulk_edit', path='edit', detail=False)
 class VLANGroupBulkEditView(generic.BulkEditView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
@@ -955,6 +1011,7 @@ class VLANGroupBulkEditView(generic.BulkEditView):
     form = forms.VLANGroupBulkEditForm
 
 
+@register_model_view(VLANGroup, 'bulk_delete', path='delete', detail=False)
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
@@ -991,6 +1048,7 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
 # VLAN Translation Policies
 #
 
+@register_model_view(VLANTranslationPolicy, 'list', path='', detail=False)
 class VLANTranslationPolicyListView(generic.ObjectListView):
     queryset = VLANTranslationPolicy.objects.all()
     filterset = filtersets.VLANTranslationPolicyFilterSet
@@ -1012,6 +1070,7 @@ class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(VLANTranslationPolicy, 'add', detail=False)
 @register_model_view(VLANTranslationPolicy, 'edit')
 class VLANTranslationPolicyEditView(generic.ObjectEditView):
     queryset = VLANTranslationPolicy.objects.all()
@@ -1023,11 +1082,13 @@ class VLANTranslationPolicyDeleteView(generic.ObjectDeleteView):
     queryset = VLANTranslationPolicy.objects.all()
 
 
+@register_model_view(VLANTranslationPolicy, 'import', detail=False)
 class VLANTranslationPolicyBulkImportView(generic.BulkImportView):
     queryset = VLANTranslationPolicy.objects.all()
     model_form = forms.VLANTranslationPolicyImportForm
 
 
+@register_model_view(VLANTranslationPolicy, 'bulk_edit', path='edit', detail=False)
 class VLANTranslationPolicyBulkEditView(generic.BulkEditView):
     queryset = VLANTranslationPolicy.objects.all()
     filterset = filtersets.VLANTranslationPolicyFilterSet
@@ -1035,6 +1096,7 @@ class VLANTranslationPolicyBulkEditView(generic.BulkEditView):
     form = forms.VLANTranslationPolicyBulkEditForm
 
 
+@register_model_view(VLANTranslationPolicy, 'bulk_delete', path='delete', detail=False)
 class VLANTranslationPolicyBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANTranslationPolicy.objects.all()
     filterset = filtersets.VLANTranslationPolicyFilterSet
@@ -1045,6 +1107,7 @@ class VLANTranslationPolicyBulkDeleteView(generic.BulkDeleteView):
 # VLAN Translation Rules
 #
 
+@register_model_view(VLANTranslationRule, 'list', path='', detail=False)
 class VLANTranslationRuleListView(generic.ObjectListView):
     queryset = VLANTranslationRule.objects.all()
     filterset = filtersets.VLANTranslationRuleFilterSet
@@ -1062,6 +1125,7 @@ class VLANTranslationRuleView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(VLANTranslationRule, 'add', detail=False)
 @register_model_view(VLANTranslationRule, 'edit')
 class VLANTranslationRuleEditView(generic.ObjectEditView):
     queryset = VLANTranslationRule.objects.all()
@@ -1073,11 +1137,13 @@ class VLANTranslationRuleDeleteView(generic.ObjectDeleteView):
     queryset = VLANTranslationRule.objects.all()
 
 
+@register_model_view(VLANTranslationRule, 'import', detail=False)
 class VLANTranslationRuleBulkImportView(generic.BulkImportView):
     queryset = VLANTranslationRule.objects.all()
     model_form = forms.VLANTranslationRuleImportForm
 
 
+@register_model_view(VLANTranslationRule, 'bulk_edit', path='edit', detail=False)
 class VLANTranslationRuleBulkEditView(generic.BulkEditView):
     queryset = VLANTranslationRule.objects.all()
     filterset = filtersets.VLANTranslationRuleFilterSet
@@ -1085,6 +1151,7 @@ class VLANTranslationRuleBulkEditView(generic.BulkEditView):
     form = forms.VLANTranslationRuleBulkEditForm
 
 
+@register_model_view(VLANTranslationRule, 'bulk_delete', path='delete', detail=False)
 class VLANTranslationRuleBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANTranslationRule.objects.all()
     filterset = filtersets.VLANTranslationRuleFilterSet
@@ -1095,6 +1162,7 @@ class VLANTranslationRuleBulkDeleteView(generic.BulkDeleteView):
 # FHRP groups
 #
 
+@register_model_view(FHRPGroup, 'list', path='', detail=False)
 class FHRPGroupListView(generic.ObjectListView):
     queryset = FHRPGroup.objects.annotate(
         member_count=count_related(FHRPGroupAssignment, 'group')
@@ -1122,6 +1190,7 @@ class FHRPGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(FHRPGroup, 'add', detail=False)
 @register_model_view(FHRPGroup, 'edit')
 class FHRPGroupEditView(generic.ObjectEditView):
     queryset = FHRPGroup.objects.all()
@@ -1149,11 +1218,13 @@ class FHRPGroupDeleteView(generic.ObjectDeleteView):
     queryset = FHRPGroup.objects.all()
 
 
+@register_model_view(FHRPGroup, 'import', detail=False)
 class FHRPGroupBulkImportView(generic.BulkImportView):
     queryset = FHRPGroup.objects.all()
     model_form = forms.FHRPGroupImportForm
 
 
+@register_model_view(FHRPGroup, 'bulk_edit', path='edit', detail=False)
 class FHRPGroupBulkEditView(generic.BulkEditView):
     queryset = FHRPGroup.objects.all()
     filterset = filtersets.FHRPGroupFilterSet
@@ -1161,6 +1232,7 @@ class FHRPGroupBulkEditView(generic.BulkEditView):
     form = forms.FHRPGroupBulkEditForm
 
 
+@register_model_view(FHRPGroup, 'bulk_delete', path='delete', detail=False)
 class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = FHRPGroup.objects.all()
     filterset = filtersets.FHRPGroupFilterSet
@@ -1171,6 +1243,7 @@ class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
 # FHRP group assignments
 #
 
+@register_model_view(FHRPGroupAssignment, 'add', detail=False)
 @register_model_view(FHRPGroupAssignment, 'edit')
 class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     queryset = FHRPGroupAssignment.objects.all()
@@ -1199,6 +1272,7 @@ class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):
 # VLANs
 #
 
+@register_model_view(VLAN, 'list', path='', detail=False)
 class VLANListView(generic.ObjectListView):
     queryset = VLAN.objects.all()
     filterset = filtersets.VLANFilterSet
@@ -1257,6 +1331,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
         return parent.get_vminterfaces().restrict(request.user, 'view')
 
 
+@register_model_view(VLAN, 'add', detail=False)
 @register_model_view(VLAN, 'edit')
 class VLANEditView(generic.ObjectEditView):
     queryset = VLAN.objects.all()
@@ -1269,11 +1344,13 @@ class VLANDeleteView(generic.ObjectDeleteView):
     queryset = VLAN.objects.all()
 
 
+@register_model_view(VLAN, 'import', detail=False)
 class VLANBulkImportView(generic.BulkImportView):
     queryset = VLAN.objects.all()
     model_form = forms.VLANImportForm
 
 
+@register_model_view(VLAN, 'bulk_edit', path='edit', detail=False)
 class VLANBulkEditView(generic.BulkEditView):
     queryset = VLAN.objects.all()
     filterset = filtersets.VLANFilterSet
@@ -1281,6 +1358,7 @@ class VLANBulkEditView(generic.BulkEditView):
     form = forms.VLANBulkEditForm
 
 
+@register_model_view(VLAN, 'bulk_delete', path='delete', detail=False)
 class VLANBulkDeleteView(generic.BulkDeleteView):
     queryset = VLAN.objects.all()
     filterset = filtersets.VLANFilterSet
@@ -1291,6 +1369,7 @@ class VLANBulkDeleteView(generic.BulkDeleteView):
 # Service templates
 #
 
+@register_model_view(ServiceTemplate, 'list', path='', detail=False)
 class ServiceTemplateListView(generic.ObjectListView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
@@ -1303,6 +1382,7 @@ class ServiceTemplateView(generic.ObjectView):
     queryset = ServiceTemplate.objects.all()
 
 
+@register_model_view(ServiceTemplate, 'add', detail=False)
 @register_model_view(ServiceTemplate, 'edit')
 class ServiceTemplateEditView(generic.ObjectEditView):
     queryset = ServiceTemplate.objects.all()
@@ -1314,11 +1394,13 @@ class ServiceTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ServiceTemplate.objects.all()
 
 
+@register_model_view(ServiceTemplate, 'import', detail=False)
 class ServiceTemplateBulkImportView(generic.BulkImportView):
     queryset = ServiceTemplate.objects.all()
     model_form = forms.ServiceTemplateImportForm
 
 
+@register_model_view(ServiceTemplate, 'bulk_edit', path='edit', detail=False)
 class ServiceTemplateBulkEditView(generic.BulkEditView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
@@ -1326,6 +1408,7 @@ class ServiceTemplateBulkEditView(generic.BulkEditView):
     form = forms.ServiceTemplateBulkEditForm
 
 
+@register_model_view(ServiceTemplate, 'bulk_delete', path='delete', detail=False)
 class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
@@ -1336,6 +1419,7 @@ class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
 # Services
 #
 
+@register_model_view(Service, 'list', path='', detail=False)
 class ServiceListView(generic.ObjectListView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
@@ -1348,6 +1432,7 @@ class ServiceView(generic.ObjectView):
     queryset = Service.objects.all()
 
 
+@register_model_view(Service, 'add', detail=False)
 class ServiceCreateView(generic.ObjectEditView):
     queryset = Service.objects.all()
     form = forms.ServiceCreateForm
@@ -1364,11 +1449,13 @@ class ServiceDeleteView(generic.ObjectDeleteView):
     queryset = Service.objects.all()
 
 
+@register_model_view(Service, 'import', detail=False)
 class ServiceBulkImportView(generic.BulkImportView):
     queryset = Service.objects.all()
     model_form = forms.ServiceImportForm
 
 
+@register_model_view(Service, 'bulk_edit', path='edit', detail=False)
 class ServiceBulkEditView(generic.BulkEditView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
@@ -1376,6 +1463,7 @@ class ServiceBulkEditView(generic.BulkEditView):
     form = forms.ServiceBulkEditForm
 
 
+@register_model_view(Service, 'bulk_delete', path='delete', detail=False)
 class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
