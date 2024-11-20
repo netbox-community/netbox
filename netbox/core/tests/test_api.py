@@ -103,13 +103,8 @@ class DataFileTest(
 class BackgroundTaskTestCase(TestCase):
     user_permissions = ()
 
-    # Dummy worker functions
     @staticmethod
     def dummy_job_default():
-        return "Job finished"
-
-    @staticmethod
-    def dummy_job_high():
         return "Job finished"
 
     @staticmethod

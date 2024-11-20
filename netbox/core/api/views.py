@@ -85,9 +85,9 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     filterset_class = filtersets.ObjectChangeFilterSet
 
 
-class BaseRQListView(viewsets.ViewSet):
+class BaseRQViewSet(viewsets.ViewSet):
     """
-    Retrieve a list of RQ Queues.
+    Base class for RQ view sets. Provides a list() method. Subclasses must implement get_data().
     """
     permission_classes = [IsAdminUser]
     serializer_class = None
@@ -105,7 +105,7 @@ class BaseRQListView(viewsets.ViewSet):
         return paginator.get_paginated_response(serializer.data)
 
 
-class BackgroundQueueViewSet(BaseRQListView):
+class BackgroundQueueViewSet(BaseRQViewSet):
     """
     Retrieve a list of RQ Queues.
     Note: Queue names are not URL safe so not returning a detail view.
@@ -120,7 +120,7 @@ class BackgroundQueueViewSet(BaseRQListView):
         return get_statistics(run_maintenance_tasks=True)["queues"]
 
 
-class BackgroundWorkerViewSet(BaseRQListView):
+class BackgroundWorkerViewSet(BaseRQViewSet):
     """
     Retrieve a list of RQ Workers.
     """
@@ -146,7 +146,7 @@ class BackgroundWorkerViewSet(BaseRQListView):
         return Response(serializer.data)
 
 
-class BackgroundTaskViewSet(BaseRQListView):
+class BackgroundTaskViewSet(BaseRQViewSet):
     """
     Retrieve the details of the specified RQ Task.
     """
