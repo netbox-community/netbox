@@ -76,8 +76,8 @@ class WirelessLANImportForm(ScopedImportForm, NetBoxModelImportForm):
     class Meta:
         model = WirelessLAN
         fields = (
-            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'scope_type', 'scope_id',
-            'description', 'comments', 'tags',
+            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'scope_type',
+            'scope_id', 'description', 'comments', 'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),

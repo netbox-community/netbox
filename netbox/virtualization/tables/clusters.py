@@ -100,7 +100,7 @@ class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Cluster
         fields = (
-            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'tenant_group', 'scope', 'scope_type', 'description',
-            'comments', 'device_count', 'vm_count', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'type', 'group', 'status', 'tenant', 'tenant_group', 'scope', 'scope_type',
+            'description', 'comments', 'device_count', 'vm_count', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'type', 'group', 'status', 'tenant', 'site', 'device_count', 'vm_count')

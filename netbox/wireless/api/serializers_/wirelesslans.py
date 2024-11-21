@@ -52,9 +52,9 @@ class WirelessLANSerializer(NetBoxModelSerializer):
     class Meta:
         model = WirelessLAN
         fields = [
-            'id', 'url', 'display_url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'scope_type',
+            'scope_id', 'scope', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')
 

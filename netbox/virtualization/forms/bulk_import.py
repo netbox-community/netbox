@@ -73,7 +73,9 @@ class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags')
+        fields = (
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags',
+        )
         labels = {
             'scope_id': _('Scope ID'),
         }

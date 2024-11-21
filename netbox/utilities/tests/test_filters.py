@@ -427,9 +427,46 @@ class DynamicFilterLookupExpressionTest(TestCase):
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                platform=platforms[0],
+                serial='ABC',
+                asset_tag='1001',
+                site=sites[0],
+                rack=racks[0],
+                position=1,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_ACTIVE,
+                local_context_data={'foo': 123},
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                platform=platforms[1],
+                serial='DEF',
+                asset_tag='1002',
+                site=sites[1],
+                rack=racks[1],
+                position=2,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_STAGED,
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                platform=platforms[2],
+                serial='GHI',
+                asset_tag='1003',
+                site=sites[2],
+                rack=racks[2],
+                position=3,
+                face=DeviceFaceChoices.FACE_REAR,
+                status=DeviceStatusChoices.STATUS_FAILED,
+            ),
         )
         Device.objects.bulk_create(devices)
 

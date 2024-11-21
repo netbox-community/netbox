@@ -177,7 +177,11 @@ class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
     def get_extra_context(self, request, instance):
-        return instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'), memory_sum=Sum('memory'), disk_sum=Sum('disk'))
+        return instance.virtual_machines.aggregate(
+            vcpus_sum=Sum('vcpus'),
+            memory_sum=Sum('memory'),
+            disk_sum=Sum('disk')
+        )
 
 
 @register_model_view(Cluster, 'virtualmachines', path='virtual-machines')

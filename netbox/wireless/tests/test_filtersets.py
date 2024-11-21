@@ -27,8 +27,18 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             group.save()
 
         groups = (
-            WirelessLANGroup(name='Wireless LAN Group 1A', slug='wireless-lan-group-1a', parent=parent_groups[0], description='foobar1'),
-            WirelessLANGroup(name='Wireless LAN Group 1B', slug='wireless-lan-group-1b', parent=parent_groups[0], description='foobar2'),
+            WirelessLANGroup(
+                name='Wireless LAN Group 1A',
+                slug='wireless-lan-group-1a',
+                parent=parent_groups[0],
+                description='foobar1',
+            ),
+            WirelessLANGroup(
+                name='Wireless LAN Group 1B',
+                slug='wireless-lan-group-1b',
+                parent=parent_groups[0],
+                description='foobar2',
+            ),
             WirelessLANGroup(name='Wireless LAN Group 2A', slug='wireless-lan-group-2a', parent=parent_groups[1]),
             WirelessLANGroup(name='Wireless LAN Group 2B', slug='wireless-lan-group-2b', parent=parent_groups[1]),
             WirelessLANGroup(name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=parent_groups[2]),

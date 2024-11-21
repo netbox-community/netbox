@@ -49,8 +49,8 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
-            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count', 'virtual_disk_count',
         ]
@@ -62,8 +62,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
-            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
             'last_updated', 'interface_count', 'virtual_disk_count',
         ]
