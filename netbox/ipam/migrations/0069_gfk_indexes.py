@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0068_move_l2vpn'),
     ]
@@ -16,7 +15,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='ipaddress',
-            index=models.Index(fields=['assigned_object_type', 'assigned_object_id'], name='ipam_ipaddr_assigne_890ab8_idx'),
+            index=models.Index(
+                fields=['assigned_object_type', 'assigned_object_id'], name='ipam_ipaddr_assigne_890ab8_idx'
+            ),
         ),
         migrations.AddIndex(
             model_name='vlangroup',

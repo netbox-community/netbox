@@ -7,7 +7,6 @@ def update_link_buttons(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0115_convert_dashboard_widgets'),
     ]
@@ -18,8 +17,5 @@ class Migration(migrations.Migration):
             name='button_class',
             field=models.CharField(default='default', max_length=30),
         ),
-        migrations.RunPython(
-            code=update_link_buttons,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_link_buttons, reverse_code=migrations.RunPython.noop),
     ]

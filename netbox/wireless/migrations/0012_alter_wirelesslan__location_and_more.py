@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0196_qinq_svlan'),
         ('wireless', '0011_wirelesslan__location_wirelesslan__region_and_more'),

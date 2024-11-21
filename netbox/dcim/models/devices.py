@@ -532,7 +532,10 @@ def update_interface_bridges(device, interface_templates, module=None):
         interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
 
         if interface_template.bridge:
-            interface.bridge = Interface.objects.get(device=device, name=interface_template.bridge.resolve_name(module=module))
+            interface.bridge = Interface.objects.get(
+                device=device,
+                name=interface_template.bridge.resolve_name(module=module)
+            )
             interface.full_clean()
             interface.save()
 
@@ -909,7 +912,10 @@ class Device(
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip4.nat_inside is not None and
+                    self.primary_ip4.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({
@@ -924,7 +930,10 @@ class Device(
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip6.nat_inside is not None and
+                    self.primary_ip6.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({
@@ -978,9 +987,10 @@ class Device(
 
         if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
             raise ValidationError({
-                'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
-                    virtual_chassis=self.vc_master_for
-                )
+                'virtual_chassis': _(
+                    'Device cannot be removed from virtual chassis {virtual_chassis} because it is currently '
+                    'designated as its master.'
+                ).format(virtual_chassis=self.vc_master_for)
             })
 
     def _instantiate_components(self, queryset, bulk_create=True):

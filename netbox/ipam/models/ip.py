@@ -418,7 +418,9 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         available_ips = prefix - child_ips - netaddr.IPSet(child_ranges)
 
         # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
-        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
+        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (
+                self.family == 4 and self.prefix.prefixlen >= 31
+        ):
             return available_ips
 
         if self.family == 4:
@@ -561,10 +563,26 @@ class IPRange(ContactsMixin, PrimaryModel):
                 })
 
             # Check for overlapping ranges
-            overlapping_ranges = IPRange.objects.exclude(pk=self.pk).filter(vrf=self.vrf).filter(
-                Q(start_address__host__inet__gte=self.start_address.ip, start_address__host__inet__lte=self.end_address.ip) |  # Starts inside
-                Q(end_address__host__inet__gte=self.start_address.ip, end_address__host__inet__lte=self.end_address.ip) |  # Ends inside
-                Q(start_address__host__inet__lte=self.start_address.ip, end_address__host__inet__gte=self.end_address.ip)  # Starts & ends outside
+            overlapping_ranges = (
+                IPRange.objects.exclude(pk=self.pk)
+                .filter(vrf=self.vrf)
+                .filter(
+                    # Starts inside
+                    Q(
+                        start_address__host__inet__gte=self.start_address.ip,
+                        start_address__host__inet__lte=self.end_address.ip,
+                    ) |
+                    # Ends inside
+                    Q(
+                        end_address__host__inet__gte=self.start_address.ip,
+                        end_address__host__inet__lte=self.end_address.ip,
+                    ) |
+                    # Starts & ends outside
+                    Q(
+                        start_address__host__inet__lte=self.start_address.ip,
+                        end_address__host__inet__gte=self.end_address.ip,
+                    )
+                )
             )
             if overlapping_ranges.exists():
                 raise ValidationError(
@@ -866,10 +884,12 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
             # can't use is_primary_ip as self.assigned_object might be changed
             is_primary = False
-            if self.family == 4 and hasattr(original_parent, 'primary_ip4') and original_parent.primary_ip4_id == self.pk:
-                is_primary = True
-            if self.family == 6 and hasattr(original_parent, 'primary_ip6') and original_parent.primary_ip6_id == self.pk:
-                is_primary = True
+            if self.family == 4 and hasattr(original_parent, 'primary_ip4'):
+                if original_parent.primary_ip4_id == self.pk:
+                    is_primary = True
+            if self.family == 6 and hasattr(original_parent, 'primary_ip6'):
+                if original_parent.primary_ip6_id == self.pk:
+                    is_primary = True
 
             if is_primary and (parent != original_parent):
                 raise ValidationError(

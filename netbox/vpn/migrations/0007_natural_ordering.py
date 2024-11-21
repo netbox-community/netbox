@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('vpn', '0006_charfield_null_choices'),
         ('dcim', '0197_natural_sort_collation'),

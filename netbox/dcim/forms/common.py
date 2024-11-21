@@ -136,7 +136,10 @@ class ModuleCommonForm(forms.Form):
 
                     if len(module_bays) != template.name.count(MODULE_TOKEN):
                         raise forms.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay tree {level} in tree but {tokens} placeholders given.").format(
+                            _(
+                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
+                                "but {tokens} placeholders given."
+                            ).format(
                                 level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
                             )
                         )

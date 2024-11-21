@@ -379,7 +379,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
                 min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
                 if self.u_height < min_height:
                     raise ValidationError({
-                        'u_height': _("Rack must be at least {min_height}U tall to house currently installed devices.").format(min_height=min_height)
+                        'u_height': _(
+                            "Rack must be at least {min_height}U tall to house currently installed devices."
+                        ).format(min_height=min_height)
                     })
 
             # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device

@@ -6,7 +6,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('dcim', '0160_populate_cable_ends'),
         ('dcim', '0161_cabling_cleanup'),
@@ -14,7 +13,7 @@ class Migration(migrations.Migration):
         ('dcim', '0163_weight_fields'),
         ('dcim', '0164_rack_mounting_depth'),
         ('dcim', '0165_standardize_description_comments'),
-        ('dcim', '0166_virtualdevicecontext')
+        ('dcim', '0166_virtualdevicecontext'),
     ]
 
     dependencies = [
@@ -275,7 +274,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='cabletermination',
-            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='dcim_cabletermination_unique_termination'),
+            constraint=models.UniqueConstraint(
+                fields=('termination_type', 'termination_id'), name='dcim_cabletermination_unique_termination'
+            ),
         ),
         migrations.AddConstraint(
             model_name='consoleport',
@@ -283,39 +284,64 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='consoleporttemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_consoleporttemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_consoleporttemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='consoleporttemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_consoleporttemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_consoleporttemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='consoleserverport',
-            constraint=models.UniqueConstraint(fields=('device', 'name'), name='dcim_consoleserverport_unique_device_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device', 'name'), name='dcim_consoleserverport_unique_device_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='consoleserverporttemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_consoleserverporttemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_consoleserverporttemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='consoleserverporttemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_consoleserverporttemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_consoleserverporttemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('site'), models.F('tenant'), name='dcim_device_unique_name_site_tenant'),
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower('name'),
+                models.F('site'),
+                models.F('tenant'),
+                name='dcim_device_unique_name_site_tenant',
+            ),
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('site'), condition=models.Q(('tenant__isnull', True)), name='dcim_device_unique_name_site', violation_error_message='Device name must be unique per site.'),
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower('name'),
+                models.F('site'),
+                condition=models.Q(('tenant__isnull', True)),
+                name='dcim_device_unique_name_site',
+                violation_error_message='Device name must be unique per site.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(fields=('rack', 'position', 'face'), name='dcim_device_unique_rack_position_face'),
+            constraint=models.UniqueConstraint(
+                fields=('rack', 'position', 'face'), name='dcim_device_unique_rack_position_face'
+            ),
         ),
         migrations.AddConstraint(
             model_name='device',
-            constraint=models.UniqueConstraint(fields=('virtual_chassis', 'vc_position'), name='dcim_device_unique_virtual_chassis_vc_position'),
+            constraint=models.UniqueConstraint(
+                fields=('virtual_chassis', 'vc_position'), name='dcim_device_unique_virtual_chassis_vc_position'
+            ),
         ),
         migrations.AddConstraint(
             model_name='devicebay',
@@ -323,15 +349,21 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='devicebaytemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_devicebaytemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_devicebaytemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='devicetype',
-            constraint=models.UniqueConstraint(fields=('manufacturer', 'model'), name='dcim_devicetype_unique_manufacturer_model'),
+            constraint=models.UniqueConstraint(
+                fields=('manufacturer', 'model'), name='dcim_devicetype_unique_manufacturer_model'
+            ),
         ),
         migrations.AddConstraint(
             model_name='devicetype',
-            constraint=models.UniqueConstraint(fields=('manufacturer', 'slug'), name='dcim_devicetype_unique_manufacturer_slug'),
+            constraint=models.UniqueConstraint(
+                fields=('manufacturer', 'slug'), name='dcim_devicetype_unique_manufacturer_slug'
+            ),
         ),
         migrations.AddConstraint(
             model_name='frontport',
@@ -339,19 +371,27 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='frontport',
-            constraint=models.UniqueConstraint(fields=('rear_port', 'rear_port_position'), name='dcim_frontport_unique_rear_port_position'),
+            constraint=models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'), name='dcim_frontport_unique_rear_port_position'
+            ),
         ),
         migrations.AddConstraint(
             model_name='frontporttemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_frontporttemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_frontporttemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='frontporttemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_frontporttemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_frontporttemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='frontporttemplate',
-            constraint=models.UniqueConstraint(fields=('rear_port', 'rear_port_position'), name='dcim_frontporttemplate_unique_rear_port_position'),
+            constraint=models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'), name='dcim_frontporttemplate_unique_rear_port_position'
+            ),
         ),
         migrations.AddConstraint(
             model_name='interface',
@@ -359,27 +399,46 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='interfacetemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_interfacetemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_interfacetemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='interfacetemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_interfacetemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_interfacetemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='inventoryitem',
-            constraint=models.UniqueConstraint(fields=('device', 'parent', 'name'), name='dcim_inventoryitem_unique_device_parent_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device', 'parent', 'name'), name='dcim_inventoryitem_unique_device_parent_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='inventoryitemtemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'parent', 'name'), name='dcim_inventoryitemtemplate_unique_device_type_parent_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'parent', 'name'),
+                name='dcim_inventoryitemtemplate_unique_device_type_parent_name',
+            ),
         ),
         migrations.AddConstraint(
             model_name='location',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('site', 'name'), name='dcim_location_name', violation_error_message='A location with this name already exists within the specified site.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('site', 'name'),
+                name='dcim_location_name',
+                violation_error_message='A location with this name already exists within the specified site.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='location',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('site', 'slug'), name='dcim_location_slug', violation_error_message='A location with this slug already exists within the specified site.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('site', 'slug'),
+                name='dcim_location_slug',
+                violation_error_message='A location with this slug already exists within the specified site.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='modulebay',
@@ -387,15 +446,21 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='modulebaytemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_modulebaytemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_modulebaytemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='moduletype',
-            constraint=models.UniqueConstraint(fields=('manufacturer', 'model'), name='dcim_moduletype_unique_manufacturer_model'),
+            constraint=models.UniqueConstraint(
+                fields=('manufacturer', 'model'), name='dcim_moduletype_unique_manufacturer_model'
+            ),
         ),
         migrations.AddConstraint(
             model_name='powerfeed',
-            constraint=models.UniqueConstraint(fields=('power_panel', 'name'), name='dcim_powerfeed_unique_power_panel_name'),
+            constraint=models.UniqueConstraint(
+                fields=('power_panel', 'name'), name='dcim_powerfeed_unique_power_panel_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='poweroutlet',
@@ -403,11 +468,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='poweroutlettemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_poweroutlettemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_poweroutlettemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='poweroutlettemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_poweroutlettemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_poweroutlettemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='powerpanel',
@@ -419,11 +488,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='powerporttemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_powerporttemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_powerporttemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='powerporttemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_powerporttemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_powerporttemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='rack',
@@ -431,7 +504,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='rack',
-            constraint=models.UniqueConstraint(fields=('location', 'facility_id'), name='dcim_rack_unique_location_facility_id'),
+            constraint=models.UniqueConstraint(
+                fields=('location', 'facility_id'), name='dcim_rack_unique_location_facility_id'
+            ),
         ),
         migrations.AddConstraint(
             model_name='rearport',
@@ -439,27 +514,51 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='rearporttemplate',
-            constraint=models.UniqueConstraint(fields=('device_type', 'name'), name='dcim_rearporttemplate_unique_device_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device_type', 'name'), name='dcim_rearporttemplate_unique_device_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='rearporttemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_rearporttemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_rearporttemplate_unique_module_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='region',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('name',), name='dcim_region_name', violation_error_message='A top-level region with this name already exists.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('name',),
+                name='dcim_region_name',
+                violation_error_message='A top-level region with this name already exists.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='region',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('slug',), name='dcim_region_slug', violation_error_message='A top-level region with this slug already exists.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('slug',),
+                name='dcim_region_slug',
+                violation_error_message='A top-level region with this slug already exists.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='sitegroup',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('name',), name='dcim_sitegroup_name', violation_error_message='A top-level site group with this name already exists.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('name',),
+                name='dcim_sitegroup_name',
+                violation_error_message='A top-level site group with this name already exists.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='sitegroup',
-            constraint=models.UniqueConstraint(condition=models.Q(('parent__isnull', True)), fields=('slug',), name='dcim_sitegroup_slug', violation_error_message='A top-level site group with this slug already exists.'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('parent__isnull', True)),
+                fields=('slug',),
+                name='dcim_sitegroup_slug',
+                violation_error_message='A top-level site group with this slug already exists.',
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
@@ -592,17 +691,56 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('name', models.CharField(max_length=64)),
                 ('status', models.CharField(max_length=50)),
                 ('identifier', models.PositiveSmallIntegerField(blank=True, null=True)),
                 ('comments', models.TextField(blank=True)),
-                ('device', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vdcs', to='dcim.device')),
-                ('primary_ip4', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='ipam.ipaddress')),
-                ('primary_ip6', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='ipam.ipaddress')),
+                (
+                    'device',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vdcs',
+                        to='dcim.device',
+                    ),
+                ),
+                (
+                    'primary_ip4',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to='ipam.ipaddress',
+                    ),
+                ),
+                (
+                    'primary_ip6',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to='ipam.ipaddress',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vdcs', to='tenancy.tenant')),
+                (
+                    'tenant',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vdcs',
+                        to='tenancy.tenant',
+                    ),
+                ),
             ],
             options={
                 'ordering': ['name'],
@@ -615,7 +753,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',
-            constraint=models.UniqueConstraint(fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifier'),
+            constraint=models.UniqueConstraint(
+                fields=('device', 'identifier'), name='dcim_virtualdevicecontext_device_identifier'
+            ),
         ),
         migrations.AddConstraint(
             model_name='virtualdevicecontext',

@@ -20,7 +20,6 @@ def populate_denormalized_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('circuits', '0047_circuittermination__termination'),
     ]
@@ -70,13 +69,8 @@ class Migration(migrations.Migration):
                 to='dcim.sitegroup',
             ),
         ),
-
         # Populate denormalized FK values
-        migrations.RunPython(
-            code=populate_denormalized_fields,
-            reverse_code=migrations.RunPython.noop
-        ),
-
+        migrations.RunPython(code=populate_denormalized_fields, reverse_code=migrations.RunPython.noop),
         # Delete the site ForeignKey
         migrations.RemoveField(
             model_name='circuittermination',

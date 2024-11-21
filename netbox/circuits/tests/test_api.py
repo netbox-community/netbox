@@ -121,9 +121,15 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]),
+            Circuit(
+                cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]
+            ),
+            Circuit(
+                cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]
+            ),
+            Circuit(
+                cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuit_types[0]
+            ),
         )
         Circuit.objects.bulk_create(circuits)
 

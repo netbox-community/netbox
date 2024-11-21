@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0189_moduletype_rack_airflow'),
         ('extras', '0121_customfield_related_object_filter'),
@@ -34,12 +33,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='modulebay',
             name='module',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.module'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='%(class)ss',
+                to='dcim.module',
+            ),
         ),
         migrations.AddField(
             model_name='modulebay',
             name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='dcim.modulebay'),
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                editable=False,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='children',
+                to='dcim.modulebay',
+            ),
         ),
         migrations.AddField(
             model_name='modulebay',
@@ -56,19 +68,35 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='modulebaytemplate',
             name='module_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.moduletype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='%(class)ss',
+                to='dcim.moduletype',
+            ),
         ),
         migrations.AlterField(
             model_name='modulebaytemplate',
             name='device_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='%(class)ss',
+                to='dcim.devicetype',
+            ),
         ),
         migrations.AddConstraint(
             model_name='modulebay',
-            constraint=models.UniqueConstraint(fields=('device', 'module', 'name'), name='dcim_modulebay_unique_device_module_name'),
+            constraint=models.UniqueConstraint(
+                fields=('device', 'module', 'name'), name='dcim_modulebay_unique_device_module_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='modulebaytemplate',
-            constraint=models.UniqueConstraint(fields=('module_type', 'name'), name='dcim_modulebaytemplate_unique_module_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('module_type', 'name'), name='dcim_modulebaytemplate_unique_module_type_name'
+            ),
         ),
     ]

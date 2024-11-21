@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('core', '0007_job_add_error_field'),
@@ -12,8 +11,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name='ObjectType',
-            fields=[
-            ],
+            fields=[],
             options={
                 'proxy': True,
                 'indexes': [],

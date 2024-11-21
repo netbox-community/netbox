@@ -391,7 +391,8 @@ class ConsolePortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = models.ConsolePort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -431,7 +432,8 @@ class ConsoleServerPortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = models.ConsoleServerPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -987,8 +989,8 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial',
-            'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'status', 'role', 'manufacturer', 'part_id',
+            'serial', 'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
@@ -1006,8 +1008,8 @@ class DeviceInventoryItemTable(InventoryItemTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
-            'description', 'discovered', 'tags', 'actions',
+            'pk', 'id', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'component', 'description', 'discovered', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',

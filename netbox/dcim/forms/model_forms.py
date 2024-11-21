@@ -266,7 +266,10 @@ class RackForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags', name=_('Rack')),
+        FieldSet(
+            'site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
+            name=_('Rack')
+        ),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -1007,7 +1010,8 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge', 'rf_role',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode',
+            'poe_type', 'bridge', 'rf_role',
         ]
 
 
@@ -1189,7 +1193,10 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
                     break
         elif component_type and component_id:
             # When adding the InventoryItem from a component page
-            if content_type := ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS).filter(pk=component_type).first():
+            content_type = ContentType.objects.filter(
+                MODULAR_COMPONENT_TEMPLATE_MODELS
+            ).filter(pk=component_type).first()
+            if content_type:
                 if component := content_type.model_class().objects.filter(pk=component_id).first():
                     initial[content_type.model] = component
 
@@ -1301,16 +1308,16 @@ class PowerOutletForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected', 'description',
-            'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected',
+            'description', 'tags',
         ),
     )
 
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected', 'description',
-            'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected',
+            'description', 'tags',
         ]
 
 
@@ -1611,7 +1618,10 @@ class InventoryItemForm(DeviceComponentForm):
     )
 
     fieldsets = (
-        FieldSet('device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags', name=_('Inventory Item')),
+        FieldSet(
+            'device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags',
+            name=_('Inventory Item')
+        ),
         FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet(
             TabbedGroups(

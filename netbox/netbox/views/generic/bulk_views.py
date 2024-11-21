@@ -995,7 +995,8 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                                             form.add_error(field, '{}: {}'.format(obj, ', '.join(e)))
 
                         # Enforce object-level permissions
-                        if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
+                        component_ids = [obj.pk for obj in new_components]
+                        if self.queryset.filter(pk__in=component_ids).count() != len(new_components):
                             raise PermissionsViolation
 
                 except IntegrityError:

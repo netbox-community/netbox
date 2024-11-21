@@ -244,7 +244,9 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                     (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (
-                        Circuit.objects.restrict(request.user, 'view').filter(terminations___region=instance).distinct(),
+                        Circuit.objects.restrict(request.user, 'view').filter(
+                            terminations___region=instance
+                        ).distinct(),
                         'region_id'
                     ),
                 ),
@@ -335,7 +337,9 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (
-                        Circuit.objects.restrict(request.user, 'view').filter(terminations___site_group=instance).distinct(),
+                        Circuit.objects.restrict(request.user, 'view').filter(
+                            terminations___site_group=instance
+                        ).distinct(),
                         'site_group_id'
                     ),
                 ),
@@ -507,7 +511,9 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                 [CableTermination],
                 (
                     (
-                        Circuit.objects.restrict(request.user, 'view').filter(terminations___location=instance).distinct(),
+                        Circuit.objects.restrict(request.user, 'view').filter(
+                            terminations___location=instance
+                        ).distinct(),
                         'location_id'
                     ),
                 ),
@@ -3729,7 +3735,9 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
                 membership_form.save()
                 messages.success(request, mark_safe(
-                    _('Added member <a href="{url}">{device}</a>').format(url=device.get_absolute_url(), device=escape(device))
+                    _('Added member <a href="{url}">{device}</a>').format(
+                        url=device.get_absolute_url(), device=escape(device)
+                    )
                 ))
 
                 if '_addanother' in request.POST:

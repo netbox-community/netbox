@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0102_move_configrevision'),
     ]
@@ -20,15 +19,21 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='journalentry',
-            index=models.Index(fields=['assigned_object_type', 'assigned_object_id'], name='extras_jour_assigne_76510f_idx'),
+            index=models.Index(
+                fields=['assigned_object_type', 'assigned_object_id'], name='extras_jour_assigne_76510f_idx'
+            ),
         ),
         migrations.AddIndex(
             model_name='objectchange',
-            index=models.Index(fields=['changed_object_type', 'changed_object_id'], name='extras_obje_changed_927fe5_idx'),
+            index=models.Index(
+                fields=['changed_object_type', 'changed_object_id'], name='extras_obje_changed_927fe5_idx'
+            ),
         ),
         migrations.AddIndex(
             model_name='objectchange',
-            index=models.Index(fields=['related_object_type', 'related_object_id'], name='extras_obje_related_bfcdef_idx'),
+            index=models.Index(
+                fields=['related_object_type', 'related_object_id'], name='extras_obje_related_bfcdef_idx'
+            ),
         ),
         migrations.AddIndex(
             model_name='stagedchange',

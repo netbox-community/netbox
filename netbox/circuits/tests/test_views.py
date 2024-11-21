@@ -141,9 +141,15 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         CircuitType.objects.bulk_create(circuittypes)
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
-            Circuit(cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]),
+            Circuit(
+                cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
+            ),
+            Circuit(
+                cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
+            ),
+            Circuit(
+                cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
+            ),
         )
 
         Circuit.objects.bulk_create(circuits)

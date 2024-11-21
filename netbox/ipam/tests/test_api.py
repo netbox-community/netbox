@@ -732,10 +732,19 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         fhrp_groups = (
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                group_id=10,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                auth_key='foobar123',
+            ),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                group_id=20,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                auth_key='foobar123',
+            ),
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)

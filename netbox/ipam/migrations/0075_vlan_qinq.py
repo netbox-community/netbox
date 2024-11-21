@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0074_vlantranslationpolicy_vlantranslationrule'),
     ]
@@ -17,7 +16,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vlan',
             name='qinq_svlan',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='qinq_cvlans', to='ipam.vlan'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='qinq_cvlans',
+                to='ipam.vlan',
+            ),
         ),
         migrations.AddConstraint(
             model_name='vlan',

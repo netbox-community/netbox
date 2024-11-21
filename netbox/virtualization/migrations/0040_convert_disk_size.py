@@ -18,14 +18,10 @@ def convert_disk_size(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('virtualization', '0039_virtualmachine_serial_number'),
     ]
 
     operations = [
-        migrations.RunPython(
-            code=convert_disk_size,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=convert_disk_size, reverse_code=migrations.RunPython.noop),
     ]

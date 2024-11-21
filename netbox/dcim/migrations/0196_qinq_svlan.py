@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0195_interface_vlan_translation_policy'),
         ('ipam', '0075_vlan_qinq'),
@@ -13,7 +12,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='qinq_svlan',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)ss_svlan', to='ipam.vlan'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='%(class)ss_svlan',
+                to='ipam.vlan',
+            ),
         ),
         migrations.AlterField(
             model_name='interface',
@@ -23,6 +28,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='interface',
             name='untagged_vlan',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)ss_as_untagged', to='ipam.vlan'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='%(class)ss_as_untagged',
+                to='ipam.vlan',
+            ),
         ),
     ]

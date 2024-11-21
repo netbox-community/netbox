@@ -443,7 +443,10 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
 
-            file_fields = (strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
+            file_fields = (
+                strawberry_django.fields.types.DjangoFileType,
+                strawberry_django.fields.types.DjangoImageType,
+            )
             for field in type_class.__strawberry_definition__.fields:
                 if (
                     field.type in file_fields or (

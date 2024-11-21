@@ -8,6 +8,7 @@ from ipam.models import *
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
+from .template_code import *
 
 __all__ = (
     'InterfaceVLANTable',
@@ -21,40 +22,6 @@ __all__ = (
 )
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
-
-VLAN_LINK = """
-{% if record.pk %}
-    <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
-{% elif perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}{% if record.vlan_group %}&group={{ record.vlan_group.pk }}{% endif %}" class="btn btn-sm btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
-{% else %}
-    {{ record.available }} VLAN{{ record.available|pluralize }} available
-{% endif %}
-"""
-
-VLAN_PREFIXES = """
-{% for prefix in value.all %}
-    <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
-{% endfor %}
-"""
-
-VLANGROUP_BUTTONS = """
-{% with next_vid=record.get_next_available_vid %}
-    {% if next_vid and perms.ipam.add_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-        </a>
-    {% endif %}
-{% endwith %}
-"""
-
-VLAN_MEMBER_TAGGED = """
-{% if record.untagged_vlan_id == object.pk %}
-    <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
-{% else %}
-    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-{% endif %}
-"""
 
 
 #

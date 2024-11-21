@@ -59,8 +59,8 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display_url', 'display', 'termination_type', 'termination_id', 'termination', 'provider_network', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'description',
+            'id', 'url', 'display_url', 'display', 'termination_type', 'termination_id', 'termination',
+            'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id', 'description',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -138,9 +138,10 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'termination_type', 'termination_id', 'termination', 'provider_network', 'port_speed',
-            'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_end',
-            'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'termination_type', 'termination_id',
+            'termination', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
+            'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'circuit', 'term_side', 'description', 'cable', '_occupied')
 

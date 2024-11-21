@@ -109,9 +109,24 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ClusterGroup.objects.bulk_create(cluster_groups)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
-            Cluster(name='Cluster 2', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
-            Cluster(name='Cluster 3', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED),
+            Cluster(
+                name='Cluster 1',
+                type=cluster_types[0],
+                group=cluster_groups[0],
+                status=ClusterStatusChoices.STATUS_PLANNED,
+            ),
+            Cluster(
+                name='Cluster 2',
+                type=cluster_types[0],
+                group=cluster_groups[0],
+                status=ClusterStatusChoices.STATUS_PLANNED,
+            ),
+            Cluster(
+                name='Cluster 3',
+                type=cluster_types[0],
+                group=cluster_groups[0],
+                status=ClusterStatusChoices.STATUS_PLANNED,
+            ),
         )
         for cluster in clusters:
             cluster.save()
@@ -169,9 +184,25 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         device2 = create_test_device('device2', site=sites[1], cluster=clusters[1])
 
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=device1, local_context_data={'A': 1}),
-            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], local_context_data={'B': 2}),
-            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], local_context_data={'C': 3}),
+            VirtualMachine(
+                name='Virtual Machine 1',
+                site=sites[0],
+                cluster=clusters[0],
+                device=device1,
+                local_context_data={'A': 1},
+            ),
+            VirtualMachine(
+                name='Virtual Machine 2',
+                site=sites[0],
+                cluster=clusters[0],
+                local_context_data={'B': 2
+                                    }),
+            VirtualMachine(
+                name='Virtual Machine 3',
+                site=sites[0],
+                cluster=clusters[0],
+                local_context_data={'C': 3}
+            ),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 

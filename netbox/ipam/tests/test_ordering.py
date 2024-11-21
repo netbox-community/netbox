@@ -92,8 +92,8 @@ class PrefixOrderingTestCase(OrderingTestBase):
 
     def test_prefix_complex_ordering(self):
         """
-        This function tests a complex ordering of interwoven prefixes and vrfs.  This is the current expected ordering of VRFs
-        This includes the testing of the Container status.
+        This function tests a complex ordering of interwoven prefixes and vrfs.  This is the current expected ordering
+         of VRFs. This includes the testing of the Container status.
 
         The proper ordering, to get proper containerization should be:
             None:10.0.0.0/8
@@ -125,7 +125,6 @@ class PrefixOrderingTestCase(OrderingTestBase):
 
 
 class IPAddressOrderingTestCase(OrderingTestBase):
-
     def test_address_vrf_ordering(self):
         """
         This function tests ordering with the inclusion of vrfs
@@ -147,24 +146,54 @@ class IPAddressOrderingTestCase(OrderingTestBase):
             IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.2.1/24')),
             IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.3.1/24')),
             IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf1, address=netaddr.IPNetwork('10.2.4.1/24')),
-
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.4.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.4.1/24')),
-
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.0.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.1.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.2.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.3.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.4.1/24')),
-            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.5.1/24')),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.0.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.1.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.2.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.3.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.16.4.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.0.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.1.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.2.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.3.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=vrf2, address=netaddr.IPNetwork('172.17.4.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.0.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.1.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.2.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.3.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.4.1/24')
+            ),
+            IPAddress(
+                status=IPAddressStatusChoices.STATUS_ACTIVE, vrf=None, address=netaddr.IPNetwork('192.168.5.1/24')
+            ),
         )
         IPAddress.objects.bulk_create(addresses)
 

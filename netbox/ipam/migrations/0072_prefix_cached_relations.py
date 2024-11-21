@@ -19,7 +19,6 @@ def populate_denormalized_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0193_poweroutlet_color'),
         ('ipam', '0071_prefix_scope'),
@@ -29,12 +28,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prefix',
             name='_location',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.location'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.location'
+            ),
         ),
         migrations.AddField(
             model_name='prefix',
             name='_region',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.region'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.region'
+            ),
         ),
         migrations.AddField(
             model_name='prefix',
@@ -44,15 +47,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prefix',
             name='_site_group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.sitegroup'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dcim.sitegroup'
+            ),
         ),
-
         # Populate denormalized FK values
-        migrations.RunPython(
-            code=populate_denormalized_fields,
-            reverse_code=migrations.RunPython.noop
-        ),
-
+        migrations.RunPython(code=populate_denormalized_fields, reverse_code=migrations.RunPython.noop),
         # Delete the site ForeignKey
         migrations.RemoveField(
             model_name='prefix',
