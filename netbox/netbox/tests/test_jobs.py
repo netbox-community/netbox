@@ -126,11 +126,10 @@ class EnqueueTest(JobRunnerTestCase):
         instance = DataSource()
         redis = Redis()
         job1 = TestJobRunner.enqueue(instance, schedule_at=self.get_schedule_at())
-        job1_rq = None
+        job1_rq = RQJob.fetch(str(job1.job_id), connection=redis)
         max_sleep = 5
         sleep_count = 0
-        while job1_rq is None and sleep_count < max_sleep:
-            job1_rq = RQJob.fetch(str(job1.job_id), connection=redis)
+        while not job1_rq.get_status() and sleep_count < max_sleep:
             time.sleep(1)
             sleep_count += 1
         job2 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
