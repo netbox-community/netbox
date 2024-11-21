@@ -911,9 +911,9 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
 
         # Components attached to a module need to present this standardized substitution help text.
         self.fields['name'].help_text = _(
-            "Alphanumeric ranges are supported for bulk creation. Mixed cases and types "
-            "within a single range are not supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The string "
-            "<code>{module}</code> will be replaced with the position of the assigned module, if any."
+            "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are not "
+            "supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The token <code>{module}</code>, if present, will be "
+            "automatically replaced with the position value when creating a new module."
         )
 
 
