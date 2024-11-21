@@ -48,6 +48,18 @@ INTERFACE_IPADDRESSES = """
   {% endif %}
 """
 
+INTERFACE_VIRTUAL_IPS = """
+  {% for fhrp_assignment in value.all %}
+    {% for ip in fhrp_assignment.group.ip_addresses.all %}
+      {% if ip.status != 'active' %}
+        <a href="{{ ip.get_absolute_url }}" class="badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
+      {% else %}
+        <a href="{{ ip.get_absolute_url }}">{{ ip }}</a>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+"""
+
 INTERFACE_FHRPGROUPS = """
   {% for assignment in value.all %}
     <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
