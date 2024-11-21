@@ -37,7 +37,7 @@ urlpatterns = [
     # Virtual circuits
     path('virtual-circuits/', views.VirtualCircuitListView.as_view(), name='virtualcircuit_list'),
     path('virtual-circuits/add/', views.VirtualCircuitEditView.as_view(), name='virtualcircuit_add'),
-    path('virtual-circuits/import/', views.VirtualCircuitBulkImportView.as_view(), name='virtualcircuit_import'),
+    path('virtual-circuits/import/', views.VirtualCircuitBulkImportView.as_view(), name='virtualcircuit_bulk_import'),
     path('virtual-circuits/edit/', views.VirtualCircuitBulkEditView.as_view(), name='virtualcircuit_bulk_edit'),
     path('virtual-circuits/delete/', views.VirtualCircuitBulkDeleteView.as_view(), name='virtualcircuit_bulk_delete'),
     path('virtual-circuits/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuit'))),
@@ -56,7 +56,7 @@ urlpatterns = [
     path(
         'virtual-circuit-terminations/import/',
         views.VirtualCircuitTerminationBulkImportView.as_view(),
-        name='virtualcircuittermination_import',
+        name='virtualcircuittermination_bulk_import',
     ),
     path(
         'virtual-circuit-terminations/edit/',

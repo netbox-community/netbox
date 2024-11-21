@@ -521,7 +521,7 @@ scope_id: {site.pk}
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         prefix = Prefix.objects.get(prefix='10.1.1.0/24')
@@ -553,7 +553,7 @@ vlan: 102
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         prefix = Prefix.objects.get(prefix='10.1.2.0/24')

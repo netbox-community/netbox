@@ -239,10 +239,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+        self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
         # Test POST with permission
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
 
@@ -655,10 +655,10 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+        self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
         # Test POST with permission
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
 
