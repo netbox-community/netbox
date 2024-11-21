@@ -10,6 +10,7 @@ __all__ = (
     'ModuleCommonForm'
 )
 
+
 class InterfaceCommonForm(forms.Form):
     mac_address = forms.CharField(
         empty_value=None,
