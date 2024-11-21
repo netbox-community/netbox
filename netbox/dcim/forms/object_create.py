@@ -7,7 +7,6 @@ from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultiple
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import APISelect
 from . import model_forms
-from .common import COMPONENT_BULK_CREATE_HELP_TEXT
 
 __all__ = (
     'ComponentCreateForm',
@@ -52,13 +51,6 @@ class ComponentCreateForm(forms.Form):
     # Identify the fields which support replication (i.e. ExpandableNameFields). This is referenced by
     # ComponentCreateView when creating objects.
     replication_fields = ('name', 'label')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Components attached to a module need to present this standardized substitution help text.
-        if 'module' in self.fields:
-            self.fields['name'].help_text = _(COMPONENT_BULK_CREATE_HELP_TEXT)
 
     def clean(self):
         super().clean()

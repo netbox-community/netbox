@@ -19,7 +19,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
-from .common import COMPONENT_BULK_CREATE_HELP_TEXT, InterfaceCommonForm, ModuleCommonForm
+from .common import InterfaceCommonForm, ModuleCommonForm
 
 __all__ = (
     'CableForm',
@@ -910,7 +910,11 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
             self.fields['module_type'].disabled = True
 
         # Components attached to a module need to present this standardized substitution help text.
-        self.fields['name'].help_text = _(COMPONENT_BULK_CREATE_HELP_TEXT)
+        self.fields['name'].help_text = _(
+            "Alphanumeric ranges are supported for bulk creation. Mixed cases and types "
+            "within a single range are not supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The string "
+            "<code>{module}</code> will be replaced with the position of the assigned module, if any."
+        )
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
