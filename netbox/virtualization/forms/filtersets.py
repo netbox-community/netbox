@@ -253,7 +253,7 @@ class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
         label=_('Virtual machine')
     )
     size = forms.IntegerField(
-        label=_('Size (GB)'),
+        label=_('Size (MB)'),
         required=False,
         min_value=1
     )

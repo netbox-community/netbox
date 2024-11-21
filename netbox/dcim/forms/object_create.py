@@ -243,14 +243,6 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
     class Meta(model_forms.InterfaceForm.Meta):
         exclude = ('name', 'label')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if 'module' in self.fields:
-            self.fields['name'].help_text += _(
-                "The string <code>{module}</code> will be replaced with the position of the assigned module, if any."
-            )
-
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     device = DynamicModelChoiceField(

@@ -1250,7 +1250,6 @@ class ScriptView(BaseScriptView):
                 request=copy_safe_request(request),
                 job_timeout=script.python_class.job_timeout,
                 commit=form.cleaned_data.pop('_commit'),
-                name=script.name
             )
 
             return redirect('extras:script_result', job_pk=job.pk)
