@@ -912,7 +912,10 @@ class Device(
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip4.nat_inside is not None and
+                    self.primary_ip4.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({
@@ -927,7 +930,10 @@ class Device(
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip6.nat_inside is not None and
+                    self.primary_ip6.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({

@@ -264,7 +264,9 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
         action = {
             'created_by_request': Q(action=ObjectChangeActionChoices.ACTION_CREATE),
             'updated_by_request': Q(action=ObjectChangeActionChoices.ACTION_UPDATE),
-            'modified_by_request': Q(action__in=[ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]),
+            'modified_by_request': Q(
+                action__in=[ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]
+            ),
         }.get(name)
         request_id = value
         pks = ObjectChange.objects.filter(

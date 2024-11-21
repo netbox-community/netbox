@@ -428,7 +428,10 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments', 'tags']
+        fields = [
+            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments',
+            'tags',
+        ]
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
@@ -800,7 +803,10 @@ class PowerOutletImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = PowerOutlet
-        fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'power_port', 'feed_leg', 'description', 'tags')
+        fields = (
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'power_port', 'feed_leg', 'description',
+            'tags',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1114,8 +1120,8 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'status', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags', 'component_type', 'component_name',
+            'device', 'name', 'label', 'status', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag',
+            'discovered', 'description', 'tags', 'component_type', 'component_name',
         )
 
     def __init__(self, *args, **kwargs):

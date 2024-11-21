@@ -312,8 +312,8 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = RackType
         fields = (
-            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 
     def search(self, queryset, name, value):

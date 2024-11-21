@@ -57,7 +57,10 @@ class Migration(migrations.Migration):
                         validators=[
                             django.core.validators.RegexValidator(
                                 code='invalid',
-                                message='Only alphanumeric characters, asterisks, hyphens, periods, and underscores are allowed in DNS names',
+                                message=(
+                                    'Only alphanumeric characters, asterisks, hyphens, periods, and underscores are '
+                                    'allowed in DNS names'
+                                ),
                                 regex='^([0-9A-Za-z_-]+|\\*)(\\.[0-9A-Za-z_-]+)*\\.?$',
                             )
                         ],

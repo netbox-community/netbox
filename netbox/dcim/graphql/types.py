@@ -482,7 +482,9 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
         return self.cluster_set.all()
 
     @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
+    def circuit_terminations(self) -> List[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
+    ]:
         return self.circuit_terminations.all()
 
 
@@ -728,7 +730,9 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
         return self.cluster_set.all()
 
     @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
+    def circuit_terminations(self) -> List[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
+    ]:
         return self.circuit_terminations.all()
 
 
@@ -760,7 +764,9 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
         return self.cluster_set.all()
 
     @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
+    def circuit_terminations(self) -> List[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
+    ]:
         return self.circuit_terminations.all()
 
 
@@ -784,7 +790,9 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
         return self.cluster_set.all()
 
     @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
+    def circuit_terminations(self) -> List[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]
+    ]:
         return self.circuit_terminations.all()
 
 
