@@ -421,7 +421,23 @@ class Migration(migrations.Migration):
             name='contact_phone',
         ),
         migrations.RunSQL(
-            sql="\n            DO $$\n            DECLARE\n                idx record;\n            BEGIN\n                FOR idx IN\n                    SELECT indexname AS old_name,\n                           replace(indexname, 'module', 'inventoryitem') AS new_name\n                    FROM pg_indexes\n                    WHERE schemaname = 'public' AND\n                          tablename = 'dcim_inventoryitem' AND\n                          indexname LIKE 'dcim_module_%'\n                LOOP\n                    EXECUTE format(\n                        'ALTER INDEX %I RENAME TO %I;',\n                        idx.old_name,\n                        idx.new_name\n                    );\n                END LOOP;\n            END$$;\n            ",
+            sql="""DO $$
+            DECLARE idx record;
+            BEGIN
+                FOR idx IN
+                    SELECT indexname AS old_name, replace(indexname, 'module', 'inventoryitem') AS new_name
+                    FROM pg_indexes
+                    WHERE schemaname = 'public' AND
+                          tablename = 'dcim_inventoryitem' AND
+                          indexname LIKE 'dcim_module_%'
+                LOOP
+                    EXECUTE format(
+                        'ALTER INDEX %I RENAME TO %I;',
+                        idx.old_name,
+                        idx.new_name
+                    );
+                END LOOP;
+            END$$;""",
         ),
         migrations.AlterModelOptions(
             name='consoleporttemplate',
