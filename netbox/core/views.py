@@ -105,7 +105,7 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
     queryset = DataSource.objects.all()
 
 
-@register_model_view(DataSource, 'import', detail=False)
+@register_model_view(DataSource, 'bulk_import', detail=False)
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm

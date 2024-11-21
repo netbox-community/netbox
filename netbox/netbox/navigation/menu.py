@@ -33,7 +33,7 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contact', _('Contacts')),
                 get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
                 get_model_item('tenancy', 'contactrole', _('Contact Roles')),
-                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['import']),
+                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['bulk_import']),
             ),
         ),
     ),
@@ -386,7 +386,7 @@ OPERATIONS_MENU = Menu(
             label=_('Logging'),
             items=(
                 get_model_item('extras', 'notificationgroup', _('Notification Groups')),
-                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['import']),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['bulk_import']),
                 get_model_item('core', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),
@@ -413,7 +413,7 @@ ADMIN_MENU = Menu(
                             permissions=['users.add_user']
                         ),
                         MenuItemButton(
-                            link='users:user_import',
+                            link='users:user_bulk_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=['users.add_user']
@@ -433,7 +433,7 @@ ADMIN_MENU = Menu(
                             permissions=['users.add_group']
                         ),
                         MenuItemButton(
-                            link='users:group_import',
+                            link='users:group_bulk_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=['users.add_group']

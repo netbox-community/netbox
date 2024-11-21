@@ -1325,7 +1325,7 @@ class CustomFieldImportTest(TestCase):
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {
+        response = self.client.post(reverse('dcim:site_bulk_import'), {
             'data': csv_data,
             'format': ImportFormatChoices.CSV,
             'csv_delimiter': CSVDelimiterChoices.AUTO,

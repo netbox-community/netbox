@@ -38,7 +38,7 @@ class TokenDeleteView(generic.ObjectDeleteView):
     queryset = Token.objects.all()
 
 
-@register_model_view(Token, 'import', detail=False)
+@register_model_view(Token, 'bulk_import', detail=False)
 class TokenBulkImportView(generic.BulkImportView):
     queryset = Token.objects.all()
     model_form = forms.TokenImportForm
@@ -95,7 +95,7 @@ class UserDeleteView(generic.ObjectDeleteView):
     queryset = User.objects.all()
 
 
-@register_model_view(User, 'import', detail=False)
+@register_model_view(User, 'bulk_import', detail=False)
 class UserBulkImportView(generic.BulkImportView):
     queryset = User.objects.all()
     model_form = forms.UserImportForm
@@ -146,7 +146,7 @@ class GroupDeleteView(generic.ObjectDeleteView):
     queryset = Group.objects.all()
 
 
-@register_model_view(Group, 'import', detail=False)
+@register_model_view(Group, 'bulk_import', detail=False)
 class GroupBulkImportView(generic.BulkImportView):
     queryset = Group.objects.all()
     model_form = forms.GroupImportForm

@@ -900,7 +900,7 @@ inventory-items:
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         device_type = DeviceType.objects.get(model='TEST-1000')
@@ -1228,7 +1228,7 @@ front-ports:
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('dcim:moduletype_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         module_type = ModuleType.objects.get(model='TEST-1000')
@@ -2170,7 +2170,7 @@ class ModuleTestCase(
             f"{device.name},{module_bay.name},{module_type.model},active,false"
         ]
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
@@ -2187,7 +2187,7 @@ class ModuleTestCase(
         module_bay = ModuleBay.objects.get(device=device, name='Module Bay 5')
         csv_data[1] = f"{device.name},{module_bay.name},{module_type.model},active,true"
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
@@ -2264,7 +2264,7 @@ class ModuleTestCase(
             f"{device.name},{module_bay.name},{module_type.model},active,false,true"
         ]
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,

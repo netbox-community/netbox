@@ -48,7 +48,7 @@ class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLANGroup.objects.all()
 
 
-@register_model_view(WirelessLANGroup, 'import', detail=False)
+@register_model_view(WirelessLANGroup, 'bulk_import', detail=False)
 class WirelessLANGroupBulkImportView(generic.BulkImportView):
     queryset = WirelessLANGroup.objects.all()
     model_form = forms.WirelessLANGroupImportForm
@@ -123,7 +123,7 @@ class WirelessLANDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLAN.objects.all()
 
 
-@register_model_view(WirelessLAN, 'import', detail=False)
+@register_model_view(WirelessLAN, 'bulk_import', detail=False)
 class WirelessLANBulkImportView(generic.BulkImportView):
     queryset = WirelessLAN.objects.all()
     model_form = forms.WirelessLANImportForm
@@ -173,7 +173,7 @@ class WirelessLinkDeleteView(generic.ObjectDeleteView):
     queryset = WirelessLink.objects.all()
 
 
-@register_model_view(WirelessLink, 'import', detail=False)
+@register_model_view(WirelessLink, 'bulk_import', detail=False)
 class WirelessLinkBulkImportView(generic.BulkImportView):
     queryset = WirelessLink.objects.all()
     model_form = forms.WirelessLinkImportForm
