@@ -22,9 +22,7 @@ class ScriptJob(JobRunner):
     """
 
     class Meta:
-        # An explicit job name is not set because it doesn't make sense in this context. Currently, there's no scenario
-        # where jobs other than this one are used. Therefore, it is hidden, resulting in a cleaner job table overview.
-        name = ''
+        name = 'Run Script'
 
     def run_script(self, script, request, data, commit):
         """

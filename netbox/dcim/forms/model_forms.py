@@ -909,6 +909,13 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         if self.instance.pk:
             self.fields['module_type'].disabled = True
 
+        # Components attached to a module need to present this standardized substitution help text.
+        self.fields['name'].help_text = _(
+            "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are not "
+            "supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The token <code>{module}</code>, if present, will be "
+            "automatically replaced with the position value when creating a new module."
+        )
+
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (

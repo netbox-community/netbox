@@ -14,7 +14,6 @@ class NetBoxGraphQLView(GraphQLView):
     """
     Extends strawberry's GraphQLView to support DRF's token-based authentication.
     """
-    graphiql_template = 'graphiql.html'
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
