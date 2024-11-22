@@ -158,6 +158,11 @@ class NetBoxAutoSchema(AutoSchema):
         fields = {} if hasattr(serializer, 'child') else serializer.fields
         remove_fields = []
 
+        """
+        If you get a failure here for: AttributeError: 'cached_property' object has no attribute 'items'
+        it is probably because you are using a viewsets.ViewSet for the API View and are defining a
+        serializer_class.  You will also need to define a get_serializer function like GenericAPIView.
+        """
         for child_name, child in fields.items():
             # read_only fields don't need to be in writable (write only) serializers
             if 'read_only' in dir(child) and child.read_only:

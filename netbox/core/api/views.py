@@ -104,6 +104,15 @@ class BaseRQViewSet(viewsets.ViewSet):
         serializer = self.serializer_class(data, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
+
 
 class BackgroundQueueViewSet(BaseRQViewSet):
     """
