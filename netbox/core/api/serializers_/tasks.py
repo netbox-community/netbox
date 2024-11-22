@@ -70,7 +70,7 @@ class BackgroundWorkerSerializer(serializers.Serializer):
         lookup_field='name'
     )
     state = serializers.SerializerMethodField()
-    birth_date = serializers.CharField()
+    birth_date = serializers.DateTimeField()
     queue_names = serializers.ListField(
         child=serializers.CharField()
     )
