@@ -162,7 +162,7 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
 
 class BackgroundTaskViewSet(BaseRQViewSet):
     """
-    Retrieve the details of the specified RQ Task.
+    Retrieve a list of RQ Tasks.
     """
     serializer_class = serializers.BackgroundTaskSerializer
 
@@ -182,27 +182,42 @@ class BackgroundTaskViewSet(BaseRQViewSet):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def retrieve(self, request, pk):
+        """
+        Retrieve the details of the specified RQ Task.
+        """
         task = self.get_task_from_id(pk)
         serializer = self.serializer_class(task, context={'request': request})
         return Response(serializer.data)
 
     @action(methods=["POST"], detail=True)
     def delete(self, request, pk):
+        """
+        Delete the specified RQ Task.
+        """
         delete_rq_job(pk)
         return HttpResponse(status=200)
 
     @action(methods=["POST"], detail=True)
     def requeue(self, request, pk):
+        """
+        Requeues the specified RQ Task.
+        """
         requeue_rq_job(pk)
         return HttpResponse(status=200)
 
     @action(methods=["POST"], detail=True)
     def enqueue(self, request, pk):
+        """
+        Enqueues the specified RQ Task.
+        """
         enqueue_rq_job(pk)
         return HttpResponse(status=200)
 
     @action(methods=["POST"], detail=True)
     def stop(self, request, pk):
+        """
+        Stops the specified RQ Task.
+        """
         stopped_jobs = stop_rq_job(pk)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)
