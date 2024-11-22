@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:20+0000\n"
+"POT-Creation-Date: 2024-11-21 15:50+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
@@ -86,8 +86,8 @@ msgid "Your password has been changed successfully."
 msgstr "Şifreniz başarıyla değiştirildi."
 
 #: circuits/choices.py:21 dcim/choices.py:20 dcim/choices.py:102
-#: dcim/choices.py:185 dcim/choices.py:237 dcim/choices.py:1530
-#: dcim/choices.py:1606 dcim/choices.py:1656 virtualization/choices.py:20
+#: dcim/choices.py:185 dcim/choices.py:237 dcim/choices.py:1532
+#: dcim/choices.py:1608 dcim/choices.py:1658 virtualization/choices.py:20
 #: virtualization/choices.py:45 vpn/choices.py:18
 msgid "Planned"
 msgstr "Planlanan"
@@ -98,7 +98,7 @@ msgstr "Tedarik"
 
 #: circuits/choices.py:23 core/tables/tasks.py:22 dcim/choices.py:22
 #: dcim/choices.py:103 dcim/choices.py:184 dcim/choices.py:236
-#: dcim/choices.py:1605 dcim/choices.py:1655 extras/tables/tables.py:495
+#: dcim/choices.py:1607 dcim/choices.py:1657 extras/tables/tables.py:495
 #: ipam/choices.py:31 ipam/choices.py:49 ipam/choices.py:69
 #: ipam/choices.py:154 templates/extras/configcontext.html:25
 #: templates/users/user.html:37 users/forms/bulk_edit.py:38
@@ -108,7 +108,7 @@ msgid "Active"
 msgstr "Aktif"
 
 #: circuits/choices.py:24 dcim/choices.py:183 dcim/choices.py:235
-#: dcim/choices.py:1604 dcim/choices.py:1657 virtualization/choices.py:24
+#: dcim/choices.py:1606 dcim/choices.py:1659 virtualization/choices.py:24
 #: virtualization/choices.py:43
 msgid "Offline"
 msgstr "Çevrim dışı"
@@ -121,7 +121,7 @@ msgstr "Hazırlıktan Kaldırma"
 msgid "Decommissioned"
 msgstr "Hizmet dışı bırakıldı"
 
-#: circuits/choices.py:90 dcim/choices.py:1617 tenancy/choices.py:17
+#: circuits/choices.py:90 dcim/choices.py:1619 tenancy/choices.py:17
 msgid "Primary"
 msgstr "Birincil"
 
@@ -180,8 +180,8 @@ msgstr "Site grubu (kısa ad)"
 #: circuits/forms/filtersets.py:51 circuits/forms/filtersets.py:171
 #: circuits/forms/filtersets.py:209 circuits/forms/model_forms.py:138
 #: circuits/forms/model_forms.py:154 circuits/tables/circuits.py:113
-#: dcim/forms/bulk_edit.py:168 dcim/forms/bulk_edit.py:329
-#: dcim/forms/bulk_edit.py:677 dcim/forms/bulk_edit.py:873
+#: dcim/forms/bulk_edit.py:169 dcim/forms/bulk_edit.py:330
+#: dcim/forms/bulk_edit.py:678 dcim/forms/bulk_edit.py:883
 #: dcim/forms/bulk_import.py:131 dcim/forms/bulk_import.py:230
 #: dcim/forms/bulk_import.py:309 dcim/forms/bulk_import.py:540
 #: dcim/forms/bulk_import.py:1311 dcim/forms/bulk_import.py:1339
@@ -346,7 +346,7 @@ msgstr "Devre grubu (sümüklü böcek)"
 
 #: circuits/forms/bulk_edit.py:30 circuits/forms/filtersets.py:56
 #: circuits/forms/model_forms.py:29 circuits/tables/providers.py:33
-#: dcim/forms/bulk_edit.py:128 dcim/forms/filtersets.py:195
+#: dcim/forms/bulk_edit.py:129 dcim/forms/filtersets.py:195
 #: dcim/forms/model_forms.py:123 dcim/tables/sites.py:94
 #: ipam/models/asns.py:126 ipam/tables/asn.py:27 ipam/views.py:213
 #: netbox/navigation/menu.py:172 netbox/navigation/menu.py:175
@@ -358,21 +358,21 @@ msgstr "ASN'ler"
 #: circuits/forms/bulk_edit.py:83 circuits/forms/bulk_edit.py:104
 #: circuits/forms/bulk_edit.py:164 circuits/forms/bulk_edit.py:183
 #: circuits/forms/bulk_edit.py:228 core/forms/bulk_edit.py:28
-#: dcim/forms/bulk_create.py:35 dcim/forms/bulk_edit.py:73
-#: dcim/forms/bulk_edit.py:92 dcim/forms/bulk_edit.py:151
-#: dcim/forms/bulk_edit.py:192 dcim/forms/bulk_edit.py:210
-#: dcim/forms/bulk_edit.py:288 dcim/forms/bulk_edit.py:432
-#: dcim/forms/bulk_edit.py:466 dcim/forms/bulk_edit.py:481
-#: dcim/forms/bulk_edit.py:540 dcim/forms/bulk_edit.py:584
-#: dcim/forms/bulk_edit.py:618 dcim/forms/bulk_edit.py:642
-#: dcim/forms/bulk_edit.py:715 dcim/forms/bulk_edit.py:767
-#: dcim/forms/bulk_edit.py:819 dcim/forms/bulk_edit.py:842
-#: dcim/forms/bulk_edit.py:890 dcim/forms/bulk_edit.py:960
-#: dcim/forms/bulk_edit.py:1013 dcim/forms/bulk_edit.py:1048
-#: dcim/forms/bulk_edit.py:1088 dcim/forms/bulk_edit.py:1132
-#: dcim/forms/bulk_edit.py:1177 dcim/forms/bulk_edit.py:1204
-#: dcim/forms/bulk_edit.py:1222 dcim/forms/bulk_edit.py:1240
-#: dcim/forms/bulk_edit.py:1258 dcim/forms/bulk_edit.py:1682
+#: dcim/forms/bulk_create.py:35 dcim/forms/bulk_edit.py:74
+#: dcim/forms/bulk_edit.py:93 dcim/forms/bulk_edit.py:152
+#: dcim/forms/bulk_edit.py:193 dcim/forms/bulk_edit.py:211
+#: dcim/forms/bulk_edit.py:289 dcim/forms/bulk_edit.py:433
+#: dcim/forms/bulk_edit.py:467 dcim/forms/bulk_edit.py:482
+#: dcim/forms/bulk_edit.py:541 dcim/forms/bulk_edit.py:585
+#: dcim/forms/bulk_edit.py:619 dcim/forms/bulk_edit.py:643
+#: dcim/forms/bulk_edit.py:716 dcim/forms/bulk_edit.py:777
+#: dcim/forms/bulk_edit.py:829 dcim/forms/bulk_edit.py:852
+#: dcim/forms/bulk_edit.py:900 dcim/forms/bulk_edit.py:970
+#: dcim/forms/bulk_edit.py:1023 dcim/forms/bulk_edit.py:1058
+#: dcim/forms/bulk_edit.py:1098 dcim/forms/bulk_edit.py:1142
+#: dcim/forms/bulk_edit.py:1187 dcim/forms/bulk_edit.py:1214
+#: dcim/forms/bulk_edit.py:1232 dcim/forms/bulk_edit.py:1250
+#: dcim/forms/bulk_edit.py:1268 dcim/forms/bulk_edit.py:1720
 #: extras/forms/bulk_edit.py:39 extras/forms/bulk_edit.py:149
 #: extras/forms/bulk_edit.py:178 extras/forms/bulk_edit.py:208
 #: extras/forms/bulk_edit.py:256 extras/forms/bulk_edit.py:274
@@ -413,7 +413,7 @@ msgstr "ASN'ler"
 #: templates/extras/dashboard/widget_add.html:14
 #: templates/extras/eventrule.html:21 templates/extras/exporttemplate.html:19
 #: templates/extras/notificationgroup.html:20
-#: templates/extras/savedfilter.html:17 templates/extras/script_list.html:45
+#: templates/extras/savedfilter.html:17 templates/extras/script_list.html:46
 #: templates/extras/tag.html:20 templates/extras/webhook.html:17
 #: templates/generic/bulk_import.html:120 templates/ipam/aggregate.html:43
 #: templates/ipam/asn.html:42 templates/ipam/asnrange.html:38
@@ -480,9 +480,9 @@ msgid "Service ID"
 msgstr "Servis ID"
 
 #: circuits/forms/bulk_edit.py:100 circuits/forms/filtersets.py:107
-#: dcim/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:604
-#: dcim/forms/bulk_edit.py:804 dcim/forms/bulk_edit.py:1173
-#: dcim/forms/bulk_edit.py:1200 dcim/forms/bulk_edit.py:1678
+#: dcim/forms/bulk_edit.py:207 dcim/forms/bulk_edit.py:605
+#: dcim/forms/bulk_edit.py:814 dcim/forms/bulk_edit.py:1183
+#: dcim/forms/bulk_edit.py:1210 dcim/forms/bulk_edit.py:1716
 #: dcim/forms/filtersets.py:1064 dcim/forms/filtersets.py:1455
 #: dcim/forms/filtersets.py:1479 dcim/tables/devices.py:704
 #: dcim/tables/devices.py:761 dcim/tables/devices.py:1003
@@ -499,11 +499,11 @@ msgstr "Renk"
 #: circuits/forms/bulk_edit.py:118 circuits/forms/bulk_import.py:87
 #: circuits/forms/filtersets.py:126 core/forms/bulk_edit.py:18
 #: core/forms/filtersets.py:33 core/tables/change_logging.py:32
-#: core/tables/data.py:20 core/tables/jobs.py:18 dcim/forms/bulk_edit.py:782
-#: dcim/forms/bulk_edit.py:921 dcim/forms/bulk_edit.py:989
-#: dcim/forms/bulk_edit.py:1008 dcim/forms/bulk_edit.py:1031
-#: dcim/forms/bulk_edit.py:1073 dcim/forms/bulk_edit.py:1117
-#: dcim/forms/bulk_edit.py:1168 dcim/forms/bulk_edit.py:1195
+#: core/tables/data.py:20 core/tables/jobs.py:18 dcim/forms/bulk_edit.py:792
+#: dcim/forms/bulk_edit.py:931 dcim/forms/bulk_edit.py:999
+#: dcim/forms/bulk_edit.py:1018 dcim/forms/bulk_edit.py:1041
+#: dcim/forms/bulk_edit.py:1083 dcim/forms/bulk_edit.py:1127
+#: dcim/forms/bulk_edit.py:1178 dcim/forms/bulk_edit.py:1205
 #: dcim/forms/bulk_import.py:188 dcim/forms/bulk_import.py:260
 #: dcim/forms/bulk_import.py:708 dcim/forms/bulk_import.py:734
 #: dcim/forms/bulk_import.py:760 dcim/forms/bulk_import.py:780
@@ -548,11 +548,11 @@ msgstr "Sağlayıcı hesabı"
 #: circuits/forms/bulk_edit.py:136 circuits/forms/bulk_import.py:93
 #: circuits/forms/filtersets.py:150 core/forms/filtersets.py:38
 #: core/forms/filtersets.py:79 core/tables/data.py:23 core/tables/jobs.py:26
-#: core/tables/tasks.py:88 dcim/forms/bulk_edit.py:106
-#: dcim/forms/bulk_edit.py:181 dcim/forms/bulk_edit.py:351
-#: dcim/forms/bulk_edit.py:700 dcim/forms/bulk_edit.py:756
-#: dcim/forms/bulk_edit.py:788 dcim/forms/bulk_edit.py:915
-#: dcim/forms/bulk_edit.py:1701 dcim/forms/bulk_import.py:88
+#: core/tables/tasks.py:88 dcim/forms/bulk_edit.py:107
+#: dcim/forms/bulk_edit.py:182 dcim/forms/bulk_edit.py:352
+#: dcim/forms/bulk_edit.py:701 dcim/forms/bulk_edit.py:766
+#: dcim/forms/bulk_edit.py:798 dcim/forms/bulk_edit.py:925
+#: dcim/forms/bulk_edit.py:1739 dcim/forms/bulk_import.py:88
 #: dcim/forms/bulk_import.py:147 dcim/forms/bulk_import.py:248
 #: dcim/forms/bulk_import.py:505 dcim/forms/bulk_import.py:659
 #: dcim/forms/bulk_import.py:1207 dcim/forms/bulk_import.py:1371
@@ -579,7 +579,7 @@ msgstr "Sağlayıcı hesabı"
 #: templates/dcim/device.html:178 templates/dcim/location.html:45
 #: templates/dcim/module.html:69 templates/dcim/powerfeed.html:36
 #: templates/dcim/rack.html:41 templates/dcim/site.html:43
-#: templates/extras/script_list.html:47 templates/ipam/ipaddress.html:37
+#: templates/extras/script_list.html:48 templates/ipam/ipaddress.html:37
 #: templates/ipam/iprange.html:54 templates/ipam/prefix.html:73
 #: templates/ipam/vlan.html:48 templates/virtualization/cluster.html:21
 #: templates/virtualization/virtualmachine.html:19
@@ -604,10 +604,10 @@ msgstr "Durum"
 #: circuits/forms/bulk_edit.py:142 circuits/forms/bulk_edit.py:233
 #: circuits/forms/bulk_import.py:98 circuits/forms/bulk_import.py:158
 #: circuits/forms/filtersets.py:119 circuits/forms/filtersets.py:241
-#: dcim/forms/bulk_edit.py:122 dcim/forms/bulk_edit.py:187
-#: dcim/forms/bulk_edit.py:346 dcim/forms/bulk_edit.py:461
-#: dcim/forms/bulk_edit.py:690 dcim/forms/bulk_edit.py:794
-#: dcim/forms/bulk_edit.py:1706 dcim/forms/bulk_import.py:107
+#: dcim/forms/bulk_edit.py:123 dcim/forms/bulk_edit.py:188
+#: dcim/forms/bulk_edit.py:347 dcim/forms/bulk_edit.py:462
+#: dcim/forms/bulk_edit.py:691 dcim/forms/bulk_edit.py:804
+#: dcim/forms/bulk_edit.py:1744 dcim/forms/bulk_import.py:107
 #: dcim/forms/bulk_import.py:152 dcim/forms/bulk_import.py:241
 #: dcim/forms/bulk_import.py:334 dcim/forms/bulk_import.py:479
 #: dcim/forms/bulk_import.py:1219 dcim/forms/bulk_import.py:1428
@@ -711,11 +711,11 @@ msgstr "Bağlantı noktası hızı (Kbps)"
 msgid "Upstream speed (Kbps)"
 msgstr "Yukarı akış hızı (Kbps)"
 
-#: circuits/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:951
-#: dcim/forms/bulk_edit.py:1315 dcim/forms/bulk_edit.py:1332
-#: dcim/forms/bulk_edit.py:1349 dcim/forms/bulk_edit.py:1367
-#: dcim/forms/bulk_edit.py:1455 dcim/forms/bulk_edit.py:1594
-#: dcim/forms/bulk_edit.py:1611
+#: circuits/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:961
+#: dcim/forms/bulk_edit.py:1325 dcim/forms/bulk_edit.py:1342
+#: dcim/forms/bulk_edit.py:1359 dcim/forms/bulk_edit.py:1377
+#: dcim/forms/bulk_edit.py:1472 dcim/forms/bulk_edit.py:1632
+#: dcim/forms/bulk_edit.py:1649
 msgid "Mark connected"
 msgstr "Bağlı olarak işaretle"
 
@@ -793,9 +793,9 @@ msgid "Provider network"
 msgstr "Sağlayıcı ağı"
 
 #: circuits/forms/filtersets.py:30 circuits/forms/filtersets.py:118
-#: circuits/forms/filtersets.py:200 dcim/forms/bulk_edit.py:338
-#: dcim/forms/bulk_edit.py:441 dcim/forms/bulk_edit.py:682
-#: dcim/forms/bulk_edit.py:729 dcim/forms/bulk_edit.py:882
+#: circuits/forms/filtersets.py:200 dcim/forms/bulk_edit.py:339
+#: dcim/forms/bulk_edit.py:442 dcim/forms/bulk_edit.py:683
+#: dcim/forms/bulk_edit.py:738 dcim/forms/bulk_edit.py:892
 #: dcim/forms/bulk_import.py:235 dcim/forms/bulk_import.py:315
 #: dcim/forms/bulk_import.py:546 dcim/forms/bulk_import.py:1317
 #: dcim/forms/bulk_import.py:1351 dcim/forms/filtersets.py:95
@@ -842,8 +842,8 @@ msgid "Contacts"
 msgstr "İletişim"
 
 #: circuits/forms/filtersets.py:37 circuits/forms/filtersets.py:157
-#: dcim/forms/bulk_edit.py:112 dcim/forms/bulk_edit.py:313
-#: dcim/forms/bulk_edit.py:857 dcim/forms/bulk_import.py:93
+#: dcim/forms/bulk_edit.py:113 dcim/forms/bulk_edit.py:314
+#: dcim/forms/bulk_edit.py:867 dcim/forms/bulk_import.py:93
 #: dcim/forms/filtersets.py:73 dcim/forms/filtersets.py:185
 #: dcim/forms/filtersets.py:211 dcim/forms/filtersets.py:334
 #: dcim/forms/filtersets.py:425 dcim/forms/filtersets.py:739
@@ -866,7 +866,7 @@ msgid "Region"
 msgstr "Bölge"
 
 #: circuits/forms/filtersets.py:42 circuits/forms/filtersets.py:162
-#: dcim/forms/bulk_edit.py:321 dcim/forms/bulk_edit.py:865
+#: dcim/forms/bulk_edit.py:322 dcim/forms/bulk_edit.py:875
 #: dcim/forms/filtersets.py:78 dcim/forms/filtersets.py:190
 #: dcim/forms/filtersets.py:216 dcim/forms/filtersets.py:347
 #: dcim/forms/filtersets.py:430 dcim/forms/filtersets.py:744
@@ -884,7 +884,7 @@ msgstr "Site grubu"
 #: circuits/forms/filtersets.py:65 circuits/forms/filtersets.py:83
 #: circuits/forms/filtersets.py:102 circuits/forms/filtersets.py:117
 #: core/forms/filtersets.py:67 core/forms/filtersets.py:135
-#: dcim/forms/bulk_edit.py:828 dcim/forms/filtersets.py:172
+#: dcim/forms/bulk_edit.py:838 dcim/forms/filtersets.py:172
 #: dcim/forms/filtersets.py:204 dcim/forms/filtersets.py:915
 #: dcim/forms/filtersets.py:1007 dcim/forms/filtersets.py:1131
 #: dcim/forms/filtersets.py:1239 dcim/forms/filtersets.py:1263
@@ -919,16 +919,17 @@ msgstr "Hesap"
 msgid "Term Side"
 msgstr "Dönem Tarafı"
 
-#: circuits/forms/filtersets.py:250 extras/forms/model_forms.py:582
-#: ipam/forms/filtersets.py:142 ipam/forms/filtersets.py:546
-#: ipam/forms/model_forms.py:323 templates/extras/configcontext.html:60
-#: templates/ipam/ipaddress.html:59 templates/ipam/vlan_edit.html:30
-#: tenancy/forms/filtersets.py:87 users/forms/model_forms.py:314
+#: circuits/forms/filtersets.py:250 dcim/forms/bulk_edit.py:1552
+#: extras/forms/model_forms.py:582 ipam/forms/filtersets.py:142
+#: ipam/forms/filtersets.py:546 ipam/forms/model_forms.py:323
+#: templates/extras/configcontext.html:60 templates/ipam/ipaddress.html:59
+#: templates/ipam/vlan_edit.html:30 tenancy/forms/filtersets.py:87
+#: users/forms/model_forms.py:314
 msgid "Assignment"
 msgstr "Ödev"
 
 #: circuits/forms/filtersets.py:265 circuits/forms/model_forms.py:195
-#: circuits/tables/circuits.py:155 dcim/forms/bulk_edit.py:117
+#: circuits/tables/circuits.py:155 dcim/forms/bulk_edit.py:118
 #: dcim/forms/bulk_import.py:100 dcim/forms/model_forms.py:117
 #: dcim/tables/sites.py:89 extras/forms/filtersets.py:480
 #: ipam/filtersets.py:999 ipam/forms/bulk_edit.py:493
@@ -994,7 +995,7 @@ msgstr "Benzersiz devre ID"
 #: dcim/models/devices.py:1173 dcim/models/devices.py:1399
 #: dcim/models/power.py:96 dcim/models/racks.py:297 dcim/models/sites.py:154
 #: dcim/models/sites.py:266 ipam/models/ip.py:253 ipam/models/ip.py:522
-#: ipam/models/ip.py:730 ipam/models/vlans.py:195
+#: ipam/models/ip.py:730 ipam/models/vlans.py:211
 #: virtualization/models/clusters.py:74
 #: virtualization/models/virtualmachines.py:84 vpn/models/tunnels.py:40
 #: wireless/models.py:95 wireless/models.py:159
@@ -1130,7 +1131,7 @@ msgstr "Devre sonlandırma hem siteye hem de sağlayıcı ağına bağlanamaz."
 #: extras/models/notifications.py:126 extras/models/scripts.py:30
 #: extras/models/staging.py:26 ipam/models/asns.py:18 ipam/models/fhrp.py:25
 #: ipam/models/services.py:52 ipam/models/services.py:88
-#: ipam/models/vlans.py:36 ipam/models/vlans.py:184 ipam/models/vrfs.py:22
+#: ipam/models/vlans.py:36 ipam/models/vlans.py:200 ipam/models/vrfs.py:22
 #: ipam/models/vrfs.py:79 netbox/models/__init__.py:137
 #: netbox/models/__init__.py:181 tenancy/models/contacts.py:64
 #: tenancy/models/tenants.py:20 tenancy/models/tenants.py:45
@@ -1241,7 +1242,7 @@ msgstr "sağlayıcı ağları"
 #: templates/extras/customfield.html:13 templates/extras/customlink.html:13
 #: templates/extras/eventrule.html:13 templates/extras/exporttemplate.html:15
 #: templates/extras/notificationgroup.html:14
-#: templates/extras/savedfilter.html:13 templates/extras/script_list.html:44
+#: templates/extras/savedfilter.html:13 templates/extras/script_list.html:45
 #: templates/extras/tag.html:14 templates/extras/webhook.html:13
 #: templates/ipam/asnrange.html:15 templates/ipam/fhrpgroup.html:30
 #: templates/ipam/rir.html:22 templates/ipam/role.html:22
@@ -1378,7 +1379,7 @@ msgstr "Tamamlandı"
 
 #: core/choices.py:22 core/choices.py:59 core/constants.py:20
 #: core/tables/tasks.py:34 dcim/choices.py:187 dcim/choices.py:239
-#: dcim/choices.py:1607 virtualization/choices.py:47
+#: dcim/choices.py:1609 virtualization/choices.py:47
 msgid "Failed"
 msgstr "Başarısız"
 
@@ -1525,8 +1526,8 @@ msgid "User name"
 msgstr "Kullanıcı adı"
 
 #: core/forms/bulk_edit.py:25 core/forms/filtersets.py:43
-#: core/tables/data.py:26 dcim/forms/bulk_edit.py:1122
-#: dcim/forms/bulk_edit.py:1400 dcim/forms/filtersets.py:1370
+#: core/tables/data.py:26 dcim/forms/bulk_edit.py:1132
+#: dcim/forms/bulk_edit.py:1410 dcim/forms/filtersets.py:1370
 #: dcim/tables/devices.py:553 dcim/tables/devicetypes.py:224
 #: extras/forms/bulk_edit.py:123 extras/forms/bulk_edit.py:187
 #: extras/forms/bulk_edit.py:246 extras/forms/filtersets.py:142
@@ -1626,7 +1627,7 @@ msgid "Completed before"
 msgstr "Daha önce tamamlandı"
 
 #: core/forms/filtersets.py:126 core/forms/filtersets.py:155
-#: dcim/forms/bulk_edit.py:456 dcim/forms/filtersets.py:418
+#: dcim/forms/bulk_edit.py:457 dcim/forms/filtersets.py:418
 #: dcim/forms/filtersets.py:462 dcim/forms/model_forms.py:316
 #: extras/forms/filtersets.py:456 extras/forms/filtersets.py:475
 #: extras/tables/tables.py:302 extras/tables/tables.py:342
@@ -1688,9 +1689,9 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr "Raf Yükseltmeleri"
 
-#: core/forms/model_forms.py:157 dcim/choices.py:1518
-#: dcim/forms/bulk_edit.py:969 dcim/forms/bulk_edit.py:1357
-#: dcim/forms/bulk_edit.py:1375 dcim/tables/racks.py:158
+#: core/forms/model_forms.py:157 dcim/choices.py:1520
+#: dcim/forms/bulk_edit.py:979 dcim/forms/bulk_edit.py:1367
+#: dcim/forms/bulk_edit.py:1385 dcim/tables/racks.py:158
 #: netbox/navigation/menu.py:291 netbox/navigation/menu.py:295
 msgid "Power"
 msgstr "Güç"
@@ -2221,11 +2222,11 @@ msgstr "İş {id} durduruldu."
 msgid "Failed to stop job {id}"
 msgstr "İş durdurulamadı {id}"
 
-#: core/views.py:678
+#: core/views.py:674
 msgid "Plugins catalog could not be loaded"
 msgstr "Eklentiler kataloğu yüklenemedi"
 
-#: core/views.py:712
+#: core/views.py:708
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr "Eklenti {name} bulunamadı"
@@ -2243,7 +2244,7 @@ msgid "Staging"
 msgstr "Sahneleme"
 
 #: dcim/choices.py:23 dcim/choices.py:189 dcim/choices.py:240
-#: dcim/choices.py:1531 virtualization/choices.py:23
+#: dcim/choices.py:1533 virtualization/choices.py:23
 #: virtualization/choices.py:48
 msgid "Decommissioning"
 msgstr "Hizmetten çıkarma"
@@ -2303,7 +2304,7 @@ msgstr "Kullanımdan kaldırıldı"
 msgid "Millimeters"
 msgstr "Milimetre"
 
-#: dcim/choices.py:115 dcim/choices.py:1553
+#: dcim/choices.py:115 dcim/choices.py:1555
 msgid "Inches"
 msgstr "İnç"
 
@@ -2315,8 +2316,8 @@ msgstr "Önden arkaya"
 msgid "Rear to front"
 msgstr "Arkadan öne"
 
-#: dcim/choices.py:151 dcim/forms/bulk_edit.py:68 dcim/forms/bulk_edit.py:87
-#: dcim/forms/bulk_edit.py:173 dcim/forms/bulk_edit.py:1405
+#: dcim/choices.py:151 dcim/forms/bulk_edit.py:69 dcim/forms/bulk_edit.py:88
+#: dcim/forms/bulk_edit.py:174 dcim/forms/bulk_edit.py:1415
 #: dcim/forms/bulk_import.py:60 dcim/forms/bulk_import.py:74
 #: dcim/forms/bulk_import.py:137 dcim/forms/bulk_import.py:566
 #: dcim/forms/bulk_import.py:833 dcim/forms/bulk_import.py:1088
@@ -2390,7 +2391,7 @@ msgstr "Aşağıdan yukarıya"
 msgid "Top to bottom"
 msgstr "Yukarıdan aşağıya"
 
-#: dcim/choices.py:215 dcim/choices.py:259 dcim/choices.py:1303
+#: dcim/choices.py:215 dcim/choices.py:259 dcim/choices.py:1305
 msgid "Passive"
 msgstr "Pasif"
 
@@ -2418,8 +2419,8 @@ msgstr "Uluslararası/ITA"
 msgid "Proprietary"
 msgstr "Tescilli"
 
-#: dcim/choices.py:581 dcim/choices.py:824 dcim/choices.py:1219
-#: dcim/choices.py:1221 dcim/choices.py:1447 dcim/choices.py:1449
+#: dcim/choices.py:581 dcim/choices.py:824 dcim/choices.py:1221
+#: dcim/choices.py:1223 dcim/choices.py:1449 dcim/choices.py:1451
 #: netbox/navigation/menu.py:200
 msgid "Other"
 msgstr "Diğer"
@@ -2432,22 +2433,22 @@ msgstr "ITA/Uluslararası"
 msgid "Physical"
 msgstr "Fiziksel"
 
-#: dcim/choices.py:855 dcim/choices.py:1023
+#: dcim/choices.py:855 dcim/choices.py:1024
 msgid "Virtual"
 msgstr "Sanal"
 
-#: dcim/choices.py:856 dcim/choices.py:1097 dcim/forms/bulk_edit.py:1515
+#: dcim/choices.py:856 dcim/choices.py:1099 dcim/forms/bulk_edit.py:1558
 #: dcim/forms/filtersets.py:1330 dcim/forms/model_forms.py:988
 #: dcim/forms/model_forms.py:1397 netbox/navigation/menu.py:140
 #: netbox/navigation/menu.py:144 templates/dcim/interface.html:210
 msgid "Wireless"
 msgstr "Kablosuz"
 
-#: dcim/choices.py:1021
+#: dcim/choices.py:1022
 msgid "Virtual interfaces"
 msgstr "Sanal arayüzler"
 
-#: dcim/choices.py:1024 dcim/forms/bulk_edit.py:1410
+#: dcim/choices.py:1025 dcim/forms/bulk_edit.py:1423
 #: dcim/forms/bulk_import.py:840 dcim/forms/model_forms.py:974
 #: dcim/tables/devices.py:660 templates/dcim/interface.html:106
 #: templates/virtualization/vminterface.html:43
@@ -2457,155 +2458,155 @@ msgstr "Sanal arayüzler"
 msgid "Bridge"
 msgstr "Köprü"
 
-#: dcim/choices.py:1025
+#: dcim/choices.py:1026
 msgid "Link Aggregation Group (LAG)"
 msgstr "Bağlantı Toplama Grubu (LAG)"
 
-#: dcim/choices.py:1029
+#: dcim/choices.py:1030
 msgid "Ethernet (fixed)"
 msgstr "Ethernet (sabit)"
 
-#: dcim/choices.py:1044
+#: dcim/choices.py:1046
 msgid "Ethernet (modular)"
 msgstr "Ethernet (modüler)"
 
-#: dcim/choices.py:1081
+#: dcim/choices.py:1083
 msgid "Ethernet (backplane)"
 msgstr "Ethernet (arka panel)"
 
-#: dcim/choices.py:1113
+#: dcim/choices.py:1115
 msgid "Cellular"
 msgstr "Hücresel"
 
-#: dcim/choices.py:1165 dcim/forms/filtersets.py:383
+#: dcim/choices.py:1167 dcim/forms/filtersets.py:383
 #: dcim/forms/filtersets.py:809 dcim/forms/filtersets.py:963
 #: dcim/forms/filtersets.py:1542 templates/dcim/inventoryitem.html:52
 #: templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
 msgstr "Seri"
 
-#: dcim/choices.py:1180
+#: dcim/choices.py:1182
 msgid "Coaxial"
 msgstr "Koaksiyel"
 
-#: dcim/choices.py:1200
+#: dcim/choices.py:1202
 msgid "Stacking"
 msgstr "İstifleme"
 
-#: dcim/choices.py:1250
+#: dcim/choices.py:1252
 msgid "Half"
 msgstr "Yarım"
 
-#: dcim/choices.py:1251
+#: dcim/choices.py:1253
 msgid "Full"
 msgstr "Dolu"
 
-#: dcim/choices.py:1252 netbox/preferences.py:31 wireless/choices.py:480
+#: dcim/choices.py:1254 netbox/preferences.py:31 wireless/choices.py:480
 msgid "Auto"
 msgstr "Oto"
 
-#: dcim/choices.py:1263
+#: dcim/choices.py:1265
 msgid "Access"
 msgstr "Erişim"
 
-#: dcim/choices.py:1264 ipam/tables/vlans.py:172 ipam/tables/vlans.py:217
+#: dcim/choices.py:1266 ipam/tables/vlans.py:172 ipam/tables/vlans.py:217
 #: templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "Etiketlenmiş"
 
-#: dcim/choices.py:1265
+#: dcim/choices.py:1267
 msgid "Tagged (All)"
 msgstr "Etiketlenmiş (Tümü)"
 
-#: dcim/choices.py:1294
+#: dcim/choices.py:1296
 msgid "IEEE Standard"
 msgstr "IEEE Standardı"
 
-#: dcim/choices.py:1305
+#: dcim/choices.py:1307
 msgid "Passive 24V (2-pair)"
 msgstr "Pasif 24V (2 çift)"
 
-#: dcim/choices.py:1306
+#: dcim/choices.py:1308
 msgid "Passive 24V (4-pair)"
 msgstr "Pasif 24V (4 çift)"
 
-#: dcim/choices.py:1307
+#: dcim/choices.py:1309
 msgid "Passive 48V (2-pair)"
 msgstr "Pasif 48V (2 çift)"
 
-#: dcim/choices.py:1308
+#: dcim/choices.py:1310
 msgid "Passive 48V (4-pair)"
 msgstr "Pasif 48V (4 çift)"
 
-#: dcim/choices.py:1378 dcim/choices.py:1488
+#: dcim/choices.py:1380 dcim/choices.py:1490
 msgid "Copper"
 msgstr "Bakır"
 
-#: dcim/choices.py:1401
+#: dcim/choices.py:1403
 msgid "Fiber Optic"
 msgstr "Fiber Optik"
 
-#: dcim/choices.py:1434 dcim/choices.py:1517
+#: dcim/choices.py:1436 dcim/choices.py:1519
 msgid "USB"
 msgstr "USB"
 
-#: dcim/choices.py:1504
+#: dcim/choices.py:1506
 msgid "Fiber"
 msgstr "Fiber"
 
-#: dcim/choices.py:1529 dcim/forms/filtersets.py:1227
+#: dcim/choices.py:1531 dcim/forms/filtersets.py:1227
 msgid "Connected"
 msgstr "Bağlı"
 
-#: dcim/choices.py:1548 wireless/choices.py:497
+#: dcim/choices.py:1550 wireless/choices.py:497
 msgid "Kilometers"
 msgstr "Kilometre"
 
-#: dcim/choices.py:1549 templates/dcim/cable_trace.html:65
+#: dcim/choices.py:1551 templates/dcim/cable_trace.html:65
 #: wireless/choices.py:498
 msgid "Meters"
 msgstr "Sayaçlar"
 
-#: dcim/choices.py:1550
+#: dcim/choices.py:1552
 msgid "Centimeters"
 msgstr "Santimetre"
 
-#: dcim/choices.py:1551 wireless/choices.py:499
+#: dcim/choices.py:1553 wireless/choices.py:499
 msgid "Miles"
 msgstr "Mil"
 
-#: dcim/choices.py:1552 templates/dcim/cable_trace.html:66
+#: dcim/choices.py:1554 templates/dcim/cable_trace.html:66
 #: wireless/choices.py:500
 msgid "Feet"
 msgstr "Feet"
 
-#: dcim/choices.py:1568 templates/dcim/device.html:327
+#: dcim/choices.py:1570 templates/dcim/device.html:327
 #: templates/dcim/rack.html:107
 msgid "Kilograms"
 msgstr "Kilogram"
 
-#: dcim/choices.py:1569
+#: dcim/choices.py:1571
 msgid "Grams"
 msgstr "Gramlar"
 
-#: dcim/choices.py:1570 templates/dcim/device.html:328
+#: dcim/choices.py:1572 templates/dcim/device.html:328
 #: templates/dcim/rack.html:108
 msgid "Pounds"
 msgstr "Pound'lar"
 
-#: dcim/choices.py:1571
+#: dcim/choices.py:1573
 msgid "Ounces"
 msgstr "ons"
 
-#: dcim/choices.py:1618
+#: dcim/choices.py:1620
 msgid "Redundant"
 msgstr "Yedekli"
 
-#: dcim/choices.py:1639
+#: dcim/choices.py:1641
 msgid "Single phase"
 msgstr "Tek fazlı"
 
-#: dcim/choices.py:1640
+#: dcim/choices.py:1642
 msgid "Three-phase"
 msgstr "Üç fazlı"
 
@@ -2838,7 +2839,7 @@ msgstr "Küme grubu (ID)"
 msgid "Device model (slug)"
 msgstr "Cihaz modeli (kısa ad)"
 
-#: dcim/filtersets.py:1099 dcim/forms/bulk_edit.py:516
+#: dcim/filtersets.py:1099 dcim/forms/bulk_edit.py:517
 msgid "Is full depth"
 msgstr "Tam derinlik mi"
 
@@ -2954,7 +2955,7 @@ msgstr "Atanmış VLAN"
 msgid "Assigned VID"
 msgstr "Atanmış VID"
 
-#: dcim/filtersets.py:1613 dcim/forms/bulk_edit.py:1489
+#: dcim/filtersets.py:1613 dcim/forms/bulk_edit.py:1526
 #: dcim/forms/bulk_import.py:891 dcim/forms/filtersets.py:1428
 #: dcim/forms/model_forms.py:1378 dcim/models/device_components.py:711
 #: dcim/tables/devices.py:626 ipam/filtersets.py:316 ipam/filtersets.py:327
@@ -3115,27 +3116,27 @@ msgstr ""
 "Alfasayısal aralıklar desteklenir. (Oluşturulan isim sayısıyla "
 "eşleşmelidir.)"
 
-#: dcim/forms/bulk_edit.py:132
+#: dcim/forms/bulk_edit.py:133
 msgid "Contact name"
 msgstr "İrtibat Kişisi Adı"
 
-#: dcim/forms/bulk_edit.py:137
+#: dcim/forms/bulk_edit.py:138
 msgid "Contact phone"
 msgstr "İletişim telefonu"
 
-#: dcim/forms/bulk_edit.py:143
+#: dcim/forms/bulk_edit.py:144
 msgid "Contact E-mail"
 msgstr "İletişim E-posta"
 
-#: dcim/forms/bulk_edit.py:146 dcim/forms/bulk_import.py:123
+#: dcim/forms/bulk_edit.py:147 dcim/forms/bulk_import.py:123
 #: dcim/forms/model_forms.py:128
 msgid "Time zone"
 msgstr "Saat dilimi"
 
-#: dcim/forms/bulk_edit.py:224 dcim/forms/bulk_edit.py:495
-#: dcim/forms/bulk_edit.py:559 dcim/forms/bulk_edit.py:632
-#: dcim/forms/bulk_edit.py:656 dcim/forms/bulk_edit.py:740
-#: dcim/forms/bulk_edit.py:1267 dcim/forms/bulk_edit.py:1660
+#: dcim/forms/bulk_edit.py:225 dcim/forms/bulk_edit.py:496
+#: dcim/forms/bulk_edit.py:560 dcim/forms/bulk_edit.py:633
+#: dcim/forms/bulk_edit.py:657 dcim/forms/bulk_edit.py:750
+#: dcim/forms/bulk_edit.py:1277 dcim/forms/bulk_edit.py:1698
 #: dcim/forms/bulk_import.py:182 dcim/forms/bulk_import.py:371
 #: dcim/forms/bulk_import.py:405 dcim/forms/bulk_import.py:450
 #: dcim/forms/bulk_import.py:486 dcim/forms/bulk_import.py:1082
@@ -3158,51 +3159,51 @@ msgstr "Saat dilimi"
 msgid "Manufacturer"
 msgstr "Üretici"
 
-#: dcim/forms/bulk_edit.py:229 dcim/forms/bulk_edit.py:372
+#: dcim/forms/bulk_edit.py:230 dcim/forms/bulk_edit.py:373
 #: dcim/forms/bulk_import.py:191 dcim/forms/bulk_import.py:263
 #: dcim/forms/filtersets.py:255
 #: templates/dcim/inc/panels/racktype_dimensions.html:6
 msgid "Form factor"
 msgstr "Form faktörü"
 
-#: dcim/forms/bulk_edit.py:234 dcim/forms/bulk_edit.py:377
+#: dcim/forms/bulk_edit.py:235 dcim/forms/bulk_edit.py:378
 #: dcim/forms/bulk_import.py:199 dcim/forms/bulk_import.py:266
 #: dcim/forms/filtersets.py:260
 #: templates/dcim/inc/panels/racktype_dimensions.html:10
 msgid "Width"
 msgstr "Genişlik"
 
-#: dcim/forms/bulk_edit.py:240 dcim/forms/bulk_edit.py:383
+#: dcim/forms/bulk_edit.py:241 dcim/forms/bulk_edit.py:384
 #: templates/dcim/devicetype.html:37
 msgid "Height (U)"
 msgstr "Yükseklik (U)"
 
-#: dcim/forms/bulk_edit.py:249 dcim/forms/bulk_edit.py:388
+#: dcim/forms/bulk_edit.py:250 dcim/forms/bulk_edit.py:389
 #: dcim/forms/filtersets.py:274
 msgid "Descending units"
 msgstr "Azalan birimler"
 
-#: dcim/forms/bulk_edit.py:252 dcim/forms/bulk_edit.py:391
+#: dcim/forms/bulk_edit.py:253 dcim/forms/bulk_edit.py:392
 msgid "Outer width"
 msgstr "Dış genişlik"
 
-#: dcim/forms/bulk_edit.py:257 dcim/forms/bulk_edit.py:396
+#: dcim/forms/bulk_edit.py:258 dcim/forms/bulk_edit.py:397
 msgid "Outer depth"
 msgstr "Dış derinlik"
 
-#: dcim/forms/bulk_edit.py:262 dcim/forms/bulk_edit.py:401
+#: dcim/forms/bulk_edit.py:263 dcim/forms/bulk_edit.py:402
 #: dcim/forms/bulk_import.py:204 dcim/forms/bulk_import.py:271
 msgid "Outer unit"
 msgstr "Dış ünite"
 
-#: dcim/forms/bulk_edit.py:267 dcim/forms/bulk_edit.py:406
+#: dcim/forms/bulk_edit.py:268 dcim/forms/bulk_edit.py:407
 msgid "Mounting depth"
 msgstr "Montaj derinliği"
 
-#: dcim/forms/bulk_edit.py:272 dcim/forms/bulk_edit.py:299
-#: dcim/forms/bulk_edit.py:416 dcim/forms/bulk_edit.py:446
-#: dcim/forms/bulk_edit.py:529 dcim/forms/bulk_edit.py:552
-#: dcim/forms/bulk_edit.py:573 dcim/forms/bulk_edit.py:595
+#: dcim/forms/bulk_edit.py:273 dcim/forms/bulk_edit.py:300
+#: dcim/forms/bulk_edit.py:417 dcim/forms/bulk_edit.py:447
+#: dcim/forms/bulk_edit.py:530 dcim/forms/bulk_edit.py:553
+#: dcim/forms/bulk_edit.py:574 dcim/forms/bulk_edit.py:596
 #: dcim/forms/bulk_import.py:384 dcim/forms/bulk_import.py:416
 #: dcim/forms/filtersets.py:285 dcim/forms/filtersets.py:307
 #: dcim/forms/filtersets.py:327 dcim/forms/filtersets.py:401
@@ -3223,13 +3224,13 @@ msgstr "Montaj derinliği"
 msgid "Weight"
 msgstr "Ağırlığı"
 
-#: dcim/forms/bulk_edit.py:277 dcim/forms/bulk_edit.py:421
+#: dcim/forms/bulk_edit.py:278 dcim/forms/bulk_edit.py:422
 #: dcim/forms/filtersets.py:290
 msgid "Max weight"
 msgstr "Maksimum ağırlık"
 
-#: dcim/forms/bulk_edit.py:282 dcim/forms/bulk_edit.py:426
-#: dcim/forms/bulk_edit.py:534 dcim/forms/bulk_edit.py:578
+#: dcim/forms/bulk_edit.py:283 dcim/forms/bulk_edit.py:427
+#: dcim/forms/bulk_edit.py:535 dcim/forms/bulk_edit.py:579
 #: dcim/forms/bulk_import.py:210 dcim/forms/bulk_import.py:283
 #: dcim/forms/bulk_import.py:389 dcim/forms/bulk_import.py:421
 #: dcim/forms/filtersets.py:295 dcim/forms/filtersets.py:598
@@ -3237,31 +3238,31 @@ msgstr "Maksimum ağırlık"
 msgid "Weight unit"
 msgstr "Ağırlık birimi"
 
-#: dcim/forms/bulk_edit.py:296 dcim/forms/filtersets.py:305
+#: dcim/forms/bulk_edit.py:297 dcim/forms/filtersets.py:305
 #: dcim/forms/model_forms.py:217 dcim/forms/model_forms.py:256
 #: templates/dcim/rack.html:45 templates/dcim/racktype.html:13
 msgid "Rack Type"
 msgstr "Raf Tipi"
 
-#: dcim/forms/bulk_edit.py:298 dcim/forms/model_forms.py:220
+#: dcim/forms/bulk_edit.py:299 dcim/forms/model_forms.py:220
 #: dcim/forms/model_forms.py:297
 msgid "Outer Dimensions"
 msgstr "Dış Ölçüler"
 
-#: dcim/forms/bulk_edit.py:301 dcim/forms/model_forms.py:222
+#: dcim/forms/bulk_edit.py:302 dcim/forms/model_forms.py:222
 #: dcim/forms/model_forms.py:299 templates/dcim/device.html:315
 #: templates/dcim/inc/panels/racktype_dimensions.html:3
 msgid "Dimensions"
 msgstr "Ölçüler"
 
-#: dcim/forms/bulk_edit.py:303 dcim/forms/filtersets.py:306
+#: dcim/forms/bulk_edit.py:304 dcim/forms/filtersets.py:306
 #: dcim/forms/filtersets.py:326 dcim/forms/model_forms.py:224
 #: templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "Numaralandırma"
 
-#: dcim/forms/bulk_edit.py:357 dcim/forms/bulk_edit.py:1262
-#: dcim/forms/bulk_edit.py:1655 dcim/forms/bulk_import.py:253
+#: dcim/forms/bulk_edit.py:358 dcim/forms/bulk_edit.py:1272
+#: dcim/forms/bulk_edit.py:1693 dcim/forms/bulk_import.py:253
 #: dcim/forms/bulk_import.py:1076 dcim/forms/filtersets.py:367
 #: dcim/forms/filtersets.py:777 dcim/forms/filtersets.py:1534
 #: dcim/forms/model_forms.py:251 dcim/forms/model_forms.py:1070
@@ -3301,21 +3302,21 @@ msgstr "Numaralandırma"
 msgid "Role"
 msgstr "Rol"
 
-#: dcim/forms/bulk_edit.py:364 dcim/forms/bulk_edit.py:712
-#: dcim/forms/bulk_edit.py:764 templates/dcim/device.html:104
+#: dcim/forms/bulk_edit.py:365 dcim/forms/bulk_edit.py:713
+#: dcim/forms/bulk_edit.py:774 templates/dcim/device.html:104
 #: templates/dcim/module.html:77 templates/dcim/modulebay.html:70
 #: templates/dcim/rack.html:57 templates/virtualization/virtualmachine.html:35
 msgid "Serial Number"
 msgstr "Seri Numarası"
 
-#: dcim/forms/bulk_edit.py:367 dcim/forms/filtersets.py:387
+#: dcim/forms/bulk_edit.py:368 dcim/forms/filtersets.py:387
 #: dcim/forms/filtersets.py:813 dcim/forms/filtersets.py:967
 #: dcim/forms/filtersets.py:1546
 msgid "Asset tag"
 msgstr "Varlık etiketi"
 
-#: dcim/forms/bulk_edit.py:411 dcim/forms/bulk_edit.py:524
-#: dcim/forms/bulk_edit.py:568 dcim/forms/bulk_edit.py:705
+#: dcim/forms/bulk_edit.py:412 dcim/forms/bulk_edit.py:525
+#: dcim/forms/bulk_edit.py:569 dcim/forms/bulk_edit.py:706
 #: dcim/forms/bulk_import.py:277 dcim/forms/bulk_import.py:410
 #: dcim/forms/bulk_import.py:580 dcim/forms/filtersets.py:280
 #: dcim/forms/filtersets.py:511 dcim/forms/filtersets.py:669
@@ -3325,7 +3326,7 @@ msgstr "Varlık etiketi"
 msgid "Airflow"
 msgstr "Hava akışı"
 
-#: dcim/forms/bulk_edit.py:440 dcim/forms/bulk_edit.py:910
+#: dcim/forms/bulk_edit.py:441 dcim/forms/bulk_edit.py:920
 #: dcim/forms/bulk_import.py:322 dcim/forms/bulk_import.py:325
 #: dcim/forms/bulk_import.py:553 dcim/forms/bulk_import.py:1358
 #: dcim/forms/bulk_import.py:1362 dcim/forms/filtersets.py:104
@@ -3345,7 +3346,7 @@ msgstr "Hava akışı"
 msgid "Rack"
 msgstr "Raf"
 
-#: dcim/forms/bulk_edit.py:444 dcim/forms/bulk_edit.py:730
+#: dcim/forms/bulk_edit.py:445 dcim/forms/bulk_edit.py:739
 #: dcim/forms/filtersets.py:325 dcim/forms/filtersets.py:398
 #: dcim/forms/filtersets.py:481 dcim/forms/filtersets.py:608
 #: dcim/forms/filtersets.py:721 dcim/forms/filtersets.py:942
@@ -3354,49 +3355,49 @@ msgstr "Raf"
 msgid "Hardware"
 msgstr "Donanım"
 
-#: dcim/forms/bulk_edit.py:500 dcim/forms/bulk_import.py:377
+#: dcim/forms/bulk_edit.py:501 dcim/forms/bulk_import.py:377
 #: dcim/forms/filtersets.py:499 dcim/forms/model_forms.py:353
 msgid "Default platform"
 msgstr "Varsayılan platform"
 
-#: dcim/forms/bulk_edit.py:505 dcim/forms/bulk_edit.py:564
+#: dcim/forms/bulk_edit.py:506 dcim/forms/bulk_edit.py:565
 #: dcim/forms/filtersets.py:502 dcim/forms/filtersets.py:622
 msgid "Part number"
 msgstr "Parça numarası"
 
-#: dcim/forms/bulk_edit.py:509
+#: dcim/forms/bulk_edit.py:510
 msgid "U height"
 msgstr "U yüksekliği"
 
-#: dcim/forms/bulk_edit.py:521 dcim/tables/devicetypes.py:102
+#: dcim/forms/bulk_edit.py:522 dcim/tables/devicetypes.py:102
 msgid "Exclude from utilization"
 msgstr "Kullanımdan hariç tut"
 
-#: dcim/forms/bulk_edit.py:550 dcim/forms/model_forms.py:368
+#: dcim/forms/bulk_edit.py:551 dcim/forms/model_forms.py:368
 #: dcim/tables/devicetypes.py:77 templates/dcim/device.html:88
 #: templates/dcim/devicebay.html:52 templates/dcim/module.html:61
 msgid "Device Type"
 msgstr "Cihaz Türü"
 
-#: dcim/forms/bulk_edit.py:592 dcim/forms/model_forms.py:401
+#: dcim/forms/bulk_edit.py:593 dcim/forms/model_forms.py:401
 #: dcim/tables/modules.py:17 dcim/tables/modules.py:65
 #: templates/dcim/module.html:65 templates/dcim/modulebay.html:66
 #: templates/dcim/moduletype.html:22
 msgid "Module Type"
 msgstr "Modül Türü"
 
-#: dcim/forms/bulk_edit.py:596 dcim/forms/model_forms.py:371
+#: dcim/forms/bulk_edit.py:597 dcim/forms/model_forms.py:371
 #: dcim/forms/model_forms.py:402 templates/dcim/devicetype.html:11
 msgid "Chassis"
 msgstr "Şasi"
 
-#: dcim/forms/bulk_edit.py:610 dcim/models/devices.py:484
+#: dcim/forms/bulk_edit.py:611 dcim/models/devices.py:484
 #: dcim/tables/devices.py:67
 msgid "VM role"
 msgstr "VM rolü"
 
-#: dcim/forms/bulk_edit.py:613 dcim/forms/bulk_edit.py:637
-#: dcim/forms/bulk_edit.py:720 dcim/forms/bulk_import.py:434
+#: dcim/forms/bulk_edit.py:614 dcim/forms/bulk_edit.py:638
+#: dcim/forms/bulk_edit.py:721 dcim/forms/bulk_import.py:434
 #: dcim/forms/bulk_import.py:438 dcim/forms/bulk_import.py:457
 #: dcim/forms/bulk_import.py:461 dcim/forms/bulk_import.py:586
 #: dcim/forms/bulk_import.py:590 dcim/forms/filtersets.py:689
@@ -3409,19 +3410,19 @@ msgstr "VM rolü"
 msgid "Config template"
 msgstr "Yapılandırma şablonu"
 
-#: dcim/forms/bulk_edit.py:661 dcim/forms/bulk_edit.py:1061
+#: dcim/forms/bulk_edit.py:662 dcim/forms/bulk_edit.py:1071
 #: dcim/forms/bulk_import.py:492 dcim/forms/filtersets.py:114
 #: dcim/forms/model_forms.py:501 dcim/forms/model_forms.py:872
 #: dcim/forms/model_forms.py:889 extras/filtersets.py:547
 msgid "Device type"
 msgstr "Cihaz tipi"
 
-#: dcim/forms/bulk_edit.py:672 dcim/forms/bulk_import.py:473
+#: dcim/forms/bulk_edit.py:673 dcim/forms/bulk_import.py:473
 #: dcim/forms/filtersets.py:119 dcim/forms/model_forms.py:509
 msgid "Device role"
 msgstr "Cihaz rolü"
 
-#: dcim/forms/bulk_edit.py:695 dcim/forms/bulk_import.py:498
+#: dcim/forms/bulk_edit.py:696 dcim/forms/bulk_import.py:498
 #: dcim/forms/filtersets.py:796 dcim/forms/model_forms.py:451
 #: dcim/forms/model_forms.py:513 dcim/tables/devices.py:182
 #: extras/filtersets.py:563 templates/dcim/device.html:186
@@ -3435,8 +3436,28 @@ msgstr "Cihaz rolü"
 msgid "Platform"
 msgstr "Platform"
 
-#: dcim/forms/bulk_edit.py:728 dcim/forms/bulk_edit.py:1281
-#: dcim/forms/bulk_edit.py:1650 dcim/forms/bulk_edit.py:1696
+#: dcim/forms/bulk_edit.py:726 dcim/forms/bulk_import.py:517
+#: dcim/forms/filtersets.py:728 dcim/forms/filtersets.py:898
+#: dcim/forms/model_forms.py:522 dcim/tables/devices.py:202
+#: extras/filtersets.py:596 extras/forms/filtersets.py:322
+#: ipam/forms/filtersets.py:415 ipam/forms/filtersets.py:447
+#: templates/dcim/device.html:239 templates/virtualization/cluster.html:10
+#: templates/virtualization/virtualmachine.html:92
+#: templates/virtualization/virtualmachine.html:101
+#: virtualization/filtersets.py:157 virtualization/filtersets.py:277
+#: virtualization/forms/bulk_edit.py:129
+#: virtualization/forms/bulk_import.py:92
+#: virtualization/forms/filtersets.py:99
+#: virtualization/forms/filtersets.py:123
+#: virtualization/forms/filtersets.py:204
+#: virtualization/forms/model_forms.py:79
+#: virtualization/forms/model_forms.py:176
+#: virtualization/tables/virtualmachines.py:67
+msgid "Cluster"
+msgstr "Küme"
+
+#: dcim/forms/bulk_edit.py:737 dcim/forms/bulk_edit.py:1291
+#: dcim/forms/bulk_edit.py:1688 dcim/forms/bulk_edit.py:1734
 #: dcim/forms/bulk_import.py:641 dcim/forms/bulk_import.py:703
 #: dcim/forms/bulk_import.py:729 dcim/forms/bulk_import.py:755
 #: dcim/forms/bulk_import.py:775 dcim/forms/bulk_import.py:828
@@ -3493,22 +3514,27 @@ msgstr "Platform"
 msgid "Device"
 msgstr "Cihaz"
 
-#: dcim/forms/bulk_edit.py:731 templates/extras/dashboard/widget_config.html:7
+#: dcim/forms/bulk_edit.py:740 templates/extras/dashboard/widget_config.html:7
 #: virtualization/forms/bulk_edit.py:191
 msgid "Configuration"
 msgstr "Yapılandırma"
 
-#: dcim/forms/bulk_edit.py:745 dcim/forms/bulk_import.py:653
+#: dcim/forms/bulk_edit.py:741 netbox/navigation/menu.py:243
+#: templates/dcim/device_edit.html:78
+msgid "Virtualization"
+msgstr "Sanallaştırma"
+
+#: dcim/forms/bulk_edit.py:755 dcim/forms/bulk_import.py:653
 #: dcim/forms/model_forms.py:647 dcim/forms/model_forms.py:897
 msgid "Module type"
 msgstr "Modül tipi"
 
-#: dcim/forms/bulk_edit.py:799 dcim/forms/bulk_edit.py:984
-#: dcim/forms/bulk_edit.py:1003 dcim/forms/bulk_edit.py:1026
-#: dcim/forms/bulk_edit.py:1068 dcim/forms/bulk_edit.py:1112
-#: dcim/forms/bulk_edit.py:1163 dcim/forms/bulk_edit.py:1190
-#: dcim/forms/bulk_edit.py:1217 dcim/forms/bulk_edit.py:1235
-#: dcim/forms/bulk_edit.py:1253 dcim/forms/filtersets.py:67
+#: dcim/forms/bulk_edit.py:809 dcim/forms/bulk_edit.py:994
+#: dcim/forms/bulk_edit.py:1013 dcim/forms/bulk_edit.py:1036
+#: dcim/forms/bulk_edit.py:1078 dcim/forms/bulk_edit.py:1122
+#: dcim/forms/bulk_edit.py:1173 dcim/forms/bulk_edit.py:1200
+#: dcim/forms/bulk_edit.py:1227 dcim/forms/bulk_edit.py:1245
+#: dcim/forms/bulk_edit.py:1263 dcim/forms/filtersets.py:67
 #: dcim/forms/object_create.py:46 templates/dcim/cable.html:32
 #: templates/dcim/consoleport.html:32 templates/dcim/consoleserverport.html:32
 #: templates/dcim/devicebay.html:28 templates/dcim/frontport.html:32
@@ -3520,82 +3546,82 @@ msgstr "Modül tipi"
 msgid "Label"
 msgstr "etiket"
 
-#: dcim/forms/bulk_edit.py:808 dcim/forms/filtersets.py:1068
+#: dcim/forms/bulk_edit.py:818 dcim/forms/filtersets.py:1068
 #: templates/dcim/cable.html:50
 msgid "Length"
 msgstr "Uzunluk"
 
-#: dcim/forms/bulk_edit.py:813 dcim/forms/bulk_import.py:1226
+#: dcim/forms/bulk_edit.py:823 dcim/forms/bulk_import.py:1226
 #: dcim/forms/bulk_import.py:1229 dcim/forms/filtersets.py:1072
 msgid "Length unit"
 msgstr "Uzunluk birimi"
 
-#: dcim/forms/bulk_edit.py:837 templates/dcim/virtualchassis.html:23
+#: dcim/forms/bulk_edit.py:847 templates/dcim/virtualchassis.html:23
 msgid "Domain"
 msgstr "Alan adı"
 
-#: dcim/forms/bulk_edit.py:905 dcim/forms/bulk_import.py:1345
+#: dcim/forms/bulk_edit.py:915 dcim/forms/bulk_import.py:1345
 #: dcim/forms/filtersets.py:1158 dcim/forms/model_forms.py:750
 msgid "Power panel"
 msgstr "Güç paneli"
 
-#: dcim/forms/bulk_edit.py:927 dcim/forms/bulk_import.py:1381
+#: dcim/forms/bulk_edit.py:937 dcim/forms/bulk_import.py:1381
 #: dcim/forms/filtersets.py:1180 templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "Tedarik"
 
-#: dcim/forms/bulk_edit.py:933 dcim/forms/bulk_import.py:1386
+#: dcim/forms/bulk_edit.py:943 dcim/forms/bulk_import.py:1386
 #: dcim/forms/filtersets.py:1185 templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "Faz"
 
-#: dcim/forms/bulk_edit.py:939 dcim/forms/filtersets.py:1190
+#: dcim/forms/bulk_edit.py:949 dcim/forms/filtersets.py:1190
 #: templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "Gerilim"
 
-#: dcim/forms/bulk_edit.py:943 dcim/forms/filtersets.py:1194
+#: dcim/forms/bulk_edit.py:953 dcim/forms/filtersets.py:1194
 #: templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "Amper"
 
-#: dcim/forms/bulk_edit.py:947 dcim/forms/filtersets.py:1198
+#: dcim/forms/bulk_edit.py:957 dcim/forms/filtersets.py:1198
 msgid "Max utilization"
 msgstr "Maksimum kullanım"
 
-#: dcim/forms/bulk_edit.py:1036
+#: dcim/forms/bulk_edit.py:1046
 msgid "Maximum draw"
 msgstr "Maksimum çekiliş"
 
-#: dcim/forms/bulk_edit.py:1039 dcim/models/device_component_templates.py:282
+#: dcim/forms/bulk_edit.py:1049 dcim/models/device_component_templates.py:282
 #: dcim/models/device_components.py:356
 msgid "Maximum power draw (watts)"
 msgstr "Maksimum güç çekimi (watt)"
 
-#: dcim/forms/bulk_edit.py:1042
+#: dcim/forms/bulk_edit.py:1052
 msgid "Allocated draw"
 msgstr "Tahsis edilen çekiliş"
 
-#: dcim/forms/bulk_edit.py:1045 dcim/models/device_component_templates.py:289
+#: dcim/forms/bulk_edit.py:1055 dcim/models/device_component_templates.py:289
 #: dcim/models/device_components.py:363
 msgid "Allocated power draw (watts)"
 msgstr "Tahsis edilen güç çekimi (watt)"
 
-#: dcim/forms/bulk_edit.py:1078 dcim/forms/bulk_import.py:786
+#: dcim/forms/bulk_edit.py:1088 dcim/forms/bulk_import.py:786
 #: dcim/forms/model_forms.py:953 dcim/forms/model_forms.py:1278
 #: dcim/forms/model_forms.py:1567 dcim/forms/object_import.py:55
 msgid "Power port"
 msgstr "Güç bağlantı noktası"
 
-#: dcim/forms/bulk_edit.py:1083 dcim/forms/bulk_import.py:793
+#: dcim/forms/bulk_edit.py:1093 dcim/forms/bulk_import.py:793
 msgid "Feed leg"
 msgstr "Besleme bacağı"
 
-#: dcim/forms/bulk_edit.py:1129 dcim/forms/bulk_edit.py:1440
+#: dcim/forms/bulk_edit.py:1139 dcim/forms/bulk_edit.py:1457
 msgid "Management only"
 msgstr "Yalnızca yönetim"
 
-#: dcim/forms/bulk_edit.py:1139 dcim/forms/bulk_edit.py:1446
+#: dcim/forms/bulk_edit.py:1149 dcim/forms/bulk_edit.py:1463
 #: dcim/forms/bulk_import.py:876 dcim/forms/filtersets.py:1394
 #: dcim/forms/object_import.py:90
 #: dcim/models/device_component_templates.py:437
@@ -3603,7 +3629,7 @@ msgstr "Yalnızca yönetim"
 msgid "PoE mode"
 msgstr "PoE modu"
 
-#: dcim/forms/bulk_edit.py:1145 dcim/forms/bulk_edit.py:1452
+#: dcim/forms/bulk_edit.py:1155 dcim/forms/bulk_edit.py:1469
 #: dcim/forms/bulk_import.py:882 dcim/forms/filtersets.py:1399
 #: dcim/forms/object_import.py:95
 #: dcim/models/device_component_templates.py:443
@@ -3611,12 +3637,12 @@ msgstr "PoE modu"
 msgid "PoE type"
 msgstr "PoE tipi"
 
-#: dcim/forms/bulk_edit.py:1151 dcim/forms/filtersets.py:1404
+#: dcim/forms/bulk_edit.py:1161 dcim/forms/filtersets.py:1404
 #: dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "Kablosuz rolü"
 
-#: dcim/forms/bulk_edit.py:1288 dcim/forms/model_forms.py:669
+#: dcim/forms/bulk_edit.py:1298 dcim/forms/model_forms.py:669
 #: dcim/forms/model_forms.py:1223 dcim/tables/devices.py:313
 #: templates/dcim/consoleport.html:24 templates/dcim/consoleserverport.html:24
 #: templates/dcim/frontport.html:24 templates/dcim/interface.html:34
@@ -3626,16 +3652,16 @@ msgstr "Kablosuz rolü"
 msgid "Module"
 msgstr "Modül"
 
-#: dcim/forms/bulk_edit.py:1420 dcim/tables/devices.py:665
+#: dcim/forms/bulk_edit.py:1437 dcim/tables/devices.py:665
 #: templates/dcim/interface.html:110
 msgid "LAG"
 msgstr "GECİKME"
 
-#: dcim/forms/bulk_edit.py:1425 dcim/forms/model_forms.py:1305
+#: dcim/forms/bulk_edit.py:1442 dcim/forms/model_forms.py:1305
 msgid "Virtual device contexts"
 msgstr "Sanal cihaz bağlamları"
 
-#: dcim/forms/bulk_edit.py:1431 dcim/forms/bulk_import.py:714
+#: dcim/forms/bulk_edit.py:1448 dcim/forms/bulk_import.py:714
 #: dcim/forms/bulk_import.py:740 dcim/forms/filtersets.py:1252
 #: dcim/forms/filtersets.py:1277 dcim/forms/filtersets.py:1358
 #: dcim/tables/devices.py:610
@@ -3644,7 +3670,7 @@ msgstr "Sanal cihaz bağlamları"
 msgid "Speed"
 msgstr "Hız"
 
-#: dcim/forms/bulk_edit.py:1460 dcim/forms/bulk_import.py:885
+#: dcim/forms/bulk_edit.py:1477 dcim/forms/bulk_import.py:885
 #: templates/vpn/ikepolicy.html:25 templates/vpn/ipsecprofile.html:21
 #: templates/vpn/ipsecprofile.html:48 virtualization/forms/bulk_edit.py:233
 #: virtualization/forms/bulk_import.py:165 vpn/forms/bulk_edit.py:146
@@ -3655,36 +3681,44 @@ msgstr "Hız"
 msgid "Mode"
 msgstr "Modu"
 
-#: dcim/forms/bulk_edit.py:1468 dcim/forms/model_forms.py:1354
+#: dcim/forms/bulk_edit.py:1485 dcim/forms/model_forms.py:1354
 #: ipam/forms/bulk_import.py:178 ipam/forms/filtersets.py:498
 #: ipam/models/vlans.py:84 virtualization/forms/bulk_edit.py:240
 #: virtualization/forms/model_forms.py:321
 msgid "VLAN group"
 msgstr "VLAN grubu"
 
-#: dcim/forms/bulk_edit.py:1476 dcim/forms/model_forms.py:1360
+#: dcim/forms/bulk_edit.py:1494 dcim/forms/model_forms.py:1360
 #: dcim/tables/devices.py:579 virtualization/forms/bulk_edit.py:248
 #: virtualization/forms/model_forms.py:326
 msgid "Untagged VLAN"
 msgstr "Etiketsiz VLAN"
 
-#: dcim/forms/bulk_edit.py:1484 dcim/forms/model_forms.py:1369
+#: dcim/forms/bulk_edit.py:1503 dcim/forms/model_forms.py:1369
 #: dcim/tables/devices.py:585 virtualization/forms/bulk_edit.py:256
 #: virtualization/forms/model_forms.py:335
 msgid "Tagged VLANs"
 msgstr "Etiketli VLAN'lar"
 
-#: dcim/forms/bulk_edit.py:1494 dcim/forms/model_forms.py:1341
+#: dcim/forms/bulk_edit.py:1506
+msgid "Add tagged VLANs"
+msgstr ""
+
+#: dcim/forms/bulk_edit.py:1515
+msgid "Remove tagged VLANs"
+msgstr ""
+
+#: dcim/forms/bulk_edit.py:1531 dcim/forms/model_forms.py:1341
 msgid "Wireless LAN group"
 msgstr "Kablosuz LAN grubu"
 
-#: dcim/forms/bulk_edit.py:1499 dcim/forms/model_forms.py:1346
+#: dcim/forms/bulk_edit.py:1536 dcim/forms/model_forms.py:1346
 #: dcim/tables/devices.py:619 netbox/navigation/menu.py:146
 #: templates/dcim/interface.html:280 wireless/tables/wirelesslan.py:24
 msgid "Wireless LANs"
 msgstr "Kablosuz LAN'lar"
 
-#: dcim/forms/bulk_edit.py:1508 dcim/forms/filtersets.py:1328
+#: dcim/forms/bulk_edit.py:1545 dcim/forms/filtersets.py:1328
 #: dcim/forms/model_forms.py:1390 ipam/forms/bulk_edit.py:286
 #: ipam/forms/bulk_edit.py:378 ipam/forms/filtersets.py:169
 #: templates/dcim/interface.html:122 templates/ipam/prefix.html:95
@@ -3692,33 +3726,37 @@ msgstr "Kablosuz LAN'lar"
 msgid "Addressing"
 msgstr "Adresleme"
 
-#: dcim/forms/bulk_edit.py:1509 dcim/forms/filtersets.py:720
+#: dcim/forms/bulk_edit.py:1546 dcim/forms/filtersets.py:720
 #: dcim/forms/model_forms.py:1391 virtualization/forms/model_forms.py:350
 msgid "Operation"
 msgstr "Operasyon"
 
-#: dcim/forms/bulk_edit.py:1510 dcim/forms/filtersets.py:1329
+#: dcim/forms/bulk_edit.py:1547 dcim/forms/filtersets.py:1329
 #: dcim/forms/model_forms.py:987 dcim/forms/model_forms.py:1393
 msgid "PoE"
 msgstr "PoE"
 
-#: dcim/forms/bulk_edit.py:1511 dcim/forms/model_forms.py:1392
+#: dcim/forms/bulk_edit.py:1548 dcim/forms/model_forms.py:1392
 #: templates/dcim/interface.html:99 virtualization/forms/bulk_edit.py:267
 #: virtualization/forms/model_forms.py:351
 msgid "Related Interfaces"
 msgstr "İlgili Arayüzler"
 
-#: dcim/forms/bulk_edit.py:1512 dcim/forms/model_forms.py:1394
+#: dcim/forms/bulk_edit.py:1549 dcim/forms/model_forms.py:1394
 #: virtualization/forms/bulk_edit.py:268
 #: virtualization/forms/model_forms.py:352
 msgid "802.1Q Switching"
 msgstr "802.1Q Anahtarlama"
 
-#: dcim/forms/bulk_edit.py:1574 dcim/forms/bulk_edit.py:1576
+#: dcim/forms/bulk_edit.py:1553
+msgid "Add/Remove"
+msgstr ""
+
+#: dcim/forms/bulk_edit.py:1612 dcim/forms/bulk_edit.py:1614
 msgid "Interface mode must be specified to assign VLANs"
 msgstr "VLAN'ları atamak için arayüz modu belirtilmelidir"
 
-#: dcim/forms/bulk_edit.py:1581 dcim/forms/common.py:50
+#: dcim/forms/bulk_edit.py:1619 dcim/forms/common.py:50
 msgid "An access interface cannot have tagged VLANs assigned."
 msgstr "Bir erişim arabirimi VLAN'ları etiketlemiş olamaz."
 
@@ -3858,26 +3896,6 @@ msgstr "Atanan platform"
 #: dcim/forms/model_forms.py:536
 msgid "Virtual chassis"
 msgstr "Sanal şasi"
-
-#: dcim/forms/bulk_import.py:517 dcim/forms/filtersets.py:728
-#: dcim/forms/filtersets.py:898 dcim/forms/model_forms.py:522
-#: dcim/tables/devices.py:202 extras/filtersets.py:596
-#: extras/forms/filtersets.py:322 ipam/forms/filtersets.py:415
-#: ipam/forms/filtersets.py:447 templates/dcim/device.html:239
-#: templates/virtualization/cluster.html:10
-#: templates/virtualization/virtualmachine.html:92
-#: templates/virtualization/virtualmachine.html:101
-#: virtualization/filtersets.py:157 virtualization/filtersets.py:277
-#: virtualization/forms/bulk_edit.py:129
-#: virtualization/forms/bulk_import.py:92
-#: virtualization/forms/filtersets.py:99
-#: virtualization/forms/filtersets.py:123
-#: virtualization/forms/filtersets.py:204
-#: virtualization/forms/model_forms.py:79
-#: virtualization/forms/model_forms.py:176
-#: virtualization/tables/virtualmachines.py:67
-msgid "Cluster"
-msgstr "Küme"
 
 #: dcim/forms/bulk_import.py:521
 msgid "Virtualization cluster"
@@ -6553,31 +6571,31 @@ msgstr "Şablon oluşturulurken bir hata oluştu: {error}"
 msgid "Virtual Machines"
 msgstr "Sanal Makineler"
 
-#: dcim/views.py:2897
+#: dcim/views.py:2907
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Yüklü cihaz {device} körfezde {device_bay}."
 
-#: dcim/views.py:2938
+#: dcim/views.py:2948
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Kaldırılan cihaz {device} körfezden {device_bay}."
 
-#: dcim/views.py:3044 ipam/tables/ip.py:234
+#: dcim/views.py:3054 ipam/tables/ip.py:234
 msgid "Children"
 msgstr "Çocuklar"
 
-#: dcim/views.py:3510
+#: dcim/views.py:3520
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "Eklenen üye <a href=\"{url}\">{device}</a>"
 
-#: dcim/views.py:3557
+#: dcim/views.py:3567
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Ana aygıt kaldırılamıyor {device} sanal kasadan."
 
-#: dcim/views.py:3570
+#: dcim/views.py:3580
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Kaldırıldı {device} sanal kasadan {chassis}"
@@ -7519,19 +7537,19 @@ msgstr "Komut dosyasının yürütülmesini belirli bir zamana planlayın"
 msgid "Interval at which this script is re-run (in minutes)"
 msgstr "Bu komut dosyasının yeniden çalıştırıldığı aralık (dakika cinsinden)"
 
-#: extras/jobs.py:49
+#: extras/jobs.py:47
 msgid "Database changes have been reverted automatically."
 msgstr "Veritabanı değişiklikleri otomatik olarak geri alındı."
 
-#: extras/jobs.py:55
+#: extras/jobs.py:53
 msgid "Script aborted with error: "
 msgstr "Komut dosyası hatayla iptal edildi: "
 
-#: extras/jobs.py:65
+#: extras/jobs.py:63
 msgid "An exception occurred: "
 msgstr "Bir istisna oluştu: "
 
-#: extras/jobs.py:70
+#: extras/jobs.py:68
 msgid "Database changes have been reverted due to error."
 msgstr "Veritabanı değişiklikleri hata nedeniyle geri alındı."
 
@@ -8845,7 +8863,7 @@ msgstr "VLAN Grubu"
 
 #: ipam/forms/bulk_edit.py:234 ipam/forms/bulk_import.py:185
 #: ipam/forms/filtersets.py:256 ipam/forms/model_forms.py:218
-#: ipam/models/vlans.py:234 ipam/tables/ip.py:255
+#: ipam/models/vlans.py:250 ipam/tables/ip.py:255
 #: templates/ipam/prefix.html:60 templates/ipam/vlan.html:12
 #: templates/ipam/vlan/base.html:6 templates/ipam/vlan_edit.html:10
 #: templates/wireless/wirelesslan.html:30 vpn/forms/bulk_import.py:304
@@ -9100,7 +9118,7 @@ msgstr "Bir arayüze atandı"
 msgid "DNS Name"
 msgstr "DNS Adı"
 
-#: ipam/forms/filtersets.py:416 ipam/models/vlans.py:235 ipam/tables/ip.py:176
+#: ipam/forms/filtersets.py:416 ipam/models/vlans.py:251 ipam/tables/ip.py:176
 #: ipam/tables/vlans.py:82 ipam/views.py:971 netbox/navigation/menu.py:193
 #: netbox/navigation/menu.py:195
 msgid "VLANs"
@@ -9110,7 +9128,7 @@ msgstr "VLAN'lar"
 msgid "Contains VLAN ID"
 msgstr "VLAN Kimliği içerir"
 
-#: ipam/forms/filtersets.py:513 ipam/models/vlans.py:176
+#: ipam/forms/filtersets.py:513 ipam/models/vlans.py:192
 #: templates/ipam/vlan.html:31
 msgid "VLAN ID"
 msgstr "VLAN KİMLİĞİ"
@@ -9560,40 +9578,48 @@ msgstr "scope_id olmadan scope_type ayarlanamıyor."
 msgid "Cannot set scope_id without scope_type."
 msgstr "scope_type olmadan scope_id ayarlanamıyor."
 
-#: ipam/models/vlans.py:101
+#: ipam/models/vlans.py:105
+#, python-brace-format
+msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
+msgstr ""
+
+#: ipam/models/vlans.py:111
+#, python-brace-format
+msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
+msgstr ""
+
+#: ipam/models/vlans.py:118
+#, python-brace-format
+msgid ""
+"Ending VLAN ID in range must be greater than or equal to the starting VLAN "
+"ID ({range})"
+msgstr ""
+
+#: ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
 msgstr "Aralıklar üst üste gelemez."
 
-#: ipam/models/vlans.py:106
-#, python-brace-format
-msgid ""
-"Maximum child VID must be greater than or equal to minimum child VID "
-"({value})"
-msgstr ""
-"Maksimum çocuk VID, minimum çocuk VID'den büyük veya ona eşit olmalıdır "
-"({value})"
-
-#: ipam/models/vlans.py:165
+#: ipam/models/vlans.py:181
 msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr "Bu VLAN'ın atandığı belirli site (varsa)"
 
-#: ipam/models/vlans.py:173
+#: ipam/models/vlans.py:189
 msgid "VLAN group (optional)"
 msgstr "VLAN grubu (isteğe bağlı)"
 
-#: ipam/models/vlans.py:181
+#: ipam/models/vlans.py:197
 msgid "Numeric VLAN ID (1-4094)"
 msgstr "Sayısal VLAN Kimliği (1-4094)"
 
-#: ipam/models/vlans.py:199
+#: ipam/models/vlans.py:215
 msgid "Operational status of this VLAN"
 msgstr "Bu VLAN'ın operasyonel durumu"
 
-#: ipam/models/vlans.py:207
+#: ipam/models/vlans.py:223
 msgid "The primary function of this VLAN"
 msgstr "Bu VLAN'ın birincil işlevi"
 
-#: ipam/models/vlans.py:250
+#: ipam/models/vlans.py:266
 #, python-brace-format
 msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
@@ -9602,7 +9628,7 @@ msgstr ""
 "VLAN {group} adlı gruba (kapsam: {scope}) atandığı için; {site} adlı siteye "
 "de atanamaz ."
 
-#: ipam/models/vlans.py:259
+#: ipam/models/vlans.py:275
 #, python-brace-format
 msgid "VID must be in ranges {ranges} for VLANs in group {group}"
 msgstr "VID aralıklarda olmalıdır {ranges} gruptaki VLAN'lar için {group}"
@@ -10348,10 +10374,6 @@ msgstr "IPsec İlkeleri"
 msgid "IPSec Profiles"
 msgstr "IPsec Profilleri"
 
-#: netbox/navigation/menu.py:243 templates/dcim/device_edit.html:78
-msgid "Virtualization"
-msgstr "Sanallaştırma"
-
 #: netbox/navigation/menu.py:251
 #: templates/virtualization/virtualmachine.html:174
 #: templates/virtualization/virtualmachine/base.html:32
@@ -10756,19 +10778,19 @@ msgstr ""
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr "Satır {i}: Kimliği olan nesne {id} mevcut değil"
 
-#: netbox/views/generic/bulk_views.py:702
-#: netbox/views/generic/bulk_views.py:900
-#: netbox/views/generic/bulk_views.py:948
+#: netbox/views/generic/bulk_views.py:709
+#: netbox/views/generic/bulk_views.py:907
+#: netbox/views/generic/bulk_views.py:955
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "Hayır {object_type} seçildi."
 
-#: netbox/views/generic/bulk_views.py:782
+#: netbox/views/generic/bulk_views.py:789
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "Yeniden adlandırıldı {count} {object_type}"
 
-#: netbox/views/generic/bulk_views.py:878
+#: netbox/views/generic/bulk_views.py:885
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "Silinmiş {count} {object_type}"
@@ -10800,7 +10822,7 @@ msgstr "Senkronize {count} {object_type}"
 msgid "{class_name} must implement get_children()"
 msgstr "{class_name} get_children () uygulamasını uygulamalıdır"
 
-#: netbox/views/misc.py:44
+#: netbox/views/misc.py:46
 msgid ""
 "There was an error loading the dashboard configuration. A default dashboard "
 "is in use."
@@ -12659,7 +12681,7 @@ msgid "You do not have permission to run scripts"
 msgstr "Komut dosyalarını çalıştırma izniniz yok"
 
 #: templates/extras/script.html:41 templates/extras/script.html:45
-#: templates/extras/script_list.html:86
+#: templates/extras/script_list.html:87
 msgid "Run Script"
 msgstr "Komut Dosyasını Çalıştır"
 
@@ -12671,27 +12693,32 @@ msgstr "Komut dosyası yüklenirken hata oluştu"
 msgid "Script no longer exists in the source file."
 msgstr "Kaynak dosyada komut dosyası artık mevcut değil."
 
-#: templates/extras/script_list.html:46
+#: templates/extras/script_list.html:47
 msgid "Last Run"
 msgstr "Son Koşu"
 
-#: templates/extras/script_list.html:61
+#: templates/extras/script_list.html:62
 msgid "Script is no longer present in the source file"
 msgstr "Komut dosyası artık kaynak dosyada mevcut değil"
 
-#: templates/extras/script_list.html:74
+#: templates/extras/script_list.html:75
 msgid "Never"
 msgstr "Asla"
 
-#: templates/extras/script_list.html:84
+#: templates/extras/script_list.html:85
 msgid "Run Again"
 msgstr "Tekrar koş"
 
-#: templates/extras/script_list.html:138
+#: templates/extras/script_list.html:133
+#, python-format
+msgid "Could not load scripts from module %(module)s"
+msgstr ""
+
+#: templates/extras/script_list.html:141
 msgid "No Scripts Found"
 msgstr "Komut Dosyası Bulunamadı"
 
-#: templates/extras/script_list.html:141
+#: templates/extras/script_list.html:144
 #, python-format
 msgid ""
 "Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
@@ -14527,13 +14554,13 @@ msgid "Memory (MB)"
 msgstr "Bellek (MB)"
 
 #: virtualization/forms/bulk_edit.py:174
-msgid "Disk (GB)"
-msgstr "Disk (GB)"
+msgid "Disk (MB)"
+msgstr ""
 
 #: virtualization/forms/bulk_edit.py:334
 #: virtualization/forms/filtersets.py:251
-msgid "Size (GB)"
-msgstr "Boyut (GB)"
+msgid "Size (MB)"
+msgstr ""
 
 #: virtualization/forms/bulk_import.py:44
 msgid "Type of cluster"

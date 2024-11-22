@@ -73,7 +73,9 @@ class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags')
+        fields = (
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags',
+        )
         labels = {
             'scope_id': _('Scope ID'),
         }
@@ -182,7 +184,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
     class Meta:
         model = VMInterface
         fields = (
-            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode',
             'vrf', 'tags'
         )
 

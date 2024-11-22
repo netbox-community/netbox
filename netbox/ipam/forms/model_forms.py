@@ -109,7 +109,8 @@ class RIRForm(NetBoxModelForm):
 class AggregateForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
-        label=_('RIR')
+        label=_('RIR'),
+        quick_add=True
     )
     comments = CommentField()
 
@@ -132,6 +133,7 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
+        quick_add=True
     )
     slug = SlugField()
     fieldsets = (
@@ -150,6 +152,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
+        quick_add=True
     )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -216,7 +219,8 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -246,7 +250,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -382,7 +387,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             })
         elif selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
-            if self.instance.pk and self.instance.assigned_object and self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+            if (
+                    self.instance.pk and
+                    self.instance.assigned_object and
+                    self.cleaned_data['primary_for_parent'] and
+                    assigned_object != self.instance.assigned_object
+            ):
                 raise ValidationError(
                     _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 )
@@ -639,7 +649,8 @@ class VLANForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     qinq_svlan = DynamicModelChoiceField(
         label=_('Q-in-Q SVLAN'),

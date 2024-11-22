@@ -496,8 +496,12 @@ class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         aggregates = (
-            Aggregate(prefix='10.1.0.0/16', rir=rirs[0], tenant=tenants[0], date_added='2020-01-01', description='foobar1'),
-            Aggregate(prefix='10.2.0.0/16', rir=rirs[0], tenant=tenants[1], date_added='2020-01-02', description='foobar2'),
+            Aggregate(
+                prefix='10.1.0.0/16', rir=rirs[0], tenant=tenants[0], date_added='2020-01-01', description='foobar1'
+            ),
+            Aggregate(
+                prefix='10.2.0.0/16', rir=rirs[0], tenant=tenants[1], date_added='2020-01-02', description='foobar2'
+            ),
             Aggregate(prefix='10.3.0.0/16', rir=rirs[1], tenant=tenants[2], date_added='2020-01-03'),
             Aggregate(prefix='2001:db8:1::/48', rir=rirs[1], tenant=tenants[0], date_added='2020-01-04'),
             Aggregate(prefix='2001:db8:2::/48', rir=rirs[2], tenant=tenants[1], date_added='2020-01-05'),
@@ -656,14 +660,80 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         prefixes = (
-            Prefix(prefix='10.0.0.0/24', tenant=None, scope=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True, description='foobar1'),
-            Prefix(prefix='10.0.1.0/24', tenant=tenants[0], scope=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0], description='foobar2'),
-            Prefix(prefix='10.0.2.0/24', tenant=tenants[1], scope=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(prefix='10.0.3.0/24', tenant=tenants[2], scope=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
-            Prefix(prefix='2001:db8::/64', tenant=None, scope=None, vrf=None, vlan=None, role=None, is_pool=True, mark_utilized=True),
-            Prefix(prefix='2001:db8:0:1::/64', tenant=tenants[0], scope=sites[0], vrf=vrfs[0], vlan=vlans[0], role=roles[0]),
-            Prefix(prefix='2001:db8:0:2::/64', tenant=tenants[1], scope=sites[1], vrf=vrfs[1], vlan=vlans[1], role=roles[1], status=PrefixStatusChoices.STATUS_DEPRECATED),
-            Prefix(prefix='2001:db8:0:3::/64', tenant=tenants[2], scope=sites[2], vrf=vrfs[2], vlan=vlans[2], role=roles[2], status=PrefixStatusChoices.STATUS_RESERVED),
+            Prefix(
+                prefix='10.0.0.0/24',
+                tenant=None,
+                scope=None,
+                vrf=None,
+                vlan=None,
+                role=None,
+                is_pool=True,
+                mark_utilized=True,
+                description='foobar1',
+            ),
+            Prefix(
+                prefix='10.0.1.0/24',
+                tenant=tenants[0],
+                scope=sites[0],
+                vrf=vrfs[0],
+                vlan=vlans[0],
+                role=roles[0],
+                description='foobar2',
+            ),
+            Prefix(
+                prefix='10.0.2.0/24',
+                tenant=tenants[1],
+                scope=sites[1],
+                vrf=vrfs[1],
+                vlan=vlans[1],
+                role=roles[1],
+                status=PrefixStatusChoices.STATUS_DEPRECATED,
+            ),
+            Prefix(
+                prefix='10.0.3.0/24',
+                tenant=tenants[2],
+                scope=sites[2],
+                vrf=vrfs[2],
+                vlan=vlans[2],
+                role=roles[2],
+                status=PrefixStatusChoices.STATUS_RESERVED,
+            ),
+            Prefix(
+                prefix='2001:db8::/64',
+                tenant=None,
+                scope=None,
+                vrf=None,
+                vlan=None,
+                role=None,
+                is_pool=True,
+                mark_utilized=True,
+            ),
+            Prefix(
+                prefix='2001:db8:0:1::/64',
+                tenant=tenants[0],
+                scope=sites[0],
+                vrf=vrfs[0],
+                vlan=vlans[0],
+                role=roles[0]
+            ),
+            Prefix(
+                prefix='2001:db8:0:2::/64',
+                tenant=tenants[1],
+                scope=sites[1],
+                vrf=vrfs[1],
+                vlan=vlans[1],
+                role=roles[1],
+                status=PrefixStatusChoices.STATUS_DEPRECATED,
+            ),
+            Prefix(
+                prefix='2001:db8:0:3::/64',
+                tenant=tenants[2],
+                scope=sites[2],
+                vrf=vrfs[2],
+                vlan=vlans[2],
+                role=roles[2],
+                status=PrefixStatusChoices.STATUS_RESERVED,
+            ),
             Prefix(prefix='10.0.0.0/16'),
             Prefix(prefix='2001:db8::/32'),
         )
@@ -1365,7 +1435,10 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_auth_type(self):
-        params = {'auth_type': [FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5]}
+        params = {'auth_type': [
+            FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+            FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+        ]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_auth_key(self):
@@ -1653,9 +1726,15 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         devices = (
-            Device(name='Device 1', site=sites[0], location=locations[0], rack=racks[0], device_type=device_type, role=role),
-            Device(name='Device 2', site=sites[1], location=locations[1], rack=racks[1], device_type=device_type, role=role),
-            Device(name='Device 3', site=sites[2], location=locations[2], rack=racks[2], device_type=device_type, role=role),
+            Device(
+                name='Device 1', site=sites[0], location=locations[0], rack=racks[0], device_type=device_type, role=role
+            ),
+            Device(
+                name='Device 2', site=sites[1], location=locations[1], rack=racks[1], device_type=device_type, role=role
+            ),
+            Device(
+                name='Device 3', site=sites[2], location=locations[2], rack=racks[2], device_type=device_type, role=role
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -1773,20 +1852,64 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLAN(vid=19, name='Cluster 1', group=groups[18]),
             VLAN(vid=20, name='Cluster 2', group=groups[19]),
             VLAN(vid=21, name='Cluster 3', group=groups[20]),
-
-            VLAN(vid=101, name='VLAN 101', site=sites[3], group=groups[21], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
-            VLAN(vid=102, name='VLAN 102', site=sites[3], group=groups[21], role=roles[0], tenant=tenants[0], status=VLANStatusChoices.STATUS_ACTIVE),
-            VLAN(vid=201, name='VLAN 201', site=sites[4], group=groups[22], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
-            VLAN(vid=202, name='VLAN 202', site=sites[4], group=groups[22], role=roles[1], tenant=tenants[1], status=VLANStatusChoices.STATUS_DEPRECATED),
-            VLAN(vid=301, name='VLAN 301', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
-            VLAN(vid=302, name='VLAN 302', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
-
+            VLAN(
+                vid=101,
+                name='VLAN 101',
+                site=sites[3],
+                group=groups[21],
+                role=roles[0],
+                tenant=tenants[0],
+                status=VLANStatusChoices.STATUS_ACTIVE,
+            ),
+            VLAN(
+                vid=102,
+                name='VLAN 102',
+                site=sites[3],
+                group=groups[21],
+                role=roles[0],
+                tenant=tenants[0],
+                status=VLANStatusChoices.STATUS_ACTIVE,
+            ),
+            VLAN(
+                vid=201,
+                name='VLAN 201',
+                site=sites[4],
+                group=groups[22],
+                role=roles[1],
+                tenant=tenants[1],
+                status=VLANStatusChoices.STATUS_DEPRECATED,
+            ),
+            VLAN(
+                vid=202,
+                name='VLAN 202',
+                site=sites[4],
+                group=groups[22],
+                role=roles[1],
+                tenant=tenants[1],
+                status=VLANStatusChoices.STATUS_DEPRECATED,
+            ),
+            VLAN(
+                vid=301,
+                name='VLAN 301',
+                site=sites[5],
+                group=groups[23],
+                role=roles[2],
+                tenant=tenants[2],
+                status=VLANStatusChoices.STATUS_RESERVED,
+            ),
+            VLAN(
+                vid=302,
+                name='VLAN 302',
+                site=sites[5],
+                group=groups[23],
+                role=roles[2],
+                tenant=tenants[2],
+                status=VLANStatusChoices.STATUS_RESERVED,
+            ),
             # Create one globally available VLAN on a VLAN group
             VLAN(vid=500, name='VLAN Group 1', group=groups[24]),
-
             # Create one globally available VLAN
             VLAN(vid=1000, name='Global VLAN'),
-
             # Create some Q-in-Q service VLANs
             VLAN(vid=2001, name='SVLAN 1', site=sites[6], qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
             VLAN(vid=2002, name='SVLAN 2', site=sites[6], qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
@@ -1795,11 +1918,31 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         VLAN.objects.bulk_create(vlans)
 
         # Create Q-in-Q customer VLANs
-        VLAN.objects.bulk_create([
-            VLAN(vid=3001, name='CVLAN 1', site=sites[6], qinq_svlan=vlans[29], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
-            VLAN(vid=3002, name='CVLAN 2', site=sites[6], qinq_svlan=vlans[30], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
-            VLAN(vid=3003, name='CVLAN 3', site=sites[6], qinq_svlan=vlans[31], qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER),
-        ])
+        VLAN.objects.bulk_create(
+            [
+                VLAN(
+                    vid=3001,
+                    name='CVLAN 1',
+                    site=sites[6],
+                    qinq_svlan=vlans[29],
+                    qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER,
+                ),
+                VLAN(
+                    vid=3002,
+                    name='CVLAN 2',
+                    site=sites[6],
+                    qinq_svlan=vlans[30],
+                    qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER,
+                ),
+                VLAN(
+                    vid=3003,
+                    name='CVLAN 3',
+                    site=sites[6],
+                    qinq_svlan=vlans[31],
+                    qinq_role=VLANQinQRoleChoices.ROLE_CUSTOMER,
+                ),
+            ]
+        )
 
         # Assign VLANs to device interfaces
         interfaces[0].untagged_vlan = vlans[0]
@@ -2125,12 +2268,39 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         VirtualMachine.objects.bulk_create(virtual_machines)
 
         services = (
-            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001], description='foobar1'),
-            Service(device=devices[1], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002], description='foobar2'),
+            Service(
+                device=devices[0],
+                name='Service 1',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1001],
+                description='foobar1',
+            ),
+            Service(
+                device=devices[1],
+                name='Service 2',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1002],
+                description='foobar2',
+            ),
             Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
-            Service(virtual_machine=virtual_machines[0], name='Service 4', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]),
-            Service(virtual_machine=virtual_machines[1], name='Service 5', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]),
-            Service(virtual_machine=virtual_machines[2], name='Service 6', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
+            Service(
+                virtual_machine=virtual_machines[0],
+                name='Service 4',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[2001],
+            ),
+            Service(
+                virtual_machine=virtual_machines[1],
+                name='Service 5',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[2002],
+            ),
+            Service(
+                virtual_machine=virtual_machines[2],
+                name='Service 6',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[2003],
+            ),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ip_addresses[0])

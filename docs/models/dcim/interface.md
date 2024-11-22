@@ -45,9 +45,12 @@ The operation duplex (full, half, or auto).
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
 
-### MAC Address
+### Primary MAC Address
 
-The 48-bit MAC address (for Ethernet interfaces).
+The [MAC address](./macaddress.md) assigned to this interface which is designated as its primary.
+
+!!! note "Changed in NetBox v4.2"
+    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
 ### WWN
 

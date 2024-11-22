@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
-from netaddr import EUI
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
@@ -118,9 +117,27 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ClusterType.objects.bulk_create(clustertypes)
 
         clusters = (
-            Cluster(name='Cluster 1', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
-            Cluster(name='Cluster 2', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
-            Cluster(name='Cluster 3', group=clustergroups[0], type=clustertypes[0], status=ClusterStatusChoices.STATUS_ACTIVE, scope=sites[0]),
+            Cluster(
+                name='Cluster 1',
+                group=clustergroups[0],
+                type=clustertypes[0],
+                status=ClusterStatusChoices.STATUS_ACTIVE,
+                scope=sites[0],
+            ),
+            Cluster(
+                name='Cluster 2',
+                group=clustergroups[0],
+                type=clustertypes[0],
+                status=ClusterStatusChoices.STATUS_ACTIVE,
+                scope=sites[0],
+            ),
+            Cluster(
+                name='Cluster 3',
+                group=clustergroups[0],
+                type=clustertypes[0],
+                status=ClusterStatusChoices.STATUS_ACTIVE,
+                scope=sites[0],
+            ),
         )
         for cluster in clusters:
             cluster.save()
@@ -215,9 +232,30 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
+            VirtualMachine(
+                name='Virtual Machine 1',
+                site=sites[0],
+                cluster=clusters[0],
+                device=devices[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            VirtualMachine(
+                name='Virtual Machine 2',
+                site=sites[0],
+                cluster=clusters[0],
+                device=devices[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            VirtualMachine(
+                name='Virtual Machine 3',
+                site=sites[0],
+                cluster=clusters[0],
+                device=devices[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
@@ -331,7 +369,6 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Interface X',
             'enabled': False,
             'bridge': interfaces[1].pk,
-            'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 65000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,
@@ -346,7 +383,6 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Interface [4-6]',
             'enabled': False,
             'bridge': interfaces[3].pk,
-            'mac_address': EUI('01-02-03-04-05-06'),
             'mtu': 2000,
             'description': 'New description',
             'mode': InterfaceModeChoices.MODE_TAGGED,

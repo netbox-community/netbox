@@ -10,7 +10,6 @@ import utilities.query_functions
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -100,17 +99,79 @@ class Migration(migrations.Migration):
                 ('local_context_data', models.JSONField(blank=True, null=True)),
                 ('name', models.CharField(max_length=64)),
                 ('status', models.CharField(default='active', max_length=50)),
-                ('vcpus', models.DecimalField(blank=True, decimal_places=2, max_digits=6, null=True, validators=[django.core.validators.MinValueValidator(0.01)])),
+                (
+                    'vcpus',
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=6,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0.01)],
+                    ),
+                ),
                 ('memory', models.PositiveIntegerField(blank=True, null=True)),
                 ('disk', models.PositiveIntegerField(blank=True, null=True)),
                 ('comments', models.TextField(blank=True)),
-                ('cluster', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='virtualization.cluster')),
-                ('platform', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='virtual_machines', to='dcim.platform')),
-                ('primary_ip4', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='ipam.ipaddress')),
-                ('primary_ip6', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='ipam.ipaddress')),
-                ('role', models.ForeignKey(blank=True, limit_choices_to={'vm_role': True}, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='dcim.devicerole')),
+                (
+                    'cluster',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='virtual_machines',
+                        to='virtualization.cluster',
+                    ),
+                ),
+                (
+                    'platform',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='virtual_machines',
+                        to='dcim.platform',
+                    ),
+                ),
+                (
+                    'primary_ip4',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to='ipam.ipaddress',
+                    ),
+                ),
+                (
+                    'primary_ip6',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to='ipam.ipaddress',
+                    ),
+                ),
+                (
+                    'role',
+                    models.ForeignKey(
+                        blank=True,
+                        limit_choices_to={'vm_role': True},
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='virtual_machines',
+                        to='dcim.devicerole',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='tenancy.tenant')),
+                (
+                    'tenant',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='virtual_machines',
+                        to='tenancy.tenant',
+                    ),
+                ),
             ],
             options={
                 'ordering': ('name', 'pk'),
@@ -120,12 +181,24 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cluster',
             name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='clusters', to='virtualization.clustergroup'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='clusters',
+                to='virtualization.clustergroup',
+            ),
         ),
         migrations.AddField(
             model_name='cluster',
             name='site',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='clusters', to='dcim.site'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='clusters',
+                to='dcim.site',
+            ),
         ),
         migrations.AddField(
             model_name='cluster',
@@ -135,12 +208,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cluster',
             name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='clusters', to='tenancy.tenant'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='clusters',
+                to='tenancy.tenant',
+            ),
         ),
         migrations.AddField(
             model_name='cluster',
             name='type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='clusters', to='virtualization.clustertype'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, related_name='clusters', to='virtualization.clustertype'
+            ),
         ),
         migrations.CreateModel(
             name='VMInterface',
@@ -151,16 +232,59 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('enabled', models.BooleanField(default=True)),
                 ('mac_address', dcim.fields.MACAddressField(blank=True, null=True)),
-                ('mtu', models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(65536)])),
+                (
+                    'mtu',
+                    models.PositiveIntegerField(
+                        blank=True,
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(65536),
+                        ],
+                    ),
+                ),
                 ('mode', models.CharField(blank=True, max_length=50)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface
+                    ),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='child_interfaces', to='virtualization.vminterface')),
-                ('tagged_vlans', models.ManyToManyField(blank=True, related_name='vminterfaces_as_tagged', to='ipam.VLAN')),
+                (
+                    'parent',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='child_interfaces',
+                        to='virtualization.vminterface',
+                    ),
+                ),
+                (
+                    'tagged_vlans',
+                    models.ManyToManyField(blank=True, related_name='vminterfaces_as_tagged', to='ipam.VLAN'),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('untagged_vlan', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vminterfaces_as_untagged', to='ipam.vlan')),
-                ('virtual_machine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interfaces', to='virtualization.virtualmachine')),
+                (
+                    'untagged_vlan',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='vminterfaces_as_untagged',
+                        to='ipam.vlan',
+                    ),
+                ),
+                (
+                    'virtual_machine',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='interfaces',
+                        to='virtualization.virtualmachine',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'interface',

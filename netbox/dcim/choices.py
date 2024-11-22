@@ -871,6 +871,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_T1 = '100base-t1'
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
+    TYPE_1GE_LX_FIXED = '1000base-lx'
     TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
@@ -1033,6 +1034,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
                 (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
                 (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),

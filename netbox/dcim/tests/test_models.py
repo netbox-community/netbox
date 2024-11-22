@@ -612,14 +612,31 @@ class DeviceTestCase(TestCase):
         device_role = DeviceRole.objects.first()
 
         # Device with site only should pass
-        Device(name='device1', site=sites[0], device_type=device_type, role=device_role).full_clean()
+        Device(
+            name='device1',
+            site=sites[0],
+            device_type=device_type,
+            role=device_role
+        ).full_clean()
 
         # Device with site, cluster non-site should pass
-        Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
+        Device(
+            name='device1',
+            site=sites[0],
+            device_type=device_type,
+            role=device_role,
+            cluster=clusters[2]
+        ).full_clean()
 
         # Device with mismatched site & cluster should fail
         with self.assertRaises(ValidationError):
-            Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
+            Device(
+                name='device1',
+                site=sites[0],
+                device_type=device_type,
+                role=device_role,
+                cluster=clusters[1]
+            ).full_clean()
 
 
 class ModuleBayTestCase(TestCase):
@@ -636,7 +653,9 @@ class ModuleBayTestCase(TestCase):
         # Create a CustomField with a default value & assign it to all component models
         location = Location.objects.create(name='Location 1', slug='location-1', site=site)
         rack = Rack.objects.create(name='Rack 1', site=site)
-        device = Device.objects.create(name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack)
+        device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack
+        )
 
         module_bays = (
             ModuleBay(device=device, name='Module Bay 1', label='A', description='First'),

@@ -3,6 +3,7 @@ import yaml
 
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -16,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.fields import MACAddressField
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
@@ -33,6 +35,7 @@ __all__ = (
     'Device',
     'DeviceRole',
     'DeviceType',
+    'MACAddress',
     'Manufacturer',
     'Module',
     'ModuleType',
@@ -529,7 +532,10 @@ def update_interface_bridges(device, interface_templates, module=None):
         interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
 
         if interface_template.bridge:
-            interface.bridge = Interface.objects.get(device=device, name=interface_template.bridge.resolve_name(module=module))
+            interface.bridge = Interface.objects.get(
+                device=device,
+                name=interface_template.bridge.resolve_name(module=module)
+            )
             interface.full_clean()
             interface.save()
 
@@ -906,7 +912,10 @@ class Device(
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip4.nat_inside is not None and
+                    self.primary_ip4.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({
@@ -921,7 +930,10 @@ class Device(
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
-            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.assigned_object in vc_interfaces:
+            elif (
+                    self.primary_ip6.nat_inside is not None and
+                    self.primary_ip6.nat_inside.assigned_object in vc_interfaces
+            ):
                 pass
             else:
                 raise ValidationError({
@@ -975,9 +987,10 @@ class Device(
 
         if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
             raise ValidationError({
-                'virtual_chassis': _('Device cannot be removed from virtual chassis {virtual_chassis} because it is currently designated as its master.').format(
-                    virtual_chassis=self.vc_master_for
-                )
+                'virtual_chassis': _(
+                    'Device cannot be removed from virtual chassis {virtual_chassis} because it is currently '
+                    'designated as its master.'
+                ).format(virtual_chassis=self.vc_master_for)
             })
 
     def _instantiate_components(self, queryset, bulk_create=True):
@@ -1470,3 +1483,37 @@ class VirtualDeviceContext(PrimaryModel):
                 raise ValidationError({
                     f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
                 })
+
+
+#
+# Addressing
+#
+
+class MACAddress(PrimaryModel):
+    mac_address = MACAddressField(
+        verbose_name=_('MAC address')
+    )
+    assigned_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    assigned_object_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
+    )
+
+    class Meta:
+        ordering = ('mac_address',)
+        verbose_name = _('MAC address')
+        verbose_name_plural = _('MAC addresses')
+
+    def __str__(self):
+        return str(self.mac_address)

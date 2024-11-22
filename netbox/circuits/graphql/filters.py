@@ -4,14 +4,16 @@ from circuits import filtersets, models
 from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (
-    'CircuitTerminationFilter',
     'CircuitFilter',
     'CircuitGroupAssignmentFilter',
     'CircuitGroupFilter',
+    'CircuitTerminationFilter',
     'CircuitTypeFilter',
     'ProviderFilter',
     'ProviderAccountFilter',
     'ProviderNetworkFilter',
+    'VirtualCircuitFilter',
+    'VirtualCircuitTerminationFilter',
 )
 
 
@@ -60,4 +62,16 @@ class ProviderAccountFilter(BaseFilterMixin):
 @strawberry_django.filter(models.ProviderNetwork, lookups=True)
 @autotype_decorator(filtersets.ProviderNetworkFilterSet)
 class ProviderNetworkFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.VirtualCircuit, lookups=True)
+@autotype_decorator(filtersets.VirtualCircuitFilterSet)
+class VirtualCircuitFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.VirtualCircuitTermination, lookups=True)
+@autotype_decorator(filtersets.VirtualCircuitTerminationFilterSet)
+class VirtualCircuitTerminationFilter(BaseFilterMixin):
     pass

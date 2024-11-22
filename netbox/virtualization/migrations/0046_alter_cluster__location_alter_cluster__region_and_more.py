@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0196_qinq_svlan'),
         ('virtualization', '0045_clusters_cached_relations'),

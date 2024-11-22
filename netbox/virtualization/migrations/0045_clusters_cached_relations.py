@@ -19,7 +19,6 @@ def populate_denormalized_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('virtualization', '0044_cluster_scope'),
     ]
@@ -69,13 +68,8 @@ class Migration(migrations.Migration):
                 to='dcim.sitegroup',
             ),
         ),
-
         # Populate denormalized FK values
-        migrations.RunPython(
-            code=populate_denormalized_fields,
-            reverse_code=migrations.RunPython.noop
-        ),
-
+        migrations.RunPython(code=populate_denormalized_fields, reverse_code=migrations.RunPython.noop),
         migrations.RemoveConstraint(
             model_name='cluster',
             name='virtualization_cluster_unique_site_name',

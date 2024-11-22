@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('circuits', '0048_circuitterminations_cached_relations'),
         ('dcim', '0197_natural_sort_collation'),

@@ -7,7 +7,6 @@ import utilities.ordering
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('virtualization', '0023_virtualmachine_natural_ordering'),
         ('virtualization', '0024_cluster_relax_uniqueness'),
@@ -22,7 +21,7 @@ class Migration(migrations.Migration):
         ('virtualization', '0033_unique_constraints'),
         ('virtualization', '0034_standardize_description_comments'),
         ('virtualization', '0035_virtualmachine_interface_count'),
-        ('virtualization', '0036_virtualmachine_config_template')
+        ('virtualization', '0036_virtualmachine_config_template'),
     ]
 
     dependencies = [
@@ -40,7 +39,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='virtualmachine',
             name='_name',
-            field=utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize),
+            field=utilities.fields.NaturalOrderingField(
+                'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+            ),
         ),
         migrations.AlterField(
             model_name='cluster',
@@ -64,7 +65,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vminterface',
             name='bridge',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bridge_interfaces', to='virtualization.vminterface'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='bridge_interfaces',
+                to='virtualization.vminterface',
+            ),
         ),
         migrations.AlterField(
             model_name='cluster',
@@ -94,7 +101,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vminterface',
             name='vrf',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vminterfaces', to='ipam.vrf'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='vminterfaces',
+                to='ipam.vrf',
+            ),
         ),
         migrations.AlterField(
             model_name='cluster',
@@ -129,17 +142,35 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='virtualmachine',
             name='site',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='dcim.site'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='virtual_machines',
+                to='dcim.site',
+            ),
         ),
         migrations.AddField(
             model_name='virtualmachine',
             name='device',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='dcim.device'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='virtual_machines',
+                to='dcim.device',
+            ),
         ),
         migrations.AlterField(
             model_name='virtualmachine',
             name='cluster',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='virtual_machines', to='virtualization.cluster'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='virtual_machines',
+                to='virtualization.cluster',
+            ),
         ),
         migrations.AlterUniqueTogether(
             name='cluster',
@@ -155,7 +186,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='cluster',
-            constraint=models.UniqueConstraint(fields=('group', 'name'), name='virtualization_cluster_unique_group_name'),
+            constraint=models.UniqueConstraint(
+                fields=('group', 'name'), name='virtualization_cluster_unique_group_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='cluster',
@@ -163,15 +196,28 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='virtualmachine',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('cluster'), models.F('tenant'), name='virtualization_virtualmachine_unique_name_cluster_tenant'),
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower('name'),
+                models.F('cluster'),
+                models.F('tenant'),
+                name='virtualization_virtualmachine_unique_name_cluster_tenant',
+            ),
         ),
         migrations.AddConstraint(
             model_name='virtualmachine',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('name'), models.F('cluster'), condition=models.Q(('tenant__isnull', True)), name='virtualization_virtualmachine_unique_name_cluster', violation_error_message='Virtual machine name must be unique per cluster.'),
+            constraint=models.UniqueConstraint(
+                django.db.models.functions.text.Lower('name'),
+                models.F('cluster'),
+                condition=models.Q(('tenant__isnull', True)),
+                name='virtualization_virtualmachine_unique_name_cluster',
+                violation_error_message='Virtual machine name must be unique per cluster.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='vminterface',
-            constraint=models.UniqueConstraint(fields=('virtual_machine', 'name'), name='virtualization_vminterface_unique_virtual_machine_name'),
+            constraint=models.UniqueConstraint(
+                fields=('virtual_machine', 'name'), name='virtualization_vminterface_unique_virtual_machine_name'
+            ),
         ),
         migrations.AddField(
             model_name='cluster',
@@ -186,11 +232,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='virtualmachine',
             name='interface_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='virtual_machine', to_model='virtualization.VMInterface'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='virtual_machine', to_model='virtualization.VMInterface'
+            ),
         ),
         migrations.AddField(
             model_name='virtualmachine',
             name='config_template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='%(class)ss', to='extras.configtemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='%(class)ss',
+                to='extras.configtemplate',
+            ),
         ),
     ]

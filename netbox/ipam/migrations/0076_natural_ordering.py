@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0075_vlan_qinq'),
         ('dcim', '0197_natural_sort_collation'),

@@ -5,17 +5,17 @@
 # 
 # Translators:
 # Volodymyr Pidgornyi, 2024
-# Jeremy Stretch, 2024
 # Vladyslav V. Prodan, 2024
+# Jeremy Stretch, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-28 19:20+0000\n"
+"POT-Creation-Date: 2024-11-21 15:50+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Vladyslav V. Prodan, 2024\n"
+"Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: Ukrainian (https://app.transifex.com/netbox-community/teams/178115/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -85,8 +85,8 @@ msgid "Your password has been changed successfully."
 msgstr "Ваш пароль успішно змінено."
 
 #: circuits/choices.py:21 dcim/choices.py:20 dcim/choices.py:102
-#: dcim/choices.py:185 dcim/choices.py:237 dcim/choices.py:1530
-#: dcim/choices.py:1606 dcim/choices.py:1656 virtualization/choices.py:20
+#: dcim/choices.py:185 dcim/choices.py:237 dcim/choices.py:1532
+#: dcim/choices.py:1608 dcim/choices.py:1658 virtualization/choices.py:20
 #: virtualization/choices.py:45 vpn/choices.py:18
 msgid "Planned"
 msgstr "Заплановано"
@@ -97,7 +97,7 @@ msgstr "Забезпечення"
 
 #: circuits/choices.py:23 core/tables/tasks.py:22 dcim/choices.py:22
 #: dcim/choices.py:103 dcim/choices.py:184 dcim/choices.py:236
-#: dcim/choices.py:1605 dcim/choices.py:1655 extras/tables/tables.py:495
+#: dcim/choices.py:1607 dcim/choices.py:1657 extras/tables/tables.py:495
 #: ipam/choices.py:31 ipam/choices.py:49 ipam/choices.py:69
 #: ipam/choices.py:154 templates/extras/configcontext.html:25
 #: templates/users/user.html:37 users/forms/bulk_edit.py:38
@@ -107,7 +107,7 @@ msgid "Active"
 msgstr "Активний"
 
 #: circuits/choices.py:24 dcim/choices.py:183 dcim/choices.py:235
-#: dcim/choices.py:1604 dcim/choices.py:1657 virtualization/choices.py:24
+#: dcim/choices.py:1606 dcim/choices.py:1659 virtualization/choices.py:24
 #: virtualization/choices.py:43
 msgid "Offline"
 msgstr "Офлайн"
@@ -120,7 +120,7 @@ msgstr "Зняття з експлуатації"
 msgid "Decommissioned"
 msgstr "Виведені з експлуатації"
 
-#: circuits/choices.py:90 dcim/choices.py:1617 tenancy/choices.py:17
+#: circuits/choices.py:90 dcim/choices.py:1619 tenancy/choices.py:17
 msgid "Primary"
 msgstr "Первинний"
 
@@ -179,8 +179,8 @@ msgstr "Група тех. майданчиків (скорочення)"
 #: circuits/forms/filtersets.py:51 circuits/forms/filtersets.py:171
 #: circuits/forms/filtersets.py:209 circuits/forms/model_forms.py:138
 #: circuits/forms/model_forms.py:154 circuits/tables/circuits.py:113
-#: dcim/forms/bulk_edit.py:168 dcim/forms/bulk_edit.py:329
-#: dcim/forms/bulk_edit.py:677 dcim/forms/bulk_edit.py:873
+#: dcim/forms/bulk_edit.py:169 dcim/forms/bulk_edit.py:330
+#: dcim/forms/bulk_edit.py:678 dcim/forms/bulk_edit.py:883
 #: dcim/forms/bulk_import.py:131 dcim/forms/bulk_import.py:230
 #: dcim/forms/bulk_import.py:309 dcim/forms/bulk_import.py:540
 #: dcim/forms/bulk_import.py:1311 dcim/forms/bulk_import.py:1339
@@ -337,15 +337,15 @@ msgstr "Канал зв'язку (ідентифікатор вмісту)"
 
 #: circuits/filtersets.py:345
 msgid "Circuit group (ID)"
-msgstr "Группа каналів зв'язку (ідентифікатор)"
+msgstr "Група каналів зв'язку (ідентифікатор)"
 
 #: circuits/filtersets.py:351
 msgid "Circuit group (slug)"
-msgstr "Группа каналів зв'язку (скорочення)"
+msgstr "Група каналів зв'язку (скорочення)"
 
 #: circuits/forms/bulk_edit.py:30 circuits/forms/filtersets.py:56
 #: circuits/forms/model_forms.py:29 circuits/tables/providers.py:33
-#: dcim/forms/bulk_edit.py:128 dcim/forms/filtersets.py:195
+#: dcim/forms/bulk_edit.py:129 dcim/forms/filtersets.py:195
 #: dcim/forms/model_forms.py:123 dcim/tables/sites.py:94
 #: ipam/models/asns.py:126 ipam/tables/asn.py:27 ipam/views.py:213
 #: netbox/navigation/menu.py:172 netbox/navigation/menu.py:175
@@ -357,21 +357,21 @@ msgstr "ASNs"
 #: circuits/forms/bulk_edit.py:83 circuits/forms/bulk_edit.py:104
 #: circuits/forms/bulk_edit.py:164 circuits/forms/bulk_edit.py:183
 #: circuits/forms/bulk_edit.py:228 core/forms/bulk_edit.py:28
-#: dcim/forms/bulk_create.py:35 dcim/forms/bulk_edit.py:73
-#: dcim/forms/bulk_edit.py:92 dcim/forms/bulk_edit.py:151
-#: dcim/forms/bulk_edit.py:192 dcim/forms/bulk_edit.py:210
-#: dcim/forms/bulk_edit.py:288 dcim/forms/bulk_edit.py:432
-#: dcim/forms/bulk_edit.py:466 dcim/forms/bulk_edit.py:481
-#: dcim/forms/bulk_edit.py:540 dcim/forms/bulk_edit.py:584
-#: dcim/forms/bulk_edit.py:618 dcim/forms/bulk_edit.py:642
-#: dcim/forms/bulk_edit.py:715 dcim/forms/bulk_edit.py:767
-#: dcim/forms/bulk_edit.py:819 dcim/forms/bulk_edit.py:842
-#: dcim/forms/bulk_edit.py:890 dcim/forms/bulk_edit.py:960
-#: dcim/forms/bulk_edit.py:1013 dcim/forms/bulk_edit.py:1048
-#: dcim/forms/bulk_edit.py:1088 dcim/forms/bulk_edit.py:1132
-#: dcim/forms/bulk_edit.py:1177 dcim/forms/bulk_edit.py:1204
-#: dcim/forms/bulk_edit.py:1222 dcim/forms/bulk_edit.py:1240
-#: dcim/forms/bulk_edit.py:1258 dcim/forms/bulk_edit.py:1682
+#: dcim/forms/bulk_create.py:35 dcim/forms/bulk_edit.py:74
+#: dcim/forms/bulk_edit.py:93 dcim/forms/bulk_edit.py:152
+#: dcim/forms/bulk_edit.py:193 dcim/forms/bulk_edit.py:211
+#: dcim/forms/bulk_edit.py:289 dcim/forms/bulk_edit.py:433
+#: dcim/forms/bulk_edit.py:467 dcim/forms/bulk_edit.py:482
+#: dcim/forms/bulk_edit.py:541 dcim/forms/bulk_edit.py:585
+#: dcim/forms/bulk_edit.py:619 dcim/forms/bulk_edit.py:643
+#: dcim/forms/bulk_edit.py:716 dcim/forms/bulk_edit.py:777
+#: dcim/forms/bulk_edit.py:829 dcim/forms/bulk_edit.py:852
+#: dcim/forms/bulk_edit.py:900 dcim/forms/bulk_edit.py:970
+#: dcim/forms/bulk_edit.py:1023 dcim/forms/bulk_edit.py:1058
+#: dcim/forms/bulk_edit.py:1098 dcim/forms/bulk_edit.py:1142
+#: dcim/forms/bulk_edit.py:1187 dcim/forms/bulk_edit.py:1214
+#: dcim/forms/bulk_edit.py:1232 dcim/forms/bulk_edit.py:1250
+#: dcim/forms/bulk_edit.py:1268 dcim/forms/bulk_edit.py:1720
 #: extras/forms/bulk_edit.py:39 extras/forms/bulk_edit.py:149
 #: extras/forms/bulk_edit.py:178 extras/forms/bulk_edit.py:208
 #: extras/forms/bulk_edit.py:256 extras/forms/bulk_edit.py:274
@@ -412,7 +412,7 @@ msgstr "ASNs"
 #: templates/extras/dashboard/widget_add.html:14
 #: templates/extras/eventrule.html:21 templates/extras/exporttemplate.html:19
 #: templates/extras/notificationgroup.html:20
-#: templates/extras/savedfilter.html:17 templates/extras/script_list.html:45
+#: templates/extras/savedfilter.html:17 templates/extras/script_list.html:46
 #: templates/extras/tag.html:20 templates/extras/webhook.html:17
 #: templates/generic/bulk_import.html:120 templates/ipam/aggregate.html:43
 #: templates/ipam/asn.html:42 templates/ipam/asnrange.html:38
@@ -479,9 +479,9 @@ msgid "Service ID"
 msgstr "Ідентифікатор служби"
 
 #: circuits/forms/bulk_edit.py:100 circuits/forms/filtersets.py:107
-#: dcim/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:604
-#: dcim/forms/bulk_edit.py:804 dcim/forms/bulk_edit.py:1173
-#: dcim/forms/bulk_edit.py:1200 dcim/forms/bulk_edit.py:1678
+#: dcim/forms/bulk_edit.py:207 dcim/forms/bulk_edit.py:605
+#: dcim/forms/bulk_edit.py:814 dcim/forms/bulk_edit.py:1183
+#: dcim/forms/bulk_edit.py:1210 dcim/forms/bulk_edit.py:1716
 #: dcim/forms/filtersets.py:1064 dcim/forms/filtersets.py:1455
 #: dcim/forms/filtersets.py:1479 dcim/tables/devices.py:704
 #: dcim/tables/devices.py:761 dcim/tables/devices.py:1003
@@ -498,11 +498,11 @@ msgstr "Колір"
 #: circuits/forms/bulk_edit.py:118 circuits/forms/bulk_import.py:87
 #: circuits/forms/filtersets.py:126 core/forms/bulk_edit.py:18
 #: core/forms/filtersets.py:33 core/tables/change_logging.py:32
-#: core/tables/data.py:20 core/tables/jobs.py:18 dcim/forms/bulk_edit.py:782
-#: dcim/forms/bulk_edit.py:921 dcim/forms/bulk_edit.py:989
-#: dcim/forms/bulk_edit.py:1008 dcim/forms/bulk_edit.py:1031
-#: dcim/forms/bulk_edit.py:1073 dcim/forms/bulk_edit.py:1117
-#: dcim/forms/bulk_edit.py:1168 dcim/forms/bulk_edit.py:1195
+#: core/tables/data.py:20 core/tables/jobs.py:18 dcim/forms/bulk_edit.py:792
+#: dcim/forms/bulk_edit.py:931 dcim/forms/bulk_edit.py:999
+#: dcim/forms/bulk_edit.py:1018 dcim/forms/bulk_edit.py:1041
+#: dcim/forms/bulk_edit.py:1083 dcim/forms/bulk_edit.py:1127
+#: dcim/forms/bulk_edit.py:1178 dcim/forms/bulk_edit.py:1205
 #: dcim/forms/bulk_import.py:188 dcim/forms/bulk_import.py:260
 #: dcim/forms/bulk_import.py:708 dcim/forms/bulk_import.py:734
 #: dcim/forms/bulk_import.py:760 dcim/forms/bulk_import.py:780
@@ -547,11 +547,11 @@ msgstr "Обліковий запис постачальника"
 #: circuits/forms/bulk_edit.py:136 circuits/forms/bulk_import.py:93
 #: circuits/forms/filtersets.py:150 core/forms/filtersets.py:38
 #: core/forms/filtersets.py:79 core/tables/data.py:23 core/tables/jobs.py:26
-#: core/tables/tasks.py:88 dcim/forms/bulk_edit.py:106
-#: dcim/forms/bulk_edit.py:181 dcim/forms/bulk_edit.py:351
-#: dcim/forms/bulk_edit.py:700 dcim/forms/bulk_edit.py:756
-#: dcim/forms/bulk_edit.py:788 dcim/forms/bulk_edit.py:915
-#: dcim/forms/bulk_edit.py:1701 dcim/forms/bulk_import.py:88
+#: core/tables/tasks.py:88 dcim/forms/bulk_edit.py:107
+#: dcim/forms/bulk_edit.py:182 dcim/forms/bulk_edit.py:352
+#: dcim/forms/bulk_edit.py:701 dcim/forms/bulk_edit.py:766
+#: dcim/forms/bulk_edit.py:798 dcim/forms/bulk_edit.py:925
+#: dcim/forms/bulk_edit.py:1739 dcim/forms/bulk_import.py:88
 #: dcim/forms/bulk_import.py:147 dcim/forms/bulk_import.py:248
 #: dcim/forms/bulk_import.py:505 dcim/forms/bulk_import.py:659
 #: dcim/forms/bulk_import.py:1207 dcim/forms/bulk_import.py:1371
@@ -578,7 +578,7 @@ msgstr "Обліковий запис постачальника"
 #: templates/dcim/device.html:178 templates/dcim/location.html:45
 #: templates/dcim/module.html:69 templates/dcim/powerfeed.html:36
 #: templates/dcim/rack.html:41 templates/dcim/site.html:43
-#: templates/extras/script_list.html:47 templates/ipam/ipaddress.html:37
+#: templates/extras/script_list.html:48 templates/ipam/ipaddress.html:37
 #: templates/ipam/iprange.html:54 templates/ipam/prefix.html:73
 #: templates/ipam/vlan.html:48 templates/virtualization/cluster.html:21
 #: templates/virtualization/virtualmachine.html:19
@@ -603,10 +603,10 @@ msgstr "Статус"
 #: circuits/forms/bulk_edit.py:142 circuits/forms/bulk_edit.py:233
 #: circuits/forms/bulk_import.py:98 circuits/forms/bulk_import.py:158
 #: circuits/forms/filtersets.py:119 circuits/forms/filtersets.py:241
-#: dcim/forms/bulk_edit.py:122 dcim/forms/bulk_edit.py:187
-#: dcim/forms/bulk_edit.py:346 dcim/forms/bulk_edit.py:461
-#: dcim/forms/bulk_edit.py:690 dcim/forms/bulk_edit.py:794
-#: dcim/forms/bulk_edit.py:1706 dcim/forms/bulk_import.py:107
+#: dcim/forms/bulk_edit.py:123 dcim/forms/bulk_edit.py:188
+#: dcim/forms/bulk_edit.py:347 dcim/forms/bulk_edit.py:462
+#: dcim/forms/bulk_edit.py:691 dcim/forms/bulk_edit.py:804
+#: dcim/forms/bulk_edit.py:1744 dcim/forms/bulk_import.py:107
 #: dcim/forms/bulk_import.py:152 dcim/forms/bulk_import.py:241
 #: dcim/forms/bulk_import.py:334 dcim/forms/bulk_import.py:479
 #: dcim/forms/bulk_import.py:1219 dcim/forms/bulk_import.py:1428
@@ -670,7 +670,7 @@ msgstr "Дата припинення дії"
 
 #: circuits/forms/bulk_edit.py:158 circuits/forms/filtersets.py:186
 msgid "Commit rate (Kbps)"
-msgstr "Гарантована мінімальна швідкість (Кбіт/с)"
+msgstr "Гарантована мінімальна швидкість (Кбіт/с)"
 
 #: circuits/forms/bulk_edit.py:173 circuits/forms/model_forms.py:112
 msgid "Service Parameters"
@@ -700,7 +700,7 @@ msgstr "Оренда"
 #: templates/circuits/inc/circuit_termination_fields.html:62
 #: templates/circuits/providernetwork.html:17
 msgid "Provider Network"
-msgstr "Мережа провайдерів"
+msgstr "Мережа провайдера"
 
 #: circuits/forms/bulk_edit.py:199
 msgid "Port speed (Kbps)"
@@ -710,13 +710,13 @@ msgstr "Швидкість порту (Кбіт/с)"
 msgid "Upstream speed (Kbps)"
 msgstr "Швидкість висхідного потоку (Кбіт/с)"
 
-#: circuits/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:951
-#: dcim/forms/bulk_edit.py:1315 dcim/forms/bulk_edit.py:1332
-#: dcim/forms/bulk_edit.py:1349 dcim/forms/bulk_edit.py:1367
-#: dcim/forms/bulk_edit.py:1455 dcim/forms/bulk_edit.py:1594
-#: dcim/forms/bulk_edit.py:1611
+#: circuits/forms/bulk_edit.py:206 dcim/forms/bulk_edit.py:961
+#: dcim/forms/bulk_edit.py:1325 dcim/forms/bulk_edit.py:1342
+#: dcim/forms/bulk_edit.py:1359 dcim/forms/bulk_edit.py:1377
+#: dcim/forms/bulk_edit.py:1472 dcim/forms/bulk_edit.py:1632
+#: dcim/forms/bulk_edit.py:1649
 msgid "Mark connected"
-msgstr "Позначка з'єднана"
+msgstr "Позначити з'єднаним"
 
 #: circuits/forms/bulk_edit.py:219 circuits/forms/model_forms.py:157
 #: templates/circuits/inc/circuit_termination_fields.html:54
@@ -727,7 +727,7 @@ msgstr "Кінець каналу зв'язку"
 
 #: circuits/forms/bulk_edit.py:221 circuits/forms/model_forms.py:159
 msgid "Termination Details"
-msgstr "Деталі припинення"
+msgstr "Деталі кінця"
 
 #: circuits/forms/bulk_edit.py:251 circuits/forms/filtersets.py:268
 #: circuits/tables/circuits.py:168 dcim/forms/model_forms.py:551
@@ -746,7 +746,7 @@ msgstr "Призначений провайдер"
 
 #: circuits/forms/bulk_import.py:83
 msgid "Assigned provider account"
-msgstr "Призначений обліковий запис постачальника"
+msgstr "Призначений обліковий запис провайдера"
 
 #: circuits/forms/bulk_import.py:90
 msgid "Type of circuit"
@@ -784,17 +784,17 @@ msgstr "Призначений орендар"
 #: templates/dcim/cable.html:68 templates/dcim/cable.html:72
 #: vpn/forms/bulk_import.py:100 vpn/forms/filtersets.py:77
 msgid "Termination"
-msgstr "Припинення"
+msgstr "Кінець"
 
 #: circuits/forms/bulk_import.py:130 circuits/forms/filtersets.py:147
 #: circuits/forms/filtersets.py:227 circuits/forms/model_forms.py:144
 msgid "Provider network"
-msgstr "Мережа провайдерів"
+msgstr "Мережа провайдера"
 
 #: circuits/forms/filtersets.py:30 circuits/forms/filtersets.py:118
-#: circuits/forms/filtersets.py:200 dcim/forms/bulk_edit.py:338
-#: dcim/forms/bulk_edit.py:441 dcim/forms/bulk_edit.py:682
-#: dcim/forms/bulk_edit.py:729 dcim/forms/bulk_edit.py:882
+#: circuits/forms/filtersets.py:200 dcim/forms/bulk_edit.py:339
+#: dcim/forms/bulk_edit.py:442 dcim/forms/bulk_edit.py:683
+#: dcim/forms/bulk_edit.py:738 dcim/forms/bulk_edit.py:892
 #: dcim/forms/bulk_import.py:235 dcim/forms/bulk_import.py:315
 #: dcim/forms/bulk_import.py:546 dcim/forms/bulk_import.py:1317
 #: dcim/forms/bulk_import.py:1351 dcim/forms/filtersets.py:95
@@ -841,8 +841,8 @@ msgid "Contacts"
 msgstr "Контакти"
 
 #: circuits/forms/filtersets.py:37 circuits/forms/filtersets.py:157
-#: dcim/forms/bulk_edit.py:112 dcim/forms/bulk_edit.py:313
-#: dcim/forms/bulk_edit.py:857 dcim/forms/bulk_import.py:93
+#: dcim/forms/bulk_edit.py:113 dcim/forms/bulk_edit.py:314
+#: dcim/forms/bulk_edit.py:867 dcim/forms/bulk_import.py:93
 #: dcim/forms/filtersets.py:73 dcim/forms/filtersets.py:185
 #: dcim/forms/filtersets.py:211 dcim/forms/filtersets.py:334
 #: dcim/forms/filtersets.py:425 dcim/forms/filtersets.py:739
@@ -865,7 +865,7 @@ msgid "Region"
 msgstr "Регіон"
 
 #: circuits/forms/filtersets.py:42 circuits/forms/filtersets.py:162
-#: dcim/forms/bulk_edit.py:321 dcim/forms/bulk_edit.py:865
+#: dcim/forms/bulk_edit.py:322 dcim/forms/bulk_edit.py:875
 #: dcim/forms/filtersets.py:78 dcim/forms/filtersets.py:190
 #: dcim/forms/filtersets.py:216 dcim/forms/filtersets.py:347
 #: dcim/forms/filtersets.py:430 dcim/forms/filtersets.py:744
@@ -883,7 +883,7 @@ msgstr "Група тех. майданчиків"
 #: circuits/forms/filtersets.py:65 circuits/forms/filtersets.py:83
 #: circuits/forms/filtersets.py:102 circuits/forms/filtersets.py:117
 #: core/forms/filtersets.py:67 core/forms/filtersets.py:135
-#: dcim/forms/bulk_edit.py:828 dcim/forms/filtersets.py:172
+#: dcim/forms/bulk_edit.py:838 dcim/forms/filtersets.py:172
 #: dcim/forms/filtersets.py:204 dcim/forms/filtersets.py:915
 #: dcim/forms/filtersets.py:1007 dcim/forms/filtersets.py:1131
 #: dcim/forms/filtersets.py:1239 dcim/forms/filtersets.py:1263
@@ -912,22 +912,23 @@ msgstr "Атрибути"
 #: circuits/tables/providers.py:66 templates/circuits/circuit.html:22
 #: templates/circuits/provideraccount.html:24
 msgid "Account"
-msgstr "Рахунок"
+msgstr "Обліковий запис"
 
 #: circuits/forms/filtersets.py:217
 msgid "Term Side"
-msgstr "Сторона терміну"
+msgstr "Сторона завершення"
 
-#: circuits/forms/filtersets.py:250 extras/forms/model_forms.py:582
-#: ipam/forms/filtersets.py:142 ipam/forms/filtersets.py:546
-#: ipam/forms/model_forms.py:323 templates/extras/configcontext.html:60
-#: templates/ipam/ipaddress.html:59 templates/ipam/vlan_edit.html:30
-#: tenancy/forms/filtersets.py:87 users/forms/model_forms.py:314
+#: circuits/forms/filtersets.py:250 dcim/forms/bulk_edit.py:1552
+#: extras/forms/model_forms.py:582 ipam/forms/filtersets.py:142
+#: ipam/forms/filtersets.py:546 ipam/forms/model_forms.py:323
+#: templates/extras/configcontext.html:60 templates/ipam/ipaddress.html:59
+#: templates/ipam/vlan_edit.html:30 tenancy/forms/filtersets.py:87
+#: users/forms/model_forms.py:314
 msgid "Assignment"
 msgstr "Призначення"
 
 #: circuits/forms/filtersets.py:265 circuits/forms/model_forms.py:195
-#: circuits/tables/circuits.py:155 dcim/forms/bulk_edit.py:117
+#: circuits/tables/circuits.py:155 dcim/forms/bulk_edit.py:118
 #: dcim/forms/bulk_import.py:100 dcim/forms/model_forms.py:117
 #: dcim/tables/sites.py:89 extras/forms/filtersets.py:480
 #: ipam/filtersets.py:999 ipam/forms/bulk_edit.py:493
@@ -961,7 +962,7 @@ msgstr "Група"
 
 #: circuits/forms/model_forms.py:182 templates/circuits/circuitgroup.html:25
 msgid "Circuit Group"
-msgstr "Група каналу зв'язку"
+msgstr "Група каналів зв'язку"
 
 #: circuits/models/circuits.py:27 dcim/models/cables.py:67
 #: dcim/models/device_component_templates.py:517
@@ -982,7 +983,7 @@ msgstr "типи каналів зв'язку"
 
 #: circuits/models/circuits.py:48
 msgid "circuit ID"
-msgstr "iдентифікатор каналу зв'язку"
+msgstr "ідентифікатор каналу зв'язку"
 
 #: circuits/models/circuits.py:49
 msgid "Unique circuit ID"
@@ -993,7 +994,7 @@ msgstr "Унікальний ідентифікатор каналу зв'язк
 #: dcim/models/devices.py:1173 dcim/models/devices.py:1399
 #: dcim/models/power.py:96 dcim/models/racks.py:297 dcim/models/sites.py:154
 #: dcim/models/sites.py:266 ipam/models/ip.py:253 ipam/models/ip.py:522
-#: ipam/models/ip.py:730 ipam/models/vlans.py:195
+#: ipam/models/ip.py:730 ipam/models/vlans.py:211
 #: virtualization/models/clusters.py:74
 #: virtualization/models/virtualmachines.py:84 vpn/models/tunnels.py:40
 #: wireless/models.py:95 wireless/models.py:159
@@ -1010,11 +1011,11 @@ msgstr "припинється"
 
 #: circuits/models/circuits.py:94
 msgid "commit rate (Kbps)"
-msgstr "гарантована мінімальна швідкість (Кбіт/с)"
+msgstr "гарантована швидкість (Кбіт/с)"
 
 #: circuits/models/circuits.py:95
 msgid "Committed rate"
-msgstr "Гарантирована швідкість"
+msgstr "Гарантована швидкість"
 
 #: circuits/models/circuits.py:137
 msgid "circuit"
@@ -1026,7 +1027,7 @@ msgstr "канали зв'язку"
 
 #: circuits/models/circuits.py:170
 msgid "circuit group"
-msgstr "група каналу зв'язку"
+msgstr "група каналів зв'язку"
 
 #: circuits/models/circuits.py:171
 msgid "circuit groups"
@@ -1047,7 +1048,7 @@ msgstr "Призначення групи каналів зв'язку"
 
 #: circuits/models/circuits.py:240
 msgid "termination"
-msgstr "припинення"
+msgstr "кінець"
 
 #: circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1063,7 +1064,8 @@ msgstr "швидкість висхідного потоку (Кбіт/с)"
 
 #: circuits/models/circuits.py:266
 msgid "Upstream speed, if different from port speed"
-msgstr "Швидкість висхідного потоку, якщо відрізняється від швидкості порту"
+msgstr ""
+"Швидкість висхідного потоку, якщо вона відрізняється від швидкості порту"
 
 #: circuits/models/circuits.py:271
 msgid "cross-connect ID"
@@ -1132,7 +1134,7 @@ msgstr ""
 #: extras/models/notifications.py:126 extras/models/scripts.py:30
 #: extras/models/staging.py:26 ipam/models/asns.py:18 ipam/models/fhrp.py:25
 #: ipam/models/services.py:52 ipam/models/services.py:88
-#: ipam/models/vlans.py:36 ipam/models/vlans.py:184 ipam/models/vrfs.py:22
+#: ipam/models/vlans.py:36 ipam/models/vlans.py:200 ipam/models/vrfs.py:22
 #: ipam/models/vrfs.py:79 netbox/models/__init__.py:137
 #: netbox/models/__init__.py:181 tenancy/models/contacts.py:64
 #: tenancy/models/tenants.py:20 tenancy/models/tenants.py:45
@@ -1144,11 +1146,11 @@ msgstr ""
 #: vpn/models/crypto.py:221 vpn/models/l2vpn.py:22 vpn/models/tunnels.py:35
 #: wireless/models.py:51
 msgid "name"
-msgstr "найменування"
+msgstr "назва"
 
 #: circuits/models/providers.py:25
 msgid "Full name of the provider"
-msgstr "Повне найменування провайдера"
+msgstr "Повна назва провайдера"
 
 #: circuits/models/providers.py:28 dcim/models/devices.py:86
 #: dcim/models/racks.py:137 dcim/models/sites.py:149
@@ -1169,7 +1171,7 @@ msgstr "провайдери"
 
 #: circuits/models/providers.py:63
 msgid "account ID"
-msgstr "iдентифікатор рахунку"
+msgstr "ідентифікатор облікового запису"
 
 #: circuits/models/providers.py:86
 msgid "provider account"
@@ -1177,11 +1179,11 @@ msgstr "обліковий запис провайдера"
 
 #: circuits/models/providers.py:87
 msgid "provider accounts"
-msgstr "акаунти провайдера"
+msgstr "облікові записи провайдера"
 
 #: circuits/models/providers.py:115
 msgid "service ID"
-msgstr "iдентифікатор послуги"
+msgstr "ідентифікатор послуги"
 
 #: circuits/models/providers.py:126
 msgid "provider network"
@@ -1189,7 +1191,7 @@ msgstr "мережа провайдера"
 
 #: circuits/models/providers.py:127
 msgid "provider networks"
-msgstr "мережі провайдерів"
+msgstr "мережі провайдера"
 
 #: circuits/tables/circuits.py:32 circuits/tables/circuits.py:132
 #: circuits/tables/providers.py:18 circuits/tables/providers.py:69
@@ -1243,7 +1245,7 @@ msgstr "мережі провайдерів"
 #: templates/extras/customfield.html:13 templates/extras/customlink.html:13
 #: templates/extras/eventrule.html:13 templates/extras/exporttemplate.html:15
 #: templates/extras/notificationgroup.html:14
-#: templates/extras/savedfilter.html:13 templates/extras/script_list.html:44
+#: templates/extras/savedfilter.html:13 templates/extras/script_list.html:45
 #: templates/extras/tag.html:14 templates/extras/webhook.html:13
 #: templates/ipam/asnrange.html:15 templates/ipam/fhrpgroup.html:30
 #: templates/ipam/rir.html:22 templates/ipam/role.html:22
@@ -1380,7 +1382,7 @@ msgstr "Завершено"
 
 #: core/choices.py:22 core/choices.py:59 core/constants.py:20
 #: core/tables/tasks.py:34 dcim/choices.py:187 dcim/choices.py:239
-#: dcim/choices.py:1607 virtualization/choices.py:47
+#: dcim/choices.py:1609 virtualization/choices.py:47
 msgid "Failed"
 msgstr "Збій"
 
@@ -1527,8 +1529,8 @@ msgid "User name"
 msgstr "Ім'я користувача"
 
 #: core/forms/bulk_edit.py:25 core/forms/filtersets.py:43
-#: core/tables/data.py:26 dcim/forms/bulk_edit.py:1122
-#: dcim/forms/bulk_edit.py:1400 dcim/forms/filtersets.py:1370
+#: core/tables/data.py:26 dcim/forms/bulk_edit.py:1132
+#: dcim/forms/bulk_edit.py:1410 dcim/forms/filtersets.py:1370
 #: dcim/tables/devices.py:553 dcim/tables/devicetypes.py:224
 #: extras/forms/bulk_edit.py:123 extras/forms/bulk_edit.py:187
 #: extras/forms/bulk_edit.py:246 extras/forms/filtersets.py:142
@@ -1628,7 +1630,7 @@ msgid "Completed before"
 msgstr "Завершено раніше"
 
 #: core/forms/filtersets.py:126 core/forms/filtersets.py:155
-#: dcim/forms/bulk_edit.py:456 dcim/forms/filtersets.py:418
+#: dcim/forms/bulk_edit.py:457 dcim/forms/filtersets.py:418
 #: dcim/forms/filtersets.py:462 dcim/forms/model_forms.py:316
 #: extras/forms/filtersets.py:456 extras/forms/filtersets.py:475
 #: extras/tables/tables.py:302 extras/tables/tables.py:342
@@ -1674,23 +1676,23 @@ msgstr "Параметри бекенду"
 
 #: core/forms/model_forms.py:96
 msgid "File Upload"
-msgstr "Завантаження файлу"
+msgstr "Вивантажити файл"
 
 #: core/forms/model_forms.py:108
 msgid "Cannot upload a file and sync from an existing file"
-msgstr "Не вдається завантажити файл і синхронізувати з існуючого файлу"
+msgstr "Не вдається вивантажити файл і синхронізувати з існуючого файлу"
 
 #: core/forms/model_forms.py:110
 msgid "Must upload a file or select a data file to sync"
-msgstr "Потрібно завантажити файл або вибрати файл даних для синхронізації"
+msgstr "Потрібно вивантажити файл або вибрати файл даних для синхронізації"
 
 #: core/forms/model_forms.py:153 templates/dcim/rack_elevation_list.html:6
 msgid "Rack Elevations"
 msgstr "Висота стійки"
 
-#: core/forms/model_forms.py:157 dcim/choices.py:1518
-#: dcim/forms/bulk_edit.py:969 dcim/forms/bulk_edit.py:1357
-#: dcim/forms/bulk_edit.py:1375 dcim/tables/racks.py:158
+#: core/forms/model_forms.py:157 dcim/choices.py:1520
+#: dcim/forms/bulk_edit.py:979 dcim/forms/bulk_edit.py:1367
+#: dcim/forms/bulk_edit.py:1385 dcim/tables/racks.py:158
 #: netbox/navigation/menu.py:291 netbox/navigation/menu.py:295
 msgid "Power"
 msgstr "Електрика"
@@ -1777,7 +1779,7 @@ msgstr "зміна об'єкта"
 
 #: core/models/change_logging.py:107
 msgid "object changes"
-msgstr "зміни об'єкта"
+msgstr "змін об'єкта"
 
 #: core/models/change_logging.py:123
 #, python-brace-format
@@ -1903,7 +1905,7 @@ msgstr "доріжка"
 
 #: core/models/data.py:283
 msgid "File path relative to the data source's root"
-msgstr "Шляху до файлу відносно кореня джерела даних"
+msgstr "Шлях до файлу відносно кореня джерела даних"
 
 #: core/models/data.py:287 ipam/models/ip.py:503
 msgid "size"
@@ -1931,7 +1933,7 @@ msgstr "файли даних"
 
 #: core/models/data.py:401
 msgid "auto sync record"
-msgstr "запис автоматичної синхронізації"
+msgstr "автоматична синхронізація запису"
 
 #: core/models/data.py:402
 msgid "auto sync records"
@@ -1947,7 +1949,7 @@ msgstr "шлях до файлу"
 
 #: core/models/files.py:44
 msgid "File path relative to the designated root path"
-msgstr "Шляху до файлу відносно призначеного кореневого шляху"
+msgstr "Шлях до файлу відносно призначеного кореневого шляху"
 
 #: core/models/files.py:61
 msgid "managed file"
@@ -1988,7 +1990,7 @@ msgstr "помилка"
 
 #: core/models/jobs.py:100
 msgid "job ID"
-msgstr "iдентифікатор завдання"
+msgstr "ідентифікатор завдання"
 
 #: core/models/jobs.py:111
 msgid "job"
@@ -2048,7 +2050,7 @@ msgstr "Є активним"
 
 #: core/tables/data.py:50 templates/core/datafile.html:31
 msgid "Path"
-msgstr "Шляху"
+msgstr "Шлях"
 
 #: core/tables/data.py:54 templates/extras/inc/result_pending.html:7
 msgid "Last updated"
@@ -2064,7 +2066,7 @@ msgstr "Ідентифікатор"
 
 #: core/tables/jobs.py:35
 msgid "Interval"
-msgstr "інтервал"
+msgstr "Інтервал"
 
 #: core/tables/plugins.py:14 templates/vpn/ipsecprofile.html:44
 #: vpn/forms/bulk_edit.py:141 vpn/forms/bulk_import.py:172
@@ -2222,11 +2224,11 @@ msgstr "Завдання {id} було зупинено."
 msgid "Failed to stop job {id}"
 msgstr "Не вдалося зупинити завдання {id}"
 
-#: core/views.py:678
+#: core/views.py:674
 msgid "Plugins catalog could not be loaded"
 msgstr "Не вдалося завантажити каталог плагінів"
 
-#: core/views.py:712
+#: core/views.py:708
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr "Плагін {name} не знайдено"
@@ -2244,7 +2246,7 @@ msgid "Staging"
 msgstr "Підготовка"
 
 #: dcim/choices.py:23 dcim/choices.py:189 dcim/choices.py:240
-#: dcim/choices.py:1531 virtualization/choices.py:23
+#: dcim/choices.py:1533 virtualization/choices.py:23
 #: virtualization/choices.py:48
 msgid "Decommissioning"
 msgstr "Виведення з експлуатації"
@@ -2304,7 +2306,7 @@ msgstr "Застарілий"
 msgid "Millimeters"
 msgstr "Міліметри"
 
-#: dcim/choices.py:115 dcim/choices.py:1553
+#: dcim/choices.py:115 dcim/choices.py:1555
 msgid "Inches"
 msgstr "Дюйми"
 
@@ -2316,8 +2318,8 @@ msgstr "Спереду ззаду"
 msgid "Rear to front"
 msgstr "Ззаду спереду"
 
-#: dcim/choices.py:151 dcim/forms/bulk_edit.py:68 dcim/forms/bulk_edit.py:87
-#: dcim/forms/bulk_edit.py:173 dcim/forms/bulk_edit.py:1405
+#: dcim/choices.py:151 dcim/forms/bulk_edit.py:69 dcim/forms/bulk_edit.py:88
+#: dcim/forms/bulk_edit.py:174 dcim/forms/bulk_edit.py:1415
 #: dcim/forms/bulk_import.py:60 dcim/forms/bulk_import.py:74
 #: dcim/forms/bulk_import.py:137 dcim/forms/bulk_import.py:566
 #: dcim/forms/bulk_import.py:833 dcim/forms/bulk_import.py:1088
@@ -2391,7 +2393,7 @@ msgstr "Знизу вгору"
 msgid "Top to bottom"
 msgstr "Зверху вниз"
 
-#: dcim/choices.py:215 dcim/choices.py:259 dcim/choices.py:1303
+#: dcim/choices.py:215 dcim/choices.py:259 dcim/choices.py:1305
 msgid "Passive"
 msgstr "Пасивний"
 
@@ -2419,8 +2421,8 @@ msgstr "Міжнародний/ITA"
 msgid "Proprietary"
 msgstr "Пропрієтарний"
 
-#: dcim/choices.py:581 dcim/choices.py:824 dcim/choices.py:1219
-#: dcim/choices.py:1221 dcim/choices.py:1447 dcim/choices.py:1449
+#: dcim/choices.py:581 dcim/choices.py:824 dcim/choices.py:1221
+#: dcim/choices.py:1223 dcim/choices.py:1449 dcim/choices.py:1451
 #: netbox/navigation/menu.py:200
 msgid "Other"
 msgstr "Інше"
@@ -2433,22 +2435,22 @@ msgstr "ITA/Міжнародні"
 msgid "Physical"
 msgstr "Фізичний"
 
-#: dcim/choices.py:855 dcim/choices.py:1023
+#: dcim/choices.py:855 dcim/choices.py:1024
 msgid "Virtual"
 msgstr "Віртуальний"
 
-#: dcim/choices.py:856 dcim/choices.py:1097 dcim/forms/bulk_edit.py:1515
+#: dcim/choices.py:856 dcim/choices.py:1099 dcim/forms/bulk_edit.py:1558
 #: dcim/forms/filtersets.py:1330 dcim/forms/model_forms.py:988
 #: dcim/forms/model_forms.py:1397 netbox/navigation/menu.py:140
 #: netbox/navigation/menu.py:144 templates/dcim/interface.html:210
 msgid "Wireless"
 msgstr "Бездротові мережі"
 
-#: dcim/choices.py:1021
+#: dcim/choices.py:1022
 msgid "Virtual interfaces"
 msgstr "Віртуальні інтерфейси"
 
-#: dcim/choices.py:1024 dcim/forms/bulk_edit.py:1410
+#: dcim/choices.py:1025 dcim/forms/bulk_edit.py:1423
 #: dcim/forms/bulk_import.py:840 dcim/forms/model_forms.py:974
 #: dcim/tables/devices.py:660 templates/dcim/interface.html:106
 #: templates/virtualization/vminterface.html:43
@@ -2458,155 +2460,155 @@ msgstr "Віртуальні інтерфейси"
 msgid "Bridge"
 msgstr "Міст"
 
-#: dcim/choices.py:1025
+#: dcim/choices.py:1026
 msgid "Link Aggregation Group (LAG)"
 msgstr "Група агрегації каналів (LAG)"
 
-#: dcim/choices.py:1029
+#: dcim/choices.py:1030
 msgid "Ethernet (fixed)"
 msgstr "Ethernet (фіксований)"
 
-#: dcim/choices.py:1044
+#: dcim/choices.py:1046
 msgid "Ethernet (modular)"
 msgstr "Ethernet (модульний)"
 
-#: dcim/choices.py:1081
+#: dcim/choices.py:1083
 msgid "Ethernet (backplane)"
 msgstr "Ethernet (панель)"
 
-#: dcim/choices.py:1113
+#: dcim/choices.py:1115
 msgid "Cellular"
 msgstr "Стільниковий"
 
-#: dcim/choices.py:1165 dcim/forms/filtersets.py:383
+#: dcim/choices.py:1167 dcim/forms/filtersets.py:383
 #: dcim/forms/filtersets.py:809 dcim/forms/filtersets.py:963
 #: dcim/forms/filtersets.py:1542 templates/dcim/inventoryitem.html:52
 #: templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
 msgstr "Серійний"
 
-#: dcim/choices.py:1180
+#: dcim/choices.py:1182
 msgid "Coaxial"
 msgstr "Коаксіальний"
 
-#: dcim/choices.py:1200
+#: dcim/choices.py:1202
 msgid "Stacking"
 msgstr "Стекований"
 
-#: dcim/choices.py:1250
+#: dcim/choices.py:1252
 msgid "Half"
 msgstr "Половинний"
 
-#: dcim/choices.py:1251
+#: dcim/choices.py:1253
 msgid "Full"
 msgstr "Повний"
 
-#: dcim/choices.py:1252 netbox/preferences.py:31 wireless/choices.py:480
+#: dcim/choices.py:1254 netbox/preferences.py:31 wireless/choices.py:480
 msgid "Auto"
 msgstr "Авто"
 
-#: dcim/choices.py:1263
+#: dcim/choices.py:1265
 msgid "Access"
 msgstr "Доступ"
 
-#: dcim/choices.py:1264 ipam/tables/vlans.py:172 ipam/tables/vlans.py:217
+#: dcim/choices.py:1266 ipam/tables/vlans.py:172 ipam/tables/vlans.py:217
 #: templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "З мітками"
 
-#: dcim/choices.py:1265
+#: dcim/choices.py:1267
 msgid "Tagged (All)"
 msgstr "З мітками (Усі)"
 
-#: dcim/choices.py:1294
+#: dcim/choices.py:1296
 msgid "IEEE Standard"
 msgstr "Стандарт IEEE"
 
-#: dcim/choices.py:1305
+#: dcim/choices.py:1307
 msgid "Passive 24V (2-pair)"
 msgstr "Пасивний 24В (2-парний)"
 
-#: dcim/choices.py:1306
+#: dcim/choices.py:1308
 msgid "Passive 24V (4-pair)"
 msgstr "Пасивний 24В (4-парний)"
 
-#: dcim/choices.py:1307
+#: dcim/choices.py:1309
 msgid "Passive 48V (2-pair)"
 msgstr "Пасивний 48В (2-парний)"
 
-#: dcim/choices.py:1308
+#: dcim/choices.py:1310
 msgid "Passive 48V (4-pair)"
 msgstr "Пасивний 48В (4-парний)"
 
-#: dcim/choices.py:1378 dcim/choices.py:1488
+#: dcim/choices.py:1380 dcim/choices.py:1490
 msgid "Copper"
 msgstr "Мідний"
 
-#: dcim/choices.py:1401
+#: dcim/choices.py:1403
 msgid "Fiber Optic"
 msgstr "Волоконно-оптичний"
 
-#: dcim/choices.py:1434 dcim/choices.py:1517
+#: dcim/choices.py:1436 dcim/choices.py:1519
 msgid "USB"
 msgstr "USB"
 
-#: dcim/choices.py:1504
+#: dcim/choices.py:1506
 msgid "Fiber"
 msgstr "Волоконний"
 
-#: dcim/choices.py:1529 dcim/forms/filtersets.py:1227
+#: dcim/choices.py:1531 dcim/forms/filtersets.py:1227
 msgid "Connected"
 msgstr "Підключений"
 
-#: dcim/choices.py:1548 wireless/choices.py:497
+#: dcim/choices.py:1550 wireless/choices.py:497
 msgid "Kilometers"
 msgstr "Кілометри"
 
-#: dcim/choices.py:1549 templates/dcim/cable_trace.html:65
+#: dcim/choices.py:1551 templates/dcim/cable_trace.html:65
 #: wireless/choices.py:498
 msgid "Meters"
 msgstr "Метри"
 
-#: dcim/choices.py:1550
+#: dcim/choices.py:1552
 msgid "Centimeters"
 msgstr "Сантиметри"
 
-#: dcim/choices.py:1551 wireless/choices.py:499
+#: dcim/choices.py:1553 wireless/choices.py:499
 msgid "Miles"
 msgstr "Милі"
 
-#: dcim/choices.py:1552 templates/dcim/cable_trace.html:66
+#: dcim/choices.py:1554 templates/dcim/cable_trace.html:66
 #: wireless/choices.py:500
 msgid "Feet"
 msgstr "Фути"
 
-#: dcim/choices.py:1568 templates/dcim/device.html:327
+#: dcim/choices.py:1570 templates/dcim/device.html:327
 #: templates/dcim/rack.html:107
 msgid "Kilograms"
 msgstr "Кілограми"
 
-#: dcim/choices.py:1569
+#: dcim/choices.py:1571
 msgid "Grams"
 msgstr "Грами"
 
-#: dcim/choices.py:1570 templates/dcim/device.html:328
+#: dcim/choices.py:1572 templates/dcim/device.html:328
 #: templates/dcim/rack.html:108
 msgid "Pounds"
 msgstr "Фунтів"
 
-#: dcim/choices.py:1571
+#: dcim/choices.py:1573
 msgid "Ounces"
 msgstr "Унцій"
 
-#: dcim/choices.py:1618
+#: dcim/choices.py:1620
 msgid "Redundant"
 msgstr "Надлишковий"
 
-#: dcim/choices.py:1639
+#: dcim/choices.py:1641
 msgid "Single phase"
 msgstr "Однофазний"
 
-#: dcim/choices.py:1640
+#: dcim/choices.py:1642
 msgid "Three-phase"
 msgstr "Трифазний"
 
@@ -2811,16 +2813,16 @@ msgstr "Платформа (ідентифікатор)"
 #: dcim/filtersets.py:1015 extras/filtersets.py:569
 #: virtualization/filtersets.py:226
 msgid "Platform (slug)"
-msgstr "Платформа (скоречення)"
+msgstr "Платформа (скорочення)"
 
 #: dcim/filtersets.py:1051 dcim/filtersets.py:1399 dcim/filtersets.py:1934
 #: dcim/filtersets.py:2176 dcim/filtersets.py:2235
 msgid "Site name (slug)"
-msgstr "Назва тех. майданчика (скоречення)"
+msgstr "Назва тех. майданчика (скорочення)"
 
 #: dcim/filtersets.py:1067
 msgid "Parent bay (ID)"
-msgstr "Батьківська бухта (ідентифікатор)"
+msgstr "Батьківський відсік (ідентифікатор)"
 
 #: dcim/filtersets.py:1071
 msgid "VM cluster (ID)"
@@ -2829,7 +2831,7 @@ msgstr "Кластер віртуальних машини (ідентифіка
 #: dcim/filtersets.py:1077 extras/filtersets.py:591
 #: virtualization/filtersets.py:136
 msgid "Cluster group (slug)"
-msgstr "Кластерна група (скоречення)"
+msgstr "Кластерна група (скорочення)"
 
 #: dcim/filtersets.py:1082 virtualization/filtersets.py:130
 msgid "Cluster group (ID)"
@@ -2837,9 +2839,9 @@ msgstr "Група кластерів (ідентифікатор)"
 
 #: dcim/filtersets.py:1088
 msgid "Device model (slug)"
-msgstr "Модель пристрою (скоречення)"
+msgstr "Модель пристрою (скорочення)"
 
-#: dcim/filtersets.py:1099 dcim/forms/bulk_edit.py:516
+#: dcim/filtersets.py:1099 dcim/forms/bulk_edit.py:517
 msgid "Is full depth"
 msgstr "Це повна глибина"
 
@@ -2923,7 +2925,7 @@ msgstr "Роль пристрою (ідентифікатор)"
 
 #: dcim/filtersets.py:1453
 msgid "Device role (slug)"
-msgstr "Роль пристрою (скоречення)"
+msgstr "Роль пристрою (скорочення)"
 
 #: dcim/filtersets.py:1458
 msgid "Virtual Chassis (ID)"
@@ -2955,7 +2957,7 @@ msgstr "Призначений VLAN"
 msgid "Assigned VID"
 msgstr "Призначений VID"
 
-#: dcim/filtersets.py:1613 dcim/forms/bulk_edit.py:1489
+#: dcim/filtersets.py:1613 dcim/forms/bulk_edit.py:1526
 #: dcim/forms/bulk_import.py:891 dcim/forms/filtersets.py:1428
 #: dcim/forms/model_forms.py:1378 dcim/models/device_components.py:711
 #: dcim/tables/devices.py:626 ipam/filtersets.py:316 ipam/filtersets.py:327
@@ -3049,7 +3051,7 @@ msgstr "Бездротова зв'язок"
 
 #: dcim/filtersets.py:1803
 msgid "Parent module bay (ID)"
-msgstr "Відсік батьківського модуля (iдентифікатор)"
+msgstr "Відсік батьківського модуля (ідентифікатор)"
 
 #: dcim/filtersets.py:1808
 msgid "Installed module (ID)"
@@ -3077,7 +3079,7 @@ msgstr "Орендар (ідентифікатор)"
 
 #: dcim/filtersets.py:1945 extras/filtersets.py:618 tenancy/filtersets.py:251
 msgid "Tenant (slug)"
-msgstr "Орендар (скоречення)"
+msgstr "Орендар (скорочення)"
 
 #: dcim/filtersets.py:1981 dcim/forms/filtersets.py:1077
 msgid "Unterminated"
@@ -3116,27 +3118,27 @@ msgstr ""
 "Підтримуються буквено-цифрові діапазони. (Повинен збігатися з кількістю "
 "створених імен.)"
 
-#: dcim/forms/bulk_edit.py:132
+#: dcim/forms/bulk_edit.py:133
 msgid "Contact name"
 msgstr "Ім'я контакту"
 
-#: dcim/forms/bulk_edit.py:137
+#: dcim/forms/bulk_edit.py:138
 msgid "Contact phone"
 msgstr "Контактний телефон"
 
-#: dcim/forms/bulk_edit.py:143
+#: dcim/forms/bulk_edit.py:144
 msgid "Contact E-mail"
 msgstr "Контактна адреса електронної пошти"
 
-#: dcim/forms/bulk_edit.py:146 dcim/forms/bulk_import.py:123
+#: dcim/forms/bulk_edit.py:147 dcim/forms/bulk_import.py:123
 #: dcim/forms/model_forms.py:128
 msgid "Time zone"
 msgstr "Часовий пояс"
 
-#: dcim/forms/bulk_edit.py:224 dcim/forms/bulk_edit.py:495
-#: dcim/forms/bulk_edit.py:559 dcim/forms/bulk_edit.py:632
-#: dcim/forms/bulk_edit.py:656 dcim/forms/bulk_edit.py:740
-#: dcim/forms/bulk_edit.py:1267 dcim/forms/bulk_edit.py:1660
+#: dcim/forms/bulk_edit.py:225 dcim/forms/bulk_edit.py:496
+#: dcim/forms/bulk_edit.py:560 dcim/forms/bulk_edit.py:633
+#: dcim/forms/bulk_edit.py:657 dcim/forms/bulk_edit.py:750
+#: dcim/forms/bulk_edit.py:1277 dcim/forms/bulk_edit.py:1698
 #: dcim/forms/bulk_import.py:182 dcim/forms/bulk_import.py:371
 #: dcim/forms/bulk_import.py:405 dcim/forms/bulk_import.py:450
 #: dcim/forms/bulk_import.py:486 dcim/forms/bulk_import.py:1082
@@ -3159,51 +3161,51 @@ msgstr "Часовий пояс"
 msgid "Manufacturer"
 msgstr "Виробник"
 
-#: dcim/forms/bulk_edit.py:229 dcim/forms/bulk_edit.py:372
+#: dcim/forms/bulk_edit.py:230 dcim/forms/bulk_edit.py:373
 #: dcim/forms/bulk_import.py:191 dcim/forms/bulk_import.py:263
 #: dcim/forms/filtersets.py:255
 #: templates/dcim/inc/panels/racktype_dimensions.html:6
 msgid "Form factor"
 msgstr "Форм-фактор"
 
-#: dcim/forms/bulk_edit.py:234 dcim/forms/bulk_edit.py:377
+#: dcim/forms/bulk_edit.py:235 dcim/forms/bulk_edit.py:378
 #: dcim/forms/bulk_import.py:199 dcim/forms/bulk_import.py:266
 #: dcim/forms/filtersets.py:260
 #: templates/dcim/inc/panels/racktype_dimensions.html:10
 msgid "Width"
 msgstr "Ширина"
 
-#: dcim/forms/bulk_edit.py:240 dcim/forms/bulk_edit.py:383
+#: dcim/forms/bulk_edit.py:241 dcim/forms/bulk_edit.py:384
 #: templates/dcim/devicetype.html:37
 msgid "Height (U)"
 msgstr "Висота (U)"
 
-#: dcim/forms/bulk_edit.py:249 dcim/forms/bulk_edit.py:388
+#: dcim/forms/bulk_edit.py:250 dcim/forms/bulk_edit.py:389
 #: dcim/forms/filtersets.py:274
 msgid "Descending units"
 msgstr "Юніти у низхідному порядку"
 
-#: dcim/forms/bulk_edit.py:252 dcim/forms/bulk_edit.py:391
+#: dcim/forms/bulk_edit.py:253 dcim/forms/bulk_edit.py:392
 msgid "Outer width"
 msgstr "Зовнішня ширина"
 
-#: dcim/forms/bulk_edit.py:257 dcim/forms/bulk_edit.py:396
+#: dcim/forms/bulk_edit.py:258 dcim/forms/bulk_edit.py:397
 msgid "Outer depth"
 msgstr "Зовнішня глибина"
 
-#: dcim/forms/bulk_edit.py:262 dcim/forms/bulk_edit.py:401
+#: dcim/forms/bulk_edit.py:263 dcim/forms/bulk_edit.py:402
 #: dcim/forms/bulk_import.py:204 dcim/forms/bulk_import.py:271
 msgid "Outer unit"
 msgstr "Зовнішній блок"
 
-#: dcim/forms/bulk_edit.py:267 dcim/forms/bulk_edit.py:406
+#: dcim/forms/bulk_edit.py:268 dcim/forms/bulk_edit.py:407
 msgid "Mounting depth"
 msgstr "Глибина монтажу"
 
-#: dcim/forms/bulk_edit.py:272 dcim/forms/bulk_edit.py:299
-#: dcim/forms/bulk_edit.py:416 dcim/forms/bulk_edit.py:446
-#: dcim/forms/bulk_edit.py:529 dcim/forms/bulk_edit.py:552
-#: dcim/forms/bulk_edit.py:573 dcim/forms/bulk_edit.py:595
+#: dcim/forms/bulk_edit.py:273 dcim/forms/bulk_edit.py:300
+#: dcim/forms/bulk_edit.py:417 dcim/forms/bulk_edit.py:447
+#: dcim/forms/bulk_edit.py:530 dcim/forms/bulk_edit.py:553
+#: dcim/forms/bulk_edit.py:574 dcim/forms/bulk_edit.py:596
 #: dcim/forms/bulk_import.py:384 dcim/forms/bulk_import.py:416
 #: dcim/forms/filtersets.py:285 dcim/forms/filtersets.py:307
 #: dcim/forms/filtersets.py:327 dcim/forms/filtersets.py:401
@@ -3224,13 +3226,13 @@ msgstr "Глибина монтажу"
 msgid "Weight"
 msgstr "Вага"
 
-#: dcim/forms/bulk_edit.py:277 dcim/forms/bulk_edit.py:421
+#: dcim/forms/bulk_edit.py:278 dcim/forms/bulk_edit.py:422
 #: dcim/forms/filtersets.py:290
 msgid "Max weight"
 msgstr "Максимальна вага"
 
-#: dcim/forms/bulk_edit.py:282 dcim/forms/bulk_edit.py:426
-#: dcim/forms/bulk_edit.py:534 dcim/forms/bulk_edit.py:578
+#: dcim/forms/bulk_edit.py:283 dcim/forms/bulk_edit.py:427
+#: dcim/forms/bulk_edit.py:535 dcim/forms/bulk_edit.py:579
 #: dcim/forms/bulk_import.py:210 dcim/forms/bulk_import.py:283
 #: dcim/forms/bulk_import.py:389 dcim/forms/bulk_import.py:421
 #: dcim/forms/filtersets.py:295 dcim/forms/filtersets.py:598
@@ -3238,31 +3240,31 @@ msgstr "Максимальна вага"
 msgid "Weight unit"
 msgstr "Вага юніта"
 
-#: dcim/forms/bulk_edit.py:296 dcim/forms/filtersets.py:305
+#: dcim/forms/bulk_edit.py:297 dcim/forms/filtersets.py:305
 #: dcim/forms/model_forms.py:217 dcim/forms/model_forms.py:256
 #: templates/dcim/rack.html:45 templates/dcim/racktype.html:13
 msgid "Rack Type"
 msgstr "Тип стійки"
 
-#: dcim/forms/bulk_edit.py:298 dcim/forms/model_forms.py:220
+#: dcim/forms/bulk_edit.py:299 dcim/forms/model_forms.py:220
 #: dcim/forms/model_forms.py:297
 msgid "Outer Dimensions"
 msgstr "Зовнішні розміри"
 
-#: dcim/forms/bulk_edit.py:301 dcim/forms/model_forms.py:222
+#: dcim/forms/bulk_edit.py:302 dcim/forms/model_forms.py:222
 #: dcim/forms/model_forms.py:299 templates/dcim/device.html:315
 #: templates/dcim/inc/panels/racktype_dimensions.html:3
 msgid "Dimensions"
 msgstr "Габарити"
 
-#: dcim/forms/bulk_edit.py:303 dcim/forms/filtersets.py:306
+#: dcim/forms/bulk_edit.py:304 dcim/forms/filtersets.py:306
 #: dcim/forms/filtersets.py:326 dcim/forms/model_forms.py:224
 #: templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "Нумерація"
 
-#: dcim/forms/bulk_edit.py:357 dcim/forms/bulk_edit.py:1262
-#: dcim/forms/bulk_edit.py:1655 dcim/forms/bulk_import.py:253
+#: dcim/forms/bulk_edit.py:358 dcim/forms/bulk_edit.py:1272
+#: dcim/forms/bulk_edit.py:1693 dcim/forms/bulk_import.py:253
 #: dcim/forms/bulk_import.py:1076 dcim/forms/filtersets.py:367
 #: dcim/forms/filtersets.py:777 dcim/forms/filtersets.py:1534
 #: dcim/forms/model_forms.py:251 dcim/forms/model_forms.py:1070
@@ -3302,21 +3304,21 @@ msgstr "Нумерація"
 msgid "Role"
 msgstr "Роль"
 
-#: dcim/forms/bulk_edit.py:364 dcim/forms/bulk_edit.py:712
-#: dcim/forms/bulk_edit.py:764 templates/dcim/device.html:104
+#: dcim/forms/bulk_edit.py:365 dcim/forms/bulk_edit.py:713
+#: dcim/forms/bulk_edit.py:774 templates/dcim/device.html:104
 #: templates/dcim/module.html:77 templates/dcim/modulebay.html:70
 #: templates/dcim/rack.html:57 templates/virtualization/virtualmachine.html:35
 msgid "Serial Number"
 msgstr "Серійний номер"
 
-#: dcim/forms/bulk_edit.py:367 dcim/forms/filtersets.py:387
+#: dcim/forms/bulk_edit.py:368 dcim/forms/filtersets.py:387
 #: dcim/forms/filtersets.py:813 dcim/forms/filtersets.py:967
 #: dcim/forms/filtersets.py:1546
 msgid "Asset tag"
 msgstr "Призначеня міток"
 
-#: dcim/forms/bulk_edit.py:411 dcim/forms/bulk_edit.py:524
-#: dcim/forms/bulk_edit.py:568 dcim/forms/bulk_edit.py:705
+#: dcim/forms/bulk_edit.py:412 dcim/forms/bulk_edit.py:525
+#: dcim/forms/bulk_edit.py:569 dcim/forms/bulk_edit.py:706
 #: dcim/forms/bulk_import.py:277 dcim/forms/bulk_import.py:410
 #: dcim/forms/bulk_import.py:580 dcim/forms/filtersets.py:280
 #: dcim/forms/filtersets.py:511 dcim/forms/filtersets.py:669
@@ -3326,7 +3328,7 @@ msgstr "Призначеня міток"
 msgid "Airflow"
 msgstr "Потік повітря"
 
-#: dcim/forms/bulk_edit.py:440 dcim/forms/bulk_edit.py:910
+#: dcim/forms/bulk_edit.py:441 dcim/forms/bulk_edit.py:920
 #: dcim/forms/bulk_import.py:322 dcim/forms/bulk_import.py:325
 #: dcim/forms/bulk_import.py:553 dcim/forms/bulk_import.py:1358
 #: dcim/forms/bulk_import.py:1362 dcim/forms/filtersets.py:104
@@ -3346,7 +3348,7 @@ msgstr "Потік повітря"
 msgid "Rack"
 msgstr "Стійка"
 
-#: dcim/forms/bulk_edit.py:444 dcim/forms/bulk_edit.py:730
+#: dcim/forms/bulk_edit.py:445 dcim/forms/bulk_edit.py:739
 #: dcim/forms/filtersets.py:325 dcim/forms/filtersets.py:398
 #: dcim/forms/filtersets.py:481 dcim/forms/filtersets.py:608
 #: dcim/forms/filtersets.py:721 dcim/forms/filtersets.py:942
@@ -3355,49 +3357,49 @@ msgstr "Стійка"
 msgid "Hardware"
 msgstr "Апаратне забезпечення"
 
-#: dcim/forms/bulk_edit.py:500 dcim/forms/bulk_import.py:377
+#: dcim/forms/bulk_edit.py:501 dcim/forms/bulk_import.py:377
 #: dcim/forms/filtersets.py:499 dcim/forms/model_forms.py:353
 msgid "Default platform"
 msgstr "Платформа за замовчуванням"
 
-#: dcim/forms/bulk_edit.py:505 dcim/forms/bulk_edit.py:564
+#: dcim/forms/bulk_edit.py:506 dcim/forms/bulk_edit.py:565
 #: dcim/forms/filtersets.py:502 dcim/forms/filtersets.py:622
 msgid "Part number"
 msgstr "Номер партії"
 
-#: dcim/forms/bulk_edit.py:509
+#: dcim/forms/bulk_edit.py:510
 msgid "U height"
 msgstr "Висота U"
 
-#: dcim/forms/bulk_edit.py:521 dcim/tables/devicetypes.py:102
+#: dcim/forms/bulk_edit.py:522 dcim/tables/devicetypes.py:102
 msgid "Exclude from utilization"
 msgstr "Виключити з утилізації"
 
-#: dcim/forms/bulk_edit.py:550 dcim/forms/model_forms.py:368
+#: dcim/forms/bulk_edit.py:551 dcim/forms/model_forms.py:368
 #: dcim/tables/devicetypes.py:77 templates/dcim/device.html:88
 #: templates/dcim/devicebay.html:52 templates/dcim/module.html:61
 msgid "Device Type"
 msgstr "Тип пристрою"
 
-#: dcim/forms/bulk_edit.py:592 dcim/forms/model_forms.py:401
+#: dcim/forms/bulk_edit.py:593 dcim/forms/model_forms.py:401
 #: dcim/tables/modules.py:17 dcim/tables/modules.py:65
 #: templates/dcim/module.html:65 templates/dcim/modulebay.html:66
 #: templates/dcim/moduletype.html:22
 msgid "Module Type"
 msgstr "Тип модуля"
 
-#: dcim/forms/bulk_edit.py:596 dcim/forms/model_forms.py:371
+#: dcim/forms/bulk_edit.py:597 dcim/forms/model_forms.py:371
 #: dcim/forms/model_forms.py:402 templates/dcim/devicetype.html:11
 msgid "Chassis"
 msgstr "Шасі"
 
-#: dcim/forms/bulk_edit.py:610 dcim/models/devices.py:484
+#: dcim/forms/bulk_edit.py:611 dcim/models/devices.py:484
 #: dcim/tables/devices.py:67
 msgid "VM role"
 msgstr "Роль віртуальної машини"
 
-#: dcim/forms/bulk_edit.py:613 dcim/forms/bulk_edit.py:637
-#: dcim/forms/bulk_edit.py:720 dcim/forms/bulk_import.py:434
+#: dcim/forms/bulk_edit.py:614 dcim/forms/bulk_edit.py:638
+#: dcim/forms/bulk_edit.py:721 dcim/forms/bulk_import.py:434
 #: dcim/forms/bulk_import.py:438 dcim/forms/bulk_import.py:457
 #: dcim/forms/bulk_import.py:461 dcim/forms/bulk_import.py:586
 #: dcim/forms/bulk_import.py:590 dcim/forms/filtersets.py:689
@@ -3410,19 +3412,19 @@ msgstr "Роль віртуальної машини"
 msgid "Config template"
 msgstr "Шаблон конфігурації"
 
-#: dcim/forms/bulk_edit.py:661 dcim/forms/bulk_edit.py:1061
+#: dcim/forms/bulk_edit.py:662 dcim/forms/bulk_edit.py:1071
 #: dcim/forms/bulk_import.py:492 dcim/forms/filtersets.py:114
 #: dcim/forms/model_forms.py:501 dcim/forms/model_forms.py:872
 #: dcim/forms/model_forms.py:889 extras/filtersets.py:547
 msgid "Device type"
 msgstr "Тип пристрою"
 
-#: dcim/forms/bulk_edit.py:672 dcim/forms/bulk_import.py:473
+#: dcim/forms/bulk_edit.py:673 dcim/forms/bulk_import.py:473
 #: dcim/forms/filtersets.py:119 dcim/forms/model_forms.py:509
 msgid "Device role"
 msgstr "Роль пристрою"
 
-#: dcim/forms/bulk_edit.py:695 dcim/forms/bulk_import.py:498
+#: dcim/forms/bulk_edit.py:696 dcim/forms/bulk_import.py:498
 #: dcim/forms/filtersets.py:796 dcim/forms/model_forms.py:451
 #: dcim/forms/model_forms.py:513 dcim/tables/devices.py:182
 #: extras/filtersets.py:563 templates/dcim/device.html:186
@@ -3436,8 +3438,28 @@ msgstr "Роль пристрою"
 msgid "Platform"
 msgstr "Платформа"
 
-#: dcim/forms/bulk_edit.py:728 dcim/forms/bulk_edit.py:1281
-#: dcim/forms/bulk_edit.py:1650 dcim/forms/bulk_edit.py:1696
+#: dcim/forms/bulk_edit.py:726 dcim/forms/bulk_import.py:517
+#: dcim/forms/filtersets.py:728 dcim/forms/filtersets.py:898
+#: dcim/forms/model_forms.py:522 dcim/tables/devices.py:202
+#: extras/filtersets.py:596 extras/forms/filtersets.py:322
+#: ipam/forms/filtersets.py:415 ipam/forms/filtersets.py:447
+#: templates/dcim/device.html:239 templates/virtualization/cluster.html:10
+#: templates/virtualization/virtualmachine.html:92
+#: templates/virtualization/virtualmachine.html:101
+#: virtualization/filtersets.py:157 virtualization/filtersets.py:277
+#: virtualization/forms/bulk_edit.py:129
+#: virtualization/forms/bulk_import.py:92
+#: virtualization/forms/filtersets.py:99
+#: virtualization/forms/filtersets.py:123
+#: virtualization/forms/filtersets.py:204
+#: virtualization/forms/model_forms.py:79
+#: virtualization/forms/model_forms.py:176
+#: virtualization/tables/virtualmachines.py:67
+msgid "Cluster"
+msgstr "Кластер"
+
+#: dcim/forms/bulk_edit.py:737 dcim/forms/bulk_edit.py:1291
+#: dcim/forms/bulk_edit.py:1688 dcim/forms/bulk_edit.py:1734
 #: dcim/forms/bulk_import.py:641 dcim/forms/bulk_import.py:703
 #: dcim/forms/bulk_import.py:729 dcim/forms/bulk_import.py:755
 #: dcim/forms/bulk_import.py:775 dcim/forms/bulk_import.py:828
@@ -3494,22 +3516,27 @@ msgstr "Платформа"
 msgid "Device"
 msgstr "Пристрій"
 
-#: dcim/forms/bulk_edit.py:731 templates/extras/dashboard/widget_config.html:7
+#: dcim/forms/bulk_edit.py:740 templates/extras/dashboard/widget_config.html:7
 #: virtualization/forms/bulk_edit.py:191
 msgid "Configuration"
 msgstr "Конфігурація"
 
-#: dcim/forms/bulk_edit.py:745 dcim/forms/bulk_import.py:653
+#: dcim/forms/bulk_edit.py:741 netbox/navigation/menu.py:243
+#: templates/dcim/device_edit.html:78
+msgid "Virtualization"
+msgstr "Віртуалізація"
+
+#: dcim/forms/bulk_edit.py:755 dcim/forms/bulk_import.py:653
 #: dcim/forms/model_forms.py:647 dcim/forms/model_forms.py:897
 msgid "Module type"
 msgstr "Тип модуля"
 
-#: dcim/forms/bulk_edit.py:799 dcim/forms/bulk_edit.py:984
-#: dcim/forms/bulk_edit.py:1003 dcim/forms/bulk_edit.py:1026
-#: dcim/forms/bulk_edit.py:1068 dcim/forms/bulk_edit.py:1112
-#: dcim/forms/bulk_edit.py:1163 dcim/forms/bulk_edit.py:1190
-#: dcim/forms/bulk_edit.py:1217 dcim/forms/bulk_edit.py:1235
-#: dcim/forms/bulk_edit.py:1253 dcim/forms/filtersets.py:67
+#: dcim/forms/bulk_edit.py:809 dcim/forms/bulk_edit.py:994
+#: dcim/forms/bulk_edit.py:1013 dcim/forms/bulk_edit.py:1036
+#: dcim/forms/bulk_edit.py:1078 dcim/forms/bulk_edit.py:1122
+#: dcim/forms/bulk_edit.py:1173 dcim/forms/bulk_edit.py:1200
+#: dcim/forms/bulk_edit.py:1227 dcim/forms/bulk_edit.py:1245
+#: dcim/forms/bulk_edit.py:1263 dcim/forms/filtersets.py:67
 #: dcim/forms/object_create.py:46 templates/dcim/cable.html:32
 #: templates/dcim/consoleport.html:32 templates/dcim/consoleserverport.html:32
 #: templates/dcim/devicebay.html:28 templates/dcim/frontport.html:32
@@ -3521,82 +3548,82 @@ msgstr "Тип модуля"
 msgid "Label"
 msgstr "Етикетка"
 
-#: dcim/forms/bulk_edit.py:808 dcim/forms/filtersets.py:1068
+#: dcim/forms/bulk_edit.py:818 dcim/forms/filtersets.py:1068
 #: templates/dcim/cable.html:50
 msgid "Length"
 msgstr "Довжина"
 
-#: dcim/forms/bulk_edit.py:813 dcim/forms/bulk_import.py:1226
+#: dcim/forms/bulk_edit.py:823 dcim/forms/bulk_import.py:1226
 #: dcim/forms/bulk_import.py:1229 dcim/forms/filtersets.py:1072
 msgid "Length unit"
 msgstr "Довжина юніта"
 
-#: dcim/forms/bulk_edit.py:837 templates/dcim/virtualchassis.html:23
+#: dcim/forms/bulk_edit.py:847 templates/dcim/virtualchassis.html:23
 msgid "Domain"
 msgstr "Домен"
 
-#: dcim/forms/bulk_edit.py:905 dcim/forms/bulk_import.py:1345
+#: dcim/forms/bulk_edit.py:915 dcim/forms/bulk_import.py:1345
 #: dcim/forms/filtersets.py:1158 dcim/forms/model_forms.py:750
 msgid "Power panel"
 msgstr "Панель живлення"
 
-#: dcim/forms/bulk_edit.py:927 dcim/forms/bulk_import.py:1381
+#: dcim/forms/bulk_edit.py:937 dcim/forms/bulk_import.py:1381
 #: dcim/forms/filtersets.py:1180 templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "Постачання"
 
-#: dcim/forms/bulk_edit.py:933 dcim/forms/bulk_import.py:1386
+#: dcim/forms/bulk_edit.py:943 dcim/forms/bulk_import.py:1386
 #: dcim/forms/filtersets.py:1185 templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "Фаза"
 
-#: dcim/forms/bulk_edit.py:939 dcim/forms/filtersets.py:1190
+#: dcim/forms/bulk_edit.py:949 dcim/forms/filtersets.py:1190
 #: templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "Напруга"
 
-#: dcim/forms/bulk_edit.py:943 dcim/forms/filtersets.py:1194
+#: dcim/forms/bulk_edit.py:953 dcim/forms/filtersets.py:1194
 #: templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "Сила струму"
 
-#: dcim/forms/bulk_edit.py:947 dcim/forms/filtersets.py:1198
+#: dcim/forms/bulk_edit.py:957 dcim/forms/filtersets.py:1198
 msgid "Max utilization"
 msgstr "Максимальне використання"
 
-#: dcim/forms/bulk_edit.py:1036
+#: dcim/forms/bulk_edit.py:1046
 msgid "Maximum draw"
 msgstr "Максимальна потужність"
 
-#: dcim/forms/bulk_edit.py:1039 dcim/models/device_component_templates.py:282
+#: dcim/forms/bulk_edit.py:1049 dcim/models/device_component_templates.py:282
 #: dcim/models/device_components.py:356
 msgid "Maximum power draw (watts)"
 msgstr "Максимальна споживана потужність (Вт)"
 
-#: dcim/forms/bulk_edit.py:1042
+#: dcim/forms/bulk_edit.py:1052
 msgid "Allocated draw"
 msgstr "Виділена потужність"
 
-#: dcim/forms/bulk_edit.py:1045 dcim/models/device_component_templates.py:289
+#: dcim/forms/bulk_edit.py:1055 dcim/models/device_component_templates.py:289
 #: dcim/models/device_components.py:363
 msgid "Allocated power draw (watts)"
 msgstr "Виділена споживана потужність (Вт)"
 
-#: dcim/forms/bulk_edit.py:1078 dcim/forms/bulk_import.py:786
+#: dcim/forms/bulk_edit.py:1088 dcim/forms/bulk_import.py:786
 #: dcim/forms/model_forms.py:953 dcim/forms/model_forms.py:1278
 #: dcim/forms/model_forms.py:1567 dcim/forms/object_import.py:55
 msgid "Power port"
 msgstr "Порт живлення"
 
-#: dcim/forms/bulk_edit.py:1083 dcim/forms/bulk_import.py:793
+#: dcim/forms/bulk_edit.py:1093 dcim/forms/bulk_import.py:793
 msgid "Feed leg"
 msgstr "Фідер живлення"
 
-#: dcim/forms/bulk_edit.py:1129 dcim/forms/bulk_edit.py:1440
+#: dcim/forms/bulk_edit.py:1139 dcim/forms/bulk_edit.py:1457
 msgid "Management only"
 msgstr "Тільки управління"
 
-#: dcim/forms/bulk_edit.py:1139 dcim/forms/bulk_edit.py:1446
+#: dcim/forms/bulk_edit.py:1149 dcim/forms/bulk_edit.py:1463
 #: dcim/forms/bulk_import.py:876 dcim/forms/filtersets.py:1394
 #: dcim/forms/object_import.py:90
 #: dcim/models/device_component_templates.py:437
@@ -3604,7 +3631,7 @@ msgstr "Тільки управління"
 msgid "PoE mode"
 msgstr "Режим PoE"
 
-#: dcim/forms/bulk_edit.py:1145 dcim/forms/bulk_edit.py:1452
+#: dcim/forms/bulk_edit.py:1155 dcim/forms/bulk_edit.py:1469
 #: dcim/forms/bulk_import.py:882 dcim/forms/filtersets.py:1399
 #: dcim/forms/object_import.py:95
 #: dcim/models/device_component_templates.py:443
@@ -3612,12 +3639,12 @@ msgstr "Режим PoE"
 msgid "PoE type"
 msgstr "Тип PoE"
 
-#: dcim/forms/bulk_edit.py:1151 dcim/forms/filtersets.py:1404
+#: dcim/forms/bulk_edit.py:1161 dcim/forms/filtersets.py:1404
 #: dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "Бездротова роль"
 
-#: dcim/forms/bulk_edit.py:1288 dcim/forms/model_forms.py:669
+#: dcim/forms/bulk_edit.py:1298 dcim/forms/model_forms.py:669
 #: dcim/forms/model_forms.py:1223 dcim/tables/devices.py:313
 #: templates/dcim/consoleport.html:24 templates/dcim/consoleserverport.html:24
 #: templates/dcim/frontport.html:24 templates/dcim/interface.html:34
@@ -3627,16 +3654,16 @@ msgstr "Бездротова роль"
 msgid "Module"
 msgstr "Модуль"
 
-#: dcim/forms/bulk_edit.py:1420 dcim/tables/devices.py:665
+#: dcim/forms/bulk_edit.py:1437 dcim/tables/devices.py:665
 #: templates/dcim/interface.html:110
 msgid "LAG"
 msgstr "LAG"
 
-#: dcim/forms/bulk_edit.py:1425 dcim/forms/model_forms.py:1305
+#: dcim/forms/bulk_edit.py:1442 dcim/forms/model_forms.py:1305
 msgid "Virtual device contexts"
 msgstr "Контексти віртуальних пристроїв"
 
-#: dcim/forms/bulk_edit.py:1431 dcim/forms/bulk_import.py:714
+#: dcim/forms/bulk_edit.py:1448 dcim/forms/bulk_import.py:714
 #: dcim/forms/bulk_import.py:740 dcim/forms/filtersets.py:1252
 #: dcim/forms/filtersets.py:1277 dcim/forms/filtersets.py:1358
 #: dcim/tables/devices.py:610
@@ -3645,7 +3672,7 @@ msgstr "Контексти віртуальних пристроїв"
 msgid "Speed"
 msgstr "Швидкість"
 
-#: dcim/forms/bulk_edit.py:1460 dcim/forms/bulk_import.py:885
+#: dcim/forms/bulk_edit.py:1477 dcim/forms/bulk_import.py:885
 #: templates/vpn/ikepolicy.html:25 templates/vpn/ipsecprofile.html:21
 #: templates/vpn/ipsecprofile.html:48 virtualization/forms/bulk_edit.py:233
 #: virtualization/forms/bulk_import.py:165 vpn/forms/bulk_edit.py:146
@@ -3656,36 +3683,44 @@ msgstr "Швидкість"
 msgid "Mode"
 msgstr "Режим"
 
-#: dcim/forms/bulk_edit.py:1468 dcim/forms/model_forms.py:1354
+#: dcim/forms/bulk_edit.py:1485 dcim/forms/model_forms.py:1354
 #: ipam/forms/bulk_import.py:178 ipam/forms/filtersets.py:498
 #: ipam/models/vlans.py:84 virtualization/forms/bulk_edit.py:240
 #: virtualization/forms/model_forms.py:321
 msgid "VLAN group"
 msgstr "Група VLAN"
 
-#: dcim/forms/bulk_edit.py:1476 dcim/forms/model_forms.py:1360
+#: dcim/forms/bulk_edit.py:1494 dcim/forms/model_forms.py:1360
 #: dcim/tables/devices.py:579 virtualization/forms/bulk_edit.py:248
 #: virtualization/forms/model_forms.py:326
 msgid "Untagged VLAN"
 msgstr "VLAN без міток"
 
-#: dcim/forms/bulk_edit.py:1484 dcim/forms/model_forms.py:1369
+#: dcim/forms/bulk_edit.py:1503 dcim/forms/model_forms.py:1369
 #: dcim/tables/devices.py:585 virtualization/forms/bulk_edit.py:256
 #: virtualization/forms/model_forms.py:335
 msgid "Tagged VLANs"
-msgstr "VLAN з мітками"
+msgstr "VLAN'и з мітками"
 
-#: dcim/forms/bulk_edit.py:1494 dcim/forms/model_forms.py:1341
+#: dcim/forms/bulk_edit.py:1506
+msgid "Add tagged VLANs"
+msgstr "Додати VLAN'и з мітками"
+
+#: dcim/forms/bulk_edit.py:1515
+msgid "Remove tagged VLANs"
+msgstr "Видалити мітки з VLAN'ів"
+
+#: dcim/forms/bulk_edit.py:1531 dcim/forms/model_forms.py:1341
 msgid "Wireless LAN group"
 msgstr "Група бездротової локальної мережі"
 
-#: dcim/forms/bulk_edit.py:1499 dcim/forms/model_forms.py:1346
+#: dcim/forms/bulk_edit.py:1536 dcim/forms/model_forms.py:1346
 #: dcim/tables/devices.py:619 netbox/navigation/menu.py:146
 #: templates/dcim/interface.html:280 wireless/tables/wirelesslan.py:24
 msgid "Wireless LANs"
 msgstr "Бездротові локальні мережі"
 
-#: dcim/forms/bulk_edit.py:1508 dcim/forms/filtersets.py:1328
+#: dcim/forms/bulk_edit.py:1545 dcim/forms/filtersets.py:1328
 #: dcim/forms/model_forms.py:1390 ipam/forms/bulk_edit.py:286
 #: ipam/forms/bulk_edit.py:378 ipam/forms/filtersets.py:169
 #: templates/dcim/interface.html:122 templates/ipam/prefix.html:95
@@ -3693,33 +3728,37 @@ msgstr "Бездротові локальні мережі"
 msgid "Addressing"
 msgstr "Адресація"
 
-#: dcim/forms/bulk_edit.py:1509 dcim/forms/filtersets.py:720
+#: dcim/forms/bulk_edit.py:1546 dcim/forms/filtersets.py:720
 #: dcim/forms/model_forms.py:1391 virtualization/forms/model_forms.py:350
 msgid "Operation"
 msgstr "Операція"
 
-#: dcim/forms/bulk_edit.py:1510 dcim/forms/filtersets.py:1329
+#: dcim/forms/bulk_edit.py:1547 dcim/forms/filtersets.py:1329
 #: dcim/forms/model_forms.py:987 dcim/forms/model_forms.py:1393
 msgid "PoE"
 msgstr "PoE"
 
-#: dcim/forms/bulk_edit.py:1511 dcim/forms/model_forms.py:1392
+#: dcim/forms/bulk_edit.py:1548 dcim/forms/model_forms.py:1392
 #: templates/dcim/interface.html:99 virtualization/forms/bulk_edit.py:267
 #: virtualization/forms/model_forms.py:351
 msgid "Related Interfaces"
 msgstr "Пов'язані інтерфейси"
 
-#: dcim/forms/bulk_edit.py:1512 dcim/forms/model_forms.py:1394
+#: dcim/forms/bulk_edit.py:1549 dcim/forms/model_forms.py:1394
 #: virtualization/forms/bulk_edit.py:268
 #: virtualization/forms/model_forms.py:352
 msgid "802.1Q Switching"
 msgstr "Комутація 802.1Q"
 
-#: dcim/forms/bulk_edit.py:1574 dcim/forms/bulk_edit.py:1576
-msgid "Interface mode must be specified to assign VLANs"
-msgstr "Для призначення VLANs необхідно вказати режим інтерфейсу"
+#: dcim/forms/bulk_edit.py:1553
+msgid "Add/Remove"
+msgstr "Додати/Видалити"
 
-#: dcim/forms/bulk_edit.py:1581 dcim/forms/common.py:50
+#: dcim/forms/bulk_edit.py:1612 dcim/forms/bulk_edit.py:1614
+msgid "Interface mode must be specified to assign VLANs"
+msgstr "Для призначення VLAN'ів необхідно вказати режим інтерфейсу"
+
+#: dcim/forms/bulk_edit.py:1619 dcim/forms/common.py:50
 msgid "An access interface cannot have tagged VLANs assigned."
 msgstr "Інтерфейс доступу не може призначити VLAN'и з мітками."
 
@@ -3860,26 +3899,6 @@ msgstr "Призначена платформа"
 msgid "Virtual chassis"
 msgstr "Віртуальне шасі"
 
-#: dcim/forms/bulk_import.py:517 dcim/forms/filtersets.py:728
-#: dcim/forms/filtersets.py:898 dcim/forms/model_forms.py:522
-#: dcim/tables/devices.py:202 extras/filtersets.py:596
-#: extras/forms/filtersets.py:322 ipam/forms/filtersets.py:415
-#: ipam/forms/filtersets.py:447 templates/dcim/device.html:239
-#: templates/virtualization/cluster.html:10
-#: templates/virtualization/virtualmachine.html:92
-#: templates/virtualization/virtualmachine.html:101
-#: virtualization/filtersets.py:157 virtualization/filtersets.py:277
-#: virtualization/forms/bulk_edit.py:129
-#: virtualization/forms/bulk_import.py:92
-#: virtualization/forms/filtersets.py:99
-#: virtualization/forms/filtersets.py:123
-#: virtualization/forms/filtersets.py:204
-#: virtualization/forms/model_forms.py:79
-#: virtualization/forms/model_forms.py:176
-#: virtualization/tables/virtualmachines.py:67
-msgid "Cluster"
-msgstr "Кластер"
-
 #: dcim/forms/bulk_import.py:521
 msgid "Virtualization cluster"
 msgstr "Кластер віртуалізації"
@@ -3993,7 +4012,7 @@ msgstr "Батьківський інтерфейс LAG"
 
 #: dcim/forms/bulk_import.py:854
 msgid "Vdcs"
-msgstr "Джерела живлення постійного струму "
+msgstr "Джерела живлення постійного струму"
 
 #: dcim/forms/bulk_import.py:859
 msgid "VDC names separated by commas, encased with double quotes. Example:"
@@ -4108,7 +4127,7 @@ msgstr "Тип сторони А"
 
 #: dcim/forms/bulk_import.py:1180 dcim/forms/bulk_import.py:1198
 msgid "Termination type"
-msgstr "Тип припинення"
+msgstr "Тип кінця"
 
 #: dcim/forms/bulk_import.py:1183
 msgid "Side A name"
@@ -4116,7 +4135,7 @@ msgstr "Назва сторони A"
 
 #: dcim/forms/bulk_import.py:1184 dcim/forms/bulk_import.py:1202
 msgid "Termination name"
-msgstr "Назва припинення"
+msgstr "Назва кінця"
 
 #: dcim/forms/bulk_import.py:1189
 msgid "Side B device"
@@ -4178,7 +4197,7 @@ msgstr "Однофазний або трифазний (струм)"
 #: templates/dcim/device.html:190 templates/dcim/virtualdevicecontext.html:30
 #: templates/virtualization/virtualmachine.html:52
 msgid "Primary IPv4"
-msgstr "Первинний IPv4"
+msgstr "Первинна адреса IPv4"
 
 #: dcim/forms/bulk_import.py:1443
 msgid "IPv4 address with mask, e.g. 1.2.3.4/24"
@@ -4188,11 +4207,11 @@ msgstr "IPv4 адреса з маскою, наприклад 1.2.3.4/24"
 #: templates/dcim/device.html:206 templates/dcim/virtualdevicecontext.html:41
 #: templates/virtualization/virtualmachine.html:68
 msgid "Primary IPv6"
-msgstr "Первинний IPv6"
+msgstr "Первинна адреса IPv6"
 
 #: dcim/forms/bulk_import.py:1450
 msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
-msgstr "IPv6 адреса з довжиною префікса, наприклад 2001:db8: :1/64"
+msgstr "IPv6 адреса з довжиною префікса, наприклад 2001:db8::1/64"
 
 #: dcim/forms/common.py:24 dcim/models/device_components.py:527
 #: templates/dcim/interface.html:57
@@ -4231,7 +4250,8 @@ msgstr ""
 #: dcim/forms/common.py:144
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
-msgstr "Не можна усиновити {model} {name} оскільки він вже належить до модуля"
+msgstr ""
+"Не можна усиновити {model} {name}, оскільки він вже належить до модуля"
 
 #: dcim/forms/common.py:153
 #, python-brace-format
@@ -4548,7 +4568,7 @@ msgstr "Інтерфейс LAG"
 
 #: dcim/forms/model_forms.py:1355
 msgid "Filter VLANs available for assignment by group."
-msgstr "Фільтр VLAN, доступних для призначення за групами."
+msgstr "Фільтр VLAN'ів, доступних для призначення за групами."
 
 #: dcim/forms/model_forms.py:1484
 msgid "Child Device"
@@ -4622,7 +4642,7 @@ msgid ""
 "match the selected number of rear port positions ({rearport_count})."
 msgstr ""
 "Кількість шаблонів передніх портів, які потрібно створити "
-"({frontport_count}) повинен відповідати вибраній кількості позицій портів "
+"({frontport_count}) повинна відповідати вибраній кількості позицій портів "
 "ззаду ({rearport_count})."
 
 #: dcim/forms/object_create.py:251
@@ -4631,8 +4651,8 @@ msgid ""
 "The string <code>{module}</code> will be replaced with the position of the "
 "assigned module, if any."
 msgstr ""
-"Струна <code>{module}</code> буде замінено позицією призначеного модуля, "
-"якщо такий є."
+"Рядок <code>{module}</code> буде замінено позицією призначеного модуля, якщо"
+" такий є."
 
 #: dcim/forms/object_create.py:320
 #, python-brace-format
@@ -4640,7 +4660,7 @@ msgid ""
 "The number of front ports to be created ({frontport_count}) must match the "
 "selected number of rear port positions ({rearport_count})."
 msgstr ""
-"Кількість передніх портів, які потрібно створити ({frontport_count}) повинен"
+"Кількість передніх портів, які потрібно створити ({frontport_count}) повинна"
 " відповідати вибраній кількості позицій портів ззаду ({rearport_count})."
 
 #: dcim/forms/object_create.py:409 dcim/tables/devices.py:1033
@@ -4663,7 +4683,7 @@ msgstr ""
 
 #: dcim/forms/object_create.py:435
 msgid "A position must be specified for the first VC member."
-msgstr "Посада повинна бути вказана для першого члена VC."
+msgstr "Позиція повинна бути вказана для першого члена VC."
 
 #: dcim/models/cables.py:62 dcim/models/device_component_templates.py:55
 #: dcim/models/device_components.py:62 extras/models/customfields.py:111
@@ -4692,7 +4712,7 @@ msgstr "Необхідно вказати номер юніта при уста�
 
 #: dcim/models/cables.py:168
 msgid "Must define A and B terminations when creating a new cable."
-msgstr "Необхідно визначити кінцівки А і Б при створенні нового кабелю."
+msgstr "Необхідно визначити кінці А і Б при створенні нового кабелю."
 
 #: dcim/models/cables.py:175
 msgid "Cannot connect different termination types to same end of cable."
@@ -4713,11 +4733,11 @@ msgstr "кінець"
 
 #: dcim/models/cables.py:313
 msgid "cable termination"
-msgstr "кабельна кінцівка"
+msgstr "кабельний кінець"
 
 #: dcim/models/cables.py:314
 msgid "cable terminations"
-msgstr "кабельні кінцівки"
+msgstr "кабельні кінці"
 
 #: dcim/models/cables.py:333
 #, python-brace-format
@@ -4725,7 +4745,7 @@ msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
-"Знайдено дублікат кінцівки {app_label}.{model} {termination_id}: кабель "
+"Знайдено дублікат кінця {app_label}.{model} {termination_id}: кабель "
 "{cable_pk}"
 
 #: dcim/models/cables.py:343
@@ -4832,7 +4852,7 @@ msgstr "шаблони портів живлення"
 msgid "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
 msgstr ""
 "Виділена потужність не може перевищувати максимальну потужність "
-"({maximum_draw}W)."
+"({maximum_draw}Вт)."
 
 #: dcim/models/device_component_templates.py:347
 #: dcim/models/device_components.py:477
@@ -4856,14 +4876,14 @@ msgstr "шаблони розеток"
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same device type"
 msgstr ""
-"Батьківський порт живлення ({power_port}) повинні належати до одного типу "
+"Батьківський порт живлення ({power_port}) повинен належати до одного типу "
 "пристрою"
 
 #: dcim/models/device_component_templates.py:371
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same module type"
 msgstr ""
-"Батьківський порт живлення ({power_port}) повинні належати до одного типу "
+"Батьківський порт живлення ({power_port}) повинен належати до одного типу "
 "модуля"
 
 #: dcim/models/device_component_templates.py:423
@@ -4949,7 +4969,7 @@ msgstr "шаблони портів ззаду"
 #: dcim/models/device_component_templates.py:662
 #: dcim/models/device_components.py:1103
 msgid "position"
-msgstr "позиції"
+msgstr "позиція"
 
 #: dcim/models/device_component_templates.py:665
 #: dcim/models/device_components.py:1106
@@ -5534,7 +5554,7 @@ msgstr ""
 
 #: dcim/models/devices.py:337
 msgid "Child device types must be 0U."
-msgstr "Дитячі типи пристроїв повинні бути висоту 0 юніт."
+msgstr "Підпорядковані типи пристроїв повинні бути висоту 0 юніт."
 
 #: dcim/models/devices.py:411
 msgid "module type"
@@ -5592,12 +5612,12 @@ msgstr "лицева частина стійки"
 #: dcim/models/devices.py:670 dcim/models/devices.py:1415
 #: virtualization/models/virtualmachines.py:100
 msgid "primary IPv4"
-msgstr "первинний IPv4"
+msgstr "первинна адреса IPv4"
 
 #: dcim/models/devices.py:678 dcim/models/devices.py:1423
 #: virtualization/models/virtualmachines.py:108
 msgid "primary IPv6"
-msgstr "первинний IPv6"
+msgstr "первинна адреса IPv6"
 
 #: dcim/models/devices.py:686
 msgid "out-of-band IP"
@@ -5652,7 +5672,7 @@ msgstr "Стійка {rack} не належить до тех. майданчи�
 #: dcim/models/devices.py:840
 #, python-brace-format
 msgid "Location {location} does not belong to site {site}."
-msgstr "Розташування {location} не належить до тех. майданчика{site}."
+msgstr "Розташування {location} не належить до тех. майданчика {site}."
 
 #: dcim/models/devices.py:846
 #, python-brace-format
@@ -5723,7 +5743,7 @@ msgstr "Зазначена IP-адреса ({ip}) не призначаєтьс�
 #: dcim/models/devices.py:937
 #, python-brace-format
 msgid "{ip} is not an IPv6 address."
-msgstr "{ip} Це не IPv6 адреса ."
+msgstr "{ip} Це не IPv6 адреса."
 
 #: dcim/models/devices.py:964
 #, python-brace-format
@@ -5819,7 +5839,7 @@ msgstr "контексти віртуальних пристроїв"
 #: dcim/models/devices.py:1482
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
-msgstr "{ip} не є IPv{family} адресой."
+msgstr "{ip} не є IPv{family} адресою."
 
 #: dcim/models/devices.py:1488
 msgid "Primary IP address must belong to an interface on the assigned device."
@@ -6073,7 +6093,8 @@ msgstr "бронювання стійки"
 #: dcim/models/racks.py:714
 #, python-brace-format
 msgid "Invalid unit(s) for {height}U rack: {unit_list}"
-msgstr "Недійсне монтажне місце для стійки висотою{height}юнітів: {unit_list}"
+msgstr ""
+"Недійсне монтажне місце для стійки висотою {height} юнітів: {unit_list}"
 
 #: dcim/models/racks.py:727
 #, python-brace-format
@@ -6086,7 +6107,7 @@ msgstr "Регіон верхнього рівня з такою назвою в
 
 #: dcim/models/sites.py:59
 msgid "A top-level region with this slug already exists."
-msgstr "Регіон верхнього рівня з цим слимаком вже існує."
+msgstr "Регіон верхнього рівня з цим скореченням вже існує."
 
 #: dcim/models/sites.py:62
 msgid "region"
@@ -6102,7 +6123,7 @@ msgstr "Група тех. майданчиків верхнього рівня 
 
 #: dcim/models/sites.py:112
 msgid "A top-level site group with this slug already exists."
-msgstr "Група тех. майданчиків верхнього рівня з цим слимаком вже існує."
+msgstr "Група тех. майданчиків верхнього рівня з цим скореченням вже існує."
 
 #: dcim/models/sites.py:115
 msgid "site group"
@@ -6176,11 +6197,11 @@ msgstr ""
 
 #: dcim/tables/cables.py:55
 msgid "Termination A"
-msgstr "Припинення А"
+msgstr "Кінець А"
 
 #: dcim/tables/cables.py:60
 msgid "Termination B"
-msgstr "Припинення Б"
+msgstr "Кінець Б"
 
 #: dcim/tables/cables.py:66 wireless/tables/wirelesslink.py:23
 msgid "Device A"
@@ -6232,7 +6253,7 @@ msgstr "Пристрої"
 #: dcim/tables/devices.py:63 dcim/tables/devices.py:111
 #: virtualization/tables/clusters.py:88
 msgid "VMs"
-msgstr "віртуальні машини"
+msgstr "Віртуальні машини"
 
 #: dcim/tables/devices.py:100 dcim/tables/devices.py:216
 #: extras/forms/model_forms.py:630 templates/dcim/device.html:112
@@ -6361,11 +6382,11 @@ msgstr "Позначене підключення"
 
 #: dcim/tables/devices.py:461
 msgid "Maximum draw (W)"
-msgstr "Максимальна потужність (W)"
+msgstr "Максимальна потужність (Вт)"
 
 #: dcim/tables/devices.py:464
 msgid "Allocated draw (W)"
-msgstr "Виділена потужність (W)"
+msgstr "Виділена потужність (Вт)"
 
 #: dcim/tables/devices.py:558 ipam/forms/model_forms.py:701
 #: ipam/tables/fhrp.py:28 ipam/views.py:596 ipam/views.py:696
@@ -6397,7 +6418,7 @@ msgstr "Тільки управління"
 
 #: dcim/tables/devices.py:623
 msgid "VDCs"
-msgstr "Джерела живлення постійного струму "
+msgstr "Джерела живлення постійного струму"
 
 #: dcim/tables/devices.py:873 templates/dcim/modulebay.html:53
 msgid "Installed Module"
@@ -6405,7 +6426,7 @@ msgstr "Встановлений модуль"
 
 #: dcim/tables/devices.py:876
 msgid "Module Serial"
-msgstr "Послідовний модуль "
+msgstr "Послідовний модуль"
 
 #: dcim/tables/devices.py:880
 msgid "Module Asset Tag"
@@ -6449,7 +6470,7 @@ msgstr "Повна глибина"
 
 #: dcim/tables/devicetypes.py:98
 msgid "U Height"
-msgstr "Висота юніта"
+msgstr "Висота юніта(U)"
 
 #: dcim/tables/devicetypes.py:113 dcim/tables/modules.py:26
 #: dcim/tables/racks.py:89
@@ -6594,7 +6615,7 @@ msgstr "Контекст конфігурації"
 
 #: dcim/views.py:2098 virtualization/views.py:417
 msgid "Render Config"
-msgstr "Відтворювати конфігурацію"
+msgstr "Відтворення конфігурації"
 
 #: dcim/views.py:2131 virtualization/views.py:450
 #, python-brace-format
@@ -6607,31 +6628,31 @@ msgstr "Під час візуалізації шаблону сталася п�
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
 
-#: dcim/views.py:2897
+#: dcim/views.py:2907
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Встановлений пристрій {device} в бухті {device_bay}."
 
-#: dcim/views.py:2938
+#: dcim/views.py:2948
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Видалений пристрій {device} з бухти {device_bay}."
 
-#: dcim/views.py:3044 ipam/tables/ip.py:234
+#: dcim/views.py:3054 ipam/tables/ip.py:234
 msgid "Children"
 msgstr "Підпорядкований"
 
-#: dcim/views.py:3510
+#: dcim/views.py:3520
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "Доданий член <a href=\"{url}\">{device}</a>"
 
-#: dcim/views.py:3557
+#: dcim/views.py:3567
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Неможливо видалити головний пристрій {device} від віртуального шасі."
 
-#: dcim/views.py:3570
+#: dcim/views.py:3580
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Вилучено {device} з віртуального шасі {chassis}"
@@ -6667,7 +6688,7 @@ msgstr "Десяткове число"
 
 #: extras/choices.py:34
 msgid "Boolean (true/false)"
-msgstr "Булевий тип (істинна/хибна)"
+msgstr "Булевий тип (правда/неправда)"
 
 #: extras/choices.py:35
 msgid "Date"
@@ -6969,7 +6990,7 @@ msgstr "Відображення довільного списку об'єкті
 
 #: extras/dashboard/widgets.py:222
 msgid "The default number of objects to display"
-msgstr "Типова кількість об'єктів для відображення"
+msgstr "Кількість об'єктів за замовченням для відображення"
 
 #: extras/dashboard/widgets.py:234
 msgid "Invalid format. URL parameters must be passed as a dictionary."
@@ -7034,7 +7055,7 @@ msgstr "Тип кластера"
 #: extras/filtersets.py:580 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:147
 msgid "Cluster type (slug)"
-msgstr "Кластерний тип (скоречення)"
+msgstr "Кластерний тип (скорочення)"
 
 #: extras/filtersets.py:601 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
@@ -7044,7 +7065,7 @@ msgstr "Група орендарів"
 #: extras/filtersets.py:607 tenancy/filtersets.py:188
 #: tenancy/filtersets.py:208
 msgid "Tenant group (slug)"
-msgstr "Група орендарів (скоречення)"
+msgstr "Група орендарів (скорочення)"
 
 #: extras/filtersets.py:623 extras/forms/model_forms.py:495
 #: templates/extras/tag.html:11
@@ -7053,7 +7074,7 @@ msgstr "Мітка"
 
 #: extras/filtersets.py:629
 msgid "Tag (slug)"
-msgstr "Мітка (скоречення)"
+msgstr "Мітка (скорочення)"
 
 #: extras/filtersets.py:689 extras/forms/filtersets.py:429
 msgid "Has local config context data"
@@ -7081,7 +7102,7 @@ msgstr "Видимий інтерфейс користувача"
 #: extras/forms/bulk_edit.py:66 extras/forms/bulk_import.py:66
 #: extras/forms/filtersets.py:94 extras/models/customfields.py:216
 msgid "UI editable"
-msgstr "Редагований інтерфейс користувача "
+msgstr "Редагований інтерфейс користувача"
 
 #: extras/forms/bulk_edit.py:71 extras/forms/filtersets.py:97
 msgid "Is cloneable"
@@ -7133,7 +7154,7 @@ msgstr "Спільний"
 #: extras/forms/bulk_edit.py:215 extras/forms/filtersets.py:265
 #: extras/models/models.py:174
 msgid "HTTP method"
-msgstr "метод HTTP"
+msgstr "Метод HTTP"
 
 #: extras/forms/bulk_edit.py:219 extras/forms/filtersets.py:259
 #: templates/extras/webhook.html:30
@@ -7218,7 +7239,8 @@ msgid ""
 "separated by colon: \"choice1:First Choice,choice2:Second Choice\""
 msgstr ""
 "Цитуючий рядок параметрів полів, розділених комами, з необов'язковими "
-"мітками, розділеними двокрапкою: «Вибір1:Перший вибір, Вибір2:другий вибір»"
+"мітками, розділеними двокрапкою: \"Вибір1:Перший вибір, Вибір2:другий "
+"вибір\""
 
 #: extras/forms/bulk_import.py:123 extras/models/models.py:323
 msgid "button class"
@@ -7456,7 +7478,7 @@ msgstr "Код шаблону"
 
 #: extras/forms/model_forms.py:247 templates/extras/exporttemplate.html:12
 msgid "Export Template"
-msgstr "Шаблон експорту"
+msgstr "Експортувати шаблон"
 
 #: extras/forms/model_forms.py:249
 msgid "Rendering"
@@ -7574,19 +7596,19 @@ msgstr "Заплануйте виконання сценарію до встан
 msgid "Interval at which this script is re-run (in minutes)"
 msgstr "Інтервал повторного запуску сценарію (у хвилині)"
 
-#: extras/jobs.py:49
+#: extras/jobs.py:47
 msgid "Database changes have been reverted automatically."
 msgstr "Зміни бази даних були автоматично скасовані."
 
-#: extras/jobs.py:55
+#: extras/jobs.py:53
 msgid "Script aborted with error: "
 msgstr "Скрипт перерваний з помилкою: "
 
-#: extras/jobs.py:65
+#: extras/jobs.py:63
 msgid "An exception occurred: "
 msgstr "Виняток стався: "
 
-#: extras/jobs.py:70
+#: extras/jobs.py:68
 msgid "Database changes have been reverted due to error."
 msgstr "Зміни бази даних були скасовані через помилку."
 
@@ -7848,7 +7870,7 @@ msgstr "Поля виділення повинні вказувати набір
 
 #: extras/models/customfields.py:368
 msgid "Choices may be set only on selection fields."
-msgstr "Вибір можна встановити лише для полів виділення."
+msgstr "Вибір можна встановити лише для виділених полів."
 
 #: extras/models/customfields.py:375
 msgid "Object fields must define an object type."
@@ -8183,7 +8205,7 @@ msgstr ""
 
 #: extras/models/models.py:410
 msgid "Defaults to <code>text/plain; charset=utf-8</code>"
-msgstr "За замовчуванням <code>текст/простий; набір символів = utf-8</code>"
+msgstr "За замовчуванням <code>text/plain; charset=utf-8</code>"
 
 #: extras/models/models.py:413
 msgid "file extension"
@@ -8336,7 +8358,7 @@ msgstr "підписки"
 
 #: extras/models/scripts.py:42
 msgid "is executable"
-msgstr "виконуваний"
+msgstr "є виконуваним"
 
 #: extras/models/scripts.py:64
 msgid "script"
@@ -8380,7 +8402,7 @@ msgstr "гілка"
 
 #: extras/models/staging.py:45
 msgid "branches"
-msgstr "відділення"
+msgstr "гілки"
 
 #: extras/models/staging.py:97
 msgid "staged change"
@@ -8465,7 +8487,7 @@ msgstr "Максимальне значення"
 
 #: extras/tables/tables.py:104
 msgid "Validation Regex"
-msgstr "Перевірка регулярного вираза "
+msgstr "Перевірка регулярного вираза"
 
 #: extras/tables/tables.py:137
 msgid "Count"
@@ -8617,7 +8639,8 @@ msgstr "Невірний формат IP-адреси: {data}"
 
 #: ipam/api/field_serializers.py:37
 msgid "Enter a valid IPv4 or IPv6 prefix and mask in CIDR notation."
-msgstr "Введіть дійсний префікс IPv4 або IPv6 та маску в позначенні CIDR."
+msgstr ""
+"Введіть дійсний мережевий префікс IPv4 або IPv6 та маску в позначенні CIDR."
 
 #: ipam/api/field_serializers.py:44
 #, python-brace-format
@@ -8639,11 +8662,11 @@ msgstr "DHCP"
 
 #: ipam/choices.py:73
 msgid "SLAAC"
-msgstr "СЛААК"
+msgstr "SLAAC"
 
 #: ipam/choices.py:89
 msgid "Loopback"
-msgstr "Петлебек"
+msgstr "Loopback"
 
 #: ipam/choices.py:91
 msgid "Anycast"
@@ -8729,15 +8752,15 @@ msgstr "RIR (ідентифікатор)"
 
 #: ipam/filtersets.py:165 ipam/filtersets.py:204 ipam/filtersets.py:227
 msgid "RIR (slug)"
-msgstr "RIR (скоречення)"
+msgstr "RIR (скорочення)"
 
 #: ipam/filtersets.py:285
 msgid "Within prefix"
-msgstr "Всередині префікса"
+msgstr "У межах префікса"
 
 #: ipam/filtersets.py:289
 msgid "Within and including prefix"
-msgstr "Всередині та включаючи префікс"
+msgstr "У межах та включаючи префікс"
 
 #: ipam/filtersets.py:293
 msgid "Prefixes which contain this prefix or IP"
@@ -8811,7 +8834,7 @@ msgstr "Сервіс (ідентифікатор)"
 
 #: ipam/filtersets.py:673
 msgid "NAT inside IP address (ID)"
-msgstr "NAT всередині IP-адреси (ідентифікатор)"
+msgstr "NAT внутрішня IP-адреса (ідентифікатор)"
 
 #: ipam/filtersets.py:1041 ipam/forms/bulk_import.py:322
 msgid "Assigned interface"
@@ -8831,11 +8854,11 @@ msgstr "IP-адреса"
 
 #: ipam/filtersets.py:1167
 msgid "Primary IPv4 (ID)"
-msgstr "Первинний IPv4 (ідентифікатор)"
+msgstr "Первинна адреса IPv4 (ідентифікатор)"
 
 #: ipam/filtersets.py:1172
 msgid "Primary IPv6 (ID)"
-msgstr "Первинний IPv6 (ідентифікатор)"
+msgstr "Первинна адреса IPv6 (ідентифікатор)"
 
 #: ipam/formfields.py:14
 msgid "Enter a valid IPv4 or IPv6 address (without a mask)."
@@ -8868,7 +8891,7 @@ msgstr "Адресний шаблон"
 
 #: ipam/forms/bulk_edit.py:50
 msgid "Enforce unique space"
-msgstr "Забезпечте унікальний простір"
+msgstr "Забезпечте унікальність простору"
 
 #: ipam/forms/bulk_edit.py:88
 msgid "Is private"
@@ -8886,7 +8909,7 @@ msgstr "Є приватним"
 #: templates/ipam/aggregate.html:18 templates/ipam/asn.html:27
 #: templates/ipam/asnrange.html:19 templates/ipam/rir.html:19
 msgid "RIR"
-msgstr "ЗРИГНУТИ"
+msgstr "RIR"
 
 #: ipam/forms/bulk_edit.py:171
 msgid "Date added"
@@ -8900,7 +8923,7 @@ msgstr "Група VLAN"
 
 #: ipam/forms/bulk_edit.py:234 ipam/forms/bulk_import.py:185
 #: ipam/forms/filtersets.py:256 ipam/forms/model_forms.py:218
-#: ipam/models/vlans.py:234 ipam/tables/ip.py:255
+#: ipam/models/vlans.py:250 ipam/tables/ip.py:255
 #: templates/ipam/prefix.html:60 templates/ipam/vlan.html:12
 #: templates/ipam/vlan/base.html:6 templates/ipam/vlan_edit.html:10
 #: templates/wireless/wirelesslan.html:30 vpn/forms/bulk_import.py:304
@@ -8918,13 +8941,13 @@ msgstr "Довжина префікса"
 #: ipam/forms/bulk_edit.py:268 ipam/forms/filtersets.py:241
 #: templates/ipam/prefix.html:85
 msgid "Is a pool"
-msgstr "Чи є басейн"
+msgstr "Чи є пулом"
 
 #: ipam/forms/bulk_edit.py:273 ipam/forms/bulk_edit.py:318
 #: ipam/forms/filtersets.py:248 ipam/forms/filtersets.py:293
 #: ipam/models/ip.py:272 ipam/models/ip.py:539
 msgid "Treat as fully utilized"
-msgstr "Ставтеся до повного використання"
+msgstr "Вважати повністю використаним"
 
 #: ipam/forms/bulk_edit.py:287 ipam/forms/filtersets.py:171
 msgid "VLAN Assignment"
@@ -8997,11 +9020,11 @@ msgstr "Порти"
 
 #: ipam/forms/bulk_import.py:48
 msgid "Import route targets"
-msgstr "Імпортувати цілі маршруту"
+msgstr "Імпортувати маршрути до цілей"
 
 #: ipam/forms/bulk_import.py:54
 msgid "Export route targets"
-msgstr "Експортувати цілі маршруту"
+msgstr "Експортувати маршрути до цілей"
 
 #: ipam/forms/bulk_import.py:92 ipam/forms/bulk_import.py:112
 #: ipam/forms/bulk_import.py:132
@@ -9010,7 +9033,7 @@ msgstr "Призначений RIR"
 
 #: ipam/forms/bulk_import.py:182
 msgid "VLAN's group (if any)"
-msgstr "Група VLAN (якщо така є)"
+msgstr "Група VLAN'ів (якщо така є)"
 
 #: ipam/forms/bulk_import.py:308
 msgid "Parent device of assigned interface (if any)"
@@ -9044,12 +9067,12 @@ msgstr "Зробіть це основним IP для призначеного 
 #: ipam/forms/bulk_import.py:365
 msgid "No device or virtual machine specified; cannot set as primary IP"
 msgstr ""
-"Пристрій або віртуальна машина не вказано; неможливо встановити як основний "
-"IP"
+"Пристрій або віртуальна машина не вказано; неможливо встановити як первинний"
+" IP"
 
 #: ipam/forms/bulk_import.py:369
 msgid "No interface specified; cannot set as primary IP"
-msgstr "Інтерфейс не вказано; неможливо встановити як основний IP"
+msgstr "Інтерфейс не вказано; неможливо встановити як первинний IP"
 
 #: ipam/forms/bulk_import.py:398
 msgid "Auth type"
@@ -9069,11 +9092,11 @@ msgstr "протокол IP"
 
 #: ipam/forms/bulk_import.py:485
 msgid "Required if not assigned to a VM"
-msgstr "Необхідний, якщо він не призначений для віртуальної машини"
+msgstr "Необхідний, якщо він не був призначений для віртуальної машини"
 
 #: ipam/forms/bulk_import.py:492
 msgid "Required if not assigned to a device"
-msgstr "Обов'язково, якщо пристрій не призначений"
+msgstr "Обов'язково, якщо він не був призначений для пристрою"
 
 #: ipam/forms/bulk_import.py:517
 #, python-brace-format
@@ -9083,7 +9106,7 @@ msgstr "{ip} не призначається цьому пристрою/вір�
 #: ipam/forms/filtersets.py:47 ipam/forms/model_forms.py:63
 #: netbox/navigation/menu.py:189 vpn/forms/model_forms.py:410
 msgid "Route Targets"
-msgstr "Маршрутні цілі"
+msgstr "Маршрути до цілей"
 
 #: ipam/forms/filtersets.py:53 ipam/forms/model_forms.py:50
 #: vpn/forms/filtersets.py:224 vpn/forms/model_forms.py:397
@@ -9093,15 +9116,15 @@ msgstr "Імпортувати цілі"
 #: ipam/forms/filtersets.py:58 ipam/forms/model_forms.py:55
 #: vpn/forms/filtersets.py:229 vpn/forms/model_forms.py:402
 msgid "Export targets"
-msgstr "Експортні цілі"
+msgstr "Експортувати цілі"
 
 #: ipam/forms/filtersets.py:73
 msgid "Imported by VRF"
-msgstr "Імпортований VRF"
+msgstr "Імпортований до VRF"
 
 #: ipam/forms/filtersets.py:78
 msgid "Exported by VRF"
-msgstr "Експортується VRF"
+msgstr "Експортувати з VRF"
 
 #: ipam/forms/filtersets.py:87 ipam/tables/ip.py:89 templates/ipam/rir.html:30
 msgid "Private"
@@ -9110,7 +9133,7 @@ msgstr "Приватний"
 #: ipam/forms/filtersets.py:105 ipam/forms/filtersets.py:191
 #: ipam/forms/filtersets.py:272 ipam/forms/filtersets.py:326
 msgid "Address family"
-msgstr "Адреса сім'ї"
+msgstr "Сімейство адрес"
 
 #: ipam/forms/filtersets.py:119 templates/ipam/asnrange.html:25
 msgid "Range"
@@ -9126,7 +9149,7 @@ msgstr "Кінець"
 
 #: ipam/forms/filtersets.py:186
 msgid "Search within"
-msgstr "Пошук всередині"
+msgstr "Пошук в межах"
 
 #: ipam/forms/filtersets.py:207 ipam/forms/filtersets.py:342
 msgid "Present in VRF"
@@ -9142,34 +9165,34 @@ msgstr "Батьківський префікс"
 
 #: ipam/forms/filtersets.py:347
 msgid "Assigned Device"
-msgstr "Призначений пристрій"
+msgstr "Призначено на пристрій"
 
 #: ipam/forms/filtersets.py:352
 msgid "Assigned VM"
-msgstr "Призначена віртуальна машина"
+msgstr "Призначено на віртуальну машину"
 
 #: ipam/forms/filtersets.py:366
 msgid "Assigned to an interface"
-msgstr "Призначено до інтерфейсу"
+msgstr "Призначено на інтерфейс"
 
 #: ipam/forms/filtersets.py:373 templates/ipam/ipaddress.html:51
 msgid "DNS Name"
 msgstr "Ім'я DNS"
 
-#: ipam/forms/filtersets.py:416 ipam/models/vlans.py:235 ipam/tables/ip.py:176
+#: ipam/forms/filtersets.py:416 ipam/models/vlans.py:251 ipam/tables/ip.py:176
 #: ipam/tables/vlans.py:82 ipam/views.py:971 netbox/navigation/menu.py:193
 #: netbox/navigation/menu.py:195
 msgid "VLANs"
-msgstr "VLANs"
+msgstr "VLAN'и"
 
 #: ipam/forms/filtersets.py:457
 msgid "Contains VLAN ID"
 msgstr "Містить ідентифікатор VLAN"
 
-#: ipam/forms/filtersets.py:513 ipam/models/vlans.py:176
+#: ipam/forms/filtersets.py:513 ipam/models/vlans.py:192
 #: templates/ipam/vlan.html:31
 msgid "VLAN ID"
-msgstr "ІДЕНТИФІКАТОР VLAN"
+msgstr "Ідентифікатор VLAN"
 
 #: ipam/forms/filtersets.py:556 ipam/forms/model_forms.py:320
 #: ipam/forms/model_forms.py:713 ipam/forms/model_forms.py:739
@@ -9190,7 +9213,7 @@ msgstr "Віртуальна машина"
 
 #: ipam/forms/model_forms.py:80 templates/ipam/routetarget.html:10
 msgid "Route Target"
-msgstr "Мета маршруту"
+msgstr "Маршрут до цілі"
 
 #: ipam/forms/model_forms.py:114 ipam/tables/ip.py:117
 #: templates/ipam/aggregate.html:11 templates/ipam/prefix.html:38
@@ -9220,7 +9243,7 @@ msgstr "Зробіть це основним IP для пристрою/вірт
 
 #: ipam/forms/model_forms.py:325
 msgid "NAT IP (Inside)"
-msgstr "NAT IP (всередині)"
+msgstr "NAT IP (внутрішній)"
 
 #: ipam/forms/model_forms.py:384
 msgid "An IP address can only be assigned to a single object."
@@ -9231,15 +9254,15 @@ msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
 msgstr ""
-"Не вдається перепризначити IP-адресу, поки вона призначена як основний IP "
+"Не вдається перепризначити IP-адресу, поки вона призначена як первинний IP "
 "для батьківського об'єкта"
 
 #: ipam/forms/model_forms.py:400
 msgid ""
 "Only IP addresses assigned to an interface can be designated as primary IPs."
 msgstr ""
-"Тільки IP-адреси, призначені інтерфейсу, можуть бути визначені основними IP-"
-"адресами."
+"Тільки IP-адреси, призначені інтерфейсу, можуть бути визначені первинними "
+"IP-адресами."
 
 #: ipam/forms/model_forms.py:475
 msgid "Virtual IP Address"
@@ -9255,7 +9278,7 @@ msgstr "Ідентифікатори VLAN"
 
 #: ipam/forms/model_forms.py:587
 msgid "Child VLANs"
-msgstr "Дитячі VLAN"
+msgstr "Підпорядковані VLAN'и"
 
 #: ipam/forms/model_forms.py:664 ipam/forms/model_forms.py:696
 msgid ""
@@ -9294,8 +9317,8 @@ msgstr "Користувацький"
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
-"Необхідно вказати ім'я, протокол та порт (и), якщо не використовується "
-"шаблон служби."
+"Необхідно вказати ім'я, протокол та порт(и), якщо не використовується шаблон"
+" служби."
 
 #: ipam/models/asns.py:34
 msgid "start"
@@ -9312,11 +9335,11 @@ msgstr "Діапазони ASN"
 #: ipam/models/asns.py:72
 #, python-brace-format
 msgid "Starting ASN ({start}) must be lower than ending ASN ({end})."
-msgstr "Запуск ASN ({start}) повинен бути нижчим за кінцевий ASN ({end})."
+msgstr "Початковий ASN ({start}) повинен бути нижчим за кінцевий ASN ({end})."
 
 #: ipam/models/asns.py:104
 msgid "Regional Internet Registry responsible for this AS number space"
-msgstr "Регіональний інтернет-реєстр, відповідальний за цей номер AS"
+msgstr "Регіональний інтернет-реєстр(RIR), відповідальний за цей номер AS"
 
 #: ipam/models/asns.py:109
 msgid "16- or 32-bit autonomous system number"
@@ -9324,7 +9347,7 @@ msgstr "16- або 32-розрядний номер автономної сис�
 
 #: ipam/models/fhrp.py:22
 msgid "group ID"
-msgstr "Ідентифікатор групи"
+msgstr "ідентифікатор групи"
 
 #: ipam/models/fhrp.py:30 ipam/models/services.py:22
 msgid "protocol"
@@ -9364,7 +9387,7 @@ msgstr "Простір IP, керований цим RIR, вважається �
 
 #: ipam/models/ip.py:72 netbox/navigation/menu.py:182
 msgid "RIRs"
-msgstr "RIR"
+msgstr "RIRи"
 
 #: ipam/models/ip.py:84
 msgid "IPv4 or IPv6 network"
@@ -9372,7 +9395,7 @@ msgstr "Мережа IPv4 або IPv6"
 
 #: ipam/models/ip.py:91
 msgid "Regional Internet Registry responsible for this IP space"
-msgstr "Регіональний Інтернет-реєстр, відповідальний за цей IP-простір"
+msgstr "Регіональний Інтернет-реєстр(RIR), відповідальний за цей IP-простір"
 
 #: ipam/models/ip.py:101
 msgid "date added"
@@ -9384,11 +9407,11 @@ msgstr "сукупний"
 
 #: ipam/models/ip.py:116
 msgid "aggregates"
-msgstr "агреговані мережі"
+msgstr "сукупні мережі"
 
 #: ipam/models/ip.py:132
 msgid "Cannot create aggregate with /0 mask."
-msgstr "Не вдається створити агрегат з маскою /0."
+msgstr "Не вдається створити сукупну мережу з маскою /0."
 
 #: ipam/models/ip.py:144
 #, python-brace-format
@@ -9396,8 +9419,8 @@ msgid ""
 "Aggregates cannot overlap. {prefix} is already covered by an existing "
 "aggregate ({aggregate})."
 msgstr ""
-"Агрегати не можуть перекриватися. {prefix} вже покривається існуючим "
-"агрегатом ({aggregate})."
+"Сукупні мережі не можуть перекриватися. {prefix} вже покривається існуючим "
+"сукупною мережею ({aggregate})."
 
 #: ipam/models/ip.py:158
 #, python-brace-format
@@ -9405,8 +9428,8 @@ msgid ""
 "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate "
 "({aggregate})."
 msgstr ""
-"Мережеві префікси не можуть перекривати агрегати. {prefix} охоплює існуючий "
-"агрегат ({aggregate})."
+"Мережеві префікси не можуть перекривати сукупні мережі. {prefix} охоплює "
+"існуючий сукупну мережу ({aggregate})."
 
 #: ipam/models/ip.py:200 ipam/models/ip.py:737 vpn/models/tunnels.py:114
 msgid "role"
@@ -9434,7 +9457,7 @@ msgstr "Основна функція цього префікса"
 
 #: ipam/models/ip.py:265
 msgid "is a pool"
-msgstr "є басейном"
+msgstr "є у пулі"
 
 #: ipam/models/ip.py:267
 msgid "All IP addresses within this prefix are considered usable"
@@ -9455,7 +9478,7 @@ msgstr "Неможливо створити префікс з маскою /0."
 #: ipam/models/ip.py:324 ipam/models/ip.py:874
 #, python-brace-format
 msgid "VRF {vrf}"
-msgstr "ВРФ {vrf}"
+msgstr "VRF {vrf}"
 
 #: ipam/models/ip.py:324 ipam/models/ip.py:874
 msgid "global table"
@@ -9513,7 +9536,7 @@ msgstr ""
 #, python-brace-format
 msgid "Defined addresses overlap with range {overlapping_range} in VRF {vrf}"
 msgstr ""
-"Визначені адреси перекриваються з діапазоном {overlapping_range} в ВРФ {vrf}"
+"Визначені адреси перекриваються з діапазоном {overlapping_range} в VRF {vrf}"
 
 #: ipam/models/ip.py:599
 #, python-brace-format
@@ -9527,19 +9550,19 @@ msgstr "адреса"
 
 #: ipam/models/ip.py:734
 msgid "The operational status of this IP"
-msgstr "Операційний стан цього ІП"
+msgstr "Операційний стан цього IP"
 
 #: ipam/models/ip.py:741
 msgid "The functional role of this IP"
-msgstr "Функціональна роль цього ІП"
+msgstr "Функціональна роль цього IP"
 
 #: ipam/models/ip.py:765 templates/ipam/ipaddress.html:72
 msgid "NAT (inside)"
-msgstr "NAT (всередині)"
+msgstr "NAT (внутрішній)"
 
 #: ipam/models/ip.py:766
 msgid "The IP for which this address is the \"outside\" IP"
-msgstr "IP, для якого ця адреса є \"зовнішнім\" IP"
+msgstr "IP, для якого ця адреса є \"зовнішньою\""
 
 #: ipam/models/ip.py:773
 msgid "Hostname or FQDN (not case-sensitive)"
@@ -9563,7 +9586,7 @@ msgstr ""
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
-msgstr "{ip} це адреса трансляції, яка може не бути присвоєна інтерфейсу."
+msgstr "{ip} це широкомовна адреса, яка може не бути присвоєна інтерфейсу."
 
 #: ipam/models/ip.py:876
 #, python-brace-format
@@ -9622,40 +9645,54 @@ msgstr "Не вдається встановити scope_type без scope_id."
 msgid "Cannot set scope_id without scope_type."
 msgstr "Не вдається встановити scope_id без scope_type."
 
-#: ipam/models/vlans.py:101
+#: ipam/models/vlans.py:105
+#, python-brace-format
+msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
+msgstr ""
+"Початковий ідентифікатор VLAN в діапазоні ({value}) не може бути менше "
+"{minimum}"
+
+#: ipam/models/vlans.py:111
+#, python-brace-format
+msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
+msgstr ""
+"Кінцевий ідентифікатор VLAN в діапазоні ({value}) не може перевищувати "
+"{maximum}"
+
+#: ipam/models/vlans.py:118
+#, python-brace-format
+msgid ""
+"Ending VLAN ID in range must be greater than or equal to the starting VLAN "
+"ID ({range})"
+msgstr ""
+"Кінцевий ідентифікатор VLAN в діапазоні повинен бути більшим або дорівнювати"
+" початковому ідентифікатору VLAN ({range})"
+
+#: ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
 msgstr "Діапазони не можуть перекриватися."
 
-#: ipam/models/vlans.py:106
-#, python-brace-format
-msgid ""
-"Maximum child VID must be greater than or equal to minimum child VID "
-"({value})"
-msgstr ""
-"Максимальний підпорядкований VID повинен бути більшим або дорівнює "
-"мінімальному підпорядкований VID ({value})"
-
-#: ipam/models/vlans.py:165
+#: ipam/models/vlans.py:181
 msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr "Конкретний тех. майданчик, якому присвоєно цей VLAN (якщо такий є)"
 
-#: ipam/models/vlans.py:173
+#: ipam/models/vlans.py:189
 msgid "VLAN group (optional)"
 msgstr "Група VLAN (необов'язково)"
 
-#: ipam/models/vlans.py:181
+#: ipam/models/vlans.py:197
 msgid "Numeric VLAN ID (1-4094)"
 msgstr "Числовий ідентифікатор VLAN (1-4094)"
 
-#: ipam/models/vlans.py:199
+#: ipam/models/vlans.py:215
 msgid "Operational status of this VLAN"
 msgstr "Операційний стан цього VLAN"
 
-#: ipam/models/vlans.py:207
+#: ipam/models/vlans.py:223
 msgid "The primary function of this VLAN"
 msgstr "Основна функція цього VLAN"
 
-#: ipam/models/vlans.py:250
+#: ipam/models/vlans.py:266
 #, python-brace-format
 msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
@@ -9664,18 +9701,19 @@ msgstr ""
 "VLAN присвоюється групі {group} (сфера застосування: {scope}); також не може"
 " призначатися до тех. майданчику {site}."
 
-#: ipam/models/vlans.py:259
+#: ipam/models/vlans.py:275
 #, python-brace-format
 msgid "VID must be in ranges {ranges} for VLANs in group {group}"
-msgstr "VID повинен знаходитися в діапазоні {ranges} для VLAN в групі {group}"
+msgstr ""
+"VID повинен знаходитися в діапазоні {ranges} для VLAN'ів у групі {group}"
 
 #: ipam/models/vrfs.py:30
 msgid "route distinguisher"
-msgstr "розрізнювач маршруту"
+msgstr "розрізнювач маршруту (RD)"
 
 #: ipam/models/vrfs.py:31
 msgid "Unique route distinguisher (as defined in RFC 4364)"
-msgstr "Унікальний розрізнювач маршруту (як визначено в RFC 4364)"
+msgstr "Унікальний розрізнювач маршруту (RD) (як визначено в RFC 4364)"
 
 #: ipam/models/vrfs.py:42
 msgid "enforce unique space"
@@ -9688,7 +9726,7 @@ msgstr "Запобігання дублікуванню префіксів/IP-а
 #: ipam/models/vrfs.py:63 netbox/navigation/menu.py:186
 #: netbox/navigation/menu.py:188
 msgid "VRFs"
-msgstr "VRF"
+msgstr "VRFи"
 
 #: ipam/models/vrfs.py:82
 msgid "Route target value (formatted in accordance with RFC 4360)"
@@ -9696,15 +9734,15 @@ msgstr "Цільове значення маршруту (відформатов
 
 #: ipam/models/vrfs.py:94
 msgid "route target"
-msgstr "цільовий маршрут"
+msgstr "маршрут до цілі"
 
 #: ipam/models/vrfs.py:95
 msgid "route targets"
-msgstr "маршрутні цілі"
+msgstr "маршрут до цілей"
 
 #: ipam/tables/asn.py:52
 msgid "ASDOT"
-msgstr "АСДОТ"
+msgstr "ASDOT"
 
 #: ipam/tables/asn.py:57
 msgid "Site Count"
@@ -9717,7 +9755,7 @@ msgstr "Кількість провайдерів"
 #: ipam/tables/ip.py:95 netbox/navigation/menu.py:179
 #: netbox/navigation/menu.py:181
 msgid "Aggregates"
-msgstr "Агрегати"
+msgstr "Сукупні мережі"
 
 #: ipam/tables/ip.py:125
 msgid "Added"
@@ -9750,11 +9788,11 @@ msgstr "Глибина"
 
 #: ipam/tables/ip.py:262
 msgid "Pool"
-msgstr "Басейн"
+msgstr "Пул"
 
 #: ipam/tables/ip.py:266 ipam/tables/ip.py:320
 msgid "Marked Utilized"
-msgstr "Позначений Використовуваний"
+msgstr "Позначено як використане"
 
 #: ipam/tables/ip.py:304
 msgid "Start address"
@@ -9762,15 +9800,15 @@ msgstr "Початкова адреса"
 
 #: ipam/tables/ip.py:383
 msgid "NAT (Inside)"
-msgstr "NAT (всередині)"
+msgstr "NAT (внутрішній)"
 
 #: ipam/tables/ip.py:388
 msgid "NAT (Outside)"
-msgstr "NAT (зовні)"
+msgstr "NAT (зовнішній)"
 
 #: ipam/tables/ip.py:393
 msgid "Assigned"
-msgstr "Призначено"
+msgstr "Призначений"
 
 #: ipam/tables/ip.py:429 templates/vpn/l2vpntermination.html:16
 #: vpn/forms/filtersets.py:240
@@ -9788,11 +9826,11 @@ msgstr "Діапазони VID"
 #: ipam/tables/vlans.py:111 ipam/tables/vlans.py:214
 #: templates/dcim/inc/interface_vlans_table.html:4
 msgid "VID"
-msgstr "ВИД"
+msgstr "VID"
 
 #: ipam/tables/vrfs.py:30
 msgid "RD"
-msgstr "Р-Н"
+msgstr "RD"
 
 #: ipam/tables/vrfs.py:33
 msgid "Unique"
@@ -9804,7 +9842,7 @@ msgstr "Імпортувати цілі"
 
 #: ipam/tables/vrfs.py:42 vpn/tables/l2vpn.py:32
 msgid "Export Targets"
-msgstr "Експортні цілі"
+msgstr "Експортувати цілі"
 
 #: ipam/validators.py:9
 #, python-brace-format
@@ -9814,12 +9852,12 @@ msgstr "{prefix} не є дійсним префіксом. Ви мали на �
 #: ipam/validators.py:16
 #, python-format
 msgid "The prefix length must be less than or equal to %(limit_value)s."
-msgstr "Довжина префікса повинна бути менше або дорівнює %(limit_value)s."
+msgstr "Довжина префікса повинна бути менше або дорівнює %(limit_value)sи."
 
 #: ipam/validators.py:24
 #, python-format
 msgid "The prefix length must be greater than or equal to %(limit_value)s."
-msgstr "Довжина префікса повинна бути більше або дорівнює %(limit_value)s."
+msgstr "Довжина префікса повинна бути більше або дорівнює %(limit_value)sи."
 
 #: ipam/validators.py:33
 msgid ""
@@ -9835,7 +9873,7 @@ msgstr "Підпорядковані мережеві префікси"
 
 #: ipam/views.py:569
 msgid "Child Ranges"
-msgstr "Дитячі діапазони"
+msgstr "Підпорядковані діапазони"
 
 #: ipam/views.py:898
 msgid "Related IPs"
@@ -9843,7 +9881,7 @@ msgstr "Пов'язані IP-адреси"
 
 #: ipam/views.py:1127
 msgid "Device Interfaces"
-msgstr "Інтерфейси пристроїв"
+msgstr "Інтерфейси пристрою"
 
 #: ipam/views.py:1145
 msgid "VM Interfaces"
@@ -9877,7 +9915,7 @@ msgstr "Невірне значення. Вкажіть тип вмісту як
 
 #: netbox/api/fields.py:167
 msgid "Ranges must be specified in the form (lower, upper)."
-msgstr "Діапазони повинні бути вказані в формі (нижній, верхній)."
+msgstr "Діапазони повинні бути вказані у форматі (нижня межа, верхня межа)."
 
 #: netbox/api/fields.py:169
 msgid "Range boundaries must be defined as integers."
@@ -9899,11 +9937,11 @@ msgstr "Темно-червоний"
 
 #: netbox/choices.py:52
 msgid "Rose"
-msgstr "Роза"
+msgstr "Трояндовий"
 
 #: netbox/choices.py:53
 msgid "Fuchsia"
-msgstr "Фуксія"
+msgstr "Малиновий"
 
 #: netbox/choices.py:55
 msgid "Dark Purple"
@@ -9915,7 +9953,7 @@ msgstr "Світло-блакитний"
 
 #: netbox/choices.py:61
 msgid "Aqua"
-msgstr "Аква"
+msgstr "Бирюзовый"
 
 #: netbox/choices.py:62
 msgid "Dark Green"
@@ -9927,11 +9965,11 @@ msgstr "Світло-зелений"
 
 #: netbox/choices.py:65
 msgid "Lime"
-msgstr "Лайм"
+msgstr "Кислотно-зелений"
 
 #: netbox/choices.py:67
 msgid "Amber"
-msgstr "Бурштин"
+msgstr "Бурштиновий"
 
 #: netbox/choices.py:69
 msgid "Dark Orange"
@@ -9943,7 +9981,7 @@ msgstr "Коричневий"
 
 #: netbox/choices.py:71
 msgid "Light Grey"
-msgstr "Світло-сірий"
+msgstr "Сріблясто-сірий"
 
 #: netbox/choices.py:72
 msgid "Grey"
@@ -9951,7 +9989,7 @@ msgstr "Сірий"
 
 #: netbox/choices.py:73
 msgid "Dark Grey"
-msgstr "Темно-сірий"
+msgstr "Антрацитовий"
 
 #: netbox/choices.py:128
 msgid "Direct"
@@ -9959,7 +9997,7 @@ msgstr "прямий"
 
 #: netbox/choices.py:129
 msgid "Upload"
-msgstr "Завантажити"
+msgstr "Вивантажити"
 
 #: netbox/choices.py:141 netbox/choices.py:155
 msgid "Auto-detect"
@@ -9975,7 +10013,7 @@ msgstr "Крапка з комою"
 
 #: netbox/choices.py:158
 msgid "Tab"
-msgstr "Вкладка"
+msgstr "Табуляція"
 
 #: netbox/config/__init__.py:67
 #, python-brace-format
@@ -10032,19 +10070,19 @@ msgstr "Віддавайте перевагу IPv4 адресам над IPv6"
 
 #: netbox/config/parameters.py:84
 msgid "Rack unit height"
-msgstr "Висота юніта стійки"
+msgstr "Висота стійки у юнітах"
 
 #: netbox/config/parameters.py:86
 msgid "Default unit height for rendered rack elevations"
-msgstr "Висота юніта за замовчуванням для візуалізованих висот стійки"
+msgstr "Висота одиниці за замовчуванням для візуалізованих стійки"
 
 #: netbox/config/parameters.py:91
 msgid "Rack unit width"
-msgstr "Ширина юніта стійки"
+msgstr "Ширина стійки у юнітах"
 
 #: netbox/config/parameters.py:93
 msgid "Default unit width for rendered rack elevations"
-msgstr "Типова одиниця ширини для візуалізованих висот стійки"
+msgstr "Ширина одиниці за замовчуванням для візуалізованих стійки"
 
 #: netbox/config/parameters.py:100
 msgid "Powerfeed voltage"
@@ -10060,7 +10098,7 @@ msgstr "Сила струму подачі живлення"
 
 #: netbox/config/parameters.py:109
 msgid "Default amperage for powerfeeds"
-msgstr "Сила струму за замовчуванням для подачі живлення"
+msgstr "Сила струму за замовчуванням при подачі живлення"
 
 #: netbox/config/parameters.py:114
 msgid "Powerfeed max utilization"
@@ -10068,7 +10106,7 @@ msgstr "Максимальне використання при подачі жи
 
 #: netbox/config/parameters.py:116
 msgid "Default max utilization for powerfeeds"
-msgstr "Максимальне використання за замовчуванням для подач живлення"
+msgstr "Максимальне використання за замовчуванням при подачі живлення"
 
 #: netbox/config/parameters.py:123 templates/core/inc/config_data.html:53
 msgid "Allowed URL schemes"
@@ -10112,7 +10150,7 @@ msgstr "Налаштування за замовчуванням для нови
 
 #: netbox/config/parameters.py:181 templates/core/inc/config_data.html:129
 msgid "Maintenance mode"
-msgstr "Режим обслуговування"
+msgstr "Режим технічного обслуговування"
 
 #: netbox/config/parameters.py:183
 msgid "Enable maintenance mode"
@@ -10168,11 +10206,11 @@ msgstr "Починається з"
 
 #: netbox/forms/__init__.py:15
 msgid "Ends with"
-msgstr "Закінчується з"
+msgstr "Закінчується на"
 
 #: netbox/forms/__init__.py:16
 msgid "Regex"
-msgstr "Регекс"
+msgstr "Регулярний вираз"
 
 #: netbox/forms/__init__.py:34
 msgid "Object type(s)"
@@ -10187,8 +10225,8 @@ msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. "
 "\"tag1,tag2,tag3\")"
 msgstr ""
-"Слимаки міток, розділені комами, укладені подвійними лапками (наприклад, "
-"\"tag1, tag2, tag3\")"
+"Мітки скорочень, розділені комами, укладені подвійними лапками (наприклад, "
+"\"мітка1, мітка2, мітка3\")"
 
 #: netbox/forms/base.py:120
 msgid "Add tags"
@@ -10233,11 +10271,11 @@ msgstr "шлях даних"
 
 #: netbox/models/features.py:476
 msgid "Path to remote file (relative to data source root)"
-msgstr "Шляху до віддаленого файлу (відносно кореня джерела даних)"
+msgstr "Шлях до віддаленого файлу (відносно кореня джерела даних)"
 
 #: netbox/models/features.py:479
 msgid "auto sync enabled"
-msgstr "увімкнено автоматичну синхронізацію"
+msgstr "увімкнути автоматичну синхронізацію"
 
 #: netbox/models/features.py:481
 msgid "Enable automatic synchronization of data when the data file is updated"
@@ -10250,7 +10288,7 @@ msgstr "дата синхронізована"
 #: netbox/models/features.py:578
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
-msgstr "{class_name} повинен реалізувати метод sync_data ()."
+msgstr "{class_name} повинен реалізувати метод sync_data()."
 
 #: netbox/navigation/menu.py:11
 msgid "Organization"
@@ -10323,7 +10361,7 @@ msgstr "Бездротові зв'язки"
 
 #: netbox/navigation/menu.py:121
 msgid "Interface Connections"
-msgstr "Інтерфейсні з'єднання"
+msgstr "Інтерфейсні підключення"
 
 #: netbox/navigation/menu.py:126
 msgid "Console Connections"
@@ -10335,7 +10373,7 @@ msgstr "Підключення живлення"
 
 #: netbox/navigation/menu.py:147
 msgid "Wireless LAN Groups"
-msgstr "Групи бездротової локальної мережі"
+msgstr "Групи WLAN"
 
 #: netbox/navigation/menu.py:168
 msgid "Prefix & VLAN Roles"
@@ -10374,7 +10412,7 @@ msgstr "Тунельні групи"
 
 #: netbox/navigation/menu.py:219
 msgid "Tunnel Terminations"
-msgstr "Закінчення тунелів"
+msgstr "Кінці тунелів"
 
 #: netbox/navigation/menu.py:223 netbox/navigation/menu.py:225
 #: vpn/models/l2vpn.py:64
@@ -10384,11 +10422,11 @@ msgstr "L2VPN"
 #: netbox/navigation/menu.py:226 templates/vpn/l2vpn.html:56
 #: templates/vpn/tunnel.html:72 vpn/tables/tunnels.py:58
 msgid "Terminations"
-msgstr "Припинення"
+msgstr "Кінці"
 
 #: netbox/navigation/menu.py:232
 msgid "IKE Proposals"
-msgstr "Пропозиції IKE"
+msgstr "Налаштування IKE"
 
 #: netbox/navigation/menu.py:233 templates/vpn/ikeproposal.html:41
 msgid "IKE Policies"
@@ -10396,7 +10434,7 @@ msgstr "Політика IKE"
 
 #: netbox/navigation/menu.py:234
 msgid "IPSec Proposals"
-msgstr "Пропозиції IPsec"
+msgstr "Налаштування IPsec"
 
 #: netbox/navigation/menu.py:235 templates/vpn/ipsecproposal.html:37
 msgid "IPSec Policies"
@@ -10406,10 +10444,6 @@ msgstr "Політика IPsec"
 #: templates/vpn/ipsecpolicy.html:25
 msgid "IPSec Profiles"
 msgstr "Профілі IPsec"
-
-#: netbox/navigation/menu.py:243 templates/dcim/device_edit.html:78
-msgid "Virtualization"
-msgstr "Віртуалізація"
 
 #: netbox/navigation/menu.py:251
 #: templates/virtualization/virtualmachine.html:174
@@ -10449,7 +10483,7 @@ msgstr "Провайдери"
 
 #: netbox/navigation/menu.py:283 templates/circuits/provider.html:51
 msgid "Provider Accounts"
-msgstr "Облікові записи постачальника"
+msgstr "Облікові записи провайдера"
 
 #: netbox/navigation/menu.py:284
 msgid "Provider Networks"
@@ -10473,7 +10507,7 @@ msgstr "Конфігураційні шаблони"
 
 #: netbox/navigation/menu.py:319 netbox/navigation/menu.py:323
 msgid "Customization"
-msgstr "Налаштування"
+msgstr "Персоналізація"
 
 #: netbox/navigation/menu.py:325 templates/dcim/device_edit.html:103
 #: templates/dcim/htmx/cable_edit.html:81
@@ -10533,7 +10567,7 @@ msgstr "Завдання"
 
 #: netbox/navigation/menu.py:371
 msgid "Logging"
-msgstr "Лісозаготівля"
+msgstr "Ведення журналу"
 
 #: netbox/navigation/menu.py:373
 msgid "Notification Groups"
@@ -10611,22 +10645,22 @@ msgid ""
 "{template_extension} is not a subclass of "
 "netbox.plugins.PluginTemplateExtension!"
 msgstr ""
-"{template_extension} не є підкласом Netbox.Plugins.PluginTemplateExtension!"
+"{template_extension} не є підкласом netbox.plugins.PluginTemplateExtension!"
 
 #: netbox/plugins/registration.py:51
 #, python-brace-format
 msgid "{item} must be an instance of netbox.plugins.PluginMenuItem"
-msgstr "{item} повинен бути екземпляром Netbox.Plugins.PluginMenuItem"
+msgstr "{item} повинен бути екземпляром netbox.plugins.PluginMenuItem"
 
 #: netbox/plugins/registration.py:62
 #, python-brace-format
 msgid "{menu_link} must be an instance of netbox.plugins.PluginMenuItem"
-msgstr "{menu_link} повинен бути екземпляром Netbox.Plugins.PluginMenuItem"
+msgstr "{menu_link} повинен бути екземпляром netbox.plugins.PluginMenuItem"
 
 #: netbox/plugins/registration.py:67
 #, python-brace-format
 msgid "{button} must be an instance of netbox.plugins.PluginMenuButton"
-msgstr "{button} повинен бути екземпляром Netbox.Plugins.PluginMenuButton"
+msgstr "{button} повинен бути екземпляром netbox.plugins.PluginMenuButton"
 
 #: netbox/plugins/templates.py:37
 msgid "extra_context must be a dictionary"
@@ -10642,7 +10676,7 @@ msgstr "Увімкнути динамічну навігацію інтерфе�
 
 #: netbox/preferences.py:26
 msgid "Experimental feature"
-msgstr "Експериментальна особливість"
+msgstr "Експериментальна функція"
 
 #: netbox/preferences.py:29
 msgid "Language"
@@ -10662,7 +10696,7 @@ msgstr "Довжина сторінки"
 
 #: netbox/preferences.py:44
 msgid "The default number of objects to display per page"
-msgstr "Типова кількість об'єктів для відображення на сторінці"
+msgstr "Кількість об'єктів за замовченням на сторінці для відображення"
 
 #: netbox/preferences.py:48
 msgid "Paginator placement"
@@ -10797,7 +10831,7 @@ msgstr "Значення"
 
 #: netbox/tests/dummy_plugin/navigation.py:29
 msgid "Dummy Plugin"
-msgstr "Фікменний плагін"
+msgstr "Фіктивний плагін"
 
 #: netbox/views/generic/bulk_views.py:114
 #, python-brace-format
@@ -10813,19 +10847,19 @@ msgstr ""
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr "Ряд {i}: Об'єкт з ідентифікатором {id} не існує"
 
-#: netbox/views/generic/bulk_views.py:702
-#: netbox/views/generic/bulk_views.py:900
-#: netbox/views/generic/bulk_views.py:948
+#: netbox/views/generic/bulk_views.py:709
+#: netbox/views/generic/bulk_views.py:907
+#: netbox/views/generic/bulk_views.py:955
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "Ні {object_type} були обрані."
 
-#: netbox/views/generic/bulk_views.py:782
+#: netbox/views/generic/bulk_views.py:789
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "Перейменовано {count} {object_type}"
 
-#: netbox/views/generic/bulk_views.py:878
+#: netbox/views/generic/bulk_views.py:885
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "Видалено {count} {object_type}"
@@ -10855,9 +10889,9 @@ msgstr "Синхронізовано {count} {object_type}"
 #: netbox/views/generic/object_views.py:108
 #, python-brace-format
 msgid "{class_name} must implement get_children()"
-msgstr "{class_name} повинен реалізувати get_children ()"
+msgstr "{class_name} повинен реалізувати get_children()"
 
-#: netbox/views/misc.py:44
+#: netbox/views/misc.py:46
 msgid ""
 "There was an error loading the dashboard configuration. A default dashboard "
 "is in use."
@@ -11000,7 +11034,7 @@ msgstr "Замовлення"
 
 #: templates/account/preferences.html:51
 msgid "Columns"
-msgstr "Колони"
+msgstr "Колонки"
 
 #: templates/account/preferences.html:71 templates/dcim/cable_trace.html:113
 #: templates/extras/object_configcontext.html:43
@@ -11060,7 +11094,7 @@ msgstr "Призначені групи"
 #: templates/users/objectpermission.html:87 templates/users/user.html:58
 #: templates/users/user.html:68
 msgid "None"
-msgstr "Жоден"
+msgstr "Жодного"
 
 #: templates/account/profile.html:68 templates/users/user.html:78
 msgid "Recent Activity"
@@ -11074,7 +11108,7 @@ msgstr "Мої жетони API"
 #: templates/users/token.html:6 templates/users/token.html:14
 #: users/forms/filtersets.py:120
 msgid "Token"
-msgstr "Токен"
+msgstr "Жетон"
 
 #: templates/account/token.html:39 templates/users/token.html:31
 #: users/forms/bulk_edit.py:107
@@ -11087,7 +11121,7 @@ msgstr "Востаннє використано"
 
 #: templates/account/token_list.html:12
 msgid "Add a Token"
-msgstr "Додати токен"
+msgstr "Додати Жетон"
 
 #: templates/base/base.html:22 templates/home.html:27
 msgid "Home"
@@ -11142,7 +11176,7 @@ msgstr "Дата припинення"
 #: templates/circuits/circuit.html:70
 #: templates/ipam/inc/panels/fhrp_groups.html:15
 msgid "Assign Group"
-msgstr "Призначити групу"
+msgstr "Призначити у групу"
 
 #: templates/circuits/circuit_terminations_swap.html:4
 msgid "Swap Circuit Terminations"
@@ -11151,7 +11185,7 @@ msgstr "Поміняти місцями кінці каналу зв'язку"
 #: templates/circuits/circuit_terminations_swap.html:8
 #, python-format
 msgid "Swap these terminations for circuit %(circuit)s?"
-msgstr "Поміняти місцями кінці для каналу зв'язку%(circuit)s?"
+msgstr "Поміняти місцями кінці для каналу зв'язку %(circuit)s?"
 
 #: templates/circuits/circuit_terminations_swap.html:14
 msgid "A side"
@@ -11199,7 +11233,7 @@ msgstr "Редагувати"
 
 #: templates/circuits/inc/circuit_termination.html:18
 msgid "Swap"
-msgstr "Обмін"
+msgstr "Поміняти місцями"
 
 #: templates/circuits/inc/circuit_termination_fields.html:19
 #: templates/dcim/consoleport.html:59 templates/dcim/consoleserverport.html:60
@@ -11482,7 +11516,7 @@ msgstr "Деталі плагіна"
 
 #: templates/core/plugin.html:58
 msgid "Summary"
-msgstr "У підсумку"
+msgstr "Підсумок"
 
 #: templates/core/plugin.html:76
 msgid "License"
@@ -11516,11 +11550,11 @@ msgstr "Зупинити"
 
 #: templates/core/rq_task.html:34
 msgid "Requeue"
-msgstr "Реквье"
+msgstr "Повторно поставлено у чергу"
 
 #: templates/core/rq_task.html:39
 msgid "Enqueue"
-msgstr "Поставте в чергу"
+msgstr "Поставлено у чергу"
 
 #: templates/core/rq_task.html:61
 msgid "Queue"
@@ -11528,7 +11562,7 @@ msgstr "Черга"
 
 #: templates/core/rq_task.html:65
 msgid "Timeout"
-msgstr "Тайм-аут"
+msgstr "Час очікування"
 
 #: templates/core/rq_task.html:69
 msgid "Result TTL"
@@ -11566,9 +11600,7 @@ msgstr "Завдання у черзі"
 #, python-format
 msgid ""
 "Select <strong>all %(count)s %(object_type_plural)s</strong> matching query"
-msgstr ""
-"Вибрати <strong>усі %(count)s %(object_type_plural)s</strong> відповідний "
-"запит"
+msgstr "Вибрати <strong>усі %(count)s %(object_type_plural)s</strong> запити"
 
 #: templates/core/rq_worker.html:10
 msgid "Worker Info"
@@ -11621,7 +11653,7 @@ msgstr "Статус системи"
 
 #: templates/core/system.html:31
 msgid "NetBox release"
-msgstr "Випуск NetBox"
+msgstr "NetBox реліз"
 
 #: templates/core/system.html:44
 msgid "Django version"
@@ -11721,7 +11753,7 @@ msgstr "Пункт призначення"
 
 #: templates/dcim/cable_trace.html:91
 msgid "Segments"
-msgstr "сегменти"
+msgstr "Сегменти"
 
 #: templates/dcim/cable_trace.html:104
 msgid "Incomplete"
@@ -11766,12 +11798,12 @@ msgstr "Переглянути віртуальне шасі"
 
 #: templates/dcim/device.html:164
 msgid "Create VDC"
-msgstr "Створіть джерело живлення постійного струму "
+msgstr "Створіть джерело живлення постійного струму"
 
 #: templates/dcim/device.html:175 templates/dcim/device_edit.html:64
 #: virtualization/forms/model_forms.py:223
 msgid "Management"
-msgstr "Менеджмент"
+msgstr "Керування"
 
 #: templates/dcim/device.html:195 templates/dcim/device.html:211
 #: templates/dcim/device.html:227
@@ -11811,7 +11843,7 @@ msgstr "ВА"
 #: templates/dcim/device.html:280
 msgctxt "Leg of a power feed"
 msgid "Leg"
-msgstr "Нога"
+msgstr "Гілка (електричного кола)"
 
 #: templates/dcim/device.html:306
 #: templates/virtualization/virtualmachine.html:158
@@ -11844,19 +11876,19 @@ msgstr "Додати передні порти"
 
 #: templates/dcim/device/inc/interface_table_controls.html:9
 msgid "Hide Enabled"
-msgstr "Приховати увімкнено"
+msgstr "Приховати усе, що увімкнено"
 
 #: templates/dcim/device/inc/interface_table_controls.html:10
 msgid "Hide Disabled"
-msgstr "Приховати вимкнено"
+msgstr "Приховати усе, що вимкнено"
 
 #: templates/dcim/device/inc/interface_table_controls.html:11
 msgid "Hide Virtual"
-msgstr "Приховати віртуальний"
+msgstr "Приховати усе, що має віртуальне походження"
 
 #: templates/dcim/device/inc/interface_table_controls.html:12
 msgid "Hide Disconnected"
-msgstr "Приховати відключене"
+msgstr "Приховати усе, що відключене"
 
 #: templates/dcim/device/interfaces.html:27
 msgid "Add Interfaces"
@@ -11886,7 +11918,7 @@ msgstr "Додати задні порти"
 #: templates/dcim/device/render_config.html:5
 #: templates/virtualization/virtualmachine/render_config.html:5
 msgid "Config"
-msgstr "конфігурація"
+msgstr "Конфігурація"
 
 #: templates/dcim/device/render_config.html:35
 #: templates/virtualization/virtualmachine/render_config.html:35
@@ -11910,12 +11942,12 @@ msgstr "Не знайдено шаблону конфігурації"
 
 #: templates/dcim/device_edit.html:44
 msgid "Parent Bay"
-msgstr "Батьківська бухта"
+msgstr "Батьківський відсік"
 
 #: templates/dcim/device_edit.html:48
 #: utilities/templates/form_helpers/render_field.html:22
 msgid "Regenerate Slug"
-msgstr "Відновити слимака"
+msgstr "Відновити скорочення"
 
 #: templates/dcim/device_edit.html:49 templates/generic/bulk_remove.html:21
 #: utilities/templates/helpers/table_config_form.html:23
@@ -11934,7 +11966,7 @@ msgstr "Перейменувати"
 
 #: templates/dcim/devicebay.html:17
 msgid "Device Bay"
-msgstr "Резервуар для пристроїв"
+msgstr "Відсік для пристроїв"
 
 #: templates/dcim/devicebay.html:43
 msgid "Installed Device"
@@ -11956,11 +11988,11 @@ msgstr ""
 
 #: templates/dcim/devicebay_populate.html:13
 msgid "Populate"
-msgstr "Заселити"
+msgstr "Заповнити"
 
 #: templates/dcim/devicebay_populate.html:22
 msgid "Bay"
-msgstr "затока"
+msgstr "Відсік"
 
 #: templates/dcim/devicerole.html:14 templates/dcim/platform.html:17
 msgid "Add Device"
@@ -11984,7 +12016,7 @@ msgstr "Виключити з використання"
 
 #: templates/dcim/devicetype.html:59
 msgid "Parent/Child"
-msgstr "Батька/Дитина"
+msgstr "Батько/Дитина"
 
 #: templates/dcim/devicetype.html:71
 msgid "Front Image"
@@ -11992,11 +12024,11 @@ msgstr "Зображення спереду"
 
 #: templates/dcim/devicetype.html:83
 msgid "Rear Image"
-msgstr "Ззаднє зображення"
+msgstr "Зображення ззаду"
 
 #: templates/dcim/frontport.html:54
 msgid "Rear Port Position"
-msgstr "Положення заднього порту"
+msgstr "Положення порту ззаду"
 
 #: templates/dcim/frontport.html:72 templates/dcim/interface.html:144
 #: templates/dcim/poweroutlet.html:63 templates/dcim/powerport.html:63
@@ -12018,11 +12050,11 @@ msgstr "Сторона Б"
 
 #: templates/dcim/inc/cable_termination.html:65
 msgid "No termination"
-msgstr "Без припинення"
+msgstr "Без кінця"
 
 #: templates/dcim/inc/cable_toggle_buttons.html:3
 msgid "Mark Planned"
-msgstr "Марк Планований"
+msgstr "Позначка запланова"
 
 #: templates/dcim/inc/cable_toggle_buttons.html:6
 msgid "Mark Installed"
@@ -12051,12 +12083,12 @@ msgstr "Без позначки"
 
 #: templates/dcim/inc/interface_vlans_table.html:37
 msgid "No VLANs Assigned"
-msgstr "Не присвоєно VLAN"
+msgstr "Не присвоєно VLAN'ів"
 
 #: templates/dcim/inc/interface_vlans_table.html:44
 #: templates/ipam/prefix_list.html:16 templates/ipam/prefix_list.html:33
 msgid "Clear"
-msgstr "Прозорий"
+msgstr "Очистити"
 
 #: templates/dcim/inc/interface_vlans_table.html:47
 msgid "Clear All"
@@ -12068,7 +12100,7 @@ msgstr "Глибина монтажу"
 
 #: templates/dcim/inc/panels/racktype_numbering.html:6
 msgid "Starting Unit"
-msgstr "Пусковий блок"
+msgstr "Початковий юніт"
 
 #: templates/dcim/inc/panels/racktype_numbering.html:10
 msgid "Descending Units"
@@ -12106,7 +12138,7 @@ msgstr "MAC-адреса"
 
 #: templates/dcim/interface.html:151
 msgid "Wireless Link"
-msgstr "Бездротове посилання"
+msgstr "Бездротове з'єднання"
 
 #: templates/dcim/interface.html:218 vpn/choices.py:55
 msgid "Peer"
@@ -12115,7 +12147,7 @@ msgstr "Мережевий сусід"
 #: templates/dcim/interface.html:230
 #: templates/wireless/inc/wirelesslink_interface.html:26
 msgid "Channel"
-msgstr "канал"
+msgstr "Канал"
 
 #: templates/dcim/interface.html:239
 #: templates/wireless/inc/wirelesslink_interface.html:32
@@ -12169,7 +12201,7 @@ msgstr "Додати підпорядковане місцезнаходженн
 
 #: templates/dcim/location.html:77
 msgid "Child Locations"
-msgstr "Підпорядковані локації"
+msgstr "Підпорядковані місцезнаходження"
 
 #: templates/dcim/location.html:81 templates/dcim/site.html:131
 msgid "Add a Location"
@@ -12177,7 +12209,7 @@ msgstr "Додати місцезнаходження"
 
 #: templates/dcim/location.html:94 templates/dcim/site.html:144
 msgid "Add a Device"
-msgstr "Додавання пристрою"
+msgstr "Додати пристрою"
 
 #: templates/dcim/manufacturer.html:16
 msgid "Add Device Type"
@@ -12202,7 +12234,7 @@ msgstr "Електричні характеристики"
 #: templates/dcim/powerfeed.html:88
 msgctxt "Abbreviation for volts"
 msgid "V"
-msgstr "V"
+msgstr "В"
 
 #: templates/dcim/powerfeed.html:92
 msgctxt "Abbreviation for amperes"
@@ -12342,7 +12374,7 @@ msgstr "Додати учасника"
 
 #: templates/dcim/virtualchassis_add.html:18
 msgid "Member Devices"
-msgstr "Пристрої членів"
+msgstr "Учасника пристроїв"
 
 #: templates/dcim/virtualchassis_add_member.html:10
 #, python-format
@@ -12375,7 +12407,7 @@ msgstr "Стійка/юніт"
 
 #: templates/dcim/virtualchassis_remove_member.html:5
 msgid "Remove Virtual Chassis Member"
-msgstr "Вилучити віртуальний член шасі"
+msgstr "Вилучити віртуального учасника шасі"
 
 #: templates/dcim/virtualchassis_remove_member.html:9
 #, python-format
@@ -12412,11 +12444,11 @@ msgid ""
 "of required packages."
 msgstr ""
 "У цій інсталяції NetBox може бути відсутній один або кілька необхідних "
-"пакетів Python. Ці пакети перераховані в <code>requirements.txt</code> і "
+"пакетів Python. Ці пакети перераховані в <code>requirements.txt</code> та "
 "<code>local_requirements.txt</code>, і зазвичай встановлюються як частина "
 "процесу встановлення або оновлення. Щоб перевірити встановлені пакети, "
-"запустіть <code>заморожування піп</code> з консолі і порівняйте вихід зі "
-"списком необхідних пакетів."
+"запустіть <code>pip freeze</code> з консолі і порівняйте вихід зі списком "
+"необхідних пакетів."
 
 #: templates/exceptions/import_error.html:20
 msgid "WSGI service not restarted after upgrade"
@@ -12459,8 +12491,8 @@ msgid ""
 "A database programming error was detected while processing this request. "
 "Common causes include the following:"
 msgstr ""
-"Під час обробки цього запиту була виявлена помилка програмування бази даних."
-" До поширених причин можна віднести наступне:"
+"Під час обробки цього запиту була виявлена програмна помилка бази даних. До "
+"поширених причин можна віднести наступне:"
 
 #: templates/exceptions/programming_error.html:10
 msgid "Database migrations missing"
@@ -12501,7 +12533,7 @@ msgstr "Файл даних, пов'язаний з цим об'єктом, ви
 #: templates/extras/configtemplate.html:46
 #: templates/extras/exporttemplate.html:60
 msgid "Data Synced"
-msgstr "Синхронізовані дані"
+msgstr "Дані синхронізовані"
 
 #: templates/extras/configcontext_list.html:7
 #: templates/extras/configtemplate_list.html:7
@@ -12588,7 +12620,7 @@ msgid ""
 "This will remove <strong>all</strong> configured widgets and restore the "
 "default dashboard configuration."
 msgstr ""
-"Це видалить <strong>усі</strong> налаштовані віджети та відновити "
+"Це видалить <strong>усі</strong> налаштовані віджети та відновить "
 "конфігурацію інформаційної панелі за замовчуванням."
 
 #: templates/extras/dashboard/reset.html:13
@@ -12714,46 +12746,51 @@ msgid "You do not have permission to run scripts"
 msgstr "У вас немає дозволу на запуск скриптів"
 
 #: templates/extras/script.html:41 templates/extras/script.html:45
-#: templates/extras/script_list.html:86
+#: templates/extras/script_list.html:87
 msgid "Run Script"
 msgstr "Запустити скрипт"
 
 #: templates/extras/script.html:51 templates/extras/script/source.html:10
 msgid "Error loading script"
-msgstr "Помилка завантаження сценарію"
+msgstr "Помилка завантаження скрипту"
 
 #: templates/extras/script/jobs.html:16
 msgid "Script no longer exists in the source file."
 msgstr "Скрипт більше не існує у вихідному файлі."
 
-#: templates/extras/script_list.html:46
+#: templates/extras/script_list.html:47
 msgid "Last Run"
 msgstr "Останній запуск"
 
-#: templates/extras/script_list.html:61
+#: templates/extras/script_list.html:62
 msgid "Script is no longer present in the source file"
 msgstr "Скрипт більше не присутній у вихідному файлі"
 
-#: templates/extras/script_list.html:74
+#: templates/extras/script_list.html:75
 msgid "Never"
 msgstr "Ніколи"
 
-#: templates/extras/script_list.html:84
+#: templates/extras/script_list.html:85
 msgid "Run Again"
 msgstr "Запустіть знову"
 
-#: templates/extras/script_list.html:138
+#: templates/extras/script_list.html:133
+#, python-format
+msgid "Could not load scripts from module %(module)s"
+msgstr "Не вдалося завантажити скрипти з модуля %(module)s"
+
+#: templates/extras/script_list.html:141
 msgid "No Scripts Found"
 msgstr "Скриптів не знайдено"
 
-#: templates/extras/script_list.html:141
+#: templates/extras/script_list.html:144
 #, python-format
 msgid ""
 "Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
 "an uploaded file or data source."
 msgstr ""
 "Почніть з <a href=\"%(create_script_url)s\">створення сценарію</a> з "
-"завантаженого файлу або джерела даних."
+"вивантаженого файлу або джерела даних."
 
 #: templates/extras/script_result.html:35
 #: templates/generic/object_list.html:50 templates/search.html:13
@@ -12806,7 +12843,7 @@ msgstr "Додаткові заголовки"
 
 #: templates/extras/webhook.html:70
 msgid "Body Template"
-msgstr "Шаблон тіла"
+msgstr "Шаблон тіла (запросу)"
 
 #: templates/generic/bulk_add_component.html:29
 msgid "Bulk Creation"
@@ -12861,7 +12898,7 @@ msgstr "Прямий імпорт"
 
 #: templates/generic/bulk_import.html:30
 msgid "Upload File"
-msgstr "Завантажити файл"
+msgstr "Вивантажити файл"
 
 #: templates/generic/bulk_import.html:58 templates/generic/bulk_import.html:80
 #: templates/generic/bulk_import.html:102
@@ -12882,7 +12919,7 @@ msgstr "вибір"
 
 #: templates/generic/bulk_import.html:161
 msgid "Import Value"
-msgstr "Імпортна вартість"
+msgstr "Імпорт вартості"
 
 #: templates/generic/bulk_import.html:181
 msgid "Format: YYYY-MM-DD"
@@ -12904,7 +12941,7 @@ msgid ""
 "<code>%(example)s</code> would identify a VRF by its route distinguisher."
 msgstr ""
 "Пов'язані об'єкти можуть посилатися будь-яким унікальним атрибутом. "
-"Наприклад, <code>%(example)s</code> ідентифікує VRF за його визначником "
+"Наприклад, <code>%(example)s</code> ідентифікує VRF за його розрізнювачем "
 "маршруту."
 
 #: templates/generic/bulk_remove.html:28
@@ -12981,7 +13018,7 @@ msgstr "Переглянути документацію моделі"
 
 #: templates/generic/object_edit.html:36
 msgid "Help"
-msgstr "Допоможіть"
+msgstr "Підказка"
 
 #: templates/generic/object_edit.html:83
 msgid "Create & Add Another"
@@ -13002,7 +13039,7 @@ msgstr ""
 
 #: templates/home.html:15
 msgid "New Release Available"
-msgstr "Новий випуск доступний"
+msgstr "Новий реліз доступний"
 
 #: templates/home.html:16
 msgid "is available"
@@ -13019,7 +13056,7 @@ msgstr "Розблокування інформаційної панелі"
 
 #: templates/home.html:49
 msgid "Lock Dashboard"
-msgstr "Блокування інформаційної панелі "
+msgstr "Блокування інформаційної панелі"
 
 #: templates/home.html:60
 msgid "Add Widget"
@@ -13081,7 +13118,7 @@ msgid ""
 "Before you can add a %(model)s you must first create a "
 "<strong>%(prerequisite_model)s</strong>."
 msgstr ""
-"Перш ніж ви зможете додати %(model)s спочатку потрібно створити "
+"Перш ніж ви зможете додати %(model)s, спочатку потрібно створити "
 "<strong>%(prerequisite_model)s</strong>."
 
 #: templates/inc/paginator.html:15
@@ -13091,7 +13128,7 @@ msgstr "Вибір сторінки"
 #: templates/inc/paginator.html:75
 #, python-format
 msgid "Showing %(start)s-%(end)s of %(total)s"
-msgstr "Показуючи %(start)s-%(end)s з %(total)s"
+msgstr "Показ %(start)s-%(end)s із %(total)s"
 
 #: templates/inc/paginator.html:82
 msgid "Pagination options"
@@ -13135,7 +13172,7 @@ msgstr "Довідковий центр"
 
 #: templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Джанго Адміністратор"
+msgstr "Адміністратор Django"
 
 #: templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -13246,7 +13283,7 @@ msgstr "Деталі адресації"
 
 #: templates/ipam/prefix.html:118
 msgid "Child IPs"
-msgstr "Дитячі IP-адреси"
+msgstr "Підпорядковані IP-адреси"
 
 #: templates/ipam/prefix.html:126
 msgid "Available IPs"
@@ -13274,7 +13311,7 @@ msgstr "Маска підстановки"
 
 #: templates/ipam/prefix.html:197
 msgid "Broadcast Address"
-msgstr "Адреса трансляції"
+msgstr "Широкомовна адреса"
 
 #: templates/ipam/prefix/ip_ranges.html:7
 msgid "Add IP Range"
@@ -13306,11 +13343,11 @@ msgstr "Експорт VRF"
 
 #: templates/ipam/routetarget.html:52
 msgid "Importing L2VPNs"
-msgstr "Імпорт L2VPN"
+msgstr "Імпорт L2VPN'ів"
 
 #: templates/ipam/routetarget.html:58
 msgid "Exporting L2VPNs"
-msgstr "Експорт L2VPN"
+msgstr "Експорт L2VPN'ів"
 
 #: templates/ipam/vlan.html:88
 msgid "Add a Prefix"
@@ -13322,7 +13359,7 @@ msgstr "Додати VLAN"
 
 #: templates/ipam/vrf.html:16
 msgid "Route Distinguisher"
-msgstr "Відмінник маршруту"
+msgstr "Розрізнювач маршруту"
 
 #: templates/ipam/vrf.html:29
 msgid "Unique IP Space"
@@ -13344,11 +13381,11 @@ msgstr "Або"
 
 #: templates/media_failure.html:7
 msgid "Static Media Failure - NetBox"
-msgstr "Помилка статичного носія - NetBox"
+msgstr "Помилка статичних медіа-файлів - NetBox"
 
 #: templates/media_failure.html:21
 msgid "Static Media Failure"
-msgstr "Помилка статичного носія"
+msgstr "Помилка статичних медіа-файлів"
 
 #: templates/media_failure.html:23
 msgid "The following static media file failed to load"
@@ -13364,7 +13401,7 @@ msgid ""
 " This installs the most recent iteration of each static file into the static"
 " root path."
 msgstr ""
-"<code>manage.py колективстатичний</code> було запущено під час останнього "
+"<code>manage.py collectstatic</code> було запущено під час останнього "
 "оновлення. Це встановлює останню ітерацію кожного статичного файлу в "
 "статичний кореневий шлях."
 
@@ -13553,18 +13590,18 @@ msgstr "Попередньо спільний ключ"
 #: templates/vpn/ikepolicy.html:33
 #: templates/wireless/inc/authentication_attrs.html:20
 msgid "Show Secret"
-msgstr "Показати Таємницю"
+msgstr "Показати таємницю"
 
 #: templates/vpn/ikepolicy.html:57 templates/vpn/ipsecpolicy.html:45
 #: templates/vpn/ipsecprofile.html:52 templates/vpn/ipsecprofile.html:77
 #: vpn/forms/model_forms.py:316 vpn/forms/model_forms.py:352
 #: vpn/tables/crypto.py:68 vpn/tables/crypto.py:134
 msgid "Proposals"
-msgstr "Пропозиції"
+msgstr "Налаштування"
 
 #: templates/vpn/ikeproposal.html:10
 msgid "IKE Proposal"
-msgstr "Пропозиція IKE"
+msgstr "Налаштування IKE"
 
 #: templates/vpn/ikeproposal.html:21 vpn/forms/bulk_edit.py:97
 #: vpn/forms/bulk_import.py:145 vpn/forms/filtersets.py:101
@@ -13602,7 +13639,7 @@ msgstr "Політика IPsec"
 #: templates/vpn/ipsecpolicy.html:21 vpn/forms/bulk_edit.py:210
 #: vpn/models/crypto.py:193
 msgid "PFS group"
-msgstr "Група ПФС"
+msgstr "Група PFS"
 
 #: templates/vpn/ipsecprofile.html:10 vpn/forms/model_forms.py:54
 msgid "IPSec Profile"
@@ -13610,7 +13647,7 @@ msgstr "Профіль IPsec"
 
 #: templates/vpn/ipsecprofile.html:89 vpn/tables/crypto.py:137
 msgid "PFS Group"
-msgstr "Група ПФС"
+msgstr "Група PFS"
 
 #: templates/vpn/ipsecproposal.html:10
 msgid "IPSec Proposal"
@@ -13627,11 +13664,11 @@ msgstr "L2VPN Атрибути"
 
 #: templates/vpn/l2vpn.html:60 templates/vpn/tunnel.html:76
 msgid "Add a Termination"
-msgstr "Додати припинення"
+msgstr "Додати кінець"
 
 #: templates/vpn/tunnel.html:9
 msgid "Add Termination"
-msgstr "Додати припинення"
+msgstr "Додати кінець"
 
 #: templates/vpn/tunnel.html:37 vpn/forms/bulk_edit.py:49
 #: vpn/forms/bulk_import.py:48 vpn/forms/filtersets.py:57
@@ -13660,7 +13697,7 @@ msgstr "Тунельна група"
 
 #: templates/vpn/tunneltermination.html:10
 msgid "Tunnel Termination"
-msgstr "Закриття тунелю"
+msgstr "Кінець тунелю"
 
 #: templates/vpn/tunneltermination.html:35 vpn/forms/bulk_import.py:107
 #: vpn/forms/model_forms.py:102 vpn/forms/model_forms.py:138
@@ -13678,7 +13715,7 @@ msgstr "Шифр"
 
 #: templates/wireless/inc/authentication_attrs.html:16
 msgid "PSK"
-msgstr " Попередньо спільний ключ (PSK)"
+msgstr "Попередньо спільний ключ (PSK)"
 
 #: templates/wireless/inc/wirelesslink_interface.html:35
 #: templates/wireless/inc/wirelesslink_interface.html:45
@@ -13692,7 +13729,7 @@ msgstr "Прикріплені інтерфейси"
 
 #: templates/wireless/wirelesslangroup.html:17
 msgid "Add Wireless LAN"
-msgstr "Додати бездротову мережу"
+msgstr "Додати бездротову локальну мережу"
 
 #: templates/wireless/wirelesslangroup.html:26
 #: wireless/forms/model_forms.py:28
@@ -13718,7 +13755,7 @@ msgstr "Батьківська контактна група (ідентифік
 
 #: tenancy/filtersets.py:34
 msgid "Parent contact group (slug)"
-msgstr "Батьківська контактна група (скоречення)"
+msgstr "Батьківська контактна група (скорочення)"
 
 #: tenancy/filtersets.py:40 tenancy/filtersets.py:67 tenancy/filtersets.py:110
 msgid "Contact group (ID)"
@@ -13726,7 +13763,7 @@ msgstr "Контактна група (ідентифікатор)"
 
 #: tenancy/filtersets.py:47 tenancy/filtersets.py:74 tenancy/filtersets.py:117
 msgid "Contact group (slug)"
-msgstr "Контактна група (скоречення)"
+msgstr "Контактна група (скорочення)"
 
 #: tenancy/filtersets.py:104
 msgid "Contact (ID)"
@@ -13738,7 +13775,7 @@ msgstr "Роль контакту (ідентифікатор)"
 
 #: tenancy/filtersets.py:127
 msgid "Contact role (slug)"
-msgstr "Контактна роль (скоречення)"
+msgstr "Контактна роль (скорочення)"
 
 #: tenancy/filtersets.py:158
 msgid "Contact group"
@@ -13750,7 +13787,7 @@ msgstr "Батьківська група орендарів (ідентифік
 
 #: tenancy/filtersets.py:175
 msgid "Parent tenant group (slug)"
-msgstr "Батьківська група орендарів (скоречення)"
+msgstr "Батьківська група орендарів (скорочення)"
 
 #: tenancy/filtersets.py:181 tenancy/filtersets.py:201
 msgid "Tenant group (ID)"
@@ -13762,7 +13799,7 @@ msgstr "Група орендарів (ідентифікатор)"
 
 #: tenancy/filtersets.py:241
 msgid "Tenant Group (slug)"
-msgstr "Група орендарів (скоречення)"
+msgstr "Група орендарів (скорочення)"
 
 #: tenancy/forms/bulk_edit.py:66
 msgid "Desciption"
@@ -13814,11 +13851,11 @@ msgstr "контакти"
 
 #: tenancy/models/contacts.py:153
 msgid "contact assignment"
-msgstr "призначення контактів"
+msgstr "призначення контакта"
 
 #: tenancy/models/contacts.py:154
 msgid "contact assignments"
-msgstr "контактні завдання"
+msgstr "призначення контакта"
 
 #: tenancy/models/contacts.py:170
 #, python-brace-format
@@ -13839,7 +13876,7 @@ msgstr "Ім'я орендаря має бути унікальним для к�
 
 #: tenancy/models/tenants.py:80
 msgid "Tenant slug must be unique per group."
-msgstr "Слимак орендаря повинен бути унікальним для кожної групи."
+msgstr "Скоречення орендаря повинен бути унікальним для кожної групи."
 
 #: tenancy/models/tenants.py:88
 msgid "tenant"
@@ -13847,7 +13884,7 @@ msgstr "орендар"
 
 #: tenancy/models/tenants.py:89
 msgid "tenants"
-msgstr "орендарів"
+msgstr "орендарі"
 
 #: tenancy/tables/contacts.py:112
 msgid "Contact Title"
@@ -13855,19 +13892,19 @@ msgstr "Назва контакту"
 
 #: tenancy/tables/contacts.py:116
 msgid "Contact Phone"
-msgstr "Контактний телефон"
+msgstr "Телефон контакту"
 
 #: tenancy/tables/contacts.py:121
 msgid "Contact Email"
-msgstr "Контактна адреса електронної скриньки"
+msgstr "Контактний Email"
 
 #: tenancy/tables/contacts.py:125
 msgid "Contact Address"
-msgstr "Контактна адреса"
+msgstr "Адреса контакту"
 
 #: tenancy/tables/contacts.py:129
 msgid "Contact Link"
-msgstr "Посилання на контакт"
+msgstr "Посилання контакту"
 
 #: tenancy/tables/contacts.py:133
 msgid "Contact Description"
@@ -13903,7 +13940,7 @@ msgstr "Якщо ключ не надано, він буде згенерова�
 
 #: users/forms/filtersets.py:51 users/tables.py:42
 msgid "Is Staff"
-msgstr "Чи є персонал"
+msgstr "Є персоналом"
 
 #: users/forms/filtersets.py:58 users/tables.py:45
 msgid "Is Superuser"
@@ -13946,8 +13983,8 @@ msgid ""
 "<code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>"
 msgstr ""
 "Дозволені мережі IPv4/IPv6, звідки можна використовувати токен. Залиште "
-"порожнім без обмежень. Приклад: <code>10.1.1.0/24,192.168.10.16/32,2001: дб "
-"8:1: :/64</code>"
+"порожнім без обмежень. Приклад: "
+"<code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>"
 
 #: users/forms/model_forms.py:175
 msgid "Confirm password"
@@ -14061,11 +14098,11 @@ msgid ""
 msgstr ""
 "Дозволені мережі IPv4/IPv6, звідки можна використовувати жетон. Залиште "
 "порожнім без обмежень. Наприклад: \"10.1.1.0/24, 192.168.10.16/32, "
-"2001:DB8:1: :/64\""
+"2001:DB8:1::/64\""
 
 #: users/models/tokens.py:75
 msgid "token"
-msgstr "токен"
+msgstr "жетон"
 
 #: users/models/tokens.py:76
 msgid "tokens"
@@ -14117,16 +14154,16 @@ msgstr ""
 #: utilities/choices.py:19
 #, python-brace-format
 msgid "{name} has a key defined but CHOICES is not a list"
-msgstr "{name} має визначений ключ, але CHOICES не є списком"
+msgstr "{name} має визначений ключ, але ВИБІР не є списком"
 
 #: utilities/conversion.py:19
 msgid "Weight must be a positive number"
-msgstr "Вага повинна бути позитивним числом"
+msgstr "Вага повинна бути додатним числом"
 
 #: utilities/conversion.py:21
 #, python-brace-format
 msgid "Invalid value '{weight}' for weight (must be a number)"
-msgstr "Невірне значення '{weight}'для ваги (має бути число)"
+msgstr "Невірне значення '{weight}' для ваги (має бути число)"
 
 #: utilities/conversion.py:32 utilities/conversion.py:62
 #, python-brace-format
@@ -14140,7 +14177,7 @@ msgstr "Довжина повинна бути додатним числом"
 #: utilities/conversion.py:47
 #, python-brace-format
 msgid "Invalid value '{length}' for length (must be a number)"
-msgstr "Невірне значення '{length}'для довжини (має бути число)"
+msgstr "Невірне значення '{length}' для довжини (має бути число)"
 
 #: utilities/error_handlers.py:31
 #, python-brace-format
@@ -14165,7 +14202,7 @@ msgid ""
 "%s(%r) is invalid. to_model parameter to CounterCacheField must be a string "
 "in the format 'app.model'"
 msgstr ""
-"%s(%r) невырний. Параметр to_model до CounterCacheField повинен бути рядком "
+"%s(%r) невірний. Параметр to_model до CounterCacheField повинен бути рядком "
 "у форматі 'app.model'"
 
 #: utilities/fields.py:169
@@ -14191,7 +14228,7 @@ msgstr "Символ, який розмежовує поля CSV. Застосо
 
 #: utilities/forms/bulk_import.py:51
 msgid "Form data must be empty when uploading/selecting a file."
-msgstr "Дані форми повинні бути порожніми під час завантаження/вибору файлу."
+msgstr "Дані форми повинні бути порожніми під час вивантаження/вибору файлу."
 
 #: utilities/forms/bulk_import.py:80
 #, python-brace-format
@@ -14279,7 +14316,7 @@ msgid ""
 msgstr ""
 "Буквено-цифрові діапазони підтримуються для масового створення. Змішані "
 "відмінки і типи в межах одного діапазону не підтримуються (приклад: "
-"<code>[Ге, хе] -0/0/ [0-9]</code>)."
+"<code>[ge,xe]-0/0/[0-9]</code>)."
 
 #: utilities/forms/fields/expandable.py:46
 msgid ""
@@ -14287,7 +14324,7 @@ msgid ""
 "<code>192.0.2.[1,5,100-254]/24</code>"
 msgstr ""
 "Вкажіть числовий діапазон для створення декількох IP-адрес.<br />Приклад: "
-"<code>192.0.2. [1,5100-254] /24</code>"
+"<code>192.0.2.[1,5,100-254]/24</code>"
 
 #: utilities/forms/fields/fields.py:31
 #, python-brace-format
@@ -14328,7 +14365,7 @@ msgstr "Нерозпізнаний заголовок: {name}"
 
 #: utilities/forms/forms.py:118
 msgid "Available Columns"
-msgstr "Доступні колонки"
+msgstr "Доступні стовпці"
 
 #: utilities/forms/forms.py:126
 msgid "Selected Columns"
@@ -14382,7 +14419,8 @@ msgstr "Знайдено несподіваний заголовок стовп�
 #, python-brace-format
 msgid "Column \"{field}\" is not a related object; cannot use dots"
 msgstr ""
-"Колонка \"{field}\" не є спорідненим об'єктом; не може використовувати точки"
+"Стовпчик \"{field}\" не є спорідненим об'єктом; не може використовувати "
+"точки"
 
 #: utilities/forms/utils.py:276
 #, python-brace-format
@@ -14498,11 +14536,11 @@ msgstr "Копіювати в буфер обміну"
 
 #: utilities/templates/form_helpers/render_field.html:57
 msgid "This field is required"
-msgstr "Це поле обов'язкове для заповнення"
+msgstr "Це обов'язкове поле для заповнення"
 
 #: utilities/templates/form_helpers/render_field.html:70
 msgid "Set Null"
-msgstr "Встановити нуль"
+msgstr "Встановити нуль (Null)"
 
 #: utilities/templates/helpers/applied_filters.html:11
 msgid "Clear all"
@@ -14514,15 +14552,15 @@ msgstr "Налаштування таблиці"
 
 #: utilities/templates/helpers/table_config_form.html:31
 msgid "Move Up"
-msgstr "Рухатися вгору"
+msgstr "Рухати угору"
 
 #: utilities/templates/helpers/table_config_form.html:34
 msgid "Move Down"
-msgstr "Рухатися вниз"
+msgstr "Рухати вниз"
 
 #: utilities/templates/navigation/menu.html:14
 msgid "Search…"
-msgstr "Пошук..."
+msgstr "Пошук…"
 
 #: utilities/templates/navigation/menu.html:14
 msgid "Search NetBox"
@@ -14554,7 +14592,7 @@ msgstr ""
 #: utilities/views.py:93
 #, python-brace-format
 msgid "{class_name} must implement get_required_permission()"
-msgstr "{class_name} повинен реалізувати get_required_permissions ()"
+msgstr "{class_name} повинен реалізувати get_required_permissions()"
 
 #: utilities/views.py:117
 #, python-brace-format
@@ -14572,7 +14610,7 @@ msgstr "Батьківська група (ідентифікатор)"
 
 #: virtualization/filtersets.py:85
 msgid "Parent group (slug)"
-msgstr "Батьківська група (скоречення)"
+msgstr "Батьківська група (скорочення)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141
 msgid "Cluster type (ID)"
@@ -14592,13 +14630,13 @@ msgid "Memory (MB)"
 msgstr "Пам'ять (МБ)"
 
 #: virtualization/forms/bulk_edit.py:174
-msgid "Disk (GB)"
-msgstr "Диск (ГБ)"
+msgid "Disk (MB)"
+msgstr "Диск (МБ)"
 
 #: virtualization/forms/bulk_edit.py:334
 #: virtualization/forms/filtersets.py:251
-msgid "Size (GB)"
-msgstr "Розмір (ГБ)"
+msgid "Size (MB)"
+msgstr "Розмір (МБ)"
 
 #: virtualization/forms/bulk_import.py:44
 msgid "Type of cluster"
@@ -14739,7 +14777,7 @@ msgstr ""
 #: virtualization/models/virtualmachines.py:229
 #, python-brace-format
 msgid "Must be an IPv{family} address. ({ip} is an IPv{version} address.)"
-msgstr "Повинен бути IPV{family} адреса. ({ip} є IPV{version} адреса.)"
+msgstr "Повинен бути IPv{family} адреса. ({ip} є IPv{version} адреса.)"
 
 #: virtualization/models/virtualmachines.py:238
 #, python-brace-format
@@ -14789,12 +14827,12 @@ msgstr "віртуальні диски"
 #: virtualization/views.py:275
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
-msgstr "Додано {count} пристрої для кластеризації {cluster}"
+msgstr "Додано {count} пристроїв для кластеризації {cluster}"
 
 #: virtualization/views.py:310
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
-msgstr "Вилучено {count} пристрої з кластера {cluster}"
+msgstr "Вилучено {count} пристроїв з кластера {cluster}"
 
 #: vpn/choices.py:31
 msgid "IPsec - Transport"
@@ -14806,11 +14844,11 @@ msgstr "IPsec - тунель"
 
 #: vpn/choices.py:33
 msgid "IP-in-IP"
-msgstr "IP-адреси в IP"
+msgstr "IP-в-IP"
 
 #: vpn/choices.py:34
 msgid "GRE"
-msgstr "ГРЕ"
+msgstr "GRE"
 
 #: vpn/choices.py:56
 msgid "Hub"
@@ -14818,11 +14856,11 @@ msgstr "Хаб"
 
 #: vpn/choices.py:57
 msgid "Spoke"
-msgstr "говорив"
+msgstr "Спиця (в колесі)"
 
 #: vpn/choices.py:80
 msgid "Aggressive"
-msgstr "Агресивний"
+msgstr "Агресивно"
 
 #: vpn/choices.py:81
 msgid "Main"
@@ -14876,7 +14914,7 @@ msgstr "Тунельна група (ідентифікатор)"
 
 #: vpn/filtersets.py:47
 msgid "Tunnel group (slug)"
-msgstr "Тунельна група (скоречення)"
+msgstr "Тунельна група (скорочення)"
 
 #: vpn/filtersets.py:54
 msgid "IPSec profile (ID)"
@@ -14916,7 +14954,7 @@ msgstr "Політика IPsec (назва)"
 
 #: vpn/filtersets.py:348
 msgid "L2VPN (slug)"
-msgstr "L2VPN (скоречення)"
+msgstr "L2VPN (скорочення)"
 
 #: vpn/filtersets.py:412
 msgid "VM Interface (ID)"
@@ -14975,15 +15013,15 @@ msgstr "Інтерфейс пристрою або віртуальної маш
 
 #: vpn/forms/bulk_import.py:183
 msgid "IKE proposal(s)"
-msgstr "Пропозиція (и) IKE"
+msgstr "Пропозиція/iї IKE"
 
 #: vpn/forms/bulk_import.py:215 vpn/models/crypto.py:197
 msgid "Diffie-Hellman group for Perfect Forward Secrecy"
-msgstr "Група Діффі-Хеллмана для «Ідеальна таємниця вперед»"
+msgstr "Група Діффі-Хеллмана для Perfect Forward Secrecy"
 
 #: vpn/forms/bulk_import.py:222
 msgid "IPSec proposal(s)"
-msgstr "Пропозиція (и) IPsec"
+msgstr "Пропозиція/iї IPsec"
 
 #: vpn/forms/bulk_import.py:236
 msgid "IPSec protocol"
@@ -15039,15 +15077,15 @@ msgstr "Інтерфейс тунелю"
 
 #: vpn/forms/model_forms.py:150
 msgid "First Termination"
-msgstr "Перше припинення"
+msgstr "Перший кінець"
 
 #: vpn/forms/model_forms.py:153
 msgid "Second Termination"
-msgstr "Друге припинення"
+msgstr "Другий кінець"
 
 #: vpn/forms/model_forms.py:197
 msgid "This parameter is required when defining a termination."
-msgstr "Цей параметр обов'язковий при визначенні закінчення."
+msgstr "Цей параметр обов'язковий при визначенні кінця."
 
 #: vpn/forms/model_forms.py:320 vpn/forms/model_forms.py:356
 msgid "Policy"
@@ -15055,13 +15093,12 @@ msgstr "Політика"
 
 #: vpn/forms/model_forms.py:487
 msgid "A termination must specify an interface or VLAN."
-msgstr "Припинення повинно вказувати інтерфейс або VLAN."
+msgstr "Кінець повинен підключатися до інтерфейсу або VLAN."
 
 #: vpn/forms/model_forms.py:489
 msgid ""
 "A termination can only have one terminating object (an interface or VLAN)."
-msgstr ""
-"Термінування може мати лише один кінцевий об'єкт (інтерфейс або VLAN)."
+msgstr "Кінець може мати лише один кінцевий об'єкт (інтерфейс або VLAN)."
 
 #: vpn/models/crypto.py:33
 msgid "encryption algorithm"
@@ -15085,7 +15122,7 @@ msgstr "Пропозиція IKE"
 
 #: vpn/models/crypto.py:60
 msgid "IKE proposals"
-msgstr "Пропозиції IKE"
+msgstr "Налаштування IKE"
 
 #: vpn/models/crypto.py:76
 msgid "version"
@@ -15093,7 +15130,7 @@ msgstr "версія"
 
 #: vpn/models/crypto.py:88 vpn/models/crypto.py:190
 msgid "proposals"
-msgstr "пропозиції"
+msgstr "налаштування"
 
 #: vpn/models/crypto.py:91 wireless/models.py:39
 msgid "pre-shared key"
@@ -15149,16 +15186,16 @@ msgstr "Профілі IPsec"
 
 #: vpn/models/l2vpn.py:116
 msgid "L2VPN termination"
-msgstr "Припинення L2VPN"
+msgstr "Кінець L2VPN"
 
 #: vpn/models/l2vpn.py:117
 msgid "L2VPN terminations"
-msgstr "Термінації L2VPN"
+msgstr "Кінці L2VPN"
 
 #: vpn/models/l2vpn.py:135
 #, python-brace-format
 msgid "L2VPN Termination already assigned ({assigned_object})"
-msgstr "Припинення L2VPN вже призначено ({assigned_object})"
+msgstr "Кінець L2VPN вже призначено ({assigned_object})"
 
 #: vpn/models/l2vpn.py:147
 #, python-brace-format
@@ -15166,7 +15203,7 @@ msgid ""
 "{l2vpn_type} L2VPNs cannot have more than two terminations; found "
 "{terminations_count} already defined."
 msgstr ""
-"{l2vpn_type} L2VPN не може мати більше двох термінів; знайдено "
+"{l2vpn_type} L2VPN не може мати більше двох кінців; знайдено "
 "{terminations_count} вже визначено."
 
 #: vpn/models/tunnels.py:26
@@ -15195,15 +15232,15 @@ msgstr "тунелі"
 
 #: vpn/models/tunnels.py:153
 msgid "An object may be terminated to only one tunnel at a time."
-msgstr "Об'єкт може бути завершений лише в одному тунелі одночасно."
+msgstr "Об'єкт може бути кінцем лише в одному тунелі одночасно."
 
 #: vpn/models/tunnels.py:156
 msgid "tunnel termination"
-msgstr "закінчення тунелю"
+msgstr "кинець тунелю"
 
 #: vpn/models/tunnels.py:157
 msgid "tunnel terminations"
-msgstr "закінчення тунелів"
+msgstr "кінці тунелів"
 
 #: vpn/models/tunnels.py:174
 #, python-brace-format
@@ -15224,7 +15261,7 @@ msgstr "Алгоритм аутентифікації"
 
 #: vpn/tables/crypto.py:34
 msgid "SA Lifetime"
-msgstr "SA Термін служби"
+msgstr "Тривалість життя SA"
 
 #: vpn/tables/crypto.py:71
 msgid "Pre-shared Key"
@@ -15232,11 +15269,11 @@ msgstr "Попередньо спільний ключ"
 
 #: vpn/tables/crypto.py:103
 msgid "SA Lifetime (Seconds)"
-msgstr "Термін служби SA (секунди)"
+msgstr "Тривалість життя SA (секунди)"
 
 #: vpn/tables/crypto.py:106
 msgid "SA Lifetime (KB)"
-msgstr "Термін служби SA (КБ)"
+msgstr "Тривалість життя SA (КБ)"
 
 #: vpn/tables/l2vpn.py:69
 msgid "Object Parent"
@@ -15244,7 +15281,7 @@ msgstr "Батьківський об'єкт"
 
 #: vpn/tables/l2vpn.py:74
 msgid "Object Site"
-msgstr "Сайт об'єкта"
+msgstr "Тех. майданчик об'єкта"
 
 #: wireless/choices.py:11
 msgid "Access point"
@@ -15288,7 +15325,7 @@ msgstr "Інтерфейс A"
 
 #: wireless/forms/bulk_import.py:93 wireless/tables/wirelesslink.py:37
 msgid "Interface B"
-msgstr "Інтерфейс B"
+msgstr "Інтерфейс Б"
 
 #: wireless/forms/model_forms.py:161
 msgid "Side B"
@@ -15316,7 +15353,7 @@ msgstr "інтерфейс А"
 
 #: wireless/models.py:151
 msgid "interface B"
-msgstr "інтерфейс B"
+msgstr "інтерфейс Б"
 
 #: wireless/models.py:165
 msgid "distance"
@@ -15328,15 +15365,17 @@ msgstr "одиниця відстані"
 
 #: wireless/models.py:219
 msgid "wireless link"
-msgstr "бездротова зв'язок"
+msgstr "бездротовий канал зв'язок"
 
 #: wireless/models.py:220
 msgid "wireless links"
-msgstr "бездротові зв'язки"
+msgstr "бездротові канали зв'язку"
 
 #: wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "Необхідно вказати одиницю виміру при установці бездротової відстані"
+msgstr ""
+"Необхідно вказати одиницю виміру при установці відстані бездротового каналу "
+"зв'язку"
 
 #: wireless/models.py:242 wireless/models.py:248
 #, python-brace-format

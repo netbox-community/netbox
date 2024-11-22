@@ -29,6 +29,7 @@ __all__ = (
     'InterfaceTable',
     'InventoryItemRoleTable',
     'InventoryItemTable',
+    'MACAddressTable',
     'ModuleBayTable',
     'PlatformTable',
     'PowerOutletTable',
@@ -40,6 +41,16 @@ __all__ = (
 
 MODULEBAY_STATUS = """
 {% badge record.installed_module.get_status_display bg_color=record.installed_module.get_status_color %}
+"""
+
+MACADDRESS_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}" id="macaddress_{{ record.pk }}">{{ record.mac_address }}</a>
+{% endif %}
+"""
+
+MACADDRESS_COPY_BUTTON = """
+{% copy_content record.pk prefix="macaddress_" %}
 """
 
 
@@ -380,7 +391,8 @@ class ConsolePortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = models.ConsolePort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -420,7 +432,8 @@ class ConsoleServerPortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = models.ConsoleServerPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'speed', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'type', 'speed', 'description')
 
@@ -588,6 +601,10 @@ class BaseInterfaceTable(NetBoxTable):
         verbose_name=_('Q-in-Q SVLAN'),
         linkify=True
     )
+    primary_mac_address = tables.Column(
+        verbose_name=_('MAC Address'),
+        linkify=True
+    )
 
     def value_ip_addresses(self, value):
         return ",".join([str(obj.address) for obj in value.all()])
@@ -634,15 +651,23 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         url_name='dcim:interface_list'
     )
 
+    # Override PathEndpointTable.connection to accommodate virtual circuits
+    connection = columns.TemplateColumn(
+        accessor='_path__destinations',
+        template_code=INTERFACE_LINKTERMINATION,
+        verbose_name=_('Connection'),
+        orderable=False
+    )
+
     class Meta(DeviceComponentTable.Meta):
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf',
-            'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
-            'inventory_items', 'created', 'last_updated',
+            'speed', 'speed_formatted', 'duplex', 'mode', 'primary_mac_address', 'wwn', 'poe_mode', 'poe_type',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
+            'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'qinq_svlan', 'inventory_items', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -964,8 +989,8 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial',
-            'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'status', 'role', 'manufacturer', 'part_id',
+            'serial', 'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
@@ -983,8 +1008,8 @@ class DeviceInventoryItemTable(InventoryItemTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
-            'description', 'discovered', 'tags', 'actions',
+            'pk', 'id', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
+            'component', 'description', 'discovered', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'status', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'component',
@@ -1098,3 +1123,34 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
         default_columns = (
             'pk', 'name', 'identifier', 'status', 'tenant', 'primary_ip',
         )
+
+
+class MACAddressTable(NetBoxTable):
+    mac_address = tables.TemplateColumn(
+        template_code=MACADDRESS_LINK,
+        verbose_name=_('MAC Address')
+    )
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Interface')
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent_object',
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Parent')
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:macaddress_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=MACADDRESS_COPY_BUTTON
+    )
+
+    class Meta(DeviceComponentTable.Meta):
+        model = models.MACAddress
+        fields = (
+            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object')

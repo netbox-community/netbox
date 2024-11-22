@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
 from django.views.decorators.cache import cache_page
-from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from account.views import LoginView, LogoutView
@@ -10,7 +9,7 @@ from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
 from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
-from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
+from netbox.views import HomeView, MediaView, StaticMediaFailureView, SearchView, htmx
 
 _patterns = [
 
@@ -69,7 +68,7 @@ _patterns = [
     path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
-    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
+    path('media/<path:path>', MediaView.as_view(), name='media'),
     path('media-failure/', StaticMediaFailureView.as_view(), name='media_failure'),
 
     # Plugins

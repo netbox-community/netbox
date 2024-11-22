@@ -13,7 +13,6 @@ def set_null_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0072_prefix_cached_relations'),
     ]
@@ -29,8 +28,5 @@ class Migration(migrations.Migration):
             name='role',
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
-        migrations.RunPython(
-            code=set_null_values,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=set_null_values, reverse_code=migrations.RunPython.noop),
     ]

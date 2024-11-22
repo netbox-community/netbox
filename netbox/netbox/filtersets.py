@@ -179,6 +179,8 @@ class BaseFilterSet(django_filters.FilterSet):
                     # The filter field has been explicitly defined on the filterset class so we must manually
                     # create the new filter with the same type because there is no guarantee the defined type
                     # is the same as the default type for the field
+                    if field is None:
+                        raise ValueError('Invalid field name/lookup on {}: {}'.format(existing_filter_name, field_name))
                     resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
                     filter_cls = type(existing_filter)
                     if lookup_expr == 'empty':
@@ -262,7 +264,9 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
         action = {
             'created_by_request': Q(action=ObjectChangeActionChoices.ACTION_CREATE),
             'updated_by_request': Q(action=ObjectChangeActionChoices.ACTION_UPDATE),
-            'modified_by_request': Q(action__in=[ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]),
+            'modified_by_request': Q(
+                action__in=[ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]
+            ),
         }.get(name)
         request_id = value
         pks = ObjectChange.objects.filter(

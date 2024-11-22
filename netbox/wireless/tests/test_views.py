@@ -113,9 +113,20 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "group,ssid,status,tenant,scope_type,scope_id",
-            f"Wireless LAN Group 2,WLAN4,{WirelessLANStatusChoices.STATUS_ACTIVE},{tenants[0].name},,",
-            f"Wireless LAN Group 2,WLAN5,{WirelessLANStatusChoices.STATUS_DISABLED},{tenants[1].name},dcim.site,{sites[0].pk}",
-            f"Wireless LAN Group 2,WLAN6,{WirelessLANStatusChoices.STATUS_RESERVED},{tenants[2].name},dcim.site,{sites[1].pk}",
+            "Wireless LAN Group 2,WLAN4,{status},{tenant},,".format(
+                status=WirelessLANStatusChoices.STATUS_ACTIVE,
+                tenant=tenants[0].name
+            ),
+            "Wireless LAN Group 2,WLAN5,{status},{tenant},dcim.site,{site}".format(
+                status=WirelessLANStatusChoices.STATUS_DISABLED,
+                tenant=tenants[1].name,
+                site=sites[0].pk
+            ),
+            "Wireless LAN Group 2,WLAN6,{status},{tenant},dcim.site,{site}".format(
+                status=WirelessLANStatusChoices.STATUS_RESERVED,
+                tenant=tenants[2].name,
+                site=sites[1].pk
+            ),
         )
 
         cls.csv_update_data = (
@@ -157,11 +168,17 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ]
         Interface.objects.bulk_create(interfaces)
 
-        wirelesslink1 = WirelessLink(interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1', tenant=tenants[0])
+        wirelesslink1 = WirelessLink(
+            interface_a=interfaces[0], interface_b=interfaces[1], ssid='LINK1', tenant=tenants[0]
+        )
         wirelesslink1.save()
-        wirelesslink2 = WirelessLink(interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2', tenant=tenants[0])
+        wirelesslink2 = WirelessLink(
+            interface_a=interfaces[2], interface_b=interfaces[3], ssid='LINK2', tenant=tenants[0]
+        )
         wirelesslink2.save()
-        wirelesslink3 = WirelessLink(interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3', tenant=tenants[0])
+        wirelesslink3 = WirelessLink(
+            interface_a=interfaces[4], interface_b=interfaces[5], ssid='LINK3', tenant=tenants[0]
+        )
         wirelesslink3.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')

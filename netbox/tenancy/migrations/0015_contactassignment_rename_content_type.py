@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('extras', '0111_rename_content_types'),
@@ -25,16 +24,13 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='contactassignment',
-            index=models.Index(
-                fields=['object_type', 'object_id'],
-                name='tenancy_con_object__6f20f7_idx'
-            ),
+            index=models.Index(fields=['object_type', 'object_id'], name='tenancy_con_object__6f20f7_idx'),
         ),
         migrations.AddConstraint(
             model_name='contactassignment',
             constraint=models.UniqueConstraint(
                 fields=('object_type', 'object_id', 'contact', 'role'),
-                name='tenancy_contactassignment_unique_object_contact_role'
+                name='tenancy_contactassignment_unique_object_contact_role',
             ),
         ),
     ]

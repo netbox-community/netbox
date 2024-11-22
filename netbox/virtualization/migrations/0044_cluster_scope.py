@@ -11,13 +11,11 @@ def copy_site_assignments(apps, schema_editor):
     Site = apps.get_model('dcim', 'Site')
 
     Cluster.objects.filter(site__isnull=False).update(
-        scope_type=ContentType.objects.get_for_model(Site),
-        scope_id=models.F('site_id')
+        scope_type=ContentType.objects.get_for_model(Site), scope_id=models.F('site_id')
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('virtualization', '0043_qinq_svlan'),
@@ -41,11 +39,6 @@ class Migration(migrations.Migration):
                 to='contenttypes.contenttype',
             ),
         ),
-
         # Copy over existing site assignments
-        migrations.RunPython(
-            code=copy_site_assignments,
-            reverse_code=migrations.RunPython.noop
-        ),
-
+        migrations.RunPython(code=copy_site_assignments, reverse_code=migrations.RunPython.noop),
     ]

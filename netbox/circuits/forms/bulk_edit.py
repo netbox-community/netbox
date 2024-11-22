@@ -3,7 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices
+from circuits.choices import (
+    CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices,
+)
 from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import *
 from dcim.models import Site
@@ -28,6 +30,8 @@ __all__ = (
     'ProviderBulkEditForm',
     'ProviderAccountBulkEditForm',
     'ProviderNetworkBulkEditForm',
+    'VirtualCircuitBulkEditForm',
+    'VirtualCircuitTerminationBulkEditForm',
 )
 
 
@@ -291,3 +295,62 @@ class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('circuit', 'priority'),
     )
     nullable_fields = ('priority',)
+
+
+class VirtualCircuitBulkEditForm(NetBoxModelBulkEditForm):
+    provider_network = DynamicModelChoiceField(
+        label=_('Provider network'),
+        queryset=ProviderNetwork.objects.all(),
+        required=False
+    )
+    provider_account = DynamicModelChoiceField(
+        label=_('Provider account'),
+        queryset=ProviderAccount.objects.all(),
+        required=False
+    )
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(CircuitStatusChoices),
+        required=False,
+        initial=''
+    )
+    tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=100,
+        required=False
+    )
+    comments = CommentField()
+
+    model = VirtualCircuit
+    fieldsets = (
+        FieldSet('provider_network', 'provider_account', 'status', 'description', name=_('Virtual circuit')),
+        FieldSet('tenant', name=_('Tenancy')),
+    )
+    nullable_fields = (
+        'provider_account', 'tenant', 'description', 'comments',
+    )
+
+
+class VirtualCircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    role = forms.ChoiceField(
+        label=_('Role'),
+        choices=add_blank_choice(VirtualCircuitTerminationRoleChoices),
+        required=False,
+        initial=''
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = VirtualCircuitTermination
+    fieldsets = (
+        FieldSet('role', 'description'),
+    )
+    nullable_fields = ('description',)

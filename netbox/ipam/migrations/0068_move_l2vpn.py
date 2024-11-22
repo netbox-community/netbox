@@ -15,7 +15,6 @@ def update_content_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0067_ipaddress_index_host'),
     ]
@@ -57,8 +56,5 @@ class Migration(migrations.Migration):
                 ),
             ],
         ),
-        migrations.RunPython(
-            code=update_content_types,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_content_types, reverse_code=migrations.RunPython.noop),
     ]

@@ -18,17 +18,13 @@ def update_content_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('users', '0008_flip_objectpermission_assignments'),
     ]
 
     operations = [
         # Update ContentTypes
-        migrations.RunPython(
-            code=update_content_types,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_content_types, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='objectpermission',
             name='object_types',
