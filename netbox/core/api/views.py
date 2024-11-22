@@ -119,6 +119,19 @@ class BackgroundQueueViewSet(BaseRQViewSet):
     def get_data(self):
         return get_statistics(run_maintenance_tasks=True)["queues"]
 
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def retrieve(self, request, name):
+        data = self.get_data()
+        if not data:
+            raise Http404
+
+        for queue in data:
+            if queue['name'] == name:
+                serializer = self.serializer_class(queue, context={'request': request})
+                return Response(serializer.data)
+
+        raise Http404
+
 
 class BackgroundWorkerViewSet(BaseRQViewSet):
     """

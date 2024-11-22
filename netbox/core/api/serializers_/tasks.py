@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 __all__ = (
     'BackgroundTaskSerializer',
@@ -50,7 +51,7 @@ class BackgroundTaskSerializer(serializers.Serializer):
 
 class BackgroundQueueSerializer(serializers.Serializer):
     name = serializers.CharField()
-    # Note: Queue names are not url safe so not returning a url field
+    url = serializers.SerializerMethodField()
     jobs = serializers.IntegerField()
     oldest_job_timestamp = serializers.CharField()
     index = serializers.IntegerField()
@@ -61,6 +62,9 @@ class BackgroundQueueSerializer(serializers.Serializer):
     deferred_jobs = serializers.IntegerField()
     failed_jobs = serializers.IntegerField()
     scheduled_jobs = serializers.IntegerField()
+
+    def get_url(self, obj):
+        return reverse('core-api:rqqueue-detail', args=[obj['name']], request=self.context.get("request"))
 
 
 class BackgroundWorkerSerializer(serializers.Serializer):
