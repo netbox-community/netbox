@@ -146,6 +146,15 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIn('high', str(response.content))
         self.assertIn('low', str(response.content))
 
+    def test_background_task_list(self):
+        queue = get_queue('default')
+        queue.enqueue(self.dummy_job_default)
+
+        response = self.client.get(reverse('core-api:rqtask-list'), **self.header)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('origin', str(response.content))
+        self.assertIn('core.tests.test_api.BackgroundTaskTestCase.dummy_job_default()', str(response.content))
+
     def test_background_task(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
