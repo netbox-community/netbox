@@ -54,7 +54,6 @@ class BackgroundQueueSerializer(serializers.Serializer):
     jobs = serializers.IntegerField()
     oldest_job_timestamp = serializers.CharField()
     index = serializers.IntegerField()
-    connection_kwargs = serializers.DictField()
     scheduler_pid = serializers.CharField()
     workers = serializers.IntegerField()
     finished_jobs = serializers.IntegerField()

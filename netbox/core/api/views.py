@@ -169,7 +169,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def retrieve(self, request, pk):
         task = self.get_task_from_id(pk)
-        serializer = serializers.BackgroundTaskSerializer(task, context={'request': request})
+        serializer = self.serializer_class(task, context={'request': request})
         return Response(serializer.data)
 
     @action(methods=["POST"], detail=True)
