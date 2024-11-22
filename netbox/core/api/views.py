@@ -112,6 +112,7 @@ class BackgroundQueueViewSet(BaseRQViewSet):
     """
     serializer_class = serializers.BackgroundQueueSerializer
     lookup_field = 'name'
+    lookup_value_regex = r'[\w.@+-]+'
 
     def get_view_name(self):
         return "Background Queues"
