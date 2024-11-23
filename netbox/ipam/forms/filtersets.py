@@ -308,7 +308,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('device_id', 'virtual_machine_id', 'virtual_machine_role', name=_('Device/VM')),
+        FieldSet('device_id', 'virtual_machine_id', 'virtual_machine_role', 'device_role', name=_('Device/VM')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'parent', 'status', 'role')
     parent = forms.CharField(
