@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
+from dcim.models import Location, Rack, Region, Site, SiteGroup, Device, DeviceRole
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -308,7 +308,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
+        FieldSet('device_id', 'virtual_machine_id', 'virtual_machine_role', name=_('Device/VM')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'parent', 'status', 'role')
     parent = forms.CharField(
@@ -346,10 +346,20 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         label=_('Assigned Device'),
     )
+    device_role = DynamicModelMultipleChoiceField(
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        label=_('Assigned Device Role'),
+    )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         label=_('Assigned VM'),
+    )
+    virtual_machine_role = DynamicModelMultipleChoiceField(
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        label=_('Assigned VM Role')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),

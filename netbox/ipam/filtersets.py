@@ -610,6 +610,11 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         field_name='pk',
         label=_('Device (ID)'),
     )
+    device_role = MultiValueCharFilter(
+        method='filter_device',
+        field_name='role',
+        label=_('Device (role)'),
+    )
     virtual_machine = MultiValueCharFilter(
         method='filter_virtual_machine',
         field_name='name',
@@ -619,6 +624,11 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='filter_virtual_machine',
         field_name='pk',
         label=_('Virtual machine (ID)'),
+    )
+    virtual_machine_role = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='role',
+        label=_('Virtual machine (role)'),
     )
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',

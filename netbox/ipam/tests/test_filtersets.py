@@ -1020,8 +1020,8 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         cluster = Cluster.objects.create(type=clustertype, name='Cluster 1')
 
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
-            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster, role=role),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster, role=role),
             VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
@@ -1244,12 +1244,16 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device_role': [devices[0].role.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_virtual_machine(self):
         vms = VirtualMachine.objects.all()[:2]
         params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine_role': [vms[0].role.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_interface(self):
