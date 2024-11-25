@@ -33,6 +33,10 @@
                         <td>{{ object.label|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">{% trans "Status" %}</th>
+                      <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Role" %}</th>
                         <td>{{ object.role|linkify|placeholder }}</td>
                     </tr>
@@ -55,10 +59,6 @@
                     <tr>
                         <th scope="row">{% trans "Asset Tag" %}</th>
                         <td>{{ object.asset_tag|placeholder }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">{% trans "Status" %}</th>
-                      <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Description" %}</th>

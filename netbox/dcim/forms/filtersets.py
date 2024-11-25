@@ -1524,7 +1524,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
+            'name', 'label', 'status', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
             name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
