@@ -189,7 +189,8 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         blank=True
     )
     time_zone = TimeZoneField(
-        blank=True
+        blank=True,
+        null=True
     )
     physical_address = models.CharField(
         verbose_name=_('physical address'),

@@ -1,3 +1,4 @@
+import timezone_field.fields
 from django.db import migrations, models
 
 
@@ -24,6 +25,7 @@ def set_null_values(apps, schema_editor):
     Rack = apps.get_model('dcim', 'Rack')
     RackType = apps.get_model('dcim', 'RackType')
     RearPort = apps.get_model('dcim', 'RearPort')
+    Site = apps.get_model('dcim', 'Site')
 
     Cable.objects.filter(length_unit='').update(length_unit=None)
     Cable.objects.filter(type='').update(type=None)
@@ -66,6 +68,7 @@ def set_null_values(apps, schema_editor):
     RackType.objects.filter(outer_unit='').update(outer_unit=None)
     RackType.objects.filter(weight_unit='').update(weight_unit=None)
     RearPort.objects.filter(cable_end='').update(cable_end=None)
+    Site.objects.filter(time_zone='').update(time_zone=None)
 
 
 class Migration(migrations.Migration):
@@ -278,6 +281,11 @@ class Migration(migrations.Migration):
             model_name='rearport',
             name='cable_end',
             field=models.CharField(blank=True, max_length=1, null=True),
+        ),
+        migrations.AlterField(
+            model_name='site',
+            name='time_zone',
+            field=timezone_field.fields.TimeZoneField(blank=True, null=True),
         ),
         migrations.RunPython(code=set_null_values, reverse_code=migrations.RunPython.noop),
     ]
