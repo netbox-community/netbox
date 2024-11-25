@@ -104,18 +104,19 @@ class CircuitSerializer(NetBoxModelSerializer):
     provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = CircuitTypeSerializer(nested=True)
+    distance_unit = ChoiceField(choices=DistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     termination_a = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     assignments = CircuitGroupAssignmentSerializer_(nested=True, many=True, required=False)
-    distance_unit = ChoiceField(choices=DistanceUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant',
-            'install_date', 'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z',
-            'distance', 'distance_unit', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'assignments',
+            'install_date', 'termination_date', 'commit_rate', 'description', 'distance', 'distance_unit',
+            'termination_a', 'termination_z', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'assignments',
         ]
         brief_fields = ('id', 'url', 'display', 'provider', 'cid', 'description')
 
