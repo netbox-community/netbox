@@ -1277,6 +1277,11 @@ class Module(PrimaryModel, ConfigContextModel):
                 if not disable_replication:
                     create_instances.append(template_instance)
 
+            for component in create_instances:
+                # Set default values for any applicable custom fields
+                if cf_defaults := CustomField.objects.get_defaults_for_model(component_model):
+                    component.custom_field_data = cf_defaults
+
             if component_model is not ModuleBay:
                 component_model.objects.bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object
