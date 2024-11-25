@@ -23,7 +23,8 @@ class InterfaceCommonForm(forms.Form):
     primary_mac_address = DynamicModelChoiceField(
         queryset=MACAddress.objects.all(),
         label=_('Primary MAC address'),
-        required=False
+        required=False,
+        quick_add=True
     )
 
     def __init__(self, *args, **kwargs):

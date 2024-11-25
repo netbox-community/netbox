@@ -1758,11 +1758,17 @@ class MACAddressForm(NetBoxModelForm):
         label=_('Interface'),
         queryset=Interface.objects.all(),
         required=False,
+        context={
+            'parent': 'device',
+        },
     )
     vminterface = DynamicModelChoiceField(
         label=_('VM Interface'),
         queryset=VMInterface.objects.all(),
         required=False,
+        context={
+            'parent': 'virtual_machine',
+        },
     )
 
     fieldsets = (

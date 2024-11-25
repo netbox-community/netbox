@@ -89,12 +89,6 @@ DEVICES_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Addressing'),
-            items=(
-                get_model_item('dcim', 'macaddress', _('MAC Addresses')),
-            ),
-        ),
-        MenuGroup(
             label=_('Device Components'),
             items=(
                 get_model_item('dcim', 'interface', _('Interfaces')),
@@ -108,6 +102,12 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'devicebay', _('Device Bays')),
                 get_model_item('dcim', 'inventoryitem', _('Inventory Items')),
                 get_model_item('dcim', 'inventoryitemrole', _('Inventory Item Roles')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Addressing'),
+            items=(
+                get_model_item('dcim', 'macaddress', _('MAC Addresses')),
             ),
         ),
     ),
