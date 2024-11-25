@@ -1080,7 +1080,7 @@ class VLANTranslationPolicyTest(APIViewTestCases.APIViewTestCase):
 
 class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
     model = VLANTranslationRule
-    brief_fields = ['id', 'local_vid', 'policy', 'remote_vid',]
+    brief_fields = ['description', 'display', 'id', 'local_vid', 'policy', 'remote_vid', 'url']
 
     @classmethod
     def setUpTestData(cls):
