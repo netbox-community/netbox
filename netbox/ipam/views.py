@@ -1050,7 +1050,9 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
 
 @register_model_view(VLANTranslationPolicy, 'list', path='', detail=False)
 class VLANTranslationPolicyListView(generic.ObjectListView):
-    queryset = VLANTranslationPolicy.objects.all()
+    queryset = VLANTranslationPolicy.objects.annotate(
+        rule_count=count_related(VLANTranslationRule, 'policy'),
+    )
     filterset = filtersets.VLANTranslationPolicyFilterSet
     filterset_form = forms.VLANTranslationPolicyFilterForm
     table = tables.VLANTranslationPolicyTable

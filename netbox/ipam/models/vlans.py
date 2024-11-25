@@ -379,6 +379,8 @@ class VLANTranslationRule(NetBoxModel):
         'ipam.VLANTranslationPolicy',
     )
 
+    clone_fields = ['policy']
+
     class Meta:
         verbose_name = _('VLAN translation rule')
         ordering = ('policy', 'local_vid',)

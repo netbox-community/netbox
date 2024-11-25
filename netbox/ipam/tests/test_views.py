@@ -973,16 +973,16 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "policy,local_vid,remote_vid",
-            f"{vlan_translation_policies[0].pk},103,203",
-            f"{vlan_translation_policies[0].pk},104,204",
-            f"{vlan_translation_policies[1].pk},105,205",
+            f"{vlan_translation_policies[0].name},103,203",
+            f"{vlan_translation_policies[0].name},104,204",
+            f"{vlan_translation_policies[1].name},105,205",
         )
 
         cls.csv_update_data = (
-            "id,policy,local_vid,remote_vid",
-            f"{vlan_translation_rules[0].pk},{vlan_translation_policies[1].pk},105,205",
-            f"{vlan_translation_rules[1].pk},{vlan_translation_policies[1].pk},106,206",
-            f"{vlan_translation_rules[2].pk},{vlan_translation_policies[0].pk},107,207",
+            "id,local_vid,remote_vid",
+            f"{vlan_translation_rules[0].pk},105,205",
+            f"{vlan_translation_rules[1].pk},106,206",
+            f"{vlan_translation_rules[2].pk},107,207",
         )
 
         cls.bulk_edit_data = {

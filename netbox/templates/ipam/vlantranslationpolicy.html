@@ -18,6 +18,16 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Rules" %}</th>
+            <td>
+              {% if object.rules.count %}
+                <a href="{% url 'ipam:vlantranslationrule_list' %}?policy_id={{ object.pk }}">{{ object.rules.count }}</a>
+              {% else %}
+                0
+              {% endif %}
+            </td>
+          </tr>
         </table>
       </div>
       {% plugin_left_page object %}

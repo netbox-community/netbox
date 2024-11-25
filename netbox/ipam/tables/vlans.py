@@ -231,6 +231,11 @@ class VLANTranslationPolicyTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    rule_count = columns.LinkedCountColumn(
+        viewname='ipam:vlantranslationrule_list',
+        url_params={'policy_id': 'pk'},
+        verbose_name=_('Rules')
+    )
     description = tables.Column(
         verbose_name=_('Description'),
     )
@@ -241,9 +246,9 @@ class VLANTranslationPolicyTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLANTranslationPolicy
         fields = (
-            'pk', 'id', 'name', 'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'rule_count', 'description', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'description')
+        default_columns = ('pk', 'name', 'rule_count', 'description')
 
 
 class VLANTranslationRuleTable(NetBoxTable):

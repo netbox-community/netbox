@@ -487,6 +487,12 @@ class VLANTranslationPolicyImportForm(NetBoxModelImportForm):
 
 
 class VLANTranslationRuleImportForm(NetBoxModelImportForm):
+    policy = CSVModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        help_text=_('VLAN translation policy')
+    )
 
     class Meta:
         model = VLANTranslationRule
