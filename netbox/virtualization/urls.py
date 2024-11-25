@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 from utilities.urls import get_model_urls
 from . import views
@@ -33,8 +33,4 @@ urlpatterns = [
         views.VirtualMachineBulkAddVirtualDiskView.as_view(),
         name='virtualmachine_bulk_add_virtualdisk'
     ),
-
-    # TODO: Remove in v4.2
-    # Redirect old (pre-v4.1) URLs for VirtualDisk views
-    re_path('disks/(?P<path>[a-z0-9/-]*)', views.VirtualDiskRedirectView.as_view()),
 ]
