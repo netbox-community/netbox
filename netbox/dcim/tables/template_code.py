@@ -390,6 +390,15 @@ INTERFACE_BUTTONS = """
             <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
         </a>
     {% endif %}
+    {% if perms.circuits.add_virtualcircuittermination and not record.virtual_circuit_termination %}
+        <a href="{% url 'circuits:virtualcircuittermination_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Terminate a virtual circuit" class="btn btn-success btn-sm">
+            <i class="mdi mdi-vector-line" aria-hidden="true"></i>
+        </a>
+    {% elif perms.circuits.delete_virtualcircuittermination and record.virtual_circuit_termination %}
+        <a href="{% url 'circuits:virtualcircuittermination_delete' pk=record.virtual_circuit_termination.pk %}?return_url={% url 'dcim:device_interfaces' pk=object.pk %}" title="Remove virtual circuit" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-vector-line" aria-hidden="true"></i>
+        </a>
+    {% endif %}
 {% elif record.is_wired and perms.dcim.add_cable %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
