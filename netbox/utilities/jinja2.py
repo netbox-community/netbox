@@ -29,10 +29,16 @@ class DataFileLoader(BaseLoader):
 
         # Find and pre-fetch referenced templates
         if referenced_templates := find_referenced_templates(environment.parse(template_source)):
-            self.cache_templates({
-                df.path: df.data_as_string for df in
-                DataFile.objects.filter(source=self.data_source, path__in=referenced_templates)
-            })
+            if None in referenced_templates:
+                self.cache_templates({
+                    df.path: df.data_as_string for df in
+                    DataFile.objects.filter(source=self.data_source)
+                })
+            else:
+                self.cache_templates({
+                    df.path: df.data_as_string for df in
+                    DataFile.objects.filter(source=self.data_source, path__in=referenced_templates)
+                })
 
         return template_source, template, lambda: True
 
