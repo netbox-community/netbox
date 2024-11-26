@@ -647,6 +647,10 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         verbose_name=_('VRF'),
         linkify=True
     )
+    virtual_circuit_termination = tables.Column(
+        verbose_name=_('Virtual Circuit'),
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:interface_list'
     )
