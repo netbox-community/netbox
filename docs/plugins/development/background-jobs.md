@@ -87,14 +87,17 @@ class MyHousekeepingJob(JobRunner):
 
     def run(self, *args, **kwargs):
         MyModel.objects.filter(foo='bar').delete()
-
-system_jobs = (
-    MyHousekeepingJob,
-)
 ```
 
 !!! note
-    Ensure that any system jobs are imported on initialization. Otherwise, they won't be registered. This can be achieved by extending the PluginConfig's `ready()` method.
+    Ensure that any system jobs are imported on initialization. Otherwise, they won't be registered. This can be achieved by extending the PluginConfig's `ready()` method. For example:
+
+    ```python
+    def ready(self):
+        super().ready()
+
+        from .jobs import MyHousekeepingJob
+    ```
 
 ## Task queues
 
