@@ -1395,7 +1395,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'available_on_device': '$device',
         }
     )
-    qinq_svlan = DynamicModelMultipleChoiceField(
+    qinq_svlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
         label=_('Q-in-Q Service VLAN'),

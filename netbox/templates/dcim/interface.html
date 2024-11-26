@@ -81,6 +81,12 @@
             <th scope="row">{% trans "802.1Q Mode" %}</th>
             <td>{{ object.get_mode_display|placeholder }}</td>
           </tr>
+          {% if object.mode == 'q-in-q' %}
+            <tr>
+              <th scope="row">{% trans "Q-in-Q SVLAN" %}</th>
+              <td>{{ object.qinq_svlan|linkify|placeholder }}</td>
+            </tr>
+          {% endif %}
           <tr>
             <th scope="row">{% trans "Transmit power (dBm)" %}</th>
             <td>{{ object.tx_power|placeholder }}</td>

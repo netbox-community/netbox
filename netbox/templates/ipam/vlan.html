@@ -72,7 +72,7 @@
                         {% endif %}
                       </td>
                     </tr>
-                    {% if object.qinq_role == 'c-vlan' %}
+                    {% if object.qinq_role == 'cvlan' %}
                       <tr>
                         <th scope="row">{% trans "Q-in-Q SVLAN" %}</th>
                         <td>{{ object.qinq_svlan|linkify|placeholder }}</td>
@@ -108,13 +108,13 @@
           </h2>
           {% htmx_table 'ipam:prefix_list' vlan_id=object.pk %}
         </div>
-        {% if object.qinq_role == 's-vlan' %}
+        {% if object.qinq_role == 'svlan' %}
           <div class="card">
             <h2 class="card-header">
               {% trans "Customer VLANs" %}
               {% if perms.ipam.add_vlan %}
                 <div class="card-actions">
-                  <a href="{% url 'ipam:vlan_add' %}?qinq_role=c-vlan&qinq_svlan={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                  <a href="{% url 'ipam:vlan_add' %}?qinq_role=cvlan&qinq_svlan={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
                     <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a VLAN" %}
                   </a>
                 </div>

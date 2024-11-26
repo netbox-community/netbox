@@ -459,7 +459,7 @@ class VLANImportForm(NetBoxModelImportForm):
     )
     qinq_role = CSVChoiceField(
         label=_('Q-in-Q role'),
-        choices=VLANStatusChoices,
+        choices=VLANQinQRoleChoices,
         required=False,
         help_text=_('Operational status')
     )

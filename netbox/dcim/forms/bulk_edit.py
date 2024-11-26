@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
@@ -1522,6 +1523,16 @@ class InterfaceBulkEditForm(
             'available_on_device': '$device',
         }
     )
+    qinq_svlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('Q-in-Q Service VLAN'),
+        query_params={
+            'group_id': '$vlan_group',
+            'available_on_device': '$device',
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -1548,7 +1559,7 @@ class InterfaceBulkEditForm(
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', name=_('802.1Q Switching')),
         FieldSet(
             TabbedGroups(
                 FieldSet('tagged_vlans', name=_('Assignment')),
@@ -1563,7 +1574,7 @@ class InterfaceBulkEditForm(
     nullable_fields = (
         'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu', 'description',
         'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'untagged_vlan', 'tagged_vlans', 'vrf', 'wireless_lans'
+        'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans'
     )
 
     def __init__(self, *args, **kwargs):
