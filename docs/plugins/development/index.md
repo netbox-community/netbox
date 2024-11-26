@@ -98,29 +98,29 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 
 ### PluginConfig Attributes
 
-| Name                  | Description                                                                                                              |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `name`                | Raw plugin name; same as the plugin's source directory                                                                   |
-| `verbose_name`        | Human-friendly name for the plugin                                                                                       |
-| `version`             | Current release ([semantic versioning](https://semver.org/) is encouraged)                                               |
-| `description`         | Brief description of the plugin's purpose                                                                                |
-| `author`              | Name of plugin's author                                                                                                  |
-| `author_email`        | Author's public email address                                                                                            |
-| `base_url`            | Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.                        |
-| `required_settings`   | A list of any configuration parameters that **must** be defined by the user                                              |
-| `default_settings`    | A dictionary of configuration parameters and their default values                                                        |
-| `django_apps`         | A list of additional Django apps to load alongside the plugin                                                            |
-| `min_version`         | Minimum version of NetBox with which the plugin is compatible                                                            |
-| `max_version`         | Maximum version of NetBox with which the plugin is compatible                                                            |
-| `middleware`          | A list of middleware classes to append after NetBox's build-in middleware                                                |
-| `queues`              | A list of custom background task queues to create                                                                        |
-| `events_pipeline`     | A list of handlers to add to [`EVENTS_PIPELINE`](./miscellaneous.md#events_pipeline), identified by dotted paths         |
-| `search_extensions`   | The dotted path to the list of search index classes (default: `search.indexes`)                                          |
-| `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                           |
-| `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)              |
-| `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                      |
-| `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                 |
-| `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`) |
+| Name                  | Description                                                                                                                        |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `name`                | Raw plugin name; same as the plugin's source directory                                                                             |
+| `verbose_name`        | Human-friendly name for the plugin                                                                                                 |
+| `version`             | Current release ([semantic versioning](https://semver.org/) is encouraged)                                                         |
+| `description`         | Brief description of the plugin's purpose                                                                                          |
+| `author`              | Name of plugin's author                                                                                                            |
+| `author_email`        | Author's public email address                                                                                                      |
+| `base_url`            | Base path to use for plugin URLs (optional). If not specified, the project's `name` will be used.                                  |
+| `required_settings`   | A list of any configuration parameters that **must** be defined by the user                                                        |
+| `default_settings`    | A dictionary of configuration parameters and their default values                                                                  |
+| `django_apps`         | A list of additional Django apps to load alongside the plugin                                                                      |
+| `min_version`         | Minimum version of NetBox with which the plugin is compatible                                                                      |
+| `max_version`         | Maximum version of NetBox with which the plugin is compatible                                                                      |
+| `middleware`          | A list of middleware classes to append after NetBox's build-in middleware                                                          |
+| `queues`              | A list of custom background task queues to create                                                                                  |
+| `events_pipeline`     | A list of handlers to add to [`EVENTS_PIPELINE`](../../configuration/miscellaneous.md#events_pipeline), identified by dotted paths |
+| `search_extensions`   | The dotted path to the list of search index classes (default: `search.indexes`)                                                    |
+| `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                                     |
+| `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)                        |
+| `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                                |
+| `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                           |
+| `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`)           |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
 

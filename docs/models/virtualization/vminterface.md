@@ -29,10 +29,10 @@ If not selected, this interface will be treated as disabled/inoperative.
 
 ### Primary MAC Address
 
-The [MAC address](./macaddress.md) assigned to this interface which is designated as its primary.
+The [MAC address](../dcim/macaddress.md) assigned to this interface which is designated as its primary.
 
 !!! note "Changed in NetBox v4.2"
-    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
+    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](../dcim/macaddress.md) object.
 
 ### MTU
 
