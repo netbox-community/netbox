@@ -798,6 +798,7 @@ class Device(
             ),
             models.UniqueConstraint(
                 fields=('rack', 'position', 'face'),
+                condition=Q(rack__isnull=False, position__isnull=False),
                 name='%(app_label)s_%(class)s_unique_rack_position_face'
             ),
             models.UniqueConstraint(
