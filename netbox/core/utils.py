@@ -14,6 +14,28 @@ from rq.registry import (
     StartedJobRegistry,
 )
 
+__all__ = (
+    'delete_rq_job',
+    'enqueue_rq_job',
+    'get_rq_jobs',
+    'get_rq_jobs_from_status',
+    'requeue_rq_job',
+    'stop_rq_job',
+)
+
+
+def get_rq_jobs():
+    """
+    Return a list of all RQ jobs.
+    """
+    jobs = set()
+
+    for queue in QUEUES_LIST:
+        queue = get_queue(queue['name'])
+        jobs.update(queue.get_jobs())
+
+    return list(jobs)
+
 
 def get_rq_jobs_from_status(queue, status):
     """
@@ -51,19 +73,9 @@ def get_rq_jobs_from_status(queue, status):
     return jobs
 
 
-def get_rq_jobs():
-    jobs = set()
-
-    for queue in QUEUES_LIST:
-        queue = get_queue(queue['name'])
-        jobs.update(queue.get_jobs())
-
-    return list(jobs)
-
-
 def delete_rq_job(job_id):
     """
-    Deletes the specified RQ job.
+    Delete the specified RQ job.
     """
     config = QUEUES_LIST[0]
     try:
@@ -81,7 +93,7 @@ def delete_rq_job(job_id):
 
 def requeue_rq_job(job_id):
     """
-    Requeues the specified RQ job.
+    Requeue the specified RQ job.
     """
     config = QUEUES_LIST[0]
     try:
@@ -97,7 +109,7 @@ def requeue_rq_job(job_id):
 
 def enqueue_rq_job(job_id):
     """
-    Enqueues the specified RQ job.
+    Enqueue the specified RQ job.
     """
     config = QUEUES_LIST[0]
     try:
@@ -129,7 +141,7 @@ def enqueue_rq_job(job_id):
 
 def stop_rq_job(job_id):
     """
-    Stops the specified RQ job.
+    Stop the specified RQ job.
     """
     config = QUEUES_LIST[0]
     try:
