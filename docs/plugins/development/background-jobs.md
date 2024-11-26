@@ -1,7 +1,5 @@
 # Background Jobs
 
-!!! info "This feature was introduced in NetBox v4.1."
-
 NetBox plugins can defer certain operations by enqueuing [background jobs](../../features/background-jobs.md), which are executed asynchronously by background workers. This is helpful for decoupling long-running processes from the user-facing request-response cycle.
 
 For example, your plugin might need to fetch data from a remote system. Depending on the amount of data and the responsiveness of the remote server, this could take a few minutes. Deferring this task to a queued job ensures that it can be completed in the background, without interrupting the user. The data it fetches can be made available once the job has completed.
@@ -68,6 +66,8 @@ class MyModel(NetBoxModel):
 
 
 ### System Jobs
+
+!!! info "This feature was introduced in NetBox v4.2."
 
 Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
 

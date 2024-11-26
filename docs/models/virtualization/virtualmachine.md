@@ -57,6 +57,4 @@ The amount of disk storage provisioned, in megabytes.
 
 ### Serial Number
 
-!!! info "This field was introduced in NetBox v4.1."
-
 Optional serial number assigned to this virtual machine. Unlike devices, uniqueness is not enforced for virtual machine serial numbers.

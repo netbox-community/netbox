@@ -1,5 +1,7 @@
 # Virtual Circuits
 
+!!! info "This feature was introduced in NetBox v4.2."
+
 A virtual circuit can connect two or more interfaces atop a set of decoupled physical connections. For example, it's very common to form a virtual connection between two virtual interfaces, each of which is bound to a physical interface on its respective device and physically connected to a [provider network](./providernetwork.md) via an independent [physical circuit](./circuit.md).
 
 ## Fields

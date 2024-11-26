@@ -23,6 +23,8 @@ If selected, the circuit termination will be considered "connected" even if no c
 
 ### Termination
 
+!!! info "This field replaced the `site` and `provider_network` fields in NetBox v4.2."
+
 The [region](../dcim/region.md), [site group](../dcim/sitegroup.md), [site](../dcim/site.md), [location](../dcim/location.md) or [provider network](./providernetwork.md) with which this circuit termination is associated. Once created, a cable can be connected between the circuit termination and a device interface (or similar component).
 
 ### Port Speed

@@ -25,4 +25,6 @@ The cluster's operational status.
 
 ### Scope
 
+!!! info "This field replaced the `site` field in NetBox v4.2."
+
 The [region](../dcim/region.md), [site](../dcim/site.md), [site group](../dcim/sitegroup.md) or [location](../dcim/location.md) with which this cluster is associated.

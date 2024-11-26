@@ -206,8 +206,6 @@ Plugins can inject custom content into certain areas of core NetBox views. This 
 | `right_page()`      | Object view | Inject content on the right side of the page        |
 | `full_width_page()` | Object view | Inject content across the entire bottom of the page |
 
-!!! info "The `navbar()` and `alerts()` methods were introduced in NetBox v4.1."
-
 Additionally, a `render()` method is available for convenience. This method accepts the name of a template to render, and any additional context data you want to pass. Its use is optional, however.
 
 To control where the custom content is injected, plugin authors can specify an iterable of models by overriding the `models` attribute on the subclass. Extensions which do not specify a set of models will be invoked on every view, where supported.

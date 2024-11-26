@@ -10,6 +10,14 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 4.2](./version-4.2.md) (January 2025)
+
+* Assign Multiple MAC Addresses per Interface ([#4867](https://github.com/netbox-community/netbox/issues/4867))
+* Quick Add UI Widget ([#5858](https://github.com/netbox-community/netbox/issues/5858))
+* VLAN Translation ([#7336](https://github.com/netbox-community/netbox/issues/7336))
+* Virtual Circuits ([#13086](https://github.com/netbox-community/netbox/issues/13086))
+* Q-in-Q Encapsulation ([#13428](https://github.com/netbox-community/netbox/issues/13428))
+
 #### [Version 4.1](./version-4.1.md) (September 2024)
 
 * Circuit Groups ([#7025](https://github.com/netbox-community/netbox/issues/7025))

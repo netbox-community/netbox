@@ -46,4 +46,6 @@ The security key configured on each client to grant access to the secured wirele
 
 ### Scope
 
+!!! info "This field was introduced in NetBox v4.2."
+
 The [region](../dcim/region.md), [site](../dcim/site.md), [site group](../dcim/sitegroup.md) or [location](../dcim/location.md) with which this wireless LAN is associated.

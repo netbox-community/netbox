@@ -1,5 +1,7 @@
 # VLAN Translation Rules
 
+!!! info "This feature was introduced in NetBox v4.2."
+
 A VLAN translation rule represents a one-to-one mapping of a local VLAN ID (VID) to a remote VID. Many rules can belong to a single policy.
 
 See [VLAN translation policies](./vlantranslationpolicy.md) for an overview of the VLAN Translation feature.

@@ -29,8 +29,12 @@ The [VLAN group](./vlangroup.md) or [site](../dcim/site.md) to which the VLAN is
 
 ### Q-in-Q Role
 
+!!! info "This field was introduced in NetBox v4.2."
+
 For VLANs which comprise a Q-in-Q/IEEE 802.1ad topology, this field indicates whether the VLAN is treated as a service or customer VLAN.
 
 ### Q-in-Q Service VLAN
+
+!!! info "This field was introduced in NetBox v4.2."
 
 The designated parent service VLAN for a Q-in-Q customer VLAN. This may be set only for Q-in-Q custom VLANs.

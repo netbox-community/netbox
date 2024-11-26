@@ -42,6 +42,4 @@ The numeric weight of the module, including a unit designation (e.g. 3 kilograms
 
 ### Airflow
 
-!!! info "The `airflow` field was introduced in NetBox v4.1."
-
 The direction in which air circulates through the device chassis for cooling.

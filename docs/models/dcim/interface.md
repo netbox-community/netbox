@@ -112,6 +112,7 @@ For switched Ethernet interfaces, this identifies the 802.1Q encapsulation strat
 * **Access:** All traffic is assigned to a single VLAN, with no tagging.
 * **Tagged:** One untagged "native" VLAN is allowed, as well as any number of tagged VLANs.
 * **Tagged (all):** Implies that all VLANs are carried by the interface. One untagged VLAN may be designated.
+* **Q-in-Q:** Q-in-Q (IEEE 802.1ad) encapsulation is performed using the assigned SVLAN.
 
 This field must be left blank for routed interfaces which do employ 802.1Q encapsulation.
 
@@ -124,6 +125,8 @@ The "native" (untagged) VLAN for the interface. Valid only when one of the above
 The tagged VLANs which are configured to be carried by this interface. Valid only for the "tagged" 802.1Q mode above.
 
 ### Q-in-Q SVLAN
+
+!!! info "This field was introduced in NetBox v4.2."
 
 The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 
@@ -151,5 +154,7 @@ The configured channel width of a wireless interface, in MHz. This is typically 
 The [wireless LANs](../wireless/wirelesslan.md) for which this interface carries traffic. (Valid for wireless interfaces only.)
 
 ### VLAN Translation Policy
+
+!!! info "This field was introduced in NetBox v4.2."
 
 The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).
