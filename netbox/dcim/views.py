@@ -1,5 +1,3 @@
-import traceback
-
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -2128,8 +2126,9 @@ class DeviceRenderConfigView(generic.ObjectView):
             try:
                 rendered_config = config_template.render(context=context_data)
             except TemplateError as e:
-                messages.error(request, _("An error occurred while rendering the template: {error}").format(error=e))
-                rendered_config = traceback.format_exc()
+                msg = _("An error occurred while rendering the template: {error}").format(error=e)
+                messages.error(request, msg)
+                rendered_config = msg
 
         return {
             'config_template': config_template,
