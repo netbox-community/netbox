@@ -1,11 +1,15 @@
 # NetBox v4.2
 
-## v4.2.0 (FUTURE)
+## v4.2-beta1 (2024-12-02)
+
+!!! danger "Not for Production Use"
+    This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
 
 ### Breaking Changes
 
 * Support for the Django admin UI has been completely removed. (The Django admin UI was disabled by default in NetBox v4.0.)
 * NetBox has adopted collation-based natural ordering for many models. This may alter the order in which some objects are listed by default.
+* Automatic redirects from pre-v4.1 UI views for virtual disks have been removed.
 * The `site` and `provider_network` foreign key fields on `circuits.CircuitTermination` have been replaced by the `termination` generic foreign key.
 * The `site` foreign key field on `ipam.Prefix` has been replaced by the `scope` generic foreign key.
 * The `site` foreign key field on `virtualization.Cluster` has been replaced by the `scope` generic foreign key.
@@ -61,58 +65,59 @@ NetBox now supports the designation of customer VLANs (CVLANs) and service VLANs
 * [#17476](https://github.com/netbox-community/netbox/issues/17476) - Upgrade to Django 5.1
 * [#17752](https://github.com/netbox-community/netbox/issues/17752) - Bulk object import URL paths have been renamed from `*_import` to `*_bulk_import`
 * [#17761](https://github.com/netbox-community/netbox/issues/17761) - Optional choice fields now store empty values as null (rather than empty strings) in the database
+* [#18093](https://github.com/netbox-community/netbox/issues/18093) - Redirects for pre-v4.1 virtual disk UI views have been removed
 
 ### REST API Changes
 
 * Added the following endpoints:
-  * `/api/circuits/virtual-circuits/`
-  * `/api/circuits/virtual-circuit-terminations/`
-  * `/api/dcim/mac-addresses/`
-  * `/api/ipam/vlan-translation-policies/`
-  * `/api/ipam/vlan-translation-rules/`
+    * `/api/circuits/virtual-circuits/`
+    * `/api/circuits/virtual-circuit-terminations/`
+    * `/api/dcim/mac-addresses/`
+    * `/api/ipam/vlan-translation-policies/`
+    * `/api/ipam/vlan-translation-rules/`
 * circuits.Circuit
-  * Added the optional `distance` and `distance_unit` fields
+    * Added the optional `distance` and `distance_unit` fields
 * circuits.CircuitTermination
-  * Removed the `site` & `provider_network` fields
-  * Added the `termination_type` & `termination_id` fields to facilitate termination assignment
-  * Added the read-only `termination` field
+    * Removed the `site` & `provider_network` fields
+    * Added the `termination_type` & `termination_id` fields to facilitate termination assignment
+    * Added the read-only `termination` field
 * dcim.Interface
-  * The `mac_address` field is now read-only
-  * Added the `primary_mac_address` relation to dcim.MACAddress
-  * Added the read-only `mac_addresses` list
-  * Added the `qinq_svlan` relation to ipam.VLAN
-  * Added the `vlan_translation_policy` relation to ipam.VLANTranslationPolicy
-  * Added `mode` choice "Q-in-Q"
+    * The `mac_address` field is now read-only
+    * Added the `primary_mac_address` relation to dcim.MACAddress
+    * Added the read-only `mac_addresses` list
+    * Added the `qinq_svlan` relation to ipam.VLAN
+    * Added the `vlan_translation_policy` relation to ipam.VLANTranslationPolicy
+    * Added `mode` choice "Q-in-Q"
 * dcim.InventoryItem
-  * Added the optional `status` choice field
+    * Added the optional `status` choice field
 * dcim.Location
-  * Added the read-only `prefix_count` field
+    * Added the read-only `prefix_count` field
 * dcim.PowerOutlet
-  * Added the optional `color` field
+    * Added the optional `color` field
 * dcim.Region
-  * Added the read-only `prefix_count` field
+    * Added the read-only `prefix_count` field
 * dcim.SiteGroup
-  * Added the read-only `prefix_count` field
+    * Added the read-only `prefix_count` field
 * ipam.Prefix
-  * Removed the `site` field
-  * Added the `scope_type` & `scope_id` fields to facilitate scope assignment
-  * Added the read-only `scope` field
+    * Removed the `site` field
+    * Added the `scope_type` & `scope_id` fields to facilitate scope assignment
+    * Added the read-only `scope` field
 * ipam.VLAN
-  * Added the optional `qinq_role` selection field
-  * Added the `qinq_svlan` recursive relation
+    * Added the optional `qinq_role` selection field
+    * Added the `qinq_svlan` recursive relation
 * virtualization.Cluster
-  * Removed the `site` field
-  * Added the `scope_type` & `scope_id` fields to facilitate scope assignment
-  * Added the read-only `scope` field
+    * Removed the `site` field
+    * Added the `scope_type` & `scope_id` fields to facilitate scope assignment
+    * Added the read-only `scope` field
 * virtualization.Cluster
-  * Added the read-only fields `allocated_vcpus`, `allocated_memory`, and `allocated_disk`
+    * Added the read-only fields `allocated_vcpus`, `allocated_memory`, and `allocated_disk`
 * virtualization.VMInterface
-  * The `mac_address` field is now read-only
-  * Added the `primary_mac_address` relation to dcim.MACAddress
-  * Added the read-only `mac_addresses` list
-  * Added the `qinq_svlan` relation to ipam.VLAN
-  * Added the `vlan_translation_policy` relation to ipam.VLANTranslationPolicy
-  * Added `mode` choice "Q-in-Q"
+    * The `mac_address` field is now read-only
+    * Added the `primary_mac_address` relation to dcim.MACAddress
+    * Added the read-only `mac_addresses` list
+    * Added the `qinq_svlan` relation to ipam.VLAN
+    * Added the `vlan_translation_policy` relation to ipam.VLANTranslationPolicy
+    * Added `mode` choice "Q-in-Q"
 * wireless.WirelessLAN
-  * Added the `scope_type` & `scope_id` fields to support scope assignment
-  * Added the read-only `scope` field
+    * Added the `scope_type` & `scope_id` fields to support scope assignment
+    * Added the read-only `scope` field

@@ -9768,11 +9768,13 @@ msgstr "scope_id kann nicht ohne scope_type gesetzt werden."
 #, python-brace-format
 msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
 msgstr ""
+"Start-VLAN-ID im Bereich ({value}) darf nicht kleiner sein als {minimum}"
 
 #: ipam/models/vlans.py:111
 #, python-brace-format
 msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
 msgstr ""
+"Ende der VLAN-ID im Bereich ({value}) darf {maximum}nicht überschreiten "
 
 #: ipam/models/vlans.py:118
 #, python-brace-format
@@ -9780,6 +9782,8 @@ msgid ""
 "Ending VLAN ID in range must be greater than or equal to the starting VLAN "
 "ID ({range})"
 msgstr ""
+"Die End-VLAN-ID im Bereich muss größer oder gleich der Start-VLAN-ID sein "
+"({range})"
 
 #: ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
