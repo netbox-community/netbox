@@ -200,17 +200,17 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.2.tgz#d8bae93ac8b815b2bd7a98078cf91e2724ef11e5"
   integrity sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==
 
-"@graphiql/plugin-explorer@3.2.2":
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/@graphiql/plugin-explorer/-/plugin-explorer-3.2.2.tgz#973d6015b6db15041902e95c3e4b746473313eb6"
-  integrity sha512-zeBZJUAX9h+3nXw3GLHZoxi6wwYqDBU2L/xeSXSTagJhcLNW1Hwb/t/wb296hQ1x/9nyGySsTA0DQiiWV3rCBQ==
+"@graphiql/plugin-explorer@3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@graphiql/plugin-explorer/-/plugin-explorer-3.2.3.tgz#03854d7e62d6e24c6552ae6706e3945b9324fa23"
+  integrity sha512-yh5WXRqDPuKjVyNxUwXYjx8tImvVOx+2FGanLyjoAJP2LKQu6eDtButyJ8sExk1qW4+HCSrXxJNSPs4W7cYT3g==
   dependencies:
     graphiql-explorer "^0.9.0"
 
-"@graphiql/react@^0.26.2":
-  version "0.26.2"
-  resolved "https://registry.yarnpkg.com/@graphiql/react/-/react-0.26.2.tgz#3a1a01a569b624de8141c53eed24a7db9a523668"
-  integrity sha512-aO4GWf/kJmqrjO+PORT/NPxwGvPGlg+mwye1v8xAlf8Q9j7P0hVtVBawYaSLUCCfJ/QnH7JAP+0VRamyooZZCw==
+"@graphiql/react@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@graphiql/react/-/react-0.27.0.tgz#4475a0f4ddf25d8ebc1bfc538fb21f5f1d435916"
+  integrity sha512-K9ZKWd+ewodbS/1kewedmITeeKLUQswMOXwIv8XFLPt3Ondodji0vr1XXXsttlyl+V2QG/9tYVV2RJ9Ch5LdrA==
   dependencies:
     "@graphiql/toolkit" "^0.11.0"
     "@headlessui/react" "^1.7.15"
@@ -353,17 +353,17 @@
   resolved "https://registry.yarnpkg.com/@nolyfill/is-core-module/-/is-core-module-1.0.39.tgz#3dc35ba0f1e66b403c00b39344f870298ebb1c8e"
   integrity sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==
 
-"@orchidjs/sifter@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@orchidjs/sifter/-/sifter-1.0.3.tgz#43f42519472282eb632d0a1589184f044d64129b"
-  integrity sha512-zCZbwKegHytfsPm8Amcfh7v/4vHqTAaOu6xFswBYcn8nznBOuseu6COB2ON7ez0tFV0mKL0nRNnCiZZA+lU9/g==
+"@orchidjs/sifter@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@orchidjs/sifter/-/sifter-1.1.0.tgz#b36154ad0cda4898305d1ac44f318b41048a0438"
+  integrity sha512-mYwHCfr736cIWWdhhSZvDbf90AKt2xyrJspKFC3qyIJG1LtrJeJunYEqCGG4Aq2ijENbc4WkOjszcvNaIAS/pQ==
   dependencies:
-    "@orchidjs/unicode-variants" "^1.0.4"
+    "@orchidjs/unicode-variants" "^1.1.2"
 
-"@orchidjs/unicode-variants@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@orchidjs/unicode-variants/-/unicode-variants-1.0.4.tgz#6d2f812e3b19545bba2d81caffff1204de9a6a58"
-  integrity sha512-NvVBRnZNE+dugiXERFsET1JlKZfM5lJDEpSMilKW4bToYJ7pxf0Zne78xyXB2ny2c2aHfJ6WLnz1AaTNHAmQeQ==
+"@orchidjs/unicode-variants@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@orchidjs/unicode-variants/-/unicode-variants-1.1.2.tgz#1fd71791a67fdd1591ebe0dcaadd3964537a824e"
+  integrity sha512-5DobW1CHgnBROOEpFlEXytED5OosEWESFvg/VYmH0143oXcijYTprRYJTs+55HzGM4IqxiLFSuqEzu9mPNwVsA==
 
 "@parcel/watcher-android-arm64@2.4.1":
   version "2.4.1"
@@ -1883,12 +1883,12 @@ graphiql-explorer@^0.9.0:
   resolved "https://registry.yarnpkg.com/graphiql-explorer/-/graphiql-explorer-0.9.0.tgz#25f6b990bfc3e04e88c0cf419e28d12abe2c4fbe"
   integrity sha512-fZC/wsuatqiQDO2otchxriFO0LaWIo/ovF/CQJ1yOudmY0P7pzDiP+l9CEHUiWbizk3e99x6DQG4XG1VxA+d6A==
 
-graphiql@3.7.1:
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/graphiql/-/graphiql-3.7.1.tgz#9fb727e15db443b22823389d13dc5d98c3ce0ff9"
-  integrity sha512-kmummedOrFYs0BI5evrVY0AerOYlaMt/Sc/e+Sta1x8X6vEMYWNeUUz/kKF2NQT5BcsR3FnNdFt1Gk2QMgueGQ==
+graphiql@3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/graphiql/-/graphiql-3.7.2.tgz#6a754256f4f2e6268a64e585b0fe35bf38f1b87d"
+  integrity sha512-DL+KrX+aQdyzl+KwcqjlmdYdjyKegm7FcZJKkIQ1e56xn6Eoe8lw5F4t65gFex/45fHzv8e8CpaIcljxfJhO7A==
   dependencies:
-    "@graphiql/react" "^0.26.2"
+    "@graphiql/react" "^0.27.0"
 
 graphql-language-service@5.3.0, graphql-language-service@^5.3.0:
   version "5.3.0"
@@ -1904,10 +1904,10 @@ graphql@16.9.0:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.9.0.tgz#1c310e63f16a49ce1fbb230bd0a000e99f6f115f"
   integrity sha512-GGTKBX4SD7Wdb8mqeDLni2oaRGYQWjWHGKPQ24ZMnUtKfcsVoiv4uX8+LJr1K6U5VW2Lu1BwJnj7uiori0YtRw==
 
-gridstack@10.3.1:
-  version "10.3.1"
-  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-10.3.1.tgz#4ed704279c40094fc1b9e3318f20b573f2fe9f40"
-  integrity sha512-Ra82k/88gdeiu3ZP40COS4bI4sGhNQlZAaAQ6szfPfr68zVpsXxiyLKr5zYcTpKX4jjcwyNsNNdcV1tDJc71fA==
+gridstack@11.1.1:
+  version "11.1.1"
+  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-11.1.1.tgz#50f6c7a46f703a5c92a9819a607b22a6e8bd9703"
+  integrity sha512-St50Ra3FlxxERrMcnRAmxQKE8paXOIwQ88zpafUkzdOYg9Sn/3/Vf4EqCWv8P/hkNIlfW/8VYsk8fk+3DQPVxQ==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
@@ -1969,6 +1969,11 @@ immutable@^4.0.0:
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.3.7.tgz#c70145fc90d89fb02021e65c84eb0226e4e5a381"
   integrity sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==
+
+immutable@^5.0.2:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-5.0.3.tgz#aa037e2313ea7b5d400cd9298fa14e404c933db1"
+  integrity sha512-P8IdPQHq3lA1xVeBRi5VPqUm5HDgKnx0Ru51wZz5mjxHr5n3RWhjIpOFU7ybkUxfB+5IToy+OLaHYDBIWsv+uw==
 
 import-fresh@^3.2.1:
   version "3.3.0"
@@ -2656,15 +2661,16 @@ safe-regex-test@^1.0.3:
     es-errors "^1.3.0"
     is-regex "^1.1.4"
 
-sass@1.80.5:
-  version "1.80.5"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.80.5.tgz#0ba965223d44df22497f2966b498cf5c453fae8f"
-  integrity sha512-TQd2aoQl/+zsxRMEDSxVdpPIqeq9UFc6pr7PzkugiTx3VYCFPUaa3P4RrBQsqok4PO200Vkz0vXQBNlg7W907g==
+sass@1.81.0:
+  version "1.81.0"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.81.0.tgz#a9010c0599867909dfdbad057e4a6fbdd5eec941"
+  integrity sha512-Q4fOxRfhmv3sqCLoGfvrC9pRV8btc0UtqL9mN6Yrv6Qi9ScL55CVH1vlPP863ISLEEMNLLuu9P+enCeGHlnzhA==
   dependencies:
-    "@parcel/watcher" "^2.4.1"
     chokidar "^4.0.0"
-    immutable "^4.0.0"
+    immutable "^5.0.2"
     source-map-js ">=0.6.2 <2.0.0"
+  optionalDependencies:
+    "@parcel/watcher" "^2.4.1"
 
 sass@^1.71.1:
   version "1.77.8"
@@ -2864,13 +2870,13 @@ toggle-selection@^1.0.6:
   resolved "https://registry.yarnpkg.com/toggle-selection/-/toggle-selection-1.0.6.tgz#6e45b1263f2017fa0acc7d89d78b15b8bf77da32"
   integrity sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ==
 
-tom-select@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/tom-select/-/tom-select-2.3.1.tgz#df338d9082874cd0bceb3bee87ed0184447c47f1"
-  integrity sha512-QS4vnOcB6StNGqX4sGboGXL2fkhBF2gIBB+8Hwv30FZXYPn0CyYO8kkdATRvwfCTThxiR4WcXwKJZ3cOmtI9eg==
+tom-select@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/tom-select/-/tom-select-2.4.1.tgz#6a0b6df8af3df7b09b22dd965eb75ce4d1c547bc"
+  integrity sha512-adI8H8+wk8RRzHYLQ3bXSk2Q+FAq/kzAATrcWlJ2fbIrEzb0VkwaXzKHTAlBwSJrhqbPJvhV/0eypFkED/nAug==
   dependencies:
-    "@orchidjs/sifter" "^1.0.3"
-    "@orchidjs/unicode-variants" "^1.0.4"
+    "@orchidjs/sifter" "^1.1.0"
+    "@orchidjs/unicode-variants" "^1.1.2"
 
 ts-api-utils@^1.3.0:
   version "1.3.0"

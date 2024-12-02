@@ -1,18 +1,17 @@
-import { RecursivePartial, TomInput, TomOption, TomSettings } from 'tom-select/dist/types/types';
-import { addClasses } from 'tom-select/src/vanilla'
+import { RecursivePartial, TomOption, TomSettings } from 'tom-select/dist/types/types';
+import { TomInput } from 'tom-select/dist/cjs/types/core';
+import { addClasses } from 'tom-select/src/vanilla.ts';
 import queryString from 'query-string';
 import TomSelect from 'tom-select';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
 
 // Transitional
-import { QueryFilter, PathFilter } from '../types'
+import { QueryFilter, PathFilter } from '../types';
 import { getElement, replaceAll } from '../../util';
-
 
 // Extends TomSelect to provide enhanced fetching of options via the REST API
 export class DynamicTomSelect extends TomSelect {
-
   public readonly nullOption: Nullable<TomOption> = null;
 
   // Transitional code from APISelect
@@ -25,7 +24,7 @@ export class DynamicTomSelect extends TomSelect {
    * Overrides
    */
 
-  constructor( input_arg: string|TomInput, user_settings: RecursivePartial<TomSettings> ) {
+  constructor(input_arg: string | TomInput, user_settings: RecursivePartial<TomSettings>) {
     super(input_arg, user_settings);
 
     // Glean the REST API endpoint URL from the <select> element
@@ -34,7 +33,8 @@ export class DynamicTomSelect extends TomSelect {
     // Override any field names set as widget attributes
     this.valueField = this.input.getAttribute('ts-value-field') || this.settings.valueField;
     this.labelField = this.input.getAttribute('ts-label-field') || this.settings.labelField;
-    this.disabledField = this.input.getAttribute('ts-disabled-field') || this.settings.disabledField;
+    this.disabledField =
+      this.input.getAttribute('ts-disabled-field') || this.settings.disabledField;
     this.descriptionField = this.input.getAttribute('ts-description-field') || 'description';
     this.depthField = this.input.getAttribute('ts-depth-field') || '_depth';
     this.parentField = this.input.getAttribute('ts-parent-field') || null;
@@ -43,9 +43,9 @@ export class DynamicTomSelect extends TomSelect {
     // Set the null option (if any)
     const nullOption = this.input.getAttribute('data-null-option');
     if (nullOption) {
-      let valueField = this.settings.valueField;
-      let labelField = this.settings.labelField;
-      this.nullOption = {}
+      const valueField = this.settings.valueField;
+      const labelField = this.settings.labelField;
+      this.nullOption = {};
       this.nullOption[valueField] = 'null';
       this.nullOption[labelField] = nullOption;
     }
@@ -98,8 +98,8 @@ export class DynamicTomSelect extends TomSelect {
       .then(response => response.json())
       .then(apiData => {
         const results: Dict[] = apiData.results;
-        let options: Dict[] = []
-        for (let result of results) {
+        const options: Dict[] = [];
+        for (const result of results) {
           const option = self.getOptionFromData(result);
           options.push(option);
         }
@@ -108,10 +108,10 @@ export class DynamicTomSelect extends TomSelect {
       // Pass the options to the callback function
       .then(options => {
         self.loadCallback(options, []);
-      }).catch(()=>{
+      })
+      .catch(() => {
         self.loadCallback([], []);
       });
-
   }
 
   /**
@@ -155,14 +155,14 @@ export class DynamicTomSelect extends TomSelect {
 
   // Compile TomOption data from an API result
   getOptionFromData(data: Dict) {
-    let option: Dict = {
+    const option: Dict = {
       id: data[this.valueField],
       display: data[this.labelField],
       depth: data[this.depthField] || null,
       description: data[this.descriptionField] || null,
     };
     if (data[this.parentField]) {
-      let parent: Dict = data[this.parentField] as Dict;
+      const parent: Dict = data[this.parentField] as Dict;
       option['parent'] = parent[this.labelField];
     }
     if (data[this.countField]) {
@@ -171,7 +171,7 @@ export class DynamicTomSelect extends TomSelect {
     if (data[this.disabledField]) {
       option['disabled'] = data[this.disabledField];
     }
-    return option
+    return option;
   }
 
   /**
@@ -217,7 +217,6 @@ export class DynamicTomSelect extends TomSelect {
       console.groupEnd();
     }
   }
-
 
   // Parse the `data-url` attribute to add any variables to `pathValues` as keys with empty
   // values. As those keys' corresponding form fields' values change, `pathValues` will be
@@ -297,7 +296,8 @@ export class DynamicTomSelect extends TomSelect {
       // value. For example, if the dependency is the `rack` field, and the `rack` field's value
       // is `1`, this element's URL would change from `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
       const hasReplacement =
-        this.api_url.includes(`{{`) && Boolean(this.api_url.match(new RegExp(`({{(${id})}})`, 'g')));
+        this.api_url.includes(`{{`) &&
+        Boolean(this.api_url.match(new RegExp(`({{(${id})}})`, 'g')));
 
       if (hasReplacement) {
         if (element.value) {
@@ -349,5 +349,4 @@ export class DynamicTomSelect extends TomSelect {
     // Load new data.
     this.load(this.lastValue);
   }
-
 }
