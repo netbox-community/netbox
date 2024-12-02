@@ -28,7 +28,7 @@ class DataFileLoader(BaseLoader):
             raise TemplateNotFound(template)
 
         # Find and pre-fetch referenced templates
-        if referenced_templates := find_referenced_templates(environment.parse(template_source)):
+        if referenced_templates := tuple(find_referenced_templates(environment.parse(template_source))):
             if None in referenced_templates:
                 self.cache_templates({
                     df.path: df.data_as_string for df in
