@@ -29,7 +29,6 @@ class DataFileLoader(BaseLoader):
 
         # Find and pre-fetch referenced templates
         if referenced_templates := tuple(find_referenced_templates(environment.parse(template_source))):
-            if None in referenced_templates:
             related_files = DataFile.objects.filter(source=self.data_source)
             # None indicates the use of dynamic resolution. If dependent files are statically
             # defined, we can filter by path for optimization.
