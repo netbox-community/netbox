@@ -39,7 +39,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
     def get_limit(self, request):
         if self.limit_query_param:
             try:
-                limit = int(request.query_params[self.limit_query_param])
+                limit = int(request.query_params.get(self.limit_query_param, 0))
                 if limit < 0:
                     raise ValueError()
                 # Enforce maximum page size, if defined
