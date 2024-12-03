@@ -164,6 +164,9 @@ LOGIN_REQUIRED = True
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
 
+# Hide the login form. Useful when only allowing SSO authentication.
+LOGIN_FORM_HIDDEN = False
+
 # The view name or URL to which users are redirected after logging out.
 LOGOUT_REDIRECT_URL = 'home'
 
