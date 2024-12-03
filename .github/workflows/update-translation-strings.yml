@@ -18,8 +18,17 @@ jobs:
       NETBOX_CONFIGURATION: netbox.configuration_testing
 
     steps:
+    - name: Create app token
+      uses: actions/create-github-app-token@v1
+      id: app-token
+      with:
+        app-id: 1076524
+        private-key: ${{ secrets.HOUSEKEEPING_SECRET_KEY }}
+
     - name: Check out repo
       uses: actions/checkout@v4
+      with:
+          token: ${{ steps.app-token.outputs.token }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
