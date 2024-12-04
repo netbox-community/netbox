@@ -45,7 +45,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
                 # Enforce maximum page size, if defined
                 MAX_PAGE_SIZE = get_config().MAX_PAGE_SIZE
                 if MAX_PAGE_SIZE:
-                    return MAX_PAGE_SIZE if limit == 0 else min(limit, MAX_PAGE_SIZE)
+                    return min(self.default_limit, MAX_PAGE_SIZE) if limit == 0 else min(limit, MAX_PAGE_SIZE)
                 return limit
             except (KeyError, ValueError):
                 pass
