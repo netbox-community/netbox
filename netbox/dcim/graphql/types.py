@@ -116,7 +116,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
     filters=CableTerminationFilter
 )
 class CableTerminationType(NetBoxObjectType):
-
+    cable: Annotated["CableType", strawberry.lazy('dcim.graphql.types')] | None
     termination: Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
