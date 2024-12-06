@@ -22,7 +22,6 @@ class TunnelStatusChoices(ChoiceSet):
 
 
 class TunnelEncapsulationChoices(ChoiceSet):
-    ENCAP_EOIP = 'eoip'
     ENCAP_GRE = 'gre'
     ENCAP_IPSEC_TRANSPORT = 'ipsec-transport'
     ENCAP_IPSEC_TUNNEL = 'ipsec-tunnel'
@@ -30,7 +29,6 @@ class TunnelEncapsulationChoices(ChoiceSet):
     ENCAP_L2TP = 'l2tp'
     ENCAP_OPENVPN = 'openvpn'
     ENCAP_PPTP = 'pptp'
-    ENCAP_SSTP = 'sstp'
     ENCAP_WIREGUARD = 'wireguard'
 
     CHOICES = [
@@ -42,8 +40,6 @@ class TunnelEncapsulationChoices(ChoiceSet):
         (ENCAP_OPENVPN, _('OpenVPN')),
         (ENCAP_L2TP, _('L2TP')),
         (ENCAP_PPTP, _('PPTP')),
-        (ENCAP_EOIP, _('EoIP')),
-        (ENCAP_SSTP, _('SSTP')),
     ]
 
 
