@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.core.cache import cache
 from django.db import models
 from django.db.migrations.operations import AlterModelOptions
 
@@ -22,3 +23,6 @@ class CoreConfig(AppConfig):
 
         # Register models
         register_models(*self.get_models())
+
+        # Clear Swagger API cache on startup
+        cache.delete("*api_schema_*")
