@@ -105,7 +105,7 @@ class MACAddressIndex(SearchIndex):
         ('mac_address', 100),
         ('description', 500),
     )
-    display_attrs = ('mac_address', 'interface')
+    display_attrs = ('mac_address', 'assigned_object')
 
 
 @register_search
