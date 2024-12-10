@@ -61,9 +61,6 @@ def get_default_dashboard(config=None):
     config = config or settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
 
     for widget in config:
-        if settings.ISOLATED_DEPLOYMENT and widget['widget'] == 'extras.RSSFeedWidget':
-            continue
-
         id = str(uuid.uuid4())
         dashboard.layout.append({
             'id': id,
