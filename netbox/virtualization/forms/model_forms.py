@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
@@ -298,6 +298,13 @@ class VMComponentForm(NetBoxModelForm):
 
 
 class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
+    primary_mac_address = DynamicModelChoiceField(
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address'),
+        required=False,
+        quick_add=True,
+        quick_add_params={'vminterface': '$pk'}
+    )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,

@@ -15,7 +15,7 @@
       <i class="mdi mdi-database-search-outline"></i>
     </button>
   {% endif %}
-  {% if widget.attrs.quick_add and not widget.attrs.disabled %}
+  {% if quick_add and not widget.attrs.disabled %}
     {# Opens the quick add modal #}
     <button
       type="button"
@@ -23,7 +23,7 @@
       class="btn btn-outline-secondary ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
-      hx-get="{{ widget.attrs.quick_add }}?_quickadd=True&target={{ widget.attrs.id }}"
+      hx-get="{{ quick_add.url }}?_quickadd=True&target={{ widget.attrs.id }}{% for k, v in quick_add.params.items %}&{{ k }}={{ v }}{% endfor %}"
       hx-target="#htmx-modal-content"
     >
       <i class="mdi mdi-plus-circle"></i>

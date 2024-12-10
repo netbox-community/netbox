@@ -3,9 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import MACAddress
 from utilities.forms import get_field_value
-from utilities.forms.fields import DynamicModelChoiceField
 
 __all__ = (
     'InterfaceCommonForm',
@@ -19,12 +17,6 @@ class InterfaceCommonForm(forms.Form):
         min_value=INTERFACE_MTU_MIN,
         max_value=INTERFACE_MTU_MAX,
         label=_('MTU')
-    )
-    primary_mac_address = DynamicModelChoiceField(
-        queryset=MACAddress.objects.all(),
-        label=_('Primary MAC address'),
-        required=False,
-        quick_add=True
     )
 
     def __init__(self, *args, **kwargs):
