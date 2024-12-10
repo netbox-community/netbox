@@ -287,7 +287,8 @@ class RSSFeedWidget(DashboardWidget):
             label=_('Feed URL')
         )
         requires_internet = forms.BooleanField(
-            label=_('Requires external connection')
+            label=_('Requires external connection'),
+            required=False,
         )
         max_entries = forms.IntegerField(
             min_value=1,
