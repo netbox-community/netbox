@@ -129,8 +129,10 @@ LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
+MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
+PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
@@ -684,6 +686,10 @@ REST_FRAMEWORK = {
     },
     'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
 }
+
+if MAX_PAGE_SIZE < PAGINATE_COUNT:
+    raise ImproperlyConfigured(f'MAX_PAGE_SIZE ({MAX_PAGE_SIZE}) cannot be less than PAGINATE_COUNT ({PAGINATE_COUNT}).')
+
 
 #
 # DRF Spectacular
