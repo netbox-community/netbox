@@ -359,6 +359,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         queryset=RackRole.objects.all(),
         required=False
     )
+    rack_type = DynamicModelChoiceField(
+        label=_('Rack type'),
+        queryset=RackType.objects.all(),
+        required=False,
+    )
     serial = forms.CharField(
         max_length=50,
         required=False,
@@ -438,7 +443,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Rack
     fieldsets = (
-        FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'description', name=_('Rack')),
+        FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet(
             'form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'outer_width', 'outer_depth', 'outer_unit',
