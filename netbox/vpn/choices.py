@@ -23,15 +23,23 @@ class TunnelStatusChoices(ChoiceSet):
 
 class TunnelEncapsulationChoices(ChoiceSet):
     ENCAP_GRE = 'gre'
-    ENCAP_IP_IP = 'ip-ip'
     ENCAP_IPSEC_TRANSPORT = 'ipsec-transport'
     ENCAP_IPSEC_TUNNEL = 'ipsec-tunnel'
+    ENCAP_IP_IP = 'ip-ip'
+    ENCAP_L2TP = 'l2tp'
+    ENCAP_OPENVPN = 'openvpn'
+    ENCAP_PPTP = 'pptp'
+    ENCAP_WIREGUARD = 'wireguard'
 
     CHOICES = [
         (ENCAP_IPSEC_TRANSPORT, _('IPsec - Transport')),
         (ENCAP_IPSEC_TUNNEL, _('IPsec - Tunnel')),
         (ENCAP_IP_IP, _('IP-in-IP')),
         (ENCAP_GRE, _('GRE')),
+        (ENCAP_WIREGUARD, _('WireGuard')),
+        (ENCAP_OPENVPN, _('OpenVPN')),
+        (ENCAP_L2TP, _('L2TP')),
+        (ENCAP_PPTP, _('PPTP')),
     ]
 
 

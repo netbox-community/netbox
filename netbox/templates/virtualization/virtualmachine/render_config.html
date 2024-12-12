@@ -5,7 +5,7 @@
 {% block title %}{{ object }} - {% trans "Config" %}{% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col-5">
       <div class="card">
         <h2 class="card-header">{% trans "Config Template" %}</h2>
@@ -48,19 +48,28 @@
   </div>
   <div class="row">
     <div class="col">
-      <div class="card">
-        <h2 class="card-header d-flex justify-content-between">
-          {% trans "Rendered Config" %}
-            <a href="?export=True" class="btn btn-primary lh-1" role="button">
-              <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
-            </a>
-        </h2>
-        {% if config_template %}
-          <pre class="card-body">{{ rendered_config }}</pre>
+      {% if config_template %}
+        {% if rendered_config %}
+          <div class="card">
+            <h2 class="card-header d-flex justify-content-between">
+              {% trans "Rendered Config" %}
+              <a href="?export=True" class="btn btn-primary lh-1" role="button">
+                <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+              </a>
+            </h2>
+            <pre class="card-body">{{ rendered_config }}</pre>
+          </div>
         {% else %}
-          <div class="card-body text-muted">{% trans "No configuration template found" %}</div>
+          <div class="alert alert-warning">
+            <h4 class="alert-title mb-1">{% trans "Error rendering template" %}</h4>
+            {% trans error_message %}
+          </div>
         {% endif %}
-      </div>
+      {% else %}
+        <div class="alert alert-info">
+          {% trans "No configuration template has been assigned for this virtual machine." %}
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
