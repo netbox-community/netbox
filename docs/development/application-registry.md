@@ -51,7 +51,7 @@ This store maintains all registered items for plugins, such as navigation menus,
 
 ### `request_processors`
 
-A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `register_request_processor()` decorator.
+A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator.
 
 ### `search`
 
