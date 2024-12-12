@@ -68,6 +68,8 @@ class DynamicModelChoiceMixin:
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
         quick_add: Include a widget to quickly create a new related object for assignment. NOTE: Nested usage of
             quick-add fields is not currently supported.
+        quick_add_params: A dictionary of initial data to include when launching the quick-add form (optional). The
+            token string "$pk" will be replaced with the primary key of the form's instance, if any.
 
     Context keys:
         value: The name of the attribute which contains the option's value (default: 'id')
@@ -177,8 +179,11 @@ class DynamicModelChoiceMixin:
             }
             for k, v in self.quick_add_params.items():
                 if v == '$pk':
-                    v = form.instance.pk
-                widget.quick_add_context['params'][k] = v
+                    # Replace "$pk" token with the primary key of the form's instance (if any)
+                    if getattr(form.instance, 'pk', None):
+                        widget.quick_add_context['params'][k] = form.instance.pk
+                else:
+                    widget.quick_add_context['params'][k] = v
 
         return bound_field
 

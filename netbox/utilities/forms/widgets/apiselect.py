@@ -25,7 +25,7 @@ class APISelect(forms.Select):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
 
-        # Add quick-add context data, if set on the widget
+        # Add quick-add context data, if enabled for the widget
         if hasattr(self, 'quick_add_context'):
             context['quick_add'] = self.quick_add_context
 
