@@ -14,7 +14,7 @@ body:
     attributes:
       label: NetBox version
       description: What version of NetBox are you currently running?
-      placeholder: v4.1.7
+      placeholder: v4.1.8
     validations:
       required: true
   - type: dropdown
