@@ -1210,12 +1210,14 @@ class ScriptView(BaseScriptView):
         script_class = self._get_script_class(script)
         if not script_class:
             return render(request, 'extras/script.html', {
+                'object': script,
                 'script': script,
             })
 
         form = script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
+            'object': script,
             'script': script,
             'script_class': script_class,
             'form': form,
@@ -1231,6 +1233,7 @@ class ScriptView(BaseScriptView):
         script_class = self._get_script_class(script)
         if not script_class:
             return render(request, 'extras/script.html', {
+                'object': script,
                 'script': script,
             })
 
@@ -1255,6 +1258,7 @@ class ScriptView(BaseScriptView):
             return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
+            'object': script,
             'script': script,
             'script_class': script.python_class(),
             'form': form,

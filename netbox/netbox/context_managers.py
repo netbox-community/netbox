@@ -1,9 +1,11 @@
 from contextlib import contextmanager
 
 from netbox.context import current_request, events_queue
+from netbox.utils import register_request_processor
 from extras.events import flush_events
 
 
+@register_request_processor
 @contextmanager
 def event_tracking(request):
     """

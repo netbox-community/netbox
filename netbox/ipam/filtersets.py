@@ -214,8 +214,10 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(description__icontains=value)
-        return queryset.filter(qs_filter)
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):

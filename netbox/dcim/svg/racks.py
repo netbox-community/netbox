@@ -48,6 +48,7 @@ def get_device_description(device):
 
     Name: <name>
     Role: <role>
+    Status: <status>
     Device Type: <manufacturer> <model> (<u_height>)
     Asset tag: <asset_tag> (if defined)
     Serial: <serial> (if defined)
@@ -55,6 +56,7 @@ def get_device_description(device):
     """
     description = f'Name: {device.name}'
     description += f'\nRole: {device.role}'
+    description += f'\nStatus: {device.get_status_display()}'
     u_height = f'{floatformat(device.device_type.u_height)}U'
     description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({u_height})'
     if device.asset_tag:
