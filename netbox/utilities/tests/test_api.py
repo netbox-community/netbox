@@ -144,6 +144,19 @@ class APIPaginationTestCase(APITestCase):
         self.assertIsNone(response.data['previous'])
         self.assertEqual(len(response.data['results']), page_size)
 
+    @override_settings(MAX_PAGE_SIZE=30)
+    def test_default_page_size_with_small_max_page_size(self):
+        response = self.client.get(self.url, format='json', **self.header)
+        page_size = get_config().MAX_PAGE_SIZE
+        paginate_count = get_config().PAGINATE_COUNT
+        self.assertLess(page_size, 100, "Default page size not sufficient for data set")
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 100)
+        self.assertTrue(response.data['next'].endswith(f'?limit={paginate_count}&offset={paginate_count}'))
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), paginate_count)
+
     def test_custom_page_size(self):
         response = self.client.get(f'{self.url}?limit=10', format='json', **self.header)
 
@@ -153,15 +166,15 @@ class APIPaginationTestCase(APITestCase):
         self.assertIsNone(response.data['previous'])
         self.assertEqual(len(response.data['results']), 10)
 
-    @override_settings(MAX_PAGE_SIZE=20)
+    @override_settings(MAX_PAGE_SIZE=80)
     def test_max_page_size(self):
         response = self.client.get(f'{self.url}?limit=0', format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 100)
-        self.assertTrue(response.data['next'].endswith('?limit=20&offset=20'))
+        self.assertTrue(response.data['next'].endswith('?limit=80&offset=80'))
         self.assertIsNone(response.data['previous'])
-        self.assertEqual(len(response.data['results']), 20)
+        self.assertEqual(len(response.data['results']), 80)
 
     @override_settings(MAX_PAGE_SIZE=0)
     def test_max_page_size_disabled(self):
