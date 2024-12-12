@@ -1,6 +1,32 @@
 # NetBox v4.1
 
-## v4.1.7 (FUTURE)
+## v4.1.8 (2024-12-12)
+
+### Enhancements
+
+* [#17071](https://github.com/netbox-community/netbox/issues/17071) - Enable OOB IP address designation during bulk import
+* [#17465](https://github.com/netbox-community/netbox/issues/17465) - Enable designation of rack type during bulk import & bulk edit
+* [#17889](https://github.com/netbox-community/netbox/issues/17889) - Enable designating an IP address as out-of-band for a device upon creation
+* [#17960](https://github.com/netbox-community/netbox/issues/17960) - Add L2TP, PPTP, Wireguard, and OpenVPN tunnel types
+* [#18021](https://github.com/netbox-community/netbox/issues/18021) - Automatically clear cache on restart when `DEBUG` is enabled
+* [#18061](https://github.com/netbox-community/netbox/issues/18061) - Omit stack trace from rendered device/VM configuration when an exception is raised
+* [#18065](https://github.com/netbox-community/netbox/issues/18065) - Include status in device details when hovering on rack elevation
+* [#18211](https://github.com/netbox-community/netbox/issues/18211) - Enable the dynamic registration of context managers for request processing
+
+### Bug Fixes
+
+* [#14044](https://github.com/netbox-community/netbox/issues/14044) - Fix unhandled AttributeError exception when bulk renaming objects
+* [#17490](https://github.com/netbox-community/netbox/issues/17490) - Fix dynamic inclusion support for config templates
+* [#17810](https://github.com/netbox-community/netbox/issues/17810) - Fix validation of racked device fields when modifying via REST API
+* [#17820](https://github.com/netbox-community/netbox/issues/17820) - Ensure default custom field values are populated when creating new modules
+* [#18044](https://github.com/netbox-community/netbox/issues/18044) - Show plugin-generated alerts within UI views for custom scripts
+* [#18150](https://github.com/netbox-community/netbox/issues/18150) - Fix REST API pagination for low `MAX_PAGE_SIZE` values
+* [#18183](https://github.com/netbox-community/netbox/issues/18183) - Omit UI navigation bar when printing
+* [#18213](https://github.com/netbox-community/netbox/issues/18213) - Fix searching for ASN ranges by name
+
+---
+
+## v4.1.7 (2024-11-21)
 
 ### Enhancements
 
