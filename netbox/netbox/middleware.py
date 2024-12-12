@@ -1,3 +1,5 @@
+from contextlib import ExitStack
+
 import logging
 import uuid
 
@@ -10,7 +12,7 @@ from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
 from netbox.config import clear_config, get_config
-from netbox.context_managers import event_tracking
+from netbox.registry import registry
 from netbox.views import handler_500
 from utilities.api import is_api_request
 from utilities.error_handlers import handle_rest_api_exception
@@ -32,8 +34,10 @@ class CoreMiddleware:
         # Assign a random unique ID to the request. This will be used for change logging.
         request.id = uuid.uuid4()
 
-        # Enable the event_tracking context manager and process the request.
-        with event_tracking(request):
+        # Apply all registered request processors
+        with ExitStack() as stack:
+            for request_processor in registry['request_processors']:
+                stack.enter_context(request_processor(request))
             response = self.get_response(request)
 
         # Check if language cookie should be renewed
