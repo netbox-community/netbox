@@ -1971,6 +1971,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     template_name = 'dcim/device/interfaces.html'
+    disable_htmx = True
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.vc_interfaces().count(),
