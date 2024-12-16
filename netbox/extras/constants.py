@@ -79,6 +79,7 @@ DEFAULT_DASHBOARD = [
             'feed_url': 'http://netbox.dev/rss/',
             'max_entries': 10,
             'cache_timeout': 14400,
+            'requires_internet': True,
         }
     },
     {
