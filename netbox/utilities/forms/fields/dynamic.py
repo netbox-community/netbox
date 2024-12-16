@@ -68,6 +68,8 @@ class DynamicModelChoiceMixin:
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
         quick_add: Include a widget to quickly create a new related object for assignment. NOTE: Nested usage of
             quick-add fields is not currently supported.
+        quick_add_params: A dictionary of initial data to include when launching the quick-add form (optional). The
+            token string "$pk" will be replaced with the primary key of the form's instance, if any.
 
     Context keys:
         value: The name of the attribute which contains the option's value (default: 'id')
@@ -93,6 +95,7 @@ class DynamicModelChoiceMixin:
             context=None,
             selector=False,
             quick_add=False,
+            quick_add_params=None,
             **kwargs
     ):
         self.model = queryset.model
@@ -103,6 +106,7 @@ class DynamicModelChoiceMixin:
         self.context = context or {}
         self.selector = selector
         self.quick_add = quick_add
+        self.quick_add_params = quick_add_params or {}
 
         super().__init__(queryset, **kwargs)
 
@@ -124,12 +128,6 @@ class DynamicModelChoiceMixin:
         # Include object selector?
         if self.selector:
             attrs['selector'] = self.model._meta.label_lower
-
-        # Include quick add?
-        if self.quick_add:
-            app_label = self.model._meta.app_label
-            model_name = self.model._meta.model_name
-            attrs['quick_add'] = reverse_lazy(f'{app_label}:{model_name}_add')
 
         return attrs
 
@@ -170,6 +168,22 @@ class DynamicModelChoiceMixin:
         if not widget.attrs.get('data-url'):
             viewname = get_viewname(self.queryset.model, action='list', rest_api=True)
             widget.attrs['data-url'] = reverse(viewname)
+
+        # Include quick add?
+        if self.quick_add:
+            app_label = self.model._meta.app_label
+            model_name = self.model._meta.model_name
+            widget.quick_add_context = {
+                'url': reverse_lazy(f'{app_label}:{model_name}_add'),
+                'params': {},
+            }
+            for k, v in self.quick_add_params.items():
+                if v == '$pk':
+                    # Replace "$pk" token with the primary key of the form's instance (if any)
+                    if getattr(form.instance, 'pk', None):
+                        widget.quick_add_context['params'][k] = form.instance.pk
+                else:
+                    widget.quick_add_context['params'][k] = v
 
         return bound_field
 

@@ -1410,6 +1410,13 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('VRF')
     )
+    primary_mac_address = DynamicModelChoiceField(
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address'),
+        required=False,
+        quick_add=True,
+        quick_add_params={'interface': '$pk'}
+    )
     wwn = forms.CharField(
         empty_value=None,
         required=False,
