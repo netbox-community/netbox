@@ -96,8 +96,6 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     filterset = None
     filterset_form = None
     template_name = 'generic/object_children.html'
-    # Currently used only to work around the singular behavior of the IP assignment flow in DeviceInterfacesView
-    disable_htmx = False
 
     def get_children(self, request, parent):
         """
@@ -144,7 +142,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table = self.get_table(table_data, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if htmx_partial(request) and not self.disable_htmx:
+        if htmx_partial(request):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
