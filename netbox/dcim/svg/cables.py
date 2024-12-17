@@ -269,7 +269,7 @@ class CableTraceSVG:
         Draw the far-end objects and its terminations and return all created nodes
         """
         # If an empty list is passed in, return empty results so this cable can be skipped
-        if len(obj_list) == 0:
+        if not len(obj_list):
             return [], []
 
         # Make sure elements are sorted by name for readability
