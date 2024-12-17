@@ -268,6 +268,10 @@ class CableTraceSVG:
         """
         Draw the far-end objects and its terminations and return all created nodes
         """
+        # If an empty list is passed in, return empty results so this cable can be skipped
+        if len(obj_list) == 0:
+            return [], []
+
         # Make sure elements are sorted by name for readability
         objects = sorted(obj_list, key=lambda x: str(x))
         width = self.width / len(objects)
@@ -404,6 +408,10 @@ class CableTraceSVG:
                             # a and b terminations may be swapped
                             near = [term for term in near_terminations if term.object == cable.interface_b]
                             far = [term for term in far_terminations if term.object == cable.interface_a]
+
+                    # If at this point we have no near or no far terminations, this cable can't be rendered, so skip.
+                    if not (near and far):
+                        continue
 
                     # Select most-probable start and end position
                     start = near[0].bottom_center
