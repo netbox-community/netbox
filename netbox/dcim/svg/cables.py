@@ -370,6 +370,11 @@ class CableTraceSVG:
 
                 obj_list = {end.parent_object for end in far_ends}
                 parent_object_nodes, far_terminations = self.draw_far_objects(obj_list, far_ends)
+
+                # If there are no far terminations, this segment can't be rendered, so skip.
+                if not far_terminations:
+                    continue
+
                 for cable in links:
                     # Fill in labels and description with all available data
                     description = [
@@ -408,10 +413,6 @@ class CableTraceSVG:
                             # a and b terminations may be swapped
                             near = [term for term in near_terminations if term.object == cable.interface_b]
                             far = [term for term in far_terminations if term.object == cable.interface_a]
-
-                    # If at this point we have no near or no far terminations, this cable can't be rendered, so skip.
-                    if not (near and far):
-                        continue
 
                     # Select most-probable start and end position
                     start = near[0].bottom_center
