@@ -268,10 +268,6 @@ class CableTraceSVG:
         """
         Draw the far-end objects and its terminations and return all created nodes
         """
-        # If an empty list is passed in, return empty results so this cable can be skipped
-        if not len(obj_list):
-            return [], []
-
         # Make sure elements are sorted by name for readability
         objects = sorted(obj_list, key=lambda x: str(x))
         width = self.width / len(objects)
@@ -366,15 +362,10 @@ class CableTraceSVG:
             self.cursor += CABLE_HEIGHT
 
             # Connector (a Cable or WirelessLink)
-            if links:
+            if links and far_ends:
 
                 obj_list = {end.parent_object for end in far_ends}
                 parent_object_nodes, far_terminations = self.draw_far_objects(obj_list, far_ends)
-
-                # If there are no far terminations, this segment can't be rendered, so skip.
-                if not far_terminations:
-                    continue
-
                 for cable in links:
                     # Fill in labels and description with all available data
                     description = [
