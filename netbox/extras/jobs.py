@@ -1,14 +1,14 @@
 import logging
 import traceback
-from contextlib import nullcontext
+from contextlib import ExitStack
 
 from django.db import transaction
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
 from extras.models import Script as ScriptModel
-from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
+from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
 from .utils import is_report
 
@@ -100,5 +100,7 @@ class ScriptJob(JobRunner):
 
         # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
         # change logging, event rules, etc.
-        with event_tracking(request) if commit else nullcontext():
+        with ExitStack() as stack:
+            for request_processor in registry['request_processors']:
+                stack.enter_context(request_processor(request))
             self.run_script(script, request, data, commit)

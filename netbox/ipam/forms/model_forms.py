@@ -361,7 +361,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
-            if parent and (parent.oob_ip_id == self.instance.pk):
+            if parent and getattr(parent, 'oob_ip_id', None) == self.instance.pk:
                 self.initial['oob_for_parent'] = True
 
             if type(instance.assigned_object) is Interface:
