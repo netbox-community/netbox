@@ -94,6 +94,7 @@ class CachedScopeMixin(models.Model):
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type._meta.model_name)
             })
+        super().clean()
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)
