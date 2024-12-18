@@ -87,14 +87,13 @@ class CachedScopeMixin(models.Model):
         abstract = True
 
     def clean(self):
-        if self.scope_type:
+        if self.scope_type and not self.scope:
             scope_type = self.scope_type.model_class()
-            if not self.scope:
-                raise ValidationError({
-                    'scope': _(
-                        "Please select a {scope_type}."
-                    ).format(scope_type=scope_type._meta.model_name)
-                })
+            raise ValidationError({
+                'scope': _(
+                    "Please select a {scope_type}."
+                ).format(scope_type=scope_type._meta.model_name)
+            })
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)
