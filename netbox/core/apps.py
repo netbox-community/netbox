@@ -21,6 +21,7 @@ class CoreConfig(AppConfig):
         from core.api import schema  # noqa: F401
         from netbox.models.features import register_models
         from . import data_backends, events, search  # noqa: F401
+        from netbox import context_managers  # noqa: F401
 
         # Register models
         register_models(*self.get_models())
