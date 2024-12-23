@@ -1,6 +1,17 @@
 # NetBox v4.1
 
+## v4.1.10 (2024-12-23)
+
+### Bug Fixes
+
+* [#18260](https://github.com/netbox-community/netbox/issues/18260) - Fix object change logging
+
+---
+
 ## v4.1.9 (2024-12-17)
+
+!!! danger "Do Not Use"
+    This release contains a regression which breaks change logging. Please use release v4.1.10 instead.
 
 ### Enhancements
 
