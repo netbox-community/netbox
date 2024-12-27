@@ -50,21 +50,24 @@ class EventRuleTest(APITestCase):
                 event_types=[OBJECT_CREATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
-                action_object_id=webhooks[0].id
+                action_object_id=webhooks[0].id,
+                action_data={"foo": 1},
             ),
             EventRule(
                 name='Event Rule 2',
                 event_types=[OBJECT_UPDATED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
-                action_object_id=webhooks[0].id
+                action_object_id=webhooks[0].id,
+                action_data={"foo": 2},
             ),
             EventRule(
                 name='Event Rule 3',
                 event_types=[OBJECT_DELETED],
                 action_type=EventRuleActionChoices.WEBHOOK,
                 action_object_type=webhook_type,
-                action_object_id=webhooks[0].id
+                action_object_id=webhooks[0].id,
+                action_data={"foo": 3},
             ),
         ))
         for event_rule in event_rules:
@@ -134,6 +137,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
+        self.assertEqual(job.kwargs['data']['foo'], 1)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
@@ -184,6 +188,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
+            self.assertEqual(job.kwargs['data']['foo'], 1)
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
             self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
@@ -215,6 +220,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
+        self.assertEqual(job.kwargs['data']['foo'], 2)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
@@ -271,6 +277,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
+            self.assertEqual(job.kwargs['data']['foo'], 2)
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
@@ -297,6 +304,7 @@ class EventRuleTest(APITestCase):
         self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
+        self.assertEqual(job.kwargs['data']['foo'], 3)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
@@ -330,6 +338,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
+            self.assertEqual(job.kwargs['data']['foo'], 3)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
@@ -358,6 +367,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(body['username'], 'testuser')
             self.assertEqual(body['request_id'], str(request_id))
             self.assertEqual(body['data']['name'], 'Site 1')
+            self.assertEqual(body['data']['foo'], 1)
 
             return HttpResponse()
 
