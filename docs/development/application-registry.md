@@ -49,6 +49,10 @@ This key lists all models which have been registered in NetBox which are not des
 
 This store maintains all registered items for plugins, such as navigation menus, template extensions, etc.
 
+### `request_processors`
+
+A list of context managers to invoke when processing a request e.g. in middleware or when executing a background job. Request processors can be registered with the `@register_request_processor` decorator.
+
 ### `search`
 
 A dictionary mapping each model (identified by its app and label) to its search index class, if one has been registered for it.

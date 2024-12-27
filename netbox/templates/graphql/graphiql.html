@@ -1,15 +1,8 @@
+{% load static %}
 {% comment %}
   This template derives from the strawberry-graphql project:
   https://github.com/strawberry-graphql/strawberry/blob/main/strawberry/static/graphiql.html
 {% endcomment %}
-<!--
-The request to this GraphQL server provided the header "Accept: text/html"
-and as a result has been presented GraphiQL - an in-browser IDE for
-exploring GraphQL.
-If you wish to receive JSON, provide the header "Accept: application/json" or
-add "&raw" to the end of the URL within a browser.
--->
-{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -112,10 +105,7 @@ add "&raw" to the end of the URL within a browser.
         headers["x-csrftoken"] = csrfToken;
       }
 
-      const subscriptionsEnabled = JSON.parse("{{ SUBSCRIPTION_ENABLED }}");
-      const subscriptionUrl = subscriptionsEnabled
-        ? httpUrlToWebSockeUrl(fetchURL)
-        : null;
+      const subscriptionUrl = httpUrlToWebSockeUrl(fetchURL);
 
       const fetcher = GraphiQL.createFetcher({
         url: fetchURL,

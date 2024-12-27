@@ -326,12 +326,17 @@ class IPAddressImportForm(NetBoxModelImportForm):
         help_text=_('Make this the primary IP for the assigned device'),
         required=False
     )
+    is_oob = forms.BooleanField(
+        label=_('Is out-of-band'),
+        help_text=_('Designate this as the out-of-band IP address for the assigned device'),
+        required=False
+    )
 
     class Meta:
         model = IPAddress
         fields = [
             'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
-            'dns_name', 'description', 'comments', 'tags',
+            'is_oob', 'dns_name', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -345,7 +350,7 @@ class IPAddressImportForm(NetBoxModelImportForm):
                     **{f"device__{self.fields['device'].to_field_name}": data['device']}
                 )
 
-            # Limit interface queryset by assigned device
+            # Limit interface queryset by assigned VM
             elif data.get('virtual_machine'):
                 self.fields['interface'].queryset = VMInterface.objects.filter(
                     **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
@@ -358,15 +363,28 @@ class IPAddressImportForm(NetBoxModelImportForm):
         virtual_machine = self.cleaned_data.get('virtual_machine')
         interface = self.cleaned_data.get('interface')
         is_primary = self.cleaned_data.get('is_primary')
+        is_oob = self.cleaned_data.get('is_oob')
 
-        # Validate is_primary
+        # Validate is_primary and is_oob
         if is_primary and not device and not virtual_machine:
             raise forms.ValidationError({
                 "is_primary": _("No device or virtual machine specified; cannot set as primary IP")
             })
+        if is_oob and not device:
+            raise forms.ValidationError({
+                "is_oob": _("No device specified; cannot set as out-of-band IP")
+            })
+        if is_oob and virtual_machine:
+            raise forms.ValidationError({
+                "is_oob": _("Cannot set out-of-band IP for virtual machines")
+            })
         if is_primary and not interface:
             raise forms.ValidationError({
                 "is_primary": _("No interface specified; cannot set as primary IP")
+            })
+        if is_oob and not interface:
+            raise forms.ValidationError({
+                "is_oob": _("No interface specified; cannot set as out-of-band IP")
             })
 
     def save(self, *args, **kwargs):
@@ -384,6 +402,12 @@ class IPAddressImportForm(NetBoxModelImportForm):
                 parent.primary_ip4 = ipaddress
             elif self.instance.address.version == 6:
                 parent.primary_ip6 = ipaddress
+            parent.save()
+
+        # Set as OOB for device
+        if self.cleaned_data.get('is_oob'):
+            parent = self.cleaned_data.get('device')
+            parent.oob_ip = ipaddress
             parent.save()
 
         return ipaddress

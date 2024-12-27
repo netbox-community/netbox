@@ -1,4 +1,6 @@
 from django.apps import AppConfig
+from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.db.migrations.operations import AlterModelOptions
 
@@ -19,6 +21,11 @@ class CoreConfig(AppConfig):
         from core.api import schema  # noqa: F401
         from netbox.models.features import register_models
         from . import data_backends, events, search  # noqa: F401
+        from netbox import context_managers  # noqa: F401
 
         # Register models
         register_models(*self.get_models())
+
+        # Clear Redis cache on startup in development mode
+        if settings.DEBUG:
+            cache.clear()

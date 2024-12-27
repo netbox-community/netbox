@@ -17,7 +17,7 @@ tr[data-virtual=true] {
   background-color: rgba(map.get($theme-colors, "primary"), 0.15);
 }
 tr[data-enabled=disabled] {
-  background-color: rgba(map.get($theme-colors, "danger"), 0.15);
+  background-color: rgba($gray-400, 0.15);
 }
 
 // Only show the correct button depending on the cable status

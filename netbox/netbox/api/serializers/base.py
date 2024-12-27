@@ -76,6 +76,12 @@ class ValidatedModelSerializer(BaseModelSerializer):
     Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
+
+    # Bypass DRF's built-in validation of unique constraints due to DRF bug #9410. Rely instead
+    # on our own custom model validation (below).
+    def get_unique_together_constraints(self, model):
+        return []
+
     def validate(self, data):
 
         # Skip validation if we're being used to represent a nested object
