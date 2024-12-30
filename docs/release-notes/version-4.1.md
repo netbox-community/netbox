@@ -1,5 +1,32 @@
 # NetBox v4.1
 
+## v4.1.10 (2024-12-23)
+
+### Bug Fixes
+
+* [#18260](https://github.com/netbox-community/netbox/issues/18260) - Fix object change logging
+
+---
+
+## v4.1.9 (2024-12-17)
+
+!!! danger "Do Not Use"
+    This release contains a regression which breaks change logging. Please use release v4.1.10 instead.
+
+### Enhancements
+
+* [#17215](https://github.com/netbox-community/netbox/issues/17215) - Change the highlighted color of disabled interfaces in interface lists
+* [#18224](https://github.com/netbox-community/netbox/issues/18224) - Apply all registered request processors when running custom scripts
+
+### Bug Fixes
+
+* [#16757](https://github.com/netbox-community/netbox/issues/16757) - Fix rendering of IP addresses table when assigning an existing IP address to an interface with global HTMX navigation enabled
+* [#17868](https://github.com/netbox-community/netbox/issues/17868) - Fix `ZeroDivisionError` exception under specific circumstances when generating a cable trace
+* [#18124](https://github.com/netbox-community/netbox/issues/18124) - Enable referencing cable attributes when querying a `cabletermination_set` via the GraphQL API
+* [#18230](https://github.com/netbox-community/netbox/issues/18230) - Fix `AttributeError` exception when attempting to edit an IP address assigned to a virtual machine interface
+
+---
+
 ## v4.1.8 (2024-12-12)
 
 ### Enhancements
