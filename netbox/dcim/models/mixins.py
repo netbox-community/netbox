@@ -1,6 +1,8 @@
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from dcim.constants import LOCATION_SCOPE_TYPES
 
 __all__ = (
@@ -83,6 +85,16 @@ class CachedScopeMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        if self.scope_type and not self.scope:
+            scope_type = self.scope_type.model_class()
+            raise ValidationError({
+                'scope': _(
+                    "Please select a {scope_type}."
+                ).format(scope_type=scope_type._meta.model_name)
+            })
+        super().clean()
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)
