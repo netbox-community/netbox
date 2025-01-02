@@ -121,7 +121,7 @@ class CircuitGroupType(OrganizationalObjectType):
 )
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated["CircuitGroupType", strawberry.lazy('circuits.graphql.types')]
-    circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
+    member: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
 
 
 @strawberry_django.type(

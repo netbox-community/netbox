@@ -23,8 +23,12 @@
             <td>{{ object.group|linkify }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Provider" %}</th>
+            <td>{{ object.member.provider|linkify }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Circuit" %}</th>
-            <td>{{ object.circuit|linkify }}</td>
+            <td>{{ object.member|linkify }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Priority" %}</th>

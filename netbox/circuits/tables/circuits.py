@@ -188,11 +188,11 @@ class CircuitGroupAssignmentTable(NetBoxTable):
         linkify=True
     )
     provider = tables.Column(
-        accessor='circuit__provider',
+        accessor='member__provider',
         verbose_name=_('Provider'),
         linkify=True
     )
-    circuit = tables.Column(
+    member = tables.Column(
         verbose_name=_('Circuit'),
         linkify=True
     )
@@ -206,6 +206,6 @@ class CircuitGroupAssignmentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CircuitGroupAssignment
         fields = (
-            'pk', 'id', 'group', 'provider', 'circuit', 'priority', 'created', 'last_updated', 'actions', 'tags',
+            'pk', 'id', 'group', 'provider', 'member', 'priority', 'created', 'last_updated', 'actions', 'tags',
         )
-        default_columns = ('pk', 'group', 'provider', 'circuit', 'priority')
+        default_columns = ('pk', 'group', 'provider', 'member', 'priority')

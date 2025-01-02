@@ -671,17 +671,17 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         assignments = (
             CircuitGroupAssignment(
                 group=circuit_groups[0],
-                circuit=circuits[0],
+                member=circuits[0],
                 priority=CircuitPriorityChoices.PRIORITY_PRIMARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[1],
-                circuit=circuits[1],
+                member=circuits[1],
                 priority=CircuitPriorityChoices.PRIORITY_SECONDARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[2],
-                circuit=circuits[2],
+                member=circuits[2],
                 priority=CircuitPriorityChoices.PRIORITY_TERTIARY
             ),
         )
@@ -694,11 +694,11 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'group': [groups[0].slug, groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_circuit(self):
+    def test_member(self):
         circuits = Circuit.objects.all()[:2]
-        params = {'circuit_id': [circuits[0].pk, circuits[1].pk]}
+        params = {'member_id': [circuits[0].pk, circuits[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'circuit': [circuits[0].cid, circuits[1].cid]}
+        params = {'member': [circuits[0].cid, circuits[1].cid]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):

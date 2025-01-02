@@ -366,22 +366,22 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         label=_('Search'),
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__provider',
+        field_name='member__provider',
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__provider__slug',
+        field_name='member__provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
-    circuit_id = django_filters.ModelMultipleChoiceFilter(
+    member_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Circuit.objects.all(),
         label=_('Circuit (ID)'),
     )
-    circuit = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__cid',
+    member = django_filters.ModelMultipleChoiceFilter(
+        field_name='member__cid',
         queryset=Circuit.objects.all(),
         to_field_name='cid',
         label=_('Circuit (CID)'),
@@ -405,7 +405,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(circuit__cid__icontains=value) |
+            Q(member__cid__icontains=value) |
             Q(group__name__icontains=value)
         )
 

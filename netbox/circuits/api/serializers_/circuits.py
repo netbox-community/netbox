@@ -154,14 +154,14 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
 
 
 class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
-    circuit = CircuitSerializer(nested=True)
+    member = CircuitSerializer(nested=True)
 
     class Meta:
         model = CircuitGroupAssignment
         fields = [
-            'id', 'url', 'display_url', 'display', 'group', 'circuit', 'priority', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'group', 'member', 'priority', 'tags', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'group', 'circuit', 'priority')
+        brief_fields = ('id', 'url', 'display', 'group', 'member', 'priority')
 
 
 class VirtualCircuitSerializer(NetBoxModelSerializer):

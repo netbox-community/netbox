@@ -497,17 +497,17 @@ class CircuitGroupAssignmentTestCase(
         assignments = (
             CircuitGroupAssignment(
                 group=circuit_groups[0],
-                circuit=circuits[0],
+                member=circuits[0],
                 priority=CircuitPriorityChoices.PRIORITY_PRIMARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[1],
-                circuit=circuits[1],
+                member=circuits[1],
                 priority=CircuitPriorityChoices.PRIORITY_SECONDARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[2],
-                circuit=circuits[2],
+                member=circuits[2],
                 priority=CircuitPriorityChoices.PRIORITY_TERTIARY
             ),
         )
@@ -517,7 +517,7 @@ class CircuitGroupAssignmentTestCase(
 
         cls.form_data = {
             'group': circuit_groups[3].pk,
-            'circuit': circuits[3].pk,
+            'member': circuits[3].pk,
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
             'tags': [t.pk for t in tags],
         }
