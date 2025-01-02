@@ -1,8 +1,7 @@
 from django.apps import apps
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -115,6 +114,13 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
         editable=False,
         blank=True,
         null=True
+    )
+
+    group_assignments = GenericRelation(
+        to='circuits.CircuitGroupAssignment',
+        content_type_field='member_type',
+        object_id_field='member_id',
+        related_query_name='circuit'
     )
 
     clone_fields = (

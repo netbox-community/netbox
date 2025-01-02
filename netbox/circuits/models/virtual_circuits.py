@@ -1,5 +1,6 @@
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -48,6 +49,13 @@ class VirtualCircuit(PrimaryModel):
         related_name='virtual_circuits',
         blank=True,
         null=True
+    )
+
+    group_assignments = GenericRelation(
+        to='circuits.CircuitGroupAssignment',
+        content_type_field='member_type',
+        object_id_field='member_id',
+        related_query_name='virtual_circuit'
     )
 
     clone_fields = (
