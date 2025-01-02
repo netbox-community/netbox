@@ -182,7 +182,7 @@ class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = CircuitGroupAssignment
-        fields = ('member', 'group', 'priority')
+        fields = ('member_type', 'member_id', 'group', 'priority')
 
 
 class VirtualCircuitImportForm(NetBoxModelImportForm):

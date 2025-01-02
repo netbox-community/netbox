@@ -517,6 +517,7 @@ class CircuitGroupAssignmentTestCase(
 
         cls.form_data = {
             'group': circuit_groups[3].pk,
+            'member_type': ContentType.objects.get_for_model(Circuit).pk,
             'member': circuits[3].pk,
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
             'tags': [t.pk for t in tags],

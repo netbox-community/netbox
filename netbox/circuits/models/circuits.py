@@ -179,10 +179,16 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
     """
     Assignment of a physical or virtual circuit to a CircuitGroup with an optional priority.
     """
-    member = models.ForeignKey(
-        Circuit,
-        on_delete=models.CASCADE,
-        related_name='assignments'
+    member_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        limit_choices_to=CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    member_id = models.PositiveBigIntegerField()
+    member = GenericForeignKey(
+        ct_field='member_type',
+        fk_field='member_id'
     )
     group = models.ForeignKey(
         to='circuits.CircuitGroup',
@@ -201,10 +207,10 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
     )
 
     class Meta:
-        ordering = ('group', 'member', 'priority', 'pk')
+        ordering = ('group', 'member_type', 'member_id', 'priority', 'pk')
         constraints = (
             models.UniqueConstraint(
-                fields=('member', 'group'),
+                fields=('member_type', 'member_id', 'group'),
                 name='%(app_label)s_%(class)s_unique_member_group'
             ),
         )
