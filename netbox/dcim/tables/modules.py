@@ -41,6 +41,7 @@ class ModuleTypeTable(NetBoxTable):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'part_number', 'airflow', 'weight', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number',
