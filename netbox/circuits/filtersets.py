@@ -25,6 +25,7 @@ __all__ = (
     'ProviderFilterSet',
     'VirtualCircuitFilterSet',
     'VirtualCircuitTerminationFilterSet',
+    'VirtualCircuitTypeFilterSet',
 )
 
 
@@ -462,6 +463,13 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         )
 
 
+class VirtualCircuitTypeFilterSet(OrganizationalModelFilterSet):
+
+    class Meta:
+        model = VirtualCircuitType
+        fields = ('id', 'name', 'slug', 'color', 'description')
+
+
 class VirtualCircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_network__provider',
@@ -488,6 +496,16 @@ class VirtualCircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
         label=_('Provider network (ID)'),
+    )
+    type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VirtualCircuitType.objects.all(),
+        label=_('Virtual circuit type (ID)'),
+    )
+    type = django_filters.ModelMultipleChoiceFilter(
+        field_name='type__slug',
+        queryset=VirtualCircuitType.objects.all(),
+        to_field_name='slug',
+        label=_('Virtual circuit type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,

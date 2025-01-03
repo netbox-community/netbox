@@ -45,7 +45,7 @@ class CircuitTypeTable(NetBoxTable):
             'pk', 'id', 'name', 'circuit_count', 'color', 'description', 'slug', 'tags', 'created', 'last_updated',
             'actions',
         )
-        default_columns = ('pk', 'name', 'circuit_count', 'description', 'slug')
+        default_columns = ('pk', 'name', 'circuit_count', 'color', 'description')
 
 
 class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
@@ -60,6 +60,10 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     provider_account = tables.Column(
         linkify=True,
         verbose_name=_('Account')
+    )
+    type = tables.Column(
+        verbose_name=_('Type'),
+        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     termination_a = columns.TemplateColumn(

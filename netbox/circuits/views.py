@@ -580,6 +580,67 @@ class CircuitGroupAssignmentBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Virtual circuit Types
+#
+
+@register_model_view(VirtualCircuitType, 'list', path='', detail=False)
+class VirtualCircuitTypeListView(generic.ObjectListView):
+    queryset = VirtualCircuitType.objects.annotate(
+        virtual_circuit_count=count_related(VirtualCircuit, 'type')
+    )
+    filterset = filtersets.VirtualCircuitTypeFilterSet
+    filterset_form = forms.VirtualCircuitTypeFilterForm
+    table = tables.VirtualCircuitTypeTable
+
+
+@register_model_view(VirtualCircuitType)
+class VirtualCircuitTypeView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = VirtualCircuitType.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(VirtualCircuitType, 'add', detail=False)
+@register_model_view(VirtualCircuitType, 'edit')
+class VirtualCircuitTypeEditView(generic.ObjectEditView):
+    queryset = VirtualCircuitType.objects.all()
+    form = forms.VirtualCircuitTypeForm
+
+
+@register_model_view(VirtualCircuitType, 'delete')
+class VirtualCircuitTypeDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualCircuitType.objects.all()
+
+
+@register_model_view(VirtualCircuitType, 'bulk_import', detail=False)
+class VirtualCircuitTypeBulkImportView(generic.BulkImportView):
+    queryset = VirtualCircuitType.objects.all()
+    model_form = forms.VirtualCircuitTypeImportForm
+
+
+@register_model_view(VirtualCircuitType, 'bulk_edit', path='edit', detail=False)
+class VirtualCircuitTypeBulkEditView(generic.BulkEditView):
+    queryset = VirtualCircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
+    filterset = filtersets.VirtualCircuitTypeFilterSet
+    table = tables.VirtualCircuitTypeTable
+    form = forms.VirtualCircuitTypeBulkEditForm
+
+
+@register_model_view(VirtualCircuitType, 'bulk_delete', path='delete', detail=False)
+class VirtualCircuitTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualCircuitType.objects.annotate(
+        circuit_count=count_related(Circuit, 'type')
+    )
+    filterset = filtersets.VirtualCircuitTypeFilterSet
+    table = tables.VirtualCircuitTypeTable
+
+
+#
 # Virtual circuits
 #
 

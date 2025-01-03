@@ -2,6 +2,7 @@ import django.db.models.deletion
 import taggit.managers
 from django.db import migrations, models
 
+import utilities.fields
 import utilities.json
 
 
@@ -14,6 +15,29 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.CreateModel(
+            name='VirtualCircuitType',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('created', models.DateTimeField(auto_now_add=True, null=True)),
+                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
+                ('custom_field_data', models.JSONField(
+                    blank=True,
+                    default=dict,
+                    encoder=utilities.json.CustomFieldJSONEncoder
+                )),
+                ('name', models.CharField(max_length=100, unique=True)),
+                ('slug', models.SlugField(max_length=100, unique=True)),
+                ('description', models.CharField(blank=True, max_length=200)),
+                ('color', utilities.fields.ColorField(blank=True, max_length=6)),
+                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+            ],
+            options={
+                'verbose_name': 'virtual circuit type',
+                'verbose_name_plural': 'virtual circuit types',
+                'ordering': ('name',),
+            },
+        ),
         migrations.CreateModel(
             name='VirtualCircuit',
             fields=[
@@ -47,6 +71,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+                (
+                    'type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='virtual_circuits',
+                        to='circuits.virtualcircuittype'
+                    )
+                ),
                 (
                     'tenant',
                     models.ForeignKey(

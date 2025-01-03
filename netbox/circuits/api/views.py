@@ -96,6 +96,16 @@ class ProviderNetworkViewSet(NetBoxModelViewSet):
 
 
 #
+#  Virtual circuit types
+#
+
+class VirtualCircuitTypeViewSet(NetBoxModelViewSet):
+    queryset = VirtualCircuitType.objects.all()
+    serializer_class = serializers.VirtualCircuitTypeSerializer
+    filterset_class = filtersets.VirtualCircuitTypeFilterSet
+
+
+#
 # Virtual circuits
 #
 

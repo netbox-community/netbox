@@ -42,6 +42,9 @@ urlpatterns = [
     path('virtual-circuits/delete/', views.VirtualCircuitBulkDeleteView.as_view(), name='virtualcircuit_bulk_delete'),
     path('virtual-circuits/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuit'))),
 
+    path('virtual-circuit-types/', include(get_model_urls('circuits', 'virtualcircuittype', detail=False))),
+    path('virtual-circuit-types/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuittype'))),
+
     # Virtual circuit terminations
     path(
         'virtual-circuit-terminations/',

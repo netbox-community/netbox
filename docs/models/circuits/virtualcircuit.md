@@ -18,6 +18,10 @@ The [provider account](./provideraccount.md) with which the virtual circuit is a
 
 The unique identifier assigned to the virtual circuit by its [provider](./provider.md).
 
+### Type
+
+The assigned [virtual circuit type](./virtualcircuittype.md).
+
 ### Status
 
 The operational status of the virtual circuit. By default, the following statuses are available:

@@ -14,6 +14,7 @@ __all__ = (
     'ProviderNetworkFilter',
     'VirtualCircuitFilter',
     'VirtualCircuitTerminationFilter',
+    'VirtualCircuitTypeFilter',
 )
 
 
@@ -62,6 +63,12 @@ class ProviderAccountFilter(BaseFilterMixin):
 @strawberry_django.filter(models.ProviderNetwork, lookups=True)
 @autotype_decorator(filtersets.ProviderNetworkFilterSet)
 class ProviderNetworkFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.VirtualCircuitType, lookups=True)
+@autotype_decorator(filtersets.VirtualCircuitTypeFilterSet)
+class VirtualCircuitTypeFilter(BaseFilterMixin):
     pass
 
 

@@ -656,12 +656,12 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
             Provider(name='Provider 2', slug='provider-2'),
             Provider(name='Provider 3', slug='provider-3'),
         ))
-        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
 
         circuits = (
-            Circuit(cid='Circuit 1', provider=providers[0], type=circuittype),
-            Circuit(cid='Circuit 2', provider=providers[1], type=circuittype),
-            Circuit(cid='Circuit 3', provider=providers[2], type=circuittype),
+            Circuit(cid='Circuit 1', provider=providers[0], type=circuit_type),
+            Circuit(cid='Circuit 2', provider=providers[1], type=circuit_type),
+            Circuit(cid='Circuit 3', provider=providers[2], type=circuit_type),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -672,18 +672,25 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ProviderNetwork.objects.bulk_create(provider_networks)
 
+        virtual_circuit_type = VirtualCircuitType.objects.create(
+            name='Virtual Circuit Type 1',
+            slug='virtual-circuit-type-1'
+        )
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_networks[0],
-                cid='Virtual Circuit 1'
+                cid='Virtual Circuit 1',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_networks[1],
-                cid='Virtual Circuit 2'
+                cid='Virtual Circuit 2',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_networks[2],
-                cid='Virtual Circuit 3'
+                cid='Virtual Circuit 3',
+                type=virtual_circuit_type
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)
@@ -837,6 +844,36 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class VirtualCircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualCircuitType.objects.all()
+    filterset = VirtualCircuitTypeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        VirtualCircuitType.objects.bulk_create((
+            VirtualCircuitType(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1', description='foobar1'),
+            VirtualCircuitType(name='Virtual Circuit Type 2', slug='virtual-circuit-type-2', description='foobar2'),
+            VirtualCircuitType(name='Virtual Circuit Type 3', slug='virtual-circuit-type-3'),
+        ))
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Virtual Circuit Type 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_slug(self):
+        params = {'slug': ['virtual-circuit-type-1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VirtualCircuit.objects.all()
     filterset = VirtualCircuitFilterSet
@@ -880,12 +917,20 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ProviderNetwork.objects.bulk_create(provider_networks)
 
+        virtual_circuit_types = (
+            VirtualCircuitType(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1'),
+            VirtualCircuitType(name='Virtual Circuit Type 2', slug='virtual-circuit-type-2'),
+            VirtualCircuitType(name='Virtual Circuit Type 3', slug='virtual-circuit-type-3'),
+        )
+        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+
         virutal_circuits = (
             VirtualCircuit(
                 provider_network=provider_networks[0],
                 provider_account=provider_accounts[0],
                 tenant=tenants[0],
                 cid='Virtual Circuit 1',
+                type=virtual_circuit_types[0],
                 status=CircuitStatusChoices.STATUS_PLANNED,
                 description='virtualcircuit1',
             ),
@@ -894,6 +939,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
                 provider_account=provider_accounts[1],
                 tenant=tenants[1],
                 cid='Virtual Circuit 2',
+                type=virtual_circuit_types[1],
                 status=CircuitStatusChoices.STATUS_ACTIVE,
                 description='virtualcircuit2',
             ),
@@ -902,6 +948,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
                 provider_account=provider_accounts[2],
                 tenant=tenants[2],
                 cid='Virtual Circuit 3',
+                type=virtual_circuit_types[2],
                 status=CircuitStatusChoices.STATUS_DEPROVISIONING,
                 description='virtualcircuit3',
             ),
@@ -931,6 +978,13 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
         params = {'provider_network_id': [provider_networks[0].pk, provider_networks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_type(self):
+        virtual_circuit_types = VirtualCircuitType.objects.all()[:2]
+        params = {'type_id': [virtual_circuit_types[0].pk, virtual_circuit_types[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'type': [virtual_circuit_types[0].slug, virtual_circuit_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):
@@ -1029,22 +1083,29 @@ class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             ProviderAccount(provider=providers[2], account='Provider Account 3'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
+        virtual_circuit_type = VirtualCircuitType.objects.create(
+            name='Virtual Circuit Type 1',
+            slug='virtual-circuit-type-1'
+        )
 
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_networks[0],
                 provider_account=provider_accounts[0],
-                cid='Virtual Circuit 1'
+                cid='Virtual Circuit 1',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_networks[1],
                 provider_account=provider_accounts[1],
-                cid='Virtual Circuit 2'
+                cid='Virtual Circuit 2',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_networks[2],
                 provider_account=provider_accounts[2],
-                cid='Virtual Circuit 3'
+                cid='Virtual Circuit 3',
+                type=virtual_circuit_type
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)
