@@ -713,7 +713,7 @@ class IPRangeView(generic.ObjectView):
             Q(prefix__net_contains_or_equals=str(instance.end_address.ip)),
             vrf=instance.vrf
         ).prefetch_related(
-            'site', 'role', 'tenant', 'vlan', 'role'
+            'scope', 'role', 'tenant', 'vlan', 'role'
         )
         parent_prefixes_table = tables.PrefixTable(
             list(parent_prefixes),
@@ -805,7 +805,7 @@ class IPAddressView(generic.ObjectView):
             vrf=instance.vrf,
             prefix__net_contains_or_equals=str(instance.address.ip)
         ).prefetch_related(
-            'site', 'role'
+            'scope', 'role'
         )
         parent_prefixes_table = tables.PrefixTable(
             list(parent_prefixes),
@@ -1288,7 +1288,7 @@ class VLANView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         prefixes = Prefix.objects.restrict(request.user, 'view').filter(vlan=instance).prefetch_related(
-            'vrf', 'site', 'role', 'tenant'
+            'vrf', 'scope', 'role', 'tenant'
         )
         prefix_table = tables.PrefixTable(list(prefixes), exclude=('vlan', 'utilization'), orderable=False)
 
