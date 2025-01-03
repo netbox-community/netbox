@@ -468,6 +468,7 @@ class CircuitGroupAssignmentTestCase(
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase
 ):
     model = CircuitGroupAssignment
@@ -522,6 +523,20 @@ class CircuitGroupAssignmentTestCase(
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
             'tags': [t.pk for t in tags],
         }
+
+        cls.csv_data = (
+            "member_type,member_id,group,priority",
+            f"circuits.circuit,{circuits[0].pk},{circuit_groups[3].pk},primary",
+            f"circuits.circuit,{circuits[1].pk},{circuit_groups[3].pk},secondary",
+            f"circuits.circuit,{circuits[2].pk},{circuit_groups[3].pk},tertiary",
+        )
+
+        cls.csv_update_data = (
+            "id,priority",
+            f"{assignments[0].pk},inactive",
+            f"{assignments[1].pk},inactive",
+            f"{assignments[2].pk},inactive",
+        )
 
         cls.bulk_edit_data = {
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,

@@ -191,7 +191,9 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         on_delete=models.PROTECT,
         related_name='+'
     )
-    member_id = models.PositiveBigIntegerField()
+    member_id = models.PositiveBigIntegerField(
+        verbose_name=_('member ID')
+    )
     member = GenericForeignKey(
         ct_field='member_type',
         fk_field='member_id'
