@@ -368,27 +368,6 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    # provider_id = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='member__provider',
-    #     queryset=Provider.objects.all(),
-    #     label=_('Provider (ID)'),
-    # )
-    # provider = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='member__provider__slug',
-    #     queryset=Provider.objects.all(),
-    #     to_field_name='slug',
-    #     label=_('Provider (slug)'),
-    # )
-    # member_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=Circuit.objects.all(),
-    #     label=_('Circuit (ID)'),
-    # )
-    # member = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='member__cid',
-    #     queryset=Circuit.objects.all(),
-    #     to_field_name='cid',
-    #     label=_('Circuit (CID)'),
-    # )
     member_type = ContentTypeFilter()
     circuit = MultiValueCharFilter(
         method='filter_circuit',
