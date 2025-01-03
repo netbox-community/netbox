@@ -1,4 +1,5 @@
 import django_filters
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -7,7 +8,9 @@ from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+)
 from .choices import *
 from .models import *
 
@@ -365,26 +368,36 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    provider_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__provider',
-        queryset=Provider.objects.all(),
-        label=_('Provider (ID)'),
+    member_type = ContentTypeFilter()
+    circuit = MultiValueCharFilter(
+        method='filter_circuit',
+        field_name='cid',
+        label=_('Circuit (CID)'),
     )
-    provider = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__provider__slug',
-        queryset=Provider.objects.all(),
-        to_field_name='slug',
-        label=_('Provider (slug)'),
-    )
-    circuit_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Circuit.objects.all(),
+    circuit_id = MultiValueNumberFilter(
+        method='filter_circuit',
+        field_name='pk',
         label=_('Circuit (ID)'),
     )
-    circuit = django_filters.ModelMultipleChoiceFilter(
-        field_name='circuit__cid',
-        queryset=Circuit.objects.all(),
-        to_field_name='cid',
-        label=_('Circuit (CID)'),
+    virtual_circuit = MultiValueCharFilter(
+        method='filter_virtual_circuit',
+        field_name='cid',
+        label=_('Virtual circuit (CID)'),
+    )
+    virtual_circuit_id = MultiValueNumberFilter(
+        method='filter_virtual_circuit',
+        field_name='pk',
+        label=_('Virtual circuit (ID)'),
+    )
+    provider = MultiValueCharFilter(
+        method='filter_provider',
+        field_name='slug',
+        label=_('Provider (name)'),
+    )
+    provider_id = MultiValueNumberFilter(
+        method='filter_provider',
+        field_name='pk',
+        label=_('Provider (ID)'),
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitGroup.objects.all(),
@@ -399,14 +412,53 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = CircuitGroupAssignment
-        fields = ('id', 'priority')
+        fields = ('id', 'member_id', 'priority')
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(circuit__cid__icontains=value) |
+            Q(member__cid__icontains=value) |
             Q(group__name__icontains=value)
+        )
+
+    def filter_circuit(self, queryset, name, value):
+        circuits = Circuit.objects.filter(**{f'{name}__in': value})
+        if not circuits.exists():
+            return queryset.none()
+        return queryset.filter(
+            Q(
+                member_type=ContentType.objects.get_for_model(Circuit),
+                member_id__in=circuits
+            )
+        )
+
+    def filter_virtual_circuit(self, queryset, name, value):
+        virtual_circuits = VirtualCircuit.objects.filter(**{f'{name}__in': value})
+        if not virtual_circuits.exists():
+            return queryset.none()
+        return queryset.filter(
+            Q(
+                member_type=ContentType.objects.get_for_model(VirtualCircuit),
+                member_id__in=virtual_circuits
+            )
+        )
+
+    def filter_provider(self, queryset, name, value):
+        providers = Provider.objects.filter(**{f'{name}__in': value})
+        if not providers.exists():
+            return queryset.none()
+        circuits = Circuit.objects.filter(provider__in=providers)
+        virtual_circuits = VirtualCircuit.objects.filter(provider_network__provider__in=providers)
+        return queryset.filter(
+            Q(
+                member_type=ContentType.objects.get_for_model(Circuit),
+                member_id__in=circuits
+            ) |
+            Q(
+                member_type=ContentType.objects.get_for_model(VirtualCircuit),
+                member_id__in=virtual_circuits
+            )
         )
 
 

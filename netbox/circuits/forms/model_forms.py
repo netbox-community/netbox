@@ -251,17 +251,58 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
         label=_('Group'),
         queryset=CircuitGroup.objects.all(),
     )
-    circuit = DynamicModelChoiceField(
+    member_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
+        widget=HTMXSelect(),
+        required=False,
+        label=_('Circuit type')
+    )
+    member = DynamicModelChoiceField(
         label=_('Circuit'),
-        queryset=Circuit.objects.all(),
+        queryset=Circuit.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
         selector=True
+    )
+
+    fieldsets = (
+        FieldSet('group', 'member_type', 'member', 'priority', 'tags', name=_('Group Assignment')),
     )
 
     class Meta:
         model = CircuitGroupAssignment
         fields = [
-            'group', 'circuit', 'priority', 'tags',
+            'group', 'member_type', 'priority', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+
+        if instance is not None and instance.member:
+            initial['member'] = instance.member
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if member_type_id := get_field_value(self, 'member_type'):
+            try:
+                model = ContentType.objects.get(pk=member_type_id).model_class()
+                self.fields['member'].queryset = model.objects.all()
+                self.fields['member'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['member'].disabled = False
+                self.fields['member'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance.pk and member_type_id != self.instance.member_type_id:
+                self.initial['member'] = None
+
+    def clean(self):
+        super().clean()
+
+        # Assign the selected circuit (if any)
+        self.instance.member = self.cleaned_data.get('member')
 
 
 class VirtualCircuitForm(TenancyForm, NetBoxModelForm):

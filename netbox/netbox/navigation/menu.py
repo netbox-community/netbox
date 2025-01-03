@@ -279,8 +279,6 @@ CIRCUITS_MENU = Menu(
             items=(
                 get_model_item('circuits', 'circuit', _('Circuits')),
                 get_model_item('circuits', 'circuittype', _('Circuit Types')),
-                get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
-                get_model_item('circuits', 'circuitgroupassignment', _('Group Assignments')),
                 get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
             ),
         ),
@@ -289,6 +287,13 @@ CIRCUITS_MENU = Menu(
             items=(
                 get_model_item('circuits', 'virtualcircuit', _('Virtual Circuits')),
                 get_model_item('circuits', 'virtualcircuittermination', _('Virtual Circuit Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Groups'),
+            items=(
+                get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
+                get_model_item('circuits', 'circuitgroupassignment', _('Group Assignments')),
             ),
         ),
         MenuGroup(

@@ -295,7 +295,7 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     model = CircuitGroupAssignment
-    brief_fields = ['circuit', 'display', 'group', 'id', 'priority', 'url']
+    brief_fields = ['display', 'group', 'id', 'member', 'member_id', 'member_type', 'priority', 'url']
     bulk_update_data = {
         'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
     }
@@ -330,17 +330,17 @@ class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
         assignments = (
             CircuitGroupAssignment(
                 group=circuit_groups[0],
-                circuit=circuits[0],
+                member=circuits[0],
                 priority=CircuitPriorityChoices.PRIORITY_PRIMARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[1],
-                circuit=circuits[1],
+                member=circuits[1],
                 priority=CircuitPriorityChoices.PRIORITY_SECONDARY
             ),
             CircuitGroupAssignment(
                 group=circuit_groups[2],
-                circuit=circuits[2],
+                member=circuits[2],
                 priority=CircuitPriorityChoices.PRIORITY_TERTIARY
             ),
         )
@@ -349,17 +349,20 @@ class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'group': circuit_groups[3].pk,
-                'circuit': circuits[3].pk,
+                'member_type': 'circuits.circuit',
+                'member_id': circuits[3].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_PRIMARY,
             },
             {
                 'group': circuit_groups[4].pk,
-                'circuit': circuits[4].pk,
+                'member_type': 'circuits.circuit',
+                'member_id': circuits[4].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_SECONDARY,
             },
             {
                 'group': circuit_groups[5].pk,
-                'circuit': circuits[5].pk,
+                'member_type': 'circuits.circuit',
+                'member_id': circuits[5].pk,
                 'priority': CircuitPriorityChoices.PRIORITY_TERTIARY,
             },
         ]

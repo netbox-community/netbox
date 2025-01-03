@@ -116,12 +116,18 @@ class CircuitGroupType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.CircuitGroupAssignment,
-    fields='__all__',
+    exclude=('member_type', 'member_id'),
     filters=CircuitGroupAssignmentFilter
 )
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated["CircuitGroupType", strawberry.lazy('circuits.graphql.types')]
-    circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
+
+    @strawberry_django.field
+    def member(self) -> Annotated[Union[
+        Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["VirtualCircuitType", strawberry.lazy('circuits.graphql.types')],
+    ], strawberry.union("CircuitGroupAssignmentMemberType")] | None:
+        return self.member
 
 
 @strawberry_django.type(

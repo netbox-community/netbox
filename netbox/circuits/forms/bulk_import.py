@@ -179,10 +179,19 @@ class CircuitGroupImportForm(NetBoxModelImportForm):
 
 
 class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
+    member_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
+        label=_('Circuit type (app & model)')
+    )
+    priority = CSVChoiceField(
+        label=_('Priority'),
+        choices=CircuitPriorityChoices,
+        required=False
+    )
 
     class Meta:
         model = CircuitGroupAssignment
-        fields = ('circuit', 'group', 'priority')
+        fields = ('member_type', 'member_id', 'group', 'priority')
 
 
 class VirtualCircuitImportForm(NetBoxModelImportForm):

@@ -279,7 +279,7 @@ class CircuitGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
-    circuit = DynamicModelChoiceField(
+    member = DynamicModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
         required=False
@@ -292,7 +292,7 @@ class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitGroupAssignment
     fieldsets = (
-        FieldSet('circuit', 'priority'),
+        FieldSet('member', 'priority'),
     )
     nullable_fields = ('priority',)
 

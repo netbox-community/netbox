@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
-from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
+from circuits.constants import CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS, CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import (
     Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType, VirtualCircuit,
     VirtualCircuitTermination,
@@ -15,7 +15,6 @@ from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializ
 from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
-
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
 
 __all__ = (
@@ -154,14 +153,26 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
 
 
 class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
-    circuit = CircuitSerializer(nested=True)
+    member_type = ContentTypeField(
+        queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS)
+    )
+    member = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = CircuitGroupAssignment
         fields = [
-            'id', 'url', 'display_url', 'display', 'group', 'circuit', 'priority', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'group', 'member_type', 'member_id', 'member', 'priority', 'tags',
+            'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'group', 'circuit', 'priority')
+        brief_fields = ('id', 'url', 'display', 'group', 'member_type', 'member_id', 'member', 'priority')
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_member(self, obj):
+        if obj.member_id is None:
+            return None
+        serializer = get_serializer_for_model(obj.member)
+        context = {'request': self.context['request']}
+        return serializer(obj.member, nested=True, context=context).data
 
 
 class VirtualCircuitSerializer(NetBoxModelSerializer):

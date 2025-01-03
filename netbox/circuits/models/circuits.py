@@ -1,8 +1,7 @@
 from django.apps import apps
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -117,6 +116,13 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
         null=True
     )
 
+    group_assignments = GenericRelation(
+        to='circuits.CircuitGroupAssignment',
+        content_type_field='member_type',
+        object_id_field='member_id',
+        related_query_name='circuit'
+    )
+
     clone_fields = (
         'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
         'description',
@@ -177,15 +183,23 @@ class CircuitGroup(OrganizationalModel):
 
 class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     """
-    Assignment of a Circuit to a CircuitGroup with an optional priority.
+    Assignment of a physical or virtual circuit to a CircuitGroup with an optional priority.
     """
-    circuit = models.ForeignKey(
-        Circuit,
-        on_delete=models.CASCADE,
-        related_name='assignments'
+    member_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        limit_choices_to=CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    member_id = models.PositiveBigIntegerField(
+        verbose_name=_('member ID')
+    )
+    member = GenericForeignKey(
+        ct_field='member_type',
+        fk_field='member_id'
     )
     group = models.ForeignKey(
-        CircuitGroup,
+        to='circuits.CircuitGroup',
         on_delete=models.CASCADE,
         related_name='assignments'
     )
@@ -197,16 +211,15 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         null=True
     )
     prerequisite_models = (
-        'circuits.Circuit',
         'circuits.CircuitGroup',
     )
 
     class Meta:
-        ordering = ('group', 'circuit', 'priority', 'pk')
+        ordering = ('group', 'member_type', 'member_id', 'priority', 'pk')
         constraints = (
             models.UniqueConstraint(
-                fields=('circuit', 'group'),
-                name='%(app_label)s_%(class)s_unique_circuit_group'
+                fields=('member_type', 'member_id', 'group'),
+                name='%(app_label)s_%(class)s_unique_member_group'
             ),
         )
         verbose_name = _('Circuit group assignment')

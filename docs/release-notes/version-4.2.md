@@ -13,6 +13,7 @@
 * The `site` and `provider_network` foreign key fields on `circuits.CircuitTermination` have been replaced by the `termination` generic foreign key.
 * The `site` foreign key field on `ipam.Prefix` has been replaced by the `scope` generic foreign key.
 * The `site` foreign key field on `virtualization.Cluster` has been replaced by the `scope` generic foreign key.
+* The `circuit` foreign key field on `circuits.CircuitGroupAssignment` has been replaced by the `member` generic foreign key.
 * Obsolete nested REST API serializers have been removed. These were deprecated in NetBox v4.1 under [#17143](https://github.com/netbox-community/netbox/issues/17143).
 
 ### New Features
@@ -77,6 +78,8 @@ NetBox now supports the designation of customer VLANs (CVLANs) and service VLANs
     * `/api/ipam/vlan-translation-rules/`
 * circuits.Circuit
     * Added the optional `distance` and `distance_unit` fields
+* circuits.CircuitGroupAssignment
+    * Replaced the `circuit` field with `member_type` and `member_id` to support virtual circuit assignment
 * circuits.CircuitTermination
     * Removed the `site` & `provider_network` fields
     * Added the `termination_type` & `termination_id` fields to facilitate termination assignment
