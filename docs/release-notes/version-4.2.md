@@ -1,9 +1,6 @@
 # NetBox v4.2
 
-## v4.2-beta1 (2024-12-02)
-
-!!! danger "Not for Production Use"
-    This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+## v4.2.0 (2025-01-06)
 
 ### Breaking Changes
 
