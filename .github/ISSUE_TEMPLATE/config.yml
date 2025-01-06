@@ -2,7 +2,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📖 Contributing Policy
-    url: https://github.com/netbox-community/netbox/blob/develop/CONTRIBUTING.md
+    url: https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md
     about: "Please read through our contributing policy before opening an issue or pull request."
   - name: ❓ Discussion
     url: https://github.com/netbox-community/netbox/discussions
