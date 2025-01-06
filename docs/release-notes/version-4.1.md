@@ -1,5 +1,17 @@
 # NetBox v4.1
 
+## v4.1.11 (2025-01-06)
+
+### Bug Fixes
+
+* [#17771](https://github.com/netbox-community/netbox/issues/17771) - Fix duplicate entries appearing on VLAN list when filtering by interface assignment
+* [#18222](https://github.com/netbox-community/netbox/issues/18222) - Pass event rule action data to webhooks as context data
+* [#18263](https://github.com/netbox-community/netbox/issues/18263) - Fix recalculation of cable paths when modifying cable terminations via the REST API
+* [#18271](https://github.com/netbox-community/netbox/issues/18271) - Require only encryption _or_ authentication algorithm when creating an IPSec proposal via the REST API
+* [#18289](https://github.com/netbox-community/netbox/issues/18289) - Enable ordering modules and module types by created & last updated times
+
+---
+
 ## v4.1.10 (2024-12-23)
 
 ### Bug Fixes
