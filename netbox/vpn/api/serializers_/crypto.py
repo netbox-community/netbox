@@ -64,10 +64,12 @@ class IKEPolicySerializer(NetBoxModelSerializer):
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
     encryption_algorithm = ChoiceField(
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        required=False
     )
     authentication_algorithm = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        required=False
     )
 
     class Meta:

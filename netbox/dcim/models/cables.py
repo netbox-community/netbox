@@ -605,6 +605,10 @@ class CablePath(models.Model):
                     cable_end = 'A' if lct.cable_end == 'B' else 'B'
                     q_filter |= Q(cable=lct.cable, cable_end=cable_end)
 
+                # Make sure this filter has been populated; if not, we have probably been given invalid data
+                if not q_filter:
+                    break
+
                 remote_cable_terminations = CableTermination.objects.filter(q_filter)
                 remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:

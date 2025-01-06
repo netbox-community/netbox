@@ -101,7 +101,7 @@ netaddr
 nh3
 
 # Fork of PIL (Python Imaging Library) for image processing
-# https://github.com/python-pillow/Pillow/blob/main/CHANGES.rst
+# https://github.com/python-pillow/Pillow/releases
 Pillow
 
 # PostgreSQL database adapter for Python

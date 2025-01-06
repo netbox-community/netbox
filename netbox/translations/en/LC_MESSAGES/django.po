@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-13 05:02+0000\n"
+"POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -650,7 +650,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:924 netbox/dcim/forms/filtersets.py:958
 #: netbox/dcim/forms/filtersets.py:1059 netbox/dcim/forms/filtersets.py:1170
 #: netbox/dcim/tables/devices.py:140 netbox/dcim/tables/devices.py:817
-#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:69
+#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:70
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:126
 #: netbox/dcim/tables/sites.py:82 netbox/dcim/tables/sites.py:138
 #: netbox/ipam/forms/bulk_edit.py:256 netbox/ipam/forms/bulk_edit.py:306
@@ -1508,7 +1508,7 @@ msgstr ""
 #: netbox/circuits/tables/providers.py:82
 #: netbox/circuits/tables/providers.py:107 netbox/dcim/tables/devices.py:1036
 #: netbox/dcim/tables/devicetypes.py:92 netbox/dcim/tables/modules.py:29
-#: netbox/dcim/tables/modules.py:72 netbox/dcim/tables/power.py:39
+#: netbox/dcim/tables/modules.py:73 netbox/dcim/tables/power.py:39
 #: netbox/dcim/tables/power.py:96 netbox/dcim/tables/racks.py:84
 #: netbox/dcim/tables/racks.py:145 netbox/dcim/tables/racks.py:225
 #: netbox/dcim/tables/sites.py:108 netbox/extras/tables/tables.py:582
@@ -3432,7 +3432,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:96 netbox/dcim/tables/devices.py:172
 #: netbox/dcim/tables/devices.py:940 netbox/dcim/tables/devicetypes.py:80
 #: netbox/dcim/tables/devicetypes.py:308 netbox/dcim/tables/modules.py:20
-#: netbox/dcim/tables/modules.py:60 netbox/dcim/tables/racks.py:58
+#: netbox/dcim/tables/modules.py:61 netbox/dcim/tables/racks.py:58
 #: netbox/dcim/tables/racks.py:132 netbox/templates/dcim/devicetype.html:14
 #: netbox/templates/dcim/inventoryitem.html:44
 #: netbox/templates/dcim/manufacturer.html:33
@@ -3679,7 +3679,7 @@ msgid "Device Type"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:598 netbox/dcim/forms/model_forms.py:401
-#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:65
+#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:66
 #: netbox/templates/dcim/module.html:65 netbox/templates/dcim/modulebay.html:66
 #: netbox/templates/dcim/moduletype.html:22
 msgid "Module Type"
@@ -3785,7 +3785,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:597 netbox/dcim/tables/devices.py:697
 #: netbox/dcim/tables/devices.py:754 netbox/dcim/tables/devices.py:801
 #: netbox/dcim/tables/devices.py:861 netbox/dcim/tables/devices.py:930
-#: netbox/dcim/tables/devices.py:1057 netbox/dcim/tables/modules.py:52
+#: netbox/dcim/tables/devices.py:1057 netbox/dcim/tables/modules.py:53
 #: netbox/extras/forms/filtersets.py:321 netbox/ipam/forms/bulk_import.py:304
 #: netbox/ipam/forms/bulk_import.py:505 netbox/ipam/forms/filtersets.py:551
 #: netbox/ipam/forms/model_forms.py:323 netbox/ipam/forms/model_forms.py:712
@@ -6617,7 +6617,7 @@ msgstr ""
 msgid "Inventory items"
 msgstr ""
 
-#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:56
+#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:57
 #: netbox/templates/dcim/modulebay.html:17
 msgid "Module Bay"
 msgstr ""
@@ -7336,12 +7336,12 @@ msgstr ""
 msgid "Show your personal bookmarks"
 msgstr ""
 
-#: netbox/extras/events.py:147
+#: netbox/extras/events.py:151
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:192
+#: netbox/extras/events.py:196
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""

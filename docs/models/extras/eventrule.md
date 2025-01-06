@@ -10,7 +10,7 @@ See the [event rules documentation](../../features/event-rules.md)  for more inf
 
 A unique human-friendly name.
 
-### Content Types
+### Object Types
 
 The type(s) of object in NetBox that will trigger the rule.
 
@@ -38,3 +38,15 @@ The event types which will trigger the rule. At least one event type must be sel
 ### Conditions
 
 A set of [prescribed conditions](../../reference/conditions.md) against which the triggering object will be evaluated. If the conditions are defined but not met by the object, no action will be taken. An event rule that does not define any conditions will _always_ trigger.
+
+### Action Type
+
+The type of action to take when the rule triggers. This must be one of the following choices:
+
+* Webhook
+* Custom script
+* Notification
+
+### Action Data
+
+An optional dictionary of JSON data to pass when executing the rule. This can be useful to include additional context data, e.g. when transmitting a webhook.
