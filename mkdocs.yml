@@ -174,6 +174,8 @@ nav:
             - Provider: 'models/circuits/provider.md'
             - Provider Account: 'models/circuits/provideraccount.md'
             - Provider Network: 'models/circuits/providernetwork.md'
+            - Virtual Circuit: 'models/circuits/virtualcircuit.md'
+            - Virtual Circuit Termination: 'models/circuits/virtualcircuittermination.md'
         - Core:
             - DataFile: 'models/core/datafile.md'
             - DataSource: 'models/core/datasource.md'
@@ -197,6 +199,7 @@ nav:
             - InventoryItemRole: 'models/dcim/inventoryitemrole.md'
             - InventoryItemTemplate: 'models/dcim/inventoryitemtemplate.md'
             - Location: 'models/dcim/location.md'
+            - MACAddress: 'models/dcim/macaddress.md'
             - Manufacturer: 'models/dcim/manufacturer.md'
             - Module: 'models/dcim/module.md'
             - ModuleBay: 'models/dcim/modulebay.md'
@@ -255,6 +258,8 @@ nav:
             - ServiceTemplate: 'models/ipam/servicetemplate.md'
             - VLAN: 'models/ipam/vlan.md'
             - VLANGroup: 'models/ipam/vlangroup.md'
+            - VLANTranslationPolicy: 'models/ipam/vlantranslationpolicy.md'
+            - VLANTranslationRule: 'models/ipam/vlantranslationrule.md'
             - VRF: 'models/ipam/vrf.md'
         - Tenancy:
             - Contact: 'models/tenancy/contact.md'
@@ -306,6 +311,7 @@ nav:
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 4.2: 'release-notes/version-4.2.md'
         - Version 4.1: 'release-notes/version-4.1.md'
         - Version 4.0: 'release-notes/version-4.0.md'
         - Version 3.7: 'release-notes/version-3.7.md'

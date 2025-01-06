@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('circuits', '0043_circuittype_color'),
         ('extras', '0119_notifications'),

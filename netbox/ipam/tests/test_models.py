@@ -39,29 +39,50 @@ class TestAggregate(TestCase):
 class TestIPRange(TestCase):
 
     def test_overlapping_range(self):
-        iprange_192_168 = IPRange.objects.create(start_address=IPNetwork('192.168.0.1/22'), end_address=IPNetwork('192.168.0.49/22'))
+        iprange_192_168 = IPRange.objects.create(
+            start_address=IPNetwork('192.168.0.1/22'), end_address=IPNetwork('192.168.0.49/22')
+        )
         iprange_192_168.clean()
-        iprange_3_1_99 = IPRange.objects.create(start_address=IPNetwork('1.2.3.1/24'), end_address=IPNetwork('1.2.3.99/24'))
+        iprange_3_1_99 = IPRange.objects.create(
+            start_address=IPNetwork('1.2.3.1/24'), end_address=IPNetwork('1.2.3.99/24')
+        )
         iprange_3_1_99.clean()
-        iprange_3_100_199 = IPRange.objects.create(start_address=IPNetwork('1.2.3.100/24'), end_address=IPNetwork('1.2.3.199/24'))
+        iprange_3_100_199 = IPRange.objects.create(
+            start_address=IPNetwork('1.2.3.100/24'), end_address=IPNetwork('1.2.3.199/24')
+        )
         iprange_3_100_199.clean()
-        iprange_3_200_255 = IPRange.objects.create(start_address=IPNetwork('1.2.3.200/24'), end_address=IPNetwork('1.2.3.255/24'))
+        iprange_3_200_255 = IPRange.objects.create(
+            start_address=IPNetwork('1.2.3.200/24'), end_address=IPNetwork('1.2.3.255/24')
+        )
         iprange_3_200_255.clean()
-        iprange_4_1_99 = IPRange.objects.create(start_address=IPNetwork('1.2.4.1/24'), end_address=IPNetwork('1.2.4.99/24'))
+        iprange_4_1_99 = IPRange.objects.create(
+            start_address=IPNetwork('1.2.4.1/24'), end_address=IPNetwork('1.2.4.99/24')
+        )
         iprange_4_1_99.clean()
-        iprange_4_200 = IPRange.objects.create(start_address=IPNetwork('1.2.4.200/24'), end_address=IPNetwork('1.2.4.255/24'))
+        iprange_4_200 = IPRange.objects.create(
+            start_address=IPNetwork('1.2.4.200/24'), end_address=IPNetwork('1.2.4.255/24')
+        )
         iprange_4_200.clean()
+
         # Overlapping range entirely within existing
         with self.assertRaises(ValidationError):
-            iprange_3_123_124 = IPRange.objects.create(start_address=IPNetwork('1.2.3.123/26'), end_address=IPNetwork('1.2.3.124/26'))
+            iprange_3_123_124 = IPRange.objects.create(
+                start_address=IPNetwork('1.2.3.123/26'), end_address=IPNetwork('1.2.3.124/26')
+            )
             iprange_3_123_124.clean()
+
         # Overlapping range starting within existing
         with self.assertRaises(ValidationError):
-            iprange_4_98_101 = IPRange.objects.create(start_address=IPNetwork('1.2.4.98/24'), end_address=IPNetwork('1.2.4.101/24'))
+            iprange_4_98_101 = IPRange.objects.create(
+                start_address=IPNetwork('1.2.4.98/24'), end_address=IPNetwork('1.2.4.101/24')
+            )
             iprange_4_98_101.clean()
+
         # Overlapping range ending within existing
         with self.assertRaises(ValidationError):
-            iprange_4_198_201 = IPRange.objects.create(start_address=IPNetwork('1.2.4.198/24'), end_address=IPNetwork('1.2.4.201/24'))
+            iprange_4_198_201 = IPRange.objects.create(
+                start_address=IPNetwork('1.2.4.198/24'), end_address=IPNetwork('1.2.4.201/24')
+            )
             iprange_4_198_201.clean()
 
 
@@ -105,13 +126,30 @@ class TestPrefix(TestCase):
     def test_get_child_ranges(self):
         prefix = Prefix(prefix='192.168.0.16/28')
         prefix.save()
-        ranges = IPRange.objects.bulk_create((
-            IPRange(start_address=IPNetwork('192.168.0.1/24'), end_address=IPNetwork('192.168.0.10/24'), size=10),  # No overlap
-            IPRange(start_address=IPNetwork('192.168.0.11/24'), end_address=IPNetwork('192.168.0.17/24'), size=7),  # Partial overlap
-            IPRange(start_address=IPNetwork('192.168.0.18/24'), end_address=IPNetwork('192.168.0.23/24'), size=6),  # Full overlap
-            IPRange(start_address=IPNetwork('192.168.0.24/24'), end_address=IPNetwork('192.168.0.30/24'), size=7),  # Full overlap
-            IPRange(start_address=IPNetwork('192.168.0.31/24'), end_address=IPNetwork('192.168.0.40/24'), size=10),  # Partial overlap
-        ))
+        ranges = IPRange.objects.bulk_create(
+            (
+                # No overlap
+                IPRange(
+                    start_address=IPNetwork('192.168.0.1/24'), end_address=IPNetwork('192.168.0.10/24'), size=10
+                ),
+                # Partial overlap
+                IPRange(
+                    start_address=IPNetwork('192.168.0.11/24'), end_address=IPNetwork('192.168.0.17/24'), size=7
+                ),
+                # Full overlap
+                IPRange(
+                    start_address=IPNetwork('192.168.0.18/24'), end_address=IPNetwork('192.168.0.23/24'), size=6
+                ),
+                # Full overlap
+                IPRange(
+                    start_address=IPNetwork('192.168.0.24/24'), end_address=IPNetwork('192.168.0.30/24'), size=7
+                ),
+                # Partial overlap
+                IPRange(
+                    start_address=IPNetwork('192.168.0.31/24'), end_address=IPNetwork('192.168.0.40/24'), size=10
+                ),
+            )
+        )
 
         child_ranges = prefix.get_child_ranges()
 
@@ -586,3 +624,24 @@ class TestVLANGroup(TestCase):
         vlangroup.vid_ranges = string_to_ranges('2-2')
         vlangroup.full_clean()
         vlangroup.save()
+
+
+class TestVLAN(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        VLAN.objects.bulk_create((
+            VLAN(name='VLAN 1', vid=1, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        ))
+
+    def test_qinq_role(self):
+        svlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()
+
+        vlan = VLAN(
+            name='VLAN X',
+            vid=999,
+            qinq_role=VLANQinQRoleChoices.ROLE_SERVICE,
+            qinq_svlan=svlan
+        )
+        with self.assertRaises(ValidationError):
+            vlan.full_clean()

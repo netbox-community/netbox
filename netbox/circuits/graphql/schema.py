@@ -31,3 +31,12 @@ class CircuitsQuery:
 
     provider_network: ProviderNetworkType = strawberry_django.field()
     provider_network_list: List[ProviderNetworkType] = strawberry_django.field()
+
+    virtual_circuit: VirtualCircuitType = strawberry_django.field()
+    virtual_circuit_list: List[VirtualCircuitType] = strawberry_django.field()
+
+    virtual_circuit_termination: VirtualCircuitTerminationType = strawberry_django.field()
+    virtual_circuit_termination_list: List[VirtualCircuitTerminationType] = strawberry_django.field()
+
+    virtual_circuit_type: VirtualCircuitTypeType = strawberry_django.field()
+    virtual_circuit_type_list: List[VirtualCircuitTypeType] = strawberry_django.field()

@@ -4,11 +4,11 @@ from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
-from circuits.models import CircuitTermination
+from circuits.models import CircuitTermination, VirtualCircuit, VirtualCircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import ASN, IPAddress, VRF
+from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
@@ -20,7 +20,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from wireless.models import WirelessLAN, WirelessLink
@@ -52,6 +52,7 @@ __all__ = (
     'InventoryItemRoleFilterSet',
     'InventoryItemTemplateFilterSet',
     'LocationFilterSet',
+    'MACAddressFilterSet',
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
@@ -311,8 +312,8 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = RackType
         fields = (
-            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
         )
 
     def search(self, queryset, name, value):
@@ -1099,7 +1100,7 @@ class DeviceFilterSet(
         label=_('Is full depth'),
     )
     mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces__mac_address',
+        field_name='interfaces__mac_addresses__mac_address',
         label=_('MAC address'),
     )
     serial = MultiValueCharFilter(
@@ -1594,7 +1595,88 @@ class PowerOutletFilterSet(
     class Meta:
         model = PowerOutlet
         fields = (
-            'id', 'name', 'label', 'feed_leg', 'description', 'mark_connected', 'cable_end',
+            'id', 'name', 'label', 'feed_leg', 'description', 'color', 'mark_connected', 'cable_end',
+        )
+
+
+class MACAddressFilterSet(NetBoxModelFilterSet):
+    mac_address = MultiValueMACAddressFilter()
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
+        label=_('Device (name)'),
+    )
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
+        label=_('Device (ID)'),
+    )
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
+        label=_('Virtual machine (name)'),
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
+        label=_('Virtual machine (ID)'),
+    )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label=_('Interface (name)'),
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
+        queryset=Interface.objects.all(),
+        label=_('Interface (ID)'),
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.all(),
+        to_field_name='name',
+        label=_('VM interface (name)'),
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.all(),
+        label=_('VM interface (ID)'),
+    )
+
+    class Meta:
+        model = MACAddress
+        fields = ('id', 'description', 'assigned_object_type', 'assigned_object_id')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+                Q(mac_address__icontains=value) |
+                Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+    def filter_device(self, queryset, name, value):
+        devices = Device.objects.filter(**{f'{name}__in': value})
+        if not devices.exists():
+            return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+        return queryset.filter(
+            interface__in=interface_ids
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{f'{name}__in': value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        interface_ids = []
+        for vm in virtual_machines:
+            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            vminterface__in=interface_ids
         )
 
 
@@ -1629,6 +1711,17 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         to_field_name='identifier',
         label=_('L2VPN'),
     )
+    vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy',
+        queryset=VLANTranslationPolicy.objects.all(),
+        label=_('VLAN Translation Policy (ID)'),
+    )
+    vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan_translation_policy__name',
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        label=_('VLAN Translation Policy'),
+    )
 
     def filter_vlan_id(self, queryset, name, value):
         value = value.strip()
@@ -1636,7 +1729,8 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(untagged_vlan_id=value) |
-            Q(tagged_vlans=value)
+            Q(tagged_vlans=value) |
+            Q(qinq_svlan=value)
         )
 
     def filter_vlan(self, queryset, name, value):
@@ -1645,7 +1739,8 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(untagged_vlan_id__vid=value) |
-            Q(tagged_vlans__vid=value)
+            Q(tagged_vlans__vid=value) |
+            Q(qinq_svlan__vid=value)
         )
 
 
@@ -1689,7 +1784,21 @@ class InterfaceFilterSet(
     duplex = django_filters.MultipleChoiceFilter(
         choices=InterfaceDuplexChoices
     )
-    mac_address = MultiValueMACAddressFilter()
+    mac_address = MultiValueMACAddressFilter(
+        field_name='mac_addresses__mac_address',
+        label=_('MAC Address')
+    )
+    primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address',
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address (ID)'),
+    )
+    primary_mac_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address__mac_address',
+        queryset=MACAddress.objects.all(),
+        to_field_name='mac_address',
+        label=_('Primary MAC address'),
+    )
     wwn = MultiValueWWNFilter()
     poe_mode = django_filters.MultipleChoiceFilter(
         choices=InterfacePoEModeChoices
@@ -1732,6 +1841,16 @@ class InterfaceFilterSet(
     wireless_link_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLink.objects.all(),
         label=_('Wireless link')
+    )
+    virtual_circuit_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit_termination__virtual_circuit',
+        queryset=VirtualCircuit.objects.all(),
+        label=_('Virtual circuit (ID)'),
+    )
+    virtual_circuit_termination_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_circuit_termination',
+        queryset=VirtualCircuitTermination.objects.all(),
+        label=_('Virtual circuit termination (ID)'),
     )
 
     class Meta:
@@ -1860,10 +1979,14 @@ class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=InventoryItemStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = InventoryItem
-        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'description', 'discovered')
+        fields = ('id', 'name', 'label', 'part_id', 'asset_tag', 'status', 'description', 'discovered')
 
     def search(self, queryset, name, value):
         if not value.strip():

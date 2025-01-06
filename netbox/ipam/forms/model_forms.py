@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Site
+from dcim.forms.mixins import ScopedForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
@@ -41,6 +42,8 @@ __all__ = (
     'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',
+    'VLANTranslationPolicyForm',
+    'VLANTranslationRuleForm',
     'VRFForm',
 )
 
@@ -106,7 +109,8 @@ class RIRForm(NetBoxModelForm):
 class AggregateForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
-        label=_('RIR')
+        label=_('RIR'),
+        quick_add=True
     )
     comments = CommentField()
 
@@ -129,6 +133,7 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
+        quick_add=True
     )
     slug = SlugField()
     fieldsets = (
@@ -147,6 +152,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
+        quick_add=True
     )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -195,18 +201,11 @@ class RoleForm(NetBoxModelForm):
         ]
 
 
-class PrefixForm(TenancyForm, NetBoxModelForm):
+class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label=_('VRF')
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        selector=True,
-        null_option='None'
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -220,7 +219,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -228,15 +228,16 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         FieldSet(
             'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('site', 'vlan', name=_('Site/VLAN Assignment')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group', 'tenant',
-            'description', 'comments', 'tags',
+            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
+            'tenant', 'description', 'comments', 'tags',
         ]
 
 
@@ -249,7 +250,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     comments = CommentField()
 
@@ -624,7 +626,7 @@ class VLANGroupForm(NetBoxModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'scope', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -675,15 +677,55 @@ class VLANForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=Role.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
+    )
+    qinq_svlan = DynamicModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        query_params={
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
     )
     comments = CommentField()
 
     class Meta:
         model = VLAN
         fields = [
-            'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
-            'tags',
+            'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'qinq_role', 'qinq_svlan',
+            'description', 'comments', 'tags',
+        ]
+
+
+class VLANTranslationPolicyForm(NetBoxModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', 'tags', name=_('VLAN Translation Policy')),
+    )
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = [
+            'name', 'description', 'tags',
+        ]
+
+
+class VLANTranslationRuleForm(NetBoxModelForm):
+    policy = DynamicModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        selector=True
+    )
+
+    fieldsets = (
+        FieldSet('policy', 'local_vid', 'remote_vid', 'description', 'tags', name=_('VLAN Translation Rule')),
+    )
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = [
+            'policy', 'local_vid', 'remote_vid', 'description', 'tags',
         ]
 
 

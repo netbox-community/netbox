@@ -35,6 +35,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DistanceColumn',
     'DurationColumn',
     'LinkedCountColumn',
     'MarkdownColumn',
@@ -285,7 +286,8 @@ class ActionsColumn(tables.Column):
                 if len(self.actions) == 1 or (self.split_actions and idx == 0):
                     dropdown_class = attrs.css_class
                     button = (
-                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button" aria-label="{attrs.title}">'
+                        f'<a class="btn btn-sm btn-{attrs.css_class}" href="{url}{url_appendix}" type="button" '
+                        f'aria-label="{attrs.title}">'
                         f'<i class="mdi mdi-{attrs.icon}"></i></a>'
                     )
 
@@ -302,7 +304,8 @@ class ActionsColumn(tables.Column):
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  {button}'
-                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
+                f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" '
+                f'style="padding-left: 2px">'
                 f'  <span class="visually-hidden">{toggle_text}</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f'</span>'
@@ -691,3 +694,16 @@ class ChoicesColumn(tables.Column):
             value.append(f'({omitted_count} more)')
 
         return ', '.join(value)
+
+
+class DistanceColumn(TemplateColumn):
+    """
+    Distance with template code for formatting
+    """
+    template_code = """
+    {% load helpers %}
+    {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
+    """
+
+    def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
+        super().__init__(template_code=template_code, order_by=order_by, **kwargs)

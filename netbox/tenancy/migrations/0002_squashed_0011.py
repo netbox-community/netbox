@@ -7,7 +7,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('tenancy', '0002_tenant_ordering'),
         ('tenancy', '0003_contacts'),
@@ -18,7 +17,7 @@ class Migration(migrations.Migration):
         ('tenancy', '0008_unique_constraints'),
         ('tenancy', '0009_standardize_description_comments'),
         ('tenancy', '0010_tenant_relax_uniqueness'),
-        ('tenancy', '0011_contactassignment_tags')
+        ('tenancy', '0011_contactassignment_tags'),
     ]
 
     dependencies = [
@@ -37,7 +36,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
@@ -53,7 +55,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('slug', models.SlugField(max_length=100)),
@@ -62,7 +67,16 @@ class Migration(migrations.Migration):
                 ('rght', models.PositiveIntegerField(editable=False)),
                 ('tree_id', models.PositiveIntegerField(db_index=True, editable=False)),
                 ('level', models.PositiveIntegerField(editable=False)),
-                ('parent', mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='tenancy.contactgroup')),
+                (
+                    'parent',
+                    mptt.fields.TreeForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='children',
+                        to='tenancy.contactgroup',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
@@ -75,7 +89,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('title', models.CharField(blank=True, max_length=100)),
@@ -83,7 +100,16 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(blank=True, max_length=254)),
                 ('address', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
-                ('group', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='contacts', to='tenancy.contactgroup')),
+                (
+                    'group',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='contacts',
+                        to='tenancy.contactgroup',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
                 ('link', models.URLField(blank=True)),
             ],
@@ -125,9 +151,24 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('object_id', models.PositiveBigIntegerField()),
                 ('priority', models.CharField(blank=True, max_length=50)),
-                ('contact', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='assignments', to='tenancy.contact')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='assignments', to='tenancy.contactrole')),
+                (
+                    'contact',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='assignments', to='tenancy.contact'
+                    ),
+                ),
+                (
+                    'content_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+                ),
+                (
+                    'role',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='assignments',
+                        to='tenancy.contactrole',
+                    ),
+                ),
             ],
             options={
                 'ordering': ('priority', 'contact'),
@@ -140,11 +181,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='contactassignment',
-            constraint=models.UniqueConstraint(fields=('content_type', 'object_id', 'contact', 'role'), name='tenancy_contactassignment_unique_object_contact_role'),
+            constraint=models.UniqueConstraint(
+                fields=('content_type', 'object_id', 'contact', 'role'),
+                name='tenancy_contactassignment_unique_object_contact_role',
+            ),
         ),
         migrations.AddConstraint(
             model_name='contactgroup',
-            constraint=models.UniqueConstraint(fields=('parent', 'name'), name='tenancy_contactgroup_unique_parent_name'),
+            constraint=models.UniqueConstraint(
+                fields=('parent', 'name'), name='tenancy_contactgroup_unique_parent_name'
+            ),
         ),
         migrations.AddField(
             model_name='contact',
@@ -163,19 +209,31 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='tenant',
-            constraint=models.UniqueConstraint(fields=('group', 'name'), name='tenancy_tenant_unique_group_name', violation_error_message='Tenant name must be unique per group.'),
+            constraint=models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='tenancy_tenant_unique_group_name',
+                violation_error_message='Tenant name must be unique per group.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='tenant',
-            constraint=models.UniqueConstraint(condition=models.Q(('group__isnull', True)), fields=('name',), name='tenancy_tenant_unique_name'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('group__isnull', True)), fields=('name',), name='tenancy_tenant_unique_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='tenant',
-            constraint=models.UniqueConstraint(fields=('group', 'slug'), name='tenancy_tenant_unique_group_slug', violation_error_message='Tenant slug must be unique per group.'),
+            constraint=models.UniqueConstraint(
+                fields=('group', 'slug'),
+                name='tenancy_tenant_unique_group_slug',
+                violation_error_message='Tenant slug must be unique per group.',
+            ),
         ),
         migrations.AddConstraint(
             model_name='tenant',
-            constraint=models.UniqueConstraint(condition=models.Q(('group__isnull', True)), fields=('slug',), name='tenancy_tenant_unique_slug'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('group__isnull', True)), fields=('slug',), name='tenancy_tenant_unique_slug'
+            ),
         ),
         migrations.AddField(
             model_name='contactassignment',

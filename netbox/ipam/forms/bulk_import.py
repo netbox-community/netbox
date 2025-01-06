@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Site
+from dcim.forms.mixins import ScopedImportForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -29,6 +30,8 @@ __all__ = (
     'ServiceTemplateImportForm',
     'VLANImportForm',
     'VLANGroupImportForm',
+    'VLANTranslationPolicyImportForm',
+    'VLANTranslationRuleImportForm',
     'VRFImportForm',
 )
 
@@ -152,7 +155,7 @@ class RoleImportForm(NetBoxModelImportForm):
         fields = ('name', 'slug', 'weight', 'description', 'tags')
 
 
-class PrefixImportForm(NetBoxModelImportForm):
+class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -166,13 +169,6 @@ class PrefixImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
-    )
-    site = CSVModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_('Assigned site')
     )
     vlan_group = CSVModelChoiceField(
         label=_('VLAN group'),
@@ -204,9 +200,12 @@ class PrefixImportForm(NetBoxModelImportForm):
     class Meta:
         model = Prefix
         fields = (
-            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized',
-            'description', 'comments', 'tags',
+            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan', 'status', 'role', 'scope_type', 'scope_id', 'is_pool',
+            'mark_utilized', 'description', 'comments', 'tags',
         )
+        labels = {
+            'scope_id': _('Scope ID'),
+        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -482,10 +481,46 @@ class VLANImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Functional role')
     )
+    qinq_role = CSVChoiceField(
+        label=_('Q-in-Q role'),
+        choices=VLANQinQRoleChoices,
+        required=False,
+        help_text=_('Operational status')
+    )
+    qinq_svlan = CSVModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=_("Service VLAN (for Q-in-Q/802.1ad customer VLANs)")
+    )
 
     class Meta:
         model = VLAN
-        fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
+        fields = (
+            'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'qinq_role', 'qinq_svlan',
+            'comments', 'tags',
+        )
+
+
+class VLANTranslationPolicyImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ('name', 'description', 'tags')
+
+
+class VLANTranslationRuleImportForm(NetBoxModelImportForm):
+    policy = CSVModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        help_text=_('VLAN translation policy')
+    )
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ('policy', 'local_vid', 'remote_vid')
 
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):

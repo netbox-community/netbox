@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from netbox.tables import columns
+from .template_code import *
 
 __all__ = (
     'ContactsColumnMixin',
@@ -15,15 +16,7 @@ class TenantColumn(tables.TemplateColumn):
     """
     Include the tenant description.
     """
-    template_code = """
-    {% if record.tenant %}
-        <a href="{{ record.tenant.get_absolute_url }}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-    {% elif record.vrf.tenant %}
-        <a href="{{ record.vrf.tenant.get_absolute_url }}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
-    {% else %}
-        &mdash;
-    {% endif %}
-    """
+    template_code = TENANT_COLUMN
 
     def __init__(self, *args, **kwargs):
         super().__init__(template_code=self.template_code, *args, **kwargs)
@@ -36,15 +29,7 @@ class TenantGroupColumn(tables.TemplateColumn):
     """
     Include the tenant group description.
     """
-    template_code = """
-    {% if record.tenant and record.tenant.group %}
-        <a href="{{ record.tenant.group.get_absolute_url }}" title="{{ record.tenant.group.description }}">{{ record.tenant.group }}</a>
-    {% elif record.vrf.tenant and record.vrf.tenant.group %}
-        <a href="{{ record.vrf.tenant.group.get_absolute_url }}" title="{{ record.vrf.tenant.group.description }}">{{ record.vrf.tenant.group }}</a>*
-    {% else %}
-        &mdash;
-    {% endif %}
-    """
+    template_code = TENANT_GROUP_COLUMN
 
     def __init__(self, accessor=tables.A('tenant__group'), *args, **kwargs):
         if 'verbose_name' not in kwargs:

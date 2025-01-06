@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
@@ -204,13 +205,41 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
         Site.objects.bulk_create(sites)
 
         parent_locations = (
-            Location.objects.create(site=sites[0], name='Parent Location 1', slug='parent-location-1', status=LocationStatusChoices.STATUS_ACTIVE),
-            Location.objects.create(site=sites[1], name='Parent Location 2', slug='parent-location-2', status=LocationStatusChoices.STATUS_ACTIVE),
+            Location.objects.create(
+                site=sites[0],
+                name='Parent Location 1',
+                slug='parent-location-1',
+                status=LocationStatusChoices.STATUS_ACTIVE,
+            ),
+            Location.objects.create(
+                site=sites[1],
+                name='Parent Location 2',
+                slug='parent-location-2',
+                status=LocationStatusChoices.STATUS_ACTIVE,
+            ),
         )
 
-        Location.objects.create(site=sites[0], name='Location 1', slug='location-1', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
-        Location.objects.create(site=sites[0], name='Location 2', slug='location-2', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
-        Location.objects.create(site=sites[0], name='Location 3', slug='location-3', parent=parent_locations[0], status=LocationStatusChoices.STATUS_ACTIVE)
+        Location.objects.create(
+            site=sites[0],
+            name='Location 1',
+            slug='location-1',
+            parent=parent_locations[0],
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=sites[0],
+            name='Location 2',
+            slug='location-2',
+            parent=parent_locations[0],
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=sites[0],
+            name='Location 3',
+            slug='location-3',
+            parent=parent_locations[0],
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
 
         cls.create_data = [
             {
@@ -289,9 +318,24 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
         rack_types = (
-            RackType(manufacturer=manufacturers[0], model='Rack Type 1', slug='rack-type-1', form_factor=RackFormFactorChoices.TYPE_CABINET,),
-            RackType(manufacturer=manufacturers[0], model='Rack Type 2', slug='rack-type-2', form_factor=RackFormFactorChoices.TYPE_CABINET,),
-            RackType(manufacturer=manufacturers[0], model='Rack Type 3', slug='rack-type-3', form_factor=RackFormFactorChoices.TYPE_CABINET,),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='Rack Type 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='Rack Type 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='Rack Type 3',
+                slug='rack-type-3',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
         )
         RackType.objects.bulk_create(rack_types)
 
@@ -1049,10 +1093,18 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
         role = InventoryItemRole.objects.create(name='Inventory Item Role 1', slug='inventory-item-role-1')
 
         inventory_item_templates = (
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturer, role=role),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturer, role=role),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturer, role=role),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 4', manufacturer=manufacturer, role=role),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturer, role=role
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturer, role=role
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturer, role=role
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 4', manufacturer=manufacturer, role=role
+            ),
         )
         for item in inventory_item_templates:
             item.save()
@@ -1618,6 +1670,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             VLAN(name='VLAN 1', vid=1),
             VLAN(name='VLAN 2', vid=2),
             VLAN(name='VLAN 3', vid=3),
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -1676,18 +1729,22 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'vdcs': [vdcs[1].pk],
                 'name': 'Interface 7',
                 'type': InterfaceTypeChoices.TYPE_80211A,
+                'mode': InterfaceModeChoices.MODE_Q_IN_Q,
                 'tx_power': 10,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
                 'rf_channel': WirelessChannelChoices.CHANNEL_5G_32,
+                'qinq_svlan': vlans[3].pk,
             },
             {
                 'device': device.pk,
                 'vdcs': [vdcs[1].pk],
                 'name': 'Interface 8',
                 'type': InterfaceTypeChoices.TYPE_80211A,
+                'mode': InterfaceModeChoices.MODE_Q_IN_Q,
                 'tx_power': 10,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
                 'rf_channel': "",
+                'qinq_svlan': vlans[3].pk,
             },
         ]
 
@@ -1955,9 +2012,15 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         )
         Interface.objects.bulk_create(interfaces)
 
-        InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer, component=interfaces[0])
-        InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer, component=interfaces[1])
-        InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer, component=interfaces[2])
+        InventoryItem.objects.create(
+            device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer, component=interfaces[0]
+        )
+        InventoryItem.objects.create(
+            device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer, component=interfaces[1]
+        )
+        InventoryItem.objects.create(
+            device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer, component=interfaces[2]
+        )
 
         cls.create_data = [
             {

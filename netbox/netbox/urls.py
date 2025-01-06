@@ -76,11 +76,6 @@ _patterns = [
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
 ]
 
-# Django admin UI
-if settings.DJANGO_ADMIN_ENABLED:
-    from .admin import admin_site
-    _patterns.append(path('admin/', admin_site.urls))
-
 # django-debug-toolbar
 if settings.DEBUG:
     import debug_toolbar

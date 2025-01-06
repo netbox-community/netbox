@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('core', '0010_gfk_indexes'),
@@ -27,15 +26,49 @@ class Migration(migrations.Migration):
                         ('object_repr', models.CharField(editable=False, max_length=200)),
                         ('prechange_data', models.JSONField(blank=True, editable=False, null=True)),
                         ('postchange_data', models.JSONField(blank=True, editable=False, null=True)),
-                        ('changed_object_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                        ('related_object_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                        ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='changes', to=settings.AUTH_USER_MODEL)),
+                        (
+                            'changed_object_type',
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.PROTECT,
+                                related_name='+',
+                                to='contenttypes.contenttype',
+                            ),
+                        ),
+                        (
+                            'related_object_type',
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.PROTECT,
+                                related_name='+',
+                                to='contenttypes.contenttype',
+                            ),
+                        ),
+                        (
+                            'user',
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name='changes',
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
                     ],
                     options={
                         'verbose_name': 'object change',
                         'verbose_name_plural': 'object changes',
                         'ordering': ['-time'],
-                        'indexes': [models.Index(fields=['changed_object_type', 'changed_object_id'], name='core_object_changed_c227ce_idx'), models.Index(fields=['related_object_type', 'related_object_id'], name='core_object_related_3375d6_idx')],
+                        'indexes': [
+                            models.Index(
+                                fields=['changed_object_type', 'changed_object_id'],
+                                name='core_object_changed_c227ce_idx',
+                            ),
+                            models.Index(
+                                fields=['related_object_type', 'related_object_id'],
+                                name='core_object_related_3375d6_idx',
+                            ),
+                        ],
                     },
                 ),
             ],

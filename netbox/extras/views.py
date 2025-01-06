@@ -42,6 +42,7 @@ from .tables import ReportResultsTable, ScriptResultsTable
 # Custom fields
 #
 
+@register_model_view(CustomField, 'list', path='', detail=False)
 class CustomFieldListView(generic.ObjectListView):
     queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
@@ -69,6 +70,7 @@ class CustomFieldView(generic.ObjectView):
         }
 
 
+@register_model_view(CustomField, 'add', detail=False)
 @register_model_view(CustomField, 'edit')
 class CustomFieldEditView(generic.ObjectEditView):
     queryset = CustomField.objects.select_related('choice_set')
@@ -80,11 +82,13 @@ class CustomFieldDeleteView(generic.ObjectDeleteView):
     queryset = CustomField.objects.select_related('choice_set')
 
 
+@register_model_view(CustomField, 'bulk_import', detail=False)
 class CustomFieldBulkImportView(generic.BulkImportView):
     queryset = CustomField.objects.select_related('choice_set')
     model_form = forms.CustomFieldImportForm
 
 
+@register_model_view(CustomField, 'bulk_edit', path='edit', detail=False)
 class CustomFieldBulkEditView(generic.BulkEditView):
     queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
@@ -92,6 +96,7 @@ class CustomFieldBulkEditView(generic.BulkEditView):
     form = forms.CustomFieldBulkEditForm
 
 
+@register_model_view(CustomField, 'bulk_delete', path='delete', detail=False)
 class CustomFieldBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
@@ -102,6 +107,7 @@ class CustomFieldBulkDeleteView(generic.BulkDeleteView):
 # Custom field choices
 #
 
+@register_model_view(CustomFieldChoiceSet, 'list', path='', detail=False)
 class CustomFieldChoiceSetListView(generic.ObjectListView):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = filtersets.CustomFieldChoiceSetFilterSet
@@ -133,6 +139,7 @@ class CustomFieldChoiceSetView(generic.ObjectView):
         }
 
 
+@register_model_view(CustomFieldChoiceSet, 'add', detail=False)
 @register_model_view(CustomFieldChoiceSet, 'edit')
 class CustomFieldChoiceSetEditView(generic.ObjectEditView):
     queryset = CustomFieldChoiceSet.objects.all()
@@ -144,11 +151,13 @@ class CustomFieldChoiceSetDeleteView(generic.ObjectDeleteView):
     queryset = CustomFieldChoiceSet.objects.all()
 
 
+@register_model_view(CustomFieldChoiceSet, 'bulk_import', detail=False)
 class CustomFieldChoiceSetBulkImportView(generic.BulkImportView):
     queryset = CustomFieldChoiceSet.objects.all()
     model_form = forms.CustomFieldChoiceSetImportForm
 
 
+@register_model_view(CustomFieldChoiceSet, 'bulk_edit', path='edit', detail=False)
 class CustomFieldChoiceSetBulkEditView(generic.BulkEditView):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = filtersets.CustomFieldChoiceSetFilterSet
@@ -156,6 +165,7 @@ class CustomFieldChoiceSetBulkEditView(generic.BulkEditView):
     form = forms.CustomFieldChoiceSetBulkEditForm
 
 
+@register_model_view(CustomFieldChoiceSet, 'bulk_delete', path='delete', detail=False)
 class CustomFieldChoiceSetBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = filtersets.CustomFieldChoiceSetFilterSet
@@ -166,6 +176,7 @@ class CustomFieldChoiceSetBulkDeleteView(generic.BulkDeleteView):
 # Custom links
 #
 
+@register_model_view(CustomLink, 'list', path='', detail=False)
 class CustomLinkListView(generic.ObjectListView):
     queryset = CustomLink.objects.all()
     filterset = filtersets.CustomLinkFilterSet
@@ -178,6 +189,7 @@ class CustomLinkView(generic.ObjectView):
     queryset = CustomLink.objects.all()
 
 
+@register_model_view(CustomLink, 'add', detail=False)
 @register_model_view(CustomLink, 'edit')
 class CustomLinkEditView(generic.ObjectEditView):
     queryset = CustomLink.objects.all()
@@ -189,11 +201,13 @@ class CustomLinkDeleteView(generic.ObjectDeleteView):
     queryset = CustomLink.objects.all()
 
 
+@register_model_view(CustomLink, 'bulk_import', detail=False)
 class CustomLinkBulkImportView(generic.BulkImportView):
     queryset = CustomLink.objects.all()
     model_form = forms.CustomLinkImportForm
 
 
+@register_model_view(CustomLink, 'bulk_edit', path='edit', detail=False)
 class CustomLinkBulkEditView(generic.BulkEditView):
     queryset = CustomLink.objects.all()
     filterset = filtersets.CustomLinkFilterSet
@@ -201,6 +215,7 @@ class CustomLinkBulkEditView(generic.BulkEditView):
     form = forms.CustomLinkBulkEditForm
 
 
+@register_model_view(CustomLink, 'bulk_delete', path='delete', detail=False)
 class CustomLinkBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomLink.objects.all()
     filterset = filtersets.CustomLinkFilterSet
@@ -211,6 +226,7 @@ class CustomLinkBulkDeleteView(generic.BulkDeleteView):
 # Export templates
 #
 
+@register_model_view(ExportTemplate, 'list', path='', detail=False)
 class ExportTemplateListView(generic.ObjectListView):
     queryset = ExportTemplate.objects.all()
     filterset = filtersets.ExportTemplateFilterSet
@@ -228,6 +244,7 @@ class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
 
 
+@register_model_view(ExportTemplate, 'add', detail=False)
 @register_model_view(ExportTemplate, 'edit')
 class ExportTemplateEditView(generic.ObjectEditView):
     queryset = ExportTemplate.objects.all()
@@ -239,11 +256,13 @@ class ExportTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ExportTemplate.objects.all()
 
 
+@register_model_view(ExportTemplate, 'bulk_import', detail=False)
 class ExportTemplateBulkImportView(generic.BulkImportView):
     queryset = ExportTemplate.objects.all()
     model_form = forms.ExportTemplateImportForm
 
 
+@register_model_view(ExportTemplate, 'bulk_edit', path='edit', detail=False)
 class ExportTemplateBulkEditView(generic.BulkEditView):
     queryset = ExportTemplate.objects.all()
     filterset = filtersets.ExportTemplateFilterSet
@@ -251,12 +270,14 @@ class ExportTemplateBulkEditView(generic.BulkEditView):
     form = forms.ExportTemplateBulkEditForm
 
 
+@register_model_view(ExportTemplate, 'bulk_delete', path='delete', detail=False)
 class ExportTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ExportTemplate.objects.all()
     filterset = filtersets.ExportTemplateFilterSet
     table = tables.ExportTemplateTable
 
 
+@register_model_view(ExportTemplate, 'bulk_sync', path='sync', detail=False)
 class ExportTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ExportTemplate.objects.all()
 
@@ -283,6 +304,7 @@ class SavedFilterMixin:
         )
 
 
+@register_model_view(SavedFilter, 'list', path='', detail=False)
 class SavedFilterListView(SavedFilterMixin, generic.ObjectListView):
     filterset = filtersets.SavedFilterFilterSet
     filterset_form = forms.SavedFilterFilterForm
@@ -294,6 +316,7 @@ class SavedFilterView(SavedFilterMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
 
 
+@register_model_view(SavedFilter, 'add', detail=False)
 @register_model_view(SavedFilter, 'edit')
 class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
     queryset = SavedFilter.objects.all()
@@ -310,11 +333,13 @@ class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
     queryset = SavedFilter.objects.all()
 
 
+@register_model_view(SavedFilter, 'bulk_import', detail=False)
 class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
     model_form = forms.SavedFilterImportForm
 
 
+@register_model_view(SavedFilter, 'bulk_edit', path='edit', detail=False)
 class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
@@ -322,6 +347,7 @@ class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
     form = forms.SavedFilterBulkEditForm
 
 
+@register_model_view(SavedFilter, 'bulk_delete', path='delete', detail=False)
 class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
@@ -332,6 +358,7 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
 # Bookmarks
 #
 
+@register_model_view(Bookmark, 'add', detail=False)
 class BookmarkCreateView(generic.ObjectEditView):
     form = forms.BookmarkForm
 
@@ -350,6 +377,7 @@ class BookmarkDeleteView(generic.ObjectDeleteView):
         return Bookmark.objects.filter(user=request.user)
 
 
+@register_model_view(Bookmark, 'bulk_delete', path='delete', detail=False)
 class BookmarkBulkDeleteView(generic.BulkDeleteView):
     table = tables.BookmarkTable
 
@@ -361,6 +389,7 @@ class BookmarkBulkDeleteView(generic.BulkDeleteView):
 # Notification groups
 #
 
+@register_model_view(NotificationGroup, 'list', path='', detail=False)
 class NotificationGroupListView(generic.ObjectListView):
     queryset = NotificationGroup.objects.all()
     filterset = filtersets.NotificationGroupFilterSet
@@ -373,6 +402,7 @@ class NotificationGroupView(generic.ObjectView):
     queryset = NotificationGroup.objects.all()
 
 
+@register_model_view(NotificationGroup, 'add', detail=False)
 @register_model_view(NotificationGroup, 'edit')
 class NotificationGroupEditView(generic.ObjectEditView):
     queryset = NotificationGroup.objects.all()
@@ -384,11 +414,13 @@ class NotificationGroupDeleteView(generic.ObjectDeleteView):
     queryset = NotificationGroup.objects.all()
 
 
+@register_model_view(NotificationGroup, 'bulk_import', detail=False)
 class NotificationGroupBulkImportView(generic.BulkImportView):
     queryset = NotificationGroup.objects.all()
     model_form = forms.NotificationGroupImportForm
 
 
+@register_model_view(NotificationGroup, 'bulk_edit', path='edit', detail=False)
 class NotificationGroupBulkEditView(generic.BulkEditView):
     queryset = NotificationGroup.objects.all()
     filterset = filtersets.NotificationGroupFilterSet
@@ -396,6 +428,7 @@ class NotificationGroupBulkEditView(generic.BulkEditView):
     form = forms.NotificationGroupBulkEditForm
 
 
+@register_model_view(NotificationGroup, 'bulk_delete', path='delete', detail=False)
 class NotificationGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = NotificationGroup.objects.all()
     filterset = filtersets.NotificationGroupFilterSet
@@ -459,6 +492,7 @@ class NotificationDeleteView(generic.ObjectDeleteView):
         return Notification.objects.filter(user=request.user)
 
 
+@register_model_view(Notification, 'bulk_delete', path='delete', detail=False)
 class NotificationBulkDeleteView(generic.BulkDeleteView):
     table = tables.NotificationTable
 
@@ -470,6 +504,7 @@ class NotificationBulkDeleteView(generic.BulkDeleteView):
 # Subscriptions
 #
 
+@register_model_view(Subscription, 'add', detail=False)
 class SubscriptionCreateView(generic.ObjectEditView):
     form = forms.SubscriptionForm
 
@@ -488,6 +523,7 @@ class SubscriptionDeleteView(generic.ObjectDeleteView):
         return Subscription.objects.filter(user=request.user)
 
 
+@register_model_view(Subscription, 'bulk_delete', path='delete', detail=False)
 class SubscriptionBulkDeleteView(generic.BulkDeleteView):
     table = tables.SubscriptionTable
 
@@ -499,6 +535,7 @@ class SubscriptionBulkDeleteView(generic.BulkDeleteView):
 # Webhooks
 #
 
+@register_model_view(Webhook, 'list', path='', detail=False)
 class WebhookListView(generic.ObjectListView):
     queryset = Webhook.objects.all()
     filterset = filtersets.WebhookFilterSet
@@ -511,6 +548,7 @@ class WebhookView(generic.ObjectView):
     queryset = Webhook.objects.all()
 
 
+@register_model_view(Webhook, 'add', detail=False)
 @register_model_view(Webhook, 'edit')
 class WebhookEditView(generic.ObjectEditView):
     queryset = Webhook.objects.all()
@@ -522,11 +560,13 @@ class WebhookDeleteView(generic.ObjectDeleteView):
     queryset = Webhook.objects.all()
 
 
+@register_model_view(Webhook, 'bulk_import', detail=False)
 class WebhookBulkImportView(generic.BulkImportView):
     queryset = Webhook.objects.all()
     model_form = forms.WebhookImportForm
 
 
+@register_model_view(Webhook, 'bulk_edit', path='edit', detail=False)
 class WebhookBulkEditView(generic.BulkEditView):
     queryset = Webhook.objects.all()
     filterset = filtersets.WebhookFilterSet
@@ -534,6 +574,7 @@ class WebhookBulkEditView(generic.BulkEditView):
     form = forms.WebhookBulkEditForm
 
 
+@register_model_view(Webhook, 'bulk_delete', path='delete', detail=False)
 class WebhookBulkDeleteView(generic.BulkDeleteView):
     queryset = Webhook.objects.all()
     filterset = filtersets.WebhookFilterSet
@@ -544,6 +585,7 @@ class WebhookBulkDeleteView(generic.BulkDeleteView):
 # Event Rules
 #
 
+@register_model_view(EventRule, 'list', path='', detail=False)
 class EventRuleListView(generic.ObjectListView):
     queryset = EventRule.objects.all()
     filterset = filtersets.EventRuleFilterSet
@@ -556,6 +598,7 @@ class EventRuleView(generic.ObjectView):
     queryset = EventRule.objects.all()
 
 
+@register_model_view(EventRule, 'add', detail=False)
 @register_model_view(EventRule, 'edit')
 class EventRuleEditView(generic.ObjectEditView):
     queryset = EventRule.objects.all()
@@ -567,11 +610,13 @@ class EventRuleDeleteView(generic.ObjectDeleteView):
     queryset = EventRule.objects.all()
 
 
+@register_model_view(EventRule, 'bulk_import', detail=False)
 class EventRuleBulkImportView(generic.BulkImportView):
     queryset = EventRule.objects.all()
     model_form = forms.EventRuleImportForm
 
 
+@register_model_view(EventRule, 'bulk_edit', path='edit', detail=False)
 class EventRuleBulkEditView(generic.BulkEditView):
     queryset = EventRule.objects.all()
     filterset = filtersets.EventRuleFilterSet
@@ -579,6 +624,7 @@ class EventRuleBulkEditView(generic.BulkEditView):
     form = forms.EventRuleBulkEditForm
 
 
+@register_model_view(EventRule, 'bulk_delete', path='delete', detail=False)
 class EventRuleBulkDeleteView(generic.BulkDeleteView):
     queryset = EventRule.objects.all()
     filterset = filtersets.EventRuleFilterSet
@@ -589,6 +635,7 @@ class EventRuleBulkDeleteView(generic.BulkDeleteView):
 # Tags
 #
 
+@register_model_view(Tag, 'list', path='', detail=False)
 class TagListView(generic.ObjectListView):
     queryset = Tag.objects.annotate(
         items=count_related(TaggedItem, 'tag')
@@ -624,6 +671,7 @@ class TagView(generic.ObjectView):
         }
 
 
+@register_model_view(Tag, 'add', detail=False)
 @register_model_view(Tag, 'edit')
 class TagEditView(generic.ObjectEditView):
     queryset = Tag.objects.all()
@@ -635,11 +683,13 @@ class TagDeleteView(generic.ObjectDeleteView):
     queryset = Tag.objects.all()
 
 
+@register_model_view(Tag, 'bulk_import', detail=False)
 class TagBulkImportView(generic.BulkImportView):
     queryset = Tag.objects.all()
     model_form = forms.TagImportForm
 
 
+@register_model_view(Tag, 'bulk_edit', path='edit', detail=False)
 class TagBulkEditView(generic.BulkEditView):
     queryset = Tag.objects.annotate(
         items=count_related(TaggedItem, 'tag')
@@ -648,6 +698,7 @@ class TagBulkEditView(generic.BulkEditView):
     form = forms.TagBulkEditForm
 
 
+@register_model_view(Tag, 'bulk_delete', path='delete', detail=False)
 class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
         items=count_related(TaggedItem, 'tag')
@@ -659,6 +710,7 @@ class TagBulkDeleteView(generic.BulkDeleteView):
 # Config contexts
 #
 
+@register_model_view(ConfigContext, 'list', path='', detail=False)
 class ConfigContextListView(generic.ObjectListView):
     queryset = ConfigContext.objects.all()
     filterset = filtersets.ConfigContextFilterSet
@@ -711,17 +763,11 @@ class ConfigContextView(generic.ObjectView):
         }
 
 
+@register_model_view(ConfigContext, 'add', detail=False)
 @register_model_view(ConfigContext, 'edit')
 class ConfigContextEditView(generic.ObjectEditView):
     queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
-
-
-class ConfigContextBulkEditView(generic.BulkEditView):
-    queryset = ConfigContext.objects.all()
-    filterset = filtersets.ConfigContextFilterSet
-    table = tables.ConfigContextTable
-    form = forms.ConfigContextBulkEditForm
 
 
 @register_model_view(ConfigContext, 'delete')
@@ -729,12 +775,22 @@ class ConfigContextDeleteView(generic.ObjectDeleteView):
     queryset = ConfigContext.objects.all()
 
 
+@register_model_view(ConfigContext, 'bulk_edit', path='edit', detail=False)
+class ConfigContextBulkEditView(generic.BulkEditView):
+    queryset = ConfigContext.objects.all()
+    filterset = filtersets.ConfigContextFilterSet
+    table = tables.ConfigContextTable
+    form = forms.ConfigContextBulkEditForm
+
+
+@register_model_view(ConfigContext, 'bulk_delete', path='delete', detail=False)
 class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
     filterset = filtersets.ConfigContextFilterSet
     table = tables.ConfigContextTable
 
 
+@register_model_view(ConfigContext, 'bulk_sync', path='sync', detail=False)
 class ConfigContextBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigContext.objects.all()
 
@@ -768,6 +824,7 @@ class ObjectConfigContextView(generic.ObjectView):
 # Config templates
 #
 
+@register_model_view(ConfigTemplate, 'list', path='', detail=False)
 class ConfigTemplateListView(generic.ObjectListView):
     queryset = ConfigTemplate.objects.annotate(
         device_count=count_related(Device, 'config_template'),
@@ -790,6 +847,7 @@ class ConfigTemplateView(generic.ObjectView):
     queryset = ConfigTemplate.objects.all()
 
 
+@register_model_view(ConfigTemplate, 'add', detail=False)
 @register_model_view(ConfigTemplate, 'edit')
 class ConfigTemplateEditView(generic.ObjectEditView):
     queryset = ConfigTemplate.objects.all()
@@ -801,11 +859,13 @@ class ConfigTemplateDeleteView(generic.ObjectDeleteView):
     queryset = ConfigTemplate.objects.all()
 
 
+@register_model_view(ConfigTemplate, 'bulk_import', detail=False)
 class ConfigTemplateBulkImportView(generic.BulkImportView):
     queryset = ConfigTemplate.objects.all()
     model_form = forms.ConfigTemplateImportForm
 
 
+@register_model_view(ConfigTemplate, 'bulk_edit', path='edit', detail=False)
 class ConfigTemplateBulkEditView(generic.BulkEditView):
     queryset = ConfigTemplate.objects.all()
     filterset = filtersets.ConfigTemplateFilterSet
@@ -813,12 +873,14 @@ class ConfigTemplateBulkEditView(generic.BulkEditView):
     form = forms.ConfigTemplateBulkEditForm
 
 
+@register_model_view(ConfigTemplate, 'bulk_delete', path='delete', detail=False)
 class ConfigTemplateBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigTemplate.objects.all()
     filterset = filtersets.ConfigTemplateFilterSet
     table = tables.ConfigTemplateTable
 
 
+@register_model_view(ConfigTemplate, 'bulk_sync', path='sync', detail=False)
 class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
 
@@ -827,6 +889,7 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
 # Image attachments
 #
 
+@register_model_view(ImageAttachment, 'list', path='', detail=False)
 class ImageAttachmentListView(generic.ObjectListView):
     queryset = ImageAttachment.objects.all()
     filterset = filtersets.ImageAttachmentFilterSet
@@ -837,6 +900,7 @@ class ImageAttachmentListView(generic.ObjectListView):
     }
 
 
+@register_model_view(ImageAttachment, 'add', detail=False)
 @register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
@@ -871,14 +935,15 @@ class ImageAttachmentDeleteView(generic.ObjectDeleteView):
 # Journal entries
 #
 
+@register_model_view(JournalEntry, 'list', path='', detail=False)
 class JournalEntryListView(generic.ObjectListView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
     actions = {
-        'import': {'add'},
         'export': {'view'},
+        'bulk_import': {'add'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }
@@ -889,6 +954,7 @@ class JournalEntryView(generic.ObjectView):
     queryset = JournalEntry.objects.all()
 
 
+@register_model_view(JournalEntry, 'add', detail=False)
 @register_model_view(JournalEntry, 'edit')
 class JournalEntryEditView(generic.ObjectEditView):
     queryset = JournalEntry.objects.all()
@@ -917,6 +983,13 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
         return reverse(viewname, kwargs={'pk': obj.pk})
 
 
+@register_model_view(JournalEntry, 'bulk_import', detail=False)
+class JournalEntryBulkImportView(generic.BulkImportView):
+    queryset = JournalEntry.objects.all()
+    model_form = forms.JournalEntryImportForm
+
+
+@register_model_view(JournalEntry, 'bulk_edit', path='edit', detail=False)
 class JournalEntryBulkEditView(generic.BulkEditView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
@@ -924,15 +997,11 @@ class JournalEntryBulkEditView(generic.BulkEditView):
     form = forms.JournalEntryBulkEditForm
 
 
+@register_model_view(JournalEntry, 'bulk_delete', path='delete', detail=False)
 class JournalEntryBulkDeleteView(generic.BulkDeleteView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
-
-
-class JournalEntryBulkImportView(generic.BulkImportView):
-    queryset = JournalEntry.objects.all()
-    model_form = forms.JournalEntryImportForm
 
 
 #

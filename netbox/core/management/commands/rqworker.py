@@ -2,6 +2,8 @@ import logging
 
 from django_rq.management.commands.rqworker import Command as _Command
 
+from netbox.registry import registry
+
 
 DEFAULT_QUEUES = ('high', 'default', 'low')
 
@@ -14,6 +16,15 @@ class Command(_Command):
     of only the 'default' queue).
     """
     def handle(self, *args, **options):
+        # Setup system jobs.
+        for job, kwargs in registry['system_jobs'].items():
+            try:
+                interval = kwargs['interval']
+            except KeyError:
+                raise TypeError("System job must specify an interval (in minutes).")
+            logger.debug(f"Scheduling system job {job.name} (interval={interval})")
+            job.enqueue_once(**kwargs)
+
         # Run the worker with scheduler functionality
         options['with_scheduler'] = True
 

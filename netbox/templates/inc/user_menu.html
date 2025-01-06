@@ -36,11 +36,6 @@
       </div>
     </a>
     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" {% htmx_boost %}>
-      {% if config.DJANGO_ADMIN_ENABLED and request.user.is_staff %}
-        <a class="dropdown-item" href="{% url 'admin:index' %}">
-          <i class="mdi mdi-cog"></i> {% trans "Django Admin" %}
-        </a>
-      {% endif %}
       <a href="{% url 'account:profile' %}" class="dropdown-item">
         <i class="mdi mdi-account"></i> {% trans "Profile" %}
       </a>

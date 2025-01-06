@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -37,7 +36,8 @@ class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
 
     prerequisite_models = (
@@ -57,9 +57,6 @@ class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerpanel', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -90,7 +87,8 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     status = models.CharField(
         verbose_name=_('status'),
@@ -166,9 +164,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerfeed', args=[self.pk])
 
     def clean(self):
         super().clean()

@@ -637,15 +637,51 @@ class CustomFieldAPITest(APITestCase):
         )
 
         custom_fields = (
-            CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
-            CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DATETIME, name='datetime_field', default='2020-01-01T01:23:45'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_TEXT,
+                name='text_field',
+                default='foo'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_LONGTEXT,
+                name='longtext_field',
+                default='ABC'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_INTEGER,
+                name='integer_field',
+                default=123
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DECIMAL,
+                name='decimal_field',
+                default=123.45
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_BOOLEAN,
+                name='boolean_field',
+                default=False)
+            ,
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DATE,
+                name='date_field',
+                default='2020-01-01'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DATETIME,
+                name='datetime_field',
+                default='2020-01-01T01:23:45'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_URL,
+                name='url_field',
+                default='http://example.com/1'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_JSON,
+                name='json_field',
+                default='{"x": "y"}'
+            ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_SELECT,
                 name='select_field',
@@ -656,7 +692,7 @@ class CustomFieldAPITest(APITestCase):
                 type=CustomFieldTypeChoices.TYPE_MULTISELECT,
                 name='multiselect_field',
                 default=['foo'],
-                choice_set=choice_set
+                choice_set=choice_set,
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_OBJECT,
@@ -1273,14 +1309,23 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date', 'cf_datetime', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01', '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'a', '"a,b"'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02', '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'b', '"b,c"'),
+            (
+                'name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date',
+                'cf_datetime', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect',
+            ),
+            (
+                'Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01',
+                '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'a', '"a,b"',
+            ),
+            (
+                'Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02',
+                '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'b', '"b,c"',
+            ),
             ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {
+        response = self.client.post(reverse('dcim:site_bulk_import'), {
             'data': csv_data,
             'format': ImportFormatChoices.CSV,
             'csv_delimiter': CSVDelimiterChoices.AUTO,
@@ -1616,7 +1661,10 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf6__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
 
     def test_filter_url_strict(self):
-        self.assertEqual(self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(
+            self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(),
+            2
+        )
         self.assertEqual(self.filterset({'cf_cf7__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf7__ic': ['b']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__nic': ['b']}, self.queryset).qs.count(), 2)
@@ -1640,9 +1688,18 @@ class CustomFieldModelFilterTest(TestCase):
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+        self.assertEqual(
+            self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
+            2
+        )
 
     def test_filter_multiobject(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(), 3)
+        self.assertEqual(
+            self.filterset({'cf_cf12': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
+            2
+        )
+        self.assertEqual(
+            self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(),
+            3
+        )

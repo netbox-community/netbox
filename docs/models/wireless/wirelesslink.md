@@ -22,8 +22,6 @@ The service set identifier (SSID) for the wireless link (optional).
 
 ### Distance
 
-!!! info "This field was introduced in NetBox v4.1."
-
 The distance between the link's two endpoints, including a unit designation (e.g. 100 meters or 25 feet).
 
 ### Authentication Type

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0183_devicetype_exclude_from_utilization'),
     ]
@@ -14,6 +13,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='interface',
             name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.RESTRICT, related_name='child_interfaces', to='dcim.interface'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.RESTRICT,
+                related_name='child_interfaces',
+                to='dcim.interface',
+            ),
         ),
     ]

@@ -1,3 +1,5 @@
+import { getElements } from '../util';
+
 /**
  * Create a slug from any input string.
  *
@@ -15,34 +17,30 @@ function slugify(slug: string, chars: number): string {
 }
 
 /**
- * If a slug field exists, add event listeners to handle automatically generating its value.
+ * For any slug fields, add event listeners to handle automatically generating slug values.
  */
 export function initReslug(): void {
-  const slugField = document.getElementById('id_slug') as HTMLInputElement;
-  const slugButton = document.getElementById('reslug') as HTMLButtonElement;
-  if (slugField === null || slugButton === null) {
-    return;
-  }
-  const sourceId = slugField.getAttribute('slug-source');
-  const sourceField = document.getElementById(`id_${sourceId}`) as HTMLInputElement;
+  for (const slugButton of getElements<HTMLButtonElement>('button#reslug')) {
+    const form = slugButton.form;
+    if (form == null) continue;
+    const slugField = form.querySelector('#id_slug') as HTMLInputElement;
+    if (slugField == null) continue;
+    const sourceId = slugField.getAttribute('slug-source');
+    const sourceField = form.querySelector(`#id_${sourceId}`) as HTMLInputElement;
 
-  if (sourceField === null) {
-    console.error('Unable to find field for slug field.');
-    return;
-  }
+    const slugLengthAttr = slugField.getAttribute('maxlength');
+    let slugLength = 50;
 
-  const slugLengthAttr = slugField.getAttribute('maxlength');
-  let slugLength = 50;
-
-  if (slugLengthAttr) {
-    slugLength = Number(slugLengthAttr);
-  }
-  sourceField.addEventListener('blur', () => {
-    if (!slugField.value) {
-      slugField.value = slugify(sourceField.value, slugLength);
+    if (slugLengthAttr) {
+      slugLength = Number(slugLengthAttr);
     }
-  });
-  slugButton.addEventListener('click', () => {
-    slugField.value = slugify(sourceField.value, slugLength);
-  });
+    sourceField.addEventListener('blur', () => {
+      if (!slugField.value) {
+        slugField.value = slugify(sourceField.value, slugLength);
+      }
+    });
+    slugButton.addEventListener('click', () => {
+      slugField.value = slugify(sourceField.value, slugLength);
+    });
+  }
 }

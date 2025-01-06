@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -16,13 +15,13 @@ from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.conversion import to_grams
 from utilities.data import array_to_string, drange
-from utilities.fields import ColorField, NaturalOrderingField
+from utilities.fields import ColorField
 from .device_components import PowerPort
 from .devices import Device, Module
-from .mixins import WeightMixin
 from .power import PowerFeed
 
 __all__ = (
@@ -84,7 +83,8 @@ class RackBase(WeightMixin, PrimaryModel):
         verbose_name=_('outer unit'),
         max_length=50,
         choices=RackDimensionUnitChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     mounting_depth = models.PositiveSmallIntegerField(
         verbose_name=_('mounting depth'),
@@ -165,9 +165,6 @@ class RackType(RackBase):
     def __str__(self):
         return self.model
 
-    def get_absolute_url(self):
-        return reverse('dcim:racktype', args=[self.pk])
-
     @property
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
@@ -192,7 +189,7 @@ class RackType(RackBase):
 
         # Clear unit if outer width & depth are not set
         if self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = ''
+            self.outer_unit = None
 
         super().save(*args, **kwargs)
 
@@ -230,9 +227,6 @@ class RackRole(OrganizationalModel):
         verbose_name = _('rack role')
         verbose_name_plural = _('rack roles')
 
-    def get_absolute_url(self):
-        return reverse('dcim:rackrole', args=[self.pk])
-
 
 class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
@@ -249,6 +243,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         choices=RackFormFactorChoices,
         max_length=50,
         blank=True,
+        null=True,
         verbose_name=_('form factor')
     )
     rack_type = models.ForeignKey(
@@ -260,12 +255,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
         max_length=100,
-        blank=True
+        db_collation="natural_sort"
     )
     facility_id = models.CharField(
         max_length=50,
@@ -324,7 +315,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         verbose_name=_('airflow'),
         max_length=50,
         choices=RackAirflowChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     # Generic relations
@@ -344,7 +336,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     )
 
     class Meta:
-        ordering = ('site', 'location', '_name', 'pk')  # (site, location, name) may be non-unique
+        ordering = ('site', 'location', 'name', 'pk')  # (site, location, name) may be non-unique
         constraints = (
             # Name and facility_id must be unique *only* within a Location
             models.UniqueConstraint(
@@ -363,9 +355,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         if self.facility_id:
             return f'{self.name} ({self.facility_id})'
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('dcim:rack', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -390,7 +379,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
                 min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
                 if self.u_height < min_height:
                     raise ValidationError({
-                        'u_height': _("Rack must be at least {min_height}U tall to house currently installed devices.").format(min_height=min_height)
+                        'u_height': _(
+                            "Rack must be at least {min_height}U tall to house currently installed devices."
+                        ).format(min_height=min_height)
                     })
 
             # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device
@@ -419,7 +410,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
         # Clear unit if outer width & depth are not set
         if self.outer_width is None and self.outer_depth is None:
-            self.outer_unit = ''
+            self.outer_unit = None
 
         super().save(*args, **kwargs)
 
@@ -698,9 +689,6 @@ class RackReservation(PrimaryModel):
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
-
-    def get_absolute_url(self):
-        return reverse('dcim:rackreservation', args=[self.pk])
 
     def clean(self):
         super().clean()

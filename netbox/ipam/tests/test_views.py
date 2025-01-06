@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
@@ -409,9 +410,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Role.objects.bulk_create(roles)
 
         prefixes = (
-            Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
-            Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], site=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.1.0.0/16'), vrf=vrfs[0], scope=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.2.0.0/16'), vrf=vrfs[0], scope=sites[0], role=roles[0]),
+            Prefix(prefix=IPNetwork('10.3.0.0/16'), vrf=vrfs[0], scope=sites[0], role=roles[0]),
         )
         Prefix.objects.bulk_create(prefixes)
 
@@ -419,7 +420,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
-            'site': sites[1].pk,
+            'scope_type': ContentType.objects.get_for_model(Site).pk,
+            'scope': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
@@ -430,11 +432,12 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
+        site = sites[0].pk
         cls.csv_data = (
-            "vrf,prefix,status",
-            "VRF 1,10.4.0.0/16,active",
-            "VRF 1,10.5.0.0/16,active",
-            "VRF 1,10.6.0.0/16,active",
+            "vrf,prefix,status,scope_type,scope_id",
+            f"VRF 1,10.4.0.0/16,active,dcim.site,{site}",
+            f"VRF 1,10.5.0.0/16,active,dcim.site,{site}",
+            f"VRF 1,10.6.0.0/16,active,dcim.site,{site}",
         )
 
         cls.csv_update_data = (
@@ -445,7 +448,6 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'site': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'status': PrefixStatusChoices.STATUS_RESERVED,
@@ -501,11 +503,13 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         """
         Custom import test for YAML-based imports (versus CSV)
         """
-        IMPORT_DATA = """
+        site = Site.objects.get(name='Site 1')
+        IMPORT_DATA = f"""
 prefix: 10.1.1.0/24
 status: active
 vlan: 101
-site: Site 1
+scope_type: dcim.site
+scope_id: {site.pk}
 """
         # Note, a site is not tied to the VLAN to verify the fix for #12622
         VLAN.objects.create(vid=101, name='VLAN101')
@@ -517,25 +521,27 @@ site: Site 1
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         prefix = Prefix.objects.get(prefix='10.1.1.0/24')
         self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
         self.assertEqual(prefix.vlan.vid, 101)
-        self.assertEqual(prefix.site.name, "Site 1")
+        self.assertEqual(prefix.scope, site)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import_with_vlan_group(self):
         """
         This test covers a unique import edge case where VLAN group is specified during the import.
         """
-        IMPORT_DATA = """
+        site = Site.objects.get(name='Site 1')
+        IMPORT_DATA = f"""
 prefix: 10.1.2.0/24
 status: active
-vlan: 102
-site: Site 1
+scope_type: dcim.site
+scope_id: {site.pk}
 vlan_group: Group 1
+vlan: 102
 """
         vlan_group = VLANGroup.objects.create(name='Group 1', slug='group-1', scope=Site.objects.get(name="Site 1"))
         VLAN.objects.create(vid=102, name='VLAN102', group=vlan_group)
@@ -547,13 +553,13 @@ vlan_group: Group 1
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         prefix = Prefix.objects.get(prefix='10.1.2.0/24')
         self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
         self.assertEqual(prefix.vlan.vid, 102)
-        self.assertEqual(prefix.site.name, "Site 1")
+        self.assertEqual(prefix.scope, site)
 
 
 class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -701,11 +707,23 @@ class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         fhrp_groups = (
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                group_id=10,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                auth_key='foobar123',
+            ),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                group_id=20,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                auth_key='foobar123',
+            ),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP,
+                group_id=30
+            ),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)
 
@@ -854,6 +872,121 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': VLANStatusChoices.STATUS_RESERVED,
             'role': roles[1].pk,
             'description': 'New description',
+        }
+
+
+class VLANTranslationPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VLANTranslationPolicy
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar3',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Policy999',
+            'description': 'A new VLAN Translation Policy',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,description",
+            "Policy101,foobar1",
+            "Policy102,foobar2",
+            "Policy103,foobar3",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{vlan_translation_policies[0].pk},Policy101,New description 1",
+            f"{vlan_translation_policies[1].pk},Policy102,New description 2",
+            f"{vlan_translation_policies[2].pk},Policy103,New description 3",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VLANTranslationRule
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar3',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        vlan_translation_rules = (
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=100,
+                remote_vid=200,
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=101,
+                remote_vid=201,
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[1],
+                local_vid=102,
+                remote_vid=202,
+            ),
+        )
+        VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
+
+        cls.form_data = {
+            'policy': vlan_translation_policies[0].pk,
+            'local_vid': 300,
+            'remote_vid': 400,
+        }
+
+        cls.csv_data = (
+            "policy,local_vid,remote_vid",
+            f"{vlan_translation_policies[0].name},103,203",
+            f"{vlan_translation_policies[0].name},104,204",
+            f"{vlan_translation_policies[1].name},105,205",
+        )
+
+        cls.csv_update_data = (
+            "id,local_vid,remote_vid",
+            f"{vlan_translation_rules[0].pk},105,205",
+            f"{vlan_translation_rules[1].pk},106,206",
+            f"{vlan_translation_rules[2].pk},107,207",
+        )
+
+        cls.bulk_edit_data = {
+            'policy': vlan_translation_policies[2].pk,
         }
 
 

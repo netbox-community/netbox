@@ -23,11 +23,16 @@ class UserTestCase(
 
     @classmethod
     def setUpTestData(cls):
-
         users = (
-            User(username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'),
-            User(username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'),
-            User(username='username3', first_name='first3', last_name='last3', email='user3@foo.com', password='pass3xxx'),
+            User(
+                username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'
+            ),
+            User(
+                username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'
+            ),
+            User(
+                username='username3', first_name='first3', last_name='last3', email='user3@foo.com', password='pass3xxx'
+            ),
         )
         User.objects.bulk_create(users)
 

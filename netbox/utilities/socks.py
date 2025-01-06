@@ -26,7 +26,10 @@ class ProxyHTTPConnection(HTTPConnection):
         try:
             from python_socks.sync import Proxy
         except ModuleNotFoundError as e:
-            logger.info("Configuring an HTTP proxy using SOCKS requires the python_socks library. Check that it has been installed.")
+            logger.info(
+                "Configuring an HTTP proxy using SOCKS requires the python_socks library. Check that it has been "
+                "installed."
+            )
             raise e
 
         proxy = Proxy.from_url(self._proxy_url, rdns=self.use_rdns)

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0098_webhook_custom_field_data_webhook_tags'),
     ]

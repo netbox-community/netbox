@@ -7,7 +7,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
-from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
+from ipam.choices import VLANQinQRoleChoices
+from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from users.models import User
@@ -17,7 +18,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
-from virtualization.models import Cluster
+from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm, ModuleCommonForm
 
@@ -41,6 +42,7 @@ __all__ = (
     'InventoryItemRoleForm',
     'InventoryItemTemplateForm',
     'LocationForm',
+    'MACAddressForm',
     'ManufacturerForm',
     'ModuleForm',
     'ModuleBayForm',
@@ -111,12 +113,14 @@ class SiteForm(TenancyForm, NetBoxModelForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=SiteGroup.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
@@ -205,7 +209,8 @@ class RackRoleForm(NetBoxModelForm):
 class RackTypeForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
-        queryset=Manufacturer.objects.all()
+        queryset=Manufacturer.objects.all(),
+        quick_add=True
     )
     comments = CommentField()
     slug = SlugField(
@@ -261,7 +266,10 @@ class RackForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags', name=_('Rack')),
+        FieldSet(
+            'site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
+            name=_('Rack')
+        ),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -347,7 +355,8 @@ class ManufacturerForm(NetBoxModelForm):
 class DeviceTypeForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
-        queryset=Manufacturer.objects.all()
+        queryset=Manufacturer.objects.all(),
+        quick_add=True
     )
     default_platform = DynamicModelChoiceField(
         label=_('Default platform'),
@@ -435,7 +444,8 @@ class PlatformForm(NetBoxModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     config_template = DynamicModelChoiceField(
         label=_('Config template'),
@@ -507,7 +517,8 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     )
     role = DynamicModelChoiceField(
         label=_('Device role'),
-        queryset=DeviceRole.objects.all()
+        queryset=DeviceRole.objects.all(),
+        quick_add=True
     )
     platform = DynamicModelChoiceField(
         label=_('Platform'),
@@ -749,7 +760,8 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
-        selector=True
+        selector=True,
+        quick_add=True
     )
     rack = DynamicModelChoiceField(
         label=_('Rack'),
@@ -998,7 +1010,8 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge', 'rf_role',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode',
+            'poe_type', 'bridge', 'rf_role',
         ]
 
 
@@ -1180,7 +1193,10 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
                     break
         elif component_type and component_id:
             # When adding the InventoryItem from a component page
-            if content_type := ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS).filter(pk=component_type).first():
+            content_type = ContentType.objects.filter(
+                MODULAR_COMPONENT_TEMPLATE_MODELS
+            ).filter(pk=component_type).first()
+            if content_type:
                 if component := content_type.model_class().objects.filter(pk=component_id).first():
                     initial[content_type.model] = component
 
@@ -1292,16 +1308,16 @@ class PowerOutletForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
-            'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected',
+            'description', 'tags',
         ),
     )
 
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
-            'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'mark_connected',
+            'description', 'tags',
         ]
 
 
@@ -1379,26 +1395,51 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'available_on_device': '$device',
         }
     )
+    qinq_svlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('Q-in-Q Service VLAN'),
+        query_params={
+            'group_id': '$vlan_group',
+            'available_on_device': '$device',
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label=_('VRF')
+    )
+    primary_mac_address = DynamicModelChoiceField(
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address'),
+        required=False,
+        quick_add=True,
+        quick_add_params={'interface': '$pk'}
     )
     wwn = forms.CharField(
         empty_value=None,
         required=False,
         label=_('WWN')
     )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
         ),
-        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'primary_mac_address', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet(
+            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            name=_('802.1Q Switching')
+        ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
             name=_('Wireless')
@@ -1408,10 +1449,11 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge', 'lag',
-            'mac_address', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
+            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge',
+            'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'vrf', 'tags',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
+            'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
@@ -1583,7 +1625,10 @@ class InventoryItemForm(DeviceComponentForm):
     )
 
     fieldsets = (
-        FieldSet('device', 'parent', 'name', 'label', 'role', 'description', 'tags', name=_('Inventory Item')),
+        FieldSet(
+            'device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags',
+            name=_('Inventory Item')
+        ),
         FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet(
             TabbedGroups(
@@ -1603,7 +1648,7 @@ class InventoryItemForm(DeviceComponentForm):
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'description', 'tags',
+            'status', 'description', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -1705,3 +1750,78 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
             'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant',
             'comments', 'tags'
         ]
+
+
+#
+# Addressing
+#
+
+class MACAddressForm(NetBoxModelForm):
+    mac_address = forms.CharField(
+        required=True,
+        label=_('MAC address')
+    )
+    interface = DynamicModelChoiceField(
+        label=_('Interface'),
+        queryset=Interface.objects.all(),
+        required=False,
+        context={
+            'parent': 'device',
+        },
+    )
+    vminterface = DynamicModelChoiceField(
+        label=_('VM Interface'),
+        queryset=VMInterface.objects.all(),
+        required=False,
+        context={
+            'parent': 'virtual_machine',
+        },
+    )
+
+    fieldsets = (
+        FieldSet(
+            'mac_address', 'description', 'tags',
+        ),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('interface', name=_('Device')),
+                FieldSet('vminterface', name=_('Virtual Machine')),
+            ),
+        ),
+    )
+
+    class Meta:
+        model = MACAddress
+        fields = [
+            'mac_address', 'interface', 'vminterface', 'description', 'tags',
+        ]
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        if instance:
+            if type(instance.assigned_object) is Interface:
+                initial['interface'] = instance.assigned_object
+            elif type(instance.assigned_object) is VMInterface:
+                initial['vminterface'] = instance.assigned_object
+        kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Handle object assignment
+        selected_objects = [
+            field for field in ('interface', 'vminterface') if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError({
+                selected_objects[1]: _("A MAC address can only be assigned to a single object.")
+            })
+        elif selected_objects:
+            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
+        else:
+            self.instance.assigned_object = None

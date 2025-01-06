@@ -33,7 +33,7 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contact', _('Contacts')),
                 get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
                 get_model_item('tenancy', 'contactrole', _('Contact Roles')),
-                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['import']),
+                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['bulk_import']),
             ),
         ),
     ),
@@ -102,6 +102,12 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'devicebay', _('Device Bays')),
                 get_model_item('dcim', 'inventoryitem', _('Inventory Items')),
                 get_model_item('dcim', 'inventoryitemrole', _('Inventory Item Roles')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Addressing'),
+            items=(
+                get_model_item('dcim', 'macaddress', _('MAC Addresses')),
             ),
         ),
     ),
@@ -194,6 +200,8 @@ IPAM_MENU = Menu(
             items=(
                 get_model_item('ipam', 'vlan', _('VLANs')),
                 get_model_item('ipam', 'vlangroup', _('VLAN Groups')),
+                get_model_item('ipam', 'vlantranslationpolicy', _('VLAN Translation Policies')),
+                get_model_item('ipam', 'vlantranslationrule', _('VLAN Translation Rules')),
             ),
         ),
         MenuGroup(
@@ -271,9 +279,22 @@ CIRCUITS_MENU = Menu(
             items=(
                 get_model_item('circuits', 'circuit', _('Circuits')),
                 get_model_item('circuits', 'circuittype', _('Circuit Types')),
+                get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Virtual Circuits'),
+            items=(
+                get_model_item('circuits', 'virtualcircuit', _('Virtual Circuits')),
+                get_model_item('circuits', 'virtualcircuittype', _('Virtual Circuit Types')),
+                get_model_item('circuits', 'virtualcircuittermination', _('Virtual Circuit Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Groups'),
+            items=(
                 get_model_item('circuits', 'circuitgroup', _('Circuit Groups')),
                 get_model_item('circuits', 'circuitgroupassignment', _('Group Assignments')),
-                get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
             ),
         ),
         MenuGroup(
@@ -371,7 +392,7 @@ OPERATIONS_MENU = Menu(
             label=_('Logging'),
             items=(
                 get_model_item('extras', 'notificationgroup', _('Notification Groups')),
-                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['import']),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['bulk_import']),
                 get_model_item('core', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),
@@ -398,7 +419,7 @@ ADMIN_MENU = Menu(
                             permissions=['users.add_user']
                         ),
                         MenuItemButton(
-                            link='users:user_import',
+                            link='users:user_bulk_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=['users.add_user']
@@ -418,7 +439,7 @@ ADMIN_MENU = Menu(
                             permissions=['users.add_group']
                         ),
                         MenuItemButton(
-                            link='users:group_import',
+                            link='users:group_bulk_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=['users.add_group']

@@ -6,7 +6,6 @@ import taggit.managers
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -28,17 +27,35 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sitegroup',
             name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='dcim.sitegroup'),
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='children',
+                to='dcim.sitegroup',
+            ),
         ),
         migrations.AddField(
             model_name='site',
             name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sites', to='dcim.sitegroup'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='sites',
+                to='dcim.sitegroup',
+            ),
         ),
         migrations.AddField(
             model_name='site',
             name='region',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sites', to='dcim.region'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='sites',
+                to='dcim.region',
+            ),
         ),
         migrations.AddField(
             model_name='site',
@@ -48,32 +65,56 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='site',
             name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='sites', to='tenancy.tenant'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='sites',
+                to='tenancy.tenant',
+            ),
         ),
         migrations.AddField(
             model_name='region',
             name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='dcim.region'),
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='children',
+                to='dcim.region',
+            ),
         ),
         migrations.AddField(
             model_name='rearporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'
+            ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='_cable_peer_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='contenttypes.contenttype',
+            ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'
+            ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'
+            ),
         ),
         migrations.AddField(
             model_name='rearport',
@@ -83,7 +124,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rackreservation',
             name='rack',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reservations', to='dcim.rack'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='reservations', to='dcim.rack'
+            ),
         ),
         migrations.AddField(
             model_name='rackreservation',
@@ -93,7 +136,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rackreservation',
             name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='rackreservations', to='tenancy.tenant'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='rackreservations',
+                to='tenancy.tenant',
+            ),
         ),
         migrations.AddField(
             model_name='rackreservation',
@@ -103,12 +152,24 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rack',
             name='location',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='racks', to='dcim.location'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='racks',
+                to='dcim.location',
+            ),
         ),
         migrations.AddField(
             model_name='rack',
             name='role',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='racks', to='dcim.rackrole'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='racks',
+                to='dcim.rackrole',
+            ),
         ),
         migrations.AddField(
             model_name='rack',
@@ -123,32 +184,52 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rack',
             name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='racks', to='tenancy.tenant'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='racks',
+                to='tenancy.tenant',
+            ),
         ),
         migrations.AddField(
             model_name='powerporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'
+            ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='_cable_peer_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='contenttypes.contenttype',
+            ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='_path',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'
+            ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'
+            ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'
+            ),
         ),
         migrations.AddField(
             model_name='powerport',
@@ -158,7 +239,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerpanel',
             name='location',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='dcim.location'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='dcim.location'
+            ),
         ),
         migrations.AddField(
             model_name='powerpanel',
@@ -173,37 +256,63 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poweroutlettemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlettemplate',
             name='power_port',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='poweroutlet_templates', to='dcim.powerporttemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='poweroutlet_templates',
+                to='dcim.powerporttemplate',
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='_cable_peer_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='contenttypes.contenttype',
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='_path',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='power_port',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='poweroutlets', to='dcim.powerport'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='poweroutlets',
+                to='dcim.powerport',
+            ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
@@ -213,27 +322,45 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerfeed',
             name='_cable_peer_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='contenttypes.contenttype',
+            ),
         ),
         migrations.AddField(
             model_name='powerfeed',
             name='_path',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'
+            ),
         ),
         migrations.AddField(
             model_name='powerfeed',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'
+            ),
         ),
         migrations.AddField(
             model_name='powerfeed',
             name='power_panel',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='powerfeeds', to='dcim.powerpanel'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, related_name='powerfeeds', to='dcim.powerpanel'
+            ),
         ),
         migrations.AddField(
             model_name='powerfeed',
             name='rack',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='powerfeeds', to='dcim.rack'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='powerfeeds',
+                to='dcim.rack',
+            ),
         ),
         migrations.AddField(
             model_name='powerfeed',
@@ -243,32 +370,60 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='platform',
             name='manufacturer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='platforms', to='dcim.manufacturer'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='platforms',
+                to='dcim.manufacturer',
+            ),
         ),
         migrations.AddField(
             model_name='location',
             name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='dcim.location'),
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='children',
+                to='dcim.location',
+            ),
         ),
         migrations.AddField(
             model_name='location',
             name='site',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='locations', to='dcim.site'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='locations', to='dcim.site'
+            ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'
+            ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='manufacturer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='inventory_items', to='dcim.manufacturer'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='inventory_items',
+                to='dcim.manufacturer',
+            ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='parent',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='child_items', to='dcim.inventoryitem'),
+            field=mptt.fields.TreeForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='child_items',
+                to='dcim.inventoryitem',
+            ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
@@ -278,36 +433,62 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interfacetemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.devicetype'
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='_cable_peer_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='contenttypes.contenttype',
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='_path',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.cablepath'
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.cable'
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='device',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='%(class)ss', to='dcim.device'
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='lag',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='member_interfaces', to='dcim.interface'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='member_interfaces',
+                to='dcim.interface',
+            ),
         ),
         migrations.AddField(
             model_name='interface',
             name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='child_interfaces', to='dcim.interface'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='child_interfaces',
+                to='dcim.interface',
+            ),
         ),
     ]

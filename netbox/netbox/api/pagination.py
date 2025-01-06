@@ -85,3 +85,28 @@ class StripCountAnnotationsPaginator(OptionalLimitOffsetPagination):
         cloned_queryset.query.annotations.clear()
 
         return cloned_queryset.count()
+
+
+class LimitOffsetListPagination(LimitOffsetPagination):
+    """
+    DRF LimitOffset Paginator but for list instead of queryset
+    """
+    count = 0
+    offset = 0
+
+    def paginate_list(self, data, request, view=None):
+        self.request = request
+        self.limit = self.get_limit(request)
+        self.count = len(data)
+        self.offset = self.get_offset(request)
+
+        if self.limit is None:
+            self.limit = self.count
+
+        if self.count == 0 or self.offset > self.count:
+            return []
+
+        if self.count > self.limit and self.template is not None:
+            self.display_page_controls = True
+
+        return data[self.offset:self.offset + self.limit]

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import PrimaryModel
@@ -22,7 +21,8 @@ class Provider(ContactsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        help_text=_('Full name of the provider')
+        help_text=_('Full name of the provider'),
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -44,9 +44,6 @@ class Provider(ContactsMixin, PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('circuits:provider', args=[self.pk])
 
 
 class ProviderAccount(ContactsMixin, PrimaryModel):
@@ -91,9 +88,6 @@ class ProviderAccount(ContactsMixin, PrimaryModel):
             return f'{self.account} ({self.name})'
         return f'{self.account}'
 
-    def get_absolute_url(self):
-        return reverse('circuits:provideraccount', args=[self.pk])
-
 
 class ProviderNetwork(PrimaryModel):
     """
@@ -102,7 +96,8 @@ class ProviderNetwork(PrimaryModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
@@ -128,6 +123,3 @@ class ProviderNetwork(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('circuits:providernetwork', args=[self.pk])

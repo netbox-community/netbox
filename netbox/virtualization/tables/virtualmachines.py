@@ -6,6 +6,7 @@ from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from utilities.templatetags.helpers import humanize_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
+from .template_code import *
 
 __all__ = (
     'VirtualDiskTable',
@@ -15,36 +16,6 @@ __all__ = (
     'VMInterfaceTable',
 )
 
-VMINTERFACE_BUTTONS = """
-{% if perms.virtualization.change_vminterface %}
-  <span class="dropdown">
-    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      {% if perms.ipam.add_ipaddress %}
-        <li><a class="dropdown-item" href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">IP Address</a></li>
-      {% endif %}
-      {% if perms.vpn.add_l2vpntermination %}
-        <li><a class="dropdown-item" href="{% url 'vpn:l2vpntermination_add' %}?virtual_machine={{ object.pk }}&vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
-      {% endif %}
-      {% if perms.ipam.add_fhrpgroupassignment %}
-        <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
-      {% endif %}
-    </ul>
-  </span>
-{% endif %}
-{% if perms.vpn.add_tunnel and not record.tunnel_termination %}
-  <a href="{% url 'vpn:tunnel_add' %}?termination1_type=virtualization.virtualmachine&termination1_parent={{ record.virtual_machine.pk }}&termination1_termination={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Create a tunnel" class="btn btn-success btn-sm">
-    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
-  </a>
-{% elif perms.vpn.delete_tunneltermination and record.tunnel_termination %}
-  <a href="{% url 'vpn:tunneltermination_delete' pk=record.tunnel_termination.pk %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Remove tunnel" class="btn btn-danger btn-sm">
-    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
-  </a>
-{% endif %}
-"""
-
 
 #
 # Virtual machines
@@ -53,7 +24,6 @@ VMINTERFACE_BUTTONS = """
 class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
-        order_by=('_name',),
         linkify=True
     )
     status = columns.ChoiceFieldColumn(
@@ -151,8 +121,8 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created',
-            'last_updated',
+            'vrf', 'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
+            'tagged_vlans', 'qinq_svlan', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -175,7 +145,8 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
+            'actions',
         )
         default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {

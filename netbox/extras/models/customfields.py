@@ -760,6 +760,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         max_length=50,
         choices=CustomFieldChoiceSetBaseChoices,
         blank=True,
+        null=True,
         help_text=_('Base set of predefined choices (optional)')
     )
     extra_choices = ArrayField(

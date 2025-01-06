@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from jinja2 import FileSystemLoader, Environment
 
 from dcim.choices import *
+from netbox.choices import WeightUnitChoices
 
 TEMPLATE_FILENAME = 'devicetype_schema.jinja2'
 OUTPUT_FILENAME = 'contrib/generated_schema.json'

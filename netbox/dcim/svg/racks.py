@@ -155,7 +155,10 @@ class RackElevationSVG:
         if self.rack.desc_units:
             y += int((position - self.rack.starting_unit) * self.unit_height)
         else:
-            y += int((self.rack.u_height - position + self.rack.starting_unit) * self.unit_height) - int(height * self.unit_height)
+            y += (
+                int((self.rack.u_height - position + self.rack.starting_unit) * self.unit_height) -
+                int(height * self.unit_height)
+            )
 
         return x, y
 

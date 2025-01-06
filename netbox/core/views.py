@@ -14,16 +14,13 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_jobs, get_statistics, stop_jobs
-from rq import requeue_job
+from django_rq.utils import get_statistics
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
-from rq.registry import (
-    DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, ScheduledJobRegistry, StartedJobRegistry,
-)
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
+from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -46,6 +43,7 @@ from .tables import CatalogPluginTable, PluginVersionTable
 # Data sources
 #
 
+@register_model_view(DataSource, 'list', path='', detail=False)
 class DataSourceListView(generic.ObjectListView):
     queryset = DataSource.objects.annotate(
         file_count=count_related(DataFile, 'source')
@@ -92,6 +90,7 @@ class DataSourceSyncView(BaseObjectView):
         return redirect(datasource.get_absolute_url())
 
 
+@register_model_view(DataSource, 'add', detail=False)
 @register_model_view(DataSource, 'edit')
 class DataSourceEditView(generic.ObjectEditView):
     queryset = DataSource.objects.all()
@@ -103,11 +102,13 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
     queryset = DataSource.objects.all()
 
 
+@register_model_view(DataSource, 'bulk_import', detail=False)
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm
 
 
+@register_model_view(DataSource, 'bulk_edit', path='edit', detail=False)
 class DataSourceBulkEditView(generic.BulkEditView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -117,6 +118,7 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
+@register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(
         count_files=count_related(DataFile, 'source')
@@ -129,6 +131,7 @@ class DataSourceBulkDeleteView(generic.BulkDeleteView):
 # Data files
 #
 
+@register_model_view(DataFile, 'list', path='', detail=False)
 class DataFileListView(generic.ObjectListView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
@@ -149,6 +152,7 @@ class DataFileDeleteView(generic.ObjectDeleteView):
     queryset = DataFile.objects.all()
 
 
+@register_model_view(DataFile, 'bulk_delete', path='delete', detail=False)
 class DataFileBulkDeleteView(generic.BulkDeleteView):
     queryset = DataFile.objects.defer('data')
     filterset = filtersets.DataFileFilterSet
@@ -159,6 +163,7 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
 # Jobs
 #
 
+@register_model_view(Job, 'list', path='', detail=False)
 class JobListView(generic.ObjectListView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
@@ -170,14 +175,17 @@ class JobListView(generic.ObjectListView):
     }
 
 
+@register_model_view(Job)
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
 
 
+@register_model_view(Job, 'delete')
 class JobDeleteView(generic.ObjectDeleteView):
     queryset = Job.objects.all()
 
 
+@register_model_view(Job, 'bulk_delete', path='delete', detail=False)
 class JobBulkDeleteView(generic.BulkDeleteView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
@@ -188,6 +196,7 @@ class JobBulkDeleteView(generic.BulkDeleteView):
 # Change logging
 #
 
+@register_model_view(ObjectChange, 'list', path='', detail=False)
 class ObjectChangeListView(generic.ObjectListView):
     queryset = ObjectChange.objects.valid_models()
     filterset = filtersets.ObjectChangeFilterSet
@@ -257,6 +266,7 @@ class ObjectChangeView(generic.ObjectView):
 # Config Revisions
 #
 
+@register_model_view(ConfigRevision, 'list', path='', detail=False)
 class ConfigRevisionListView(generic.ObjectListView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet
@@ -269,6 +279,7 @@ class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
 
+@register_model_view(ConfigRevision, 'add', detail=False)
 class ConfigRevisionEditView(generic.ObjectEditView):
     queryset = ConfigRevision.objects.all()
     form = forms.ConfigRevisionForm
@@ -279,12 +290,14 @@ class ConfigRevisionDeleteView(generic.ObjectDeleteView):
     queryset = ConfigRevision.objects.all()
 
 
+@register_model_view(ConfigRevision, 'bulk_delete', path='delete', detail=False)
 class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet
     table = tables.ConfigRevisionTable
 
 
+@register_model_view(ConfigRevision, 'restore')
 class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
@@ -347,41 +360,12 @@ class BackgroundTaskListView(TableMixin, BaseRQView):
     table = tables.BackgroundTaskTable
 
     def get_table_data(self, request, queue, status):
-        jobs = []
 
         # Call get_jobs() to returned queued tasks
         if status == RQJobStatus.QUEUED:
             return queue.get_jobs()
 
-        # For other statuses, determine the registry to list (or raise a 404 for invalid statuses)
-        try:
-            registry_cls = {
-                RQJobStatus.STARTED: StartedJobRegistry,
-                RQJobStatus.DEFERRED: DeferredJobRegistry,
-                RQJobStatus.FINISHED: FinishedJobRegistry,
-                RQJobStatus.FAILED: FailedJobRegistry,
-                RQJobStatus.SCHEDULED: ScheduledJobRegistry,
-            }[status]
-        except KeyError:
-            raise Http404
-        registry = registry_cls(queue.name, queue.connection)
-
-        job_ids = registry.get_job_ids()
-        if status != RQJobStatus.DEFERRED:
-            jobs = get_jobs(queue, job_ids, registry)
-        else:
-            # Deferred jobs require special handling
-            for job_id in job_ids:
-                try:
-                    jobs.append(RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
-                except NoSuchJobError:
-                    pass
-
-        if jobs and status == RQJobStatus.SCHEDULED:
-            for job in jobs:
-                job.scheduled_at = registry.get_scheduled_time(job)
-
-        return jobs
+        return get_rq_jobs_from_status(queue, status)
 
     def get(self, request, queue_index, status):
         queue = get_queue_by_index(queue_index)
@@ -447,19 +431,7 @@ class BackgroundTaskDeleteView(BaseRQView):
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-            # all the RQ queues should use the same connection
-            config = QUEUES_LIST[0]
-            try:
-                job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-            except NoSuchJobError:
-                raise Http404(_("Job {job_id} not found").format(job_id=job_id))
-
-            queue_index = QUEUES_MAP[job.origin]
-            queue = get_queue_by_index(queue_index)
-
-            # Remove job id from queue and delete the actual job
-            queue.connection.lrem(queue.key, 0, job.id)
-            job.delete()
+            delete_rq_job(job_id)
             messages.success(request, _('Job {id} has been deleted.').format(id=job_id))
         else:
             messages.error(request, _('Error deleting job {id}: {error}').format(id=job_id, error=form.errors[0]))
@@ -470,17 +442,7 @@ class BackgroundTaskDeleteView(BaseRQView):
 class BackgroundTaskRequeueView(BaseRQView):
 
     def get(self, request, job_id):
-        # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {id} not found.").format(id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+        requeue_rq_job(job_id)
         messages.success(request, _('Job {id} has been re-enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
@@ -489,33 +451,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {id} not found.").format(id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        try:
-            # _enqueue_job is new in RQ 1.14, this is used to enqueue
-            # job regardless of its dependencies
-            queue._enqueue_job(job)
-        except AttributeError:
-            queue.enqueue_job(job)
-
-        # Remove job from correct registry if needed
-        if job.get_status() == RQJobStatus.DEFERRED:
-            registry = DeferredJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-        elif job.get_status() == RQJobStatus.FINISHED:
-            registry = FinishedJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-        elif job.get_status() == RQJobStatus.SCHEDULED:
-            registry = ScheduledJobRegistry(queue.name, queue.connection)
-            registry.remove(job)
-
+        enqueue_rq_job(job_id)
         messages.success(request, _('Job {id} has been enqueued.').format(id=job_id))
         return redirect(reverse('core:background_task', args=[job_id]))
 
@@ -523,17 +459,7 @@ class BackgroundTaskEnqueueView(BaseRQView):
 class BackgroundTaskStopView(BaseRQView):
 
     def get(self, request, job_id):
-        # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
-        try:
-            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
-        except NoSuchJobError:
-            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
-
-        queue_index = QUEUES_MAP[job.origin]
-        queue = get_queue_by_index(queue_index)
-
-        stopped_jobs = stop_jobs(queue, job_id)[0]
+        stopped_jobs = stop_rq_job(job_id)
         if len(stopped_jobs) == 1:
             messages.success(request, _('Job {id} has been stopped.').format(id=job_id))
         else:

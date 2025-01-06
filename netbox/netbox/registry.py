@@ -31,6 +31,7 @@ registry = Registry({
     'plugins': dict(),
     'request_processors': list(),
     'search': dict(),
+    'system_jobs': dict(),
     'tables': collections.defaultdict(dict),
     'views': collections.defaultdict(dict),
     'widgets': dict(),
