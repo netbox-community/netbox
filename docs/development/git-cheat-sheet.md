@@ -128,7 +128,7 @@ Fast-forward
 ```
 
 !!! warning "Avoid Merging Remote Branches"
-    You generally want to avoid merging branches that exist on the remote (upstream) repository, such as `develop` and `feature`: Merges into these branches should be done via a pull request on GitHub. Only merge branches when it is necessary to consolidate work you've done locally.
+    You generally want to avoid merging branches that exist on the remote (upstream) repository, namely `main` and `feature`: Merges into these branches should be done via a pull request on GitHub. Only merge branches when it is necessary to consolidate work you've done locally.
 
 ### Show Pending Changes
 
@@ -196,7 +196,7 @@ index 93e125079..4344fb514 100644
 +and here too
 +
  <div align="center">
-   <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
+   <img src="https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
  </div>
 diff --git a/foo.py b/foo.py
 new file mode 100644

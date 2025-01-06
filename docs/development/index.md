@@ -8,11 +8,10 @@ NetBox and many of its related projects are maintained on [GitHub](https://githu
 
 ![GitHub](../media/development/github.png)
 
-There are three permanent branches in the repository:
+There are two permanent branches in the repository:
 
-* `master` - The current stable release. Individual changes should never be pushed directly to this branch, but rather merged from `develop`.
-* `develop` - Active development for the upcoming patch release. Pull requests will typically be based on this branch unless they introduce breaking changes that must be deferred until the next minor release.
-* `feature` - New feature work to be introduced in the next minor release (e.g. from v3.3 to v3.4).
+* `main` - Active development for the upcoming patch release. Pull requests will typically be based on this branch unless they introduce breaking changes that must be deferred until the next minor release.
+* `feature` - New feature work to be introduced in the next minor release (e.g. from v4.2 to v4.3).
 
 NetBox components are arranged into Django apps. Each app holds the models, views, and other resources relevant to a particular function:
 
@@ -57,4 +56,4 @@ NetBox follows the [benevolent dictator](http://oss-watch.ac.uk/resources/benevo
 
 ## Licensing
 
-The entire NetBox project is licensed as open source under the [Apache 2.0 license](https://github.com/netbox-community/netbox/blob/master/LICENSE.txt). This is a very permissive license which allows unlimited redistribution of all code within the project. Note that all submissions to the project are subject to the same license.
+The entire NetBox project is licensed as open source under the [Apache 2.0 license](https://github.com/netbox-community/netbox/blob/main/LICENSE.txt). This is a very permissive license which allows unlimited redistribution of all code within the project. Note that all submissions to the project are subject to the same license.

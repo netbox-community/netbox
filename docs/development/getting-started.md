@@ -37,16 +37,12 @@ CHANGELOG.md           CONTRIBUTING.md  LICENSE.txt  netbox      README.md  scri
 
 ### 2. Create a New Branch
 
-The NetBox project utilizes three persistent git branches to track work:
+The NetBox project utilizes two persistent git branches to track work:
 
-* `master` - Serves as a snapshot of the current stable release
-* `develop` - All development on the upcoming stable (patch) release occurs here
-* `feature` - Tracks work on an upcoming minor release
+* `main` - All development on the upcoming stable (patch) release occurs here. Releases are published from this branch.
+* `feature` - All work planned for the upcoming minor release is done here.
 
-Typically, you'll base pull requests off of the `develop` branch, or off of `feature` if you're working on a new major release. For example, assume that the current NetBox release is v3.3.5. Work applied to the `develop` branch will appear in v3.3.6, and work done under the `feature` branch will be included in the next minor release (v3.4.0).
-
-!!! warning
-    **Never** merge pull requests into the `master` branch: This branch only ever merges pull requests from the `develop` branch, to effect a new release.
+Typically, you'll base pull requests off of the `main` branch, or off of `feature` if you're working on the upcoming minor or major release. For example, assume that the current NetBox release is v4.2.3. Work applied to the `main` branch will appear in v4.2.4, and work done under the `feature` branch will be included in the next minor release (v4.3.0).
 
 To create a new branch, first ensure that you've checked out the desired base branch, then run:
 

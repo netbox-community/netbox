@@ -25,10 +25,10 @@ NetBox requires the following dependencies:
 
 ## 3. Install the Latest Release
 
-As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 
+As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by checking out the latest production release from the git repository.
 
 !!! warning
-    Use the same method as you used to install NetBox originally
+    Use the same method as you used to install NetBox originally.
 
 If you are not sure how NetBox was installed originally, check with this command:
 
@@ -36,10 +36,7 @@ If you are not sure how NetBox was installed originally, check with this command
 ls -ld /opt/netbox /opt/netbox/.git
 ```
 
-If NetBox was installed from a release package, then `/opt/netbox` will be a
-symlink pointing to the current version, and `/opt/netbox/.git` will not
-exist.  If it was installed from git, then `/opt/netbox` and
-`/opt/netbox/.git` will both exist as normal directories.
+If NetBox was installed from a release package, then `/opt/netbox` will be a symlink pointing to the current version, and `/opt/netbox/.git` will not exist.  If it was installed from git, then `/opt/netbox` and `/opt/netbox/.git` will both exist as normal directories.
 
 ### Option A: Download a Release
 
@@ -84,20 +81,20 @@ If you followed the original installation guide to set up gunicorn, be sure to c
 sudo cp /opt/netbox-$OLDVER/gunicorn.py /opt/netbox/
 ```
 
-### Option B: Clone the Git Repository
+### Option B: Check Out a Git Release
 
-This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
+This guide assumes that NetBox is installed at `/opt/netbox`. First, determine the latest release either by visiting our [releases page](https://github.com/netbox-community/netbox/releases) or by running the following `git` commands:
 
-```no-highlight
-cd /opt/netbox
-sudo git checkout master
-sudo git pull origin master
+```
+sudo git fetch --tags
+git describe --tags $(git rev-list --tags --max-count=1)
 ```
 
-!!! info "Checking out an older release"
-    If you need to upgrade to an older version rather than the current stable release, you can check out any valid [git tag](https://github.com/netbox-community/netbox/tags), each of which represents a release. For example, to checkout the code for NetBox v2.11.11, do:
+Check out the desired release by specifying its tag:
 
-        sudo git checkout v2.11.11
+```
+sudo git checkout v4.2.0
+```
 
 ## 4. Run the Upgrade Script
 
