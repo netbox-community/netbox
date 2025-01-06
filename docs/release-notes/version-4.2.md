@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 * Support for the Django admin UI has been completely removed. (The Django admin UI was disabled by default in NetBox v4.0.)
+* This release drops support for PostgreSQL 12. PostgreSQL 13 or later is required to run this release.
 * NetBox has adopted collation-based natural ordering for many models. This may alter the order in which some objects are listed by default.
 * Automatic redirects from pre-v4.1 UI views for virtual disks have been removed.
 * The `site` and `provider_network` foreign key fields on `circuits.CircuitTermination` have been replaced by the `termination` generic foreign key.
