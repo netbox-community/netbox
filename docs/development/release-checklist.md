@@ -120,15 +120,9 @@ Then, compile these portable (`.po`) files for use in the application:
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Replace the "FUTURE" placeholder in the release notes with the current date.
 
-Commit these changes to the `main` branch and push upstream.
-
-### Verify CI Build Status
-
-Ensure that continuous integration testing on the `main` branch is completing successfully. If it fails, take action to correct the failure before proceeding with the release.
-
 ### Submit a Pull Request
 
-Submit a pull request titled **"Release vX.Y.Z"** to merge the current release branch (e.g. `release-vX.Y.Z`) into `main`. Copy the documented release notes into the pull request's body.
+Commit the above changes and submit a pull request titled **"Release vX.Y.Z"** to merge the current release branch (e.g. `release-vX.Y.Z`) into `main`. Copy the documented release notes into the pull request's body.
 
 Once CI has completed and a colleague has reviewed the PR, merge it. This effects a new release in the `main` branch.
 

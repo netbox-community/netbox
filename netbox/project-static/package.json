@@ -27,10 +27,10 @@
     "bootstrap": "5.3.3",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
-    "gridstack": "11.1.2",
+    "gridstack": "11.2.0",
     "htmx.org": "1.9.12",
     "query-string": "9.1.1",
-    "sass": "1.82.0",
+    "sass": "1.83.1",
     "tom-select": "2.4.1",
     "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"
