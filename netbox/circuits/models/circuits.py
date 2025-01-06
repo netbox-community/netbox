@@ -59,7 +59,7 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
         null=True
     )
     type = models.ForeignKey(
-        to='CircuitType',
+        to='circuits.CircuitType',
         on_delete=models.PROTECT,
         related_name='circuits'
     )

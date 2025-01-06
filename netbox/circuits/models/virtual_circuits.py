@@ -51,7 +51,7 @@ class VirtualCircuit(PrimaryModel):
         null=True
     )
     type = models.ForeignKey(
-        to='VirtualCircuitType',
+        to='circuits.VirtualCircuitType',
         on_delete=models.PROTECT,
         related_name='virtual_circuits'
     )
