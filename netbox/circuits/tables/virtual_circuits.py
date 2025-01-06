@@ -8,7 +8,32 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 __all__ = (
     'VirtualCircuitTable',
     'VirtualCircuitTerminationTable',
+    'VirtualCircuitTypeTable',
 )
+
+
+class VirtualCircuitTypeTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True,
+        verbose_name=_('Name'),
+    )
+    color = columns.ColorColumn()
+    tags = columns.TagColumn(
+        url_name='circuits:virtualcircuittype_list'
+    )
+    virtual_circuit_count = columns.LinkedCountColumn(
+        viewname='circuits:virtualcircuit_list',
+        url_params={'type_id': 'pk'},
+        verbose_name=_('Circuits')
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VirtualCircuitType
+        fields = (
+            'pk', 'id', 'name', 'virtual_circuit_count', 'color', 'description', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'virtual_circuit_count', 'color', 'description')
 
 
 class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
@@ -29,6 +54,10 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         linkify=True,
         verbose_name=_('Account')
     )
+    type = tables.Column(
+        verbose_name=_('Type'),
+        linkify=True
+    )
     status = columns.ChoiceFieldColumn()
     termination_count = columns.LinkedCountColumn(
         viewname='circuits:virtualcircuittermination_list',
@@ -45,12 +74,12 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     class Meta(NetBoxTable.Meta):
         model = VirtualCircuit
         fields = (
-            'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'status', 'tenant', 'tenant_group',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
+            'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'status', 'tenant', 'termination_count',
-            'description',
+            'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
+            'termination_count', 'description',
         )
 
 

@@ -21,6 +21,7 @@ __all__ = (
     'ProviderNetworkType',
     'VirtualCircuitTerminationType',
     'VirtualCircuitType',
+    'VirtualCircuitTypeType',
 )
 
 
@@ -131,6 +132,17 @@ class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
 
 
 @strawberry_django.type(
+    models.VirtualCircuitType,
+    fields='__all__',
+    filters=VirtualCircuitTypeFilter
+)
+class VirtualCircuitTypeType(OrganizationalObjectType):
+    color: str
+
+    virtual_circuits: List[Annotated["VirtualCircuitType", strawberry.lazy('circuits.graphql.types')]]
+
+
+@strawberry_django.type(
     models.VirtualCircuitTermination,
     fields='__all__',
     filters=VirtualCircuitTerminationFilter
@@ -154,6 +166,9 @@ class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
 class VirtualCircuitType(NetBoxObjectType):
     provider_network: ProviderNetworkType = strawberry_django.field(select_related=["provider_network"])
     provider_account: ProviderAccountType | None
+    type: Annotated["VirtualCircuitTypeType", strawberry.lazy('circuits.graphql.types')] = strawberry_django.field(
+        select_related=["type"]
+    )
     tenant: TenantType | None
 
     terminations: List[VirtualCircuitTerminationType]

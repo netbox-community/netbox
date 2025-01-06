@@ -9,11 +9,24 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, TagsMixin
+from .base import BaseCircuitType
 
 __all__ = (
     'VirtualCircuit',
     'VirtualCircuitTermination',
+    'VirtualCircuitType',
 )
+
+
+class VirtualCircuitType(BaseCircuitType):
+    """
+    Like physical circuits, virtual circuits can be organized by their functional role. For example, a user might wish
+    to categorize virtual circuits by their technological nature or by product name.
+    """
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('virtual circuit type')
+        verbose_name_plural = _('virtual circuit types')
 
 
 class VirtualCircuit(PrimaryModel):
@@ -36,6 +49,11 @@ class VirtualCircuit(PrimaryModel):
         related_name='virtual_circuits',
         blank=True,
         null=True
+    )
+    type = models.ForeignKey(
+        to='circuits.VirtualCircuitType',
+        on_delete=models.PROTECT,
+        related_name='virtual_circuits'
     )
     status = models.CharField(
         verbose_name=_('status'),
@@ -63,6 +81,7 @@ class VirtualCircuit(PrimaryModel):
     )
     prerequisite_models = (
         'circuits.ProviderNetwork',
+        'circuits.VirtualCircuitType',
     )
 
     class Meta:

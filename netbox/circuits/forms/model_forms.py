@@ -31,6 +31,7 @@ __all__ = (
     'ProviderNetworkForm',
     'VirtualCircuitForm',
     'VirtualCircuitTerminationForm',
+    'VirtualCircuitTypeForm',
 )
 
 
@@ -305,6 +306,20 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
         self.instance.member = self.cleaned_data.get('member')
 
 
+class VirtualCircuitTypeForm(NetBoxModelForm):
+    slug = SlugField()
+
+    fieldsets = (
+        FieldSet('name', 'slug', 'color', 'description', 'tags'),
+    )
+
+    class Meta:
+        model = VirtualCircuitType
+        fields = [
+            'name', 'slug', 'color', 'description', 'tags',
+        ]
+
+
 class VirtualCircuitForm(TenancyForm, NetBoxModelForm):
     provider_network = DynamicModelChoiceField(
         label=_('Provider network'),
@@ -316,11 +331,16 @@ class VirtualCircuitForm(TenancyForm, NetBoxModelForm):
         queryset=ProviderAccount.objects.all(),
         required=False
     )
+    type = DynamicModelChoiceField(
+        queryset=VirtualCircuitType.objects.all(),
+        quick_add=True
+    )
     comments = CommentField()
 
     fieldsets = (
         FieldSet(
-            'provider_network', 'provider_account', 'cid', 'status', 'description', 'tags', name=_('Virtual circuit'),
+            'provider_network', 'provider_account', 'cid', 'type', 'status', 'description', 'tags',
+            name=_('Virtual circuit'),
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -328,7 +348,7 @@ class VirtualCircuitForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'status', 'description', 'tenant_group', 'tenant',
+            'cid', 'provider_network', 'provider_account', 'type', 'status', 'description', 'tenant_group', 'tenant',
             'comments', 'tags',
         ]
 

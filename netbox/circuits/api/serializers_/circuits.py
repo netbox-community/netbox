@@ -6,7 +6,7 @@ from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices, Virtu
 from circuits.constants import CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS, CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import (
     Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType, VirtualCircuit,
-    VirtualCircuitTermination,
+    VirtualCircuitTermination, VirtualCircuitType,
 )
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
@@ -25,6 +25,7 @@ __all__ = (
     'CircuitTypeSerializer',
     'VirtualCircuitSerializer',
     'VirtualCircuitTerminationSerializer',
+    'VirtualCircuitTypeSerializer',
 )
 
 
@@ -175,17 +176,32 @@ class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
         return serializer(obj.member, nested=True, context=context).data
 
 
+class VirtualCircuitTypeSerializer(NetBoxModelSerializer):
+
+    # Related object counts
+    virtual_circuit_count = RelatedObjectCountField('virtual_circuits')
+
+    class Meta:
+        model = VirtualCircuitType
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'virtual_circuit_count',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'virtual_circuit_count')
+
+
 class VirtualCircuitSerializer(NetBoxModelSerializer):
     provider_network = ProviderNetworkSerializer(nested=True)
     provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
+    type = VirtualCircuitTypeSerializer(nested=True)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = VirtualCircuit
         fields = [
-            'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'status', 'tenant',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'type', 'status',
+            'tenant', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'provider_network', 'cid', 'description')
 

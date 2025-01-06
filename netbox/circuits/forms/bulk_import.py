@@ -24,6 +24,7 @@ __all__ = (
     'VirtualCircuitImportForm',
     'VirtualCircuitTerminationImportForm',
     'VirtualCircuitTerminationImportRelatedForm',
+    'VirtualCircuitTypeImportForm',
 )
 
 
@@ -194,6 +195,14 @@ class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
         fields = ('member_type', 'member_id', 'group', 'priority')
 
 
+class VirtualCircuitTypeImportForm(NetBoxModelImportForm):
+    slug = SlugField()
+
+    class Meta:
+        model = VirtualCircuitType
+        fields = ('name', 'slug', 'color', 'description', 'tags')
+
+
 class VirtualCircuitImportForm(NetBoxModelImportForm):
     provider_network = CSVModelChoiceField(
         label=_('Provider network'),
@@ -207,6 +216,12 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
         to_field_name='account',
         help_text=_('Assigned provider account (if any)'),
         required=False
+    )
+    type = CSVModelChoiceField(
+        label=_('Type'),
+        queryset=VirtualCircuitType.objects.all(),
+        to_field_name='name',
+        help_text=_('Type of virtual circuit')
     )
     status = CSVChoiceField(
         label=_('Status'),
@@ -224,7 +239,8 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'status', 'tenant', 'description', 'comments', 'tags',
+            'cid', 'provider_network', 'provider_account', 'type', 'status', 'tenant', 'description', 'comments',
+            'tags',
         ]
 
 

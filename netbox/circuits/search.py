@@ -100,3 +100,14 @@ class VirtualCircuitTerminationIndex(SearchIndex):
         ('description', 500),
     )
     display_attrs = ('virtual_circuit', 'role', 'description')
+
+
+@register_search
+class VirtualCircuitTypeIndex(SearchIndex):
+    model = models.VirtualCircuitType
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)

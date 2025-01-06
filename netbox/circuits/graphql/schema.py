@@ -37,3 +37,6 @@ class CircuitsQuery:
 
     virtual_circuit_termination: VirtualCircuitTerminationType = strawberry_django.field()
     virtual_circuit_termination_list: List[VirtualCircuitTerminationType] = strawberry_django.field()
+
+    virtual_circuit_type: VirtualCircuitTypeType = strawberry_django.field()
+    virtual_circuit_type_list: List[VirtualCircuitTypeType] = strawberry_django.field()

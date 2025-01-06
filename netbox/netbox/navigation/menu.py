@@ -286,6 +286,7 @@ CIRCUITS_MENU = Menu(
             label=_('Virtual Circuits'),
             items=(
                 get_model_item('circuits', 'virtualcircuit', _('Virtual Circuits')),
+                get_model_item('circuits', 'virtualcircuittype', _('Virtual Circuit Types')),
                 get_model_item('circuits', 'virtualcircuittermination', _('Virtual Circuit Terminations')),
             ),
         ),

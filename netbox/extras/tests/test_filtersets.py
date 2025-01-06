@@ -1170,6 +1170,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'virtualchassis',
         'virtualcircuit',
         'virtualcircuittermination',
+        'virtualcircuittype',
         'virtualdevicecontext',
         'virtualdisk',
         'virtualmachine',

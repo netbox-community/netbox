@@ -19,6 +19,7 @@ router.register('circuit-group-assignments', views.CircuitGroupAssignmentViewSet
 
 # Virtual circuits
 router.register('virtual-circuits', views.VirtualCircuitViewSet)
+router.register('virtual-circuit-types', views.VirtualCircuitTypeViewSet)
 router.register('virtual-circuit-terminations', views.VirtualCircuitTerminationViewSet)
 
 app_name = 'circuits-api'

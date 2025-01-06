@@ -13,7 +13,7 @@ from netbox.models.mixins import DistanceMixin
 from netbox.models.features import (
     ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, ImageAttachmentsMixin, TagsMixin,
 )
-from utilities.fields import ColorField
+from .base import BaseCircuitType
 
 __all__ = (
     'Circuit',
@@ -24,16 +24,11 @@ __all__ = (
 )
 
 
-class CircuitType(OrganizationalModel):
+class CircuitType(BaseCircuitType):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
     """
-    color = ColorField(
-        verbose_name=_('color'),
-        blank=True
-    )
-
     class Meta:
         ordering = ('name',)
         verbose_name = _('circuit type')
@@ -64,7 +59,7 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
         null=True
     )
     type = models.ForeignKey(
-        to='CircuitType',
+        to='circuits.CircuitType',
         on_delete=models.PROTECT,
         related_name='circuits'
     )

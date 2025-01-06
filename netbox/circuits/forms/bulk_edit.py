@@ -32,6 +32,7 @@ __all__ = (
     'ProviderNetworkBulkEditForm',
     'VirtualCircuitBulkEditForm',
     'VirtualCircuitTerminationBulkEditForm',
+    'VirtualCircuitTypeBulkEditForm',
 )
 
 
@@ -297,6 +298,24 @@ class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('priority',)
 
 
+class VirtualCircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = VirtualCircuitType
+    fieldsets = (
+        FieldSet('color', 'description'),
+    )
+    nullable_fields = ('color', 'description')
+
+
 class VirtualCircuitBulkEditForm(NetBoxModelBulkEditForm):
     provider_network = DynamicModelChoiceField(
         label=_('Provider network'),
@@ -306,6 +325,11 @@ class VirtualCircuitBulkEditForm(NetBoxModelBulkEditForm):
     provider_account = DynamicModelChoiceField(
         label=_('Provider account'),
         queryset=ProviderAccount.objects.all(),
+        required=False
+    )
+    type = DynamicModelChoiceField(
+        label=_('Type'),
+        queryset=VirtualCircuitType.objects.all(),
         required=False
     )
     status = forms.ChoiceField(

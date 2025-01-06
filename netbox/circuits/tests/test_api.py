@@ -409,6 +409,38 @@ class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
         }
 
 
+class VirtualCircuitTypeTest(APIViewTestCases.APIViewTestCase):
+    model = VirtualCircuitType
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url', 'virtual_circuit_count']
+    create_data = (
+        {
+            'name': 'Virtual Circuit Type 4',
+            'slug': 'virtual-circuit-type-4',
+        },
+        {
+            'name': 'Virtual Circuit Type 5',
+            'slug': 'virtual-circuit-type-5',
+        },
+        {
+            'name': 'Virtual Circuit Type 6',
+            'slug': 'virtual-circuit-type-6',
+        },
+    )
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        virtual_circuit_types = (
+            VirtualCircuitType(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1'),
+            VirtualCircuitType(name='Virtual Circuit Type 2', slug='virtual-circuit-type-2'),
+            VirtualCircuitType(name='Virtual Circuit Type 3', slug='virtual-circuit-type-3'),
+        )
+        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+
+
 class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuit
     brief_fields = ['cid', 'description', 'display', 'id', 'provider_network', 'url']
@@ -421,21 +453,28 @@ class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
         provider_account = ProviderAccount.objects.create(provider=provider, account='Provider Account 1')
+        virtual_circuit_type = VirtualCircuitType.objects.create(
+            name='Virtual Circuit Type 1',
+            slug='virtual-circuit-type-1'
+        )
 
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
+                type=virtual_circuit_type,
                 cid='Virtual Circuit 1'
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
+                type=virtual_circuit_type,
                 cid='Virtual Circuit 2'
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
+                type=virtual_circuit_type,
                 cid='Virtual Circuit 3'
             ),
         )
@@ -446,18 +485,21 @@ class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
                 'cid': 'Virtual Circuit 4',
                 'provider_network': provider_network.pk,
                 'provider_account': provider_account.pk,
+                'type': virtual_circuit_type.pk,
                 'status': CircuitStatusChoices.STATUS_PLANNED,
             },
             {
                 'cid': 'Virtual Circuit 5',
                 'provider_network': provider_network.pk,
                 'provider_account': provider_account.pk,
+                'type': virtual_circuit_type.pk,
                 'status': CircuitStatusChoices.STATUS_PLANNED,
             },
             {
                 'cid': 'Virtual Circuit 6',
                 'provider_network': provider_network.pk,
                 'provider_account': provider_account.pk,
+                'type': virtual_circuit_type.pk,
                 'status': CircuitStatusChoices.STATUS_PLANNED,
             },
         ]
@@ -563,27 +605,35 @@ class VirtualCircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
         provider_account = ProviderAccount.objects.create(provider=provider, account='Provider Account 1')
+        virtual_circuit_type = VirtualCircuitType.objects.create(
+            name='Virtual Circuit Type 1',
+            slug='virtual-circuit-type-1'
+        )
 
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 1'
+                cid='Virtual Circuit 1',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 2'
+                cid='Virtual Circuit 2',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 3'
+                cid='Virtual Circuit 3',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 4'
+                cid='Virtual Circuit 4',
+                type=virtual_circuit_type
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)

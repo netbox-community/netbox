@@ -36,6 +36,10 @@
             <td>{{ object.cid }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ object.type|linkify }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>

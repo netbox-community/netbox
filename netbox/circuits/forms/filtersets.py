@@ -27,6 +27,7 @@ __all__ = (
     'ProviderNetworkFilterForm',
     'VirtualCircuitFilterForm',
     'VirtualCircuitTerminationFilterForm',
+    'VirtualCircuitTypeFilterForm',
 )
 
 
@@ -302,12 +303,26 @@ class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class VirtualCircuitTypeFilterForm(NetBoxModelFilterSetForm):
+    model = VirtualCircuitType
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('color', name=_('Attributes')),
+    )
+    tag = TagFilterField(model)
+
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
+
+
 class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = VirtualCircuit
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('status', name=_('Attributes')),
+        FieldSet('type', 'status', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', 'provider_id', 'provider_network_id')
@@ -331,6 +346,11 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBox
             'provider_id': '$provider_id'
         },
         label=_('Provider network')
+    )
+    type_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualCircuitType.objects.all(),
+        required=False,
+        label=_('Type')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),

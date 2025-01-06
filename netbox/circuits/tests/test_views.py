@@ -543,6 +543,47 @@ class CircuitGroupAssignmentTestCase(
         }
 
 
+class VirtualCircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = VirtualCircuitType
+
+    @classmethod
+    def setUpTestData(cls):
+
+        virtual_circuit_types = (
+            VirtualCircuitType(name='Virtual Circuit Type 1', slug='circuit-type-1'),
+            VirtualCircuitType(name='Virtual Circuit Type 2', slug='circuit-type-2'),
+            VirtualCircuitType(name='Virtual Circuit Type 3', slug='circuit-type-3'),
+        )
+        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Virtual Circuit Type X',
+            'slug': 'virtual-circuit-type-x',
+            'description': 'A new virtual circuit type',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug",
+            "Virtual Circuit Type 4,circuit-type-4",
+            "Virtual Circuit Type 5,circuit-type-5",
+            "Virtual Circuit Type 6,circuit-type-6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{virtual_circuit_types[0].pk},Virtual Circuit Type 7,New description7",
+            f"{virtual_circuit_types[1].pk},Virtual Circuit Type 8,New description8",
+            f"{virtual_circuit_types[2].pk},Virtual Circuit Type 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'Foo',
+        }
+
+
 class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualCircuit
 
@@ -566,22 +607,30 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ProviderAccount(provider=provider, account='Provider Account 2'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
+        virtual_circuit_types = (
+            VirtualCircuitType(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1'),
+            VirtualCircuitType(name='Virtual Circuit Type 2', slug='virtual-circuit-type-2'),
+        )
+        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
 
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_networks[0],
                 provider_account=provider_accounts[0],
-                cid='Virtual Circuit 1'
+                cid='Virtual Circuit 1',
+                type=virtual_circuit_types[0]
             ),
             VirtualCircuit(
                 provider_network=provider_networks[0],
                 provider_account=provider_accounts[0],
-                cid='Virtual Circuit 2'
+                cid='Virtual Circuit 2',
+                type=virtual_circuit_types[0]
             ),
             VirtualCircuit(
                 provider_network=provider_networks[0],
                 provider_account=provider_accounts[0],
-                cid='Virtual Circuit 3'
+                cid='Virtual Circuit 3',
+                type=virtual_circuit_types[0]
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)
@@ -600,6 +649,7 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'cid': 'Virtual Circuit X',
             'provider_network': provider_networks[1].pk,
             'provider_account': provider_accounts[1].pk,
+            'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_PLANNED,
             'description': 'A new virtual circuit',
             'comments': 'Some comments',
@@ -607,22 +657,41 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "cid,provider_network,provider_account,status",
-            f"Virtual Circuit 4,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
-            f"Virtual Circuit 5,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
-            f"Virtual Circuit 6,Provider Network 1,Provider Account 1,{CircuitStatusChoices.STATUS_PLANNED}",
+            "cid,provider_network,provider_account,type,status",
+            (
+                f"Virtual Circuit 4,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
+                f"{CircuitStatusChoices.STATUS_PLANNED}"
+            ),
+            (
+                f"Virtual Circuit 5,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
+                f"{CircuitStatusChoices.STATUS_PLANNED}"
+            ),
+            (
+                f"Virtual Circuit 6,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
+                f"{CircuitStatusChoices.STATUS_PLANNED}"
+            ),
         )
 
         cls.csv_update_data = (
-            "id,cid,description,status",
-            f"{virtual_circuits[0].pk},Virtual Circuit A,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
-            f"{virtual_circuits[1].pk},Virtual Circuit B,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
-            f"{virtual_circuits[2].pk},Virtual Circuit C,New description,{CircuitStatusChoices.STATUS_DECOMMISSIONED}",
+            "id,cid,description,type,status",
+            (
+                f"{virtual_circuits[0].pk},Virtual Circuit A,New description,{virtual_circuit_types[1].name},"
+                f"{CircuitStatusChoices.STATUS_DECOMMISSIONED}"
+            ),
+            (
+                f"{virtual_circuits[1].pk},Virtual Circuit B,New description,{virtual_circuit_types[1].name},"
+                f"{CircuitStatusChoices.STATUS_DECOMMISSIONED}"
+            ),
+            (
+                f"{virtual_circuits[2].pk},Virtual Circuit C,New description,{virtual_circuit_types[1].name},"
+                f"{CircuitStatusChoices.STATUS_DECOMMISSIONED}"
+            ),
         )
 
         cls.bulk_edit_data = {
             'provider_network': provider_networks[1].pk,
             'provider_account': provider_accounts[1].pk,
+            'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
             'description': 'New description',
             'comments': 'New comments',
@@ -636,6 +705,7 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
               {{
                 "cid": "Virtual Circuit 7",
                 "provider_network": "Provider Network 1",
+                "type": "Virtual Circuit Type 1",
                 "status": "active",
                 "terminations": [
                   {{
@@ -774,27 +844,35 @@ class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase)
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
         provider_account = ProviderAccount.objects.create(provider=provider, account='Provider Account 1')
+        virtual_circuit_type = VirtualCircuitType.objects.create(
+            name='Virtual Circuit Type 1',
+            slug='virtual-circuit-type-1'
+        )
 
         virtual_circuits = (
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 1'
+                cid='Virtual Circuit 1',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 2'
+                cid='Virtual Circuit 2',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 3'
+                cid='Virtual Circuit 3',
+                type=virtual_circuit_type
             ),
             VirtualCircuit(
                 provider_network=provider_network,
                 provider_account=provider_account,
-                cid='Virtual Circuit 4'
+                cid='Virtual Circuit 4',
+                type=virtual_circuit_type
             ),
         )
         VirtualCircuit.objects.bulk_create(virtual_circuits)
