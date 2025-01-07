@@ -38,7 +38,8 @@ schema = strawberry.Schema(
     query=Query,
     config=StrawberryConfig(auto_camel_case=False),
     extensions=[
-        DjangoOptimizerExtension(prefetch_custom_queryset=True),
+        # DjangoOptimizerExtension(prefetch_custom_queryset=True),
+        DjangoOptimizerExtension(prefetch_custom_queryset=True, enable_prefetch_related_optimization=False),
         MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
     ]
 )

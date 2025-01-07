@@ -99,12 +99,13 @@ class GraphQLAPITestCase(APITestCase):
         # Test OR logic
         query = """{
             location_list( filters: {
-                status: \"""" + LocationStatusChoices.STATUS_PLANNED + """\",
-                OR: {status: \"""" + LocationStatusChoices.STATUS_STAGING + """\"}
+                status: STATUS_PLANNED,
+                OR: {status: STATUS_STAGING}
             }) {
                 id site {id}
             }
         }"""
+        print(query)
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
