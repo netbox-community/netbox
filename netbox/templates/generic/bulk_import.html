@@ -129,6 +129,8 @@ Context:
                 <td>
                   {% if field.required %}
                     {% checkmark True true="Required" %}
+                  {% elif field.conditional %}
+                    <span class="badge bg-yellow text-yellow-fg" >{% trans "Conditional" %}</span>
                   {% else %}
                     {{ ''|placeholder }}
                   {% endif %}
