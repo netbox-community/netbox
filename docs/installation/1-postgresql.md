@@ -62,6 +62,8 @@ GRANT CREATE ON SCHEMA public TO netbox;
 !!! danger "Use a strong password"
     **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
 
+The database encoding should be set to `UTF8`, to check, enter `\l`.
+
 Once complete, enter `\q` to exit the PostgreSQL shell.
 
 ## Verify Service Status
