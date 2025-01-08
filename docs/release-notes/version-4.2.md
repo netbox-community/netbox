@@ -1,5 +1,18 @@
 # NetBox v4.2
 
+## v4.2.1 (2025-01-08)
+
+### Bug Fixes
+
+* [#18282](https://github.com/netbox-community/netbox/issues/18282) - Fix ordering of prefixes list by assigned VLAN
+* [#18314](https://github.com/netbox-community/netbox/issues/18314) - Fix KeyError exception when rendering pre-saved dashboard (`requires_internet` missing)
+* [#18316](https://github.com/netbox-community/netbox/issues/18316) - Fix AttributeError exception when global search results include prefixes and/or clusters
+* [#18318](https://github.com/netbox-community/netbox/issues/18318) - Correct navigation breadcrumbs for module type UI view
+* [#18324](https://github.com/netbox-community/netbox/issues/18324) - Correct filtering for certain related object listings
+* [#18329](https://github.com/netbox-community/netbox/issues/18329) - Address upstream bug in GraphQL API where only one primary IP address is returned within a device/VM list
+
+---
+
 ## v4.2.0 (2025-01-06)
 
 ### Breaking Changes
