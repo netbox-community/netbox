@@ -34,7 +34,7 @@ class CircuitTerminationIndex(SearchIndex):
         ('port_speed', 2000),
         ('upstream_speed', 2000),
     )
-    display_attrs = ('circuit', 'description')
+    display_attrs = ('circuit', '_site', '_provider_network', 'description')
 
 
 @register_search
