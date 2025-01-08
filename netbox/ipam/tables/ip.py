@@ -200,9 +200,9 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('VLAN Group')
     )
     vlan = tables.Column(
-        accessor='vlan__vid',
+        order_by=('vlan__vid', 'vlan__pk'),
         linkify=True,
-        verbose_name=_('VLAN ID')
+        verbose_name=_('VLAN')
     )
     role = tables.Column(
         verbose_name=_('Role'),
