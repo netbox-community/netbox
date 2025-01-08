@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#18282](https://github.com/netbox-community/netbox/issues/18282) - Fix ordering of prefixes list by assigned VLAN
 * [#18314](https://github.com/netbox-community/netbox/issues/18314) - Fix KeyError exception when rendering pre-saved dashboard (`requires_internet` missing)
 * [#18316](https://github.com/netbox-community/netbox/issues/18316) - Fix AttributeError exception when global search results include prefixes and/or clusters
 * [#18318](https://github.com/netbox-community/netbox/issues/18318) - Correct navigation breadcrumbs for module type UI view
