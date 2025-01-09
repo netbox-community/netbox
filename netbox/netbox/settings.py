@@ -5,9 +5,7 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode
 
-import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -583,17 +581,6 @@ if SENTRY_ENABLED:
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
-CENSUS_PARAMS = {
-    'version': RELEASE.full_version,
-    'python_version': sys.version.split()[0],
-    'deployment_id': DEPLOYMENT_ID,
-}
-if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
-    try:
-        # Report anonymous census data
-        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
-    except requests.exceptions.RequestException:
-        pass
 
 
 #
