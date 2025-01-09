@@ -8434,7 +8434,7 @@ msgid ""
 msgstr ""
 "Expression régulière à appliquer aux valeurs des champs de texte. Utilisez ^"
 " et $ pour forcer la mise en correspondance de la chaîne entière. Par "
-"exemple, <code>^ [DE A À Z]{3}$</code> limitera les valeurs à exactement "
+"exemple, <code>^[A-Z]{3}$</code> limitera les valeurs à exactement "
 "trois lettres majuscules."
 
 #: netbox/extras/models/customfields.py:201
@@ -8740,10 +8740,9 @@ msgid ""
 msgstr ""
 "Modèle Jinja2 pour un corps de requête personnalisé. Si ce champ est vide, "
 "un objet JSON représentant la modification sera inclus. Les données "
-"contextuelles disponibles incluent : <code>événement</code>, "
-"<code>modèle</code>, <code>horodatage</code>, <code>nom "
-"d'utilisateur</code>, <code>identifiant_demande</code>, et "
-"<code>données</code>."
+"contextuelles disponibles incluent : <code>event</code>, "
+"<code>model</code>, <code>timestamp</code>, <code>username</code>, "
+"<code>request_id</code>, et "<code>data</code>."
 
 #: netbox/extras/models/models.py:204
 msgid "secret"
@@ -8755,8 +8754,8 @@ msgid ""
 "header containing a HMAC hex digest of the payload body using the secret as "
 "the key. The secret is not transmitted in the request."
 msgstr ""
-"Lorsqu'elle sera fournie, la demande comprendra un <code>Signature "
-"X-Hook</code> en-tête contenant un condensé hexadécimal HMAC du corps de la "
+"Lorsqu'elle sera fournie, la demande comprendra un <code>X-Hook-Signature</code> "
+"en-tête contenant un condensé hexadécimal HMAC du corps de la "
 "charge utile en utilisant le secret comme clé. Le secret n'est pas transmis "
 "dans la demande."
 
@@ -8841,13 +8840,12 @@ msgid ""
 "context variable named <code>queryset</code>."
 msgstr ""
 "Code du modèle Jinja2. La liste des objets exportés est transmise sous forme"
-" de variable de contexte nommée <code>ensemble de requêtes</code>."
+" de variable de contexte nommée <code>queryset</code>."
 
 #: netbox/extras/models/models.py:410
 msgid "Defaults to <code>text/plain; charset=utf-8</code>"
 msgstr ""
-"La valeur par défaut est <code>texte/plain ; jeu de caractères = "
-"utf-8</code>"
+"La valeur par défaut est <code>text/plain; charset=utf-8</code>"
 
 #: netbox/extras/models/models.py:413
 msgid "file extension"
@@ -13322,8 +13320,8 @@ msgstr ""
 "installation de NetBox. Ces paquets sont répertoriés dans "
 "<code>requirements.txt</code> et <code>local_requirements.txt</code>, et "
 "sont normalement installés dans le cadre du processus d'installation ou de "
-"mise à jour. Pour vérifier les paquets installés, exécutez <code>Pip "
-"Freeze</code> depuis la console et comparez la sortie à la liste des paquets"
+"mise à jour. Pour vérifier les paquets installés, exécutez <code>pip "
+"freeze</code> depuis la console et comparez la sortie à la liste des paquets"
 " requis."
 
 #: netbox/templates/exceptions/import_error.html:20
@@ -14900,7 +14898,7 @@ msgid ""
 msgstr ""
 "Réseaux IPv4/IPv6 autorisés à partir desquels le jeton peut être utilisé. "
 "Laissez ce champ vide pour éviter toute restriction. Exemple : "
-"<code>10.1.1.0/24 192.168.10,16/32 2001 : db 8:1 : /64</code>"
+"<code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>"
 
 #: netbox/users/forms/model_forms.py:175
 msgid "Confirm password"
@@ -15192,7 +15190,7 @@ msgid ""
 "<code>1-5,20-30</code>"
 msgstr ""
 "Spécifiez une ou plusieurs plages numériques séparées par des virgules. "
-"Exemple : <code>1 à 5, 20 à 30</code>"
+"Exemple : <code>1-5,20-30</code>"
 
 #: netbox/utilities/forms/fields/array.py:47
 #, python-brace-format
@@ -15243,7 +15241,7 @@ msgid ""
 msgstr ""
 "Les plages alphanumériques sont prises en charge pour la création en masse. "
 "Les cas et les types mixtes au sein d'une même plage ne sont pas pris en "
-"charge (exemple : <code>[ge, xe] -0/0/ [0-9]</code>)."
+"charge (exemple : <code>[ge,xe]-0/0/[0-9]</code>)."
 
 #: netbox/utilities/forms/fields/expandable.py:46
 msgid ""
@@ -15251,7 +15249,7 @@ msgid ""
 "<code>192.0.2.[1,5,100-254]/24</code>"
 msgstr ""
 "Spécifiez une plage numérique pour créer plusieurs adresses IP.<br "
-"/>Exemple : <code>192,0,2. [1 500 -254] /24</code>"
+"/>Exemple : <code>192.0.2.[1,5,100-254]/24</code>"
 
 #: netbox/utilities/forms/fields/fields.py:31
 #, python-brace-format
