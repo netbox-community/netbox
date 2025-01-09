@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-08 05:02+0000\n"
+"POT-Creation-Date: 2025-01-09 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -766,8 +766,8 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:212 netbox/ipam/forms/filtersets.py:284
 #: netbox/ipam/forms/filtersets.py:358 netbox/ipam/forms/filtersets.py:542
 #: netbox/ipam/forms/model_forms.py:503 netbox/ipam/tables/ip.py:183
-#: netbox/ipam/tables/ip.py:262 netbox/ipam/tables/ip.py:313
-#: netbox/ipam/tables/ip.py:376 netbox/ipam/tables/ip.py:403
+#: netbox/ipam/tables/ip.py:263 netbox/ipam/tables/ip.py:314
+#: netbox/ipam/tables/ip.py:377 netbox/ipam/tables/ip.py:404
 #: netbox/ipam/tables/vlans.py:95 netbox/ipam/tables/vlans.py:208
 #: netbox/templates/circuits/circuit.html:34
 #: netbox/templates/circuits/virtualcircuit.html:43
@@ -844,7 +844,7 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:122 netbox/ipam/forms/filtersets.py:145
 #: netbox/ipam/forms/filtersets.py:176 netbox/ipam/forms/filtersets.py:270
 #: netbox/ipam/forms/filtersets.py:313 netbox/ipam/forms/filtersets.py:510
-#: netbox/ipam/tables/ip.py:406 netbox/ipam/tables/vlans.py:205
+#: netbox/ipam/tables/ip.py:407 netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuit.html:48
 #: netbox/templates/circuits/circuitgroup.html:36
 #: netbox/templates/circuits/virtualcircuit.html:47
@@ -1078,8 +1078,8 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:292 netbox/ipam/forms/filtersets.py:363
 #: netbox/ipam/forms/filtersets.py:550 netbox/ipam/forms/model_forms.py:194
 #: netbox/ipam/forms/model_forms.py:220 netbox/ipam/forms/model_forms.py:251
-#: netbox/ipam/forms/model_forms.py:678 netbox/ipam/tables/ip.py:207
-#: netbox/ipam/tables/ip.py:266 netbox/ipam/tables/ip.py:317
+#: netbox/ipam/forms/model_forms.py:678 netbox/ipam/tables/ip.py:208
+#: netbox/ipam/tables/ip.py:267 netbox/ipam/tables/ip.py:318
 #: netbox/ipam/tables/vlans.py:99 netbox/ipam/tables/vlans.py:211
 #: netbox/templates/circuits/virtualcircuittermination.html:42
 #: netbox/templates/dcim/device.html:182
@@ -1191,7 +1191,7 @@ msgstr ""
 #: netbox/dcim/tables/connections.py:65 netbox/dcim/tables/devices.py:1140
 #: netbox/ipam/forms/bulk_import.py:317 netbox/ipam/forms/model_forms.py:282
 #: netbox/ipam/forms/model_forms.py:291 netbox/ipam/tables/fhrp.py:64
-#: netbox/ipam/tables/ip.py:322 netbox/ipam/tables/vlans.py:145
+#: netbox/ipam/tables/ip.py:323 netbox/ipam/tables/vlans.py:145
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:52
 #: netbox/templates/circuits/virtualcircuittermination.html:53
 #: netbox/templates/circuits/virtualcircuittermination.html:60
@@ -1831,8 +1831,8 @@ msgstr ""
 #: netbox/dcim/tables/racks.py:224 netbox/dcim/tables/sites.py:108
 #: netbox/extras/tables/tables.py:582 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:82
-#: netbox/ipam/tables/ip.py:224 netbox/ipam/tables/ip.py:279
-#: netbox/ipam/tables/ip.py:347 netbox/ipam/tables/services.py:24
+#: netbox/ipam/tables/ip.py:225 netbox/ipam/tables/ip.py:280
+#: netbox/ipam/tables/ip.py:348 netbox/ipam/tables/services.py:24
 #: netbox/ipam/tables/services.py:54 netbox/ipam/tables/vlans.py:121
 #: netbox/ipam/tables/vrfs.py:47 netbox/ipam/tables/vrfs.py:72
 #: netbox/templates/dcim/htmx/cable_edit.html:89
@@ -3009,7 +3009,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:689 netbox/dcim/tables/devices.py:899
 #: netbox/dcim/tables/devices.py:986 netbox/dcim/tables/devices.py:1146
 #: netbox/extras/tables/tables.py:223 netbox/ipam/tables/fhrp.py:59
-#: netbox/ipam/tables/ip.py:328 netbox/ipam/tables/services.py:44
+#: netbox/ipam/tables/ip.py:329 netbox/ipam/tables/services.py:44
 #: netbox/templates/dcim/interface.html:108
 #: netbox/templates/dcim/interface.html:366
 #: netbox/templates/dcim/location.html:41 netbox/templates/dcim/region.html:37
@@ -3688,8 +3688,8 @@ msgstr ""
 #: netbox/ipam/forms/model_forms.py:480 netbox/ipam/forms/model_forms.py:494
 #: netbox/ipam/models/ip.py:217 netbox/ipam/models/ip.py:498
 #: netbox/ipam/models/ip.py:719 netbox/ipam/models/vrfs.py:61
-#: netbox/ipam/tables/ip.py:188 netbox/ipam/tables/ip.py:259
-#: netbox/ipam/tables/ip.py:310 netbox/ipam/tables/ip.py:400
+#: netbox/ipam/tables/ip.py:188 netbox/ipam/tables/ip.py:260
+#: netbox/ipam/tables/ip.py:311 netbox/ipam/tables/ip.py:401
 #: netbox/templates/dcim/interface.html:152
 #: netbox/templates/ipam/ipaddress.html:18
 #: netbox/templates/ipam/iprange.html:40 netbox/templates/ipam/prefix.html:19
@@ -6994,8 +6994,8 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:197 netbox/dcim/tables/devices.py:1099
 #: netbox/ipam/forms/bulk_import.py:562 netbox/ipam/forms/model_forms.py:308
-#: netbox/ipam/forms/model_forms.py:321 netbox/ipam/tables/ip.py:306
-#: netbox/ipam/tables/ip.py:373 netbox/ipam/tables/ip.py:396
+#: netbox/ipam/forms/model_forms.py:321 netbox/ipam/tables/ip.py:307
+#: netbox/ipam/tables/ip.py:374 netbox/ipam/tables/ip.py:397
 #: netbox/templates/ipam/ipaddress.html:11
 #: netbox/virtualization/tables/virtualmachines.py:65
 msgid "IP Address"
@@ -9658,7 +9658,7 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:218 netbox/ipam/forms/bulk_import.py:181
 #: netbox/ipam/forms/filtersets.py:259 netbox/ipam/forms/model_forms.py:217
-#: netbox/ipam/models/vlans.py:272 netbox/ipam/tables/ip.py:204
+#: netbox/ipam/models/vlans.py:272 netbox/ipam/tables/ip.py:205
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
 #: netbox/templates/ipam/vlan_edit.html:10
@@ -10516,8 +10516,8 @@ msgstr ""
 msgid "Prefixes"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:77 netbox/ipam/tables/ip.py:219
-#: netbox/ipam/tables/ip.py:274 netbox/ipam/tables/vlans.py:55
+#: netbox/ipam/tables/ip.py:77 netbox/ipam/tables/ip.py:220
+#: netbox/ipam/tables/ip.py:275 netbox/ipam/tables/vlans.py:55
 #: netbox/templates/dcim/device.html:260
 #: netbox/templates/ipam/aggregate.html:24
 #: netbox/templates/ipam/iprange.html:29 netbox/templates/ipam/prefix.html:102
@@ -10542,31 +10542,31 @@ msgstr ""
 msgid "Scope Type"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:211
+#: netbox/ipam/tables/ip.py:212
 msgid "Pool"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:215 netbox/ipam/tables/ip.py:270
+#: netbox/ipam/tables/ip.py:216 netbox/ipam/tables/ip.py:271
 msgid "Marked Utilized"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:254
+#: netbox/ipam/tables/ip.py:255
 msgid "Start address"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:333
+#: netbox/ipam/tables/ip.py:334
 msgid "NAT (Inside)"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:338
+#: netbox/ipam/tables/ip.py:339
 msgid "NAT (Outside)"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:343
+#: netbox/ipam/tables/ip.py:344
 msgid "Assigned"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:379 netbox/templates/vpn/l2vpntermination.html:16
+#: netbox/ipam/tables/ip.py:380 netbox/templates/vpn/l2vpntermination.html:16
 #: netbox/vpn/forms/filtersets.py:240
 msgid "Assigned Object"
 msgstr ""
