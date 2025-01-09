@@ -594,7 +594,7 @@ class BasePluginView(UserPassesTestMixin, View):
         catalog_plugins_error = cache.get(self.CACHE_KEY_CATALOG_ERROR, default=False)
         if not catalog_plugins_error:
             catalog_plugins = get_catalog_plugins()
-            if not catalog_plugins:
+            if not catalog_plugins and not settings.ISOLATED_DEPLOYMENT:
                 # Cache for 5 minutes to avoid spamming connection
                 cache.set(self.CACHE_KEY_CATALOG_ERROR, True, 300)
                 messages.warning(request, _("Plugins catalog could not be loaded"))
