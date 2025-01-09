@@ -171,7 +171,7 @@ class MACAddressSerializer(NetBoxModelSerializer):
         model = MACAddress
         fields = [
             'id', 'url', 'display_url', 'display', 'mac_address', 'assigned_object_type', 'assigned_object_id',
-            'assigned_object', 'description', 'comments',
+            'assigned_object', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
 
