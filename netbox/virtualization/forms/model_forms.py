@@ -1,4 +1,5 @@
 from django import forms
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -144,16 +145,27 @@ class ClusterAddDevicesForm(forms.Form):
         super().clean()
 
         # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
-        if self.cluster.site is not None:
+        # This validation currently only supports Site scoping, but can be extended to Location etc. if needed.
+        if self.cluster.scope is not None:
             for device in self.cleaned_data.get('devices', []):
-                if device.site != self.cluster.site:
+                device_scope = None
+                scope_type = None
+                if (
+                    self.cluster.scope_type.model_class() == apps.get_model('dcim', 'site')
+                        and device.site != self.cluster.scope
+                ):
+                    device_scope = device.site
+                    scope_type = 'site'
+                if device_scope:
                     raise ValidationError({
                         'devices': _(
-                            "{device} belongs to a different site ({device_site}) than the cluster ({cluster_site})"
+                            "{device} belongs to a different {scope_type} ({device_scope}) than the "
+                            "cluster ({cluster_scope})"
                         ).format(
                             device=device,
-                            device_site=device.site,
-                            cluster_site=self.cluster.site
+                            scope_type=scope_type,
+                            device_scope=device_scope,
+                            cluster_scope=self.cluster.scope
                         )
                     })
 
