@@ -144,30 +144,26 @@ class ClusterAddDevicesForm(forms.Form):
     def clean(self):
         super().clean()
 
-        # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
-        # This validation currently only supports Site scoping, but can be extended to Location etc. if needed.
+        # If the Cluster is assigned to a Site or Location, all Devices must be assigned to that same scope.
         if self.cluster.scope is not None:
             for device in self.cleaned_data.get('devices', []):
-                device_scope = None
-                scope_type = None
-                if (
-                    self.cluster.scope_type.model_class() == apps.get_model('dcim', 'site')
-                        and device.site != self.cluster.scope
-                ):
-                    device_scope = device.site
-                    scope_type = 'site'
-                if device_scope:
-                    raise ValidationError({
-                        'devices': _(
-                            "{device} belongs to a different {scope_type} ({device_scope}) than the "
-                            "cluster ({cluster_scope})"
-                        ).format(
-                            device=device,
-                            scope_type=scope_type,
-                            device_scope=device_scope,
-                            cluster_scope=self.cluster.scope
-                        )
-                    })
+                for scope_field in ['site', 'location']:
+                    device_scope = getattr(device, scope_field)
+                    if (
+                        self.cluster.scope_type.model_class() == apps.get_model('dcim', scope_field)
+                            and device_scope != self.cluster.scope
+                    ):
+                        raise ValidationError({
+                            'devices': _(
+                                "{device} belongs to a different {scope_field} ({device_scope}) than the "
+                                "cluster ({cluster_scope})"
+                            ).format(
+                                device=device,
+                                scope_field=scope_field,
+                                device_scope=device_scope,
+                                cluster_scope=self.cluster.scope
+                            )
+                        })
 
 
 class ClusterRemoveDevicesForm(ConfirmationForm):
