@@ -374,10 +374,12 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         if not self._state.adding:
             mounted_devices = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('position')
 
+            effective_u_height = self.rack_type.u_height if self.rack_type else self.u_height
+            effective_starting_unit = self.rack_type.starting_unit if self.rack_type else self.starting_unit
+
             # Validate that Rack is tall enough to house the highest mounted Device
             if top_device := mounted_devices.last():
-                min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
-                effective_u_height = self.rack_type.u_height if self.rack_type else self.u_height
+                min_height = top_device.position + top_device.device_type.u_height - effective_starting_unit
                 if effective_u_height < min_height:
                     field = 'rack_type' if self.rack_type else 'u_height'
                     raise ValidationError({
@@ -388,7 +390,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
             # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device
             if last_device := mounted_devices.first():
-                effective_starting_unit = self.rack_type.starting_unit if self.rack_type else self.starting_unit
                 if effective_starting_unit > last_device.position:
                     field = 'rack_type' if self.rack_type else 'starting_unit'
                     raise ValidationError({
