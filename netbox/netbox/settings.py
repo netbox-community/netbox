@@ -222,8 +222,18 @@ DATABASES = {
 # Storage backend
 #
 
+# Default STORAGES for Django
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 if STORAGE_BACKEND is not None:
-    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+    STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
