@@ -571,7 +571,7 @@ class SystemView(UserPassesTestMixin, View):
 
         # Serialize any CustomValidator classes
         for attr in ['CUSTOM_VALIDATORS', 'PROTECTION_RULES']:
-            if hasattr(config, attr) and getattr(config, attr):
+            if hasattr(config, attr) and getattr(config, attr, None):
                 setattr(config, attr, json.dumps(getattr(config, attr), cls=ConfigJSONEncoder, indent=4))
 
         return render(request, 'core/system.html', {
