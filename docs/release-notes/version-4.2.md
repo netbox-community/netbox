@@ -1,5 +1,25 @@
 # NetBox v4.2
 
+## v4.2.2 (2025-01-17)
+
+### Bug Fixes
+
+* [#18336](https://github.com/netbox-community/netbox/issues/18336) - Validate new rack height against installed devices when changing a rack's type
+* [#18350](https://github.com/netbox-community/netbox/issues/18350) - Fix `FieldDoesNotExist` exception when global search results include a circuit termination
+* [#18353](https://github.com/netbox-community/netbox/issues/18353) - Disable fetching of plugin catalog data when `ISOLATED_DEPLOYMENT` is enabled
+* [#18362](https://github.com/netbox-community/netbox/issues/18362) - Avoid transmitting census data on every worker restart
+* [#18363](https://github.com/netbox-community/netbox/issues/18363) - Fix support for assigning a MAC address to an interface via the REST API
+* [#18368](https://github.com/netbox-community/netbox/issues/18368) - Restore missing attributes from REST API serializer for MAC addresses (`tags`, `created`, `last_updated`, and custom fields)
+* [#18369](https://github.com/netbox-community/netbox/issues/18369) - Fix `TypeError` exception when rendering the system configuration view with one or more custom classes defined under `PROTECTION_RULES`
+* [#18373](https://github.com/netbox-community/netbox/issues/18373) - Fix `AttributeError` exception when attempting to assign host devices to a cluster
+* [#18376](https://github.com/netbox-community/netbox/issues/18376) - Fix the display of tagged VLANs in interfaces list for Q-in-Q interfaces
+* [#18379](https://github.com/netbox-community/netbox/issues/18379) - Ensure RSS feed dashboard widget content is sanitized
+* [#18392](https://github.com/netbox-community/netbox/issues/18392) - Virtual machines should not inherit config contexts assigned to locations
+* [#18400](https://github.com/netbox-community/netbox/issues/18400) - Fix support for `STORAGE_BACKEND` configuration parameter
+* [#18406](https://github.com/netbox-community/netbox/issues/18406) - Scope column headers in object lists should not be orderable
+
+---
+
 ## v4.2.1 (2025-01-08)
 
 ### Bug Fixes
