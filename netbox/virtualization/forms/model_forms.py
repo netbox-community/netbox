@@ -1,4 +1,5 @@
 from django import forms
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -143,19 +144,26 @@ class ClusterAddDevicesForm(forms.Form):
     def clean(self):
         super().clean()
 
-        # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
-        if self.cluster.site is not None:
+        # If the Cluster is assigned to a Site or Location, all Devices must be assigned to that same scope.
+        if self.cluster.scope is not None:
             for device in self.cleaned_data.get('devices', []):
-                if device.site != self.cluster.site:
-                    raise ValidationError({
-                        'devices': _(
-                            "{device} belongs to a different site ({device_site}) than the cluster ({cluster_site})"
-                        ).format(
-                            device=device,
-                            device_site=device.site,
-                            cluster_site=self.cluster.site
-                        )
-                    })
+                for scope_field in ['site', 'location']:
+                    device_scope = getattr(device, scope_field)
+                    if (
+                        self.cluster.scope_type.model_class() == apps.get_model('dcim', scope_field)
+                            and device_scope != self.cluster.scope
+                    ):
+                        raise ValidationError({
+                            'devices': _(
+                                "{device} belongs to a different {scope_field} ({device_scope}) than the "
+                                "cluster ({cluster_scope})"
+                            ).format(
+                                device=device,
+                                scope_field=scope_field,
+                                device_scope=device_scope,
+                                cluster_scope=self.cluster.scope
+                            )
+                        })
 
 
 class ClusterRemoveDevicesForm(ConfirmationForm):
