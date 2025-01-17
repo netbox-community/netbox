@@ -7,6 +7,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
+from dcim.fields import MACAddressField
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
@@ -160,6 +161,7 @@ class ModuleSerializer(NetBoxModelSerializer):
 
 
 class MACAddressSerializer(NetBoxModelSerializer):
+    mac_address = MACAddressField()
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.filter(MACADDRESS_ASSIGNMENT_MODELS),
         required=False,
