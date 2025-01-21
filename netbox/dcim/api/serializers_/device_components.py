@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -232,8 +233,26 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
 
     def validate(self, data):
 
-        # Validate many-to-many VLAN assignments
         if not self.nested:
+
+            # Validate 802.1q mode and vlan(s)
+            mode = None
+            tagged_vlans = []
+
+            if self.instance:
+                mode = data.get('mode') if 'mode' in data.keys() else self.instance.mode
+                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else \
+                    self.instance.tagged_vlans.all()
+            else:
+                mode = data.get('mode', None)
+                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else None
+
+            if mode != InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
+                raise serializers.ValidationError({
+                    'tagged_vlans': _("Interface mode does not support tagged vlans")
+                })
+
+            # Validate many-to-many VLAN assignments
             device = self.instance.device if self.instance else data.get('device')
             for vlan in data.get('tagged_vlans', []):
                 if vlan.site not in [device.site, None]:

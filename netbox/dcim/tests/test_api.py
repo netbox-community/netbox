@@ -1,3 +1,5 @@
+import json
+
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -1774,6 +1776,30 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
         self.client.delete(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(device.interfaces.count(), 2)  # Child & parent were both deleted
+
+    def test_create_child_interfaces_mode_invalid_data(self):
+        """
+        POST a single object without permission.
+        """
+        self.add_permissions('dcim.add_interface')
+
+        device = Device.objects.first()
+        vlans = VLAN.objects.all()[0:3]
+
+        create_data = {
+            'device': device.pk,
+            'name': 'Untagged Interface 1',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+            'mode': InterfaceModeChoices.MODE_ACCESS,
+            'tagged_vlans': [vlans[0].pk, vlans[1].pk],
+            'untagged_vlan': vlans[2].pk,
+        }
+
+        response = self.client.post(self._get_list_url(), create_data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(response.content)
+        self.assertIn('tagged_vlans', content)
+        self.assertIsNone(content.get('data'))
 
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
