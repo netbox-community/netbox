@@ -277,3 +277,21 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
             return component.ref if component else None
         else:
             return build_basic_type(OpenApiTypes.INT)
+
+
+# Nested models can be passed by ID in requests
+# The logic for this is handled in `BaseModelSerializer.to_internal_value`
+class FixWritableNestedSerializerAllowPK(OpenApiSerializerFieldExtension):
+    target_class = 'netbox.api.serializers.BaseModelSerializer'
+    match_subclasses = True
+
+    def map_serializer_field(self, auto_schema, direction):
+        schema = auto_schema._map_serializer_field(self.target, direction, bypass_extensions=True)
+        if direction == 'request' and self.target.nested:
+            return {
+                'oneOf': [
+                    build_basic_type(OpenApiTypes.NUMBER),
+                    schema,
+                ]
+            }
+        return schema
