@@ -43,6 +43,7 @@ class BaseTable(tables.Table):
     :param user: Personalize table display for the given user (optional). Has no effect if AnonymousUser is passed.
     """
     exempt_columns = ()
+    filterset_form = None
 
     class Meta:
         attrs = {

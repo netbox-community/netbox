@@ -7,10 +7,12 @@ __all__ = (
     'render_custom_fields',
     'render_errors',
     'render_field',
+    'render_table_filter_field',
     'render_form',
     'widget_type',
 )
 
+from utilities.templatetags.helpers import querystring
 
 register = template.Library()
 
@@ -30,6 +32,11 @@ def getfield(form, fieldname):
         return None
 
 
+@register.filter()
+def get_filter_field(form, fieldname):
+    return getfield(form, f'{fieldname}') or getfield(form, f'{fieldname}_id')
+
+
 @register.filter(name='widget_type')
 def widget_type(field):
     """
@@ -46,6 +53,7 @@ def widget_type(field):
 #
 # Inclusion tags
 #
+
 
 @register.inclusion_tag('form_helpers/render_fieldset.html')
 def render_fieldset(form, fieldset):
@@ -109,10 +117,54 @@ def render_field(field, bulk_nullable=False, label=None):
     """
     Render a single form field from template
     """
+
     return {
         'field': field,
         'label': label or field.label,
         'bulk_nullable': bulk_nullable or getattr(field, '_nullable', False),
+    }
+
+
+@register.inclusion_tag('form_helpers/render_table_filter_field.html')
+def render_table_filter_field(fieldname, table, request):
+    """
+    Render a single form field for table column filters from template
+    """
+    url = ""
+    field = None
+
+    # Does this table have a filterset form?
+    if hasattr(table, 'filterset_form') and table.filterset_form is not None:
+        # Get the filterset field
+        field = get_filter_field(table.filterset_form, fieldname)
+
+    # Return if no filterset field
+    if field is None:
+        return {}
+
+    # Handle filter forms
+    if table:
+        # Build kwargs for querystring function
+        kwargs = {field.name: None}
+        # Build request url
+        if request and table.htmx_url:
+            url = table.htmx_url + querystring(request, **kwargs)
+        elif request:
+            url = querystring(request, **kwargs)
+
+    # Set HTMX args
+    if hasattr(field.field, 'widget'):
+        field.field.widget.attrs.update({
+            'id': f'table_filter_id_{field.name}',
+            'hx-get': url if url else '#',
+            'hx-push-url': "true",
+            'hx-trigger': 'hidden.bs.dropdown from:closest .dropdown'
+        })
+
+    return {
+        'field': field,
+        'label': None,
+        'bulk_nullable': False,
     }
 
 

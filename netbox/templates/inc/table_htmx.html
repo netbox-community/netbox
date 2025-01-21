@@ -1,4 +1,5 @@
 {% load django_tables2 %}
+{% load form_helpers %}
 {% load i18n %}
 <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %} hx-disinherit="hx-target hx-select" hx-swap="outerHTML">
   {% if table.show_header %}
@@ -15,12 +16,15 @@
                   <a href="#"
                      hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field='' %}"
                      class="text-danger"
+                     {% if not table.embedded %}hx-push-url="true"{% endif %}
                      title="{% trans "Clear ordering" %}"
                   ><i class="mdi mdi-close"></i></a>
                 </div>
               {% endif %}
+              {% render_table_filter_field column.name table request%}
               <a href="#"
-                 hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                {% if not table.embedded %}hx-push-url="true"{% endif %}
               >{{ column.header }}</a>
             </th>
           {% else %}
