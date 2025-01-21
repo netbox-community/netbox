@@ -113,6 +113,10 @@ class VMInterfaceTable(BaseInterfaceTable):
         verbose_name=_('VRF'),
         linkify=True
     )
+    mac_address = tables.Column(
+        verbose_name=_('MAC Address'),
+        orderable=False,
+    )
     tags = columns.TagColumn(
         url_name='virtualization:vminterface_list'
     )
@@ -120,8 +124,8 @@ class VMInterfaceTable(BaseInterfaceTable):
     class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
+            'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mtu', 'mode', 'description', 'tags', 'vrf',
+            'mac_address', 'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
             'tagged_vlans', 'qinq_svlan', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
