@@ -1522,3 +1522,10 @@ class MACAddress(PrimaryModel):
 
     def __str__(self):
         return str(self.mac_address)
+
+    @property
+    def is_primary(self):
+        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
+            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
+                return True
+        return False
