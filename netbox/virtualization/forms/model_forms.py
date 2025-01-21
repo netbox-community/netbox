@@ -150,8 +150,8 @@ class ClusterAddDevicesForm(forms.Form):
                 for scope_field in ['site', 'location']:
                     device_scope = getattr(device, scope_field)
                     if (
-                        self.cluster.scope_type.model_class() == apps.get_model('dcim', scope_field)
-                            and device_scope != self.cluster.scope
+                        self.cluster.scope_type.model_class() == apps.get_model('dcim', scope_field) and
+                            device_scope != self.cluster.scope
                     ):
                         raise ValidationError({
                             'devices': _(
