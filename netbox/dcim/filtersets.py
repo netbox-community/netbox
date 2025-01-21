@@ -1652,8 +1652,8 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-                Q(mac_address__icontains=value) |
-                Q(description__icontains=value)
+            Q(mac_address__icontains=value) |
+            Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
 
