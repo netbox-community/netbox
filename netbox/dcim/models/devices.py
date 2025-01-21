@@ -1534,15 +1534,16 @@ class MACAddress(PrimaryModel):
     def clean(self, *args, **kwargs):
         super().clean()
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
-            assigned_object = getattr(self.assigned_object, 'parent_object', None)
+            assigned_object = self.assigned_object
             ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
 
-            if original_assigned_object and not assigned_object:
-                raise ValidationError(
-                    _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
-                )
-            elif original_assigned_object and original_assigned_object != assigned_object:
-                raise ValidationError(
-                    _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
-                )
+            if original_assigned_object.primary_mac_address:
+                if not assigned_object:
+                    raise ValidationError(
+                        _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
+                    )
+                elif original_assigned_object != assigned_object:
+                    raise ValidationError(
+                        _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
+                    )
