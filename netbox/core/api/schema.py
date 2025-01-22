@@ -287,6 +287,8 @@ class FixWritableNestedSerializerAllowPK(OpenApiSerializerFieldExtension):
 
     def map_serializer_field(self, auto_schema, direction):
         schema = auto_schema._map_serializer_field(self.target, direction, bypass_extensions=True)
+        if schema is None:
+            return schema
         if direction == 'request' and self.target.nested:
             return {
                 'oneOf': [
