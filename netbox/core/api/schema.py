@@ -292,7 +292,7 @@ class FixWritableNestedSerializerAllowPK(OpenApiSerializerFieldExtension):
         if direction == 'request' and self.target.nested:
             return {
                 'oneOf': [
-                    build_basic_type(OpenApiTypes.NUMBER),
+                    build_basic_type(OpenApiTypes.INT),
                     schema,
                 ]
             }
