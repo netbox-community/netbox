@@ -3,11 +3,15 @@ name: CI
 on:
   push:
     paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
       - 'contrib/**'
       - 'docs/**'
       - 'netbox/translations/**'
   pull_request:
     paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
       - 'contrib/**'
       - 'docs/**'
       - 'netbox/translations/**'
