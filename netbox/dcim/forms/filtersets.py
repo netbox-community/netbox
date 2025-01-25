@@ -7,6 +7,7 @@ from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF
+from netbox.choices import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import User
@@ -14,7 +15,7 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
-from virtualization.models import Cluster, ClusterGroup
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import *
 
@@ -33,8 +34,8 @@ __all__ = (
     'InventoryItemFilterForm',
     'InventoryItemRoleFilterForm',
     'LocationFilterForm',
+    'MACAddressFilterForm',
     'ManufacturerFilterForm',
-    'ModuleFilterForm',
     'ModuleFilterForm',
     'ModuleBayFilterForm',
     'ModuleTypeFilterForm',
@@ -1304,7 +1305,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
@@ -1318,6 +1319,10 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
 
 
 class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
@@ -1519,7 +1524,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
+            'name', 'label', 'status', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
             name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
@@ -1553,6 +1558,11 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -1562,6 +1572,34 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 
 class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
     model = InventoryItemRole
+    tag = TagFilterField(model)
+
+
+#
+# Addressing
+#
+
+class MACAddressFilterForm(NetBoxModelFilterSetForm):
+    model = MACAddress
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('mac_address', 'device_id', 'virtual_machine_id', name=_('MAC address')),
+    )
+    selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
+    mac_address = forms.CharField(
+        required=False,
+        label=_('MAC address')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
+    )
     tag = TagFilterField(model)
 
 

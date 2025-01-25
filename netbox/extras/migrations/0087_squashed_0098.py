@@ -9,7 +9,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('extras', '0087_dashboard'),
         ('extras', '0088_jobresult_webhooks'),
@@ -22,7 +21,7 @@ class Migration(migrations.Migration):
         ('extras', '0095_bookmarks'),
         ('extras', '0096_customfieldchoiceset'),
         ('extras', '0097_customfield_remove_choices'),
-        ('extras', '0098_webhook_custom_field_data_webhook_tags')
+        ('extras', '0098_webhook_custom_field_data_webhook_tags'),
     ]
 
     dependencies = [
@@ -39,7 +38,14 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('layout', models.JSONField(default=list)),
                 ('config', models.JSONField(default=dict)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='dashboard', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='dashboard',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
@@ -64,8 +70,7 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='ReportModule',
-            fields=[
-            ],
+            fields=[],
             options={
                 'proxy': True,
                 'ordering': ('file_root', 'file_path'),
@@ -76,8 +81,7 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='ScriptModule',
-            fields=[
-            ],
+            fields=[],
             options={
                 'proxy': True,
                 'ordering': ('file_root', 'file_path'),
@@ -98,10 +102,9 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(blank=True, related_name='+', to='contenttypes.contenttype'),
         ),
-        migrations.RenameIndex(
+        migrations.AddIndex(
             model_name='taggeditem',
-            new_name='extras_tagg_content_717743_idx',
-            old_fields=('content_type', 'object_id'),
+            index=models.Index(fields=['content_type', 'object_id'], name='extras_tagg_content_717743_idx'),
         ),
         migrations.CreateModel(
             name='Bookmark',
@@ -109,7 +112,10 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('object_id', models.PositiveBigIntegerField()),
-                ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype')),
+                (
+                    'object_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'),
+                ),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -118,7 +124,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='bookmark',
-            constraint=models.UniqueConstraint(fields=('object_type', 'object_id', 'user'), name='extras_bookmark_unique_per_object_and_user'),
+            constraint=models.UniqueConstraint(
+                fields=('object_type', 'object_id', 'user'), name='extras_bookmark_unique_per_object_and_user'
+            ),
         ),
         migrations.CreateModel(
             name='CustomFieldChoiceSet',
@@ -129,7 +137,17 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('base_choices', models.CharField(blank=True, max_length=50)),
-                ('extra_choices', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=2), blank=True, null=True, size=None)),
+                (
+                    'extra_choices',
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=django.contrib.postgres.fields.ArrayField(
+                            base_field=models.CharField(max_length=100), size=2
+                        ),
+                        blank=True,
+                        null=True,
+                        size=None,
+                    ),
+                ),
                 ('order_alphabetically', models.BooleanField(default=False)),
             ],
             options={
@@ -139,7 +157,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='customfield',
             name='choice_set',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='choices_for', to='extras.customfieldchoiceset'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='choices_for',
+                to='extras.customfieldchoiceset',
+            ),
         ),
         migrations.RemoveField(
             model_name='customfield',

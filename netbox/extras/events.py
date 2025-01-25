@@ -90,6 +90,10 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
         if not event_rule.eval_conditions(data):
             continue
 
+        # Compile event data
+        event_data = event_rule.action_data or {}
+        event_data.update(data)
+
         # Webhooks
         if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
 
@@ -102,7 +106,7 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
                 "event_rule": event_rule,
                 "model_name": object_type.model,
                 "event_type": event_type,
-                "data": data,
+                "data": event_data,
                 "snapshots": snapshots,
                 "timestamp": timezone.now().isoformat(),
                 "username": username,
@@ -130,7 +134,7 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
                 instance=event_rule.action_object,
                 name=script.name,
                 user=user,
-                data=data
+                data=event_data
             )
 
         # Notification groups
@@ -138,8 +142,8 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             # Bulk-create notifications for all members of the notification group
             event_rule.action_object.notify(
                 object_type=object_type,
-                object_id=data['id'],
-                object_repr=data.get('display'),
+                object_id=event_data['id'],
+                object_repr=event_data.get('display'),
                 event_type=event_type
             )
 

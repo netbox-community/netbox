@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
@@ -35,6 +34,7 @@ class FHRPGroup(PrimaryModel):
         max_length=50,
         choices=FHRPGroupAuthTypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('authentication type')
     )
     auth_key = models.CharField(
@@ -70,9 +70,6 @@ class FHRPGroup(PrimaryModel):
                 return f"{name} ({ip_address})"
 
         return name
-
-    def get_absolute_url(self):
-        return reverse('ipam:fhrpgroup', args=[self.pk])
 
 
 class FHRPGroupAssignment(ChangeLoggedModel):

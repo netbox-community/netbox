@@ -26,7 +26,6 @@ def set_event_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0119_notifications'),
     ]
@@ -36,16 +35,10 @@ class Migration(migrations.Migration):
             model_name='eventrule',
             name='event_types',
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.CharField(max_length=50),
-                blank=True,
-                null=True,
-                size=None
+                base_field=models.CharField(max_length=50), blank=True, null=True, size=None
             ),
         ),
-        migrations.RunPython(
-            code=set_event_types,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=set_event_types, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(
             model_name='eventrule',
             name='event_types',

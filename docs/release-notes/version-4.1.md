@@ -1,5 +1,94 @@
 # NetBox v4.1
 
+## v4.1.11 (2025-01-06)
+
+### Bug Fixes
+
+* [#17771](https://github.com/netbox-community/netbox/issues/17771) - Fix duplicate entries appearing on VLAN list when filtering by interface assignment
+* [#18222](https://github.com/netbox-community/netbox/issues/18222) - Pass event rule action data to webhooks as context data
+* [#18263](https://github.com/netbox-community/netbox/issues/18263) - Fix recalculation of cable paths when modifying cable terminations via the REST API
+* [#18271](https://github.com/netbox-community/netbox/issues/18271) - Require only encryption _or_ authentication algorithm when creating an IPSec proposal via the REST API
+* [#18289](https://github.com/netbox-community/netbox/issues/18289) - Enable ordering modules and module types by created & last updated times
+
+---
+
+## v4.1.10 (2024-12-23)
+
+### Bug Fixes
+
+* [#18260](https://github.com/netbox-community/netbox/issues/18260) - Fix object change logging
+
+---
+
+## v4.1.9 (2024-12-17)
+
+!!! danger "Do Not Use"
+    This release contains a regression which breaks change logging. Please use release v4.1.10 instead.
+
+### Enhancements
+
+* [#17215](https://github.com/netbox-community/netbox/issues/17215) - Change the highlighted color of disabled interfaces in interface lists
+* [#18224](https://github.com/netbox-community/netbox/issues/18224) - Apply all registered request processors when running custom scripts
+
+### Bug Fixes
+
+* [#16757](https://github.com/netbox-community/netbox/issues/16757) - Fix rendering of IP addresses table when assigning an existing IP address to an interface with global HTMX navigation enabled
+* [#17868](https://github.com/netbox-community/netbox/issues/17868) - Fix `ZeroDivisionError` exception under specific circumstances when generating a cable trace
+* [#18124](https://github.com/netbox-community/netbox/issues/18124) - Enable referencing cable attributes when querying a `cabletermination_set` via the GraphQL API
+* [#18230](https://github.com/netbox-community/netbox/issues/18230) - Fix `AttributeError` exception when attempting to edit an IP address assigned to a virtual machine interface
+
+---
+
+## v4.1.8 (2024-12-12)
+
+### Enhancements
+
+* [#17071](https://github.com/netbox-community/netbox/issues/17071) - Enable OOB IP address designation during bulk import
+* [#17465](https://github.com/netbox-community/netbox/issues/17465) - Enable designation of rack type during bulk import & bulk edit
+* [#17889](https://github.com/netbox-community/netbox/issues/17889) - Enable designating an IP address as out-of-band for a device upon creation
+* [#17960](https://github.com/netbox-community/netbox/issues/17960) - Add L2TP, PPTP, Wireguard, and OpenVPN tunnel types
+* [#18021](https://github.com/netbox-community/netbox/issues/18021) - Automatically clear cache on restart when `DEBUG` is enabled
+* [#18061](https://github.com/netbox-community/netbox/issues/18061) - Omit stack trace from rendered device/VM configuration when an exception is raised
+* [#18065](https://github.com/netbox-community/netbox/issues/18065) - Include status in device details when hovering on rack elevation
+* [#18211](https://github.com/netbox-community/netbox/issues/18211) - Enable the dynamic registration of context managers for request processing
+
+### Bug Fixes
+
+* [#14044](https://github.com/netbox-community/netbox/issues/14044) - Fix unhandled AttributeError exception when bulk renaming objects
+* [#17490](https://github.com/netbox-community/netbox/issues/17490) - Fix dynamic inclusion support for config templates
+* [#17810](https://github.com/netbox-community/netbox/issues/17810) - Fix validation of racked device fields when modifying via REST API
+* [#17820](https://github.com/netbox-community/netbox/issues/17820) - Ensure default custom field values are populated when creating new modules
+* [#18044](https://github.com/netbox-community/netbox/issues/18044) - Show plugin-generated alerts within UI views for custom scripts
+* [#18150](https://github.com/netbox-community/netbox/issues/18150) - Fix REST API pagination for low `MAX_PAGE_SIZE` values
+* [#18183](https://github.com/netbox-community/netbox/issues/18183) - Omit UI navigation bar when printing
+* [#18213](https://github.com/netbox-community/netbox/issues/18213) - Fix searching for ASN ranges by name
+
+---
+
+## v4.1.7 (2024-11-21)
+
+### Enhancements
+
+* [#15239](https://github.com/netbox-community/netbox/issues/15239) - Enable adding/removing individual VLANs while bulk editing device interfaces
+* [#17871](https://github.com/netbox-community/netbox/issues/17871) - Enable the assignment/removal of virtualization cluster via device bulk edit
+* [#17934](https://github.com/netbox-community/netbox/issues/17934) - Add 1000Base-LX interface type
+* [#18007](https://github.com/netbox-community/netbox/issues/18007) - Hide sensitive parameters under data source view (even for privileged users)
+
+### Bug Fixes
+
+* [#17459](https://github.com/netbox-community/netbox/issues/17459) - Correct help text on `name` field of module type component templates
+* [#17901](https://github.com/netbox-community/netbox/issues/17901) - Ensure GraphiQL UI resources are served locally
+* [#17921](https://github.com/netbox-community/netbox/issues/17921) - Fix scheduling of recurring custom scripts
+* [#17923](https://github.com/netbox-community/netbox/issues/17923) - Fix the execution of custom scripts via REST API & management command
+* [#17963](https://github.com/netbox-community/netbox/issues/17963) - Fix selection of all listed objects during bulk edit
+* [#17969](https://github.com/netbox-community/netbox/issues/17969) - Fix system info export when a config revision exists
+* [#17972](https://github.com/netbox-community/netbox/issues/17972) - Force evaluation of `LOGIN_REQUIRED` when requesting static media
+* [#17986](https://github.com/netbox-community/netbox/issues/17986) - Correct labels for virtual machine & virtual disk size properties
+* [#18037](https://github.com/netbox-community/netbox/issues/18037) - Fix validation of maximum VLAN ID value when defining VLAN groups
+* [#18038](https://github.com/netbox-community/netbox/issues/18038) - The `to_grams()` utility function should always return an integer value
+
+---
+
 ## v4.1.6 (2024-10-31)
 
 ### Bug Fixes

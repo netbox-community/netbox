@@ -92,3 +92,19 @@ class CircuitPriorityChoices(ChoiceSet):
         (PRIORITY_TERTIARY, _('Tertiary')),
         (PRIORITY_INACTIVE, _('Inactive')),
     ]
+
+
+#
+# Virtual circuits
+#
+
+class VirtualCircuitTerminationRoleChoices(ChoiceSet):
+    ROLE_PEER = 'peer'
+    ROLE_HUB = 'hub'
+    ROLE_SPOKE = 'spoke'
+
+    CHOICES = [
+        (ROLE_PEER, _('Peer'), 'green'),
+        (ROLE_HUB, _('Hub'), 'blue'),
+        (ROLE_SPOKE, _('Spoke'), 'orange'),
+    ]

@@ -2,7 +2,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
@@ -59,9 +58,6 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         verbose_name = _('service template')
         verbose_name_plural = _('service templates')
 
-    def get_absolute_url(self):
-        return reverse('ipam:servicetemplate', args=[self.pk])
-
 
 class Service(ContactsMixin, ServiceBase, PrimaryModel):
     """
@@ -101,9 +97,6 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
         verbose_name = _('service')
         verbose_name_plural = _('services')
-
-    def get_absolute_url(self):
-        return reverse('ipam:service', args=[self.pk])
 
     @property
     def parent(self):

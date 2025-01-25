@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('vpn', '0003_ipaddress_multiple_tunnel_terminations'),
     ]

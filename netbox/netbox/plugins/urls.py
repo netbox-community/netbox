@@ -8,7 +8,6 @@ from django.utils.module_loading import import_string, module_has_submodule
 
 from . import views
 
-# Initialize URL base, API, and admin URL patterns for plugins
 plugin_patterns = []
 plugin_api_patterns = [
     path('', views.PluginsAPIRootView.as_view(), name='api-root'),

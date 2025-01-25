@@ -1,6 +1,6 @@
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<5.1
+Django<5.2
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -8,8 +8,6 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-# Pinned for DNS looukp bug; see https://github.com/netbox-community/netbox/issues/16454
-# and https://github.com/jazzband/django-debug-toolbar/issues/1927
 django-debug-toolbar
 
 # Library for writing reusable URL query filters
@@ -101,7 +99,7 @@ netaddr
 nh3
 
 # Fork of PIL (Python Imaging Library) for image processing
-# https://github.com/python-pillow/Pillow/blob/main/CHANGES.rst
+# https://github.com/python-pillow/Pillow/releases
 Pillow
 
 # PostgreSQL database adapter for Python
@@ -134,7 +132,8 @@ strawberry-graphql
 
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/releases
-strawberry-graphql-django
+# Pinned to v0.52.0 for suspected upstream bug; see #18329
+strawberry-graphql-django==0.52.0
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst

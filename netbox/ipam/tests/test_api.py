@@ -732,10 +732,19 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         fhrp_groups = (
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=10, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT, auth_key='foobar123'),
-            FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3, group_id=20, auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5, auth_key='foobar123'),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2,
+                group_id=10,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_PLAINTEXT,
+                auth_key='foobar123',
+            ),
+            FHRPGroup(
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP3,
+                group_id=20,
+                auth_type=FHRPGroupAuthTypeChoices.AUTHENTICATION_MD5,
+                auth_key='foobar123',
+            ),
             FHRPGroup(protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP, group_id=30),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)
@@ -980,6 +989,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
             VLAN(name='VLAN 1', vid=1, group=vlan_groups[0]),
             VLAN(name='VLAN 2', vid=2, group=vlan_groups[0]),
             VLAN(name='VLAN 3', vid=3, group=vlan_groups[0]),
+            VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
         )
         VLAN.objects.bulk_create(vlans)
 
@@ -998,6 +1008,12 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
                 'vid': 6,
                 'name': 'VLAN 6',
                 'group': vlan_groups[1].pk,
+            },
+            {
+                'vid': 2001,
+                'name': 'CVLAN 1',
+                'qinq_role': VLANQinQRoleChoices.ROLE_CUSTOMER,
+                'qinq_svlan': vlans[3].pk,
             },
         ]
 
@@ -1018,6 +1034,112 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
         content = json.loads(response.content.decode('utf-8'))
         self.assertIn('detail', content)
         self.assertTrue(content['detail'].startswith('Unable to delete object.'))
+
+
+class VLANTranslationPolicyTest(APIViewTestCases.APIViewTestCase):
+    model = VLANTranslationPolicy
+    brief_fields = ['description', 'display', 'id', 'name', 'url',]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar3',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        cls.create_data = [
+            {
+                'name': 'Policy 4',
+                'description': 'foobar4',
+            },
+            {
+                'name': 'Policy 5',
+                'description': 'foobar5',
+            },
+            {
+                'name': 'Policy 6',
+                'description': 'foobar6',
+            },
+        ]
+
+
+class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
+    model = VLANTranslationRule
+    brief_fields = ['description', 'display', 'id', 'local_vid', 'policy', 'remote_vid', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlan_translation_policies = (
+            VLANTranslationPolicy(
+                name='Policy 1',
+                description='foobar1',
+            ),
+            VLANTranslationPolicy(
+                name='Policy 2',
+                description='foobar2',
+            ),
+        )
+        VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
+
+        vlan_translation_rules = (
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=100,
+                remote_vid=200,
+                description='foo',
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[0],
+                local_vid=101,
+                remote_vid=201,
+                description='bar',
+            ),
+            VLANTranslationRule(
+                policy=vlan_translation_policies[1],
+                local_vid=102,
+                remote_vid=202,
+                description='baz',
+            ),
+        )
+        VLANTranslationRule.objects.bulk_create(vlan_translation_rules)
+
+        cls.create_data = [
+            {
+                'policy': vlan_translation_policies[0].pk,
+                'local_vid': 300,
+                'remote_vid': 400,
+            },
+            {
+                'policy': vlan_translation_policies[0].pk,
+                'local_vid': 301,
+                'remote_vid': 401,
+            },
+            {
+                'policy': vlan_translation_policies[1].pk,
+                'local_vid': 302,
+                'remote_vid': 402,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'policy': vlan_translation_policies[1].pk,
+        }
 
 
 class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):

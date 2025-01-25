@@ -7,7 +7,9 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
+from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VLANGroup, VRF
+from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from users.models import User
@@ -38,6 +40,7 @@ __all__ = (
     'InventoryItemRoleBulkEditForm',
     'InventoryItemTemplateBulkEditForm',
     'LocationBulkEditForm',
+    'MACAddressBulkEditForm',
     'ManufacturerBulkEditForm',
     'ModuleBulkEditForm',
     'ModuleBayBulkEditForm',
@@ -359,6 +362,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         queryset=RackRole.objects.all(),
         required=False
     )
+    rack_type = DynamicModelChoiceField(
+        label=_('Rack type'),
+        queryset=RackType.objects.all(),
+        required=False,
+    )
     serial = forms.CharField(
         max_length=50,
         required=False,
@@ -438,7 +446,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Rack
     fieldsets = (
-        FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'description', name=_('Rack')),
+        FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet(
             'form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'outer_width', 'outer_depth', 'outer_unit',
@@ -1371,7 +1379,7 @@ class PowerPortBulkEditForm(
 
 class PowerOutletBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(PowerOutlet, ['label', 'type', 'feed_leg', 'power_port', 'mark_connected', 'description'])
+    form_from_model(PowerOutlet, ['label', 'type', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description'])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1381,7 +1389,7 @@ class PowerOutletBulkEditForm(
 
     model = PowerOutlet
     fieldsets = (
-        FieldSet('module', 'type', 'label', 'description', 'mark_connected'),
+        FieldSet('module', 'type', 'label', 'description', 'mark_connected', 'color'),
         FieldSet('feed_leg', 'power_port', name=_('Power')),
     )
     nullable_fields = ('module', 'label', 'type', 'feed_leg', 'power_port', 'description')
@@ -1401,9 +1409,9 @@ class PowerOutletBulkEditForm(
 class InterfaceBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
-        'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-        'tx_power', 'wireless_lans'
+        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
+        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+        'wireless_lans'
     ])
 ):
     enabled = forms.NullBooleanField(
@@ -1520,6 +1528,16 @@ class InterfaceBulkEditForm(
             'available_on_device': '$device',
         }
     )
+    qinq_svlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('Q-in-Q Service VLAN'),
+        query_params={
+            'group_id': '$vlan_group',
+            'available_on_device': '$device',
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -1542,11 +1560,11 @@ class InterfaceBulkEditForm(
     model = Interface
     fieldsets = (
         FieldSet('module', 'type', 'label', 'speed', 'duplex', 'description'),
-        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', name=_('802.1Q Switching')),
         FieldSet(
             TabbedGroups(
                 FieldSet('tagged_vlans', name=_('Assignment')),
@@ -1559,9 +1577,9 @@ class InterfaceBulkEditForm(
         ),
     )
     nullable_fields = (
-        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'vdcs', 'mtu',
-        'description', 'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-        'tx_power', 'untagged_vlan', 'tagged_vlans', 'vrf', 'wireless_lans'
+        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu', 'description',
+        'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+        'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans'
     )
 
     def __init__(self, *args, **kwargs):
@@ -1699,10 +1717,16 @@ class InventoryItemBulkEditForm(
         queryset=Manufacturer.objects.all(),
         required=False
     )
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(InventoryItemStatusChoices),
+        required=False,
+        initial=''
+    )
 
     model = InventoryItem
     fieldsets = (
-        FieldSet('device', 'label', 'role', 'manufacturer', 'part_id', 'description'),
+        FieldSet('device', 'label', 'role', 'manufacturer', 'part_id', 'status', 'description'),
     )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
@@ -1750,3 +1774,22 @@ class VirtualDeviceContextBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('device', 'status', 'tenant'),
     )
     nullable_fields = ('device', 'tenant', )
+
+
+#
+# Addressing
+#
+
+class MACAddressBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = MACAddress
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description', 'comments')

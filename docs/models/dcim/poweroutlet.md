@@ -29,6 +29,12 @@ An alternative physical label identifying the power outlet.
 
 The type of power outlet.
 
+### Color
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The power outlet's color (optional).
+
 ### Power Port
 
 When modeling a device which redistributes power from an upstream supply, such as a power distribution unit (PDU), each power outlet should be mapped to the respective [power port](./powerport.md) on the device which supplies power. For example, a 24-outlet PDU may two power ports, each distributing power to 12 of its outlets.

@@ -83,7 +83,7 @@ class CountersTest(TestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_mptt_child_delete(self):
-        device1, device2 = Device.objects.all()
+        device1 = Device.objects.first()
         inventory_item1 = InventoryItem.objects.create(device=device1, name='Inventory Item 1')
         InventoryItem.objects.create(device=device1, name='Inventory Item 2', parent=inventory_item1)
         device1.refresh_from_db()

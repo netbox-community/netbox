@@ -6,6 +6,7 @@ from dcim.constants import *
 from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.choices import *
 from netbox.config import ConfigItem
 from tenancy.api.serializers_.tenants import TenantSerializer
 from users.api.serializers_.users import UserSerializer

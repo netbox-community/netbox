@@ -1,5 +1,6 @@
 ---
 name: ✨ Feature Request
+type: Feature
 description: Propose a new NetBox feature or enhancement
 labels: ["type: feature", "status: needs triage"]
 body:
@@ -14,7 +15,7 @@ body:
     attributes:
       label: NetBox version
       description: What version of NetBox are you currently running?
-      placeholder: v4.1.6
+      placeholder: v4.2.2
     validations:
       required: true
   - type: dropdown
@@ -25,19 +26,6 @@ body:
         - New functionality
         - Change to existing functionality
         - Other
-    validations:
-      required: true
-  - type: dropdown
-    attributes:
-      label: Triage priority
-      description: >
-        Issue triage may be prioritized in some cases. Select whichever of the following
-        conditions applies, if any.
-      options:
-        - I volunteer to perform this work (if approved)
-        - I'm a NetBox Labs customer
-        - N/A
-      default: 2
     validations:
       required: true
   - type: textarea

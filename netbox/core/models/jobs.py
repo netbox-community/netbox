@@ -9,6 +9,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
 from core.models import ObjectType
@@ -158,7 +159,11 @@ class Job(models.Model):
         job = queue.fetch_job(str(self.job_id))
 
         if job:
-            job.cancel()
+            try:
+                job.cancel()
+            except InvalidJobOperation:
+                # Job may raise this exception from get_status() if missing from Redis
+                pass
 
     def start(self):
         """
@@ -198,7 +203,17 @@ class Job(models.Model):
         job_end.send(self)
 
     @classmethod
-    def enqueue(cls, func, instance=None, name='', user=None, schedule_at=None, interval=None, immediate=False, **kwargs):
+    def enqueue(
+            cls,
+            func,
+            instance=None,
+            name='',
+            user=None,
+            schedule_at=None,
+            interval=None,
+            immediate=False,
+            **kwargs
+    ):
         """
         Create a Job instance and enqueue a job using the given callable
 

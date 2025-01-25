@@ -16,14 +16,10 @@ def update_dashboard_widgets(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0114_customfield_add_comments'),
     ]
 
     operations = [
-        migrations.RunPython(
-            code=update_dashboard_widgets,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_dashboard_widgets, reverse_code=migrations.RunPython.noop),
     ]

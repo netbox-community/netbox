@@ -53,7 +53,8 @@ class Command(BaseCommand):
 
                 else:
                     raise CommandError(
-                        f"Invalid model: {label}. Model names must be in the format <app_label> or <app_label>.<model_name>."
+                        f"Invalid model: {label}. Model names must be in the format <app_label> or "
+                        f"<app_label>.<model_name>."
                     )
 
         return indexers

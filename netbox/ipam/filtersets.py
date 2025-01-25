@@ -1,5 +1,6 @@
 import django_filters
 import netaddr
+from dcim.base_filtersets import ScopedFilterSet
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -37,6 +38,8 @@ __all__ = (
     'ServiceTemplateFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
+    'VLANTranslationPolicyFilterSet',
+    'VLANTranslationRuleFilterSet',
     'VRFFilterSet',
 )
 
@@ -211,8 +214,10 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(description__icontains=value)
-        return queryset.filter(qs_filter)
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
@@ -271,7 +276,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
-class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -332,42 +337,6 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        label=_('Region (ID)'),
-    )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Region (slug)'),
-    )
-    site_group_id = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        label=_('Site group (ID)'),
-    )
-    site_group = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Site group (slug)'),
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        label=_('Site (ID)'),
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label=_('Site (slug)'),
-    )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
         label=_('VLAN (ID)'),
@@ -393,7 +362,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ('id', 'is_pool', 'mark_utilized', 'description')
+        fields = ('id', 'scope_id', 'is_pool', 'mark_utilized', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1024,6 +993,17 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VirtualMachine.objects.all(),
         method='get_for_virtualmachine'
     )
+    qinq_role = django_filters.MultipleChoiceFilter(
+        choices=VLANQinQRoleChoices
+    )
+    qinq_svlan_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLAN.objects.all(),
+        label=_('Q-in-Q SVLAN (ID)'),
+    )
+    qinq_svlan_vid = MultiValueNumberFilter(
+        field_name='qinq_svlan__vid',
+        label=_('Q-in-Q SVLAN number (1-4094)'),
+    )
     l2vpn_id = django_filters.ModelMultipleChoiceFilter(
         field_name='l2vpn_terminations__l2vpn',
         queryset=L2VPN.objects.all(),
@@ -1078,7 +1058,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(
             Q(interfaces_as_tagged=value) |
             Q(interfaces_as_untagged=value)
-        )
+        ).distinct()
 
     def filter_vminterface_id(self, queryset, name, value):
         if value is None:
@@ -1086,7 +1066,54 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         return queryset.filter(
             Q(vminterfaces_as_tagged=value) |
             Q(vminterfaces_as_untagged=value)
+        ).distinct()
+
+
+class VLANTranslationPolicyFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = VLANTranslationPolicy
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
+        return queryset.filter(qs_filter)
+
+
+class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
+    policy_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLANTranslationPolicy.objects.all(),
+        label=_('VLAN Translation Policy (ID)'),
+    )
+    policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='policy__name',
+        queryset=VLANTranslationPolicy.objects.all(),
+        to_field_name='name',
+        label=_('VLAN Translation Policy (name)'),
+    )
+
+    class Meta:
+        model = VLANTranslationRule
+        fields = ('id', 'policy_id', 'policy', 'local_vid', 'remote_vid', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(policy__name__icontains=value)
+        )
+        try:
+            int_value = int(value.strip())
+            qs_filter |= Q(local_vid=int_value)
+            qs_filter |= Q(remote_vid=int_value)
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):

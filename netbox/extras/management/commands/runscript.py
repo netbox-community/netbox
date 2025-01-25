@@ -38,7 +38,7 @@ class Command(BaseCommand):
             data = {}
 
         module_name, script_name = script.split('.', 1)
-        module, script_obj = get_module_and_script(module_name, script_name)
+        script_obj = get_module_and_script(module_name, script_name)[1]
         script = script_obj.python_class
 
         # Take user from command line if provided and exists, other

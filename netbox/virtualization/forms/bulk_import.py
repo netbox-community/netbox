@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
+from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VRF
@@ -36,7 +37,7 @@ class ClusterGroupImportForm(NetBoxModelImportForm):
         fields = ('name', 'slug', 'description', 'tags')
 
 
-class ClusterImportForm(NetBoxModelImportForm):
+class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
     type = CSVModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -72,7 +73,12 @@ class ClusterImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'site', 'tenant', 'description', 'comments', 'tags')
+        fields = (
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags',
+        )
+        labels = {
+            'scope_id': _('Scope ID'),
+        }
 
 
 class VirtualMachineImportForm(NetBoxModelImportForm):
@@ -178,7 +184,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
     class Meta:
         model = VMInterface
         fields = (
-            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode',
             'vrf', 'tags'
         )
 

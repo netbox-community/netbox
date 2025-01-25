@@ -31,8 +31,8 @@ ADVISORY_LOCK_KEYS = {
 # Default view action permission mapping
 DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
-    'import': {'add'},
     'export': {'view'},
+    'bulk_import': {'add'},
     'bulk_edit': {'change'},
     'bulk_delete': {'delete'},
 }

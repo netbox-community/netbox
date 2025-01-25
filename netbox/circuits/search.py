@@ -34,7 +34,7 @@ class CircuitTerminationIndex(SearchIndex):
         ('port_speed', 2000),
         ('upstream_speed', 2000),
     )
-    display_attrs = ('circuit', 'site', 'provider_network', 'description')
+    display_attrs = ('circuit', 'termination', 'description')
 
 
 @register_search
@@ -80,3 +80,34 @@ class ProviderNetworkIndex(SearchIndex):
         ('comments', 5000),
     )
     display_attrs = ('provider', 'service_id', 'description')
+
+
+@register_search
+class VirtualCircuitIndex(SearchIndex):
+    model = models.VirtualCircuit
+    fields = (
+        ('cid', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('provider', 'provider_network', 'provider_account', 'status', 'tenant', 'description')
+
+
+@register_search
+class VirtualCircuitTerminationIndex(SearchIndex):
+    model = models.VirtualCircuitTermination
+    fields = (
+        ('description', 500),
+    )
+    display_attrs = ('virtual_circuit', 'role', 'description')
+
+
+@register_search
+class VirtualCircuitTypeIndex(SearchIndex):
+    model = models.VirtualCircuitType
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)

@@ -10,7 +10,7 @@ class ClusterIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('type', 'group', 'status', 'tenant', 'site', 'description')
+    display_attrs = ('type', 'group', 'status', 'tenant', 'scope', 'description')
 
 
 @register_search
@@ -52,11 +52,10 @@ class VMInterfaceIndex(SearchIndex):
     model = models.VMInterface
     fields = (
         ('name', 100),
-        ('mac_address', 300),
         ('description', 500),
         ('mtu', 2000),
     )
-    display_attrs = ('virtual_machine', 'mac_address', 'description')
+    display_attrs = ('virtual_machine', 'description')
 
 
 @register_search

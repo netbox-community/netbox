@@ -9,22 +9,27 @@ __all__ = (
 )
 
 
-def get_model_urls(app_label, model_name):
+def get_model_urls(app_label, model_name, detail=True):
     """
     Return a list of URL paths for detail views registered to the given model.
 
     Args:
         app_label: App/plugin name
         model_name: Model name
+        detail: If True (default), return only URL views for an individual object.
+            Otherwise, return only list views.
     """
     paths = []
 
     # Retrieve registered views for this model
     try:
-        views = registry['views'][app_label][model_name]
+        views = [
+            view for view in registry['views'][app_label][model_name]
+            if view['detail'] == detail
+        ]
     except KeyError:
         # No views have been registered for this model
-        views = []
+        return []
 
     for config in views:
         # Import the view class or function

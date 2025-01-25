@@ -136,7 +136,8 @@ class FrontPortTemplateImportForm(forms.ModelForm):
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'type', 'color', 'rear_port', 'rear_port_position', 'label', 'description',
+            'device_type', 'module_type', 'name', 'type', 'color', 'rear_port', 'rear_port_position', 'label',
+            'description',
         ]
 
 

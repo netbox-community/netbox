@@ -28,6 +28,8 @@ __all__ = (
     'ServiceTemplateFilterForm',
     'VLANFilterForm',
     'VLANGroupFilterForm',
+    'VLANTranslationPolicyFilterForm',
+    'VLANTranslationRuleFilterForm',
     'VRFFilterForm',
 )
 
@@ -170,7 +172,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         ),
         FieldSet('vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     mask_length__lte = forms.IntegerField(
@@ -224,11 +226,12 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
         label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=Role.objects.all(),
@@ -460,12 +463,50 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class VLANTranslationPolicyFilterForm(NetBoxModelFilterSetForm):
+    model = VLANTranslationPolicy
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', name=_('Attributes')),
+    )
+    name = forms.CharField(
+        required=False,
+        label=_('Name')
+    )
+    tag = TagFilterField(model)
+
+
+class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
+    model = VLANTranslationRule
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('policy_id', 'local_vid', 'remote_vid', name=_('Attributes')),
+    )
+    tag = TagFilterField(model)
+    policy_id = DynamicModelMultipleChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
+    local_vid = forms.IntegerField(
+        min_value=1,
+        required=False,
+        label=_('Local VLAN ID')
+    )
+    remote_vid = forms.IntegerField(
+        min_value=1,
+        required=False,
+        label=_('Remote VLAN ID')
+    )
+
+
 class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('group_id', 'status', 'role_id', 'vid', 'l2vpn_id', name=_('Attributes')),
+        FieldSet('qinq_role', 'qinq_svlan_id', name=_('Q-in-Q/802.1ad')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', 'site_id')
@@ -511,6 +552,17 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     vid = forms.IntegerField(
         required=False,
         label=_('VLAN ID')
+    )
+    qinq_role = forms.MultipleChoiceField(
+        label=_('Q-in-Q role'),
+        choices=VLANQinQRoleChoices,
+        required=False
+    )
+    qinq_svlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Q-in-Q SVLAN')
     )
     l2vpn_id = DynamicModelMultipleChoiceField(
         queryset=L2VPN.objects.all(),

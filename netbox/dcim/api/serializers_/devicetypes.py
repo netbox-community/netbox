@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.models import DeviceType, ModuleType
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.choices import *
 from .manufacturers import ManufacturerSerializer
 from .platforms import PlatformSerializer
 

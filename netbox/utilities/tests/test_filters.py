@@ -9,7 +9,7 @@ from dcim.choices import *
 from dcim.fields import MACAddressField
 from dcim.filtersets import DeviceFilterSet, SiteFilterSet, InterfaceFilterSet
 from dcim.models import (
-    Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, Region, Site
+    Device, DeviceRole, DeviceType, Interface, MACAddress, Manufacturer, Platform, Rack, Region, Site
 )
 from extras.filters import TagFilter
 from extras.models import TaggedItem
@@ -427,21 +427,75 @@ class DynamicFilterLookupExpressionTest(TestCase):
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                platform=platforms[0],
+                serial='ABC',
+                asset_tag='1001',
+                site=sites[0],
+                rack=racks[0],
+                position=1,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_ACTIVE,
+                local_context_data={'foo': 123},
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                platform=platforms[1],
+                serial='DEF',
+                asset_tag='1002',
+                site=sites[1],
+                rack=racks[1],
+                position=2,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_STAGED,
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                platform=platforms[2],
+                serial='GHI',
+                asset_tag='1003',
+                site=sites[2],
+                rack=racks[2],
+                position=3,
+                face=DeviceFaceChoices.FACE_REAR,
+                status=DeviceStatusChoices.STATUS_FAILED,
+            ),
         )
         Device.objects.bulk_create(devices)
 
+        mac_addresses = (
+            MACAddress(mac_address='00-00-00-00-00-01'),
+            MACAddress(mac_address='aa-00-00-00-00-01'),
+            MACAddress(mac_address='00-00-00-00-00-02'),
+            MACAddress(mac_address='bb-00-00-00-00-02'),
+            MACAddress(mac_address='00-00-00-00-00-03'),
+            MACAddress(mac_address='cc-00-00-00-00-03'),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', mac_address='00-00-00-00-00-01'),
-            Interface(device=devices[0], name='Interface 2', mac_address='aa-00-00-00-00-01'),
-            Interface(device=devices[1], name='Interface 3', mac_address='00-00-00-00-00-02'),
-            Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
-            Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
-            Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03', rf_role=WirelessRoleChoices.ROLE_AP),
+            Interface(device=devices[0], name='Interface 1'),
+            Interface(device=devices[0], name='Interface 2'),
+            Interface(device=devices[1], name='Interface 3'),
+            Interface(device=devices[1], name='Interface 4'),
+            Interface(device=devices[2], name='Interface 5'),
+            Interface(device=devices[2], name='Interface 6', rf_role=WirelessRoleChoices.ROLE_AP),
         )
         Interface.objects.bulk_create(interfaces)
+
+        interfaces[0].mac_addresses.set([mac_addresses[0]])
+        interfaces[1].mac_addresses.set([mac_addresses[1]])
+        interfaces[2].mac_addresses.set([mac_addresses[2]])
+        interfaces[3].mac_addresses.set([mac_addresses[3]])
+        interfaces[4].mac_addresses.set([mac_addresses[4]])
+        interfaces[5].mac_addresses.set([mac_addresses[5]])
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}

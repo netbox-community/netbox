@@ -1,5 +1,6 @@
 ---
 name: 📖 Documentation Change
+type: Documentation
 description: Suggest an addition or modification to the NetBox documentation
 labels: ["type: documentation", "status: needs triage"]
 body:
