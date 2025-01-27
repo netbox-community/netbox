@@ -53,10 +53,10 @@ class ScopedFilterSet(BaseFilterSet):
         label=_('Site (slug)'),
     )
     location_id = TreeNodeMultipleChoiceFilter(
-       queryset=Location.objects.all(),
-       field_name='_location',
-       lookup_expr='in',
-       label=_('Location (ID)'),
+        queryset=Location.objects.all(),
+        field_name='_location',
+        lookup_expr='in',
+        label=_('Location (ID)'),
     )
     location = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),

@@ -1,5 +1,6 @@
 ---
 name: 🏡 Housekeeping
+type: Housekeeping
 description: A change pertaining to the codebase itself (developers only)
 labels: ["type: housekeeping"]
 body:
