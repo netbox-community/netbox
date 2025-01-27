@@ -1315,9 +1315,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         try:
-            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)]
         except KeyError:
-            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEFAULT]
         if job.data:
 
             if 'log' in job.data:
