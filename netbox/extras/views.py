@@ -1374,9 +1374,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)
         if log_threshold not in LOG_LEVEL_RANK:
-            log_threshold = LogLevelChoices.LOG_DEBUG
+            log_threshold = LogLevelChoices.LOG_DEFAULT
 
         context = {
             'script': job.object,
