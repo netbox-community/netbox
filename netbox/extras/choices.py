@@ -155,24 +155,22 @@ class JournalEntryKindChoices(ChoiceSet):
 class LogLevelChoices(ChoiceSet):
 
     LOG_DEBUG = 'debug'
-    LOG_DEFAULT = 'default'
     LOG_INFO = 'info'
     LOG_SUCCESS = 'success'
     LOG_WARNING = 'warning'
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEFAULT, _('Default'), 'gray'),
+        (LOG_DEBUG, _('Debug'), 'teal'),
         (LOG_INFO, _('Info'), 'cyan'),
         (LOG_SUCCESS, _('Success'), 'green'),
         (LOG_WARNING, _('Warning'), 'yellow'),
         (LOG_FAILURE, _('Failure'), 'red'),
-        (LOG_DEBUG, _('Debug'), 'teal'),
+        
     )
 
     SYSTEM_LEVELS = {
         LOG_DEBUG: logging.DEBUG,
-        LOG_DEFAULT: logging.INFO,
         LOG_INFO: logging.INFO,
         LOG_SUCCESS: logging.INFO,
         LOG_WARNING: logging.WARNING,
