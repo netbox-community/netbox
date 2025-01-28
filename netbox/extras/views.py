@@ -1315,9 +1315,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         try:
-            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)]
         except KeyError:
-            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEFAULT]
         if job.data:
 
             if 'log' in job.data:
@@ -1374,9 +1374,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEFAULT)
         if log_threshold not in LOG_LEVEL_RANK:
-            log_threshold = LogLevelChoices.LOG_DEBUG
+            log_threshold = LogLevelChoices.LOG_DEFAULT
 
         context = {
             'script': job.object,

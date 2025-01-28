@@ -162,12 +162,12 @@ class LogLevelChoices(ChoiceSet):
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEBUG, _('Debug'), 'teal'),
         (LOG_DEFAULT, _('Default'), 'gray'),
         (LOG_INFO, _('Info'), 'cyan'),
         (LOG_SUCCESS, _('Success'), 'green'),
         (LOG_WARNING, _('Warning'), 'yellow'),
         (LOG_FAILURE, _('Failure'), 'red'),
+        (LOG_DEBUG, _('Debug'), 'teal'),
     )
 
     SYSTEM_LEVELS = {
