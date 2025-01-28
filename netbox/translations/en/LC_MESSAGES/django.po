@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-24 05:02+0000\n"
+"POT-Creation-Date: 2025-01-28 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6594,13 +6594,13 @@ msgstr ""
 msgid "MAC addresses"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1544
+#: netbox/dcim/models/devices.py:1551
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an "
 "object"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1548
+#: netbox/dcim/models/devices.py:1555
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
