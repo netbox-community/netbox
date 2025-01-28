@@ -28,4 +28,7 @@ class CoreConfig(AppConfig):
 
         # Clear Redis cache on startup in development mode
         if settings.DEBUG:
-            cache.clear()
+            try:
+                cache.clear()
+            except Exception:
+                pass
