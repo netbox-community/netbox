@@ -791,6 +791,7 @@ if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
     EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
 
 # Register any configured plugins
+incompatible_plugins = []
 for plugin_name in PLUGINS:
     try:
         # Import the plugin module
