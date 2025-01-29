@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
 
+from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
@@ -789,6 +790,7 @@ if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
     EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
 
 # Register any configured plugins
+incompatible_plugins = []
 for plugin_name in PLUGINS:
     try:
         # Import the plugin module
@@ -809,6 +811,16 @@ for plugin_name in PLUGINS:
             f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
             f"__init__.py file and point to the PluginConfig subclass."
         )
+
+    # Validate version compatibility and user-provided configuration settings and assign defaults
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    try:
+        plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
+    except IncompatiblePluginError as e:
+        print(f'Unable to load plugin {plugin_name}: {e}')
+        incompatible_plugins.append(plugin_name)
+        continue
 
     plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
 
@@ -839,11 +851,6 @@ for plugin_name in PLUGINS:
     sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
     INSTALLED_APPS = list(sorted_apps)
 
-    # Validate user-provided configuration settings and assign defaults
-    if plugin_name not in PLUGINS_CONFIG:
-        PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
-
     # Add middleware
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
@@ -864,6 +871,9 @@ for plugin_name in PLUGINS:
             EVENTS_PIPELINE.extend(events_pipeline)
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
+
+[PLUGINS.remove(x) for x in incompatible_plugins]
+
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
