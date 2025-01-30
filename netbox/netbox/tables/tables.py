@@ -66,7 +66,7 @@ class BaseTable(tables.Table):
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.config.get(f"tables.{self.name}.columns")
-        elif isinstance(user, AnonymousUser):
+        elif isinstance(user, AnonymousUser) and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
             default_user_preferences = settings.DEFAULT_USER_PREFERENCES
             default_table = default_user_preferences.get('tables', {}).get(self.name, {}).get('columns', {})
             if default_table != {}:
