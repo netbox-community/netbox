@@ -128,16 +128,6 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit saved filters to those applicable to the form's model
-        object_type = ObjectType.objects.get_for_model(self.model)
-        self.fields['filter_id'].widget.add_query_params({
-            'object_type_id': object_type.pk,
-        })
-
     model = ObjectChange
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -169,6 +159,15 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Object Type'),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit saved filters to those applicable to the form's model
+        object_type = ObjectType.objects.get_for_model(self.model)
+        self.fields['filter_id'].widget.add_query_params({
+            'object_type_id': object_type.pk,
+        })
 
 
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
