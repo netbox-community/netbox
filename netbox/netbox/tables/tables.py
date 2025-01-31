@@ -14,7 +14,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
 
-
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomLink
