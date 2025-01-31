@@ -2,6 +2,7 @@ from copy import deepcopy
 from functools import cached_property
 
 import django_tables2 as tables
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
@@ -64,6 +65,8 @@ class BaseTable(tables.Table):
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
             selected_columns = user.config.get(f"tables.{self.name}.columns")
+        elif isinstance(user, AnonymousUser) and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
+            selected_columns = settings.DEFAULT_USER_PREFERENCES.get('tables', {}).get(self.name, {}).get('columns')
         if not selected_columns:
             selected_columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
