@@ -2,7 +2,7 @@
 
 Custom links allow users to display arbitrary hyperlinks to external content within NetBox object views. These are helpful for cross-referencing related records in systems outside NetBox. For example, you might create a custom link on the device view which links to the current device in a Network Monitoring System (NMS).
 
-Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the NetBox item being viewed can be included in the link using [Jinja2 template code](https://jinja2docs.readthedocs.io/en/stable/) through the variable `object`, and custom fields through `object.cf`.
+Custom links are created by navigating to Customization > Custom Links. Each link is associated with a particular NetBox object type (site, device, prefix, etc.) and will be displayed on relevant views. Each link has display text and a URL, and data from the NetBox item being viewed can be included in the link using [Jinja template code](https://jinja.palletsprojects.com/en/stable/) through the variable `object`, and custom fields through `object.cf`.
 
 For example, you might define a link like this:
 
