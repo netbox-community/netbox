@@ -460,7 +460,7 @@ class BaseScript:
     # Logging
     #
 
-    def _log(self, message, obj=None, level=LogLevelChoices.LOG_DEFAULT):
+    def _log(self, message, obj=None, level=LogLevelChoices.LOG_INFO):
         """
         Log a message. Do not call this method directly; use one of the log_* wrappers below.
         """
