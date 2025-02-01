@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-30 05:01+0000\n"
+"POT-Creation-Date: 2025-02-01 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -690,7 +690,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:845 netbox/dcim/tables/power.py:77
 #: netbox/dcim/tables/racks.py:137 netbox/extras/forms/bulk_import.py:42
 #: netbox/extras/tables/tables.py:405 netbox/extras/tables/tables.py:465
-#: netbox/netbox/tables/tables.py:240 netbox/templates/circuits/circuit.html:30
+#: netbox/netbox/tables/tables.py:243 netbox/templates/circuits/circuit.html:30
 #: netbox/templates/circuits/virtualcircuit.html:39
 #: netbox/templates/circuits/virtualcircuittermination.html:64
 #: netbox/templates/core/datasource.html:38 netbox/templates/dcim/cable.html:15
@@ -950,7 +950,7 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:310 netbox/ipam/forms/filtersets.py:385
 #: netbox/ipam/forms/filtersets.py:470 netbox/ipam/forms/filtersets.py:483
 #: netbox/ipam/forms/filtersets.py:508 netbox/ipam/forms/filtersets.py:579
-#: netbox/ipam/forms/filtersets.py:597 netbox/netbox/tables/tables.py:256
+#: netbox/ipam/forms/filtersets.py:597 netbox/netbox/tables/tables.py:259
 #: netbox/virtualization/forms/filtersets.py:45
 #: netbox/virtualization/forms/filtersets.py:108
 #: netbox/virtualization/forms/filtersets.py:203
@@ -2700,7 +2700,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:297 netbox/extras/tables/tables.py:329
 #: netbox/extras/tables/tables.py:409 netbox/extras/tables/tables.py:470
 #: netbox/extras/tables/tables.py:576 netbox/extras/tables/tables.py:616
-#: netbox/extras/tables/tables.py:653 netbox/netbox/tables/tables.py:244
+#: netbox/extras/tables/tables.py:653 netbox/netbox/tables/tables.py:247
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2729,7 +2729,7 @@ msgstr ""
 
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:164 netbox/extras/tables/tables.py:216
-#: netbox/extras/tables/tables.py:460 netbox/netbox/tables/tables.py:189
+#: netbox/extras/tables/tables.py:460 netbox/netbox/tables/tables.py:192
 #: netbox/templates/dcim/virtualchassis_edit.html:52
 #: netbox/utilities/forms/forms.py:73 netbox/wireless/tables/wirelesslink.py:16
 msgid "ID"
@@ -9940,7 +9940,7 @@ msgstr ""
 
 #: netbox/ipam/forms/filtersets.py:419 netbox/ipam/models/vlans.py:273
 #: netbox/ipam/tables/ip.py:122 netbox/ipam/tables/vlans.py:51
-#: netbox/ipam/views.py:1029 netbox/netbox/navigation/menu.py:199
+#: netbox/ipam/views.py:1035 netbox/netbox/navigation/menu.py:199
 #: netbox/netbox/navigation/menu.py:201
 msgid "VLANs"
 msgstr ""
@@ -10652,15 +10652,15 @@ msgstr ""
 msgid "Child Ranges"
 msgstr ""
 
-#: netbox/ipam/views.py:951
+#: netbox/ipam/views.py:957
 msgid "Related IPs"
 msgstr ""
 
-#: netbox/ipam/views.py:1308
+#: netbox/ipam/views.py:1314
 msgid "Device Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:1326
+#: netbox/ipam/views.py:1332
 msgid "VM Interfaces"
 msgstr ""
 
@@ -11476,16 +11476,16 @@ msgstr ""
 msgid "Background Tasks"
 msgstr ""
 
-#: netbox/netbox/plugins/navigation.py:47
-#: netbox/netbox/plugins/navigation.py:69
+#: netbox/netbox/plugins/navigation.py:48
+#: netbox/netbox/plugins/navigation.py:70
 msgid "Permissions must be passed as a tuple or list."
 msgstr ""
 
-#: netbox/netbox/plugins/navigation.py:51
+#: netbox/netbox/plugins/navigation.py:52
 msgid "Buttons must be passed as a tuple or list."
 msgstr ""
 
-#: netbox/netbox/plugins/navigation.py:73
+#: netbox/netbox/plugins/navigation.py:74
 msgid "Button color must be a choice within ButtonColorChoices."
 msgstr ""
 
@@ -11670,17 +11670,17 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:58
+#: netbox/netbox/tables/tables.py:59
 #, python-brace-format
 msgid "No {model_name} found"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:249
+#: netbox/netbox/tables/tables.py:252
 #: netbox/templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:252
+#: netbox/netbox/tables/tables.py:255
 msgid "Value"
 msgstr ""
 
