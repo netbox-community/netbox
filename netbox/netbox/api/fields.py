@@ -158,29 +158,7 @@ class RelatedObjectCountField(serializers.ReadOnlyField):
         super().__init__(**kwargs)
 
 
-_integer_range_schema = {
-    'type': 'array',
-    'items': {
-        'type': 'integer',
-    },
-    'minItems': 2,
-    'maxItems': 2,
-}
-
-@extend_schema_field({
-    'type': 'array',
-    'items': _integer_range_schema,
-})
-class IntegerRangeListSerializer(serializers.ListSerializer):
-    # this special class is only here to work around
-    # https://github.com/tfranzel/drf-spectacular/issues/1353
-    pass
-
-@extend_schema_field(_integer_range_schema)
 class IntegerRangeSerializer(serializers.Serializer):
-    class Meta:
-        list_serializer_class = IntegerRangeListSerializer
-
     """
     Represents a range of integers.
     """

@@ -2,12 +2,13 @@ import re
 import typing
 from collections import OrderedDict
 
-from drf_spectacular.extensions import OpenApiSerializerFieldExtension
+from drf_spectacular.extensions import OpenApiSerializerFieldExtension, OpenApiSerializerExtension, _SchemaType
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import Direction
 
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
@@ -277,3 +278,20 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
             return component.ref if component else None
         else:
             return build_basic_type(OpenApiTypes.INT)
+
+
+class FixIntegerRangeSerializerSchema(OpenApiSerializerExtension):
+    target_class = 'netbox.api.fields.IntegerRangeSerializer'
+
+    def map_serializer(self, auto_schema: 'AutoSchema', direction: Direction) -> _SchemaType:
+        return {
+            'type': 'array',
+            'items': {
+                'type': 'array',
+                'items': {
+                    'type': 'integer',
+                },
+                'minItems': 2,
+                'maxItems': 2,
+            },
+        }
