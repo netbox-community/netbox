@@ -30,7 +30,7 @@ class ReleaseInfo:
     edition: str
     published: Union[datetime.date, None] = None
     designation: Union[str, None] = None
-    build: str = None
+    build: Union[str, None] = None
     features: FeatureSet = field(default_factory=FeatureSet)
 
     @property
