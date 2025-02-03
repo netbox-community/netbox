@@ -1,13 +1,14 @@
 from collections import OrderedDict
 
 from django.apps import apps
-from django.conf import settings
 from django.urls.exceptions import NoReverseMatch
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+
+from netbox.registry import registry
 
 
 @extend_schema(exclude=True)
@@ -34,7 +35,10 @@ class InstalledPluginsAPIView(APIView):
         }
 
     def get(self, request, format=None):
-        return Response([self._get_plugin_data(apps.get_app_config(plugin)) for plugin in settings.PLUGINS])
+        return Response([
+            self._get_plugin_data(apps.get_app_config(plugin))
+            for plugin in registry['plugins']['installed']
+        ])
 
 
 @extend_schema(exclude=True)
@@ -64,7 +68,7 @@ class PluginsAPIRootView(APIView):
     def get(self, request, format=None):
 
         entries = []
-        for plugin in settings.PLUGINS:
+        for plugin in registry['plugins']['installed']:
             app_config = apps.get_app_config(plugin)
             entry = self._get_plugin_entry(plugin, app_config, request, format)
             if entry is not None:

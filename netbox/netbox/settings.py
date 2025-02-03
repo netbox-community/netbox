@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
+from netbox.registry import registry
 from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
@@ -812,6 +813,9 @@ for plugin_name in PLUGINS:
             f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
             f"__init__.py file and point to the PluginConfig subclass."
         )
+
+    # Register the plugin as installed successfully
+    registry['plugins']['installed'].append(plugin_name)
 
     plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
 

@@ -1,11 +1,11 @@
 from importlib import import_module
 
 from django.apps import apps
-from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
 from django.utils.module_loading import import_string, module_has_submodule
 
+from netbox.registry import registry
 from . import views
 
 plugin_patterns = []
@@ -15,7 +15,7 @@ plugin_api_patterns = [
 ]
 
 # Register base/API URL patterns for each plugin
-for plugin_path in settings.PLUGINS:
+for plugin_path in registry['plugins']['installed']:
     plugin = import_module(plugin_path)
     plugin_name = plugin_path.split('.')[-1]
     app = apps.get_app_config(plugin_name)
