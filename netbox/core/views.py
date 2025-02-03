@@ -22,6 +22,7 @@ from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
+from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
@@ -560,7 +561,7 @@ class SystemView(UserPassesTestMixin, View):
             params = [param.name for param in PARAMS]
             data = {
                 **stats,
-                'plugins': settings.PLUGINS,
+                'plugins': registry['plugins']['installed'],
                 'config': {
                     k: getattr(config, k) for k in sorted(params)
                 },

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 
 from netbox.plugins import PluginConfig
+from netbox.registry import registry
 from utilities.datetime import datetime_from_timestamp
 
 USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
@@ -76,7 +77,7 @@ def get_local_plugins(plugins=None):
     local_plugins = {}
 
     # Gather all locally-installed plugins
-    for plugin_name in settings.PLUGINS:
+    for plugin_name in registry['plugins']['installed']:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
 

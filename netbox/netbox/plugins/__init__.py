@@ -16,6 +16,7 @@ from .utils import *
 
 # Initialize plugin registry
 registry['plugins'].update({
+    'installed': [],
     'graphql_schemas': [],
     'menus': [],
     'menu_items': {},
