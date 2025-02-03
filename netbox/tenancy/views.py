@@ -37,11 +37,12 @@ class ObjectContactsView(generic.ObjectChildrenView):
 
         return table
 
+
 #
 # Tenant groups
 #
 
-
+@register_model_view(TenantGroup, 'list', path='', detail=False)
 class TenantGroupListView(generic.ObjectListView):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
@@ -67,6 +68,7 @@ class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(TenantGroup, 'add', detail=False)
 @register_model_view(TenantGroup, 'edit')
 class TenantGroupEditView(generic.ObjectEditView):
     queryset = TenantGroup.objects.all()
@@ -78,11 +80,13 @@ class TenantGroupDeleteView(generic.ObjectDeleteView):
     queryset = TenantGroup.objects.all()
 
 
+@register_model_view(TenantGroup, 'bulk_import', detail=False)
 class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupImportForm
 
 
+@register_model_view(TenantGroup, 'bulk_edit', path='edit', detail=False)
 class TenantGroupBulkEditView(generic.BulkEditView):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
@@ -96,6 +100,7 @@ class TenantGroupBulkEditView(generic.BulkEditView):
     form = forms.TenantGroupBulkEditForm
 
 
+@register_model_view(TenantGroup, 'bulk_delete', path='delete', detail=False)
 class TenantGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
@@ -112,6 +117,7 @@ class TenantGroupBulkDeleteView(generic.BulkDeleteView):
 #  Tenants
 #
 
+@register_model_view(Tenant, 'list', path='', detail=False)
 class TenantListView(generic.ObjectListView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
@@ -129,6 +135,7 @@ class TenantView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(Tenant, 'add', detail=False)
 @register_model_view(Tenant, 'edit')
 class TenantEditView(generic.ObjectEditView):
     queryset = Tenant.objects.all()
@@ -140,11 +147,13 @@ class TenantDeleteView(generic.ObjectDeleteView):
     queryset = Tenant.objects.all()
 
 
+@register_model_view(Tenant, 'bulk_import', detail=False)
 class TenantBulkImportView(generic.BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantImportForm
 
 
+@register_model_view(Tenant, 'bulk_edit', path='edit', detail=False)
 class TenantBulkEditView(generic.BulkEditView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
@@ -152,6 +161,7 @@ class TenantBulkEditView(generic.BulkEditView):
     form = forms.TenantBulkEditForm
 
 
+@register_model_view(Tenant, 'bulk_delete', path='delete', detail=False)
 class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
@@ -167,6 +177,7 @@ class TenantContactsView(ObjectContactsView):
 # Contact groups
 #
 
+@register_model_view(ContactGroup, 'list', path='', detail=False)
 class ContactGroupListView(generic.ObjectListView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
@@ -192,6 +203,7 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ContactGroup, 'add', detail=False)
 @register_model_view(ContactGroup, 'edit')
 class ContactGroupEditView(generic.ObjectEditView):
     queryset = ContactGroup.objects.all()
@@ -203,11 +215,13 @@ class ContactGroupDeleteView(generic.ObjectDeleteView):
     queryset = ContactGroup.objects.all()
 
 
+@register_model_view(ContactGroup, 'bulk_import', detail=False)
 class ContactGroupBulkImportView(generic.BulkImportView):
     queryset = ContactGroup.objects.all()
     model_form = forms.ContactGroupImportForm
 
 
+@register_model_view(ContactGroup, 'bulk_edit', path='edit', detail=False)
 class ContactGroupBulkEditView(generic.BulkEditView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
@@ -221,6 +235,7 @@ class ContactGroupBulkEditView(generic.BulkEditView):
     form = forms.ContactGroupBulkEditForm
 
 
+@register_model_view(ContactGroup, 'bulk_delete', path='delete', detail=False)
 class ContactGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
@@ -237,6 +252,7 @@ class ContactGroupBulkDeleteView(generic.BulkDeleteView):
 # Contact roles
 #
 
+@register_model_view(ContactRole, 'list', path='', detail=False)
 class ContactRoleListView(generic.ObjectListView):
     queryset = ContactRole.objects.all()
     filterset = filtersets.ContactRoleFilterSet
@@ -254,6 +270,7 @@ class ContactRoleView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ContactRole, 'add', detail=False)
 @register_model_view(ContactRole, 'edit')
 class ContactRoleEditView(generic.ObjectEditView):
     queryset = ContactRole.objects.all()
@@ -265,11 +282,13 @@ class ContactRoleDeleteView(generic.ObjectDeleteView):
     queryset = ContactRole.objects.all()
 
 
+@register_model_view(ContactRole, 'bulk_import', detail=False)
 class ContactRoleBulkImportView(generic.BulkImportView):
     queryset = ContactRole.objects.all()
     model_form = forms.ContactRoleImportForm
 
 
+@register_model_view(ContactRole, 'bulk_edit', path='edit', detail=False)
 class ContactRoleBulkEditView(generic.BulkEditView):
     queryset = ContactRole.objects.all()
     filterset = filtersets.ContactRoleFilterSet
@@ -277,6 +296,7 @@ class ContactRoleBulkEditView(generic.BulkEditView):
     form = forms.ContactRoleBulkEditForm
 
 
+@register_model_view(ContactRole, 'bulk_delete', path='delete', detail=False)
 class ContactRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactRole.objects.all()
     filterset = filtersets.ContactRoleFilterSet
@@ -287,6 +307,7 @@ class ContactRoleBulkDeleteView(generic.BulkDeleteView):
 # Contacts
 #
 
+@register_model_view(Contact, 'list', path='', detail=False)
 class ContactListView(generic.ObjectListView):
     queryset = Contact.objects.annotate(
         assignment_count=count_related(ContactAssignment, 'contact')
@@ -301,6 +322,7 @@ class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
 
 
+@register_model_view(Contact, 'add', detail=False)
 @register_model_view(Contact, 'edit')
 class ContactEditView(generic.ObjectEditView):
     queryset = Contact.objects.all()
@@ -312,11 +334,13 @@ class ContactDeleteView(generic.ObjectDeleteView):
     queryset = Contact.objects.all()
 
 
+@register_model_view(Contact, 'bulk_import', detail=False)
 class ContactBulkImportView(generic.BulkImportView):
     queryset = Contact.objects.all()
     model_form = forms.ContactImportForm
 
 
+@register_model_view(Contact, 'bulk_edit', path='edit', detail=False)
 class ContactBulkEditView(generic.BulkEditView):
     queryset = Contact.objects.annotate(
         assignment_count=count_related(ContactAssignment, 'contact')
@@ -326,6 +350,7 @@ class ContactBulkEditView(generic.BulkEditView):
     form = forms.ContactBulkEditForm
 
 
+@register_model_view(Contact, 'bulk_delete', path='delete', detail=False)
 class ContactBulkDeleteView(generic.BulkDeleteView):
     queryset = Contact.objects.annotate(
         assignment_count=count_related(ContactAssignment, 'contact')
@@ -333,24 +358,26 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
 
+
 #
 # Contact assignments
 #
 
-
+@register_model_view(ContactAssignment, 'list', path='', detail=False)
 class ContactAssignmentListView(generic.ObjectListView):
     queryset = ContactAssignment.objects.all()
     filterset = filtersets.ContactAssignmentFilterSet
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
     actions = {
-        'import': {'add'},
         'export': {'view'},
+        'bulk_import': {'add'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }
 
 
+@register_model_view(ContactAssignment, 'add', detail=False)
 @register_model_view(ContactAssignment, 'edit')
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
@@ -370,6 +397,13 @@ class ContactAssignmentEditView(generic.ObjectEditView):
         }
 
 
+@register_model_view(ContactAssignment, 'bulk_import', detail=False)
+class ContactAssignmentBulkImportView(generic.BulkImportView):
+    queryset = ContactAssignment.objects.all()
+    model_form = forms.ContactAssignmentImportForm
+
+
+@register_model_view(ContactAssignment, 'bulk_edit', path='edit', detail=False)
 class ContactAssignmentBulkEditView(generic.BulkEditView):
     queryset = ContactAssignment.objects.all()
     filterset = filtersets.ContactAssignmentFilterSet
@@ -377,11 +411,7 @@ class ContactAssignmentBulkEditView(generic.BulkEditView):
     form = forms.ContactAssignmentBulkEditForm
 
 
-class ContactAssignmentBulkImportView(generic.BulkImportView):
-    queryset = ContactAssignment.objects.all()
-    model_form = forms.ContactAssignmentImportForm
-
-
+@register_model_view(ContactAssignment, 'bulk_delete', path='delete', detail=False)
 class ContactAssignmentBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactAssignment.objects.all()
     filterset = filtersets.ContactAssignmentFilterSet

@@ -11,6 +11,7 @@ from .models import *
 # Tunnel groups
 #
 
+@register_model_view(TunnelGroup, 'list', path='', detail=False)
 class TunnelGroupListView(generic.ObjectListView):
     queryset = TunnelGroup.objects.annotate(
         tunnel_count=count_related(Tunnel, 'group')
@@ -30,6 +31,7 @@ class TunnelGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(TunnelGroup, 'add', detail=False)
 @register_model_view(TunnelGroup, 'edit')
 class TunnelGroupEditView(generic.ObjectEditView):
     queryset = TunnelGroup.objects.all()
@@ -41,11 +43,13 @@ class TunnelGroupDeleteView(generic.ObjectDeleteView):
     queryset = TunnelGroup.objects.all()
 
 
+@register_model_view(TunnelGroup, 'bulk_import', detail=False)
 class TunnelGroupBulkImportView(generic.BulkImportView):
     queryset = TunnelGroup.objects.all()
     model_form = forms.TunnelGroupImportForm
 
 
+@register_model_view(TunnelGroup, 'bulk_edit', path='edit', detail=False)
 class TunnelGroupBulkEditView(generic.BulkEditView):
     queryset = TunnelGroup.objects.annotate(
         tunnel_count=count_related(Tunnel, 'group')
@@ -55,6 +59,7 @@ class TunnelGroupBulkEditView(generic.BulkEditView):
     form = forms.TunnelGroupBulkEditForm
 
 
+@register_model_view(TunnelGroup, 'bulk_delete', path='delete', detail=False)
 class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = TunnelGroup.objects.annotate(
         tunnel_count=count_related(Tunnel, 'group')
@@ -67,6 +72,7 @@ class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
 # Tunnels
 #
 
+@register_model_view(Tunnel, 'list', path='', detail=False)
 class TunnelListView(generic.ObjectListView):
     queryset = Tunnel.objects.annotate(
         count_terminations=count_related(TunnelTermination, 'tunnel')
@@ -81,6 +87,7 @@ class TunnelView(generic.ObjectView):
     queryset = Tunnel.objects.all()
 
 
+@register_model_view(Tunnel, 'add', detail=False)
 @register_model_view(Tunnel, 'edit')
 class TunnelEditView(generic.ObjectEditView):
     queryset = Tunnel.objects.all()
@@ -100,11 +107,13 @@ class TunnelDeleteView(generic.ObjectDeleteView):
     queryset = Tunnel.objects.all()
 
 
+@register_model_view(Tunnel, 'bulk_import', detail=False)
 class TunnelBulkImportView(generic.BulkImportView):
     queryset = Tunnel.objects.all()
     model_form = forms.TunnelImportForm
 
 
+@register_model_view(Tunnel, 'bulk_edit', path='edit', detail=False)
 class TunnelBulkEditView(generic.BulkEditView):
     queryset = Tunnel.objects.annotate(
         count_terminations=count_related(TunnelTermination, 'tunnel')
@@ -114,6 +123,7 @@ class TunnelBulkEditView(generic.BulkEditView):
     form = forms.TunnelBulkEditForm
 
 
+@register_model_view(Tunnel, 'bulk_delete', path='delete', detail=False)
 class TunnelBulkDeleteView(generic.BulkDeleteView):
     queryset = Tunnel.objects.annotate(
         count_terminations=count_related(TunnelTermination, 'tunnel')
@@ -126,6 +136,7 @@ class TunnelBulkDeleteView(generic.BulkDeleteView):
 # Tunnel terminations
 #
 
+@register_model_view(TunnelTermination, 'list', path='', detail=False)
 class TunnelTerminationListView(generic.ObjectListView):
     queryset = TunnelTermination.objects.all()
     filterset = filtersets.TunnelTerminationFilterSet
@@ -138,6 +149,7 @@ class TunnelTerminationView(generic.ObjectView):
     queryset = TunnelTermination.objects.all()
 
 
+@register_model_view(TunnelTermination, 'add', detail=False)
 @register_model_view(TunnelTermination, 'edit')
 class TunnelTerminationEditView(generic.ObjectEditView):
     queryset = TunnelTermination.objects.all()
@@ -149,11 +161,13 @@ class TunnelTerminationDeleteView(generic.ObjectDeleteView):
     queryset = TunnelTermination.objects.all()
 
 
+@register_model_view(TunnelTermination, 'bulk_import', detail=False)
 class TunnelTerminationBulkImportView(generic.BulkImportView):
     queryset = TunnelTermination.objects.all()
     model_form = forms.TunnelTerminationImportForm
 
 
+@register_model_view(TunnelTermination, 'bulk_edit', path='edit', detail=False)
 class TunnelTerminationBulkEditView(generic.BulkEditView):
     queryset = TunnelTermination.objects.all()
     filterset = filtersets.TunnelTerminationFilterSet
@@ -161,6 +175,7 @@ class TunnelTerminationBulkEditView(generic.BulkEditView):
     form = forms.TunnelTerminationBulkEditForm
 
 
+@register_model_view(TunnelTermination, 'bulk_delete', path='delete', detail=False)
 class TunnelTerminationBulkDeleteView(generic.BulkDeleteView):
     queryset = TunnelTermination.objects.all()
     filterset = filtersets.TunnelTerminationFilterSet
@@ -171,6 +186,7 @@ class TunnelTerminationBulkDeleteView(generic.BulkDeleteView):
 # IKE proposals
 #
 
+@register_model_view(IKEProposal, 'list', path='', detail=False)
 class IKEProposalListView(generic.ObjectListView):
     queryset = IKEProposal.objects.all()
     filterset = filtersets.IKEProposalFilterSet
@@ -183,6 +199,7 @@ class IKEProposalView(generic.ObjectView):
     queryset = IKEProposal.objects.all()
 
 
+@register_model_view(IKEProposal, 'add', detail=False)
 @register_model_view(IKEProposal, 'edit')
 class IKEProposalEditView(generic.ObjectEditView):
     queryset = IKEProposal.objects.all()
@@ -194,11 +211,13 @@ class IKEProposalDeleteView(generic.ObjectDeleteView):
     queryset = IKEProposal.objects.all()
 
 
+@register_model_view(IKEProposal, 'bulk_import', detail=False)
 class IKEProposalBulkImportView(generic.BulkImportView):
     queryset = IKEProposal.objects.all()
     model_form = forms.IKEProposalImportForm
 
 
+@register_model_view(IKEProposal, 'bulk_edit', path='edit', detail=False)
 class IKEProposalBulkEditView(generic.BulkEditView):
     queryset = IKEProposal.objects.all()
     filterset = filtersets.IKEProposalFilterSet
@@ -206,6 +225,7 @@ class IKEProposalBulkEditView(generic.BulkEditView):
     form = forms.IKEProposalBulkEditForm
 
 
+@register_model_view(IKEProposal, 'bulk_delete', path='delete', detail=False)
 class IKEProposalBulkDeleteView(generic.BulkDeleteView):
     queryset = IKEProposal.objects.all()
     filterset = filtersets.IKEProposalFilterSet
@@ -216,6 +236,7 @@ class IKEProposalBulkDeleteView(generic.BulkDeleteView):
 # IKE policies
 #
 
+@register_model_view(IKEPolicy, 'list', path='', detail=False)
 class IKEPolicyListView(generic.ObjectListView):
     queryset = IKEPolicy.objects.all()
     filterset = filtersets.IKEPolicyFilterSet
@@ -228,6 +249,7 @@ class IKEPolicyView(generic.ObjectView):
     queryset = IKEPolicy.objects.all()
 
 
+@register_model_view(IKEPolicy, 'add', detail=False)
 @register_model_view(IKEPolicy, 'edit')
 class IKEPolicyEditView(generic.ObjectEditView):
     queryset = IKEPolicy.objects.all()
@@ -239,11 +261,13 @@ class IKEPolicyDeleteView(generic.ObjectDeleteView):
     queryset = IKEPolicy.objects.all()
 
 
+@register_model_view(IKEPolicy, 'bulk_import', detail=False)
 class IKEPolicyBulkImportView(generic.BulkImportView):
     queryset = IKEPolicy.objects.all()
     model_form = forms.IKEPolicyImportForm
 
 
+@register_model_view(IKEPolicy, 'bulk_edit', path='edit', detail=False)
 class IKEPolicyBulkEditView(generic.BulkEditView):
     queryset = IKEPolicy.objects.all()
     filterset = filtersets.IKEPolicyFilterSet
@@ -251,6 +275,7 @@ class IKEPolicyBulkEditView(generic.BulkEditView):
     form = forms.IKEPolicyBulkEditForm
 
 
+@register_model_view(IKEPolicy, 'bulk_delete', path='delete', detail=False)
 class IKEPolicyBulkDeleteView(generic.BulkDeleteView):
     queryset = IKEPolicy.objects.all()
     filterset = filtersets.IKEPolicyFilterSet
@@ -261,6 +286,7 @@ class IKEPolicyBulkDeleteView(generic.BulkDeleteView):
 # IPSec proposals
 #
 
+@register_model_view(IPSecProposal, 'list', path='', detail=False)
 class IPSecProposalListView(generic.ObjectListView):
     queryset = IPSecProposal.objects.all()
     filterset = filtersets.IPSecProposalFilterSet
@@ -273,6 +299,7 @@ class IPSecProposalView(generic.ObjectView):
     queryset = IPSecProposal.objects.all()
 
 
+@register_model_view(IPSecProposal, 'add', detail=False)
 @register_model_view(IPSecProposal, 'edit')
 class IPSecProposalEditView(generic.ObjectEditView):
     queryset = IPSecProposal.objects.all()
@@ -284,11 +311,13 @@ class IPSecProposalDeleteView(generic.ObjectDeleteView):
     queryset = IPSecProposal.objects.all()
 
 
+@register_model_view(IPSecProposal, 'bulk_import', detail=False)
 class IPSecProposalBulkImportView(generic.BulkImportView):
     queryset = IPSecProposal.objects.all()
     model_form = forms.IPSecProposalImportForm
 
 
+@register_model_view(IPSecProposal, 'bulk_edit', path='edit', detail=False)
 class IPSecProposalBulkEditView(generic.BulkEditView):
     queryset = IPSecProposal.objects.all()
     filterset = filtersets.IPSecProposalFilterSet
@@ -296,6 +325,7 @@ class IPSecProposalBulkEditView(generic.BulkEditView):
     form = forms.IPSecProposalBulkEditForm
 
 
+@register_model_view(IPSecProposal, 'bulk_delete', path='delete', detail=False)
 class IPSecProposalBulkDeleteView(generic.BulkDeleteView):
     queryset = IPSecProposal.objects.all()
     filterset = filtersets.IPSecProposalFilterSet
@@ -306,6 +336,7 @@ class IPSecProposalBulkDeleteView(generic.BulkDeleteView):
 # IPSec policies
 #
 
+@register_model_view(IPSecPolicy, 'list', path='', detail=False)
 class IPSecPolicyListView(generic.ObjectListView):
     queryset = IPSecPolicy.objects.all()
     filterset = filtersets.IPSecPolicyFilterSet
@@ -318,6 +349,7 @@ class IPSecPolicyView(generic.ObjectView):
     queryset = IPSecPolicy.objects.all()
 
 
+@register_model_view(IPSecPolicy, 'add', detail=False)
 @register_model_view(IPSecPolicy, 'edit')
 class IPSecPolicyEditView(generic.ObjectEditView):
     queryset = IPSecPolicy.objects.all()
@@ -329,11 +361,13 @@ class IPSecPolicyDeleteView(generic.ObjectDeleteView):
     queryset = IPSecPolicy.objects.all()
 
 
+@register_model_view(IPSecPolicy, 'bulk_import', detail=False)
 class IPSecPolicyBulkImportView(generic.BulkImportView):
     queryset = IPSecPolicy.objects.all()
     model_form = forms.IPSecPolicyImportForm
 
 
+@register_model_view(IPSecPolicy, 'bulk_edit', path='edit', detail=False)
 class IPSecPolicyBulkEditView(generic.BulkEditView):
     queryset = IPSecPolicy.objects.all()
     filterset = filtersets.IPSecPolicyFilterSet
@@ -341,6 +375,7 @@ class IPSecPolicyBulkEditView(generic.BulkEditView):
     form = forms.IPSecPolicyBulkEditForm
 
 
+@register_model_view(IPSecPolicy, 'bulk_delete', path='delete', detail=False)
 class IPSecPolicyBulkDeleteView(generic.BulkDeleteView):
     queryset = IPSecPolicy.objects.all()
     filterset = filtersets.IPSecPolicyFilterSet
@@ -351,6 +386,7 @@ class IPSecPolicyBulkDeleteView(generic.BulkDeleteView):
 # IPSec profiles
 #
 
+@register_model_view(IPSecProfile, 'list', path='', detail=False)
 class IPSecProfileListView(generic.ObjectListView):
     queryset = IPSecProfile.objects.all()
     filterset = filtersets.IPSecProfileFilterSet
@@ -363,6 +399,7 @@ class IPSecProfileView(generic.ObjectView):
     queryset = IPSecProfile.objects.all()
 
 
+@register_model_view(IPSecProfile, 'add', detail=False)
 @register_model_view(IPSecProfile, 'edit')
 class IPSecProfileEditView(generic.ObjectEditView):
     queryset = IPSecProfile.objects.all()
@@ -374,11 +411,13 @@ class IPSecProfileDeleteView(generic.ObjectDeleteView):
     queryset = IPSecProfile.objects.all()
 
 
+@register_model_view(IPSecProfile, 'bulk_import', detail=False)
 class IPSecProfileBulkImportView(generic.BulkImportView):
     queryset = IPSecProfile.objects.all()
     model_form = forms.IPSecProfileImportForm
 
 
+@register_model_view(IPSecProfile, 'bulk_edit', path='edit', detail=False)
 class IPSecProfileBulkEditView(generic.BulkEditView):
     queryset = IPSecProfile.objects.all()
     filterset = filtersets.IPSecProfileFilterSet
@@ -386,14 +425,18 @@ class IPSecProfileBulkEditView(generic.BulkEditView):
     form = forms.IPSecProfileBulkEditForm
 
 
+@register_model_view(IPSecProfile, 'bulk_delete', path='delete', detail=False)
 class IPSecProfileBulkDeleteView(generic.BulkDeleteView):
     queryset = IPSecProfile.objects.all()
     filterset = filtersets.IPSecProfileFilterSet
     table = tables.IPSecProfileTable
 
 
+#
 # L2VPN
+#
 
+@register_model_view(L2VPN, 'list', path='', detail=False)
 class L2VPNListView(generic.ObjectListView):
     queryset = L2VPN.objects.all()
     table = tables.L2VPNTable
@@ -421,6 +464,7 @@ class L2VPNView(generic.ObjectView):
         }
 
 
+@register_model_view(L2VPN, 'add', detail=False)
 @register_model_view(L2VPN, 'edit')
 class L2VPNEditView(generic.ObjectEditView):
     queryset = L2VPN.objects.all()
@@ -432,11 +476,13 @@ class L2VPNDeleteView(generic.ObjectDeleteView):
     queryset = L2VPN.objects.all()
 
 
+@register_model_view(L2VPN, 'bulk_import', detail=False)
 class L2VPNBulkImportView(generic.BulkImportView):
     queryset = L2VPN.objects.all()
     model_form = forms.L2VPNImportForm
 
 
+@register_model_view(L2VPN, 'bulk_edit', path='edit', detail=False)
 class L2VPNBulkEditView(generic.BulkEditView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
@@ -444,6 +490,7 @@ class L2VPNBulkEditView(generic.BulkEditView):
     form = forms.L2VPNBulkEditForm
 
 
+@register_model_view(L2VPN, 'bulk_delete', path='delete', detail=False)
 class L2VPNBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
@@ -459,6 +506,7 @@ class L2VPNContactsView(ObjectContactsView):
 # L2VPN terminations
 #
 
+@register_model_view(L2VPNTermination, 'list', path='', detail=False)
 class L2VPNTerminationListView(generic.ObjectListView):
     queryset = L2VPNTermination.objects.all()
     table = tables.L2VPNTerminationTable
@@ -471,6 +519,7 @@ class L2VPNTerminationView(generic.ObjectView):
     queryset = L2VPNTermination.objects.all()
 
 
+@register_model_view(L2VPNTermination, 'add', detail=False)
 @register_model_view(L2VPNTermination, 'edit')
 class L2VPNTerminationEditView(generic.ObjectEditView):
     queryset = L2VPNTermination.objects.all()
@@ -482,11 +531,13 @@ class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
     queryset = L2VPNTermination.objects.all()
 
 
+@register_model_view(L2VPNTermination, 'bulk_import', detail=False)
 class L2VPNTerminationBulkImportView(generic.BulkImportView):
     queryset = L2VPNTermination.objects.all()
     model_form = forms.L2VPNTerminationImportForm
 
 
+@register_model_view(L2VPNTermination, 'bulk_edit', path='edit', detail=False)
 class L2VPNTerminationBulkEditView(generic.BulkEditView):
     queryset = L2VPNTermination.objects.all()
     filterset = filtersets.L2VPNTerminationFilterSet
@@ -494,6 +545,7 @@ class L2VPNTerminationBulkEditView(generic.BulkEditView):
     form = forms.L2VPNTerminationBulkEditForm
 
 
+@register_model_view(L2VPNTermination, 'bulk_delete', path='delete', detail=False)
 class L2VPNTerminationBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPNTermination.objects.all()
     filterset = filtersets.L2VPNTerminationFilterSet

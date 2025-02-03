@@ -2,8 +2,10 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from dcim.base_filtersets import ScopedFilterSet
 from dcim.filtersets import CommonInterfaceFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import MACAddress
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
@@ -37,43 +39,7 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
         fields = ('id', 'name', 'slug', 'description')
 
 
-class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    region_id = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        label=_('Region (ID)'),
-    )
-    region = TreeNodeMultipleChoiceFilter(
-        queryset=Region.objects.all(),
-        field_name='site__region',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Region (slug)'),
-    )
-    site_group_id = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        label=_('Site group (ID)'),
-    )
-    site_group = TreeNodeMultipleChoiceFilter(
-        queryset=SiteGroup.objects.all(),
-        field_name='site__group',
-        lookup_expr='in',
-        to_field_name='slug',
-        label=_('Site group (slug)'),
-    )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        label=_('Site (ID)'),
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        field_name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label=_('Site (slug)'),
-    )
+class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label=_('Parent group (ID)'),
@@ -101,7 +67,7 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Cluster
-        fields = ('id', 'name', 'description')
+        fields = ('id', 'name', 'description', 'scope_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -226,7 +192,7 @@ class VirtualMachineFilterSet(
         label=_('Platform (slug)'),
     )
     mac_address = MultiValueMACAddressFilter(
-        field_name='interfaces__mac_address',
+        field_name='interfaces__mac_addresses__mac_address',
         label=_('MAC address'),
     )
     has_primary_ip = django_filters.BooleanFilter(
@@ -298,7 +264,19 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         label=_('Bridged interface (ID)'),
     )
     mac_address = MultiValueMACAddressFilter(
+        field_name='mac_addresses__mac_address',
         label=_('MAC address'),
+    )
+    primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address',
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address (ID)'),
+    )
+    primary_mac_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_mac_address__mac_address',
+        queryset=MACAddress.objects.all(),
+        to_field_name='mac_address',
+        label=_('Primary MAC address'),
     )
 
     class Meta:

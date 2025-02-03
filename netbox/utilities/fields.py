@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from utilities.ordering import naturalize
 from .forms.widgets import ColorSelect
 from .validators import ColorValidator
 
@@ -40,7 +39,7 @@ class NaturalOrderingField(models.CharField):
     """
     description = "Stores a representation of its target field suitable for natural ordering"
 
-    def __init__(self, target_field, naturalize_function=naturalize, *args, **kwargs):
+    def __init__(self, target_field, naturalize_function, *args, **kwargs):
         self.target_field = target_field
         self.naturalize_function = naturalize_function
         super().__init__(*args, **kwargs)

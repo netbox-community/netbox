@@ -1,7 +1,5 @@
 # Notifications
 
-!!! info "This feature was introduced in NetBox v4.1."
-
 NetBox includes a system for generating user notifications, which can be marked as read or deleted by individual users. There are two built-in mechanisms for generating a notification:
 
 * A user can subscribe to an object. When that object is modified, a notification is created to inform the user of the change.

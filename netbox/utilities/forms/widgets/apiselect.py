@@ -22,6 +22,15 @@ class APISelect(forms.Select):
     dynamic_params: Dict[str, str]
     static_params: Dict[str, List[str]]
 
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        # Add quick-add context data, if enabled for the widget
+        if hasattr(self, 'quick_add_context'):
+            context['quick_add'] = self.quick_add_context
+
+        return context
+
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

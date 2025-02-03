@@ -12,16 +12,12 @@ def convert_reportmodule_jobs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0107_cachedvalue_extras_cachedvalue_object'),
     ]
 
     operations = [
-        migrations.RunPython(
-            code=convert_reportmodule_jobs,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=convert_reportmodule_jobs, reverse_code=migrations.RunPython.noop),
         migrations.DeleteModel(
             name='Report',
         ),

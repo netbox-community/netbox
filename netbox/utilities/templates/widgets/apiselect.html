@@ -1,7 +1,8 @@
 {% load i18n %}
-{% if widget.attrs.selector and not widget.attrs.disabled %}
-  <div class="d-flex">
-    {% include 'django/forms/widgets/select.html' %}
+<div class="d-flex">
+  {% include 'django/forms/widgets/select.html' %}
+  {% if widget.attrs.selector and not widget.attrs.disabled %}
+    {# Opens the object selector modal #}
     <button
       type="button"
       title="{% trans "Open selector" %}"
@@ -13,7 +14,19 @@
     >
       <i class="mdi mdi-database-search-outline"></i>
     </button>
-  </div>
-{% else %}
-  {% include 'django/forms/widgets/select.html' %}
-{% endif %}
+  {% endif %}
+  {% if quick_add and not widget.attrs.disabled %}
+    {# Opens the quick add modal #}
+    <button
+      type="button"
+      title="{% trans "Quick add" %}"
+      class="btn btn-outline-secondary ms-1"
+      data-bs-toggle="modal"
+      data-bs-target="#htmx-modal"
+      hx-get="{{ quick_add.url }}?_quickadd=True&target={{ widget.attrs.id }}{% for k, v in quick_add.params.items %}&{{ k }}={{ v }}{% endfor %}"
+      hx-target="#htmx-modal-content"
+    >
+      <i class="mdi mdi-plus-circle"></i>
+    </button>
+  {% endif %}
+</div>

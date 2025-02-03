@@ -2,13 +2,14 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.serializers_.devices import DeviceSerializer
+from dcim.api.serializers_.device_components import MACAddressSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from dcim.choices import InterfaceModeChoices
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
-from ipam.api.serializers_.vlans import VLANSerializer
+from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
@@ -48,8 +49,8 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
-            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count', 'virtual_disk_count',
         ]
@@ -61,8 +62,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role', 'tenant',
-            'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
             'last_updated', 'interface_count', 'virtual_disk_count',
         ]
@@ -89,22 +90,24 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         required=False,
         many=True
     )
+    qinq_svlan = VLANSerializer(nested=True, required=False, allow_null=True)
+    vlan_translation_policy = VLANTranslationPolicySerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    mac_address = serializers.CharField(
-        required=False,
-        default=None,
-        allow_null=True
-    )
+    # Maintains backward compatibility with NetBox <v4.2
+    mac_address = serializers.CharField(allow_null=True, read_only=True)
+    primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
+    mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
     class Meta:
         model = VMInterface
         fields = [
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
-            'mac_address', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination',
-            'tags', 'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'mac_address', 'primary_mac_address', 'mac_addresses', 'description', 'mode', 'untagged_vlan',
+            'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'l2vpn_termination', 'tags',
+            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 

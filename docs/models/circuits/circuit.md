@@ -36,6 +36,12 @@ The operational status of the circuit. By default, the following statuses are av
 !!! tip "Custom circuit statuses"
     Additional circuit statuses may be defined by setting `Circuit.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
+### Distance
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The distance between the circuit's two endpoints, including a unit designation (e.g. 100 meters or 25 feet).
+
 ### Description
 
 A brief description of the circuit.

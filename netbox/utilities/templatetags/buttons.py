@@ -158,7 +158,7 @@ def add_button(model, action='add'):
 
 
 @register.inclusion_tag('buttons/import.html')
-def import_button(model, action='import'):
+def import_button(model, action='bulk_import'):
     try:
         url = reverse(get_viewname(model, action))
     except NoReverseMatch:

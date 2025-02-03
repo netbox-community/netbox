@@ -13,7 +13,6 @@ def update_content_type(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0101_eventrule'),
     ]
@@ -32,8 +31,5 @@ class Migration(migrations.Migration):
                 ),
             ],
         ),
-        migrations.RunPython(
-            code=update_content_type,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_content_type, reverse_code=migrations.RunPython.noop),
     ]

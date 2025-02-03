@@ -500,6 +500,16 @@ class InventoryItemRoleViewSet(NetBoxModelViewSet):
 
 
 #
+# Addressing
+#
+
+class MACAddressViewSet(NetBoxModelViewSet):
+    queryset = MACAddress.objects.all()
+    serializer_class = serializers.MACAddressSerializer
+    filterset_class = filtersets.MACAddressFilterSet
+
+
+#
 # Cables
 #
 

@@ -111,9 +111,15 @@ def get_cable_form(a_type, b_type):
 
             if self.instance and self.instance.pk:
                 # Initialize A/B terminations when modifying an existing Cable instance
-                if a_type and self.instance.a_terminations and a_ct == ContentType.objects.get_for_model(self.instance.a_terminations[0]):
+                if (
+                        a_type and self.instance.a_terminations and
+                        a_ct == ContentType.objects.get_for_model(self.instance.a_terminations[0])
+                ):
                     self.initial['a_terminations'] = self.instance.a_terminations
-                if b_type and self.instance.b_terminations and b_ct == ContentType.objects.get_for_model(self.instance.b_terminations[0]):
+                if (
+                        b_type and self.instance.b_terminations and
+                        b_ct == ContentType.objects.get_for_model(self.instance.b_terminations[0])
+                ):
                     self.initial['b_terminations'] = self.instance.b_terminations
             else:
                 # Need to clear terminations if swapped type - but need to do it only

@@ -10,13 +10,14 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.models import VRF, IPAddress
+from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVTypedChoiceField,
     SlugField,
 )
-from virtualization.models import Cluster
+from virtualization.models import Cluster, VMInterface, VirtualMachine
 from wireless.choices import WirelessRoleChoices
 from .common import ModuleCommonForm
 
@@ -33,6 +34,7 @@ __all__ = (
     'InventoryItemImportForm',
     'InventoryItemRoleImportForm',
     'LocationImportForm',
+    'MACAddressImportForm',
     'ManufacturerImportForm',
     'ModuleImportForm',
     'ModuleBayImportForm',
@@ -256,6 +258,13 @@ class RackImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Name of assigned role')
     )
+    rack_type = CSVModelChoiceField(
+        label=_('Rack type'),
+        queryset=RackType.objects.all(),
+        to_field_name='model',
+        required=False,
+        help_text=_('Rack type model')
+    )
     form_factor = CSVChoiceField(
         label=_('Type'),
         choices=RackFormFactorChoices,
@@ -265,7 +274,12 @@ class RackImportForm(NetBoxModelImportForm):
     width = forms.ChoiceField(
         label=_('Width'),
         choices=RackWidthChoices,
+        required=False,
         help_text=_('Rail-to-rail width (in inches)')
+    )
+    u_height = forms.IntegerField(
+        required=False,
+        label=_('Height (U)')
     )
     outer_unit = CSVChoiceField(
         label=_('Outer unit'),
@@ -289,9 +303,9 @@ class RackImportForm(NetBoxModelImportForm):
     class Meta:
         model = Rack
         fields = (
-            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'form_factor', 'serial', 'asset_tag',
-            'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow',
-            'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor', 'serial',
+            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -302,6 +316,16 @@ class RackImportForm(NetBoxModelImportForm):
             # Limit location queryset by assigned site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+
+    def clean(self):
+        super().clean()
+
+        # width & u_height must be set if not specifying a rack type on import
+        if not self.instance.pk:
+            if not self.cleaned_data.get('rack_type') and not self.cleaned_data.get('width'):
+                raise forms.ValidationError(_("Width must be set if not specifying a rack type."))
+            if not self.cleaned_data.get('rack_type') and not self.cleaned_data.get('u_height'):
+                raise forms.ValidationError(_("U height must be set if not specifying a rack type."))
 
 
 class RackReservationImportForm(NetBoxModelImportForm):
@@ -426,7 +450,10 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments', 'tags']
+        fields = [
+            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments',
+            'tags',
+        ]
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
@@ -798,7 +825,10 @@ class PowerOutletImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = PowerOutlet
-        fields = ('device', 'name', 'label', 'type', 'mark_connected', 'power_port', 'feed_leg', 'description', 'tags')
+        fields = (
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'power_port', 'feed_leg', 'description',
+            'tags',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -905,7 +935,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
-            'mark_connected', 'mac_address', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
             'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
         )
 
@@ -1103,12 +1133,17 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Component Name')
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        help_text=_('Operational status')
+    )
 
     class Meta:
         model = InventoryItem
         fields = (
-            'device', 'name', 'label', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description', 'tags', 'component_type', 'component_name',
+            'device', 'name', 'label', 'status', 'role', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag',
+            'discovered', 'description', 'tags', 'component_type', 'component_name',
         )
 
     def __init__(self, *args, **kwargs):
@@ -1159,6 +1194,90 @@ class InventoryItemRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = InventoryItemRole
         fields = ('name', 'slug', 'color', 'description')
+
+
+#
+# Addressing
+#
+
+class MACAddressImportForm(NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent device of assigned interface (if any)')
+    )
+    virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent VM of assigned interface (if any)')
+    )
+    interface = CSVModelChoiceField(
+        label=_('Interface'),
+        queryset=Interface.objects.none(),  # Can also refer to VMInterface
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned interface')
+    )
+    is_primary = forms.BooleanField(
+        label=_('Is primary'),
+        help_text=_('Make this the primary MAC address for the assigned interface'),
+        required=False
+    )
+
+    class Meta:
+        model = MACAddress
+        fields = [
+            'mac_address', 'device', 'virtual_machine', 'interface', 'is_primary', 'description', 'comments', 'tags',
+        ]
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit interface queryset by assigned device
+            if data.get('device'):
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+
+            # Limit interface queryset by assigned device
+            elif data.get('virtual_machine'):
+                self.fields['interface'].queryset = VMInterface.objects.filter(
+                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
+
+    def clean(self):
+        super().clean()
+
+        device = self.cleaned_data.get('device')
+        virtual_machine = self.cleaned_data.get('virtual_machine')
+        interface = self.cleaned_data.get('interface')
+
+        # Validate interface assignment
+        if interface and not device and not virtual_machine:
+            raise forms.ValidationError({
+                "interface": _("Must specify the parent device or VM when assigning an interface")
+            })
+
+    def save(self, *args, **kwargs):
+
+        # Set interface assignment
+        if interface := self.cleaned_data.get('interface'):
+            self.instance.assigned_object = interface
+
+        instance = super().save(*args, **kwargs)
+
+        # Assign the MAC address as primary for its interface, if designated as such
+        if interface and self.cleaned_data['is_primary'] and self.instance.pk:
+            interface.primary_mac_address = self.instance
+            interface.save()
+
+        return instance
 
 
 #

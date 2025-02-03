@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0010_gfk_indexes'),
         ('extras', '0110_remove_eventrule_action_parameters'),
@@ -24,16 +23,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='object_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'
+            ),
         ),
-        migrations.RunSQL(
-            "ALTER TABLE IF EXISTS extras_customfield_content_types_id_seq RENAME TO extras_customfield_object_types_id_seq"
-        ),
+        migrations.RunSQL((
+            'ALTER TABLE IF EXISTS extras_customfield_content_types_id_seq '
+            'RENAME TO extras_customfield_object_types_id_seq'
+        )),
         # Pre-v2.10 sequence name (see #15605)
-        migrations.RunSQL(
-            "ALTER TABLE IF EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
-        ),
-
+        migrations.RunSQL((
+            'ALTER TABLE IF EXISTS extras_customfield_obj_type_id_seq '
+            'RENAME TO extras_customfield_object_types_id_seq'
+        )),
         # Custom links
         migrations.RenameField(
             model_name='customlink',
@@ -46,9 +48,8 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='custom_links', to='core.objecttype'),
         ),
         migrations.RunSQL(
-            "ALTER TABLE extras_customlink_content_types_id_seq RENAME TO extras_customlink_object_types_id_seq"
+            'ALTER TABLE extras_customlink_content_types_id_seq RENAME TO extras_customlink_object_types_id_seq'
         ),
-
         # Event rules
         migrations.RenameField(
             model_name='eventrule',
@@ -61,9 +62,8 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='event_rules', to='core.objecttype'),
         ),
         migrations.RunSQL(
-            "ALTER TABLE extras_eventrule_content_types_id_seq RENAME TO extras_eventrule_object_types_id_seq"
+            'ALTER TABLE extras_eventrule_content_types_id_seq RENAME TO extras_eventrule_object_types_id_seq'
         ),
-
         # Export templates
         migrations.RenameField(
             model_name='exporttemplate',
@@ -76,9 +76,8 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='export_templates', to='core.objecttype'),
         ),
         migrations.RunSQL(
-            "ALTER TABLE extras_exporttemplate_content_types_id_seq RENAME TO extras_exporttemplate_object_types_id_seq"
+            'ALTER TABLE extras_exporttemplate_content_types_id_seq RENAME TO extras_exporttemplate_object_types_id_seq'
         ),
-
         # Saved filters
         migrations.RenameField(
             model_name='savedfilter',
@@ -91,9 +90,8 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='saved_filters', to='core.objecttype'),
         ),
         migrations.RunSQL(
-            "ALTER TABLE extras_savedfilter_content_types_id_seq RENAME TO extras_savedfilter_object_types_id_seq"
+            'ALTER TABLE extras_savedfilter_content_types_id_seq RENAME TO extras_savedfilter_object_types_id_seq'
         ),
-
         # Image attachments
         migrations.RemoveIndex(
             model_name='imageattachment',

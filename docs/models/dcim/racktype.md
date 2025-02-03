@@ -1,7 +1,5 @@
 # Rack Types
 
-!!! info "This feature was introduced in NetBox v4.1."
-
 A rack type defines the physical characteristics of a particular model of [rack](./rack.md).
 
 ## Fields

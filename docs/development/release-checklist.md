@@ -43,9 +43,9 @@ Follow these instructions to perform a new installation of NetBox in a temporary
 
 Upgrading from a previous version typically involves database migrations, which must work without errors. Supported upgrade paths include from one minor version to another within the same major version (i.e. 4.0 to 4.1), as well as from the latest patch version of the previous minor version (i.e. 3.7 to 4.0 or to 4.1). Prior to release, test all these supported paths by loading demo data from the source version and performing a `./manage.py migrate`.
 
-### Merge the Release Branch
+### Merge the `feature` Branch
 
-Submit a pull request to merge the `feature` branch into the `develop` branch in preparation for its release. Once it has been merged, continue with the section for patch releases below.
+Submit a pull request to merge the `feature` branch into the `main` branch in preparation for its release. Once it has been merged, continue with the section for patch releases below.
 
 ### Rebuild Demo Data (After Release)
 
@@ -54,6 +54,15 @@ After the release of a new minor version, generate a new demo data snapshot comp
 ---
 
 ## Patch Releases
+
+### Create a Release Branch
+
+Begin by creating a new branch (based off of `main`) to effect the release. This will comprise the changes listed below.
+
+```
+git checkout main
+git checkout -B release-vX.Y.Z
+```
 
 ### Notify netbox-docker Project of Any Relevant Changes
 
@@ -111,25 +120,19 @@ Then, compile these portable (`.po`) files for use in the application:
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Replace the "FUTURE" placeholder in the release notes with the current date.
 
-Commit these changes to the `develop` branch and push upstream.
-
-### Verify CI Build Status
-
-Ensure that continuous integration testing on the `develop` branch is completing successfully. If it fails, take action to correct the failure before proceeding with the release.
-
 ### Submit a Pull Request
 
-Submit a pull request titled **"Release vX.Y.Z"** to merge the `develop` branch into `master`. Copy the documented release notes into the pull request's body.
+Commit the above changes and submit a pull request titled **"Release vX.Y.Z"** to merge the current release branch (e.g. `release-vX.Y.Z`) into `main`. Copy the documented release notes into the pull request's body.
 
-Once CI has completed on the PR, merge it. This effects a new release in the `master` branch.
+Once CI has completed and a colleague has reviewed the PR, merge it. This effects a new release in the `main` branch.
 
 ### Create a New Release
 
 Create a [new release](https://github.com/netbox-community/netbox/releases/new) on GitHub with the following parameters.
 
-* **Tag:** Current version (e.g. `v3.3.1`)
-* **Target:** `master`
-* **Title:** Version and date (e.g. `v3.3.1 - 2022-08-25`)
+* **Tag:** Current version (e.g. `v4.2.1`)
+* **Target:** `main`
+* **Title:** Version and date (e.g. `v4.2.1 - 2025-01-17`)
 * **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
 Once created, the release will become available for users to install.

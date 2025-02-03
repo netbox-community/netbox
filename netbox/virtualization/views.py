@@ -1,5 +1,3 @@
-import traceback
-
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
@@ -7,7 +5,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.base import RedirectView
 from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
@@ -16,7 +13,7 @@ from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
-from ipam.tables import InterfaceVLANTable
+from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
@@ -31,6 +28,7 @@ from .models import *
 # Cluster types
 #
 
+@register_model_view(ClusterType, 'list', path='', detail=False)
 class ClusterTypeListView(generic.ObjectListView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
@@ -50,6 +48,7 @@ class ClusterTypeView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ClusterType, 'add', detail=False)
 @register_model_view(ClusterType, 'edit')
 class ClusterTypeEditView(generic.ObjectEditView):
     queryset = ClusterType.objects.all()
@@ -61,11 +60,13 @@ class ClusterTypeDeleteView(generic.ObjectDeleteView):
     queryset = ClusterType.objects.all()
 
 
+@register_model_view(ClusterType, 'bulk_import', detail=False)
 class ClusterTypeBulkImportView(generic.BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeImportForm
 
 
+@register_model_view(ClusterType, 'bulk_edit', path='edit', detail=False)
 class ClusterTypeBulkEditView(generic.BulkEditView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
@@ -75,6 +76,7 @@ class ClusterTypeBulkEditView(generic.BulkEditView):
     form = forms.ClusterTypeBulkEditForm
 
 
+@register_model_view(ClusterType, 'bulk_delete', path='delete', detail=False)
 class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = ClusterType.objects.annotate(
         cluster_count=count_related(Cluster, 'type')
@@ -87,6 +89,7 @@ class ClusterTypeBulkDeleteView(generic.BulkDeleteView):
 # Cluster groups
 #
 
+@register_model_view(ClusterGroup, 'list', path='', detail=False)
 class ClusterGroupListView(generic.ObjectListView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
@@ -106,6 +109,7 @@ class ClusterGroupView(GetRelatedModelsMixin, generic.ObjectView):
         }
 
 
+@register_model_view(ClusterGroup, 'add', detail=False)
 @register_model_view(ClusterGroup, 'edit')
 class ClusterGroupEditView(generic.ObjectEditView):
     queryset = ClusterGroup.objects.all()
@@ -117,6 +121,7 @@ class ClusterGroupDeleteView(generic.ObjectDeleteView):
     queryset = ClusterGroup.objects.all()
 
 
+@register_model_view(ClusterGroup, 'bulk_import', detail=False)
 class ClusterGroupBulkImportView(generic.BulkImportView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
@@ -124,6 +129,7 @@ class ClusterGroupBulkImportView(generic.BulkImportView):
     model_form = forms.ClusterGroupImportForm
 
 
+@register_model_view(ClusterGroup, 'bulk_edit', path='edit', detail=False)
 class ClusterGroupBulkEditView(generic.BulkEditView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
@@ -133,6 +139,7 @@ class ClusterGroupBulkEditView(generic.BulkEditView):
     form = forms.ClusterGroupBulkEditForm
 
 
+@register_model_view(ClusterGroup, 'bulk_delete', path='delete', detail=False)
 class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
@@ -150,6 +157,7 @@ class ClusterGroupContactsView(ObjectContactsView):
 # Clusters
 #
 
+@register_model_view(Cluster, 'list', path='', detail=False)
 class ClusterListView(generic.ObjectListView):
     permission_required = 'virtualization.view_cluster'
     queryset = Cluster.objects.annotate(
@@ -166,7 +174,11 @@ class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
     def get_extra_context(self, request, instance):
-        return instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'), memory_sum=Sum('memory'), disk_sum=Sum('disk'))
+        return instance.virtual_machines.aggregate(
+            vcpus_sum=Sum('vcpus'),
+            memory_sum=Sum('memory'),
+            disk_sum=Sum('disk')
+        )
 
 
 @register_model_view(Cluster, 'virtualmachines', path='virtual-machines')
@@ -197,8 +209,8 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     template_name = 'virtualization/cluster/devices.html'
     actions = {
         'add': {'add'},
-        'import': {'add'},
         'export': {'view'},
+        'bulk_import': {'add'},
         'bulk_edit': {'change'},
         'bulk_remove_devices': {'change'},
     }
@@ -213,6 +225,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
         return Device.objects.restrict(request.user, 'view').filter(cluster=parent)
 
 
+@register_model_view(Cluster, 'add', detail=False)
 @register_model_view(Cluster, 'edit')
 class ClusterEditView(generic.ObjectEditView):
     queryset = Cluster.objects.all()
@@ -224,11 +237,13 @@ class ClusterDeleteView(generic.ObjectDeleteView):
     queryset = Cluster.objects.all()
 
 
+@register_model_view(Cluster, 'bulk_import', detail=False)
 class ClusterBulkImportView(generic.BulkImportView):
     queryset = Cluster.objects.all()
     model_form = forms.ClusterImportForm
 
 
+@register_model_view(Cluster, 'bulk_edit', path='edit', detail=False)
 class ClusterBulkEditView(generic.BulkEditView):
     queryset = Cluster.objects.all()
     filterset = filtersets.ClusterFilterSet
@@ -236,6 +251,7 @@ class ClusterBulkEditView(generic.BulkEditView):
     form = forms.ClusterBulkEditForm
 
 
+@register_model_view(Cluster, 'bulk_delete', path='delete', detail=False)
 class ClusterBulkDeleteView(generic.BulkDeleteView):
     queryset = Cluster.objects.all()
     filterset = filtersets.ClusterFilterSet
@@ -337,6 +353,7 @@ class ClusterContactsView(ObjectContactsView):
 # Virtual machines
 #
 
+@register_model_view(VirtualMachine, 'list', path='', detail=False)
 class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
@@ -425,7 +442,8 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
         # If a direct export has been requested, return the rendered template content as a
         # downloadable file.
         if request.GET.get('export'):
-            response = HttpResponse(context['rendered_config'], content_type='text')
+            content = context['rendered_config'] or context['error_message']
+            response = HttpResponse(content, content_type='text')
             filename = f"{instance.name or 'config'}.txt"
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
@@ -443,20 +461,22 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
 
         # Render the config template
         rendered_config = None
+        error_message = None
         if config_template := instance.get_config_template():
             try:
                 rendered_config = config_template.render(context=context_data)
             except TemplateError as e:
-                messages.error(request, _("An error occurred while rendering the template: {error}").format(error=e))
-                rendered_config = traceback.format_exc()
+                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
 
         return {
             'config_template': config_template,
             'context_data': context_data,
             'rendered_config': rendered_config,
+            'error_message': error_message,
         }
 
 
+@register_model_view(VirtualMachine, 'add', detail=False)
 @register_model_view(VirtualMachine, 'edit')
 class VirtualMachineEditView(generic.ObjectEditView):
     queryset = VirtualMachine.objects.all()
@@ -468,11 +488,13 @@ class VirtualMachineDeleteView(generic.ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
 
 
+@register_model_view(VirtualMachine, 'bulk_import', detail=False)
 class VirtualMachineBulkImportView(generic.BulkImportView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineImportForm
 
 
+@register_model_view(VirtualMachine, 'bulk_edit', path='edit', detail=False)
 class VirtualMachineBulkEditView(generic.BulkEditView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
@@ -480,6 +502,7 @@ class VirtualMachineBulkEditView(generic.BulkEditView):
     form = forms.VirtualMachineBulkEditForm
 
 
+@register_model_view(VirtualMachine, 'bulk_delete', path='delete', detail=False)
 class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
@@ -495,6 +518,7 @@ class VirtualMachineContactsView(ObjectContactsView):
 # VM interfaces
 #
 
+@register_model_view(VMInterface, 'list', path='', detail=False)
 class VMInterfaceListView(generic.ObjectListView):
     queryset = VMInterface.objects.all()
     filterset = filtersets.VMInterfaceFilterSet
@@ -516,6 +540,14 @@ class VMInterfaceView(generic.ObjectView):
             orderable=False
         )
 
+        # Get VLAN translation rules
+        vlan_translation_table = None
+        if instance.vlan_translation_policy:
+            vlan_translation_table = VLANTranslationRuleTable(
+                data=instance.vlan_translation_policy.rules.all(),
+                orderable=False
+            )
+
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -533,9 +565,11 @@ class VMInterfaceView(generic.ObjectView):
         return {
             'child_interfaces_table': child_interfaces_tables,
             'vlan_table': vlan_table,
+            'vlan_translation_table': vlan_translation_table,
         }
 
 
+@register_model_view(VMInterface, 'add', detail=False)
 class VMInterfaceCreateView(generic.ComponentCreateView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceCreateForm
@@ -553,11 +587,13 @@ class VMInterfaceDeleteView(generic.ObjectDeleteView):
     queryset = VMInterface.objects.all()
 
 
+@register_model_view(VMInterface, 'bulk_import', detail=False)
 class VMInterfaceBulkImportView(generic.BulkImportView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceImportForm
 
 
+@register_model_view(VMInterface, 'bulk_edit', path='edit', detail=False)
 class VMInterfaceBulkEditView(generic.BulkEditView):
     queryset = VMInterface.objects.all()
     filterset = filtersets.VMInterfaceFilterSet
@@ -565,11 +601,13 @@ class VMInterfaceBulkEditView(generic.BulkEditView):
     form = forms.VMInterfaceBulkEditForm
 
 
+@register_model_view(VMInterface, 'bulk_rename', path='rename', detail=False)
 class VMInterfaceBulkRenameView(generic.BulkRenameView):
     queryset = VMInterface.objects.all()
     form = forms.VMInterfaceBulkRenameForm
 
 
+@register_model_view(VMInterface, 'bulk_delete', path='delete', detail=False)
 class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
     # Ensure child interfaces are deleted prior to their parents
     queryset = VMInterface.objects.order_by('virtual_machine', 'parent', CollateAsChar('_name'))
@@ -581,6 +619,7 @@ class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
 # Virtual disks
 #
 
+@register_model_view(VirtualDisk, 'list', path='', detail=False)
 class VirtualDiskListView(generic.ObjectListView):
     queryset = VirtualDisk.objects.all()
     filterset = filtersets.VirtualDiskFilterSet
@@ -593,6 +632,7 @@ class VirtualDiskView(generic.ObjectView):
     queryset = VirtualDisk.objects.all()
 
 
+@register_model_view(VirtualDisk, 'add', detail=False)
 class VirtualDiskCreateView(generic.ComponentCreateView):
     queryset = VirtualDisk.objects.all()
     form = forms.VirtualDiskCreateForm
@@ -610,11 +650,13 @@ class VirtualDiskDeleteView(generic.ObjectDeleteView):
     queryset = VirtualDisk.objects.all()
 
 
+@register_model_view(VirtualDisk, 'bulk_import', detail=False)
 class VirtualDiskBulkImportView(generic.BulkImportView):
     queryset = VirtualDisk.objects.all()
     model_form = forms.VirtualDiskImportForm
 
 
+@register_model_view(VirtualDisk, 'bulk_edit', path='edit', detail=False)
 class VirtualDiskBulkEditView(generic.BulkEditView):
     queryset = VirtualDisk.objects.all()
     filterset = filtersets.VirtualDiskFilterSet
@@ -622,24 +664,17 @@ class VirtualDiskBulkEditView(generic.BulkEditView):
     form = forms.VirtualDiskBulkEditForm
 
 
+@register_model_view(VirtualDisk, 'bulk_rename', path='rename', detail=False)
 class VirtualDiskBulkRenameView(generic.BulkRenameView):
     queryset = VirtualDisk.objects.all()
     form = forms.VirtualDiskBulkRenameForm
 
 
+@register_model_view(VirtualDisk, 'bulk_delete', path='delete', detail=False)
 class VirtualDiskBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualDisk.objects.all()
     filterset = filtersets.VirtualDiskFilterSet
     table = tables.VirtualDiskTable
-
-
-# TODO: Remove in v4.2
-class VirtualDiskRedirectView(RedirectView):
-    """
-    Redirect old (pre-v4.1) URLs for VirtualDisk views.
-    """
-    def get_redirect_url(self, path):
-        return f"{reverse('virtualization:virtualdisk_list')}{path}"
 
 
 #

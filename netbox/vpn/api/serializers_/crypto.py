@@ -64,17 +64,20 @@ class IKEPolicySerializer(NetBoxModelSerializer):
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
     encryption_algorithm = ChoiceField(
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        required=False
     )
     authentication_algorithm = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        required=False
     )
 
     class Meta:
         model = IPSecProposal
         fields = (
             'id', 'url', 'display_url', 'display', 'name', 'description', 'encryption_algorithm',
-            'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

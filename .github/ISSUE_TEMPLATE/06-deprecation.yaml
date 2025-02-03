@@ -1,5 +1,6 @@
 ---
 name: 🗑️ Deprecation
+type: Deprecation
 description: The removal of an existing feature or resource
 labels: ["type: deprecation"]
 body:

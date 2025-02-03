@@ -19,7 +19,7 @@ Blocks:
   <div class="page">
 
     {# Sidebar #}
-    <aside class="navbar navbar-vertical navbar-expand-lg">
+    <aside class="navbar navbar-vertical navbar-expand-lg d-print-none">
 
       {% if 'commercial' in settings.RELEASE.features %}
         <img class="motif" src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">

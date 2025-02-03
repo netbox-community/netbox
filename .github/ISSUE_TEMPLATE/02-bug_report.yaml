@@ -1,5 +1,6 @@
 ---
 name: 🐛 Bug Report
+type: Bug
 description: Report a reproducible bug in the current release of NetBox
 labels: ["type: bug", "status: needs triage"]
 body:
@@ -22,24 +23,11 @@ body:
         - Self-hosted
     validations:
       required: true
-  - type: dropdown
-    attributes:
-      label: Triage priority
-      description: >
-        Issue triage may be prioritized in some cases. Select whichever of the following
-        conditions applies, if any.
-      options:
-        - I volunteer to perform this work (if approved)
-        - I'm a NetBox Labs customer
-        - N/A
-      default: 2
-    validations:
-      required: true
   - type: input
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v4.1.6
+      placeholder: v4.2.2
     validations:
       required: true
   - type: dropdown
