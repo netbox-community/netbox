@@ -80,6 +80,9 @@ def get_local_plugins(plugins=None):
     for plugin_name in registry['plugins']['installed']:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
+        installed_version = plugin_config.version
+        if plugin_config.release_track:
+            installed_version = f'{installed_version}-{plugin_config.release_track}'
 
         local_plugins[plugin_config.name] = Plugin(
             config_name=plugin_config.name,
@@ -89,7 +92,7 @@ def get_local_plugins(plugins=None):
             description_short=plugin_config.description,
             is_local=True,
             is_installed=True,
-            installed_version=plugin_config.version,
+            installed_version=installed_version,
         )
 
     # Update catalog entries for local plugins, or add them to the list if not listed

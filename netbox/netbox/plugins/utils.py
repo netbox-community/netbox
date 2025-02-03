@@ -18,7 +18,10 @@ def get_installed_plugins():
     for plugin_name in registry['plugins']['installed']:
         plugin_name = plugin_name.rsplit('.', 1)[-1]
         plugin_config = apps.get_app_config(plugin_name)
-        plugins[plugin_name] = getattr(plugin_config, 'version', None)
+        if plugin_config.release_track:
+            plugins[plugin_name] = f'{plugin_config.version}-{plugin_config.release_track}'
+        else:
+            plugins[plugin_name] = plugin_config.version or None
 
     return dict(sorted(plugins.items()))
 

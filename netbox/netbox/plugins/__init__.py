@@ -48,6 +48,7 @@ class PluginConfig(AppConfig):
     author_email = ''
     description = ''
     version = ''
+    release_track = ''
 
     # Root URL path under /plugins. If not set, the plugin's label will be used.
     base_url = None
