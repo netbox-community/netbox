@@ -30,13 +30,17 @@ class ReleaseInfo:
     edition: str
     published: Union[datetime.date, None] = None
     designation: Union[str, None] = None
+    build: Union[str, None] = None
     features: FeatureSet = field(default_factory=FeatureSet)
 
     @property
     def full_version(self):
+        output = self.version
         if self.designation:
-            return f"{self.version}-{self.designation}"
-        return self.version
+            output = f"{output}-{self.designation}"
+        if self.build:
+            output = f"{output}-{self.build}"
+        return output
 
     @property
     def name(self):
