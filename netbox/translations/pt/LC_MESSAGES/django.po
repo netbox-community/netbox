@@ -6,17 +6,17 @@
 # Translators:
 # Renato Almeida de Oliveira, 2023
 # Fer22f <Fer22f@gmail.com>, 2024
-# Jeremy Stretch, 2024
-# Fabricio Maciel, 2024
+# Jeremy Stretch, 2025
+# Fabricio Maciel, 2025
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-13 05:02+0000\n"
+"POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Fabricio Maciel, 2024\n"
+"Last-Translator: Fabricio Maciel, 2025\n"
 "Language-Team: Portuguese (https://app.transifex.com/netbox-community/teams/178115/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -669,7 +669,7 @@ msgstr "Conta do provedor"
 #: netbox/dcim/forms/filtersets.py:924 netbox/dcim/forms/filtersets.py:958
 #: netbox/dcim/forms/filtersets.py:1059 netbox/dcim/forms/filtersets.py:1170
 #: netbox/dcim/tables/devices.py:140 netbox/dcim/tables/devices.py:817
-#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:69
+#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:70
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:126
 #: netbox/dcim/tables/sites.py:82 netbox/dcim/tables/sites.py:138
 #: netbox/ipam/forms/bulk_edit.py:256 netbox/ipam/forms/bulk_edit.py:306
@@ -984,7 +984,7 @@ msgstr "Rede do provedor"
 #: netbox/wireless/forms/model_forms.py:87
 #: netbox/wireless/forms/model_forms.py:129
 msgid "Location"
-msgstr "Localização"
+msgstr "Local"
 
 #: netbox/circuits/forms/filtersets.py:32
 #: netbox/circuits/forms/filtersets.py:120 netbox/dcim/forms/filtersets.py:144
@@ -1299,15 +1299,15 @@ msgstr "terminações dos circuitos"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Uma terminação de circuito deve ser conectada a um site ou a uma rede do "
+"Uma terminação de circuito deve ser conectada a um site ou a uma rede de "
 "provedor."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Uma terminação de circuito não pode ser conectada ao mesmo tempo a um site e"
-" a uma rede do provedor."
+"Uma terminação de circuito não pode ser conectada a um site e a uma rede de "
+"provedor ao mesmo tempo."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -1544,7 +1544,7 @@ msgstr "Taxa Garantida"
 #: netbox/circuits/tables/providers.py:82
 #: netbox/circuits/tables/providers.py:107 netbox/dcim/tables/devices.py:1036
 #: netbox/dcim/tables/devicetypes.py:92 netbox/dcim/tables/modules.py:29
-#: netbox/dcim/tables/modules.py:72 netbox/dcim/tables/power.py:39
+#: netbox/dcim/tables/modules.py:73 netbox/dcim/tables/power.py:39
 #: netbox/dcim/tables/power.py:96 netbox/dcim/tables/racks.py:84
 #: netbox/dcim/tables/racks.py:145 netbox/dcim/tables/racks.py:225
 #: netbox/dcim/tables/sites.py:108 netbox/extras/tables/tables.py:582
@@ -2958,23 +2958,23 @@ msgstr "AS (ID)"
 
 #: netbox/dcim/filtersets.py:246
 msgid "Parent location (ID)"
-msgstr "Localização principal (ID)"
+msgstr "Local pai (ID)"
 
 #: netbox/dcim/filtersets.py:252
 msgid "Parent location (slug)"
-msgstr "Localização principal (slug)"
+msgstr "Local pai (slug)"
 
 #: netbox/dcim/filtersets.py:258 netbox/dcim/filtersets.py:369
 #: netbox/dcim/filtersets.py:490 netbox/dcim/filtersets.py:1057
 #: netbox/dcim/filtersets.py:1404 netbox/dcim/filtersets.py:2182
 msgid "Location (ID)"
-msgstr "Localização (ID)"
+msgstr "Local (ID)"
 
 #: netbox/dcim/filtersets.py:265 netbox/dcim/filtersets.py:376
 #: netbox/dcim/filtersets.py:497 netbox/dcim/filtersets.py:1410
 #: netbox/extras/filtersets.py:542
 msgid "Location (slug)"
-msgstr "Localização (slug)"
+msgstr "Local (slug)"
 
 #: netbox/dcim/filtersets.py:296 netbox/dcim/filtersets.py:381
 #: netbox/dcim/filtersets.py:539 netbox/dcim/filtersets.py:678
@@ -3488,7 +3488,7 @@ msgstr "Fuso horário"
 #: netbox/dcim/forms/object_import.py:187 netbox/dcim/tables/devices.py:96
 #: netbox/dcim/tables/devices.py:172 netbox/dcim/tables/devices.py:940
 #: netbox/dcim/tables/devicetypes.py:80 netbox/dcim/tables/devicetypes.py:308
-#: netbox/dcim/tables/modules.py:20 netbox/dcim/tables/modules.py:60
+#: netbox/dcim/tables/modules.py:20 netbox/dcim/tables/modules.py:61
 #: netbox/dcim/tables/racks.py:58 netbox/dcim/tables/racks.py:132
 #: netbox/templates/dcim/devicetype.html:14
 #: netbox/templates/dcim/inventoryitem.html:44
@@ -3739,7 +3739,7 @@ msgid "Device Type"
 msgstr "Tipo de Dispositivo"
 
 #: netbox/dcim/forms/bulk_edit.py:598 netbox/dcim/forms/model_forms.py:401
-#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:65
+#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:66
 #: netbox/templates/dcim/module.html:65
 #: netbox/templates/dcim/modulebay.html:66
 #: netbox/templates/dcim/moduletype.html:22
@@ -3847,7 +3847,7 @@ msgstr "Cluster"
 #: netbox/dcim/tables/devices.py:697 netbox/dcim/tables/devices.py:754
 #: netbox/dcim/tables/devices.py:801 netbox/dcim/tables/devices.py:861
 #: netbox/dcim/tables/devices.py:930 netbox/dcim/tables/devices.py:1057
-#: netbox/dcim/tables/modules.py:52 netbox/extras/forms/filtersets.py:321
+#: netbox/dcim/tables/modules.py:53 netbox/extras/forms/filtersets.py:321
 #: netbox/ipam/forms/bulk_import.py:304 netbox/ipam/forms/bulk_import.py:505
 #: netbox/ipam/forms/filtersets.py:551 netbox/ipam/forms/model_forms.py:323
 #: netbox/ipam/forms/model_forms.py:712 netbox/ipam/forms/model_forms.py:745
@@ -4193,11 +4193,11 @@ msgstr "Site designado"
 
 #: netbox/dcim/forms/bulk_import.py:141
 msgid "Parent location"
-msgstr "Localização principal"
+msgstr "Local pai"
 
 #: netbox/dcim/forms/bulk_import.py:143
 msgid "Location not found."
-msgstr "Localização não encontrada."
+msgstr "Local não encontrado."
 
 #: netbox/dcim/forms/bulk_import.py:185
 msgid "The manufacturer of this rack type"
@@ -6155,12 +6155,12 @@ msgstr "Rack {rack} não pertence ao site {site}."
 #: netbox/dcim/models/devices.py:840
 #, python-brace-format
 msgid "Location {location} does not belong to site {site}."
-msgstr "Localização {location} não pertence ao site {site}."
+msgstr "Local {location} não pertence ao site {site}."
 
 #: netbox/dcim/models/devices.py:846
 #, python-brace-format
 msgid "Rack {rack} does not belong to location {location}."
-msgstr "Rack {rack} não pertence à localização {location}."
+msgstr "Rack {rack} não pertence ao local {location}."
 
 #: netbox/dcim/models/devices.py:853
 msgid "Cannot select a rack face without assigning a rack."
@@ -6357,7 +6357,7 @@ msgstr "quadros de alimentação"
 msgid ""
 "Location {location} ({location_site}) is in a different site than {site}"
 msgstr ""
-"Localização {location} ({location_site}) está em um site diferente do {site}"
+"Local {location} ({location_site}) está em um site diferente do {site}"
 
 #: netbox/dcim/models/power.py:108
 msgid "supply"
@@ -6536,7 +6536,7 @@ msgstr "racks"
 #: netbox/dcim/models/racks.py:375
 #, python-brace-format
 msgid "Assigned location must belong to parent site ({site})."
-msgstr "A localização definida deve pertencer ao site principal ({site})."
+msgstr "O local definido deve pertencer ao site principal ({site})."
 
 #: netbox/dcim/models/racks.py:393
 #, python-brace-format
@@ -6559,7 +6559,7 @@ msgstr ""
 #: netbox/dcim/models/racks.py:408
 #, python-brace-format
 msgid "Location must be from the same site, {site}."
-msgstr "A localização deve ser do mesmo site, {site}."
+msgstr "O local deve ser do mesmo site, {site}."
 
 #: netbox/dcim/models/racks.py:670
 msgid "units"
@@ -6653,25 +6653,24 @@ msgstr "sites"
 
 #: netbox/dcim/models/sites.py:309
 msgid "A location with this name already exists within the specified site."
-msgstr "Já existe uma localização com este nome no site especificado."
+msgstr "Já existe um local com este nome no site especificado."
 
 #: netbox/dcim/models/sites.py:319
 msgid "A location with this slug already exists within the specified site."
-msgstr "Já existe uma localização com este slug no site especificado."
+msgstr "Já existe um local com este slug no site especificado."
 
 #: netbox/dcim/models/sites.py:322
 msgid "location"
-msgstr "localização"
+msgstr "local"
 
 #: netbox/dcim/models/sites.py:323
 msgid "locations"
-msgstr "localizações"
+msgstr "locais"
 
 #: netbox/dcim/models/sites.py:337
 #, python-brace-format
 msgid "Parent location ({parent}) must belong to the same site ({site})."
-msgstr ""
-"Localização principal ({parent}) deve pertencer ao mesmo site ({site})."
+msgstr "Local principal ({parent}) deve pertencer ao mesmo site ({site})."
 
 #: netbox/dcim/tables/cables.py:55
 msgid "Termination A"
@@ -6691,11 +6690,11 @@ msgstr "Dispositivo B"
 
 #: netbox/dcim/tables/cables.py:78
 msgid "Location A"
-msgstr "Localização A"
+msgstr "Local A"
 
 #: netbox/dcim/tables/cables.py:84
 msgid "Location B"
-msgstr "Localização B"
+msgstr "Local B"
 
 #: netbox/dcim/tables/cables.py:90
 msgid "Rack A"
@@ -6840,7 +6839,7 @@ msgstr "Compartimentos de módulos"
 msgid "Inventory items"
 msgstr "Itens de inventário"
 
-#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:56
+#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:57
 #: netbox/templates/dcim/modulebay.html:17
 msgid "Module Bay"
 msgstr "Compartimento de módulo"
@@ -7571,12 +7570,12 @@ msgstr "Favoritos"
 msgid "Show your personal bookmarks"
 msgstr "Exibe seus favoritos pessoais"
 
-#: netbox/extras/events.py:147
+#: netbox/extras/events.py:151
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "Tipo de ação desconhecido para uma regra de evento: {action_type}"
 
-#: netbox/extras/events.py:192
+#: netbox/extras/events.py:196
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "Não é possível importar o pipeline de eventos {name}: {error}"
@@ -7937,7 +7936,7 @@ msgstr "Grupos de sites"
 #: netbox/extras/forms/model_forms.py:522 netbox/netbox/navigation/menu.py:20
 #: netbox/templates/dcim/site.html:127
 msgid "Locations"
-msgstr "Localizações"
+msgstr "Locais"
 
 #: netbox/extras/forms/filtersets.py:361
 #: netbox/extras/forms/model_forms.py:527
@@ -9887,7 +9886,7 @@ msgstr "Intervalo de ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Atribuição de Site/VLAN"
+msgstr "Atribuição de site/VLAN"
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12995,11 +12994,11 @@ msgstr "Part ID"
 
 #: netbox/templates/dcim/location.html:17
 msgid "Add Child Location"
-msgstr "Adicionar Sub-Localização"
+msgstr "Adicionar Local Filho"
 
 #: netbox/templates/dcim/location.html:77
 msgid "Child Locations"
-msgstr "Sub-Localizações"
+msgstr "Locais Filhos"
 
 #: netbox/templates/dcim/location.html:81 netbox/templates/dcim/site.html:131
 msgid "Add a Location"
@@ -13129,7 +13128,7 @@ msgstr "Adicionar Site"
 
 #: netbox/templates/dcim/region.html:55
 msgid "Child Regions"
-msgstr "Regiões de Sub-Localizações"
+msgstr "Regiões Filhas"
 
 #: netbox/templates/dcim/region.html:59
 msgid "Add Region"
@@ -13160,7 +13159,7 @@ msgstr "Endereço de Entrega"
 #: netbox/templates/tenancy/tenantgroup.html:55
 #: netbox/templates/wireless/wirelesslangroup.html:55
 msgid "Child Groups"
-msgstr "Grupos de Sub-Localizações"
+msgstr "Grupos Filhos"
 
 #: netbox/templates/dcim/sitegroup.html:59
 msgid "Add Site Group"
@@ -15513,8 +15512,8 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} pertence ao site ({device_site}), diferente do que pertence o "
-"cluster ({cluster_site})"
+"{device} pertence a um site diferente ({device_site}) do que o cluster "
+"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16249,8 +16248,7 @@ msgstr "links wireless"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr ""
-"É necessário especificar uma unidade ao definir uma distância sem fio."
+msgstr "É necessário especificar uma unidade ao definir uma distância sem fio"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format
