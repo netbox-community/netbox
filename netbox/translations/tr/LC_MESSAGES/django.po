@@ -6,16 +6,16 @@
 # Translators:
 # Burak Senturk, 2024
 # Hamdi Suat Aknar, 2024
-# Jeremy Stretch, 2024
+# Jeremy Stretch, 2025
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-12 05:02+0000\n"
+"POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -153,7 +153,7 @@ msgstr "Etkin Olmayan"
 #: netbox/dcim/filtersets.py:464 netbox/dcim/filtersets.py:1021
 #: netbox/dcim/filtersets.py:1368 netbox/dcim/filtersets.py:1903
 #: netbox/dcim/filtersets.py:2146 netbox/dcim/filtersets.py:2204
-#: netbox/ipam/filtersets.py:339 netbox/ipam/filtersets.py:959
+#: netbox/ipam/filtersets.py:341 netbox/ipam/filtersets.py:961
 #: netbox/virtualization/filtersets.py:45
 #: netbox/virtualization/filtersets.py:173 netbox/vpn/filtersets.py:358
 msgid "Region (ID)"
@@ -165,8 +165,8 @@ msgstr "Bölge (ID)"
 #: netbox/dcim/filtersets.py:471 netbox/dcim/filtersets.py:1028
 #: netbox/dcim/filtersets.py:1375 netbox/dcim/filtersets.py:1910
 #: netbox/dcim/filtersets.py:2153 netbox/dcim/filtersets.py:2211
-#: netbox/extras/filtersets.py:509 netbox/ipam/filtersets.py:346
-#: netbox/ipam/filtersets.py:966 netbox/virtualization/filtersets.py:52
+#: netbox/extras/filtersets.py:509 netbox/ipam/filtersets.py:348
+#: netbox/ipam/filtersets.py:968 netbox/virtualization/filtersets.py:52
 #: netbox/virtualization/filtersets.py:180 netbox/vpn/filtersets.py:353
 msgid "Region (slug)"
 msgstr "Bölge (kısa ad)"
@@ -176,8 +176,8 @@ msgstr "Bölge (kısa ad)"
 #: netbox/dcim/filtersets.py:346 netbox/dcim/filtersets.py:477
 #: netbox/dcim/filtersets.py:1034 netbox/dcim/filtersets.py:1381
 #: netbox/dcim/filtersets.py:1916 netbox/dcim/filtersets.py:2159
-#: netbox/dcim/filtersets.py:2217 netbox/ipam/filtersets.py:352
-#: netbox/ipam/filtersets.py:972 netbox/virtualization/filtersets.py:58
+#: netbox/dcim/filtersets.py:2217 netbox/ipam/filtersets.py:354
+#: netbox/ipam/filtersets.py:974 netbox/virtualization/filtersets.py:58
 #: netbox/virtualization/filtersets.py:186
 msgid "Site group (ID)"
 msgstr "Site grubu (ID)"
@@ -188,7 +188,7 @@ msgstr "Site grubu (ID)"
 #: netbox/dcim/filtersets.py:1041 netbox/dcim/filtersets.py:1388
 #: netbox/dcim/filtersets.py:1923 netbox/dcim/filtersets.py:2166
 #: netbox/dcim/filtersets.py:2224 netbox/extras/filtersets.py:515
-#: netbox/ipam/filtersets.py:359 netbox/ipam/filtersets.py:979
+#: netbox/ipam/filtersets.py:361 netbox/ipam/filtersets.py:981
 #: netbox/virtualization/filtersets.py:65
 #: netbox/virtualization/filtersets.py:193
 msgid "Site group (slug)"
@@ -258,8 +258,8 @@ msgstr "Site"
 #: netbox/circuits/filtersets.py:62 netbox/circuits/filtersets.py:229
 #: netbox/circuits/filtersets.py:274 netbox/dcim/filtersets.py:242
 #: netbox/dcim/filtersets.py:363 netbox/dcim/filtersets.py:458
-#: netbox/extras/filtersets.py:531 netbox/ipam/filtersets.py:238
-#: netbox/ipam/filtersets.py:369 netbox/ipam/filtersets.py:989
+#: netbox/extras/filtersets.py:531 netbox/ipam/filtersets.py:240
+#: netbox/ipam/filtersets.py:371 netbox/ipam/filtersets.py:991
 #: netbox/virtualization/filtersets.py:75
 #: netbox/virtualization/filtersets.py:203 netbox/vpn/filtersets.py:363
 msgid "Site (slug)"
@@ -278,13 +278,13 @@ msgstr "ASN"
 
 #: netbox/circuits/filtersets.py:95 netbox/circuits/filtersets.py:122
 #: netbox/circuits/filtersets.py:156 netbox/circuits/filtersets.py:283
-#: netbox/circuits/filtersets.py:325 netbox/ipam/filtersets.py:243
+#: netbox/circuits/filtersets.py:325 netbox/ipam/filtersets.py:245
 msgid "Provider (ID)"
 msgstr "Sağlayıcı (ID)"
 
 #: netbox/circuits/filtersets.py:101 netbox/circuits/filtersets.py:128
 #: netbox/circuits/filtersets.py:162 netbox/circuits/filtersets.py:289
-#: netbox/circuits/filtersets.py:331 netbox/ipam/filtersets.py:249
+#: netbox/circuits/filtersets.py:331 netbox/ipam/filtersets.py:251
 msgid "Provider (slug)"
 msgstr "Sağlayıcı (kısa ad)"
 
@@ -313,8 +313,8 @@ msgstr "Devre tipi (kısa ad)"
 #: netbox/dcim/filtersets.py:452 netbox/dcim/filtersets.py:1045
 #: netbox/dcim/filtersets.py:1393 netbox/dcim/filtersets.py:1928
 #: netbox/dcim/filtersets.py:2170 netbox/dcim/filtersets.py:2229
-#: netbox/ipam/filtersets.py:232 netbox/ipam/filtersets.py:363
-#: netbox/ipam/filtersets.py:983 netbox/virtualization/filtersets.py:69
+#: netbox/ipam/filtersets.py:234 netbox/ipam/filtersets.py:365
+#: netbox/ipam/filtersets.py:985 netbox/virtualization/filtersets.py:69
 #: netbox/virtualization/filtersets.py:197 netbox/vpn/filtersets.py:368
 msgid "Site (ID)"
 msgstr "Site (ID)"
@@ -668,7 +668,7 @@ msgstr "Sağlayıcı hesabı"
 #: netbox/dcim/forms/filtersets.py:924 netbox/dcim/forms/filtersets.py:958
 #: netbox/dcim/forms/filtersets.py:1059 netbox/dcim/forms/filtersets.py:1170
 #: netbox/dcim/tables/devices.py:140 netbox/dcim/tables/devices.py:817
-#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:69
+#: netbox/dcim/tables/devices.py:1063 netbox/dcim/tables/modules.py:70
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:126
 #: netbox/dcim/tables/sites.py:82 netbox/dcim/tables/sites.py:138
 #: netbox/ipam/forms/bulk_edit.py:256 netbox/ipam/forms/bulk_edit.py:306
@@ -1103,7 +1103,7 @@ msgstr "Ödev"
 #: netbox/circuits/tables/circuits.py:155 netbox/dcim/forms/bulk_edit.py:118
 #: netbox/dcim/forms/bulk_import.py:100 netbox/dcim/forms/model_forms.py:117
 #: netbox/dcim/tables/sites.py:89 netbox/extras/forms/filtersets.py:480
-#: netbox/ipam/filtersets.py:999 netbox/ipam/forms/bulk_edit.py:493
+#: netbox/ipam/filtersets.py:1001 netbox/ipam/forms/bulk_edit.py:493
 #: netbox/ipam/forms/bulk_import.py:460 netbox/ipam/forms/model_forms.py:561
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:122
 #: netbox/ipam/tables/vlans.py:226
@@ -1540,7 +1540,7 @@ msgstr "Taahhüt Oranı"
 #: netbox/circuits/tables/providers.py:82
 #: netbox/circuits/tables/providers.py:107 netbox/dcim/tables/devices.py:1036
 #: netbox/dcim/tables/devicetypes.py:92 netbox/dcim/tables/modules.py:29
-#: netbox/dcim/tables/modules.py:72 netbox/dcim/tables/power.py:39
+#: netbox/dcim/tables/modules.py:73 netbox/dcim/tables/power.py:39
 #: netbox/dcim/tables/power.py:96 netbox/dcim/tables/racks.py:84
 #: netbox/dcim/tables/racks.py:145 netbox/dcim/tables/racks.py:225
 #: netbox/dcim/tables/sites.py:108 netbox/extras/tables/tables.py:582
@@ -2935,7 +2935,7 @@ msgid "Parent site group (slug)"
 msgstr "Ana site grubu (kısa ad)"
 
 #: netbox/dcim/filtersets.py:164 netbox/extras/filtersets.py:364
-#: netbox/ipam/filtersets.py:841 netbox/ipam/filtersets.py:993
+#: netbox/ipam/filtersets.py:843 netbox/ipam/filtersets.py:995
 msgid "Group (ID)"
 msgstr "Grup (ID)"
 
@@ -2993,15 +2993,15 @@ msgstr "Raf tipi (ID)"
 
 #: netbox/dcim/filtersets.py:411 netbox/dcim/filtersets.py:892
 #: netbox/dcim/filtersets.py:994 netbox/dcim/filtersets.py:1850
-#: netbox/ipam/filtersets.py:381 netbox/ipam/filtersets.py:493
-#: netbox/ipam/filtersets.py:1003 netbox/virtualization/filtersets.py:210
+#: netbox/ipam/filtersets.py:383 netbox/ipam/filtersets.py:495
+#: netbox/ipam/filtersets.py:1005 netbox/virtualization/filtersets.py:210
 msgid "Role (ID)"
 msgstr "Rol (ID)"
 
 #: netbox/dcim/filtersets.py:417 netbox/dcim/filtersets.py:898
 #: netbox/dcim/filtersets.py:1000 netbox/dcim/filtersets.py:1856
-#: netbox/extras/filtersets.py:558 netbox/ipam/filtersets.py:387
-#: netbox/ipam/filtersets.py:499 netbox/ipam/filtersets.py:1009
+#: netbox/extras/filtersets.py:558 netbox/ipam/filtersets.py:389
+#: netbox/ipam/filtersets.py:501 netbox/ipam/filtersets.py:1011
 #: netbox/virtualization/filtersets.py:216
 msgid "Role (slug)"
 msgstr "Rol (kısa ad)"
@@ -3199,7 +3199,7 @@ msgstr "VDC (KİMLİK)"
 msgid "Device model"
 msgstr "Cihaz modeli"
 
-#: netbox/dcim/filtersets.py:1267 netbox/ipam/filtersets.py:632
+#: netbox/dcim/filtersets.py:1267 netbox/ipam/filtersets.py:634
 #: netbox/vpn/filtersets.py:102 netbox/vpn/filtersets.py:401
 msgid "Interface (ID)"
 msgstr "Arayüz (ID)"
@@ -3213,8 +3213,8 @@ msgid "Module bay (ID)"
 msgstr "Modül yuvası (ID)"
 
 #: netbox/dcim/filtersets.py:1333 netbox/dcim/filtersets.py:1425
-#: netbox/ipam/filtersets.py:611 netbox/ipam/filtersets.py:851
-#: netbox/ipam/filtersets.py:1115 netbox/virtualization/filtersets.py:161
+#: netbox/ipam/filtersets.py:613 netbox/ipam/filtersets.py:853
+#: netbox/ipam/filtersets.py:1117 netbox/virtualization/filtersets.py:161
 #: netbox/vpn/filtersets.py:379
 msgid "Device (ID)"
 msgstr "Cihaz (ID)"
@@ -3223,8 +3223,8 @@ msgstr "Cihaz (ID)"
 msgid "Rack (name)"
 msgstr "Raf (isim)"
 
-#: netbox/dcim/filtersets.py:1431 netbox/ipam/filtersets.py:606
-#: netbox/ipam/filtersets.py:846 netbox/ipam/filtersets.py:1121
+#: netbox/dcim/filtersets.py:1431 netbox/ipam/filtersets.py:608
+#: netbox/ipam/filtersets.py:848 netbox/ipam/filtersets.py:1123
 #: netbox/vpn/filtersets.py:374
 msgid "Device (name)"
 msgstr "Cihaz (isim)"
@@ -3276,9 +3276,9 @@ msgstr "Atanmış VID"
 #: netbox/dcim/forms/bulk_import.py:913 netbox/dcim/forms/filtersets.py:1428
 #: netbox/dcim/forms/model_forms.py:1385
 #: netbox/dcim/models/device_components.py:711
-#: netbox/dcim/tables/devices.py:626 netbox/ipam/filtersets.py:316
-#: netbox/ipam/filtersets.py:327 netbox/ipam/filtersets.py:483
-#: netbox/ipam/filtersets.py:584 netbox/ipam/filtersets.py:595
+#: netbox/dcim/tables/devices.py:626 netbox/ipam/filtersets.py:318
+#: netbox/ipam/filtersets.py:329 netbox/ipam/filtersets.py:485
+#: netbox/ipam/filtersets.py:586 netbox/ipam/filtersets.py:597
 #: netbox/ipam/forms/bulk_edit.py:242 netbox/ipam/forms/bulk_edit.py:298
 #: netbox/ipam/forms/bulk_edit.py:340 netbox/ipam/forms/bulk_import.py:157
 #: netbox/ipam/forms/bulk_import.py:243 netbox/ipam/forms/bulk_import.py:279
@@ -3305,19 +3305,19 @@ msgstr "Atanmış VID"
 msgid "VRF"
 msgstr "VRF"
 
-#: netbox/dcim/filtersets.py:1619 netbox/ipam/filtersets.py:322
-#: netbox/ipam/filtersets.py:333 netbox/ipam/filtersets.py:489
-#: netbox/ipam/filtersets.py:590 netbox/ipam/filtersets.py:601
+#: netbox/dcim/filtersets.py:1619 netbox/ipam/filtersets.py:324
+#: netbox/ipam/filtersets.py:335 netbox/ipam/filtersets.py:491
+#: netbox/ipam/filtersets.py:592 netbox/ipam/filtersets.py:603
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: netbox/dcim/filtersets.py:1624 netbox/ipam/filtersets.py:1030
+#: netbox/dcim/filtersets.py:1624 netbox/ipam/filtersets.py:1032
 #: netbox/vpn/filtersets.py:342
 msgid "L2VPN (ID)"
 msgstr "L2VPN (KİMLİĞİ)"
 
 #: netbox/dcim/filtersets.py:1630 netbox/dcim/forms/filtersets.py:1433
-#: netbox/dcim/tables/devices.py:570 netbox/ipam/filtersets.py:1036
+#: netbox/dcim/tables/devices.py:570 netbox/ipam/filtersets.py:1038
 #: netbox/ipam/forms/filtersets.py:518 netbox/ipam/tables/vlans.py:137
 #: netbox/templates/dcim/interface.html:93 netbox/templates/ipam/vlan.html:66
 #: netbox/templates/vpn/l2vpntermination.html:12
@@ -3479,7 +3479,7 @@ msgstr "Saat dilimi"
 #: netbox/dcim/forms/object_import.py:187 netbox/dcim/tables/devices.py:96
 #: netbox/dcim/tables/devices.py:172 netbox/dcim/tables/devices.py:940
 #: netbox/dcim/tables/devicetypes.py:80 netbox/dcim/tables/devicetypes.py:308
-#: netbox/dcim/tables/modules.py:20 netbox/dcim/tables/modules.py:60
+#: netbox/dcim/tables/modules.py:20 netbox/dcim/tables/modules.py:61
 #: netbox/dcim/tables/racks.py:58 netbox/dcim/tables/racks.py:132
 #: netbox/templates/dcim/devicetype.html:14
 #: netbox/templates/dcim/inventoryitem.html:44
@@ -3730,7 +3730,7 @@ msgid "Device Type"
 msgstr "Cihaz Türü"
 
 #: netbox/dcim/forms/bulk_edit.py:598 netbox/dcim/forms/model_forms.py:401
-#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:65
+#: netbox/dcim/tables/modules.py:17 netbox/dcim/tables/modules.py:66
 #: netbox/templates/dcim/module.html:65
 #: netbox/templates/dcim/modulebay.html:66
 #: netbox/templates/dcim/moduletype.html:22
@@ -3838,7 +3838,7 @@ msgstr "Küme"
 #: netbox/dcim/tables/devices.py:697 netbox/dcim/tables/devices.py:754
 #: netbox/dcim/tables/devices.py:801 netbox/dcim/tables/devices.py:861
 #: netbox/dcim/tables/devices.py:930 netbox/dcim/tables/devices.py:1057
-#: netbox/dcim/tables/modules.py:52 netbox/extras/forms/filtersets.py:321
+#: netbox/dcim/tables/modules.py:53 netbox/extras/forms/filtersets.py:321
 #: netbox/ipam/forms/bulk_import.py:304 netbox/ipam/forms/bulk_import.py:505
 #: netbox/ipam/forms/filtersets.py:551 netbox/ipam/forms/model_forms.py:323
 #: netbox/ipam/forms/model_forms.py:712 netbox/ipam/forms/model_forms.py:745
@@ -4090,11 +4090,11 @@ msgstr "Etiketli VLAN'lar"
 
 #: netbox/dcim/forms/bulk_edit.py:1511
 msgid "Add tagged VLANs"
-msgstr ""
+msgstr "Etiketli VLAN'lar ekle"
 
 #: netbox/dcim/forms/bulk_edit.py:1520
 msgid "Remove tagged VLANs"
-msgstr ""
+msgstr "Etiketli VLAN'ları kaldır"
 
 #: netbox/dcim/forms/bulk_edit.py:1536 netbox/dcim/forms/model_forms.py:1348
 msgid "Wireless LAN group"
@@ -4142,7 +4142,7 @@ msgstr "802.1Q Anahtarlama"
 
 #: netbox/dcim/forms/bulk_edit.py:1558
 msgid "Add/Remove"
-msgstr ""
+msgstr "Ekle/Kaldır"
 
 #: netbox/dcim/forms/bulk_edit.py:1617 netbox/dcim/forms/bulk_edit.py:1619
 msgid "Interface mode must be specified to assign VLANs"
@@ -4220,7 +4220,7 @@ msgstr "Atanan rolün adı"
 
 #: netbox/dcim/forms/bulk_import.py:264
 msgid "Rack type model"
-msgstr ""
+msgstr "Raf tipi modeli"
 
 #: netbox/dcim/forms/bulk_import.py:292 netbox/dcim/forms/bulk_import.py:435
 #: netbox/dcim/forms/bulk_import.py:605
@@ -4229,11 +4229,11 @@ msgstr "Hava akışı yönü"
 
 #: netbox/dcim/forms/bulk_import.py:324
 msgid "Width must be set if not specifying a rack type."
-msgstr ""
+msgstr "Bir raf tipi belirtilmiyorsa genişlik ayarlanmalıdır."
 
 #: netbox/dcim/forms/bulk_import.py:326
 msgid "U height must be set if not specifying a rack type."
-msgstr ""
+msgstr "Bir raf tipi belirtilmiyorsa U yüksekliği ayarlanmalıdır."
 
 #: netbox/dcim/forms/bulk_import.py:334
 msgid "Parent site"
@@ -4893,6 +4893,10 @@ msgid ""
 "present, will be automatically replaced with the position value when "
 "creating a new module."
 msgstr ""
+"Toplu oluşturma için alfanümerik aralıklar desteklenir. Tek bir aralıktaki "
+"karışık durumlar ve türler desteklenmez (örnek: <code>[ge, xe] -0/0/ "
+"[0-9]</code>). Simge <code>{module}</code>, varsa, yeni bir modül "
+"oluştururken otomatik olarak konum değeri ile değiştirilecektir."
 
 #: netbox/dcim/forms/model_forms.py:1094
 msgid "Console port template"
@@ -6765,7 +6769,7 @@ msgstr "Modül bölmeleri"
 msgid "Inventory items"
 msgstr "Envanter kalemleri"
 
-#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:56
+#: netbox/dcim/tables/devices.py:305 netbox/dcim/tables/modules.py:57
 #: netbox/templates/dcim/modulebay.html:17
 msgid "Module Bay"
 msgstr "Modül Yuvası"
@@ -7490,12 +7494,12 @@ msgstr "Yer İşaretleri"
 msgid "Show your personal bookmarks"
 msgstr "Kişisel yer imlerinizi gösterin"
 
-#: netbox/extras/events.py:147
+#: netbox/extras/events.py:151
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "Bir olay kuralı için bilinmeyen eylem türü: {action_type}"
 
-#: netbox/extras/events.py:192
+#: netbox/extras/events.py:196
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "Olaylar boru hattı içe aktarılamıyor {name} hata: {error}"
@@ -9260,129 +9264,129 @@ msgstr "L2VPN'i dışa aktarma"
 msgid "Exporting L2VPN (identifier)"
 msgstr "L2VPN'i dışa aktarma (tanımlayıcı)"
 
-#: netbox/ipam/filtersets.py:155 netbox/ipam/filtersets.py:281
+#: netbox/ipam/filtersets.py:155 netbox/ipam/filtersets.py:283
 #: netbox/ipam/forms/model_forms.py:229 netbox/ipam/tables/ip.py:212
 #: netbox/templates/ipam/prefix.html:12
 msgid "Prefix"
 msgstr "Önek"
 
 #: netbox/ipam/filtersets.py:159 netbox/ipam/filtersets.py:198
-#: netbox/ipam/filtersets.py:221
+#: netbox/ipam/filtersets.py:223
 msgid "RIR (ID)"
 msgstr "RİR (İD)"
 
 #: netbox/ipam/filtersets.py:165 netbox/ipam/filtersets.py:204
-#: netbox/ipam/filtersets.py:227
+#: netbox/ipam/filtersets.py:229
 msgid "RIR (slug)"
 msgstr "RIR (kısa ad)"
 
-#: netbox/ipam/filtersets.py:285
+#: netbox/ipam/filtersets.py:287
 msgid "Within prefix"
 msgstr "Önek içinde"
 
-#: netbox/ipam/filtersets.py:289
+#: netbox/ipam/filtersets.py:291
 msgid "Within and including prefix"
 msgstr "Önek içinde ve dahil olmak üzere"
 
-#: netbox/ipam/filtersets.py:293
+#: netbox/ipam/filtersets.py:295
 msgid "Prefixes which contain this prefix or IP"
 msgstr "Bu önek veya IP'yi içeren önekler"
 
-#: netbox/ipam/filtersets.py:304 netbox/ipam/filtersets.py:572
+#: netbox/ipam/filtersets.py:306 netbox/ipam/filtersets.py:574
 #: netbox/ipam/forms/bulk_edit.py:343 netbox/ipam/forms/filtersets.py:196
 #: netbox/ipam/forms/filtersets.py:331
 msgid "Mask length"
 msgstr "Maske uzunluğu"
 
-#: netbox/ipam/filtersets.py:373 netbox/vpn/filtersets.py:427
+#: netbox/ipam/filtersets.py:375 netbox/vpn/filtersets.py:427
 msgid "VLAN (ID)"
 msgstr "VLAN (KİMLİĞİ)"
 
-#: netbox/ipam/filtersets.py:377 netbox/vpn/filtersets.py:422
+#: netbox/ipam/filtersets.py:379 netbox/vpn/filtersets.py:422
 msgid "VLAN number (1-4094)"
 msgstr "VLAN numarası (1-4094)"
 
-#: netbox/ipam/filtersets.py:471 netbox/ipam/filtersets.py:475
-#: netbox/ipam/filtersets.py:567 netbox/ipam/forms/model_forms.py:496
+#: netbox/ipam/filtersets.py:473 netbox/ipam/filtersets.py:477
+#: netbox/ipam/filtersets.py:569 netbox/ipam/forms/model_forms.py:496
 #: netbox/templates/tenancy/contact.html:53
 #: netbox/tenancy/forms/bulk_edit.py:113
 msgid "Address"
 msgstr "Adres"
 
-#: netbox/ipam/filtersets.py:479
+#: netbox/ipam/filtersets.py:481
 msgid "Ranges which contain this prefix or IP"
 msgstr "Bu önek veya IP'yi içeren aralıklar"
 
-#: netbox/ipam/filtersets.py:507 netbox/ipam/filtersets.py:563
+#: netbox/ipam/filtersets.py:509 netbox/ipam/filtersets.py:565
 msgid "Parent prefix"
 msgstr "Ebeveyn öneki"
 
-#: netbox/ipam/filtersets.py:616 netbox/ipam/filtersets.py:856
-#: netbox/ipam/filtersets.py:1131 netbox/vpn/filtersets.py:385
+#: netbox/ipam/filtersets.py:618 netbox/ipam/filtersets.py:858
+#: netbox/ipam/filtersets.py:1133 netbox/vpn/filtersets.py:385
 msgid "Virtual machine (name)"
 msgstr "Sanal makine (isim)"
 
-#: netbox/ipam/filtersets.py:621 netbox/ipam/filtersets.py:861
-#: netbox/ipam/filtersets.py:1125 netbox/virtualization/filtersets.py:282
+#: netbox/ipam/filtersets.py:623 netbox/ipam/filtersets.py:863
+#: netbox/ipam/filtersets.py:1127 netbox/virtualization/filtersets.py:282
 #: netbox/virtualization/filtersets.py:321 netbox/vpn/filtersets.py:390
 msgid "Virtual machine (ID)"
 msgstr "Sanal makine (ID)"
 
-#: netbox/ipam/filtersets.py:627 netbox/vpn/filtersets.py:97
+#: netbox/ipam/filtersets.py:629 netbox/vpn/filtersets.py:97
 #: netbox/vpn/filtersets.py:396
 msgid "Interface (name)"
 msgstr "Arayüz (isim)"
 
-#: netbox/ipam/filtersets.py:638 netbox/vpn/filtersets.py:108
+#: netbox/ipam/filtersets.py:640 netbox/vpn/filtersets.py:108
 #: netbox/vpn/filtersets.py:407
 msgid "VM interface (name)"
 msgstr "VM arabirimi (isim)"
 
-#: netbox/ipam/filtersets.py:643 netbox/vpn/filtersets.py:113
+#: netbox/ipam/filtersets.py:645 netbox/vpn/filtersets.py:113
 msgid "VM interface (ID)"
 msgstr "VM arabirimi (ID)"
 
-#: netbox/ipam/filtersets.py:648
+#: netbox/ipam/filtersets.py:650
 msgid "FHRP group (ID)"
 msgstr "FHRP grubu (ID)"
 
-#: netbox/ipam/filtersets.py:652
+#: netbox/ipam/filtersets.py:654
 msgid "Is assigned to an interface"
 msgstr "Bir arayüze atanır"
 
-#: netbox/ipam/filtersets.py:656
+#: netbox/ipam/filtersets.py:658
 msgid "Is assigned"
 msgstr "Atanmıştır"
 
-#: netbox/ipam/filtersets.py:668
+#: netbox/ipam/filtersets.py:670
 msgid "Service (ID)"
 msgstr "Hizmet (ID)"
 
-#: netbox/ipam/filtersets.py:673
+#: netbox/ipam/filtersets.py:675
 msgid "NAT inside IP address (ID)"
 msgstr "IP adresi içinde NAT (ID)"
 
-#: netbox/ipam/filtersets.py:1041 netbox/ipam/forms/bulk_import.py:322
+#: netbox/ipam/filtersets.py:1043 netbox/ipam/forms/bulk_import.py:322
 msgid "Assigned interface"
 msgstr "Atanmış arayüz"
 
-#: netbox/ipam/filtersets.py:1046
+#: netbox/ipam/filtersets.py:1048
 msgid "Assigned VM interface"
 msgstr "Atanmış VM arabirimi"
 
-#: netbox/ipam/filtersets.py:1136
+#: netbox/ipam/filtersets.py:1138
 msgid "IP address (ID)"
 msgstr "IP adresi (ID)"
 
-#: netbox/ipam/filtersets.py:1142 netbox/ipam/models/ip.py:788
+#: netbox/ipam/filtersets.py:1144 netbox/ipam/models/ip.py:788
 msgid "IP address"
 msgstr "IP adresi"
 
-#: netbox/ipam/filtersets.py:1167
+#: netbox/ipam/filtersets.py:1169
 msgid "Primary IPv4 (ID)"
 msgstr "Birincil IPv4 (ID)"
 
-#: netbox/ipam/filtersets.py:1172
+#: netbox/ipam/filtersets.py:1174
 msgid "Primary IPv6 (ID)"
 msgstr "Birincil IPv6 (ID)"
 
@@ -9606,11 +9610,11 @@ msgstr "Bunu atanan cihaz için birincil IP yapın"
 
 #: netbox/ipam/forms/bulk_import.py:330
 msgid "Is out-of-band"
-msgstr ""
+msgstr "Bant dışı"
 
 #: netbox/ipam/forms/bulk_import.py:331
 msgid "Designate this as the out-of-band IP address for the assigned device"
-msgstr ""
+msgstr "Bunu atanan aygıtın bant dışı IP adresi olarak belirleyin"
 
 #: netbox/ipam/forms/bulk_import.py:371
 msgid "No device or virtual machine specified; cannot set as primary IP"
@@ -9619,11 +9623,11 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_import.py:375
 msgid "No device specified; cannot set as out-of-band IP"
-msgstr ""
+msgstr "Aygıt belirtilmemiş; bant dışı IP olarak ayarlanamıyor"
 
 #: netbox/ipam/forms/bulk_import.py:379
 msgid "Cannot set out-of-band IP for virtual machines"
-msgstr ""
+msgstr "Sanal makineler için bant dışı IP ayarlanamıyor"
 
 #: netbox/ipam/forms/bulk_import.py:383
 msgid "No interface specified; cannot set as primary IP"
@@ -9631,7 +9635,7 @@ msgstr "Arayüz belirtilmedi; birincil IP olarak ayarlanamıyor"
 
 #: netbox/ipam/forms/bulk_import.py:387
 msgid "No interface specified; cannot set as out-of-band IP"
-msgstr ""
+msgstr "Arayüz belirtilmedi; bant dışı IP olarak ayarlanamıyor"
 
 #: netbox/ipam/forms/bulk_import.py:422
 msgid "Auth type"
@@ -9808,7 +9812,7 @@ msgstr "Bunu cihaz/VM için birincil IP yapın"
 
 #: netbox/ipam/forms/model_forms.py:314
 msgid "Make this the out-of-band IP for the device"
-msgstr ""
+msgstr "Bunu cihaz için bant dışı IP yapın"
 
 #: netbox/ipam/forms/model_forms.py:329
 msgid "NAT IP (Inside)"
@@ -9820,11 +9824,11 @@ msgstr "IP adresi yalnızca tek bir nesneye atanabilir."
 
 #: netbox/ipam/forms/model_forms.py:398
 msgid "Cannot reassign primary IP address for the parent device/VM"
-msgstr ""
+msgstr "Ana aygıt/sanal makine için birincil IP adresi yeniden atanamıyor"
 
 #: netbox/ipam/forms/model_forms.py:402
 msgid "Cannot reassign out-of-Band IP address for the parent device"
-msgstr ""
+msgstr "Ana aygıt için bant dışı IP adresi yeniden atanamıyor"
 
 #: netbox/ipam/forms/model_forms.py:412
 msgid ""
@@ -9837,6 +9841,8 @@ msgid ""
 "Only IP addresses assigned to a device interface can be designated as the "
 "out-of-band IP for a device."
 msgstr ""
+"Yalnızca bir cihaz arayüzüne atanan IP adresleri, bir aygıt için bant dışı "
+"IP olarak belirlenebilir."
 
 #: netbox/ipam/forms/model_forms.py:508
 msgid "Virtual IP Address"
@@ -10229,12 +10235,12 @@ msgstr "scope_type olmadan scope_id ayarlanamıyor."
 #: netbox/ipam/models/vlans.py:105
 #, python-brace-format
 msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
-msgstr ""
+msgstr "Menzilde VLAN Kimliğini Başlatma ({value}) daha az olamaz {minimum}"
 
 #: netbox/ipam/models/vlans.py:111
 #, python-brace-format
 msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
-msgstr ""
+msgstr "Menzilde VLAN Kimliğini Sonlandırma ({value}) geçemez {maximum}"
 
 #: netbox/ipam/models/vlans.py:118
 #, python-brace-format
@@ -10242,6 +10248,8 @@ msgid ""
 "Ending VLAN ID in range must be greater than or equal to the starting VLAN "
 "ID ({range})"
 msgstr ""
+"Aralıktaki bitiş VLAN kimliği, başlangıç VLAN kimliğinden daha büyük veya "
+"ona eşit olmalıdır ({range})"
 
 #: netbox/ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
@@ -12605,11 +12613,11 @@ msgstr "İndir"
 #: netbox/templates/dcim/device/render_config.html:64
 #: netbox/templates/virtualization/virtualmachine/render_config.html:64
 msgid "Error rendering template"
-msgstr ""
+msgstr "Hata oluşturma şablonu"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr ""
+msgstr "Bu aygıt için herhangi bir yapılandırma şablonu atanmadı."
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13476,7 +13484,7 @@ msgstr "Tekrar koş"
 #: netbox/templates/extras/script_list.html:133
 #, python-format
 msgid "Could not load scripts from module %(module)s"
-msgstr ""
+msgstr "Modülden komut dosyaları yüklenemedi %(module)s"
 
 #: netbox/templates/extras/script_list.html:141
 msgid "No Scripts Found"
@@ -14288,7 +14296,7 @@ msgstr "Sanal Disk Ekle"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr ""
+msgstr "Bu sanal makine için herhangi bir yapılandırma şablonu atanmadı."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15352,12 +15360,12 @@ msgstr "Bellek (MB)"
 
 #: netbox/virtualization/forms/bulk_edit.py:174
 msgid "Disk (MB)"
-msgstr ""
+msgstr "Disk (MB)"
 
 #: netbox/virtualization/forms/bulk_edit.py:334
 #: netbox/virtualization/forms/filtersets.py:251
 msgid "Size (MB)"
-msgstr ""
+msgstr "Boyut (MB)"
 
 #: netbox/virtualization/forms/bulk_import.py:44
 msgid "Type of cluster"
@@ -15385,8 +15393,7 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} adlı aygıt, ({cluster_site}) kümesinden farklı bir siteye "
-"({device_site})  aittir"
+"{device} farklı bir siteye aittir ({device_site}) kümeden ({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -15566,19 +15573,19 @@ msgstr "GREC"
 
 #: netbox/vpn/choices.py:39
 msgid "WireGuard"
-msgstr ""
+msgstr "Tel Koruma"
 
 #: netbox/vpn/choices.py:40
 msgid "OpenVPN"
-msgstr ""
+msgstr "OpenVPN"
 
 #: netbox/vpn/choices.py:41
 msgid "L2TP"
-msgstr ""
+msgstr "L2TP"
 
 #: netbox/vpn/choices.py:42
 msgid "PPTP"
-msgstr ""
+msgstr "PPTP"
 
 #: netbox/vpn/choices.py:64
 msgid "Hub"

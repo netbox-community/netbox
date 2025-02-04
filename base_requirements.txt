@@ -88,7 +88,8 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-mkdocstrings[python-legacy]
+# See #18568
+mkdocstrings[python-legacy]==0.27.0
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst
