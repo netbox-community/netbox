@@ -1,13 +1,64 @@
 # NetBox v4.2
 
-## v4.2-beta1 (2024-12-02)
+## v4.2.3 (2025-02-04)
 
-!!! danger "Not for Production Use"
-    This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+### Enhancements
+
+* [#18518](https://github.com/netbox-community/netbox/issues/18518) - Add a "hostname" `<meta>` tag to the page header
+
+### Bug Fixes
+
+* [#18497](https://github.com/netbox-community/netbox/issues/18497) - Fix unhandled `FieldDoesNotExist` exception when search results include virtual circuit
+* [#18433](https://github.com/netbox-community/netbox/issues/18433) - Fix MAC address not shown as "primary for interface" in MAC address detail view
+* [#18154](https://github.com/netbox-community/netbox/issues/18154) - Allow anonymous users to change default table preferences
+* [#18515](https://github.com/netbox-community/netbox/issues/18515) - Fix Django `collectstatic` management command in debug mode with Redis not running
+* [#18456](https://github.com/netbox-community/netbox/issues/18456) - Avoid duplicate MAC Address column in interface tables
+* [#18447](https://github.com/netbox-community/netbox/issues/18447) - Fix `FieldError` exception when sorting interface tables on MAC Address columns 
+* [#18438](https://github.com/netbox-community/netbox/issues/18438) - Improve performance in IPAM migration `0072_prefix_cached_relations` when upgrading from v4.1 or earlier
+* [#18436](https://github.com/netbox-community/netbox/issues/18436) - Reset primary MAC address when unassigning MAC address from interface
+* [#18181](https://github.com/netbox-community/netbox/issues/18181) - Fix "Create & Add Another" workflow when adding IP addresses to interfaces
+
+---
+
+## v4.2.2 (2025-01-17)
+
+### Bug Fixes
+
+* [#18336](https://github.com/netbox-community/netbox/issues/18336) - Validate new rack height against installed devices when changing a rack's type
+* [#18350](https://github.com/netbox-community/netbox/issues/18350) - Fix `FieldDoesNotExist` exception when global search results include a circuit termination
+* [#18353](https://github.com/netbox-community/netbox/issues/18353) - Disable fetching of plugin catalog data when `ISOLATED_DEPLOYMENT` is enabled
+* [#18362](https://github.com/netbox-community/netbox/issues/18362) - Avoid transmitting census data on every worker restart
+* [#18363](https://github.com/netbox-community/netbox/issues/18363) - Fix support for assigning a MAC address to an interface via the REST API
+* [#18368](https://github.com/netbox-community/netbox/issues/18368) - Restore missing attributes from REST API serializer for MAC addresses (`tags`, `created`, `last_updated`, and custom fields)
+* [#18369](https://github.com/netbox-community/netbox/issues/18369) - Fix `TypeError` exception when rendering the system configuration view with one or more custom classes defined under `PROTECTION_RULES`
+* [#18373](https://github.com/netbox-community/netbox/issues/18373) - Fix `AttributeError` exception when attempting to assign host devices to a cluster
+* [#18376](https://github.com/netbox-community/netbox/issues/18376) - Fix the display of tagged VLANs in interfaces list for Q-in-Q interfaces
+* [#18379](https://github.com/netbox-community/netbox/issues/18379) - Ensure RSS feed dashboard widget content is sanitized
+* [#18392](https://github.com/netbox-community/netbox/issues/18392) - Virtual machines should not inherit config contexts assigned to locations
+* [#18400](https://github.com/netbox-community/netbox/issues/18400) - Fix support for `STORAGE_BACKEND` configuration parameter
+* [#18406](https://github.com/netbox-community/netbox/issues/18406) - Scope column headers in object lists should not be orderable
+
+---
+
+## v4.2.1 (2025-01-08)
+
+### Bug Fixes
+
+* [#18282](https://github.com/netbox-community/netbox/issues/18282) - Fix ordering of prefixes list by assigned VLAN
+* [#18314](https://github.com/netbox-community/netbox/issues/18314) - Fix KeyError exception when rendering pre-saved dashboard (`requires_internet` missing)
+* [#18316](https://github.com/netbox-community/netbox/issues/18316) - Fix AttributeError exception when global search results include prefixes and/or clusters
+* [#18318](https://github.com/netbox-community/netbox/issues/18318) - Correct navigation breadcrumbs for module type UI view
+* [#18324](https://github.com/netbox-community/netbox/issues/18324) - Correct filtering for certain related object listings
+* [#18329](https://github.com/netbox-community/netbox/issues/18329) - Address upstream bug in GraphQL API where only one primary IP address is returned within a device/VM list
+
+---
+
+## v4.2.0 (2025-01-06)
 
 ### Breaking Changes
 
 * Support for the Django admin UI has been completely removed. (The Django admin UI was disabled by default in NetBox v4.0.)
+* This release drops support for PostgreSQL 12. PostgreSQL 13 or later is required to run this release.
 * NetBox has adopted collation-based natural ordering for many models. This may alter the order in which some objects are listed by default.
 * Automatic redirects from pre-v4.1 UI views for virtual disks have been removed.
 * The `site` and `provider_network` foreign key fields on `circuits.CircuitTermination` have been replaced by the `termination` generic foreign key.

@@ -38,7 +38,7 @@ jobs:
             issues may receive direct feedback. **Do not** attempt to circumvent this
             process by "bumping" the issue; doing so will result in its immediate closure
             and you may be barred from participating in any future discussions. Please see
-            our [contributing guide](https://github.com/netbox-community/netbox/blob/develop/CONTRIBUTING.md).
+            our [contributing guide](https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md).
 
           # Pull request parameters
           close-pr-message: >

@@ -76,7 +76,7 @@ DEFAULT_DASHBOARD = [
         'height': 4,
         'title': 'NetBox News',
         'config': {
-            'feed_url': 'http://netbox.dev/rss/',
+            'feed_url': 'https://api.netbox.oss.netboxlabs.com/v1/newsfeed/',
             'max_entries': 10,
             'cache_timeout': 14400,
             'requires_internet': True,

@@ -15,7 +15,7 @@ from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
-from ipam.models import ASN, IPAddress, VLANGroup
+from ipam.models import ASN, IPAddress, Prefix, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
@@ -30,8 +30,9 @@ from utilities.views import (
 )
 from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.forms import VirtualMachineFilterForm
-from virtualization.models import VirtualMachine
+from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import VirtualMachineTable
+from wireless.models import WirelessLAN
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
@@ -238,6 +239,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 regions,
+                omit=(Cluster, Prefix, WirelessLAN),
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
@@ -247,6 +249,11 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                         ).distinct(),
                         'region_id'
                     ),
+
+                    # Handle these relations manually to avoid erroneous filter name resolution
+                    (Cluster.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
+                    (Prefix.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
+                    (WirelessLAN.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
                 ),
             ),
         }
@@ -331,6 +338,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 groups,
+                omit=(Cluster, Prefix, WirelessLAN),
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
@@ -338,6 +346,20 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                         Circuit.objects.restrict(request.user, 'view').filter(
                             terminations___site_group=instance
                         ).distinct(),
+                        'site_group_id'
+                    ),
+
+                    # Handle these relations manually to avoid erroneous filter name resolution
+                    (
+                        Cluster.objects.restrict(request.user, 'view').filter(_site_group__in=groups),
+                        'site_group_id'
+                    ),
+                    (
+                        Prefix.objects.restrict(request.user, 'view').filter(_site_group__in=groups),
+                        'site_group_id'
+                    ),
+                    (
+                        WirelessLAN.objects.restrict(request.user, 'view').filter(_site_group__in=groups),
                         'site_group_id'
                     ),
                 ),
@@ -418,8 +440,8 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 instance,
-                [CableTermination, CircuitTermination],
-                (
+                omit=(CableTermination, CircuitTermination, Cluster, Prefix, WirelessLAN),
+                extra=(
                     (VLANGroup.objects.restrict(request.user, 'view').filter(
                         scope_type=ContentType.objects.get_for_model(Site),
                         scope_id=instance.pk
@@ -429,6 +451,11 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                         Circuit.objects.restrict(request.user, 'view').filter(terminations___site=instance).distinct(),
                         'site_id'
                     ),
+
+                    # Handle these relations manually to avoid erroneous filter name resolution
+                    (Cluster.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
+                    (Prefix.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
+                    (WirelessLAN.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
                 ),
             ),
         }
@@ -506,14 +533,19 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 locations,
-                [CableTermination],
-                (
+                omit=[CableTermination, Cluster, Prefix, WirelessLAN],
+                extra=(
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(
                             terminations___location=instance
                         ).distinct(),
                         'location_id'
                     ),
+
+                    # Handle these relations manually to avoid erroneous filter name resolution
+                    (Cluster.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
+                    (Prefix.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
+                    (WirelessLAN.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                 ),
             ),
         }
