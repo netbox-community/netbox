@@ -2,7 +2,6 @@ from contextlib import ExitStack
 
 import logging
 import uuid
-import warnings
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -38,10 +37,7 @@ class CoreMiddleware:
         # Apply all registered request processors
         with ExitStack() as stack:
             for request_processor in registry['request_processors']:
-                try:
-                    stack.enter_context(request_processor(request))
-                except Exception as e:
-                    warnings.warn(f'Failed to initialize request processor {request_processor}: {e}')
+                stack.enter_context(request_processor(request))
             response = self.get_response(request)
 
         # Check if language cookie should be renewed
