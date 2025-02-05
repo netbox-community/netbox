@@ -791,7 +791,6 @@ if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
     EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
 
 # Register any configured plugins
-incompatible_plugins = []
 for plugin_name in PLUGINS:
     try:
         # Import the plugin module
@@ -812,6 +811,15 @@ for plugin_name in PLUGINS:
             f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
             f"__init__.py file and point to the PluginConfig subclass."
         )
+
+    # Validate version compatibility and user-provided configuration settings and assign defaults
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    try:
+        plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
+    except IncompatiblePluginError as e:
+        warnings.warn(f'Unable to load plugin {plugin_name}: {e}')
+        continue
 
     # Register the plugin as installed successfully
     registry['plugins']['installed'].append(plugin_name)
@@ -865,8 +873,6 @@ for plugin_name in PLUGINS:
             EVENTS_PIPELINE.extend(events_pipeline)
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
-
-[PLUGINS.remove(x) for x in incompatible_plugins]
 
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
