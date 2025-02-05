@@ -55,17 +55,18 @@ If True, cross-origin resource sharing (CORS) requests will be accepted from all
 
 ## CORS_ORIGIN_WHITELIST
 
-## CORS_ORIGIN_REGEX_WHITELIST
-
-These settings specify a list of origins that are authorized to make cross-site API requests. Use
-`CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular 
-expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
-
+This setting specifies a list of hostnames that are allowed to make cross-site API requests. Please note that this setting will have no effect if `CORS_ORIGIN_ALLOW_ALL` is True. For example:
 ```python
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
 ]
 ```
+---
+
+## CORS_ORIGIN_REGEX_WHITELIST
+
+These settings specify a list of origins that are authorized to make cross-site API requests. This value, `CORS_ORIGIN_REGEX_WHITELIST`, is used to define a set of regular 
+expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) 
 
 ---
 
