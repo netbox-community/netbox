@@ -30,7 +30,7 @@ To download translated strings automatically, you'll need to:
 1. Install the [Transifex CLI client](https://github.com/transifex/cli)
 2. Generate a [Transifex API token](https://app.transifex.com/user/settings/api/)
 
-Once you have the client set up, run the following command:
+Once you have the client set up, run the following command from the project root (e.g. `/opt/netbox/`):
 
 ```no-highlight
 TX_TOKEN=$TOKEN tx pull
@@ -45,6 +45,9 @@ Once retrieved, the updated strings need to be compiled into new `.mo` files so 
 ```
 
 Once any new `.mo` files have been generated, they need to be committed and pushed back up to GitHub. (Again, this is typically done as part of publishing a new NetBox release.)
+
+!!! tip
+    Run `git status` to check that both `*.mo` & `*.po` files have been updated as expected.
 
 ## Proposing New Languages
 
