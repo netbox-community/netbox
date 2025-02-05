@@ -77,7 +77,7 @@ def get_local_plugins(plugins=None):
     local_plugins = {}
 
     # Gather all locally-installed plugins
-    for plugin_name in registry['plugins']['installed']:
+    for plugin_name in settings.PLUGINS:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
         installed_version = plugin_config.version
@@ -91,7 +91,7 @@ def get_local_plugins(plugins=None):
             tag_line=plugin_config.description,
             description_short=plugin_config.description,
             is_local=True,
-            is_installed=True,
+            is_installed=plugin_name in registry['plugins']['installed'],
             installed_version=installed_version,
         )
 
@@ -99,7 +99,7 @@ def get_local_plugins(plugins=None):
     for k, v in local_plugins.items():
         if k in plugins:
             plugins[k].is_local = True
-            plugins[k].is_installed = True
+            plugins[k].is_installed = k in registry['plugins']['installed']
             plugins[k].installed_version = v.installed_version
         else:
             plugins[k] = v
