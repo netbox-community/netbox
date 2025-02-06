@@ -160,15 +160,6 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Object Type'),
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit saved filters to those applicable to the form's model
-        object_type = ObjectType.objects.get_for_model(self.model)
-        self.fields['filter_id'].widget.add_query_params({
-            'object_type_id': object_type.pk,
-        })
-
 
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
