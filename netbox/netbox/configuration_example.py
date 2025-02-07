@@ -223,8 +223,8 @@ SESSION_FILE_PATH = None
 
 # By default the memory and disk sizes are displayed using base 10 (e.g. 1000 MB = 1 GB).
 # If you would like to use base 2 (e.g. 1024 MB = 1 GB) set this to 1024.
-DISK_UNIT_DIVISOR  = 1024
-RAM_UNIT_DIVISOR = 1024
+DISK_BASE_UNIT = 1024
+RAM_BASE_UNIT = 1024
 
 # By default, uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
 # class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:

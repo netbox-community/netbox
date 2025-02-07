@@ -8,7 +8,7 @@ from django.urls import NoReverseMatch, reverse
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.views import get_viewname
-from netbox.settings import DISK_UNIT_DIVISOR, RAM_UNIT_DIVISOR
+from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
 
 __all__ = (
     'applied_filters',
@@ -108,17 +108,17 @@ def _humanize_megabytes(mb, divisor=1000):
 def humanize_disk_megabytes(mb):
     """
     Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the DISK_UNIT_DIVISOR setting to determine the divisor. Default is 1000.
+    Use the DISK_BASE_UNIT setting to determine the divisor. Default is 1000.
     """
-    return _humanize_megabytes(mb, DISK_UNIT_DIVISOR)
+    return _humanize_megabytes(mb, DISK_BASE_UNIT)
 
 @register.filter()
 def humanize_ram_megabytes(mb):
     """
     Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the RAM_UNIT_DIVISOR setting to determine the divisor. Default is 1000.
+    Use the RAM_BASE_UNIT setting to determine the divisor. Default is 1000.
     """
-    return _humanize_megabytes(mb, RAM_UNIT_DIVISOR)
+    return _humanize_megabytes(mb, RAM_BASE_UNIT)
 
 
 @register.filter()

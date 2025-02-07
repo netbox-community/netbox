@@ -1,13 +1,13 @@
 from django.db import migrations
 from django.db.models import F, Sum
-from netbox.settings import DISK_UNIT_DIVISOR
+from netbox.settings import DISK_BASE_UNIT
 
 def convert_disk_size(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
-    VirtualMachine.objects.filter(disk__isnull=False).update(disk=F('disk') * DISK_UNIT_DIVISOR)
+    VirtualMachine.objects.filter(disk__isnull=False).update(disk=F('disk') * DISK_BASE_UNIT)
 
     VirtualDisk = apps.get_model('virtualization', 'VirtualDisk')
-    VirtualDisk.objects.filter(size__isnull=False).update(size=F('size') * DISK_UNIT_DIVISOR)
+    VirtualDisk.objects.filter(size__isnull=False).update(size=F('size') * DISK_BASE_UNIT)
 
     # Recalculate disk size on all VMs with virtual disks
     id_list = VirtualDisk.objects.values_list('virtual_machine_id').distinct()
