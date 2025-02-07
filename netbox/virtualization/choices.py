@@ -39,7 +39,6 @@ class VirtualMachineStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
     STATUS_DECOMMISSIONING = 'decommissioning'
     STATUS_PAUSED = 'paused'
-    STATUS_SUSPENDED = 'suspended'
 
     CHOICES = [
         (STATUS_OFFLINE, _('Offline'), 'gray'),
@@ -49,5 +48,4 @@ class VirtualMachineStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
         (STATUS_PAUSED, _('Paused'), 'orange'),
-        (STATUS_SUSPENDED, _('Suspended'), 'purple'),
     ]
