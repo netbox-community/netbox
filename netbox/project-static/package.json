@@ -31,7 +31,7 @@
     "htmx.org": "1.9.12",
     "query-string": "9.1.1",
     "sass": "1.83.4",
-    "tom-select": "2.4.1",
+    "tom-select": "2.4.2",
     "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"
   },
@@ -41,7 +41,7 @@
     "@types/node": "^22.3.0",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.24.2",
     "esbuild-sass-plugin": "^3.3.1",
     "eslint": "<9.0",
     "eslint-config-prettier": "^9.1.0",

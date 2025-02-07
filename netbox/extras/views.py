@@ -1315,9 +1315,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         try:
-            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)]
         except KeyError:
-            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_INFO]
         if job.data:
 
             if 'log' in job.data:
@@ -1325,7 +1325,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_INFO)
                     if log_level >= log_threshold:
                         index += 1
                         result = {
@@ -1348,7 +1348,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_INFO)
                         if log_level >= log_threshold:
                             index += 1
                             result = {
@@ -1374,9 +1374,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)
         if log_threshold not in LOG_LEVEL_RANK:
-            log_threshold = LogLevelChoices.LOG_DEBUG
+            log_threshold = LogLevelChoices.LOG_INFO
 
         context = {
             'script': job.object,
