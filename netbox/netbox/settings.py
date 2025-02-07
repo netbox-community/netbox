@@ -177,7 +177,11 @@ STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
+if DISK_BASE_UNIT not in [1000, 1024]:
+    raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
 RAM_BASE_UNIT = getattr(configuration, 'MEMORY_UNIT_DIVISOR', 1000)
+if RAM_BASE_UNIT not in [1000, 1024]:
+    raise ImproperlyConfigured(f"RAM_BASE_UNIT must be 1000 or 1024 (found {RAM_BASE_UNIT})")
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
