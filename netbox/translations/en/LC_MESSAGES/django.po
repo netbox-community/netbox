@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-01 05:01+0000\n"
+"POT-Creation-Date: 2025-02-07 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -739,7 +739,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_import.py:227
 #: netbox/circuits/forms/filtersets.py:161
 #: netbox/circuits/forms/filtersets.py:356 netbox/core/forms/filtersets.py:38
-#: netbox/core/forms/filtersets.py:79 netbox/core/tables/data.py:23
+#: netbox/core/forms/filtersets.py:80 netbox/core/tables/data.py:23
 #: netbox/core/tables/jobs.py:26 netbox/core/tables/tasks.py:88
 #: netbox/dcim/forms/bulk_edit.py:110 netbox/dcim/forms/bulk_edit.py:185
 #: netbox/dcim/forms/bulk_edit.py:355 netbox/dcim/forms/bulk_edit.py:709
@@ -829,8 +829,8 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:723 netbox/dcim/forms/filtersets.py:917
 #: netbox/dcim/forms/filtersets.py:979 netbox/dcim/forms/filtersets.py:1009
 #: netbox/dcim/forms/filtersets.py:1131 netbox/dcim/tables/power.py:88
-#: netbox/extras/filtersets.py:612 netbox/extras/forms/filtersets.py:323
-#: netbox/extras/forms/filtersets.py:396 netbox/ipam/forms/bulk_edit.py:46
+#: netbox/extras/filtersets.py:612 netbox/extras/forms/filtersets.py:330
+#: netbox/extras/forms/filtersets.py:403 netbox/ipam/forms/bulk_edit.py:46
 #: netbox/ipam/forms/bulk_edit.py:71 netbox/ipam/forms/bulk_edit.py:115
 #: netbox/ipam/forms/bulk_edit.py:144 netbox/ipam/forms/bulk_edit.py:169
 #: netbox/ipam/forms/bulk_edit.py:235 netbox/ipam/forms/bulk_edit.py:285
@@ -932,8 +932,8 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:110
 #: netbox/circuits/forms/filtersets.py:127
 #: netbox/circuits/forms/filtersets.py:310
-#: netbox/circuits/forms/filtersets.py:325 netbox/core/forms/filtersets.py:67
-#: netbox/core/forms/filtersets.py:135 netbox/dcim/forms/bulk_edit.py:846
+#: netbox/circuits/forms/filtersets.py:325 netbox/core/forms/filtersets.py:68
+#: netbox/core/forms/filtersets.py:136 netbox/dcim/forms/bulk_edit.py:846
 #: netbox/dcim/forms/filtersets.py:173 netbox/dcim/forms/filtersets.py:205
 #: netbox/dcim/forms/filtersets.py:916 netbox/dcim/forms/filtersets.py:1008
 #: netbox/dcim/forms/filtersets.py:1132 netbox/dcim/forms/filtersets.py:1240
@@ -942,10 +942,10 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1446 netbox/dcim/forms/filtersets.py:1470
 #: netbox/dcim/forms/filtersets.py:1494 netbox/dcim/forms/filtersets.py:1512
 #: netbox/dcim/forms/filtersets.py:1528 netbox/extras/forms/bulk_edit.py:90
-#: netbox/extras/forms/filtersets.py:44 netbox/extras/forms/filtersets.py:134
-#: netbox/extras/forms/filtersets.py:165 netbox/extras/forms/filtersets.py:205
-#: netbox/extras/forms/filtersets.py:221 netbox/extras/forms/filtersets.py:252
-#: netbox/extras/forms/filtersets.py:276 netbox/extras/forms/filtersets.py:441
+#: netbox/extras/forms/filtersets.py:45 netbox/extras/forms/filtersets.py:137
+#: netbox/extras/forms/filtersets.py:169 netbox/extras/forms/filtersets.py:210
+#: netbox/extras/forms/filtersets.py:227 netbox/extras/forms/filtersets.py:258
+#: netbox/extras/forms/filtersets.py:282 netbox/extras/forms/filtersets.py:449
 #: netbox/ipam/forms/filtersets.py:101 netbox/ipam/forms/filtersets.py:269
 #: netbox/ipam/forms/filtersets.py:310 netbox/ipam/forms/filtersets.py:385
 #: netbox/ipam/forms/filtersets.py:470 netbox/ipam/forms/filtersets.py:483
@@ -1236,7 +1236,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:478 netbox/dcim/forms/model_forms.py:739
 #: netbox/dcim/tables/devices.py:167 netbox/dcim/tables/power.py:30
 #: netbox/dcim/tables/racks.py:117 netbox/dcim/tables/racks.py:211
-#: netbox/extras/filtersets.py:536 netbox/extras/forms/filtersets.py:320
+#: netbox/extras/filtersets.py:536 netbox/extras/forms/filtersets.py:327
 #: netbox/ipam/forms/filtersets.py:234 netbox/ipam/forms/filtersets.py:417
 #: netbox/ipam/forms/filtersets.py:440 netbox/ipam/forms/filtersets.py:507
 #: netbox/templates/dcim/device.html:26
@@ -1342,7 +1342,7 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:252
 #: netbox/circuits/tables/circuits.py:191 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_import.py:102 netbox/dcim/forms/model_forms.py:120
-#: netbox/dcim/tables/sites.py:89 netbox/extras/forms/filtersets.py:480
+#: netbox/dcim/tables/sites.py:89 netbox/extras/forms/filtersets.py:489
 #: netbox/ipam/filtersets.py:968 netbox/ipam/forms/bulk_edit.py:477
 #: netbox/ipam/forms/bulk_import.py:459 netbox/ipam/forms/model_forms.py:563
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:91
@@ -1686,7 +1686,7 @@ msgstr ""
 #: netbox/dcim/tables/racks.py:24 netbox/dcim/tables/racks.py:113
 #: netbox/dcim/tables/sites.py:24 netbox/dcim/tables/sites.py:51
 #: netbox/dcim/tables/sites.py:78 netbox/dcim/tables/sites.py:130
-#: netbox/extras/forms/filtersets.py:213 netbox/extras/tables/tables.py:58
+#: netbox/extras/forms/filtersets.py:218 netbox/extras/tables/tables.py:58
 #: netbox/extras/tables/tables.py:122 netbox/extras/tables/tables.py:155
 #: netbox/extras/tables/tables.py:180 netbox/extras/tables/tables.py:246
 #: netbox/extras/tables/tables.py:361 netbox/extras/tables/tables.py:378
@@ -1930,7 +1930,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:786 netbox/dcim/tables/devices.py:832
 #: netbox/dcim/tables/devices.py:891 netbox/dcim/tables/devices.py:959
 #: netbox/dcim/tables/devices.py:1088 netbox/dcim/tables/modules.py:53
-#: netbox/extras/forms/filtersets.py:321 netbox/ipam/forms/bulk_import.py:303
+#: netbox/extras/forms/filtersets.py:328 netbox/ipam/forms/bulk_import.py:303
 #: netbox/ipam/forms/bulk_import.py:540 netbox/ipam/forms/filtersets.py:603
 #: netbox/ipam/forms/model_forms.py:325 netbox/ipam/forms/model_forms.py:754
 #: netbox/ipam/forms/model_forms.py:787 netbox/ipam/forms/model_forms.py:813
@@ -2046,15 +2046,15 @@ msgstr ""
 msgid "Minutely"
 msgstr ""
 
-#: netbox/core/choices.py:83 netbox/extras/choices.py:186
+#: netbox/core/choices.py:83 netbox/extras/choices.py:184
 msgid "Hourly"
 msgstr ""
 
-#: netbox/core/choices.py:84 netbox/extras/choices.py:188
+#: netbox/core/choices.py:84 netbox/extras/choices.py:186
 msgid "Daily"
 msgstr ""
 
-#: netbox/core/choices.py:85 netbox/extras/choices.py:189
+#: netbox/core/choices.py:85 netbox/extras/choices.py:187
 msgid "Weekly"
 msgstr ""
 
@@ -2181,8 +2181,8 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:1418 netbox/dcim/forms/filtersets.py:1375
 #: netbox/dcim/tables/devices.py:566 netbox/dcim/tables/devicetypes.py:226
 #: netbox/extras/forms/bulk_edit.py:123 netbox/extras/forms/bulk_edit.py:187
-#: netbox/extras/forms/bulk_edit.py:246 netbox/extras/forms/filtersets.py:142
-#: netbox/extras/forms/filtersets.py:229 netbox/extras/forms/filtersets.py:294
+#: netbox/extras/forms/bulk_edit.py:246 netbox/extras/forms/filtersets.py:145
+#: netbox/extras/forms/filtersets.py:235 netbox/extras/forms/filtersets.py:300
 #: netbox/extras/tables/tables.py:162 netbox/extras/tables/tables.py:253
 #: netbox/extras/tables/tables.py:415 netbox/netbox/preferences.py:22
 #: netbox/templates/core/datasource.html:42
@@ -2231,17 +2231,17 @@ msgid "File"
 msgstr ""
 
 #: netbox/core/forms/filtersets.py:60 netbox/core/forms/mixins.py:16
-#: netbox/extras/forms/filtersets.py:170 netbox/extras/forms/filtersets.py:328
-#: netbox/extras/forms/filtersets.py:413
+#: netbox/extras/forms/filtersets.py:174 netbox/extras/forms/filtersets.py:335
+#: netbox/extras/forms/filtersets.py:421
 msgid "Data source"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:70 netbox/extras/forms/filtersets.py:440
+#: netbox/core/forms/filtersets.py:71 netbox/extras/forms/filtersets.py:448
 msgid "Creation"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:74 netbox/core/forms/filtersets.py:160
-#: netbox/extras/forms/filtersets.py:461 netbox/extras/tables/tables.py:220
+#: netbox/core/forms/filtersets.py:75 netbox/core/forms/filtersets.py:161
+#: netbox/extras/forms/filtersets.py:469 netbox/extras/tables/tables.py:220
 #: netbox/extras/tables/tables.py:294 netbox/extras/tables/tables.py:326
 #: netbox/extras/tables/tables.py:571 netbox/templates/core/job.html:38
 #: netbox/templates/core/objectchange.html:52
@@ -2249,42 +2249,42 @@ msgstr ""
 msgid "Object Type"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:84
+#: netbox/core/forms/filtersets.py:85
 msgid "Created after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:89
+#: netbox/core/forms/filtersets.py:90
 msgid "Created before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:94
+#: netbox/core/forms/filtersets.py:95
 msgid "Scheduled after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:99
+#: netbox/core/forms/filtersets.py:100
 msgid "Scheduled before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:104
+#: netbox/core/forms/filtersets.py:105
 msgid "Started after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:109
+#: netbox/core/forms/filtersets.py:110
 msgid "Started before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:114
+#: netbox/core/forms/filtersets.py:115
 msgid "Completed after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:119
+#: netbox/core/forms/filtersets.py:120
 msgid "Completed before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:126 netbox/core/forms/filtersets.py:155
+#: netbox/core/forms/filtersets.py:127 netbox/core/forms/filtersets.py:156
 #: netbox/dcim/forms/bulk_edit.py:465 netbox/dcim/forms/filtersets.py:419
 #: netbox/dcim/forms/filtersets.py:463 netbox/dcim/forms/model_forms.py:324
-#: netbox/extras/forms/filtersets.py:456 netbox/extras/forms/filtersets.py:475
+#: netbox/extras/forms/filtersets.py:464 netbox/extras/forms/filtersets.py:484
 #: netbox/extras/tables/tables.py:302 netbox/extras/tables/tables.py:342
 #: netbox/templates/core/objectchange.html:36
 #: netbox/templates/dcim/rackreservation.html:58
@@ -2298,21 +2298,21 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:134 netbox/core/tables/change_logging.py:15
+#: netbox/core/forms/filtersets.py:135 netbox/core/tables/change_logging.py:15
 #: netbox/extras/tables/tables.py:609 netbox/extras/tables/tables.py:646
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:139 netbox/extras/forms/filtersets.py:445
+#: netbox/core/forms/filtersets.py:140 netbox/extras/forms/filtersets.py:453
 msgid "After"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:144 netbox/extras/forms/filtersets.py:450
+#: netbox/core/forms/filtersets.py:145 netbox/extras/forms/filtersets.py:458
 msgid "Before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:148 netbox/core/tables/change_logging.py:29
+#: netbox/core/forms/filtersets.py:149 netbox/core/tables/change_logging.py:29
 #: netbox/extras/forms/model_forms.py:396
 #: netbox/templates/core/objectchange.html:46
 #: netbox/templates/extras/eventrule.html:71
@@ -2377,7 +2377,7 @@ msgid "Pagination"
 msgstr ""
 
 #: netbox/core/forms/model_forms.py:163 netbox/extras/forms/bulk_edit.py:92
-#: netbox/extras/forms/filtersets.py:47 netbox/extras/forms/model_forms.py:116
+#: netbox/extras/forms/filtersets.py:48 netbox/extras/forms/model_forms.py:116
 #: netbox/extras/forms/model_forms.py:129
 #: netbox/templates/core/inc/config_data.html:93
 msgid "Validation"
@@ -3845,10 +3845,10 @@ msgstr ""
 msgid "Power panel (ID)"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:401
+#: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/model_forms.py:567
 #: netbox/extras/forms/model_forms.py:619 netbox/netbox/forms/base.py:86
-#: netbox/netbox/forms/mixins.py:81 netbox/netbox/tables/columns.py:481
+#: netbox/netbox/forms/mixins.py:91 netbox/netbox/tables/columns.py:481
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
 #: netbox/templates/inc/panels/tags.html:5
@@ -3976,8 +3976,8 @@ msgstr ""
 #: netbox/dcim/tables/racks.py:74 netbox/dcim/tables/racks.py:171
 #: netbox/extras/forms/bulk_edit.py:53 netbox/extras/forms/bulk_edit.py:133
 #: netbox/extras/forms/bulk_edit.py:183 netbox/extras/forms/bulk_edit.py:288
-#: netbox/extras/forms/filtersets.py:64 netbox/extras/forms/filtersets.py:156
-#: netbox/extras/forms/filtersets.py:243 netbox/ipam/forms/bulk_edit.py:193
+#: netbox/extras/forms/filtersets.py:65 netbox/extras/forms/filtersets.py:159
+#: netbox/extras/forms/filtersets.py:249 netbox/ipam/forms/bulk_edit.py:193
 #: netbox/templates/dcim/device.html:324
 #: netbox/templates/dcim/devicetype.html:49
 #: netbox/templates/dcim/moduletype.html:47 netbox/templates/dcim/rack.html:81
@@ -4174,7 +4174,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:734 netbox/dcim/forms/bulk_import.py:544
 #: netbox/dcim/forms/filtersets.py:729 netbox/dcim/forms/filtersets.py:899
 #: netbox/dcim/forms/model_forms.py:533 netbox/dcim/tables/devices.py:212
-#: netbox/extras/filtersets.py:596 netbox/extras/forms/filtersets.py:322
+#: netbox/extras/filtersets.py:596 netbox/extras/forms/filtersets.py:329
 #: netbox/ipam/forms/filtersets.py:418 netbox/ipam/forms/filtersets.py:450
 #: netbox/templates/dcim/device.html:239
 #: netbox/templates/virtualization/cluster.html:10
@@ -5109,7 +5109,7 @@ msgid "Connection"
 msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1353 netbox/extras/forms/bulk_edit.py:326
-#: netbox/extras/forms/bulk_import.py:247 netbox/extras/forms/filtersets.py:464
+#: netbox/extras/forms/bulk_import.py:247 netbox/extras/forms/filtersets.py:472
 #: netbox/extras/forms/model_forms.py:675 netbox/extras/tables/tables.py:579
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
@@ -7201,7 +7201,7 @@ msgstr ""
 msgid "Module Types"
 msgstr ""
 
-#: netbox/dcim/tables/devicetypes.py:52 netbox/extras/forms/filtersets.py:371
+#: netbox/dcim/tables/devicetypes.py:52 netbox/extras/forms/filtersets.py:378
 #: netbox/extras/forms/model_forms.py:537 netbox/extras/tables/tables.py:540
 #: netbox/netbox/navigation/menu.py:78
 msgid "Platforms"
@@ -7354,7 +7354,7 @@ msgid "Space"
 msgstr ""
 
 #: netbox/dcim/tables/sites.py:30 netbox/dcim/tables/sites.py:57
-#: netbox/extras/forms/filtersets.py:351 netbox/extras/forms/model_forms.py:517
+#: netbox/extras/forms/filtersets.py:358 netbox/extras/forms/model_forms.py:517
 #: netbox/ipam/forms/bulk_edit.py:134 netbox/ipam/forms/model_forms.py:159
 #: netbox/ipam/tables/asn.py:66 netbox/netbox/navigation/menu.py:15
 #: netbox/netbox/navigation/menu.py:17
@@ -7544,15 +7544,15 @@ msgstr ""
 msgid "Alphabetical (Z-A)"
 msgstr ""
 
-#: netbox/extras/choices.py:144 netbox/extras/choices.py:167
+#: netbox/extras/choices.py:144 netbox/extras/choices.py:165
 msgid "Info"
 msgstr ""
 
-#: netbox/extras/choices.py:145 netbox/extras/choices.py:168
+#: netbox/extras/choices.py:145 netbox/extras/choices.py:166
 msgid "Success"
 msgstr ""
 
-#: netbox/extras/choices.py:146 netbox/extras/choices.py:169
+#: netbox/extras/choices.py:146 netbox/extras/choices.py:167
 msgid "Warning"
 msgstr ""
 
@@ -7560,27 +7560,23 @@ msgstr ""
 msgid "Danger"
 msgstr ""
 
-#: netbox/extras/choices.py:165
+#: netbox/extras/choices.py:164
 msgid "Debug"
 msgstr ""
 
-#: netbox/extras/choices.py:166 netbox/netbox/choices.py:103
-msgid "Default"
-msgstr ""
-
-#: netbox/extras/choices.py:170
+#: netbox/extras/choices.py:168
 msgid "Failure"
 msgstr ""
 
-#: netbox/extras/choices.py:187
+#: netbox/extras/choices.py:185
 msgid "12 hours"
 msgstr ""
 
-#: netbox/extras/choices.py:190
+#: netbox/extras/choices.py:188
 msgid "30 days"
 msgstr ""
 
-#: netbox/extras/choices.py:226
+#: netbox/extras/choices.py:224
 #: netbox/templates/dcim/virtualchassis_edit.html:107
 #: netbox/templates/generic/bulk_add_component.html:68
 #: netbox/templates/generic/object_edit.html:47
@@ -7590,11 +7586,11 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: netbox/extras/choices.py:227
+#: netbox/extras/choices.py:225
 msgid "Update"
 msgstr ""
 
-#: netbox/extras/choices.py:228
+#: netbox/extras/choices.py:226
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
@@ -7609,82 +7605,82 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: netbox/extras/choices.py:252 netbox/netbox/choices.py:59
+#: netbox/extras/choices.py:250 netbox/netbox/choices.py:59
 #: netbox/netbox/choices.py:104
 msgid "Blue"
 msgstr ""
 
-#: netbox/extras/choices.py:253 netbox/netbox/choices.py:58
+#: netbox/extras/choices.py:251 netbox/netbox/choices.py:58
 #: netbox/netbox/choices.py:105
 msgid "Indigo"
 msgstr ""
 
-#: netbox/extras/choices.py:254 netbox/netbox/choices.py:56
+#: netbox/extras/choices.py:252 netbox/netbox/choices.py:56
 #: netbox/netbox/choices.py:106
 msgid "Purple"
 msgstr ""
 
-#: netbox/extras/choices.py:255 netbox/netbox/choices.py:53
+#: netbox/extras/choices.py:253 netbox/netbox/choices.py:53
 #: netbox/netbox/choices.py:107
 msgid "Pink"
 msgstr ""
 
-#: netbox/extras/choices.py:256 netbox/netbox/choices.py:52
+#: netbox/extras/choices.py:254 netbox/netbox/choices.py:52
 #: netbox/netbox/choices.py:108
 msgid "Red"
 msgstr ""
 
-#: netbox/extras/choices.py:257 netbox/netbox/choices.py:70
+#: netbox/extras/choices.py:255 netbox/netbox/choices.py:70
 #: netbox/netbox/choices.py:109
 msgid "Orange"
 msgstr ""
 
-#: netbox/extras/choices.py:258 netbox/netbox/choices.py:68
+#: netbox/extras/choices.py:256 netbox/netbox/choices.py:68
 #: netbox/netbox/choices.py:110
 msgid "Yellow"
 msgstr ""
 
-#: netbox/extras/choices.py:259 netbox/netbox/choices.py:65
+#: netbox/extras/choices.py:257 netbox/netbox/choices.py:65
 #: netbox/netbox/choices.py:111
 msgid "Green"
 msgstr ""
 
-#: netbox/extras/choices.py:260 netbox/netbox/choices.py:62
+#: netbox/extras/choices.py:258 netbox/netbox/choices.py:62
 #: netbox/netbox/choices.py:112
 msgid "Teal"
 msgstr ""
 
-#: netbox/extras/choices.py:261 netbox/netbox/choices.py:61
+#: netbox/extras/choices.py:259 netbox/netbox/choices.py:61
 #: netbox/netbox/choices.py:113
 msgid "Cyan"
 msgstr ""
 
-#: netbox/extras/choices.py:262 netbox/netbox/choices.py:114
+#: netbox/extras/choices.py:260 netbox/netbox/choices.py:114
 msgid "Gray"
 msgstr ""
 
-#: netbox/extras/choices.py:263 netbox/netbox/choices.py:76
+#: netbox/extras/choices.py:261 netbox/netbox/choices.py:76
 #: netbox/netbox/choices.py:115
 msgid "Black"
 msgstr ""
 
-#: netbox/extras/choices.py:264 netbox/netbox/choices.py:77
+#: netbox/extras/choices.py:262 netbox/netbox/choices.py:77
 #: netbox/netbox/choices.py:116
 msgid "White"
 msgstr ""
 
-#: netbox/extras/choices.py:279 netbox/extras/forms/model_forms.py:353
+#: netbox/extras/choices.py:277 netbox/extras/forms/model_forms.py:353
 #: netbox/extras/forms/model_forms.py:430
 #: netbox/templates/extras/webhook.html:10
 msgid "Webhook"
 msgstr ""
 
-#: netbox/extras/choices.py:280 netbox/extras/forms/model_forms.py:418
+#: netbox/extras/choices.py:278 netbox/extras/forms/model_forms.py:418
 #: netbox/templates/extras/script/base.html:29
 msgid "Script"
 msgstr ""
 
-#: netbox/extras/choices.py:281
+#: netbox/extras/choices.py:279
 msgid "Notification"
 msgstr ""
 
@@ -7859,60 +7855,60 @@ msgstr ""
 msgid "Tag (slug)"
 msgstr ""
 
-#: netbox/extras/filtersets.py:689 netbox/extras/forms/filtersets.py:429
+#: netbox/extras/filtersets.py:689 netbox/extras/forms/filtersets.py:437
 msgid "Has local config context data"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:35 netbox/extras/forms/filtersets.py:60
+#: netbox/extras/forms/bulk_edit.py:35 netbox/extras/forms/filtersets.py:61
 msgid "Group name"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:43 netbox/extras/forms/filtersets.py:68
+#: netbox/extras/forms/bulk_edit.py:43 netbox/extras/forms/filtersets.py:69
 #: netbox/extras/tables/tables.py:65
 #: netbox/templates/extras/customfield.html:38
 #: netbox/templates/generic/bulk_import.html:118
 msgid "Required"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:48 netbox/extras/forms/filtersets.py:75
+#: netbox/extras/forms/bulk_edit.py:48 netbox/extras/forms/filtersets.py:76
 msgid "Must be unique"
 msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:61 netbox/extras/forms/bulk_import.py:60
-#: netbox/extras/forms/filtersets.py:89
+#: netbox/extras/forms/filtersets.py:90
 #: netbox/extras/models/customfields.py:209
 msgid "UI visible"
 msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:66 netbox/extras/forms/bulk_import.py:66
-#: netbox/extras/forms/filtersets.py:94
+#: netbox/extras/forms/filtersets.py:95
 #: netbox/extras/models/customfields.py:216
 msgid "UI editable"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:71 netbox/extras/forms/filtersets.py:97
+#: netbox/extras/forms/bulk_edit.py:71 netbox/extras/forms/filtersets.py:98
 msgid "Is cloneable"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:76 netbox/extras/forms/filtersets.py:104
+#: netbox/extras/forms/bulk_edit.py:76 netbox/extras/forms/filtersets.py:105
 msgid "Minimum value"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:80 netbox/extras/forms/filtersets.py:108
+#: netbox/extras/forms/bulk_edit.py:80 netbox/extras/forms/filtersets.py:109
 msgid "Maximum value"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:84 netbox/extras/forms/filtersets.py:112
+#: netbox/extras/forms/bulk_edit.py:84 netbox/extras/forms/filtersets.py:113
 msgid "Validation regex"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:91 netbox/extras/forms/filtersets.py:46
+#: netbox/extras/forms/bulk_edit.py:91 netbox/extras/forms/filtersets.py:47
 #: netbox/extras/forms/model_forms.py:76
 #: netbox/templates/extras/customfield.html:70
 msgid "Behavior"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:128 netbox/extras/forms/filtersets.py:149
+#: netbox/extras/forms/bulk_edit.py:128 netbox/extras/forms/filtersets.py:152
 msgid "New window"
 msgstr ""
 
@@ -7920,31 +7916,31 @@ msgstr ""
 msgid "Button class"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:154 netbox/extras/forms/filtersets.py:187
+#: netbox/extras/forms/bulk_edit.py:154 netbox/extras/forms/filtersets.py:191
 #: netbox/extras/models/models.py:409
 msgid "MIME type"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:159 netbox/extras/forms/filtersets.py:190
+#: netbox/extras/forms/bulk_edit.py:159 netbox/extras/forms/filtersets.py:194
 msgid "File extension"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:164 netbox/extras/forms/filtersets.py:194
+#: netbox/extras/forms/bulk_edit.py:164 netbox/extras/forms/filtersets.py:198
 msgid "As attachment"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:192 netbox/extras/forms/filtersets.py:236
+#: netbox/extras/forms/bulk_edit.py:192 netbox/extras/forms/filtersets.py:242
 #: netbox/extras/tables/tables.py:256
 #: netbox/templates/extras/savedfilter.html:29
 msgid "Shared"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:215 netbox/extras/forms/filtersets.py:265
+#: netbox/extras/forms/bulk_edit.py:215 netbox/extras/forms/filtersets.py:271
 #: netbox/extras/models/models.py:174
 msgid "HTTP method"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:219 netbox/extras/forms/filtersets.py:259
+#: netbox/extras/forms/bulk_edit.py:219 netbox/extras/forms/filtersets.py:265
 #: netbox/templates/extras/webhook.html:30
 msgid "Payload URL"
 msgstr ""
@@ -7973,8 +7969,8 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:37 netbox/extras/forms/bulk_import.py:118
 #: netbox/extras/forms/bulk_import.py:139
 #: netbox/extras/forms/bulk_import.py:162
-#: netbox/extras/forms/bulk_import.py:186 netbox/extras/forms/filtersets.py:137
-#: netbox/extras/forms/filtersets.py:224 netbox/extras/forms/model_forms.py:47
+#: netbox/extras/forms/bulk_import.py:186 netbox/extras/forms/filtersets.py:140
+#: netbox/extras/forms/filtersets.py:230 netbox/extras/forms/model_forms.py:47
 #: netbox/extras/forms/model_forms.py:205
 #: netbox/extras/forms/model_forms.py:237
 #: netbox/extras/forms/model_forms.py:278
@@ -7995,8 +7991,8 @@ msgstr ""
 msgid "Field data type (e.g. text, integer, etc.)"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:47 netbox/extras/forms/filtersets.py:208
-#: netbox/extras/forms/filtersets.py:281 netbox/extras/forms/model_forms.py:304
+#: netbox/extras/forms/bulk_import.py:47 netbox/extras/forms/filtersets.py:213
+#: netbox/extras/forms/filtersets.py:287 netbox/extras/forms/model_forms.py:304
 #: netbox/extras/forms/model_forms.py:341 netbox/tenancy/forms/filtersets.py:92
 msgid "Object type"
 msgstr ""
@@ -8005,7 +8001,7 @@ msgstr ""
 msgid "Object type (for object or multi-object fields)"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:53 netbox/extras/forms/filtersets.py:84
+#: netbox/extras/forms/bulk_import.py:53 netbox/extras/forms/filtersets.py:85
 msgid "Choice set"
 msgstr ""
 
@@ -8097,87 +8093,87 @@ msgstr ""
 msgid "Group names separated by commas, encased with double quotes"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:52 netbox/extras/forms/model_forms.py:56
+#: netbox/extras/forms/filtersets.py:53 netbox/extras/forms/model_forms.py:56
 msgid "Related object type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:57
+#: netbox/extras/forms/filtersets.py:58
 msgid "Field type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:120 netbox/extras/forms/model_forms.py:157
+#: netbox/extras/forms/filtersets.py:122 netbox/extras/forms/model_forms.py:157
 #: netbox/extras/tables/tables.py:91
 #: netbox/templates/generic/bulk_import.html:154
 msgid "Choices"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:164 netbox/extras/forms/filtersets.py:319
-#: netbox/extras/forms/filtersets.py:408 netbox/extras/forms/model_forms.py:572
+#: netbox/extras/forms/filtersets.py:168 netbox/extras/forms/filtersets.py:326
+#: netbox/extras/forms/filtersets.py:416 netbox/extras/forms/model_forms.py:572
 #: netbox/templates/core/job.html:96 netbox/templates/extras/eventrule.html:84
 msgid "Data"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:175 netbox/extras/forms/filtersets.py:333
-#: netbox/extras/forms/filtersets.py:418 netbox/netbox/choices.py:132
+#: netbox/extras/forms/filtersets.py:179 netbox/extras/forms/filtersets.py:340
+#: netbox/extras/forms/filtersets.py:426 netbox/netbox/choices.py:132
 #: netbox/utilities/forms/bulk_import.py:26
 msgid "Data file"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:183
+#: netbox/extras/forms/filtersets.py:187
 msgid "Content types"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:255 netbox/extras/models/models.py:179
+#: netbox/extras/forms/filtersets.py:261 netbox/extras/models/models.py:179
 msgid "HTTP content type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:286
+#: netbox/extras/forms/filtersets.py:292
 msgid "Event type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:291
+#: netbox/extras/forms/filtersets.py:297
 msgid "Action type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:307
+#: netbox/extras/forms/filtersets.py:313
 msgid "Tagged object type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:312
+#: netbox/extras/forms/filtersets.py:318
 msgid "Allowed object type"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:341 netbox/extras/forms/model_forms.py:507
+#: netbox/extras/forms/filtersets.py:348 netbox/extras/forms/model_forms.py:507
 #: netbox/netbox/navigation/menu.py:18
 msgid "Regions"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:346 netbox/extras/forms/model_forms.py:512
+#: netbox/extras/forms/filtersets.py:353 netbox/extras/forms/model_forms.py:512
 msgid "Site groups"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:356 netbox/extras/forms/model_forms.py:522
+#: netbox/extras/forms/filtersets.py:363 netbox/extras/forms/model_forms.py:522
 #: netbox/netbox/navigation/menu.py:20 netbox/templates/dcim/site.html:127
 msgid "Locations"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:361 netbox/extras/forms/model_forms.py:527
+#: netbox/extras/forms/filtersets.py:368 netbox/extras/forms/model_forms.py:527
 msgid "Device types"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:366 netbox/extras/forms/model_forms.py:532
+#: netbox/extras/forms/filtersets.py:373 netbox/extras/forms/model_forms.py:532
 msgid "Roles"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:376 netbox/extras/forms/model_forms.py:542
+#: netbox/extras/forms/filtersets.py:383 netbox/extras/forms/model_forms.py:542
 msgid "Cluster types"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:381 netbox/extras/forms/model_forms.py:547
+#: netbox/extras/forms/filtersets.py:388 netbox/extras/forms/model_forms.py:547
 msgid "Cluster groups"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:386 netbox/extras/forms/model_forms.py:552
+#: netbox/extras/forms/filtersets.py:393 netbox/extras/forms/model_forms.py:552
 #: netbox/netbox/navigation/menu.py:263 netbox/netbox/navigation/menu.py:265
 #: netbox/templates/virtualization/clustertype.html:30
 #: netbox/virtualization/tables/clusters.py:23
@@ -8185,7 +8181,7 @@ msgstr ""
 msgid "Clusters"
 msgstr ""
 
-#: netbox/extras/forms/filtersets.py:391 netbox/extras/forms/model_forms.py:557
+#: netbox/extras/forms/filtersets.py:398 netbox/extras/forms/model_forms.py:557
 msgid "Tenant groups"
 msgstr ""
 
@@ -10764,6 +10760,10 @@ msgstr ""
 
 #: netbox/netbox/choices.py:75
 msgid "Dark Grey"
+msgstr ""
+
+#: netbox/netbox/choices.py:103 netbox/templates/extras/script_result.html:56
+msgid "Default"
 msgstr ""
 
 #: netbox/netbox/choices.py:130
