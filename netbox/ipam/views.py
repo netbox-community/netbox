@@ -864,10 +864,12 @@ class IPAddressEditView(generic.ObjectEditView):
         return obj
 
     def get_extra_addanother_params(self, request):
+        extra_params = super().get_extra_addanother_params(request)
         if 'interface' in request.GET:
-            return {'interface': request.GET['interface']}
+            extra_params['interface'] = request.GET['interface']
         elif 'vminterface' in request.GET:
-            return {'vminterface': request.GET['vminterface']}
+            extra_params['vminterface'] = request.GET['vminterface']
+        return extra_params
 
 
 # TODO: Standardize or remove this view
