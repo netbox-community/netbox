@@ -228,6 +228,7 @@ class L2VPNTypeChoices(ChoiceSet):
     TYPE_MPLS_EVPN = 'mpls-evpn'
     TYPE_PBB_EVPN = 'pbb-evpn'
     TYPE_EVPN_VPWS = 'evpn-vpws'
+    TYPE_SPB = 'spb'
 
     CHOICES = (
         ('VPLS', (
@@ -254,6 +255,9 @@ class L2VPNTypeChoices(ChoiceSet):
         ('E-Tree', (
             (TYPE_EPTREE, _('Ethernet Private Tree')),
             (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
+        )),
+        ('SPB', (
+            (TYPE_SPB, _('SPB')),
         )),
     )
 
