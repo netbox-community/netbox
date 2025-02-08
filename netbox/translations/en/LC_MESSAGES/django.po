@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-07 05:01+0000\n"
+"POT-Creation-Date: 2025-02-08 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,7 +87,7 @@ msgstr ""
 #: netbox/dcim/choices.py:237 netbox/dcim/choices.py:1534
 #: netbox/dcim/choices.py:1592 netbox/dcim/choices.py:1642
 #: netbox/dcim/choices.py:1664 netbox/virtualization/choices.py:20
-#: netbox/virtualization/choices.py:45 netbox/vpn/choices.py:18
+#: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 msgid "Planned"
 msgstr ""
 
@@ -104,7 +104,7 @@ msgstr ""
 #: netbox/ipam/choices.py:69 netbox/ipam/choices.py:154
 #: netbox/templates/extras/configcontext.html:25
 #: netbox/templates/users/user.html:37 netbox/users/forms/bulk_edit.py:38
-#: netbox/virtualization/choices.py:22 netbox/virtualization/choices.py:44
+#: netbox/virtualization/choices.py:22 netbox/virtualization/choices.py:45
 #: netbox/vpn/choices.py:19 netbox/wireless/choices.py:25
 msgid "Active"
 msgstr ""
@@ -112,7 +112,7 @@ msgstr ""
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:183
 #: netbox/dcim/choices.py:235 netbox/dcim/choices.py:1590
 #: netbox/dcim/choices.py:1643 netbox/dcim/choices.py:1662
-#: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:43
+#: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr ""
 
@@ -2007,7 +2007,7 @@ msgstr ""
 #: netbox/core/constants.py:20 netbox/core/tables/tasks.py:34
 #: netbox/dcim/choices.py:187 netbox/dcim/choices.py:239
 #: netbox/dcim/choices.py:1593 netbox/dcim/choices.py:1666
-#: netbox/virtualization/choices.py:47
+#: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr ""
 
@@ -2920,7 +2920,7 @@ msgstr ""
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:189
 #: netbox/dcim/choices.py:240 netbox/dcim/choices.py:1535
 #: netbox/dcim/choices.py:1667 netbox/virtualization/choices.py:23
-#: netbox/virtualization/choices.py:48
+#: netbox/virtualization/choices.py:49
 msgid "Decommissioning"
 msgstr ""
 
@@ -3052,7 +3052,7 @@ msgid "Rear"
 msgstr ""
 
 #: netbox/dcim/choices.py:186 netbox/dcim/choices.py:238
-#: netbox/dcim/choices.py:1665 netbox/virtualization/choices.py:46
+#: netbox/dcim/choices.py:1665 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr ""
 
@@ -15485,6 +15485,10 @@ msgstr ""
 msgid ""
 "{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only "
 "be used on views which define a base queryset"
+msgstr ""
+
+#: netbox/virtualization/choices.py:50
+msgid "Paused"
 msgstr ""
 
 #: netbox/virtualization/filtersets.py:45
