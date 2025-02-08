@@ -1,7 +1,9 @@
 from django.db import models
 
+from netbox.models import NetBoxModel
 
-class DummyModel(models.Model):
+
+class DummyModel(NetBoxModel):
     name = models.CharField(
         max_length=20
     )
