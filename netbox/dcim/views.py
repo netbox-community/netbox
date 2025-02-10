@@ -2254,6 +2254,10 @@ class DeviceConfigContextView(ObjectConfigContextView):
 class DeviceRenderConfigView(ObjectRenderConfigView):
     queryset = Device.objects.all()
     base_template = 'dcim/device/base.html'
+    tab = ViewTab(
+        label=_('Render Config'),
+        weight=2100,
+    )
 
 
 @register_model_view(Device, 'virtual-machines')

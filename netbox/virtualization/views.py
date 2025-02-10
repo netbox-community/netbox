@@ -428,6 +428,10 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 class VirtualMachineRenderConfigView(ObjectRenderConfigView):
     queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine/base.html'
+    tab = ViewTab(
+        label=_('Render Config'),
+        weight=2100,
+    )
 
 
 @register_model_view(VirtualMachine, 'add', detail=False)

@@ -31,7 +31,7 @@ from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, get_viewname, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
@@ -889,10 +889,6 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
 class ObjectRenderConfigView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_render_config.html'
-    tab = ViewTab(
-        label=_('Render Config'),
-        weight=2100,
-    )
 
     def get(self, request, **kwargs):
         instance = self.get_object(**kwargs)
