@@ -429,9 +429,6 @@ class VirtualMachineRenderConfigView(ObjectRenderConfigView):
     queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine/base.html'
 
-    def get_extra_context_data(self, request, instance):
-        return {'virtualmachine': instance}
-
 
 @register_model_view(VirtualMachine, 'add', detail=False)
 @register_model_view(VirtualMachine, 'edit')

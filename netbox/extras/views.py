@@ -918,7 +918,9 @@ class ObjectRenderConfigView(generic.ObjectView):
         )
 
     def get_extra_context_data(self, request, instance):
-        return {}
+        return {
+            f'{instance._meta.model_name}': instance,
+        }
 
     def get_extra_context(self, request, instance):
         # Compile context data

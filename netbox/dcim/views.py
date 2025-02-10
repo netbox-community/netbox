@@ -2255,9 +2255,6 @@ class DeviceRenderConfigView(ObjectRenderConfigView):
     queryset = Device.objects.all()
     base_template = 'dcim/device/base.html'
 
-    def get_extra_context_data(self, request, instance):
-        return {'device': instance}
-
 
 @register_model_view(Device, 'virtual-machines')
 class DeviceVirtualMachinesView(generic.ObjectChildrenView):
