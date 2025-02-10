@@ -85,6 +85,7 @@ def humanize_speed(speed):
     else:
         return '{} Kbps'.format(speed)
 
+
 def _humanize_megabytes(mb, divisor=1000):
     """
     Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
@@ -104,6 +105,7 @@ def _humanize_megabytes(mb, divisor=1000):
         return f"{mb / GB_SIZE:.2f} GB"
     return f"{mb} MB"
 
+
 @register.filter()
 def humanize_disk_megabytes(mb):
     """
@@ -111,6 +113,7 @@ def humanize_disk_megabytes(mb):
     Use the DISK_BASE_UNIT setting to determine the divisor. Default is 1000.
     """
     return _humanize_megabytes(mb, DISK_BASE_UNIT)
+
 
 @register.filter()
 def humanize_ram_megabytes(mb):

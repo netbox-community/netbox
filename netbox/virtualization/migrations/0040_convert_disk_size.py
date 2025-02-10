@@ -2,6 +2,7 @@ from django.db import migrations
 from django.db.models import F, Sum
 from netbox.settings import DISK_BASE_UNIT
 
+
 def convert_disk_size(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
     VirtualMachine.objects.filter(disk__isnull=False).update(disk=F('disk') * DISK_BASE_UNIT)
