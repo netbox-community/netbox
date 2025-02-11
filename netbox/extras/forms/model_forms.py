@@ -178,12 +178,15 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        # Escape colons in extra_choices
+        # Convert extra_choices Array Field from model to CharField for form
         if 'extra_choices' in self.initial and self.initial['extra_choices']:
-            choices = []
-            for choice in self.initial['extra_choices']:
-                choice = (choice[0].replace(':', '\\:'), choice[1].replace(':', '\\:'))
-                choices.append(choice)
+            extra_choices = self.initial['extra_choices']
+            if isinstance(extra_choices, str):
+                extra_choices = [extra_choices]
+            choices = ""
+            for choice in extra_choices:
+                choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
+                choices += choice_str + "\n"
 
             self.initial['extra_choices'] = choices
 
