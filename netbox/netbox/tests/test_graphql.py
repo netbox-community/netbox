@@ -105,7 +105,6 @@ class GraphQLAPITestCase(APITestCase):
                 id site {id}
             }
         }"""
-        print(query)
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
