@@ -868,6 +868,7 @@ class IPAddressEditView(generic.ObjectEditView):
             return {'interface': request.GET['interface']}
         elif 'vminterface' in request.GET:
             return {'vminterface': request.GET['vminterface']}
+        return {}
 
 
 # TODO: Standardize or remove this view
