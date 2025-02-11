@@ -185,8 +185,14 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
                 extra_choices = [extra_choices]
             choices = ""
             for choice in extra_choices:
-                choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
-                choices += choice_str + "\n"
+                # Setup choices in Add Another use case
+                if isinstance(choice, str):
+                    choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
+                    choices += choice_str + "\n"
+                # Setup choices in Edit use case
+                elif isinstance(choice, list):
+                    choice_str = ":".join(choice)
+                    choices += choice_str + "\n"
 
             self.initial['extra_choices'] = choices
 
