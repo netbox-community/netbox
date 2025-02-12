@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from core.graphql.filters import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
@@ -89,7 +89,7 @@ class TunnelFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     tenant_id: ID | None = strawberry_django.filter_field()
-    tunnel_id: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    tunnel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -107,7 +107,7 @@ class IKEProposalFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     group: Annotated['DHGroupEnum', strawberry.lazy('vpn.graphql.enums')] | None = strawberry_django.filter_field()
-    sa_lifetime: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    sa_lifetime: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -132,10 +132,10 @@ class IPSecProposalFilter(PrimaryModelFilterMixin):
     authentication_algorithm: Annotated['AuthenticationAlgorithmEnum', strawberry.lazy('vpn.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    sa_lifetime_seconds: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    sa_lifetime_seconds: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    sa_lifetime_data: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    sa_lifetime_data: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -168,7 +168,7 @@ class L2VPNFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     type: Annotated['L2VPNTypeEnum', strawberry.lazy('vpn.graphql.enums')] | None = strawberry_django.filter_field()
-    identifier: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    identifier: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     import_targets: Annotated['RouteTargetFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
@@ -190,6 +190,6 @@ class L2VPNTerminationFilter(NetBoxModelFilterMixin):
     assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    assigned_object_id: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    assigned_object_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

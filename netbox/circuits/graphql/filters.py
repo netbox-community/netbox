@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from core.graphql.filters import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
@@ -62,10 +62,10 @@ class CircuitTerminationFilter(
         strawberry_django.filter_field()
     )
     termination_id: ID | None = strawberry_django.filter_field()
-    port_speed: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    port_speed: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    upstream_speed: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    upstream_speed: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     xconnect_id: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -97,7 +97,7 @@ class CircuitFilter(ContactFilterMixin, ImageAttachmentFilterMixin, DistanceFilt
     tenant_id: ID | None = strawberry_django.filter_field()
     install_date: DateFilterLookup[date] | None = strawberry_django.filter_field()
     termination_date: DateFilterLookup[date] | None = strawberry_django.filter_field()
-    commit_rate: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    commit_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 

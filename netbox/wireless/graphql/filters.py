@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
     from dcim.graphql.filters import *

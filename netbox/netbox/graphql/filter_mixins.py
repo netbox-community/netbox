@@ -10,7 +10,7 @@ from strawberry_django import FilterLookup, DatetimeFilterLookup
 
 from extras.models import *
 from utilities.filters import *
-from core.graphql.filter_lookups import *
+from netbox.graphql.filter_lookups import *
 from core.graphql.filter_mixins import *
 from extras.graphql.filter_mixins import *
 

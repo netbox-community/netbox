@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from core.graphql.filters import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
@@ -59,7 +59,7 @@ __all__ = (
 class ASNFilter(PrimaryModelFilterMixin):
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
-    asn: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    asn: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -74,10 +74,10 @@ class ASNRangeFilter(OrganizationalModelFilterMixin):
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
-    start: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    start: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    end: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    end: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -101,7 +101,7 @@ class AggregateFilter(ContactFilterMixin, PrimaryModelFilterMixin):
 
 @strawberry_django.filter(models.FHRPGroup, lookups=True)
 class FHRPGroupFilter(PrimaryModelFilterMixin):
-    group_id: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    group_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -127,7 +127,7 @@ class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin)
         strawberry_django.filter_field()
     )
     group_id: ID | None = strawberry_django.filter_field()
-    priority: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    priority: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -179,7 +179,7 @@ class IPAddressFilter(ContactFilterMixin, PrimaryModelFilterMixin):
 class IPRangeFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     start_address: FilterLookup[str] | None = strawberry_django.filter_field()
     end_address: FilterLookup[str] | None = strawberry_django.filter_field()
-    size: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
@@ -241,7 +241,7 @@ class RIRFilter(OrganizationalModelFilterMixin):
 
 @strawberry_django.filter(models.Role, lookups=True)
 class RoleFilter(OrganizationalModelFilterMixin):
-    weight: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -282,7 +282,7 @@ class VLANFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     group_id: ID | None = strawberry_django.filter_field()
-    vid: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    vid: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -316,7 +316,7 @@ class VLANGroupFilter(OrganizationalModelFilterMixin):
     )
     scope_type_id: ID | None = strawberry_django.filter_field()
     scope_id: ID | None = strawberry_django.filter_field()
-    vid_ranges: Annotated['IntegerArrayLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    vid_ranges: Annotated['IntegerArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -333,10 +333,10 @@ class VLANTranslationRuleFilter(NetBoxModelFilterMixin):
     )
     policy_id: ID | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
-    local_vid: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    local_vid: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    remote_vid: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    remote_vid: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 

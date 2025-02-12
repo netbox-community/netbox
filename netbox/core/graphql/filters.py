@@ -9,7 +9,7 @@ from strawberry_django import (
 )
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
 from core.graphql.filter_mixins import BaseFilterMixin
-from core.graphql.filter_lookups import JSONFilter
+from netbox.graphql.filter_lookups import JSONFilter
 from netbox.graphql.filter_mixins import (
     PrimaryModelFilterMixin,
 )
@@ -17,7 +17,7 @@ from netbox.graphql.filter_mixins import (
 from core import models
 
 if TYPE_CHECKING:
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from users.graphql.filters import *
 
 
@@ -39,7 +39,7 @@ class DataFileFilter(BaseFilterMixin):
     )
     source_id: ID | None = strawberry_django.filter_field()
     path: FilterLookup[str] | None = strawberry_django.filter_field()
-    size: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     hash: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -53,7 +53,7 @@ class DataSourceFilter(PrimaryModelFilterMixin):
     status: FilterLookup[str] | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     ignore_rules: FilterLookup[str] | None = strawberry_django.filter_field()
-    parameters: Annotated['JSONFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    parameters: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     last_synced: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
@@ -78,10 +78,10 @@ class ObjectChangeFilter(BaseFilterMixin):
     related_object_type_id: ID | None = strawberry_django.filter_field()
     related_object_id: ID | None = strawberry_django.filter_field()
     object_repr: FilterLookup[str] | None = strawberry_django.filter_field()
-    prechange_data: Annotated['JSONFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    prechange_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    postchange_data: Annotated['JSONFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    postchange_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 

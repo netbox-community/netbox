@@ -10,7 +10,7 @@ from .enums import *
 
 if TYPE_CHECKING:
     from .filters import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from extras.graphql.filters import *
     from ipam.graphql.filters import *
 
@@ -81,7 +81,7 @@ class RenderConfigFilterMixin(BaseFilterMixin):
 @dataclass
 class InterfaceBaseFilterMixin(BaseFilterMixin):
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
-    mtu: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    mtu: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     mode: InterfaceModeEnum | None = strawberry_django.filter_field()
@@ -114,25 +114,25 @@ class InterfaceBaseFilterMixin(BaseFilterMixin):
 @dataclass
 class RackBaseFilterMixin(WeightFilterMixin, PrimaryModelFilterMixin):
     width: Annotated['RackWidthEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
-    u_height: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    u_height: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    starting_unit: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    starting_unit: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     desc_units: FilterLookup[bool] | None = strawberry_django.filter_field()
-    outer_width: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    outer_width: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    outer_depth: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    outer_depth: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     outer_unit: Annotated['RackDimensionUnitEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    mounting_depth: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    mounting_depth: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    max_weight: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    max_weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from core.graphql.filters import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
@@ -90,7 +90,7 @@ class CableFilter(PrimaryModelFilterMixin, TenancyFilterMixin):
     status: Annotated['LinkStatusEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     label: FilterLookup[str] | None = strawberry_django.filter_field()
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
-    length: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    length: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     length_unit: Annotated['CableLengthUnitEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
@@ -176,12 +176,12 @@ class DeviceFilter(
     location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    location_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    location_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     rack_id: ID | None = strawberry_django.filter_field()
-    position: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    position: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     face: Annotated['DeviceFaceEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
@@ -211,16 +211,16 @@ class DeviceFilter(
         strawberry_django.filter_field()
     )
     virtual_chassis_id: ID | None = strawberry_django.filter_field()
-    vc_position: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    vc_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    vc_priority: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    vc_priority: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    latitude: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    latitude: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    longitude: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    longitude: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     interfaces: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -307,7 +307,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     )
     default_platform_id: ID | None = strawberry_django.filter_field()
     part_number: FilterLookup[str] | None = strawberry_django.filter_field()
-    u_height: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    u_height: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     exclude_from_utilization: FilterLookup[bool] | None = strawberry_django.filter_field()
@@ -334,7 +334,7 @@ class FrontPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterM
         strawberry_django.filter_field()
     )
     rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -347,7 +347,7 @@ class FrontPortTemplateFilter(ModularComponentTemplateFilterMixin):
         strawberry_django.filter_field()
     )
     rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -372,7 +372,7 @@ class InterfaceFilter(ModularComponentModelFilterMixin, InterfaceBaseFilterMixin
         strawberry_django.filter_field()
     )
     mgmt_only: FilterLookup[bool] | None = strawberry_django.filter_field()
-    speed: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    speed: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     duplex: Annotated['InterfaceDuplexEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
@@ -385,13 +385,13 @@ class InterfaceFilter(ModularComponentModelFilterMixin, InterfaceBaseFilterMixin
     rf_channel: Annotated['WirelessChannelEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    rf_channel_frequency: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    rf_channel_frequency: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    rf_channel_width: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    rf_channel_width: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    tx_power: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    tx_power: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     poe_mode: Annotated['InterfacePoEModeEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
@@ -584,16 +584,16 @@ class PowerFeedFilter(PrimaryModelFilterMixin, CabledObjectModelFilterMixin):
     phase: Annotated['PowerFeedPhaseEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    voltage: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    voltage: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    amperage: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    amperage: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    max_utilization: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    max_utilization: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    available_power: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    available_power: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -638,7 +638,7 @@ class PowerPanelFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryMo
     location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    location_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    location_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -649,10 +649,10 @@ class PowerPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterM
     type: Annotated['PowerPortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    maximum_draw: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    maximum_draw: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    allocated_draw: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    allocated_draw: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -662,10 +662,10 @@ class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin):
     type: Annotated['PowerPortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    maximum_draw: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    maximum_draw: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    allocated_draw: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    allocated_draw: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -699,7 +699,7 @@ class RackFilter(ContactFilterMixin, ImageAttachmentFilterMixin, RackBaseFilterM
     location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    location_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    location_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -723,7 +723,7 @@ class RackFilter(ContactFilterMixin, ImageAttachmentFilterMixin, RackBaseFilterM
 class RackReservationFilter(PrimaryModelFilterMixin):
     rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     rack_id: ID | None = strawberry_django.filter_field()
-    units: Annotated['IntegerArrayLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    units: Annotated['IntegerArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -744,7 +744,7 @@ class RackRoleFilter(OrganizationalModelFilterMixin):
 class RearPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin):
     type: Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
-    positions: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    positions: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -753,7 +753,7 @@ class RearPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMi
 class RearPortTemplateFilter(ModularComponentTemplateFilterMixin):
     type: Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
-    positions: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    positions: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -774,13 +774,13 @@ class SiteFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryModelFil
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     status: Annotated['SiteStatusEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     region: Annotated['RegionFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
-    region_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    region_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     group: Annotated['SiteGroupFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    group_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    group_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
@@ -792,10 +792,10 @@ class SiteFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryModelFil
     time_zone: FilterLookup[str] | None = strawberry_django.filter_field()
     physical_address: FilterLookup[str] | None = strawberry_django.filter_field()
     shipping_address: FilterLookup[str] | None = strawberry_django.filter_field()
-    latitude: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    latitude: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    longitude: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    longitude: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     prefixes: Annotated['PrefixFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
@@ -832,7 +832,7 @@ class VirtualDeviceContextFilter(PrimaryModelFilterMixin):
     status: Annotated['VirtualDeviceContextStatusEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    identifier: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    identifier: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     primary_ip4: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (

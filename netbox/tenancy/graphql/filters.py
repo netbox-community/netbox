@@ -16,7 +16,7 @@ from tenancy import models
 from .filter_mixins import ContactFilterMixin
 
 if TYPE_CHECKING:
-    from core.graphql.filter_lookups import TreeNodeFilter
+    from netbox.graphql.filter_lookups import TreeNodeFilter
     from circuits.graphql.filters import *
     from dcim.graphql.filters import *
     from ipam.graphql.filters import *
@@ -41,7 +41,7 @@ class TenantFilter(PrimaryModelFilterMixin, ContactFilterMixin):
     group: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    group_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    group_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     asns: Annotated['ASNFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
@@ -127,7 +127,7 @@ class ContactFilter(PrimaryModelFilterMixin):
     group: Annotated['ContactGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    group_id: Annotated['TreeNodeFilter', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    group_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     assignments: Annotated['ContactAssignmentFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
