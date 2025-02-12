@@ -18,8 +18,6 @@ class WirelessRoleEnum(Enum):
 
 @strawberry.enum
 class WirelessLANStatusEnum(Enum):
-    key = 'WirelessLAN.status'
-
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DISABLED = 'disabled'

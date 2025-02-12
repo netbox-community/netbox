@@ -131,8 +131,6 @@ class DeviceAirflowEnum(Enum):
 
 @strawberry.enum
 class ModuleStatusEnum(Enum):
-    key = 'Module.status'
-
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
@@ -800,8 +798,6 @@ class CableEndEnum(Enum):
 
 @strawberry.enum
 class PowerFeedStatusEnum(Enum):
-    key = 'PowerFeed.status'
-
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
@@ -810,7 +806,6 @@ class PowerFeedStatusEnum(Enum):
 
 @strawberry.enum
 class PowerFeedTypeEnum(Enum):
-
     TYPE_PRIMARY = 'primary'
     TYPE_REDUNDANT = 'redundant'
 
@@ -834,8 +829,6 @@ class PowerFeedPhaseEnum(Enum):
 #
 @strawberry.enum
 class VirtualDeviceContextStatusEnum(Enum):
-    key = 'VirtualDeviceContext.status'
-
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
     STATUS_OFFLINE = 'offline'
@@ -847,8 +840,6 @@ class VirtualDeviceContextStatusEnum(Enum):
 
 @strawberry.enum
 class InventoryItemStatusEnum(Enum):
-    key = 'InventoryItem.status'
-
     STATUS_OFFLINE = 'offline'
     STATUS_ACTIVE = 'active'
     STATUS_PLANNED = 'planned'
