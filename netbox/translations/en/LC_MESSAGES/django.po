@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-10 18:34+0000\n"
+"POT-Creation-Date: 2025-02-12 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9932,7 +9932,7 @@ msgstr ""
 
 #: netbox/ipam/forms/filtersets.py:419 netbox/ipam/models/vlans.py:273
 #: netbox/ipam/tables/ip.py:122 netbox/ipam/tables/vlans.py:51
-#: netbox/ipam/views.py:1035 netbox/netbox/navigation/menu.py:199
+#: netbox/ipam/views.py:1036 netbox/netbox/navigation/menu.py:199
 #: netbox/netbox/navigation/menu.py:201
 msgid "VLANs"
 msgstr ""
@@ -10644,15 +10644,15 @@ msgstr ""
 msgid "Child Ranges"
 msgstr ""
 
-#: netbox/ipam/views.py:957
+#: netbox/ipam/views.py:958
 msgid "Related IPs"
 msgstr ""
 
-#: netbox/ipam/views.py:1314
+#: netbox/ipam/views.py:1315
 msgid "Device Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:1332
+#: netbox/ipam/views.py:1333
 msgid "VM Interfaces"
 msgstr ""
 
