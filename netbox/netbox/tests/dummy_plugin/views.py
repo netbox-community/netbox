@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.views.generic import View
 
 from dcim.models import Site
+from netbox.views import generic
 from utilities.views import register_model_view
 from .models import DummyModel
 # Trigger registration of custom column
@@ -16,6 +17,10 @@ class DummyModelsView(View):
     def get(self, request):
         instance_count = DummyModel.objects.count()
         return HttpResponse(f"Instances: {instance_count}")
+
+
+class DummyModelView(generic.ObjectView):
+    queryset = DummyModel.objects.all()
 
 
 class DummyModelAddView(View):
