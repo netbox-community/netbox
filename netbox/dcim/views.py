@@ -422,7 +422,8 @@ class SiteGroupContactsView(ObjectContactsView):
 @register_model_view(Site, 'list', path='', detail=False)
 class SiteListView(generic.ObjectListView):
     queryset = Site.objects.annotate(
-        device_count=count_related(Device, 'site')
+        device_count=count_related(Device, 'site'),
+        asn_count=count_related(ASN, 'sites')
     )
     filterset = filtersets.SiteFilterSet
     filterset_form = forms.SiteFilterForm
