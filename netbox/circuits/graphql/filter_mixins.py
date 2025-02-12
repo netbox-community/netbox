@@ -6,7 +6,7 @@ from netbox.graphql.filter_mixins import OrganizationalModelFilterMixin
 
 if TYPE_CHECKING:
     from .filters import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from netbox.graphql.enums import *
 
 __all__ = ['BaseCircuitTypeFilterMixin']

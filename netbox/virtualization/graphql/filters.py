@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from .enums import *
     from netbox.graphql.enums import *
     from wireless.graphql.enums import *
-    from core.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import *
     from extras.graphql.filters import *
     from circuits.graphql.filters import *
     from dcim.graphql.filters import *
@@ -113,13 +113,13 @@ class VirtualMachineFilter(
         strawberry_django.filter_field()
     )
     primary_ip6_id: ID | None = strawberry_django.filter_field()
-    vcpus: Annotated['FloatLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    vcpus: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    memory: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    memory: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    disk: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    disk: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     serial: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -157,6 +157,6 @@ class VMInterfaceFilter(VMComponentFilterMixin, InterfaceBaseFilterMixin):
 
 @strawberry_django.filter(models.VirtualDisk, lookups=True)
 class VirtualDiskFilter(VMComponentFilterMixin):
-    size: Annotated['IntegerLookup', strawberry.lazy('core.graphql.filter_lookups')] | None = (
+    size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
