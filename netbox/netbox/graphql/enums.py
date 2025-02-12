@@ -90,14 +90,6 @@ class ImportFormatEnum(Enum):
     YAML = 'yaml'
 
 
-# @strawberry.enum
-# class CSVDelimiterEnum(Enum):
-#     AUTO = 'auto'
-#     COMMA = CSV_DELIMITERS['comma']
-#     SEMICOLON = CSV_DELIMITERS['semicolon']
-#     TAB = CSV_DELIMITERS['tab']
-
-
 @strawberry.enum
 class DistanceUnitEnum(Enum):
     # Metric
