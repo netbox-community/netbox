@@ -28,8 +28,6 @@ class IPAddressFamilyEnum(Enum):
 
 @strawberry.enum
 class PrefixStatusEnum(Enum):
-    key = 'Prefix.status'
-
     STATUS_CONTAINER = 'container'
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
@@ -43,8 +41,6 @@ class PrefixStatusEnum(Enum):
 
 @strawberry.enum
 class IPRangeStatusEnum(Enum):
-    key = 'IPRange.status'
-
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
@@ -57,8 +53,6 @@ class IPRangeStatusEnum(Enum):
 
 @strawberry.enum
 class IPAddressStatusEnum(Enum):
-    key = 'IPAddress.status'
-
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
@@ -107,8 +101,6 @@ class FHRPGroupAuthTypeEnum(Enum):
 
 @strawberry.enum
 class VLANStatusEnum(Enum):
-    key = 'VLAN.status'
-
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
@@ -118,7 +110,6 @@ class VLANStatusEnum(Enum):
 class VLANQinQRoleEnum(Enum):
     ROLE_SERVICE = 'svlan'
     ROLE_CUSTOMER = 'cvlan'
-
 
 #
 # Services

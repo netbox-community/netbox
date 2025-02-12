@@ -98,8 +98,6 @@ class BookmarkOrderingEnum(Enum):
 
 @strawberry.enum
 class JournalEntryKindEnum(Enum):
-    key = 'JournalEntry.kind'
-
     KIND_INFO = 'info'
     KIND_SUCCESS = 'success'
     KIND_WARNING = 'warning'

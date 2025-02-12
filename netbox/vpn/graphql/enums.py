@@ -23,8 +23,6 @@ __all__ = [
 
 @strawberry.enum
 class TunnelStatusEnum(Enum):
-    key = 'Tunnel.status'
-
     STATUS_PLANNED = 'planned'
     STATUS_ACTIVE = 'active'
     STATUS_DISABLED = 'disabled'
