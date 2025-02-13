@@ -705,7 +705,7 @@ class DeviceInterfaceTable(InterfaceTable):
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
-            'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'mgmt_only', 'mtu', 'mode', 'primary_mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
             'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
             'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'actions',

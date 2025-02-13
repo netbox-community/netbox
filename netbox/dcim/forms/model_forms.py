@@ -1810,6 +1810,11 @@ class MACAddressForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
+        if instance and instance.assigned_object and instance.assigned_object.primary_mac_address:
+            if instance.assigned_object.primary_mac_address.pk == instance.pk:
+                self.fields['interface'].disabled = True
+                self.fields['vminterface'].disabled = True
+
     def clean(self):
         super().clean()
 

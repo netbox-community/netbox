@@ -176,6 +176,7 @@ nav:
             - Provider Network: 'models/circuits/providernetwork.md'
             - Virtual Circuit: 'models/circuits/virtualcircuit.md'
             - Virtual Circuit Termination: 'models/circuits/virtualcircuittermination.md'
+            - Virtual Circuit Type: 'models/circuits/virtualcircuittype.md'
         - Core:
             - DataFile: 'models/core/datafile.md'
             - DataSource: 'models/core/datasource.md'

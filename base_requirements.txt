@@ -8,8 +8,6 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-# Pinned for DNS looukp bug; see https://github.com/netbox-community/netbox/issues/16454
-# and https://github.com/jazzband/django-debug-toolbar/issues/1927
 django-debug-toolbar
 
 # Library for writing reusable URL query filters
@@ -90,7 +88,8 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-mkdocstrings[python-legacy]
+# See #18568
+mkdocstrings[python-legacy]==0.27.0
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst
@@ -134,7 +133,8 @@ strawberry-graphql
 
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/releases
-strawberry-graphql-django
+# Pinned to v0.52.0 for suspected upstream bug; see #18329
+strawberry-graphql-django==0.52.0
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst

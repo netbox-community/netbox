@@ -12,8 +12,8 @@
 # Alexander Ryazanov (alryaz) <alryaz@xavux.com>, 2024
 # Vladyslav V. Prodan, 2024
 # Jeremy Stretch, 2024
-# Michail Tatarinov, 2024
 # Artem Kotik, 2025
+# Michail Tatarinov, 2025
 # 
 #, fuzzy
 msgid ""
@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Artem Kotik, 2025\n"
+"Last-Translator: Michail Tatarinov, 2025\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6334,7 +6334,7 @@ msgstr "распределительный щит"
 
 #: netbox/dcim/models/power.py:56
 msgid "power panels"
-msgstr "распределительный щиты"
+msgstr "распределительные щиты"
 
 #: netbox/dcim/models/power.py:70
 #, python-brace-format
@@ -9256,7 +9256,7 @@ msgstr "SLAAC"
 
 #: netbox/ipam/choices.py:89
 msgid "Loopback"
-msgstr "Обратная петля"
+msgstr "Loopback"
 
 #: netbox/ipam/choices.py:91
 msgid "Anycast"
@@ -11185,7 +11185,7 @@ msgstr "Сети провайдеров"
 
 #: netbox/netbox/navigation/menu.py:298
 msgid "Power Panels"
-msgstr "Распределительный щиты"
+msgstr "Распределительные щиты"
 
 #: netbox/netbox/navigation/menu.py:309
 msgid "Configurations"

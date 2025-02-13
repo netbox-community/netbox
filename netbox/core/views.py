@@ -22,6 +22,7 @@ from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
+from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
@@ -560,7 +561,7 @@ class SystemView(UserPassesTestMixin, View):
             params = [param.name for param in PARAMS]
             data = {
                 **stats,
-                'plugins': settings.PLUGINS,
+                'plugins': registry['plugins']['installed'],
                 'config': {
                     k: getattr(config, k) for k in sorted(params)
                 },
@@ -570,8 +571,9 @@ class SystemView(UserPassesTestMixin, View):
             return response
 
         # Serialize any CustomValidator classes
-        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
-            config.CUSTOM_VALIDATORS = json.dumps(config.CUSTOM_VALIDATORS, cls=ConfigJSONEncoder, indent=4)
+        for attr in ['CUSTOM_VALIDATORS', 'PROTECTION_RULES']:
+            if hasattr(config, attr) and getattr(config, attr, None):
+                setattr(config, attr, json.dumps(getattr(config, attr), cls=ConfigJSONEncoder, indent=4))
 
         return render(request, 'core/system.html', {
             'stats': stats,
@@ -594,7 +596,7 @@ class BasePluginView(UserPassesTestMixin, View):
         catalog_plugins_error = cache.get(self.CACHE_KEY_CATALOG_ERROR, default=False)
         if not catalog_plugins_error:
             catalog_plugins = get_catalog_plugins()
-            if not catalog_plugins:
+            if not catalog_plugins and not settings.ISOLATED_DEPLOYMENT:
                 # Cache for 5 minutes to avoid spamming connection
                 cache.set(self.CACHE_KEY_CATALOG_ERROR, True, 300)
                 messages.warning(request, _("Plugins catalog could not be loaded"))

@@ -5,9 +5,7 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode
 
-import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -16,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
+from netbox.registry import registry
 from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
@@ -224,8 +223,18 @@ DATABASES = {
 # Storage backend
 #
 
+# Default STORAGES for Django
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 if STORAGE_BACKEND is not None:
-    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+    STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
@@ -583,17 +592,6 @@ if SENTRY_ENABLED:
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
-CENSUS_PARAMS = {
-    'version': RELEASE.full_version,
-    'python_version': sys.version.split()[0],
-    'deployment_id': DEPLOYMENT_ID,
-}
-if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
-    try:
-        # Report anonymous census data
-        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
-    except requests.exceptions.RequestException:
-        pass
 
 
 #
@@ -812,6 +810,9 @@ for plugin_name in PLUGINS:
             f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
             f"__init__.py file and point to the PluginConfig subclass."
         )
+
+    # Register the plugin as installed successfully
+    registry['plugins']['installed'].append(plugin_name)
 
     plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
 

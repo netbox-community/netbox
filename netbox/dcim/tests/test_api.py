@@ -2447,3 +2447,46 @@ class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
                 # Omit identifier to test uniqueness constraint
             },
         ]
+
+
+class MACAddressTest(APIViewTestCases.APIViewTestCase):
+    model = MACAddress
+    brief_fields = ['description', 'display', 'id', 'mac_address', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device(name='Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type='1000base-t'),
+            Interface(device=device, name='Interface 2', type='1000base-t'),
+            Interface(device=device, name='Interface 3', type='1000base-t'),
+            Interface(device=device, name='Interface 4', type='1000base-t'),
+            Interface(device=device, name='Interface 5', type='1000base-t'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        mac_addresses = (
+            MACAddress(mac_address='00:00:00:00:00:01', assigned_object=interfaces[0]),
+            MACAddress(mac_address='00:00:00:00:00:02', assigned_object=interfaces[1]),
+            MACAddress(mac_address='00:00:00:00:00:03', assigned_object=interfaces[2]),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
+        cls.create_data = [
+            {
+                'mac_address': '00:00:00:00:00:04',
+                'assigned_object_type': 'dcim.interface',
+                'assigned_object_id': interfaces[3].pk,
+            },
+            {
+                'mac_address': '00:00:00:00:00:05',
+                'assigned_object_type': 'dcim.interface',
+                'assigned_object_id': interfaces[4].pk,
+            },
+            {
+                'mac_address': '00:00:00:00:00:06',
+            },
+        ]

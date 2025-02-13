@@ -14,10 +14,10 @@ To update the English `.po` file from which all translations are derived, use th
 ./manage.py makemessages -l en -i "project-static/*"
 ```
 
-Then, commit the change and push to the `develop` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
+Then, commit the change and push to the `main` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
 
 !!! note
-    It is typically not necessary to update source strings manually, as this is done nightly by a [GitHub action](https://github.com/netbox-community/netbox/blob/develop/.github/workflows/update-translation-strings.yml).
+    It is typically not necessary to update source strings manually, as this is done nightly by a [GitHub action](https://github.com/netbox-community/netbox/blob/main/.github/workflows/update-translation-strings.yml).
 
 ## Updating Translated Strings
 

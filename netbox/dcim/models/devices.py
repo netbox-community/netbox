@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
@@ -1522,3 +1523,34 @@ class MACAddress(PrimaryModel):
 
     def __str__(self):
         return str(self.mac_address)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Denote the original assigned object (if any) for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
+    @cached_property
+    def is_primary(self):
+        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
+            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
+                return True
+        return False
+
+    def clean(self, *args, **kwargs):
+        super().clean()
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
+            assigned_object = self.assigned_object
+            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+
+            if original_assigned_object.primary_mac_address:
+                if not assigned_object:
+                    raise ValidationError(
+                        _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
+                    )
+                elif original_assigned_object != assigned_object:
+                    raise ValidationError(
+                        _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
+                    )
