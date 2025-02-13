@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from extras.choices import DurationChoices
+from core.choices import JobIntervalChoices
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
 
@@ -22,7 +22,7 @@ class ReportForm(forms.Form):
         min_value=1,
         label=_("Recurs every"),
         widget=NumberWithOptions(
-            options=DurationChoices
+            options=JobIntervalChoices
         ),
         help_text=_("Interval at which this report is re-run (in minutes)")
     )
