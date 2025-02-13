@@ -134,7 +134,7 @@ def render_table_filter_field(fieldname, table, request):
     field = None
 
     # Does this table have a filterset form?
-    if table.filterset_form is not None:
+    if hasattr(table, 'filterset_form') and table.filterset_form is not None:
         # Get the filterset field
         field = get_filter_field(table.filterset_form, fieldname)
 

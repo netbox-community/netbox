@@ -3,8 +3,10 @@
 {% load buttons %}
 {% load render_table from django_tables2 %}
 
-{# OOB Swaps to update various components #}
-{% applied_filters model filter_form request.GET %}
+{% if request.htmx %}
+  {# OOB Swaps to update various components #}
+  {% applied_filters model filter_form request.GET %}
+{% endif %}
 
 <div class="htmx-container table-responsive">
   {% with preferences|get_key:"pagination.placement" as paginator_placement %}

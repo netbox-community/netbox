@@ -270,6 +270,8 @@ def applied_filters(context, model, form, query_params):
     Display the active filters for a given filter form.
     """
     user = context['request'].user
+    if not form:
+        return
     form.is_valid()  # Ensure cleaned_data has been set
 
     applied_filters = []
@@ -304,6 +306,7 @@ def applied_filters(context, model, form, query_params):
         save_link = f"{url}?object_types={object_type}&parameters={quote(parameters)}"
 
     return {
+        'request': context['request'],
         'applied_filters': applied_filters,
         'save_link': save_link,
     }
