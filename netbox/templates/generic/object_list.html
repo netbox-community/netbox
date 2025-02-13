@@ -66,9 +66,8 @@ Context:
 
     {# Object list tab #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-
-      {# Applied filters #}
-      {% if filter_form %}
+      {% if not request.htmx %}
+        {# Applied filters #}
         {% applied_filters model filter_form request.GET %}
       {% endif %}
 
