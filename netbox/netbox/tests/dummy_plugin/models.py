@@ -3,7 +3,7 @@ from django.db import models
 from netbox.models import NetBoxModel
 
 
-class DummyModel(NetBoxModel):
+class DummyModel(models.Model):
     name = models.CharField(
         max_length=20
     )
@@ -13,3 +13,7 @@ class DummyModel(NetBoxModel):
 
     class Meta:
         ordering = ['name']
+
+
+class DummyNetBoxModel(NetBoxModel):
+    pass
