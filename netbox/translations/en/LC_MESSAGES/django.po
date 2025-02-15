@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-12 05:01+0000\n"
+"POT-Creation-Date: 2025-02-15 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgstr ""
 msgid "Write Enabled"
 msgstr ""
 
-#: netbox/account/tables.py:35 netbox/core/choices.py:100
+#: netbox/account/tables.py:35 netbox/core/choices.py:102
 #: netbox/core/tables/jobs.py:29 netbox/core/tables/tasks.py:79
 #: netbox/extras/tables/tables.py:335 netbox/extras/tables/tables.py:566
 #: netbox/templates/account/token.html:43
@@ -1430,7 +1430,7 @@ msgstr ""
 #: netbox/core/models/jobs.py:85 netbox/dcim/models/cables.py:49
 #: netbox/dcim/models/device_components.py:1281
 #: netbox/dcim/models/devices.py:645 netbox/dcim/models/devices.py:1177
-#: netbox/dcim/models/devices.py:1404 netbox/dcim/models/power.py:94
+#: netbox/dcim/models/devices.py:1405 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:288 netbox/dcim/models/sites.py:154
 #: netbox/dcim/models/sites.py:270 netbox/ipam/models/ip.py:237
 #: netbox/ipam/models/ip.py:508 netbox/ipam/models/ip.py:729
@@ -1561,7 +1561,7 @@ msgstr ""
 #: netbox/core/models/jobs.py:46
 #: netbox/dcim/models/device_component_templates.py:43
 #: netbox/dcim/models/device_components.py:52 netbox/dcim/models/devices.py:589
-#: netbox/dcim/models/devices.py:1336 netbox/dcim/models/devices.py:1399
+#: netbox/dcim/models/devices.py:1337 netbox/dcim/models/devices.py:1400
 #: netbox/dcim/models/power.py:38 netbox/dcim/models/power.py:89
 #: netbox/dcim/models/racks.py:257 netbox/dcim/models/sites.py:142
 #: netbox/extras/models/configs.py:36 netbox/extras/models/configs.py:215
@@ -2046,24 +2046,32 @@ msgstr ""
 msgid "Minutely"
 msgstr ""
 
-#: netbox/core/choices.py:83 netbox/extras/choices.py:184
+#: netbox/core/choices.py:83
 msgid "Hourly"
 msgstr ""
 
-#: netbox/core/choices.py:84 netbox/extras/choices.py:186
+#: netbox/core/choices.py:84
+msgid "12 hours"
+msgstr ""
+
+#: netbox/core/choices.py:85
 msgid "Daily"
 msgstr ""
 
-#: netbox/core/choices.py:85 netbox/extras/choices.py:187
+#: netbox/core/choices.py:86
 msgid "Weekly"
 msgstr ""
 
-#: netbox/core/choices.py:101 netbox/core/tables/plugins.py:63
+#: netbox/core/choices.py:87
+msgid "30 days"
+msgstr ""
+
+#: netbox/core/choices.py:103 netbox/core/tables/plugins.py:63
 #: netbox/templates/generic/object.html:61
 msgid "Updated"
 msgstr ""
 
-#: netbox/core/choices.py:102
+#: netbox/core/choices.py:104
 msgid "Deleted"
 msgstr ""
 
@@ -3531,7 +3539,7 @@ msgstr ""
 #: netbox/dcim/filtersets.py:1104 netbox/dcim/forms/filtersets.py:819
 #: netbox/dcim/forms/filtersets.py:1390 netbox/dcim/forms/filtersets.py:1586
 #: netbox/dcim/forms/filtersets.py:1591 netbox/dcim/forms/model_forms.py:1762
-#: netbox/dcim/models/devices.py:1500 netbox/dcim/models/devices.py:1521
+#: netbox/dcim/models/devices.py:1501 netbox/dcim/models/devices.py:1522
 #: netbox/virtualization/filtersets.py:196
 #: netbox/virtualization/filtersets.py:268
 #: netbox/virtualization/forms/filtersets.py:177
@@ -6370,12 +6378,12 @@ msgstr ""
 msgid "rack face"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:663 netbox/dcim/models/devices.py:1420
+#: netbox/dcim/models/devices.py:663 netbox/dcim/models/devices.py:1421
 #: netbox/virtualization/models/virtualmachines.py:95
 msgid "primary IPv4"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:671 netbox/dcim/models/devices.py:1428
+#: netbox/dcim/models/devices.py:671 netbox/dcim/models/devices.py:1429
 #: netbox/virtualization/models/virtualmachines.py:103
 msgid "primary IPv6"
 msgstr ""
@@ -6538,68 +6546,68 @@ msgid ""
 "device ({device})."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1341
+#: netbox/dcim/models/devices.py:1342
 msgid "domain"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1354 netbox/dcim/models/devices.py:1355
+#: netbox/dcim/models/devices.py:1355 netbox/dcim/models/devices.py:1356
 msgid "virtual chassis"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1367
+#: netbox/dcim/models/devices.py:1368
 #, python-brace-format
 msgid "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1383
+#: netbox/dcim/models/devices.py:1384
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
 "form a cross-chassis LAG interfaces."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1409 netbox/vpn/models/l2vpn.py:37
+#: netbox/dcim/models/devices.py:1410 netbox/vpn/models/l2vpn.py:37
 msgid "identifier"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1410
+#: netbox/dcim/models/devices.py:1411
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1438 netbox/extras/models/customfields.py:225
+#: netbox/dcim/models/devices.py:1439 netbox/extras/models/customfields.py:225
 #: netbox/extras/models/models.py:107 netbox/extras/models/models.py:694
 #: netbox/netbox/models/__init__.py:119
 msgid "comments"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1454
+#: netbox/dcim/models/devices.py:1455
 msgid "virtual device context"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1455
+#: netbox/dcim/models/devices.py:1456
 msgid "virtual device contexts"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1484
+#: netbox/dcim/models/devices.py:1485
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1490
+#: netbox/dcim/models/devices.py:1491
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1522
+#: netbox/dcim/models/devices.py:1523
 msgid "MAC addresses"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1551
+#: netbox/dcim/models/devices.py:1552
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an "
 "object"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1555
+#: netbox/dcim/models/devices.py:1556
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
@@ -7560,15 +7568,7 @@ msgstr ""
 msgid "Failure"
 msgstr ""
 
-#: netbox/extras/choices.py:185
-msgid "12 hours"
-msgstr ""
-
-#: netbox/extras/choices.py:188
-msgid "30 days"
-msgstr ""
-
-#: netbox/extras/choices.py:224
+#: netbox/extras/choices.py:213
 #: netbox/templates/dcim/virtualchassis_edit.html:107
 #: netbox/templates/generic/bulk_add_component.html:68
 #: netbox/templates/generic/object_edit.html:47
@@ -7578,11 +7578,11 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: netbox/extras/choices.py:225
+#: netbox/extras/choices.py:214
 msgid "Update"
 msgstr ""
 
-#: netbox/extras/choices.py:226
+#: netbox/extras/choices.py:215
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
@@ -7597,82 +7597,82 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: netbox/extras/choices.py:250 netbox/netbox/choices.py:59
+#: netbox/extras/choices.py:239 netbox/netbox/choices.py:59
 #: netbox/netbox/choices.py:104
 msgid "Blue"
 msgstr ""
 
-#: netbox/extras/choices.py:251 netbox/netbox/choices.py:58
+#: netbox/extras/choices.py:240 netbox/netbox/choices.py:58
 #: netbox/netbox/choices.py:105
 msgid "Indigo"
 msgstr ""
 
-#: netbox/extras/choices.py:252 netbox/netbox/choices.py:56
+#: netbox/extras/choices.py:241 netbox/netbox/choices.py:56
 #: netbox/netbox/choices.py:106
 msgid "Purple"
 msgstr ""
 
-#: netbox/extras/choices.py:253 netbox/netbox/choices.py:53
+#: netbox/extras/choices.py:242 netbox/netbox/choices.py:53
 #: netbox/netbox/choices.py:107
 msgid "Pink"
 msgstr ""
 
-#: netbox/extras/choices.py:254 netbox/netbox/choices.py:52
+#: netbox/extras/choices.py:243 netbox/netbox/choices.py:52
 #: netbox/netbox/choices.py:108
 msgid "Red"
 msgstr ""
 
-#: netbox/extras/choices.py:255 netbox/netbox/choices.py:70
+#: netbox/extras/choices.py:244 netbox/netbox/choices.py:70
 #: netbox/netbox/choices.py:109
 msgid "Orange"
 msgstr ""
 
-#: netbox/extras/choices.py:256 netbox/netbox/choices.py:68
+#: netbox/extras/choices.py:245 netbox/netbox/choices.py:68
 #: netbox/netbox/choices.py:110
 msgid "Yellow"
 msgstr ""
 
-#: netbox/extras/choices.py:257 netbox/netbox/choices.py:65
+#: netbox/extras/choices.py:246 netbox/netbox/choices.py:65
 #: netbox/netbox/choices.py:111
 msgid "Green"
 msgstr ""
 
-#: netbox/extras/choices.py:258 netbox/netbox/choices.py:62
+#: netbox/extras/choices.py:247 netbox/netbox/choices.py:62
 #: netbox/netbox/choices.py:112
 msgid "Teal"
 msgstr ""
 
-#: netbox/extras/choices.py:259 netbox/netbox/choices.py:61
+#: netbox/extras/choices.py:248 netbox/netbox/choices.py:61
 #: netbox/netbox/choices.py:113
 msgid "Cyan"
 msgstr ""
 
-#: netbox/extras/choices.py:260 netbox/netbox/choices.py:114
+#: netbox/extras/choices.py:249 netbox/netbox/choices.py:114
 msgid "Gray"
 msgstr ""
 
-#: netbox/extras/choices.py:261 netbox/netbox/choices.py:76
+#: netbox/extras/choices.py:250 netbox/netbox/choices.py:76
 #: netbox/netbox/choices.py:115
 msgid "Black"
 msgstr ""
 
-#: netbox/extras/choices.py:262 netbox/netbox/choices.py:77
+#: netbox/extras/choices.py:251 netbox/netbox/choices.py:77
 #: netbox/netbox/choices.py:116
 msgid "White"
 msgstr ""
 
-#: netbox/extras/choices.py:277 netbox/extras/forms/model_forms.py:353
+#: netbox/extras/choices.py:266 netbox/extras/forms/model_forms.py:353
 #: netbox/extras/forms/model_forms.py:430
 #: netbox/templates/extras/webhook.html:10
 msgid "Webhook"
 msgstr ""
 
-#: netbox/extras/choices.py:278 netbox/extras/forms/model_forms.py:418
+#: netbox/extras/choices.py:267 netbox/extras/forms/model_forms.py:418
 #: netbox/templates/extras/script/base.html:29
 msgid "Script"
 msgstr ""
 
-#: netbox/extras/choices.py:279
+#: netbox/extras/choices.py:268
 msgid "Notification"
 msgstr ""
 
