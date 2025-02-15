@@ -31,6 +31,11 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    racktype_count = columns.LinkedCountColumn(
+        viewname='dcim:racktype_list',
+        url_params={'manufacturer_id': 'pk'},
+        verbose_name=_('Rack Types')
+    )
     devicetype_count = columns.LinkedCountColumn(
         viewname='dcim:devicetype_list',
         url_params={'manufacturer_id': 'pk'},
@@ -58,12 +63,12 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Manufacturer
         fields = (
-            'pk', 'id', 'name', 'devicetype_count', 'moduletype_count', 'inventoryitem_count', 'platform_count',
-            'description', 'slug', 'tags', 'contacts', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'racktype_count', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',
+            'platform_count', 'description', 'slug', 'tags', 'contacts', 'actions', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'devicetype_count', 'moduletype_count', 'inventoryitem_count', 'platform_count',
-            'description', 'slug',
+            'pk', 'name', 'racktype_count', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',
+            'platform_count', 'description', 'slug',
         )
 
 

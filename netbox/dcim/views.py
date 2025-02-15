@@ -964,6 +964,7 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 @register_model_view(Manufacturer, 'list', path='', detail=False)
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
+        racktype_count=count_related(RackType, 'manufacturer'),
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         moduletype_count=count_related(ModuleType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
