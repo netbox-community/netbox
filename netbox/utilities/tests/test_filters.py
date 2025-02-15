@@ -80,7 +80,7 @@ class TreeNodeMultipleChoiceFilterTest(TestCase):
         self.assertEqual(qs[1], self.site3)
 
 
-class DummyFilterModel(models.Model):
+class DummyModel(models.Model):
     """
     Dummy model used by BaseFilterSetTest for filter validation. Should never appear in a schema migration.
     """
@@ -131,11 +131,11 @@ class BaseFilterSetTest(TestCase):
         )
         tagfield = TagFilter()
         treeforeignkeyfield = TreeNodeMultipleChoiceFilter(
-            queryset=DummyFilterModel.objects.all()
+            queryset=DummyModel.objects.all()
         )
 
         class Meta:
-            model = DummyFilterModel
+            model = DummyModel
             fields = (
                 'charfield',
                 'numberfield',
