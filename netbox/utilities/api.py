@@ -3,6 +3,7 @@ from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
+from django.db.models import Count, Prefetch
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -76,7 +77,7 @@ def get_view_name(view):
     return drf_get_view_name(view)
 
 
-def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
+def get_prefetches_for_serializer(serializer_class, fields_to_include=None, source_field=None):
     """
     Compile and return a list of fields which should be prefetched on the queryset for a serializer.
     """
@@ -87,6 +88,7 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
         fields_to_include = serializer_class.Meta.fields
 
     prefetch_fields = []
+    annotaded_prefetch = {}
     for field_name in fields_to_include:
         serializer_field = serializer_class._declared_fields.get(field_name)
 
@@ -95,23 +97,37 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
         if serializer_field and serializer_field.source:
             model_field_name = serializer_field.source
 
+        # If the serializer field is a RelatedObjectCountField and its a nested field
+        # Add an annotation to the annotaded_prefetch
+        if isinstance(serializer_field, RelatedObjectCountField) and source_field is not None:
+            if model_field_name not in annotaded_prefetch:
+                annotaded_prefetch[model_field_name] = Count(serializer_field.relation)
+
         # If the serializer field does not map to a discrete model field, skip it.
         try:
             field = model._meta.get_field(model_field_name)
-            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+            if (isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)) and
+                 not issubclass(type(serializer_field), Serializer)):
                 prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
 
         # If this field is represented by a nested serializer, recurse to resolve prefetches
         # for the related object.
-        if serializer_field:
+        if serializer_field and source_field is None:
             if issubclass(type(serializer_field), Serializer):
                 # Determine which fields to prefetch for the nested object
                 subfields = serializer_field.Meta.brief_fields if serializer_field.nested else None
-                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields):
-                    prefetch_fields.append(f'{field_name}__{subfield}')
+                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields, field_name):
+                    if isinstance(subfield, Prefetch):
+                        prefetch_fields.append(subfield)
+                    else:
+                        prefetch_fields.append(f'{field_name}__{subfield}')
 
+    # If there are annotaded_prefetch, add the annotaded prefetch to the prefetch_fields
+    if annotaded_prefetch:
+        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**annotaded_prefetch))
+        prefetch_fields.append(related_prefetch)
     return prefetch_fields
 
 
