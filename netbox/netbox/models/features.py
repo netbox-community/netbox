@@ -5,6 +5,7 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -362,6 +363,26 @@ class ContactsMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_contacts(self):
+        """
+        Return a `QuerySet` matching all contacts assigned to this object.
+        """
+        from tenancy.models import ContactAssignment
+        from . import NestedGroupModel
+
+        filter = Q()
+        for obj in [self]:
+            filter |= Q(
+                object_type=ObjectType.objects.get_for_model(obj),
+                object_id__in=(
+                    obj.get_ancestors(include_self=True).values_list('pk', flat=True)
+                    if isinstance(obj, NestedGroupModel)
+                    else [obj.pk]
+                ),
+            )
+
+        return ContactAssignment.objects.filter(filter)
 
 
 class BookmarksMixin(models.Model):

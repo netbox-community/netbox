@@ -2,7 +2,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import NestedGroupModel
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -18,24 +17,13 @@ class ObjectContactsView(generic.ObjectChildrenView):
     template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
-        badge=lambda obj: obj.contacts.count(),
+        badge=lambda obj: obj.get_contacts().count(),
         permission='tenancy.view_contactassignment',
         weight=5000
     )
 
     def get_children(self, request, parent):
-        qs = ContactAssignment.objects.restrict(request.user, 'view')
-        for obj in [parent]:
-            qs = qs.filter(
-                object_type=ContentType.objects.get_for_model(obj),
-                object_id__in=(
-                    obj.get_ancestors(include_self=True).values_list('pk', flat=True)
-                    if isinstance(obj, NestedGroupModel)
-                    else [obj.pk]
-                ),
-            )
-
-        return qs.order_by('priority', 'contact', 'role')
+        return parent.get_contacts().restrict(request.user, 'view').order_by('priority', 'contact', 'role')
 
 
 #
