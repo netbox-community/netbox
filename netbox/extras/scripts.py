@@ -369,7 +369,6 @@ class BaseScript:
 
     @property
     def source(self):
-        breakpoint()
         return inspect.getsource(self.__class__)
 
     @classmethod
@@ -556,7 +555,6 @@ class BaseScript:
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info("Running report")
-
         try:
             for test_name in self.tests:
                 self._current_test = test_name
@@ -602,6 +600,5 @@ def is_variable(obj):
 
 def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
-    breakpoint()
     script = module.scripts.get(name=script_name)
     return module, script
