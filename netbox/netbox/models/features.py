@@ -364,9 +364,11 @@ class ContactsMixin(models.Model):
     class Meta:
         abstract = True
 
-    def get_contacts(self):
+    def get_contacts(self, inherited=True):
         """
         Return a `QuerySet` matching all contacts assigned to this object.
+
+        :param inherited: If `True`, inherited contacts from parent objects are included.
         """
         from tenancy.models import ContactAssignment
         from . import NestedGroupModel
@@ -377,7 +379,7 @@ class ContactsMixin(models.Model):
                 object_type=ObjectType.objects.get_for_model(obj),
                 object_id__in=(
                     obj.get_ancestors(include_self=True).values_list('pk', flat=True)
-                    if isinstance(obj, NestedGroupModel)
+                    if (isinstance(obj, NestedGroupModel) and inherited)
                     else [obj.pk]
                 ),
             )
