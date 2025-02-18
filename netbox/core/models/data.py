@@ -351,17 +351,6 @@ class DataFile(models.Model):
 
         return is_modified
 
-    def write_to_disk(self, path, overwrite=False):
-        """
-        Write the object's data to disk at the specified path
-        """
-        # Check whether file already exists
-        if os.path.isfile(path) and not overwrite:
-            raise FileExistsError()
-
-        with open(path, 'wb+') as new_file:
-            new_file.write(self.data)
-
 
 class AutoSyncRecord(models.Model):
     """

@@ -1,11 +1,14 @@
 from django import forms
+from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
+from core.forms import ManagedFileForm
 from extras.choices import DurationChoices
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
 
 __all__ = (
+    'ScriptFileForm',
     'ScriptForm',
 )
 
@@ -55,3 +58,20 @@ class ScriptForm(forms.Form):
             self.cleaned_data['_schedule_at'] = local_now()
 
         return self.cleaned_data
+
+
+class ScriptFileForm(ManagedFileForm):
+    """
+    ManagedFileForm with a custom save method to use django-storages.
+    """
+    def save(self, *args, **kwargs):
+        # If a file was uploaded, save it to disk
+        if self.cleaned_data['upload_file']:
+            storage = storages.create_storage(storages.backends["scripts"])
+
+            self.instance.file_path = self.cleaned_data['upload_file'].name
+            data = self.cleaned_data['upload_file']
+            storage.save(self.instance.name, data)
+
+        # need to skip ManagedFileForm save method
+        return super(ManagedFileForm, self).save(*args, **kwargs)

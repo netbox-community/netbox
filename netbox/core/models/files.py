@@ -4,6 +4,7 @@ import os
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.core.files.storage import storages
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -19,6 +20,8 @@ logger = logging.getLogger('netbox.core.files')
 
 
 class ManagedFile(SyncedDataMixin, models.Model):
+    storage = None
+
     """
     Database representation for a file on disk. This class is typically wrapped by a proxy class (e.g. ScriptModule)
     to provide additional functionality.
@@ -84,7 +87,25 @@ class ManagedFile(SyncedDataMixin, models.Model):
     def sync_data(self):
         if self.data_file:
             self.file_path = os.path.basename(self.data_path)
-            self.data_file.write_to_disk(self.full_path, overwrite=True)
+            self._write_to_disk(self.full_path, overwrite=True)
+
+    def _write_to_disk(self, path, overwrite=False):
+        """
+        Write the object's data to disk at the specified path
+        """
+        # Check whether file already exists
+        storage = self.get_storage()
+        if storage.exists(path) and not overwrite:
+            raise FileExistsError()
+
+        with storage.open(path, 'wb+') as new_file:
+            new_file.write(self.data)
+
+    def get_storage(self):
+        if self.storage is None:
+            self.storage = storages.create_storage(storages.backends["scripts"])
+
+        return self.storage
 
     def clean(self):
         super().clean()
@@ -104,8 +125,9 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
     def delete(self, *args, **kwargs):
         # Delete file from disk
+        storage = self.get_storage()
         try:
-            os.remove(self.full_path)
+            storage.delete(self.full_path)
         except FileNotFoundError:
             pass
 
