@@ -1250,6 +1250,54 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
 
+class TaggedItemFilterSetTestCase(TestCase):
+    queryset = TaggedItem.objects.all()
+    filterset = TaggedItemFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        tags = (
+            Tag(name='Tag 1', slug='tag-1'),
+            Tag(name='Tag 2', slug='tag-2'),
+            Tag(name='Tag 3', slug='tag-3'),
+        )
+        Tag.objects.bulk_create(tags)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        sites[0].tags.add(tags[0])
+        sites[1].tags.add(tags[1])
+        sites[2].tags.add(tags[2])
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+        tenants[0].tags.add(tags[0])
+        tenants[1].tags.add(tags[1])
+        tenants[2].tags.add(tags[2])
+
+    def test_tag(self):
+        tags = Tag.objects.all()[:2]
+        params = {'tag': [tags[0].slug, tags[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tag_id': [tags[0].pk, tags[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_object_type(self):
+        object_type = ObjectType.objects.get_for_model(Site)
+        params = {'object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'object_type_id': [object_type.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
 class ChangeLoggedFilterSetTestCase(TestCase):
     """
     Evaluate base ChangeLoggedFilterSet filters using the Site model.

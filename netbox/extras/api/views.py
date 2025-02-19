@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -20,7 +21,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
-from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from . import serializers
@@ -170,6 +171,12 @@ class TagViewSet(NetBoxModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
     filterset_class = filtersets.TagFilterSet
+
+
+class TaggedItemViewSet(RetrieveModelMixin, ListModelMixin, BaseViewSet):
+    queryset = TaggedItem.objects.prefetch_related('content_type', 'content_object', 'tag')
+    serializer_class = serializers.TaggedItemSerializer
+    filterset_class = filtersets.TaggedItemFilterSet
 
 
 #
