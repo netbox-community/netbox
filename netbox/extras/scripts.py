@@ -403,9 +403,12 @@ class BaseScript:
         # classes.
         object = self.__class__
 
-        lines, lnum = self.findsource(object)
-        lines = inspect.getblock(lines[lnum:])
-        return ''.join(lines)
+        try:
+            lines, lnum = self.findsource(object)
+            lines = inspect.getblock(lines[lnum:])
+            return ''.join(lines)
+        except OSError:
+            return ''
 
     @classmethod
     def _get_vars(cls):
