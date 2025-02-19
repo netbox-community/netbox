@@ -184,7 +184,9 @@ class CustomLinkFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
         strawberry_django.filter_field()
     )
     group_name: FilterLookup[str] | None = strawberry_django.filter_field()
-    button_class: FilterLookup[str] | None = strawberry_django.filter_field()
+    button_class: Annotated['CustomLinkButtonClassEnum', strawberry.lazy('extras.graphql.enums')] | None = (
+        strawberry_django.filter_field()
+    )
     new_window: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
