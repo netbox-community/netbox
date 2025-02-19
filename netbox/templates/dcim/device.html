@@ -335,6 +335,15 @@
             </div>
             {% if object.rack and object.position %}
               <div class="row" style="margin-bottom: 20px">
+                <div class="text-center">
+                  <strong><a href="{% url 'dcim:rack' pk=object.rack.pk %}">{{ object.rack.name }}</a></strong>
+                  {% if object.rack.role %}
+                    <br /><span class="badge my-3" style="color: {{ object.rack.role.color|fgcolor }}; background-color: #{{ object.rack.role.color }}">{{ object.rack.role }}</span>
+                  {% endif %}
+                  {% if object.rack.facility_id %}
+                    <br /><small class="text-muted">{{ object.rack.facility_id }}</small>
+                  {% endif %}
+                </div>
                 <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
                   <div style="margin-left: 30px">
                     <h2 class="h4">{% trans "Front" %}</h2>
