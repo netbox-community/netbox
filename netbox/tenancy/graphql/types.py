@@ -34,7 +34,7 @@ __all__ = (
 
 @strawberry_django.type(models.Tenant, fields='__all__', filters=TenantFilter)
 class TenantType(NetBoxObjectType):
-    group: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')]
+    group: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
     contacts: List[Annotated['ContactType', strawberry.lazy('tenancy.graphql.types')]]
     asns: List[Annotated['ASNType', strawberry.lazy('ipam.graphql.types')]]
     circuits: List[Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]]
