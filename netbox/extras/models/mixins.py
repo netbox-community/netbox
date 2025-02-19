@@ -61,8 +61,5 @@ class PythonModuleMixin:
             return name
 
     def get_module(self):
-        # loader = SourceFileLoader(self.python_name, self.full_path)
-        # module = loader.load_module()
-        # module = load_module(self.python_name, self.full_path)
         module = load_module(self.python_name, self.name)
         return module
