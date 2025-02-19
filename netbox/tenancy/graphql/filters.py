@@ -16,6 +16,7 @@ from tenancy import models
 from .filter_mixins import ContactFilterMixin
 
 if TYPE_CHECKING:
+    from .enums import *
     from netbox.graphql.filter_lookups import TreeNodeFilter
     from circuits.graphql.filters import *
     from dcim.graphql.filters import *
@@ -158,4 +159,6 @@ class ContactAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLo
         strawberry_django.filter_field()
     )
     role_id: ID | None = strawberry_django.filter_field()
-    priority: FilterLookup[str] | None = strawberry_django.filter_field()
+    priority: Annotated['ContactPriorityEnum', strawberry.lazy('tenancy.graphql.enums')] | None = (
+        strawberry_django.filter_field()
+    )
