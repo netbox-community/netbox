@@ -38,7 +38,6 @@ __all__ = (
     'SiteStatusEnum',
     'SubdeviceRoleEnum',
     'VirtualDeviceContextStatusEnum',
-
 )
 
 CableEndEnum = strawberry.enum(CableEndChoices.as_enum())
