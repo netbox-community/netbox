@@ -7,13 +7,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext as _
 
 from netbox.data_backends import DataBackend
 from netbox.utils import register_data_backend
 from utilities.constants import HTTP_PROXY_SUPPORTED_SCHEMAS, HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS
+from utilities.proxy import resolve_proxies
 from utilities.socks import ProxyPoolManager
 from .exceptions import SyncError
 
@@ -70,18 +70,18 @@ class GitBackend(DataBackend):
 
         # Initialize backend config
         config = ConfigDict()
-        self.use_socks = False
+        self.socks_proxy = None
 
         # Apply HTTP proxy (if configured)
-        if settings.HTTP_PROXIES:
-            if proxy := settings.HTTP_PROXIES.get(self.url_scheme, None):
-                if urlparse(proxy).scheme not in HTTP_PROXY_SUPPORTED_SCHEMAS:
-                    raise ImproperlyConfigured(f"Unsupported Git DataSource proxy scheme: {urlparse(proxy).scheme}")
+        proxies = resolve_proxies(url=self.url, context={'client': self}) or {}
+        if proxy := proxies.get(self.url_scheme):
+            if urlparse(proxy).scheme not in HTTP_PROXY_SUPPORTED_SCHEMAS:
+                raise ImproperlyConfigured(f"Unsupported Git DataSource proxy scheme: {urlparse(proxy).scheme}")
 
-                if self.url_scheme in ('http', 'https'):
-                    config.set("http", "proxy", proxy)
-                    if urlparse(proxy).scheme in HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS:
-                        self.use_socks = True
+            if self.url_scheme in ('http', 'https'):
+                config.set("http", "proxy", proxy)
+                if urlparse(proxy).scheme in HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS:
+                    self.socks_proxy = proxy
 
         return config
 
@@ -98,8 +98,8 @@ class GitBackend(DataBackend):
         }
 
         # check if using socks for proxy - if so need to use custom pool_manager
-        if self.use_socks:
-            clone_args['pool_manager'] = ProxyPoolManager(settings.HTTP_PROXIES.get(self.url_scheme))
+        if self.socks_proxy:
+            clone_args['pool_manager'] = ProxyPoolManager(self.socks_proxy)
 
         if self.url_scheme in ('http', 'https'):
             if self.params.get('username'):
@@ -147,7 +147,7 @@ class S3Backend(DataBackend):
 
         # Initialize backend config
         return Boto3Config(
-            proxies=settings.HTTP_PROXIES,
+            proxies=resolve_proxies(url=self.url, context={'client': self}),
         )
 
     @contextmanager

@@ -11,6 +11,7 @@ from packaging import version
 
 from core.models import Job, ObjectChange
 from netbox.config import Config
+from utilities.proxy import resolve_proxies
 
 
 class Command(BaseCommand):
@@ -107,7 +108,7 @@ class Command(BaseCommand):
                 response = requests.get(
                     url=settings.RELEASE_CHECK_URL,
                     headers=headers,
-                    proxies=settings.HTTP_PROXIES
+                    proxies=resolve_proxies(url=settings.RELEASE_CHECK_URL)
                 )
                 response.raise_for_status()
 

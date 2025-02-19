@@ -17,6 +17,7 @@ from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
+from utilities.proxy import resolve_proxies
 from utilities.querydict import dict_to_querydict
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import get_viewname
@@ -330,7 +331,7 @@ class RSSFeedWidget(DashboardWidget):
             response = requests.get(
                 url=self.config['feed_url'],
                 headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
-                proxies=settings.HTTP_PROXIES,
+                proxies=resolve_proxies(url=self.config['feed_url']),
                 timeout=3
             )
             response.raise_for_status()

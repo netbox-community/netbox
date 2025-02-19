@@ -5,6 +5,7 @@ import sys
 from django.conf import settings
 from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
+from utilities.proxy import resolve_proxies
 from .choices import DataSourceStatusChoices, JobIntervalChoices
 from .exceptions import SyncError
 from .models import DataSource
@@ -71,7 +72,7 @@ class SystemHousekeepingJob(JobRunner):
                 url=settings.CENSUS_URL,
                 params=census_data,
                 timeout=3,
-                proxies=settings.HTTP_PROXIES
+                proxies=resolve_proxies(url=settings.CENSUS_URL)
             )
         except requests.exceptions.RequestException:
             pass
