@@ -213,23 +213,6 @@ class WebhookHttpMethodChoices(ChoiceSet):
 
 
 #
-# Staging
-#
-
-class ChangeActionChoices(ChoiceSet):
-
-    ACTION_CREATE = 'create'
-    ACTION_UPDATE = 'update'
-    ACTION_DELETE = 'delete'
-
-    CHOICES = (
-        (ACTION_CREATE, _('Create'), 'green'),
-        (ACTION_UPDATE, _('Update'), 'blue'),
-        (ACTION_DELETE, _('Delete'), 'red'),
-    )
-
-
-#
 # Dashboard widgets
 #
 
