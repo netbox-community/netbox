@@ -598,7 +598,7 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
         return group
 
 
-class VLANGroupForm(NetBoxModelForm):
+class VLANGroupForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
     vid_ranges = NumericRangeArrayField(
         label=_('VLAN IDs')
@@ -621,12 +621,13 @@ class VLANGroupForm(NetBoxModelForm):
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('vid_ranges', name=_('Child VLANs')),
         FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
