@@ -11,8 +11,14 @@ class PluginTemplateExtension:
     This class is used to register plugin content to be injected into core NetBox templates. It contains methods
     that are overridden by plugin authors to return template content.
 
-    The `model` attribute on the class defines the which model detail page this class renders content for. It
-    should be set as a string in the form '<app_label>.<model_name>'. render() provides the following context data:
+    The `models` attribute on the class defines the which specific model detail pages this class renders content
+    for. It should be defined as a list of strings in the following form:
+
+        models = ['<app_label>.<model_name>', '<app_label>.<model_name>']
+
+    If `models` is left as None, the extension will render for _all_ models.
+
+    The `render()` method provides the following context data:
 
     * object - The object being viewed (object views only)
     * model - The type of object being viewed (list views only)
@@ -21,7 +27,6 @@ class PluginTemplateExtension:
     * config - Plugin-specific configuration parameters
     """
     models = None
-    model = None  # Deprecated; use `models` instead
 
     def __init__(self, context):
         self.context = context
