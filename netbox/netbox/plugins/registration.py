@@ -1,7 +1,7 @@
 import inspect
-import warnings
 
 from django.utils.translation import gettext_lazy as _
+
 from netbox.registry import registry
 from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from .templates import PluginTemplateExtension
@@ -35,16 +35,8 @@ def register_template_extensions(class_list):
             )
 
         if template_extension.models:
-            # Registration for multiple models
+            # Registration for specific models
             models = template_extension.models
-        elif template_extension.model:
-            # Registration for a single model (deprecated)
-            warnings.warn(
-                "PluginTemplateExtension.model is deprecated and will be removed in a future release. Use "
-                "'models' instead.",
-                DeprecationWarning
-            )
-            models = [template_extension.model]
         else:
             # Global registration (no specific models)
             models = [None]
