@@ -256,7 +256,7 @@ class L2VPNTypeChoices(ChoiceSet):
             (TYPE_EPTREE, _('Ethernet Private Tree')),
             (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
         )),
-        ('SPB', (
+        ('Other', (
             (TYPE_SPB, _('SPB')),
         )),
     )
