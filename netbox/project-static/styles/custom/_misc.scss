@@ -29,6 +29,23 @@ span.color-label {
   opacity: 0;
 }
 
+// Override bootstrap "dropdown" positioning and display for column filters
+.column-filter {
+  position: static;
+  display: inline;
+}
+
+// Override mdi font-size to adjust filter icon size
+.column-filter.dropdown > .dropdown-toggle > .mdi-filter-settings {
+  font-size: .625rem;
+}
+
+.column-filter.dropdown > .dropdown-menu {
+  max-width: 300px;
+}
+
+.column-filter.dropdown-toggle:after { content: none }
+
 // NetBox edition text
 .netbox-edition {
   letter-spacing: .15rem;
