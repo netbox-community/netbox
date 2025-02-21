@@ -411,12 +411,13 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VLANGroupFilterForm(NetBoxModelFilterSetForm):
+class VLANGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region', 'sitegroup', 'site', 'location', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
         FieldSet('contains_vid', name=_('VLANs')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     model = VLANGroup
     region = DynamicModelMultipleChoiceField(

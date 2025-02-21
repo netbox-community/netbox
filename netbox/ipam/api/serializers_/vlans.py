@@ -37,6 +37,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     scope = serializers.SerializerMethodField(read_only=True)
     vid_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     # Related object counts
     vlan_count = RelatedObjectCountField('vlans')
@@ -45,7 +46,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         model = VLANGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vid_ranges',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
+            'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []

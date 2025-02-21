@@ -65,6 +65,13 @@ class VLANGroup(OrganizationalModel):
     _total_vlan_ids = models.PositiveBigIntegerField(
         default=VLAN_VID_MAX - VLAN_VID_MIN + 1
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='vlan_groups',
+        blank=True,
+        null=True
+    )
 
     objects = VLANGroupQuerySet.as_manager()
 
