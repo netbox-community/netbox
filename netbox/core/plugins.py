@@ -11,6 +11,7 @@ from django.core.cache import cache
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.datetime import datetime_from_timestamp
+from utilities.proxy import resolve_proxies
 
 USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
 CACHE_KEY_CATALOG_FEED = 'plugins-catalog-feed'
@@ -120,10 +121,11 @@ def get_catalog_plugins():
     def get_pages():
         # TODO: pagination is currently broken in API
         payload = {'page': '1', 'per_page': '50'}
+        proxies = resolve_proxies(url=settings.PLUGIN_CATALOG_URL)
         first_page = session.get(
             settings.PLUGIN_CATALOG_URL,
             headers={'User-Agent': USER_AGENT_STRING},
-            proxies=settings.HTTP_PROXIES,
+            proxies=proxies,
             timeout=3,
             params=payload
         ).json()
@@ -135,7 +137,7 @@ def get_catalog_plugins():
             next_page = session.get(
                 settings.PLUGIN_CATALOG_URL,
                 headers={'User-Agent': USER_AGENT_STRING},
-                proxies=settings.HTTP_PROXIES,
+                proxies=proxies,
                 timeout=3,
                 params=payload
             ).json()
