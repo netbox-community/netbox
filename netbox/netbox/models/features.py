@@ -373,16 +373,14 @@ class ContactsMixin(models.Model):
         from tenancy.models import ContactAssignment
         from . import NestedGroupModel
 
-        filter = Q()
-        for obj in [self]:
-            filter |= Q(
-                object_type=ObjectType.objects.get_for_model(obj),
-                object_id__in=(
-                    obj.get_ancestors(include_self=True).values_list('pk', flat=True)
-                    if (isinstance(obj, NestedGroupModel) and inherited)
-                    else [obj.pk]
-                ),
-            )
+        filter = Q(
+            object_type=ObjectType.objects.get_for_model(self),
+            object_id__in=(
+                self.get_ancestors(include_self=True).values_list('pk', flat=True)
+                if (isinstance(self, NestedGroupModel) and inherited)
+                else [self.pk]
+            ),
+        )
 
         return ContactAssignment.objects.filter(filter)
 
