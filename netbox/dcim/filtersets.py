@@ -1193,6 +1193,7 @@ class DeviceFilterSet(
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
