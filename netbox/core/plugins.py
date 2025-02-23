@@ -103,7 +103,7 @@ def get_local_plugins(plugins=None):
     for k, v in local_plugins.items():
         if k in plugins:
             plugins[k].is_local = True
-            plugins[k].is_installed = k in v.is_installed
+            plugins[k].is_installed = v.is_installed
             plugins[k].installed_version = v.installed_version
         else:
             plugins[k] = v
