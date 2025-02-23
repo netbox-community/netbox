@@ -64,13 +64,14 @@ item1 = PluginMenuItem(
 
 A `PluginMenuItem` has the following attributes:
 
-| Attribute     | Required | Description                                                                                              |
-|---------------|----------|----------------------------------------------------------------------------------------------------------|
-| `link`        | Yes      | Name of the URL path to which this menu item links                                                       |
-| `link_text`   | Yes      | The text presented to the user                                                                           |
-| `permissions` | -        | A list of permissions required to display this link                                                      |
-| `staff_only`  | -        | Display only for users who have `is_staff` set to true (any specified permissions will also be required) |
-| `buttons`     | -        | An iterable of PluginMenuButton instances to include                                                     |
+| Attribute       | Required | Description                                                                                              |
+|-----------------|----------|----------------------------------------------------------------------------------------------------------|
+| `link`          | Yes      | Name of the URL path to which this menu item links                                                       |
+| `link_text`     | Yes      | The text presented to the user                                                                           |
+| `permissions`   | -        | A list of permissions required to display this link                                                      |
+| `auth_required` | -        | Display only for authenticated users                                                                     |
+| `staff_only`    | -        | Display only for users who have `is_staff` set to true (any specified permissions will also be required) |
+| `buttons`       | -        | An iterable of PluginMenuButton instances to include                                                     |
 
 ## Menu Buttons
 
