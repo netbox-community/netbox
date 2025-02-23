@@ -67,6 +67,8 @@ class Plugin:
     is_local: bool = False  # extra field for locally installed plugins
     is_installed: bool = False
     installed_version: str = ''
+    netbox_min_version: str = ''
+    netbox_max_version: str = ''
 
 
 def get_local_plugins(plugins=None):
@@ -93,13 +95,15 @@ def get_local_plugins(plugins=None):
             is_local=True,
             is_installed=plugin_name in registry['plugins']['installed'],
             installed_version=installed_version,
+            netbox_min_version=plugin_config.min_version,
+            netbox_max_version=plugin_config.max_version,
         )
 
     # Update catalog entries for local plugins, or add them to the list if not listed
     for k, v in local_plugins.items():
         if k in plugins:
             plugins[k].is_local = True
-            plugins[k].is_installed = k in registry['plugins']['installed']
+            plugins[k].is_installed = k in v.is_installed
             plugins[k].installed_version = v.installed_version
         else:
             plugins[k] = v
