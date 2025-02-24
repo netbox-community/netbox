@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-21 05:01+0000\n"
+"POT-Creation-Date: 2025-02-24 15:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1553,8 +1553,8 @@ msgstr ""
 msgid "circuit terminations"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:354
-msgid "A circuit termination must attach to termination."
+#: netbox/circuits/models/circuits.py:353
+msgid "A circuit termination must attach to a terminating object."
 msgstr ""
 
 #: netbox/circuits/models/providers.py:21
