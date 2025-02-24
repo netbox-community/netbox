@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.prefetch import GenericPrefetch
+from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
@@ -432,7 +434,23 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        '_path', 'cable__terminations',
+        # '_path',
+        # 'cable__terminations',
+        GenericPrefetch(
+            "cable__terminations__termination",
+            [
+                Interface.objects.prefetch_related("device"),
+            ],
+        ),
+        Prefetch(
+            "_path",
+            CablePath.objects.prefetch_related(
+                GenericPrefetch("path_objects", [
+                    Interface.objects.prefetch_related("device"),
+                    Cable.objects.prefetch_related("terminations"),
+                ]),
+            )
+        ),
         'l2vpn_terminations',  # Referenced by InterfaceSerializer.l2vpn_termination
         'ip_addresses',  # Referenced by Interface.count_ipaddresses()
         'fhrp_group_assignments',  # Referenced by Interface.count_fhrp_groups()
