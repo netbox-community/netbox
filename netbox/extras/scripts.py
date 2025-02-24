@@ -560,6 +560,12 @@ class BaseScript:
     # Convenience functions
     #
 
+    def get_storage(self):
+        if self.storage is None:
+            self.storage = storages.create_storage(storages.backends["scripts"])
+
+        return self.storage
+
     def load_yaml(self, filename):
         """
         Return data from a YAML file
@@ -569,8 +575,9 @@ class BaseScript:
         except ImportError:
             from yaml import Loader
 
+        storage = self.get_storage()
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
+        with storage.open(file_path, 'r') as datafile:
             data = yaml.load(datafile, Loader=Loader)
 
         return data
@@ -579,8 +586,10 @@ class BaseScript:
         """
         Return data from a JSON file
         """
+
+        storage = self.get_storage()
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
+        with storage.open(file_path, 'r') as datafile:
             data = json.load(datafile)
 
         return data

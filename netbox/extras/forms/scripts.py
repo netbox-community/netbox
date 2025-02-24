@@ -1,9 +1,13 @@
+import os
+
 from django import forms
+from django.conf import settings
 from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import ManagedFileForm
 from extras.choices import DurationChoices
+from extras.storage import ScriptFileSystemStorage
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
 
@@ -69,9 +73,15 @@ class ScriptFileForm(ManagedFileForm):
         if self.cleaned_data['upload_file']:
             storage = storages.create_storage(storages.backends["scripts"])
 
-            self.instance.file_path = self.cleaned_data['upload_file'].name
+            filename = self.cleaned_data['upload_file'].name
+            if isinstance(storage, ScriptFileSystemStorage):
+                full_path = filename
+            else:
+                full_path = os.path.join(settings.SCRIPTS_ROOT, filename)
+
+            self.instance.file_path = full_path
             data = self.cleaned_data['upload_file']
-            storage.save(self.instance.name, data)
+            storage.save(full_path, data)
 
         # need to skip ManagedFileForm save method
         return super(ManagedFileForm, self).save(*args, **kwargs)
