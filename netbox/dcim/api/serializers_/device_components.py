@@ -241,15 +241,50 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
 
             if self.instance:
                 mode = data.get('mode') if 'mode' in data.keys() else self.instance.mode
+                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else \
+                    self.instance.untagged_vlan
+                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else \
+                    self.instance.qinq_svlan
                 tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else \
                     self.instance.tagged_vlans.all()
             else:
                 mode = data.get('mode', None)
+                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else None
+                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else None
                 tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else None
 
-            if mode != InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
+            if not mode:
+                if untagged_vlan and tagged_vlans and qinq_svlan:
+                    raise serializers.ValidationError({
+                        'untagged_vlan': _("Interface mode does not support untagged vlan"),
+                        'qinq_svlan': _("Interface mode does not support q-in-q service vlan"),
+                        'tagged_vlans': _("Interface mode does not support tagged vlans")
+                    })
+                elif untagged_vlan and tagged_vlans:
+                    raise serializers.ValidationError({
+                        'untagged_vlan': _("Interface mode does not support untagged vlan"),
+                        'qinq_svlan': _("Interface mode does not support q-in-q service vlan"),
+                        'tagged_vlans': _("Interface mode does not support tagged vlans")
+                    })
+                elif untagged_vlan:
+                    raise serializers.ValidationError({
+                        'untagged_vlan': _("Interface mode does not support untagged vlan")
+                    })
+                elif tagged_vlans:
+                    raise serializers.ValidationError({
+                        'tagged_vlans': _("Interface mode does not support tagged vlans")
+                    })
+                elif qinq_svlan:
+                    raise serializers.ValidationError({
+                        'qinq_svlan': _("Interface mode does not support q-in-q service vlan")
+                    })
+            elif mode in (InterfaceModeChoices.MODE_TAGGED_ALL, InterfaceModeChoices.MODE_ACCESS) and tagged_vlans:
                 raise serializers.ValidationError({
                     'tagged_vlans': _("Interface mode does not support tagged vlans")
+                })
+            elif mode != InterfaceModeChoices.MODE_Q_IN_Q and qinq_svlan:
+                raise serializers.ValidationError({
+                    'qinq_svlan': _("Interface mode does not support q-in-q service vlan")
                 })
 
             # Validate many-to-many VLAN assignments

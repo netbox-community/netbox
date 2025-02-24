@@ -220,6 +220,9 @@ class InterfaceTestCase(TestCase):
         form = InterfaceCreateForm(data)
 
         self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
 
     def test_edit_interface_mode_access_invalid_data(self):
         """
@@ -235,6 +238,9 @@ class InterfaceTestCase(TestCase):
         form = InterfaceForm(data, instance=self.interface)
 
         self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
 
     def test_create_interface_mode_tagged_all_invalid_data(self):
         """
@@ -245,11 +251,14 @@ class InterfaceTestCase(TestCase):
             'name': 'ethernet1/6',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mode': InterfaceModeChoices.MODE_TAGGED_ALL,
-            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2]]
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
         }
         form = InterfaceCreateForm(data)
 
         self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
 
     def test_edit_interface_mode_tagged_all_invalid_data(self):
         """
@@ -260,7 +269,47 @@ class InterfaceTestCase(TestCase):
             'name': 'Ethernet 1/7',
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mode': InterfaceModeChoices.MODE_TAGGED_ALL,
-            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2]]
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
         }
-        form = InterfaceForm(data, instance=self.interface)
+        form = InterfaceForm(data)
         self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_create_interface_mode_routed_invalid_data(self):
+        """
+        Test that saving invalid interface mode (routed) and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/6',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': None,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceCreateForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_edit_interface_mode_routed_invalid_data(self):
+        """
+        Test that saving invalid interface mode (routed) and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'Ethernet 1/7',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': None,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceForm(data)
+        self.assertTrue(form.is_valid())
+        self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())

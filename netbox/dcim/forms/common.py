@@ -49,20 +49,8 @@ class InterfaceCommonForm(forms.Form):
         else:
             tagged_vlans = []
 
-        # Untagged interfaces cannot be assigned tagged VLANs
-        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_ACCESS and tagged_vlans:
-            raise forms.ValidationError({
-                'mode': _("An access interface cannot have tagged VLANs assigned.")
-            })
-
-        # Remove all tagged VLAN assignments from "tagged all" interfaces
-        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED_ALL and tagged_vlans:
-            raise forms.ValidationError({
-                'mode': _("An tagged-all interface cannot have tagged VLANs assigned.")
-            })
-
         # Validate tagged VLANs; must be a global VLAN or in the same site
-        elif self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
+        if self.cleaned_data['mode'] == InterfaceModeChoices.MODE_TAGGED and tagged_vlans:
             valid_sites = [None, self.cleaned_data[parent_field].site]
             invalid_vlans = [str(v) for v in tagged_vlans if v.site not in valid_sites]
 
