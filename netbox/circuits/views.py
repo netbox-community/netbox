@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
+from ipam.models import ASN
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
@@ -20,7 +21,8 @@ from .models import *
 @register_model_view(Provider, 'list', path='', detail=False)
 class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider'),
+        asn_count=count_related(ASN, 'providers'),
     )
     filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm

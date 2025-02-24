@@ -1,5 +1,6 @@
+import { initForms } from './forms';
 import { initButtons } from './buttons';
-import { initClipboard } from './clipboard'
+import { initClipboard } from './clipboard';
 import { initSelects } from './select';
 import { initObjectSelector } from './objectSelector';
 import { initBootstrap } from './bs';
@@ -9,6 +10,7 @@ import { initQuickAdd } from './quickAdd';
 function initDepedencies(): void {
   initButtons();
   initClipboard();
+  initForms();
   initSelects();
   initObjectSelector();
   initQuickAdd();

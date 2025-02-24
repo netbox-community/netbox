@@ -81,8 +81,10 @@ class JobIntervalChoices(ChoiceSet):
     CHOICES = (
         (INTERVAL_MINUTELY, _('Minutely')),
         (INTERVAL_HOURLY, _('Hourly')),
+        (INTERVAL_HOURLY * 12, _('12 hours')),
         (INTERVAL_DAILY, _('Daily')),
         (INTERVAL_WEEKLY, _('Weekly')),
+        (INTERVAL_DAILY * 30, _('30 days')),
     )
 
 

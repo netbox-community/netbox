@@ -126,7 +126,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
             'type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
             name=_('Attributes')
         ),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -180,6 +180,11 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
             'site_group_id': '$site_group_id',
         },
         label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
     )
     install_date = forms.DateField(
         label=_('Install date'),
