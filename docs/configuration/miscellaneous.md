@@ -233,3 +233,15 @@ This parameter controls how frequently a failed job is retried, up to the maximu
 Default: `0` (retries disabled)
 
 The maximum number of times a background task will be retried before being marked as failed.
+
+## DISK_BASE_UNIT
+
+Default: `1000`
+
+The base unit for disk sizes. Set this to `1024` to use binary prefixes (MiB, GiB, etc.) instead of decimal prefixes (MB, GB, etc.).
+
+## RAM_BASE_UNIT
+
+Default: `1000`
+
+The base unit for RAM sizes. Set this to `1024` to use binary prefixes (MiB, GiB, etc.) instead of decimal prefixes (MB, GB, etc.).
