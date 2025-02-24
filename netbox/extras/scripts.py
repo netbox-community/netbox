@@ -211,7 +211,8 @@ class ObjectVar(ScriptVariable):
     :param context: A custom dictionary mapping template context variables to fields, used when rendering <option>
         elements within the dropdown menu (optional)
     :param null_option: The label to use as a "null" selection option (optional)
-    :param selector: Include an advanced object selection widget to assist the user in identifying the desired object (optional)
+    :param selector: Include an advanced object selection widget to assist the user in identifying the desired
+        object (optional)
     """
     form_field = DynamicModelChoiceField
 
