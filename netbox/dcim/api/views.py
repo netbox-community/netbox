@@ -434,21 +434,17 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        # '_path',
-        # 'cable__terminations',
         GenericPrefetch(
             "cable__terminations__termination",
             [
                 Interface.objects.select_related("device", "cable"),
             ],
         ),
-        Prefetch(
-            "_path",
-            CablePath.objects.prefetch_related(
-                GenericPrefetch("path_objects", [
-                    Interface.objects.select_related("device"),
-                ]),
-            )
+        GenericPrefetch(
+            "_path__path_objects",
+            [
+                Interface.objects.select_related("device", "cable"),
+            ],
         ),
         'l2vpn_terminations',  # Referenced by InterfaceSerializer.l2vpn_termination
         'ip_addresses',  # Referenced by Interface.count_ipaddresses()

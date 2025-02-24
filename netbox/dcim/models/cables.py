@@ -491,15 +491,6 @@ class CablePath(models.Model):
             return ObjectType.objects.get_for_id(ct_id)
 
     @property
-    def path_objects_old(self):
-        """
-        Cache and return the complete path as lists of objects, derived from their annotation within the path.
-        """
-        if not hasattr(self, '_path_objects'):
-            self._path_objects = self._get_path()
-        return self._path_objects
-
-    @property
     def _path_decompiled(self):
         res = []
         for step in self.path:
@@ -746,42 +737,6 @@ class CablePath(models.Model):
         else:
             self.delete()
     retrace.alters_data = True
-
-    def _get_path(self):
-        """
-        Return the path as a list of prefetched objects.
-        """
-        # Compile a list of IDs to prefetch for each type of model in the path
-        to_prefetch = defaultdict(list)
-        for node in self._nodes:
-            ct_id, object_id = decompile_path_node(node)
-            to_prefetch[ct_id].append(object_id)
-
-        # Prefetch path objects using one query per model type. Prefetch related devices where appropriate.
-        prefetched = {}
-        for ct_id, object_ids in to_prefetch.items():
-            model_class = ObjectType.objects.get_for_id(ct_id).model_class()
-            queryset = model_class.objects.filter(pk__in=object_ids)
-            if hasattr(model_class, 'device'):
-                queryset = queryset.prefetch_related('device')
-            prefetched[ct_id] = {
-                obj.id: obj for obj in queryset
-            }
-
-        # Replicate the path using the prefetched objects.
-        path = []
-        for step in self.path:
-            nodes = []
-            for node in step:
-                ct_id, object_id = decompile_path_node(node)
-                try:
-                    nodes.append(prefetched[ct_id][object_id])
-                except KeyError:
-                    # Ignore stale (deleted) object IDs
-                    pass
-            path.append(nodes)
-
-        return path
 
     def get_cable_ids(self):
         """
