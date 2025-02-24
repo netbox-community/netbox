@@ -64,6 +64,8 @@ markdown_extensions:
             format: !!python/name:pymdownx.superfences.fence_code_format
     - pymdownx.tabbed:
         alternate_style: true
+not_in_nav: |
+    /index.md
 nav:
     - Introduction: 'introduction.md'
     - Features:

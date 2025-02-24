@@ -1298,6 +1298,7 @@ class Module(PrimaryModel, ConfigContextModel):
             else:
                 # ModuleBays must be saved individually for MPTT
                 for instance in create_instances:
+                    instance.name = instance.name.replace(MODULE_TOKEN, str(self.module_bay.position))
                     instance.save()
 
             update_fields = ['module']

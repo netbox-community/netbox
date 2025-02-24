@@ -11,8 +11,10 @@
 # Jean Benoit <jean@unistra.fr>, 2024
 # thomas rivemale, 2024
 # Jeff Gehlbach, 2024
-# Jeremy Stretch, 2024
 # marcpaulchand <paul@u129.fr>, 2025
+# Jeremy Stretch, 2025
+# Mathieu, 2025
+# Étienne Brunel, 2025
 # 
 #, fuzzy
 msgid ""
@@ -21,7 +23,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: marcpaulchand <paul@u129.fr>, 2025\n"
+"Last-Translator: Étienne Brunel, 2025\n"
 "Language-Team: French (https://app.transifex.com/netbox-community/teams/178115/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -935,7 +937,7 @@ msgstr "État opérationnel"
 #: netbox/vpn/forms/bulk_import.py:63 netbox/wireless/forms/bulk_import.py:59
 #: netbox/wireless/forms/bulk_import.py:101
 msgid "Assigned tenant"
-msgstr "Locataire associé"
+msgstr "Entité associée"
 
 #: netbox/circuits/forms/bulk_import.py:120
 #: netbox/templates/circuits/inc/circuit_termination.html:6
@@ -1242,7 +1244,7 @@ msgstr "Assignations de groupes de circuits"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "résiliation"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1304,15 +1306,11 @@ msgstr "terminaisons de circuits"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Une terminaison de circuit doit être connectée à un site ou à un réseau "
-"fournisseur."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Une terminaison de circuit ne peut pas être connectée à la fois à un site et"
-" à un réseau fournisseur."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -3205,7 +3203,7 @@ msgstr "Est un membre virtuel du châssis"
 
 #: netbox/dcim/filtersets.py:1164
 msgid "OOB IP (ID)"
-msgstr "ASTUCE SUR L'EMPLOI (ID)"
+msgstr "GESTION HORS BANDE (ID)"
 
 #: netbox/dcim/filtersets.py:1168
 msgid "Has virtual device context"
@@ -3334,7 +3332,7 @@ msgstr "VRF (RD)"
 #: netbox/dcim/filtersets.py:1624 netbox/ipam/filtersets.py:1032
 #: netbox/vpn/filtersets.py:342
 msgid "L2VPN (ID)"
-msgstr "L2VPN (IDENTIFIANT)"
+msgstr "L2VPN (ID)"
 
 #: netbox/dcim/filtersets.py:1630 netbox/dcim/forms/filtersets.py:1433
 #: netbox/dcim/tables/devices.py:570 netbox/ipam/filtersets.py:1038
@@ -3380,7 +3378,7 @@ msgstr "Contexte du périphérique virtuel"
 
 #: netbox/dcim/filtersets.py:1719
 msgid "Virtual Device Context (Identifier)"
-msgstr "Contexte du périphérique virtuel (identifiant)"
+msgstr "Contexte du périphérique virtuel (Identifiant)"
 
 #: netbox/dcim/filtersets.py:1730
 #: netbox/templates/wireless/wirelesslan.html:11
@@ -3418,12 +3416,12 @@ msgstr "Master (nom)"
 
 #: netbox/dcim/filtersets.py:1939 netbox/tenancy/filtersets.py:245
 msgid "Tenant (ID)"
-msgstr "Locataire (ID)"
+msgstr "Entité (ID)"
 
 #: netbox/dcim/filtersets.py:1945 netbox/extras/filtersets.py:618
 #: netbox/tenancy/filtersets.py:251
 msgid "Tenant (slug)"
-msgstr "Locataire (slug)"
+msgstr "Entité (slug)"
 
 #: netbox/dcim/filtersets.py:1981 netbox/dcim/forms/filtersets.py:1077
 msgid "Unterminated"
@@ -3474,7 +3472,7 @@ msgstr "Téléphone de contact"
 
 #: netbox/dcim/forms/bulk_edit.py:144
 msgid "Contact E-mail"
-msgstr "Adresse électronique de contact"
+msgstr "Adresse mail de contact"
 
 #: netbox/dcim/forms/bulk_edit.py:147 netbox/dcim/forms/bulk_import.py:123
 #: netbox/dcim/forms/model_forms.py:128
@@ -3691,7 +3689,7 @@ msgstr "Étiquette d'actif"
 #: netbox/templates/dcim/moduletype.html:41 netbox/templates/dcim/rack.html:65
 #: netbox/templates/dcim/racktype.html:28
 msgid "Airflow"
-msgstr "Débit d'air"
+msgstr "Flux d'air"
 
 #: netbox/dcim/forms/bulk_edit.py:446 netbox/dcim/forms/bulk_edit.py:925
 #: netbox/dcim/forms/bulk_import.py:344 netbox/dcim/forms/bulk_import.py:347
@@ -3732,7 +3730,7 @@ msgstr "Plateforme par défaut"
 #: netbox/dcim/forms/bulk_edit.py:511 netbox/dcim/forms/bulk_edit.py:570
 #: netbox/dcim/forms/filtersets.py:502 netbox/dcim/forms/filtersets.py:622
 msgid "Part number"
-msgstr "Numéro de pièce"
+msgstr "Référence de pièce"
 
 #: netbox/dcim/forms/bulk_edit.py:515
 msgid "U height"
@@ -4233,7 +4231,7 @@ msgstr "Unité de poids de la baie"
 
 #: netbox/dcim/forms/bulk_import.py:245
 msgid "Name of assigned tenant"
-msgstr "Nom du locataire associé"
+msgstr "Nom de l'entité associée"
 
 #: netbox/dcim/forms/bulk_import.py:257
 msgid "Name of assigned role"
@@ -4250,11 +4248,11 @@ msgstr "Direction du flux d'air"
 
 #: netbox/dcim/forms/bulk_import.py:324
 msgid "Width must be set if not specifying a rack type."
-msgstr ""
+msgstr "La largeur doit être définie si aucun type de rack n'est spécifié."
 
 #: netbox/dcim/forms/bulk_import.py:326
 msgid "U height must be set if not specifying a rack type."
-msgstr ""
+msgstr "La hauteur U doit être définie si aucun type de rack n'est spécifié."
 
 #: netbox/dcim/forms/bulk_import.py:334
 msgid "Parent site"
@@ -4340,7 +4338,7 @@ msgstr "Baie attribuée (le cas échéant)"
 
 #: netbox/dcim/forms/bulk_import.py:582
 msgid "Face"
-msgstr "Visage"
+msgstr "Orientation"
 
 #: netbox/dcim/forms/bulk_import.py:585
 msgid "Mounted rack face"
@@ -4427,11 +4425,11 @@ msgstr "Interface pour les parents"
 #: netbox/virtualization/forms/bulk_import.py:162
 #: netbox/virtualization/forms/model_forms.py:313
 msgid "Bridged interface"
-msgstr "Interface pontée"
+msgstr "Interface switchée"
 
 #: netbox/dcim/forms/bulk_import.py:869
 msgid "Lag"
-msgstr "Retard"
+msgstr "Lag"
 
 #: netbox/dcim/forms/bulk_import.py:873
 msgid "Parent LAG interface"
@@ -4460,7 +4458,7 @@ msgstr "Mode PoE"
 
 #: netbox/dcim/forms/bulk_import.py:901
 msgid "Poe type"
-msgstr "Type de poteau"
+msgstr "Type de POE"
 
 #: netbox/dcim/forms/bulk_import.py:910
 #: netbox/virtualization/forms/bulk_import.py:168
@@ -4919,6 +4917,11 @@ msgid ""
 "present, will be automatically replaced with the position value when "
 "creating a new module."
 msgstr ""
+"Les plages alphanumériques sont prises en charge pour la création en masse. "
+"Les mélanges de casses ou de types au sein d'une même plage ne sont pas pris"
+" en charge (exemple : <code>[ge,xe]-0/0/[0-9]</code>). Le jeton "
+"<code>{module}</code>, s'il est présent, sera automatiquement remplacé par "
+"la valeur de position lors de la création d'un nouveau module."
 
 #: netbox/dcim/forms/model_forms.py:1094
 msgid "Console port template"
@@ -7624,7 +7627,7 @@ msgstr "Type de cluster (slug)"
 #: netbox/extras/filtersets.py:601 netbox/tenancy/forms/forms.py:16
 #: netbox/tenancy/forms/forms.py:39
 msgid "Tenant group"
-msgstr "Groupe de locataires"
+msgstr "Groupe d'entitées"
 
 #: netbox/extras/filtersets.py:607 netbox/tenancy/filtersets.py:188
 #: netbox/tenancy/filtersets.py:208
@@ -7988,7 +7991,7 @@ msgstr "Clusters"
 #: netbox/extras/forms/filtersets.py:391
 #: netbox/extras/forms/model_forms.py:557
 msgid "Tenant groups"
-msgstr "Groupes de locataires"
+msgstr "Groupes d'entitées"
 
 #: netbox/extras/forms/model_forms.py:49
 msgid "The type(s) of object that have this custom field"
@@ -8149,7 +8152,7 @@ msgstr "Groupe de notifications"
 #: netbox/extras/forms/model_forms.py:562 netbox/netbox/navigation/menu.py:26
 #: netbox/tenancy/tables/tenants.py:22
 msgid "Tenants"
-msgstr "Locataires"
+msgstr "Entité"
 
 #: netbox/extras/forms/model_forms.py:606
 msgid "Data is populated from the remote source selected below."
@@ -8434,8 +8437,8 @@ msgid ""
 msgstr ""
 "Expression régulière à appliquer aux valeurs des champs de texte. Utilisez ^"
 " et $ pour forcer la mise en correspondance de la chaîne entière. Par "
-"exemple, <code>^ [DE A À Z]{3}$</code> limitera les valeurs à exactement "
-"trois lettres majuscules."
+"exemple, <code>^[A-Z]{3}$</code> limitera les valeurs à exactement trois "
+"lettres majuscules."
 
 #: netbox/extras/models/customfields.py:201
 msgid "choice set"
@@ -8740,10 +8743,9 @@ msgid ""
 msgstr ""
 "Modèle Jinja2 pour un corps de requête personnalisé. Si ce champ est vide, "
 "un objet JSON représentant la modification sera inclus. Les données "
-"contextuelles disponibles incluent : <code>événement</code>, "
-"<code>modèle</code>, <code>horodatage</code>, <code>nom "
-"d'utilisateur</code>, <code>identifiant_demande</code>, et "
-"<code>données</code>."
+"contextuelles disponibles incluent : <code>event</code>, <code>model</code>,"
+" <code>timestamp</code>, <code>username</code>, <code>request_id</code>, et "
+"<code>data</code>."
 
 #: netbox/extras/models/models.py:204
 msgid "secret"
@@ -8755,10 +8757,10 @@ msgid ""
 "header containing a HMAC hex digest of the payload body using the secret as "
 "the key. The secret is not transmitted in the request."
 msgstr ""
-"Lorsqu'elle sera fournie, la demande comprendra un <code>Signature "
-"X-Hook</code> en-tête contenant un condensé hexadécimal HMAC du corps de la "
-"charge utile en utilisant le secret comme clé. Le secret n'est pas transmis "
-"dans la demande."
+"Lorsqu'elle sera fournie, la demande comprendra un <code>X-Hook-"
+"Signature</code> en-tête contenant un condensé hexadécimal HMAC du corps de "
+"la charge utile en utilisant le secret comme clé. Le secret n'est pas "
+"transmis dans la demande."
 
 #: netbox/extras/models/models.py:215
 msgid "Enable SSL certificate verification. Disable with caution!"
@@ -8841,13 +8843,11 @@ msgid ""
 "context variable named <code>queryset</code>."
 msgstr ""
 "Code du modèle Jinja2. La liste des objets exportés est transmise sous forme"
-" de variable de contexte nommée <code>ensemble de requêtes</code>."
+" de variable de contexte nommée <code>queryset</code>."
 
 #: netbox/extras/models/models.py:410
 msgid "Defaults to <code>text/plain; charset=utf-8</code>"
-msgstr ""
-"La valeur par défaut est <code>texte/plain ; jeu de caractères = "
-"utf-8</code>"
+msgstr "La valeur par défaut est <code>text/plain; charset=utf-8</code>"
 
 #: netbox/extras/models/models.py:413
 msgid "file extension"
@@ -9743,11 +9743,11 @@ msgstr "Faites-en l'adresse IP principale de l'appareil attribué"
 
 #: netbox/ipam/forms/bulk_import.py:330
 msgid "Is out-of-band"
-msgstr ""
+msgstr "Est hors bande"
 
 #: netbox/ipam/forms/bulk_import.py:331
 msgid "Designate this as the out-of-band IP address for the assigned device"
-msgstr ""
+msgstr "Désignez-le comme adresse IP hors bande pour l'appareil attribué"
 
 #: netbox/ipam/forms/bulk_import.py:371
 msgid "No device or virtual machine specified; cannot set as primary IP"
@@ -9758,10 +9758,13 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:375
 msgid "No device specified; cannot set as out-of-band IP"
 msgstr ""
+"Aucun appareil n'a été spécifié ; impossible de le définir comme IP hors "
+"bande"
 
 #: netbox/ipam/forms/bulk_import.py:379
 msgid "Cannot set out-of-band IP for virtual machines"
 msgstr ""
+"Impossible de définir une adresse IP hors bande pour les machines virtuelles"
 
 #: netbox/ipam/forms/bulk_import.py:383
 msgid "No interface specified; cannot set as primary IP"
@@ -9772,6 +9775,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:387
 msgid "No interface specified; cannot set as out-of-band IP"
 msgstr ""
+"Aucune interface spécifiée ; impossible de définir comme IP hors bande"
 
 #: netbox/ipam/forms/bulk_import.py:422
 msgid "Auth type"
@@ -9930,7 +9934,7 @@ msgstr "Plage ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Affectation de site/VLAN"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -9949,7 +9953,7 @@ msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:314
 msgid "Make this the out-of-band IP for the device"
-msgstr ""
+msgstr "Choisissez cette adresse IP hors bande pour l'appareil"
 
 #: netbox/ipam/forms/model_forms.py:329
 msgid "NAT IP (Inside)"
@@ -9962,10 +9966,12 @@ msgstr "Une adresse IP ne peut être attribuée qu'à un seul objet."
 #: netbox/ipam/forms/model_forms.py:398
 msgid "Cannot reassign primary IP address for the parent device/VM"
 msgstr ""
+"Impossible de réattribuer l'adresse IP principale à l'appareil parent/à la "
+"machine virtuelle"
 
 #: netbox/ipam/forms/model_forms.py:402
 msgid "Cannot reassign out-of-Band IP address for the parent device"
-msgstr ""
+msgstr "Impossible de réattribuer l'adresse IP hors bande à l'appareil parent"
 
 #: netbox/ipam/forms/model_forms.py:412
 msgid ""
@@ -9979,6 +9985,8 @@ msgid ""
 "Only IP addresses assigned to a device interface can be designated as the "
 "out-of-band IP for a device."
 msgstr ""
+"Seules les adresses IP attribuées à l'interface d'un appareil peuvent être "
+"désignées comme IP hors bande pour un appareil."
 
 #: netbox/ipam/forms/model_forms.py:508
 msgid "Virtual IP Address"
@@ -10389,11 +10397,14 @@ msgstr "Impossible de définir scope_id sans scope_type."
 #, python-brace-format
 msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
 msgstr ""
+"ID de VLAN de démarrage dans la plage ({value}) ne peut pas être inférieur à"
+" {minimum}"
 
 #: netbox/ipam/models/vlans.py:111
 #, python-brace-format
 msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
 msgstr ""
+"Fin de l'ID VLAN dans la plage ({value}) ne peut pas dépasser {maximum}"
 
 #: netbox/ipam/models/vlans.py:118
 #, python-brace-format
@@ -10401,6 +10412,8 @@ msgid ""
 "Ending VLAN ID in range must be greater than or equal to the starting VLAN "
 "ID ({range})"
 msgstr ""
+"L'ID VLAN final dans la plage doit être supérieur ou égal à l'ID VLAN de "
+"départ ({range})"
 
 #: netbox/ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
@@ -12787,7 +12800,7 @@ msgstr "Télécharger"
 #: netbox/templates/dcim/device/render_config.html:64
 #: netbox/templates/virtualization/virtualmachine/render_config.html:64
 msgid "Error rendering template"
-msgstr ""
+msgstr "Erreur lors du rendu du modèle"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
@@ -13322,8 +13335,8 @@ msgstr ""
 "installation de NetBox. Ces paquets sont répertoriés dans "
 "<code>requirements.txt</code> et <code>local_requirements.txt</code>, et "
 "sont normalement installés dans le cadre du processus d'installation ou de "
-"mise à jour. Pour vérifier les paquets installés, exécutez <code>Pip "
-"Freeze</code> depuis la console et comparez la sortie à la liste des paquets"
+"mise à jour. Pour vérifier les paquets installés, exécutez <code>pip "
+"freeze</code> depuis la console et comparez la sortie à la liste des paquets"
 " requis."
 
 #: netbox/templates/exceptions/import_error.html:20
@@ -13661,7 +13674,7 @@ msgstr "Exécutez à nouveau"
 #: netbox/templates/extras/script_list.html:133
 #, python-format
 msgid "Could not load scripts from module %(module)s"
-msgstr ""
+msgstr "Impossible de charger les scripts depuis le module %(module)s"
 
 #: netbox/templates/extras/script_list.html:141
 msgid "No Scripts Found"
@@ -14063,7 +14076,7 @@ msgstr "Centre d'aide"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Administrateur Django"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14900,7 +14913,7 @@ msgid ""
 msgstr ""
 "Réseaux IPv4/IPv6 autorisés à partir desquels le jeton peut être utilisé. "
 "Laissez ce champ vide pour éviter toute restriction. Exemple : "
-"<code>10.1.1.0/24 192.168.10,16/32 2001 : db 8:1 : /64</code>"
+"<code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>"
 
 #: netbox/users/forms/model_forms.py:175
 msgid "Confirm password"
@@ -15192,7 +15205,7 @@ msgid ""
 "<code>1-5,20-30</code>"
 msgstr ""
 "Spécifiez une ou plusieurs plages numériques séparées par des virgules. "
-"Exemple : <code>1 à 5, 20 à 30</code>"
+"Exemple : <code>1-5,20-30</code>"
 
 #: netbox/utilities/forms/fields/array.py:47
 #, python-brace-format
@@ -15594,8 +15607,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} appartient à un autre site ({device_site}) puis le cluster "
-"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16338,7 +16349,6 @@ msgstr "liaisons sans fil"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
-"Vous devez spécifier une unité lors du réglage d'une distance sans fil"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

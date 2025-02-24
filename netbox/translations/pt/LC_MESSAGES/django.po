@@ -6,8 +6,8 @@
 # Translators:
 # Renato Almeida de Oliveira, 2023
 # Fer22f <Fer22f@gmail.com>, 2024
-# Jeremy Stretch, 2025
-# Fabricio Maciel, 2025
+# Jeremy Stretch, 2024
+# Fabricio Maciel, 2024
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Fabricio Maciel, 2025\n"
+"Last-Translator: Fabricio Maciel, 2024\n"
 "Language-Team: Portuguese (https://app.transifex.com/netbox-community/teams/178115/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1237,7 +1237,7 @@ msgstr "Atribuições do grupo de circuitos"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "terminação"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1299,15 +1299,11 @@ msgstr "terminações dos circuitos"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Uma terminação de circuito deve ser conectada a um site ou a uma rede de "
-"provedor."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Uma terminação de circuito não pode ser conectada a um site e a uma rede de "
-"provedor ao mesmo tempo."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9886,7 +9882,7 @@ msgstr "Intervalo de ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Atribuição de site/VLAN"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12719,7 +12715,7 @@ msgstr "Erro ao renderizar o modelo"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Nenhum modelo de configuração foi atribuído para este dispositivo."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13988,7 +13984,7 @@ msgstr "Centro de ajuda"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Administrador do Django"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14402,7 +14398,6 @@ msgstr "Adicionar Disco Virtual"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
-"Nenhum modelo de configuração foi atribuído para esta máquina virtual."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15512,8 +15507,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} pertence a um site diferente ({device_site}) do que o cluster "
-"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16248,7 +16241,7 @@ msgstr "links wireless"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "É necessário especificar uma unidade ao definir uma distância sem fio"
+msgstr ""
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

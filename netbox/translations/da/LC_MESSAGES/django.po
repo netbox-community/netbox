@@ -6,7 +6,7 @@
 # Translators:
 # Jeff Gehlbach, 2024
 # ch, 2024
-# Frederik Spang Thomsen <frederik@progras.dk>, 2024
+# Frederik Spang <fst@progras.dk>, 2024
 # Jeremy Stretch, 2025
 # 
 #, fuzzy
@@ -1235,7 +1235,7 @@ msgstr "Kredsløbsgruppeopgaver"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "opsigelse"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1297,15 +1297,11 @@ msgstr "kredsløbsafslutninger"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"En kredsløbsafslutning skal tilsluttes enten et websted eller et "
-"udbydernetværk."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"En kredsløbsafslutning kan ikke knyttes til både et websted og et "
-"udbydernetværk."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9803,7 +9799,7 @@ msgstr "ASN-rækkevidde"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Websted/VLAN-tildeling"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12635,7 +12631,7 @@ msgstr "Fejl ved gengivelse af skabelon"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Der er ikke tildelt nogen konfigurationsskabelon til denne enhed."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13903,7 +13899,7 @@ msgstr "Hjælpecenter"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Django Admin"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14317,8 +14313,6 @@ msgstr "Tilføj virtuel disk"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
-"Der er ikke tildelt nogen konfigurationsskabelon til denne virtuelle "
-"maskine."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15421,7 +15415,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} tilhører et andet sted ({device_site}) end klyngen ({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16151,7 +16144,7 @@ msgstr "trådløse links"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "Skal angive en enhed, når du indstiller en trådløs afstand"
+msgstr ""
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

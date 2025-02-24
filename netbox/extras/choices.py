@@ -178,17 +178,6 @@ class LogLevelChoices(ChoiceSet):
     }
 
 
-class DurationChoices(ChoiceSet):
-
-    CHOICES = (
-        (60, _('Hourly')),
-        (720, _('12 hours')),
-        (1440, _('Daily')),
-        (10080, _('Weekly')),
-        (43200, _('30 days')),
-    )
-
-
 #
 # Webhooks
 #
