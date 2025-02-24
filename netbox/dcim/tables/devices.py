@@ -671,7 +671,7 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
             'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
             'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'qinq_svlan', 'inventory_items', 'created', 'last_updated', 'vlan_translation_policy'
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 

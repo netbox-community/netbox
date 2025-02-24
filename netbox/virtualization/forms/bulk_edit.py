@@ -6,7 +6,7 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
-from ipam.models import VLAN, VLANGroup, VRF
+from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
@@ -242,15 +242,23 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('VRF')
     )
+    vlan_translation_policy = DynamicModelChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
+    )
 
     model = VMInterface
     fieldsets = (
         FieldSet('mtu', 'enabled', 'vrf', 'description'),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet(
+            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vlan_translation_policy',
+            name=_('802.1Q Switching')
+        ),
     )
     nullable_fields = (
-        'parent', 'bridge', 'mtu', 'vrf', 'description',
+        'parent', 'bridge', 'mtu', 'vrf', 'description', 'vlan_translation_policy',
     )
 
     def __init__(self, *args, **kwargs):
