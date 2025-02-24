@@ -307,6 +307,10 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')
     )
+    prefix = tables.Column(
+        linkify=True,
+        verbose_name=_('Prefix')
+    )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
         verbose_name=_('VRF')

@@ -318,6 +318,11 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -359,10 +364,10 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     model = IPAddress
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'description'),
-        FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
+        FieldSet('prefix', 'vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
-        'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
+        'prefix', 'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
     )
 
 

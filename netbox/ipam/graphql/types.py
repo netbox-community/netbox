@@ -122,6 +122,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     address: str
+    prefix: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     nat_inside: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None

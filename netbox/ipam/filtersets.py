@@ -531,6 +531,16 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='search_by_parent',
         label=_('Parent prefix'),
     )
+    prefix_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Prefix (ID)'),
+    )
+    prefix = django_filters.ModelMultipleChoiceFilter(
+        field_name='prefix__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Prefix (prefix)'),
+    )
     address = MultiValueCharFilter(
         method='filter_address',
         label=_('Address'),

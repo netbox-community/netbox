@@ -52,11 +52,12 @@ class IPAddressIndex(SearchIndex):
     model = models.IPAddress
     fields = (
         ('address', 100),
+        ('prefix', 200),
         ('dns_name', 300),
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('vrf', 'tenant', 'status', 'role', 'description')
+    display_attrs = ('prefix', 'vrf', 'tenant', 'status', 'role', 'description')
 
 
 @register_search

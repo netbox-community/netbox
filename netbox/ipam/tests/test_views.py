@@ -493,7 +493,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.168.0.3/16')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
-        self.assertEqual(prefix.get_child_ips().count(), 3)
+        self.assertEqual(prefix.ip_addresses.all().count(), 3)
 
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)

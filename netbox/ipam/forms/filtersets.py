@@ -306,14 +306,14 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name',
+            'prefix', 'parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name',
             name=_('Attributes')
         ),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
     )
-    selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'parent', 'status', 'role')
+    selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'prefix_id', 'parent', 'status', 'role')
     parent = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -332,6 +332,11 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
         choices=IPADDRESS_MASK_LENGTH_CHOICES,
         label=_('Mask length')
+    )
+    prefix_id = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix'),
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),

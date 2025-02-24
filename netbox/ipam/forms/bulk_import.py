@@ -274,6 +274,13 @@ class IPRangeImportForm(NetBoxModelImportForm):
 
 
 class IPAddressImportForm(NetBoxModelImportForm):
+    prefix = CSVModelChoiceField(
+        label=_('Prefix'),
+        queryset=Prefix.objects.all(),
+        required=False,
+        to_field_name='prefix',
+        help_text=_('Assigned prefix')
+    )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -334,8 +341,8 @@ class IPAddressImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'is_primary',
-            'is_oob', 'dns_name', 'description', 'comments', 'tags',
+            'prefix', 'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface',
+            'is_primary', 'is_oob', 'dns_name', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):

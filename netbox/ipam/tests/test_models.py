@@ -172,14 +172,14 @@ class TestPrefix(TestCase):
             IPAddress(address=IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
             IPAddress(address=IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
         ))
-        child_ip_pks = {p.pk for p in parent_prefix.get_child_ips()}
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
 
         # Global container should return all children
         self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk, ips[2].pk, ips[3].pk})
 
         parent_prefix.vrf = vrfs[0]
         parent_prefix.save()
-        child_ip_pks = {p.pk for p in parent_prefix.get_child_ips()}
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
 
         # VRF container is limited to its own VRF
         self.assertSetEqual(child_ip_pks, {ips[1].pk})

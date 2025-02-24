@@ -411,7 +411,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             return netaddr.IPSet()
 
         prefix = netaddr.IPSet(self.prefix)
-        child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
+        child_ips = netaddr.IPSet([ip.address.ip for ip in self.ip_addresses.all()])
         child_ranges = []
         for iprange in self.get_child_ranges():
             child_ranges.append(iprange.range)
@@ -462,7 +462,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         else:
             # Compile an IPSet to avoid counting duplicate IPs
             child_ips = netaddr.IPSet(
-                [_.range for _ in self.get_child_ranges()] + [_.address.ip for _ in self.get_child_ips()]
+                [_.range for _ in self.get_child_ranges()] + [_.address.ip for _ in self.ip_addresses.all()]
             )
 
             prefix_size = self.prefix.size
@@ -706,6 +706,14 @@ class IPAddress(ContactsMixin, PrimaryModel):
     for example, when mapping public addresses to private addresses. When an Interface has been assigned an IPAddress
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
+    prefix = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.SET_NULL,
+        related_name='ip_addresses',
+        blank=True,
+        null=True,
+        verbose_name=_('Prefix')
+    )
     address = IPAddressField(
         verbose_name=_('address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
@@ -835,6 +843,11 @@ class IPAddress(ContactsMixin, PrimaryModel):
         super().clean()
 
         if self.address:
+            if self.prefix:
+                if self.address not in self.prefix.prefix:
+                    raise ValidationError({
+                        'prefix': _("IP address must be part of the selected prefix.")
+                    })
 
             # /0 masks are not acceptable
             if self.address.prefixlen == 0:

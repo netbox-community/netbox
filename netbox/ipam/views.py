@@ -631,13 +631,13 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
     template_name = 'ipam/prefix/ip_addresses.html'
     tab = ViewTab(
         label=_('IP Addresses'),
-        badge=lambda x: x.get_child_ips().count(),
+        badge=lambda x: x.ip_addresses.count(),
         permission='ipam.view_ipaddress',
         weight=700
     )
 
     def get_children(self, request, parent):
-        return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
+        return parent.ip_addresses.restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
         if not request.GET.get('q') and not get_table_ordering(request, self.table):
