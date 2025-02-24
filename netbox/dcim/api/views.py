@@ -439,15 +439,14 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
         GenericPrefetch(
             "cable__terminations__termination",
             [
-                Interface.objects.prefetch_related("device"),
+                Interface.objects.select_related("device", "cable"),
             ],
         ),
         Prefetch(
             "_path",
             CablePath.objects.prefetch_related(
                 GenericPrefetch("path_objects", [
-                    Interface.objects.prefetch_related("device"),
-                    Cable.objects.prefetch_related("terminations"),
+                    Interface.objects.select_related("device"),
                 ]),
             )
         ),
