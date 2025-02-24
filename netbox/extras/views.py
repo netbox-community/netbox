@@ -1251,16 +1251,12 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
 
-    def _get_script(self, **kwargs):
-        if 'pk' in kwargs:
-            pk = kwargs.get('pk')
+    def get_object(self, **kwargs):
+        if pk := kwargs.get('pk', False):
             return get_object_or_404(self.queryset, pk=pk)
-        elif 'module' in kwargs and 'name' in kwargs:
-            module = kwargs.get('module')
-            name = kwargs.get('name')
+        elif (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
             return get_object_or_404(self.queryset, module__file_path=f'{module}.py', name=name)
-        else:
-            raise Http404
+        else: raise Http404
 
     def _get_script_class(self, script):
         """
@@ -1273,7 +1269,7 @@ class BaseScriptView(generic.ObjectView):
 class ScriptView(BaseScriptView):
 
     def get(self, request, **kwargs):
-        script = self._get_script(**kwargs)
+        script = self.get_object(**kwargs)
         script_class = self._get_script_class(script)
         if not script_class:
             return render(request, 'extras/script.html', {
@@ -1292,7 +1288,7 @@ class ScriptView(BaseScriptView):
         })
 
     def post(self, request, **kwargs):
-        script = self._get_script(**kwargs)
+        script = self.get_object(**kwargs)
 
         if not request.user.has_perm('extras.run_script', obj=script):
             return HttpResponseForbidden()
@@ -1337,7 +1333,7 @@ class ScriptSourceView(BaseScriptView):
     queryset = Script.objects.all()
 
     def get(self, request, **kwargs):
-        script = self._get_script(**kwargs)
+        script = self.get_object(**kwargs)
         script_class = self._get_script_class(script)
 
         return render(request, 'extras/script/source.html', {
@@ -1352,7 +1348,7 @@ class ScriptJobsView(BaseScriptView):
     queryset = Script.objects.all()
 
     def get(self, request, **kwargs):
-        script = self._get_script(**kwargs)
+        script = self.get_object(**kwargs)
 
         jobs_table = JobTable(
             data=script.jobs.all(),
