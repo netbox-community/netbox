@@ -9,6 +9,7 @@ import warnings
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -116,7 +117,7 @@ EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
-HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
+HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
@@ -131,6 +132,7 @@ MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media'
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
+PROXY_ROUTERS = getattr(configuration, 'PROXY_ROUTERS', ['utilities.proxy.DefaultProxyRouter'])
 QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
 REDIS = getattr(configuration, 'REDIS')  # Required
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
@@ -200,6 +202,14 @@ if RELEASE_CHECK_URL:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )
+
+# Validate configured proxy routers
+for path in PROXY_ROUTERS:
+    if type(path) is str:
+        try:
+            import_string(path)
+        except ImportError:
+            raise ImproperlyConfigured(f"Invalid path in PROXY_ROUTERS: {path}")
 
 
 #
@@ -577,6 +587,7 @@ if SENTRY_ENABLED:
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=SENTRY_SEND_DEFAULT_PII,
+        # TODO: Support proxy routing
         http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
     )
