@@ -88,7 +88,7 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
         fields_to_include = serializer_class.Meta.fields
 
     prefetch_fields = []
-    annotaded_prefetch = {}
+    annotated_prefetch = {}
     for field_name in fields_to_include:
         serializer_field = serializer_class._declared_fields.get(field_name)
 
@@ -98,10 +98,10 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
             model_field_name = serializer_field.source
 
         # If the serializer field is a RelatedObjectCountField and its a nested field
-        # Add an annotation to the annotaded_prefetch
+        # Add an annotation to the annotated_prefetch
         if isinstance(serializer_field, RelatedObjectCountField) and source_field is not None:
-            if model_field_name not in annotaded_prefetch:
-                annotaded_prefetch[model_field_name] = Count(serializer_field.relation)
+            if model_field_name not in annotated_prefetch:
+                annotated_prefetch[model_field_name] = Count(serializer_field.relation)
 
         # If the serializer field does not map to a discrete model field, skip it.
         try:
@@ -124,9 +124,9 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
                     else:
                         prefetch_fields.append(f'{field_name}__{subfield}')
 
-    # If there are annotaded_prefetch, add the annotaded prefetch to the prefetch_fields
-    if annotaded_prefetch:
-        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**annotaded_prefetch))
+    # If there are annotated_prefetch, add the annotaded prefetch to the prefetch_fields
+    if annotated_prefetch:
+        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**annotated_prefetch))
         prefetch_fields.append(related_prefetch)
     return prefetch_fields
 
