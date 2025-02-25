@@ -90,7 +90,7 @@ class VirtualCircuitIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('provider', 'provider_network', 'provider_account', 'status', 'tenant', 'description')
+    display_attrs = ('provider_network', 'provider_account', 'status', 'tenant', 'description')
 
 
 @register_search

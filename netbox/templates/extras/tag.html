@@ -55,22 +55,23 @@
       </div>
       <div class="card">
         <h2 class="card-header">{% trans "Tagged Item Types" %}</h2>
-        <table class="table table-hover attr-table">
+        <ul class="list-group list-group-flush" role="presentation">
           {% for object_type in object_types %}
-            <tr>
-              <td>{{ object_type.content_type.name|bettertitle }}</td>
-              <td>
-                {% with viewname=object_type.content_type.model_class|validated_viewname:"list" %}
-                  {% if viewname %}
-                    <a href="{% url viewname %}?tag={{ object.slug }}">{{ object_type.item_count }}</a>
-                  {% else %}
-                    {{ object_type.item_count }}
-                  {% endif %}
-                {% endwith %}
-              </td>
-            </tr>
+            {% with viewname=object_type.content_type.model_class|validated_viewname:"list" %}
+              {% if viewname %}
+                <a href="{% url viewname %}?tag={{ object.slug }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+                  {{ object_type.content_type.name|bettertitle }}
+                  <span class="badge text-bg-primary rounded-pill">{{ object_type.item_count }}</span>
+                </a>
+              {% else %}
+                <li class="list-group-item list-group-item-action d-flex justify-content-between">
+                  {{ object_type.content_type.name|bettertitle }}
+                  <span class="badge text-bg-primary rounded-pill">{{ object_type.item_count }}</span>
+                </li>
+              {% endif %}
+            {% endwith %}
           {% endfor %}
-        </table>
+        </ul>
       </div>
       {% plugin_right_page object %}
     </div>
@@ -79,7 +80,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h2 class="card-header">{% trans "Tagged Objects" %}</h2>
-        <div class="card-body table-responsive">
+        <div class="table-responsive">
           {% render_table taggeditem_table 'inc/table.html' %}
           {% include 'inc/paginator.html' with paginator=taggeditem_table.paginator page=taggeditem_table.page %}
         </div>

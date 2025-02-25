@@ -234,6 +234,11 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         to_field_name='slug',
         label=_('Site (slug)'),
     )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations___location',
+        label=_('Location (ID)'),
+        queryset=Location.objects.all(),
+    )
     termination_a_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitTermination.objects.all(),
         label=_('Termination A (ID)'),

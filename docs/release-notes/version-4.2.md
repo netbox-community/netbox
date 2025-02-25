@@ -1,5 +1,52 @@
 # NetBox v4.2
 
+## v4.2.4 (2025-02-21)
+
+### Enhancements
+
+* [#17309](https://github.com/netbox-community/netbox/issues/17309) - Omit empty counts in related object tables
+* [#18277](https://github.com/netbox-community/netbox/issues/18277) - Improve multi-table inheritance in serialization of change-logged models
+* [#18286](https://github.com/netbox-community/netbox/issues/18286) - Add more job duration choices
+* [#18357](https://github.com/netbox-community/netbox/issues/18357) - Display author name in plugin list for locally installed plugins
+* [#18408](https://github.com/netbox-community/netbox/issues/18408) - Add Paused status for virtual machines
+* [#18584](https://github.com/netbox-community/netbox/issues/18584) - Add rack type column to manufacturer list
+
+### Bug Fixes
+
+* [#17436](https://github.com/netbox-community/netbox/issues/17436) - Fix {module} replacement in module bays
+* [#18013](https://github.com/netbox-community/netbox/issues/18013) - Limit object type to selected object in change log filter
+* [#18241](https://github.com/netbox-community/netbox/issues/18241) - Default logging level of custom scripts changed to INFO
+* [#18247](https://github.com/netbox-community/netbox/issues/18247) - Fix visibility of disabled cable paths in dark mode
+* [#18480](https://github.com/netbox-community/netbox/issues/18480) - Clean data passed to script in runscript command
+* [#18555](https://github.com/netbox-community/netbox/issues/18555) - Add default get_absolute_url method to plugin models
+* [#18585](https://github.com/netbox-community/netbox/issues/18585) - Fix filtering circuits by location
+* [#18593](https://github.com/netbox-community/netbox/issues/18593) - Fix "Create & Add Another" IP Address workflow
+* [#18594](https://github.com/netbox-community/netbox/issues/18594) - Enable sorting by ASN count on site and provider lists
+* [#18619](https://github.com/netbox-community/netbox/issues/18619) - Ensure shift-click selection selects only visible list items
+* [#18674](https://github.com/netbox-community/netbox/issues/18674) - Preserve form values when selecting speed on circuit termination
+
+---
+
+## v4.2.3 (2025-02-04)
+
+### Enhancements
+
+* [#18518](https://github.com/netbox-community/netbox/issues/18518) - Add a "hostname" `<meta>` tag to the page header
+
+### Bug Fixes
+
+* [#18497](https://github.com/netbox-community/netbox/issues/18497) - Fix unhandled `FieldDoesNotExist` exception when search results include virtual circuit
+* [#18433](https://github.com/netbox-community/netbox/issues/18433) - Fix MAC address not shown as "primary for interface" in MAC address detail view
+* [#18154](https://github.com/netbox-community/netbox/issues/18154) - Allow anonymous users to change default table preferences
+* [#18515](https://github.com/netbox-community/netbox/issues/18515) - Fix Django `collectstatic` management command in debug mode with Redis not running
+* [#18456](https://github.com/netbox-community/netbox/issues/18456) - Avoid duplicate MAC Address column in interface tables
+* [#18447](https://github.com/netbox-community/netbox/issues/18447) - Fix `FieldError` exception when sorting interface tables on MAC Address columns 
+* [#18438](https://github.com/netbox-community/netbox/issues/18438) - Improve performance in IPAM migration `0072_prefix_cached_relations` when upgrading from v4.1 or earlier
+* [#18436](https://github.com/netbox-community/netbox/issues/18436) - Reset primary MAC address when unassigning MAC address from interface
+* [#18181](https://github.com/netbox-community/netbox/issues/18181) - Fix "Create & Add Another" workflow when adding IP addresses to interfaces
+
+---
+
 ## v4.2.2 (2025-01-17)
 
 ### Bug Fixes

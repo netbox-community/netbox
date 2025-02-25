@@ -3,8 +3,10 @@ from django.test import TestCase
 from circuits.choices import *
 from circuits.filtersets import *
 from circuits.models import *
-from dcim.choices import InterfaceTypeChoices
-from dcim.models import Cable, Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site, SiteGroup
+from dcim.choices import InterfaceTypeChoices, LocationStatusChoices
+from dcim.models import (
+    Cable, Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
+)
 from ipam.models import ASN, RIR
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant, TenantGroup
@@ -225,6 +227,17 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ProviderNetwork.objects.bulk_create(provider_networks)
 
+        locations = (
+            Location.objects.create(
+                site=sites[0], name='Test Location 1', slug='test-location-1',
+                status=LocationStatusChoices.STATUS_ACTIVE,
+            ),
+            Location.objects.create(
+                site=sites[1], name='Test Location 2', slug='test-location-2',
+                status=LocationStatusChoices.STATUS_ACTIVE,
+            ),
+        )
+
         circuits = (
             Circuit(
                 provider=providers[0],
@@ -305,7 +318,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         circuit_terminations = ((
             CircuitTermination(circuit=circuits[0], termination=sites[0], term_side='A'),
+            CircuitTermination(circuit=circuits[0], termination=locations[0], term_side='Z'),
             CircuitTermination(circuit=circuits[1], termination=sites[1], term_side='A'),
+            CircuitTermination(circuit=circuits[1], termination=locations[1], term_side='Z'),
             CircuitTermination(circuit=circuits[2], termination=sites[2], term_side='A'),
             CircuitTermination(circuit=circuits[3], termination=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], termination=provider_networks[1], term_side='A'),
@@ -393,6 +408,11 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        location_ids = Location.objects.values_list('id', flat=True)[:2]
+        params = {'location_id': location_ids}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):

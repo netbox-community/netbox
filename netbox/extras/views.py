@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django.views.generic import View
+from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
@@ -885,6 +886,61 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
 
 
+class ObjectRenderConfigView(generic.ObjectView):
+    base_template = None
+    template_name = 'extras/object_render_config.html'
+
+    def get(self, request, **kwargs):
+        instance = self.get_object(**kwargs)
+        context = self.get_extra_context(request, instance)
+
+        # If a direct export has been requested, return the rendered template content as a
+        # downloadable file.
+        if request.GET.get('export'):
+            content = context['rendered_config'] or context['error_message']
+            response = HttpResponse(content, content_type='text')
+            filename = f"{instance.name or 'config'}.txt"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        return render(
+            request,
+            self.get_template_name(),
+            {
+                'object': instance,
+                'tab': self.tab,
+                **context,
+            },
+        )
+
+    def get_extra_context_data(self, request, instance):
+        return {
+            f'{instance._meta.model_name}': instance,
+        }
+
+    def get_extra_context(self, request, instance):
+        # Compile context data
+        context_data = instance.get_config_context()
+        context_data.update(self.get_extra_context_data(request, instance))
+
+        # Render the config template
+        rendered_config = None
+        error_message = None
+        if config_template := instance.get_config_template():
+            try:
+                rendered_config = config_template.render(context=context_data)
+            except TemplateError as e:
+                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
+
+        return {
+            'base_template': self.base_template,
+            'config_template': config_template,
+            'context_data': context_data,
+            'rendered_config': rendered_config,
+            'error_message': error_message,
+        }
+
+
 #
 # Image attachments
 #
@@ -1315,9 +1371,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         try:
-            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)]
         except KeyError:
-            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_INFO]
         if job.data:
 
             if 'log' in job.data:
@@ -1325,7 +1381,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_INFO)
                     if log_level >= log_threshold:
                         index += 1
                         result = {
@@ -1348,7 +1404,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_INFO)
                         if log_level >= log_threshold:
                             index += 1
                             result = {
@@ -1374,9 +1430,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)
         if log_threshold not in LOG_LEVEL_RANK:
-            log_threshold = LogLevelChoices.LOG_DEBUG
+            log_threshold = LogLevelChoices.LOG_INFO
 
         context = {
             'script': job.object,
