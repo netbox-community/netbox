@@ -814,10 +814,8 @@ for plugin_name in PLUGINS:
         )
 
     # Validate version compatibility and user-provided configuration settings and assign defaults
-    if plugin_name not in PLUGINS_CONFIG:
-        PLUGINS_CONFIG[plugin_name] = {}
     try:
-        plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
+        plugin_config.validate(PLUGINS_CONFIG.get(plugin_name, {}), RELEASE.version)
     except IncompatiblePluginError as e:
         warnings.warn(f'Unable to load plugin {plugin_name}: {e}')
         continue
