@@ -1069,7 +1069,7 @@ class Device(
             device.location = self.location
             device.save()
 
-    @cached_property
+    @property
     def label(self):
         """
         Return the device name if set; otherwise return a generated name if available.
