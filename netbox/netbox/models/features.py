@@ -376,7 +376,7 @@ class ContactsMixin(models.Model):
         filter = Q(
             object_type=ObjectType.objects.get_for_model(self),
             object_id__in=(
-                self.get_ancestors(include_self=True).values_list('pk', flat=True)
+                self.get_ancestors(include_self=True)
                 if (isinstance(self, NestedGroupModel) and inherited)
                 else [self.pk]
             ),
