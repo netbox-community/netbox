@@ -72,10 +72,10 @@ class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
 class TunnelGroupContactsView(ObjectContactsView):
     queryset = TunnelGroup.objects.all()
 
+
 #
 # Tunnels
 #
-
 
 @register_model_view(Tunnel, 'list', path='', detail=False)
 class TunnelListView(generic.ObjectListView):
@@ -141,10 +141,10 @@ class TunnelBulkDeleteView(generic.BulkDeleteView):
 class TunnelContactsView(ObjectContactsView):
     queryset = Tunnel.objects.all()
 
+
 #
 # Tunnel terminations
 #
-
 
 @register_model_view(TunnelTermination, 'list', path='', detail=False)
 class TunnelTerminationListView(generic.ObjectListView):

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, TagsMixin, ContactsMixin
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, TagsMixin
 from vpn.choices import *
 
 __all__ = (
