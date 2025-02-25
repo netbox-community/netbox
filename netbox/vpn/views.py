@@ -68,7 +68,7 @@ class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.TunnelGroupTable
 
 
-@register_model_view(Tunnel, 'contacts')
+@register_model_view(TunnelGroup, 'contacts')
 class TunnelGroupContactsView(ObjectContactsView):
     queryset = TunnelGroup.objects.all()
 
