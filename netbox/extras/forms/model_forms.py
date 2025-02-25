@@ -162,6 +162,7 @@ class CustomFieldForm(forms.ModelForm):
 
 
 class CustomFieldChoiceSetForm(forms.ModelForm):
+    # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
         required=False,
@@ -178,6 +179,9 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
+        # TODO: Handle divergence in extra_choices field definition from CustomFieldChoiceSetForm & CustomFieldChoiceSet
+        # In CustomFieldChoiceSetForm, extra_choices is a CharField
+        # But in CustomFieldChoiceSet, it is an ArrayField
         # Convert extra_choices Array Field from model to CharField for form
         if 'extra_choices' in self.initial and self.initial['extra_choices']:
             extra_choices = self.initial['extra_choices']
