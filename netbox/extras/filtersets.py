@@ -31,6 +31,7 @@ __all__ = (
     'SavedFilterFilterSet',
     'ScriptFilterSet',
     'TagFilterSet',
+    'TaggedItemFilterSet',
     'WebhookFilterSet',
 )
 
@@ -489,6 +490,41 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     def _for_object_type(self, queryset, name, values):
         return queryset.filter(
             Q(object_types__id__in=values) | Q(object_types__isnull=True)
+        )
+
+
+class TaggedItemFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    object_type = ContentTypeFilter(
+        field_name='content_type'
+    )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all(),
+        field_name='content_type_id'
+    )
+    tag_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all()
+    )
+    tag = django_filters.ModelMultipleChoiceFilter(
+        field_name='tag__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+    )
+
+    class Meta:
+        model = TaggedItem
+        fields = ('id', 'object_id')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(tag__name__icontains=value) |
+            Q(tag__slug__icontains=value) |
+            Q(tag__description__icontains=value)
         )
 
 
