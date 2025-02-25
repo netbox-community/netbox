@@ -599,16 +599,11 @@ class DeviceTestCase(TestCase):
         )
         self.assertEqual(device1.label, None)
 
-        device2 = Device(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            role=DeviceRole.objects.first(),
-            name='Test Device 2',
-        )
-        self.assertEqual(device2.label, 'Test Device 2')
+        device1.name = 'Test Device 1'
+        self.assertEqual(device1.label, 'Test Device 1')
 
         virtual_chassis = VirtualChassis.objects.create(name='VC 1')
-        device3 = Device(
+        device2 = Device(
             site=Site.objects.first(),
             device_type=DeviceType.objects.first(),
             role=DeviceRole.objects.first(),
@@ -616,7 +611,10 @@ class DeviceTestCase(TestCase):
             virtual_chassis=virtual_chassis,
             vc_position=2,
         )
-        self.assertEqual(device3.label, 'VC 1:2')
+        self.assertEqual(device2.label, 'VC 1:2')
+
+        device2.name = 'Test Device 2'
+        self.assertEqual(device2.label, 'Test Device 2')
 
     def test_device_mismatched_site_cluster(self):
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
