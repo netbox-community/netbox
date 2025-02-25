@@ -1802,7 +1802,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
         vlans = VLAN.objects.all()[0:3]
 
-        # No mode with all vlan fields set
+        # Routed mode, untagged, tagged and qinq service vlan
         invalid_data = {
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [vlans[1].pk, vlans[2].pk],
@@ -1810,50 +1810,39 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         }
         self._perform_interface_test_with_invalid_data(None, invalid_data)
 
-        # No mode with standard vlan fields set
+        # Routed mode, untagged and tagged vlan
         invalid_data = {
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [vlans[1].pk, vlans[2].pk],
         }
         self._perform_interface_test_with_invalid_data(None, invalid_data)
 
-        # No mode with untagged vlan field set
+        # Routed mode, untagged vlan
         invalid_data = {
             'untagged_vlan': vlans[0].pk,
         }
         self._perform_interface_test_with_invalid_data(None, invalid_data)
 
-        # No mode with tagged vlans field set
         invalid_data = {
             'tagged_vlans': [vlans[1].pk, vlans[2].pk],
         }
+        # Routed mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(None, invalid_data)
-
-        # No mode with tagged vlans field set
-        invalid_data = {
-            'qinq_svlan': vlans[0].pk,
-        }
-        self._perform_interface_test_with_invalid_data(None, invalid_data)
-
-        # Access mode with tagged vlans field set
-        invalid_data = {
-            'tagged_vlans': [vlans[1].pk, vlans[2].pk],
-        }
+        # Access mode, tagged vlans
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_ACCESS, invalid_data)
-
-        # Tagged-All with tagged vlans field set
+        # All tagged mode, tagged vlans
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
 
-        # Access mode with tagged qinq_svlan field set
         invalid_data = {
             'qinq_svlan': vlans[0].pk,
         }
+        # Routed mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+        # Access mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_ACCESS, invalid_data)
-
-        # Tagged-All with tagged qinq_svlan field set
+        # Tagged mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
-
-        # Tagged-All with tagged qinq_svlan field set
+        # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
 
 
