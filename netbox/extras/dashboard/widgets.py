@@ -331,7 +331,7 @@ class RSSFeedWidget(DashboardWidget):
             response = requests.get(
                 url=self.config['feed_url'],
                 headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
-                proxies=resolve_proxies(url=self.config['feed_url']),
+                proxies=resolve_proxies(url=self.config['feed_url'], context={'client': self}),
                 timeout=3
             )
             response.raise_for_status()

@@ -89,7 +89,7 @@ def send_webhook(event_rule, model_name, event_type, data, timestamp, username, 
         session.verify = webhook.ssl_verification
         if webhook.ca_file_path:
             session.verify = webhook.ca_file_path
-        proxies = resolve_proxies(url=url, context={'webhook': webhook})
+        proxies = resolve_proxies(url=url, context={'client': webhook})
         response = session.send(prepared_request, proxies=proxies)
 
     if 200 <= response.status_code <= 299:
