@@ -538,6 +538,34 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         Tag.objects.bulk_create(tags)
 
 
+class TaggedItemTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase
+):
+    model = TaggedItem
+    brief_fields = ['display', 'id', 'object', 'object_id', 'object_type', 'tag', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tags = (
+            Tag(name='Tag 1', slug='tag-1'),
+            Tag(name='Tag 2', slug='tag-2'),
+            Tag(name='Tag 3', slug='tag-3'),
+        )
+        Tag.objects.bulk_create(tags)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        sites[0].tags.set([tags[0], tags[1]])
+        sites[1].tags.set([tags[1], tags[2]])
+        sites[2].tags.set([tags[2], tags[0]])
+
+
 # TODO: Standardize to APIViewTestCase (needs create & update tests)
 class ImageAttachmentTest(
     APIViewTestCases.GetObjectViewTestCase,
