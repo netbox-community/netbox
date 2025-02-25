@@ -38,7 +38,7 @@ class Command(BaseCommand):
             data = {}
 
         module_name, script_name = script.split('.', 1)
-        module, script_obj = get_module_and_script(module_name, script_name)
+        script_obj = get_module_and_script(module_name, script_name)[1]
         script = script_obj.python_class
 
         # Take user from command line if provided and exists, other
@@ -81,12 +81,17 @@ class Command(BaseCommand):
                     logger.error(f'\t{field}: {error.get("message")}')
             raise CommandError()
 
+        # Remove extra fields from ScriptForm before passng data to script
+        form.cleaned_data.pop('_schedule_at')
+        form.cleaned_data.pop('_interval')
+        form.cleaned_data.pop('_commit')
+
         # Execute the script.
         job = ScriptJob.enqueue(
             instance=script_obj,
             user=user,
             immediate=True,
-            data=data,
+            data=form.cleaned_data,
             request=NetBoxFakeRequest({
                 'META': {},
                 'POST': data,

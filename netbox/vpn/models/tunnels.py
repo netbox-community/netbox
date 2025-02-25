@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, TagsMixin
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, TagsMixin
 from vpn.choices import *
 
 __all__ = (
@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class TunnelGroup(OrganizationalModel):
+class TunnelGroup(ContactsMixin, OrganizationalModel):
     """
     An administrative grouping of Tunnels. This can be used to correlate peer-to-peer tunnels which form a mesh,
     for example.
@@ -26,15 +26,13 @@ class TunnelGroup(OrganizationalModel):
         verbose_name = _('tunnel group')
         verbose_name_plural = _('tunnel groups')
 
-    def get_absolute_url(self):
-        return reverse('vpn:tunnelgroup', args=[self.pk])
 
-
-class Tunnel(PrimaryModel):
+class Tunnel(ContactsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     status = models.CharField(
         verbose_name=_('status'),
@@ -96,9 +94,6 @@ class Tunnel(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('vpn:tunnel', args=[self.pk])
 
     def get_status_color(self):
         return TunnelStatusChoices.colors.get(self.status)

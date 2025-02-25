@@ -5,9 +5,7 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode
 
-import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -108,12 +106,11 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
+EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
-))
+])
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
@@ -225,8 +222,18 @@ DATABASES = {
 # Storage backend
 #
 
+# Default STORAGES for Django
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 if STORAGE_BACKEND is not None:
-    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+    STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
@@ -371,7 +378,6 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 #
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -409,8 +415,6 @@ INSTALLED_APPS = [
 ]
 if not DEBUG:
     INSTALLED_APPS.remove('debug_toolbar')
-if not DJANGO_ADMIN_ENABLED:
-    INSTALLED_APPS.remove('django.contrib.admin')
 
 # Middleware
 MIDDLEWARE = [
@@ -547,7 +551,6 @@ EXEMPT_EXCLUDE_MODELS = (
 
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
-    f'/{BASE_PATH}admin/',
     f'/{BASE_PATH}extras/config-revisions/',  # Allow modifying the configuration
     LOGIN_URL,
     LOGIN_REDIRECT_URL,
@@ -588,17 +591,6 @@ if SENTRY_ENABLED:
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
-CENSUS_PARAMS = {
-    'version': RELEASE.full_version,
-    'python_version': sys.version.split()[0],
-    'deployment_id': DEPLOYMENT_ID,
-}
-if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
-    try:
-        # Report anonymous census data
-        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
-    except requests.exceptions.RequestException:
-        pass
 
 
 #
@@ -792,6 +784,10 @@ STRAWBERRY_DJANGO = {
 
 PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
 
+EVENTS_PIPELINE = list(EVENTS_PIPELINE)
+if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
+    EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
+
 # Register any configured plugins
 for plugin_name in PLUGINS:
     try:
@@ -861,6 +857,13 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+
+    events_pipeline = plugin_config.events_pipeline
+    if events_pipeline:
+        if type(events_pipeline) in (list, tuple):
+            EVENTS_PIPELINE.extend(events_pipeline)
+        else:
+            raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:

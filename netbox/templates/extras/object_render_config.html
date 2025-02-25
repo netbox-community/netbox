@@ -1,0 +1,76 @@
+{% extends base_template %}
+{% load helpers %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ object }} - {% trans "Config" %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-5">
+      <div class="card">
+        <h2 class="card-header">{% trans "Config Template" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Config Template" %}</th>
+            <td>{{ config_template|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Data Source" %}</th>
+            <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Data File" %}</th>
+            <td>{{ config_template.data_file|linkify|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col-7">
+      <div class="card">
+        <div class="accordion accordion-flush" id="renderConfig">
+          <div class="card-body">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="renderConfigHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedRenderConfig" aria-expanded="false" aria-controls="collapsedRenderConfig">
+                  {% trans "Context Data" %}
+                </button>
+              </h2>
+              <div id="collapsedRenderConfig" class="accordion-collapse collapse" aria-labelledby="renderConfigHeading" data-bs-parent="#renderConfig">
+                <div class="accordion-body">
+                  <pre class="card-body">{{ context_data|pprint }}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      {% if config_template %}
+        {% if rendered_config %}
+          <div class="card">
+            <h2 class="card-header d-flex justify-content-between">
+              {% trans "Rendered Config" %}
+              <a href="?export=True" class="btn btn-primary lh-1" role="button">
+                <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+              </a>
+            </h2>
+            <pre class="card-body">{{ rendered_config }}</pre>
+          </div>
+        {% else %}
+          <div class="alert alert-warning">
+            <h4 class="alert-title mb-1">{% trans "Error rendering template" %}</h4>
+            {% trans error_message %}
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info">
+          {% trans "No configuration template has been assigned." %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

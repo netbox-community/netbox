@@ -17,6 +17,14 @@ class DummyPluginConfig(PluginConfig):
         'testing-medium',
         'testing-high'
     ]
+    events_pipeline = [
+        'netbox.tests.dummy_plugin.events.process_events_queue'
+    ]
+
+    def ready(self):
+        super().ready()
+
+        from . import jobs  # noqa: F401
 
 
 config = DummyPluginConfig

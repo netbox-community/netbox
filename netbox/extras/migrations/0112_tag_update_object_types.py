@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0010_gfk_indexes'),
         ('extras', '0111_rename_content_types'),

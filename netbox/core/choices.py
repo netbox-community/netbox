@@ -72,6 +72,22 @@ class JobStatusChoices(ChoiceSet):
     )
 
 
+class JobIntervalChoices(ChoiceSet):
+    INTERVAL_MINUTELY = 1
+    INTERVAL_HOURLY = 60
+    INTERVAL_DAILY = 60 * 24
+    INTERVAL_WEEKLY = 60 * 24 * 7
+
+    CHOICES = (
+        (INTERVAL_MINUTELY, _('Minutely')),
+        (INTERVAL_HOURLY, _('Hourly')),
+        (INTERVAL_HOURLY * 12, _('12 hours')),
+        (INTERVAL_DAILY, _('Daily')),
+        (INTERVAL_WEEKLY, _('Weekly')),
+        (INTERVAL_DAILY * 30, _('30 days')),
+    )
+
+
 #
 # ObjectChanges
 #

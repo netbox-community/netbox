@@ -1,0 +1,22 @@
+{% load form_helpers %}
+{% load helpers %}
+{% load i18n %}
+
+<div class="modal-header">
+  <h2 class="modal-title">
+    {{ object|meta:"verbose_name"|bettertitle }} {% trans "Created" %}
+  </h2>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body row">
+  {# This content is intended to be scraped and populated in the targeted selection field. #}
+  <p id="quick-add-object"
+      data-object-repr="{{ object }}"
+      data-object-id="{{ object.pk }}"
+      data-target-id="{{ request.GET.target }}"
+  >
+    {% blocktrans with object=object|linkify object_type=object|meta:"verbose_name" %}
+      Created {{ object_type }} {{ object }}
+    {% endblocktrans %}
+  </p>
+</div>

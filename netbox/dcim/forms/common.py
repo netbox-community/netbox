@@ -12,11 +12,6 @@ __all__ = (
 
 
 class InterfaceCommonForm(forms.Form):
-    mac_address = forms.CharField(
-        empty_value=None,
-        required=False,
-        label=_('MAC address')
-    )
     mtu = forms.IntegerField(
         required=False,
         min_value=INTERFACE_MTU_MIN,
@@ -37,6 +32,12 @@ class InterfaceCommonForm(forms.Form):
             del self.fields['vlan_group']
             del self.fields['untagged_vlan']
             del self.fields['tagged_vlans']
+        if interface_mode != InterfaceModeChoices.MODE_Q_IN_Q:
+            del self.fields['qinq_svlan']
+
+        if self.instance and self.instance.pk:
+            filter_name = f'{self._meta.model._meta.model_name}_id'
+            self.fields['primary_mac_address'].widget.add_query_param(filter_name, self.instance.pk)
 
     def clean(self):
         super().clean()
@@ -128,7 +129,10 @@ class ModuleCommonForm(forms.Form):
 
                     if len(module_bays) != template.name.count(MODULE_TOKEN):
                         raise forms.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay tree {level} in tree but {tokens} placeholders given.").format(
+                            _(
+                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
+                                "but {tokens} placeholders given."
+                            ).format(
                                 level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
                             )
                         )

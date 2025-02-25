@@ -30,10 +30,8 @@ STROKE_RESERVED = '#4d4dff'
 
 
 def get_device_name(device):
-    if device.virtual_chassis:
-        name = f'{device.virtual_chassis.name}:{device.vc_position}'
-    elif device.name:
-        name = device.name
+    if device.label:
+        name = device.label
     else:
         name = str(device.device_type)
     if device.devicebay_count:
@@ -155,7 +153,10 @@ class RackElevationSVG:
         if self.rack.desc_units:
             y += int((position - self.rack.starting_unit) * self.unit_height)
         else:
-            y += int((self.rack.u_height - position + self.rack.starting_unit) * self.unit_height) - int(height * self.unit_height)
+            y += (
+                int((self.rack.u_height - position + self.rack.starting_unit) * self.unit_height) -
+                int(height * self.unit_height)
+            )
 
         return x, y
 

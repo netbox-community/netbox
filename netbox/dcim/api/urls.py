@@ -56,6 +56,9 @@ router.register('inventory-items', views.InventoryItemViewSet)
 # Device component roles
 router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
 
+# Addressing
+router.register('mac-addresses', views.MACAddressViewSet)
+
 # Cables
 router.register('cables', views.CableViewSet)
 router.register('cable-terminations', views.CableTerminationViewSet)

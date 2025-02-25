@@ -5,8 +5,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from core.choices import JobIntervalChoices
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
+from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -35,12 +37,6 @@ class PluginTest(TestCase):
         # Test deleting an instance
         instance.delete()
         self.assertIsNone(instance.pk)
-
-    def test_admin(self):
-
-        # Test admin view URL resolution
-        url = reverse('admin:dummy_plugin_dummymodel_add')
-        self.assertEqual(url, '/admin/dummy_plugin/dummymodel/add/')
 
     @override_settings(LOGIN_REQUIRED=False)
     def test_views(self):
@@ -136,6 +132,13 @@ class PluginTest(TestCase):
         self.assertIn('dummy', registry['data_backends'])
         self.assertIs(registry['data_backends']['dummy'], DummyBackend)
 
+    def test_system_jobs(self):
+        """
+        Check registered system jobs.
+        """
+        self.assertIn(DummySystemJob, registry['system_jobs'])
+        self.assertEqual(registry['system_jobs'][DummySystemJob]['interval'], JobIntervalChoices.INTERVAL_HOURLY)
+
     def test_queues(self):
         """
         Check that plugin queues are registered with the accurate name.
@@ -209,3 +212,9 @@ class PluginTest(TestCase):
         self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
         self.assertEqual(get_plugin_config(plugin, 'bar'), None)
         self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
+
+    def test_events_pipeline(self):
+        """
+        Check that events pipeline is registered.
+        """
+        self.assertIn('netbox.tests.dummy_plugin.events.process_events_queue', settings.EVENTS_PIPELINE)

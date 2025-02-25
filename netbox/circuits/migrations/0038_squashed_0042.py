@@ -6,13 +6,12 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('circuits', '0038_cabling_cleanup'),
         ('circuits', '0039_unique_constraints'),
         ('circuits', '0040_provider_remove_deprecated_fields'),
         ('circuits', '0041_standardize_description_comments'),
-        ('circuits', '0042_provideraccount')
+        ('circuits', '0042_provideraccount'),
     ]
 
     dependencies = [
@@ -51,11 +50,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='circuittermination',
-            constraint=models.UniqueConstraint(fields=('circuit', 'term_side'), name='circuits_circuittermination_unique_circuit_term_side'),
+            constraint=models.UniqueConstraint(
+                fields=('circuit', 'term_side'), name='circuits_circuittermination_unique_circuit_term_side'
+            ),
         ),
         migrations.AddConstraint(
             model_name='providernetwork',
-            constraint=models.UniqueConstraint(fields=('provider', 'name'), name='circuits_providernetwork_unique_provider_name'),
+            constraint=models.UniqueConstraint(
+                fields=('provider', 'name'), name='circuits_providernetwork_unique_provider_name'
+            ),
         ),
         migrations.RemoveField(
             model_name='provider',
@@ -84,12 +87,20 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
-                ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('account', models.CharField(max_length=100)),
                 ('name', models.CharField(blank=True, max_length=100)),
-                ('provider', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='accounts', to='circuits.provider')),
+                (
+                    'provider',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='accounts', to='circuits.provider'
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
@@ -98,11 +109,17 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='provideraccount',
-            constraint=models.UniqueConstraint(condition=models.Q(('name', ''), _negated=True), fields=('provider', 'name'), name='circuits_provideraccount_unique_provider_name'),
+            constraint=models.UniqueConstraint(
+                condition=models.Q(('name', ''), _negated=True),
+                fields=('provider', 'name'),
+                name='circuits_provideraccount_unique_provider_name',
+            ),
         ),
         migrations.AddConstraint(
             model_name='provideraccount',
-            constraint=models.UniqueConstraint(fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'),
+            constraint=models.UniqueConstraint(
+                fields=('provider', 'account'), name='circuits_provideraccount_unique_provider_account'
+            ),
         ),
         migrations.RemoveField(
             model_name='provider',
@@ -111,7 +128,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='circuit',
             name='provider_account',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='circuits', to='circuits.provideraccount'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='circuits',
+                to='circuits.provideraccount',
+            ),
             preserve_default=False,
         ),
         migrations.AlterModelOptions(
@@ -120,6 +143,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='circuit',
-            constraint=models.UniqueConstraint(fields=('provider_account', 'cid'), name='circuits_circuit_unique_provideraccount_cid'),
+            constraint=models.UniqueConstraint(
+                fields=('provider_account', 'cid'), name='circuits_circuit_unique_provideraccount_cid'
+            ),
         ),
     ]

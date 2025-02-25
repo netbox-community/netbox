@@ -1,8 +1,10 @@
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
+from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Interface
 from ipam.models import VLAN
+from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
@@ -31,7 +33,7 @@ class WirelessLANGroupImportForm(NetBoxModelImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'tags')
 
 
-class WirelessLANImportForm(NetBoxModelImportForm):
+class WirelessLANImportForm(ScopedImportForm, NetBoxModelImportForm):
     group = CSVModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
@@ -74,9 +76,12 @@ class WirelessLANImportForm(NetBoxModelImportForm):
     class Meta:
         model = WirelessLAN
         fields = (
-            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments', 'tags',
+            'ssid', 'group', 'status', 'vlan', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'scope_type',
+            'scope_id', 'description', 'comments', 'tags',
         )
+        labels = {
+            'scope_id': _('Scope ID'),
+        }
 
 
 class WirelessLinkImportForm(NetBoxModelImportForm):
@@ -114,7 +119,7 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
     )
     distance_unit = CSVChoiceField(
         label=_('Distance unit'),
-        choices=WirelessLinkDistanceUnitChoices,
+        choices=DistanceUnitChoices,
         required=False,
         help_text=_('Distance unit')
     )

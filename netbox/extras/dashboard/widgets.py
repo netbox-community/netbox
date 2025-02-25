@@ -275,6 +275,7 @@ class RSSFeedWidget(DashboardWidget):
     default_config = {
         'max_entries': 10,
         'cache_timeout': 3600,  # seconds
+        'requires_internet': True,
     }
     description = _('Embed an RSS feed from an external website.')
     template_name = 'extras/dashboard/widgets/rssfeed.html'
@@ -284,6 +285,10 @@ class RSSFeedWidget(DashboardWidget):
     class ConfigForm(WidgetConfigForm):
         feed_url = forms.URLField(
             label=_('Feed URL')
+        )
+        requires_internet = forms.BooleanField(
+            label=_('Requires external connection'),
+            required=False,
         )
         max_entries = forms.IntegerField(
             min_value=1,
@@ -309,6 +314,11 @@ class RSSFeedWidget(DashboardWidget):
         return f'dashboard_rss_{url_checksum}'
 
     def get_feed(self):
+        if self.config.get('requires_internet') and settings.ISOLATED_DEPLOYMENT:
+            return {
+                'isolated_deployment': True,
+            }
+
         # Fetch RSS content from cache if available
         if feed_content := cache.get(self.cache_key):
             return {

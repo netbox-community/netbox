@@ -8,9 +8,9 @@ Circuits can be assigned to [circuit groups](./circuitgroup.md) for correlation 
 
 The [circuit group](./circuitgroup.md) being assigned.
 
-### Circuit
+### Member
 
-The [circuit](./circuit.md) that is being assigned to the group.
+The [circuit](./circuit.md) or [virtual circuit](./virtualcircuit.md) assigned to the group.
 
 ### Priority
 

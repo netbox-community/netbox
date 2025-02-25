@@ -23,6 +23,7 @@ __all__ = (
     'InventoryItemFilter',
     'InventoryItemRoleFilter',
     'LocationFilter',
+    'MACAddressFilter',
     'ManufacturerFilter',
     'ModuleFilter',
     'ModuleBayFilter',
@@ -130,6 +131,12 @@ class FrontPortFilter(BaseFilterMixin):
 @strawberry_django.filter(models.FrontPortTemplate, lookups=True)
 @autotype_decorator(filtersets.FrontPortTemplateFilterSet)
 class FrontPortTemplateFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.MACAddress, lookups=True)
+@autotype_decorator(filtersets.MACAddressFilterSet)
+class MACAddressFilter(BaseFilterMixin):
     pass
 
 

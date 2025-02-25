@@ -96,14 +96,6 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 ---
 
-## DJANGO_ADMIN_ENABLED
-
-Default: False
-
-Setting this to True installs the `django.contrib.admin` app and enables the [Django admin UI](https://docs.djangoproject.com/en/5.0/ref/contrib/admin/). This may be necessary to support older plugins which do not integrate with the native NetBox interface.
-
----
-
 ## ENFORCE_GLOBAL_UNIQUE
 
 !!! tip "Dynamic Configuration Parameter"
@@ -111,6 +103,16 @@ Setting this to True installs the `django.contrib.admin` app and enables the [Dj
 Default: True
 
 By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
+
+---
+
+## EVENTS_PIPELINE
+
+!!! info "This parameter was introduced in NetBox v4.2."
+
+Default: `['extras.events.process_event_queue',]`
+
+NetBox will call dotted paths to the functions listed here for events (create, update, delete) on models as well as when custom EventRules are fired.
 
 ---
 

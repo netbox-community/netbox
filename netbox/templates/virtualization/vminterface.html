@@ -14,69 +14,85 @@
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
-        <div class="card">
-            <h2 class="card-header">{% trans "Interface" %}</h2>
-            <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Virtual Machine" %}</th>
-                    <td>{{ object.virtual_machine|linkify }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Name" %}</th>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Enabled" %}</th>
-                    <td>
-                        {% if object.enabled %}
-                            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                        {% else %}
-                            <span class="text-danger"><i class="mdi mdi-close"></i></span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Parent" %}</th>
-                    <td>{{ object.parent|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Bridge" %}</th>
-                    <td>{{ object.bridge|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "VRF" %}</th>
-                    <td>{{ object.vrf|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Description" %}</th>
-                    <td>{{ object.description|placeholder }} </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "MTU" %}</th>
-                    <td>{{ object.mtu|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "MAC Address" %}</th>
-                    <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "802.1Q Mode" %}</th>
-                    <td>{{ object.get_mode_display|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Tunnel" %}</th>
-                    <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
-                </tr>
-            </table>
-        </div>
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_left_page object %}
+    <div class="card">
+      <h2 class="card-header">{% trans "Interface" %}</h2>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Virtual Machine" %}</th>
+          <td>{{ object.virtual_machine|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Enabled" %}</th>
+          <td>
+            {% if object.enabled %}
+              <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+            {% else %}
+              <span class="text-danger"><i class="mdi mdi-close"></i></span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Parent" %}</th>
+          <td>{{ object.parent|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Bridge" %}</th>
+          <td>{{ object.bridge|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }} </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "MTU" %}</th>
+          <td>{{ object.mtu|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "802.1Q Mode" %}</th>
+          <td>{{ object.get_mode_display|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Tunnel" %}</th>
+          <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
-    <div class="col col-md-6">
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'ipam/inc/panels/fhrp_groups.html' %}
-        {% plugin_right_page object %}
+    {% include 'inc/panels/tags.html' %}
+    {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include 'inc/panels/custom_fields.html' %}
+    <div class="card">
+      <h2 class="card-header">{% trans "Addressing" %}</h2>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "MAC Address" %}</th>
+          <td>
+            {% if object.mac_address %}
+              <span class="font-monospace">{{ object.mac_address }}</span>
+              <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VRF" %}</th>
+          <td>{{ object.vrf|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VLAN Translation" %}</th>
+          <td>{{ object.vlan_translation_policy|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
+    {% include 'ipam/inc/panels/fhrp_groups.html' %}
+    {% plugin_right_page object %}
+  </div>
 </div>
 <div class="row mb-3">
     <div class="col col-md-12">
@@ -97,9 +113,34 @@
 </div>
 <div class="row mb-3">
     <div class="col col-md-12">
+        <div class="card">
+            <h2 class="card-header">
+                {% trans "MAC Addresses" %}
+                {% if perms.ipam.add_macaddress %}
+                    <div class="card-actions">
+                        <a href="{% url 'dcim:macaddress_add' %}?virtual_machine={{ object.device.pk }}&vminterface={{ object.pk }}&return_url={{ object.get_absolute_url }}"
+                           class="btn btn-ghost-primary btn-sm">
+                            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add MAC Address" %}
+                        </a>
+                    </div>
+                {% endif %}
+            </h2>
+            {% htmx_table 'dcim:macaddress_list' vminterface_id=object.pk %}
+        </div>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col col-md-12">
         {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
 </div>
+{% if object.vlan_translation_policy %}
+    <div class="row mb-3">
+        <div class="col col-md-12">
+            {% include 'inc/panel_table.html' with table=vlan_translation_table heading="VLAN Translation" %}
+        </div>
+    </div>
+{% endif %}
 <div class="row mb-3">
     <div class="col col-md-12">
         {% include 'inc/panel_table.html' with table=child_interfaces_table heading="Child Interfaces" %}

@@ -6,6 +6,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
+from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
@@ -589,6 +590,32 @@ class DeviceTestCase(TestCase):
         device2.full_clean()
         device2.save()
 
+    def test_device_label(self):
+        device1 = Device(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            name=None,
+        )
+        self.assertEqual(device1.label, None)
+
+        device1.name = 'Test Device 1'
+        self.assertEqual(device1.label, 'Test Device 1')
+
+        virtual_chassis = VirtualChassis.objects.create(name='VC 1')
+        device2 = Device(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            name=None,
+            virtual_chassis=virtual_chassis,
+            vc_position=2,
+        )
+        self.assertEqual(device2.label, 'VC 1:2')
+
+        device2.name = 'Test Device 2'
+        self.assertEqual(device2.label, 'Test Device 2')
+
     def test_device_mismatched_site_cluster(self):
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         Cluster.objects.create(name='Cluster 1', type=cluster_type)
@@ -600,24 +627,42 @@ class DeviceTestCase(TestCase):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type, site=sites[0]),
-            Cluster(name='Cluster 2', type=cluster_type, site=sites[1]),
-            Cluster(name='Cluster 3', type=cluster_type, site=None),
+            Cluster(name='Cluster 1', type=cluster_type, scope=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, scope=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, scope=None),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
 
         # Device with site only should pass
-        Device(name='device1', site=sites[0], device_type=device_type, role=device_role).full_clean()
+        Device(
+            name='device1',
+            site=sites[0],
+            device_type=device_type,
+            role=device_role
+        ).full_clean()
 
         # Device with site, cluster non-site should pass
-        Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
+        Device(
+            name='device1',
+            site=sites[0],
+            device_type=device_type,
+            role=device_role,
+            cluster=clusters[2]
+        ).full_clean()
 
         # Device with mismatched site & cluster should fail
         with self.assertRaises(ValidationError):
-            Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
+            Device(
+                name='device1',
+                site=sites[0],
+                device_type=device_type,
+                role=device_role,
+                cluster=clusters[1]
+            ).full_clean()
 
 
 class ModuleBayTestCase(TestCase):
@@ -634,7 +679,9 @@ class ModuleBayTestCase(TestCase):
         # Create a CustomField with a default value & assign it to all component models
         location = Location.objects.create(name='Location 1', slug='location-1', site=site)
         rack = Rack.objects.create(name='Rack 1', site=site)
-        device = Device.objects.create(name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack)
+        device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack
+        )
 
         module_bays = (
             ModuleBay(device=device, name='Module Bay 1', label='A', description='First'),
@@ -761,9 +808,9 @@ class CableTestCase(TestCase):
         circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
         circuit1 = Circuit.objects.create(provider=provider, type=circuittype, cid='1')
         circuit2 = Circuit.objects.create(provider=provider, type=circuittype, cid='2')
-        CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='A')
-        CircuitTermination.objects.create(circuit=circuit1, site=site, term_side='Z')
-        CircuitTermination.objects.create(circuit=circuit2, provider_network=provider_network, term_side='A')
+        CircuitTermination.objects.create(circuit=circuit1, termination=site, term_side='A')
+        CircuitTermination.objects.create(circuit=circuit1, termination=site, term_side='Z')
+        CircuitTermination.objects.create(circuit=circuit2, termination=provider_network, term_side='A')
 
     def test_cable_creation(self):
         """

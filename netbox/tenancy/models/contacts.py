@@ -32,17 +32,11 @@ class ContactGroup(NestedGroupModel):
         verbose_name = _('contact group')
         verbose_name_plural = _('contact groups')
 
-    def get_absolute_url(self):
-        return reverse('tenancy:contactgroup', args=[self.pk])
-
 
 class ContactRole(OrganizationalModel):
     """
     Functional role for a Contact assigned to an object.
     """
-    def get_absolute_url(self):
-        return reverse('tenancy:contactrole', args=[self.pk])
-
     class Meta:
         ordering = ('name',)
         verbose_name = _('contact role')
@@ -62,7 +56,8 @@ class Contact(PrimaryModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     title = models.CharField(
         verbose_name=_('title'),
@@ -106,9 +101,6 @@ class Contact(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('tenancy:contact', args=[self.pk])
-
 
 class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     object_type = models.ForeignKey(
@@ -134,7 +126,8 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
         verbose_name=_('priority'),
         max_length=50,
         choices=ContactPriorityChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     clone_fields = ('object_type', 'object_id', 'role', 'priority')

@@ -143,7 +143,12 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
     """
     Render a list of all Job assigned to an object. For example:
 
-        path('data-sources/<int:pk>/jobs/', ObjectJobsView.as_view(), name='datasource_jobs', kwargs={'model': DataSource}),
+        path(
+            'data-sources/<int:pk>/jobs/',
+             ObjectJobsView.as_view(),
+             name='datasource_jobs',
+             kwargs={'model': DataSource}
+        )
 
     Attributes:
         base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
@@ -161,7 +166,7 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
 
     def get_jobs(self, instance):
         object_type = ContentType.objects.get_for_model(instance)
-        return Job.objects.filter(
+        return Job.objects.defer('data').filter(
             object_type=object_type,
             object_id=instance.id
         )

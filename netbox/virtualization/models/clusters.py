@@ -1,10 +1,11 @@
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
+from dcim.models.mixins import CachedScopeMixin
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from virtualization.choices import *
@@ -25,9 +26,6 @@ class ClusterType(OrganizationalModel):
         verbose_name = _('cluster type')
         verbose_name_plural = _('cluster types')
 
-    def get_absolute_url(self):
-        return reverse('virtualization:clustertype', args=[self.pk])
-
 
 class ClusterGroup(ContactsMixin, OrganizationalModel):
     """
@@ -45,17 +43,15 @@ class ClusterGroup(ContactsMixin, OrganizationalModel):
         verbose_name = _('cluster group')
         verbose_name_plural = _('cluster groups')
 
-    def get_absolute_url(self):
-        return reverse('virtualization:clustergroup', args=[self.pk])
 
-
-class Cluster(ContactsMixin, PrimaryModel):
+class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     type = models.ForeignKey(
         verbose_name=_('type'),
@@ -83,13 +79,6 @@ class Cluster(ContactsMixin, PrimaryModel):
         blank=True,
         null=True
     )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.PROTECT,
-        related_name='clusters',
-        blank=True,
-        null=True
-    )
 
     # Generic relations
     vlan_groups = GenericRelation(
@@ -100,7 +89,7 @@ class Cluster(ContactsMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'type', 'group', 'status', 'tenant', 'site',
+        'scope_type', 'scope_id', 'type', 'group', 'status', 'tenant',
     )
     prerequisite_models = (
         'virtualization.ClusterType',
@@ -114,8 +103,8 @@ class Cluster(ContactsMixin, PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
             models.UniqueConstraint(
-                fields=('site', 'name'),
-                name='%(app_label)s_%(class)s_unique_site_name'
+                fields=('_site', 'name'),
+                name='%(app_label)s_%(class)s_unique__site_name'
             ),
         )
         verbose_name = _('cluster')
@@ -124,20 +113,34 @@ class Cluster(ContactsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('virtualization:cluster', args=[self.pk])
-
     def get_status_color(self):
         return ClusterStatusChoices.colors.get(self.status)
 
     def clean(self):
         super().clean()
 
+        site = location = None
+        if self.scope_type:
+            scope_type = self.scope_type.model_class()
+            if scope_type == apps.get_model('dcim', 'site'):
+                site = self.scope
+            elif scope_type == apps.get_model('dcim', 'location'):
+                location = self.scope
+                site = location.site
+
         # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
-        if not self._state.adding and self.site:
-            if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=self.site).count():
-                raise ValidationError({
-                    'site': _(
-                        "{count} devices are assigned as hosts for this cluster but are not in site {site}"
-                    ).format(count=nonsite_devices, site=self.site)
-                })
+        if not self._state.adding:
+            if site:
+                if nonsite_devices := Device.objects.filter(cluster=self).exclude(site=site).count():
+                    raise ValidationError({
+                        'scope': _(
+                            "{count} devices are assigned as hosts for this cluster but are not in site {site}"
+                        ).format(count=nonsite_devices, site=site)
+                    })
+            if location:
+                if nonlocation_devices := Device.objects.filter(cluster=self).exclude(location=location).count():
+                    raise ValidationError({
+                        'scope': _(
+                            "{count} devices are assigned as hosts for this cluster but are not in location {location}"
+                        ).format(count=nonlocation_devices, location=location)
+                    })

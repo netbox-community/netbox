@@ -16,7 +16,6 @@ def update_custom_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('users', '0005_alter_user_table'),
     ]
@@ -29,7 +28,12 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=150, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('permissions', models.ManyToManyField(blank=True, related_name='groups', related_query_name='group', to='auth.permission')),
+                (
+                    'permissions',
+                    models.ManyToManyField(
+                        blank=True, related_name='groups', related_query_name='group', to='auth.permission'
+                    ),
+                ),
             ],
             options={
                 'ordering': ('name',),
@@ -40,17 +44,10 @@ class Migration(migrations.Migration):
                 ('objects', users.models.GroupManager()),
             ],
         ),
-
         # Copy existing groups from the old table into the new one
-        migrations.RunSQL(
-            "INSERT INTO users_group (SELECT id, name, '' AS description FROM auth_group)"
-        ),
-
+        migrations.RunSQL("INSERT INTO users_group (SELECT id, name, '' AS description FROM auth_group)"),
         # Update the sequence for group ID values
-        migrations.RunSQL(
-            "SELECT setval('users_group_id_seq', (SELECT MAX(id) FROM users_group))"
-        ),
-
+        migrations.RunSQL("SELECT setval('users_group_id_seq', (SELECT MAX(id) FROM users_group))"),
         # Update the "groups" M2M fields on User & ObjectPermission
         migrations.AlterField(
             model_name='user',
@@ -62,23 +59,12 @@ class Migration(migrations.Migration):
             name='groups',
             field=models.ManyToManyField(blank=True, related_name='object_permissions', to='users.group'),
         ),
-
         # Delete any lingering group assignments for legacy permissions (from before NetBox v2.9)
-        migrations.RunSQL(
-            "DELETE from auth_group_permissions"
-        ),
-
+        migrations.RunSQL('DELETE from auth_group_permissions'),
         # Delete groups from the old table
-        migrations.RunSQL(
-            "DELETE from auth_group"
-        ),
-
+        migrations.RunSQL('DELETE from auth_group'),
         # Update custom fields
-        migrations.RunPython(
-            code=update_custom_fields,
-            reverse_code=migrations.RunPython.noop
-        ),
-
+        migrations.RunPython(code=update_custom_fields, reverse_code=migrations.RunPython.noop),
         # Delete the proxy model
         migrations.DeleteModel(
             name='NetBoxGroup',

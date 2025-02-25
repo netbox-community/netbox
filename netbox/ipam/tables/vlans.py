@@ -8,6 +8,7 @@ from ipam.models import *
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
+from .template_code import *
 
 __all__ = (
     'InterfaceVLANTable',
@@ -16,43 +17,11 @@ __all__ = (
     'VLANMembersTable',
     'VLANTable',
     'VLANVirtualMachinesTable',
+    'VLANTranslationPolicyTable',
+    'VLANTranslationRuleTable',
 )
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
-
-VLAN_LINK = """
-{% if record.pk %}
-    <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
-{% elif perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}{% if record.vlan_group %}&group={{ record.vlan_group.pk }}{% endif %}" class="btn btn-sm btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
-{% else %}
-    {{ record.available }} VLAN{{ record.available|pluralize }} available
-{% endif %}
-"""
-
-VLAN_PREFIXES = """
-{% for prefix in value.all %}
-    <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
-{% endfor %}
-"""
-
-VLANGROUP_BUTTONS = """
-{% with next_vid=record.get_next_available_vid %}
-    {% if next_vid and perms.ipam.add_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-sm btn-success">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-        </a>
-    {% endif %}
-{% endwith %}
-"""
-
-VLAN_MEMBER_TAGGED = """
-{% if record.untagged_vlan_id == object.pk %}
-    <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
-{% else %}
-    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-{% endif %}
-"""
 
 
 #
@@ -130,6 +99,13 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
+    qinq_role = columns.ChoiceFieldColumn(
+        verbose_name=_('Q-in-Q role')
+    )
+    qinq_svlan = tables.Column(
+        verbose_name=_('Q-in-Q SVLAN'),
+        linkify=True
+    )
     l2vpn = tables.Column(
         accessor=tables.A('l2vpn_termination__l2vpn'),
         linkify=True,
@@ -152,7 +128,7 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         model = VLAN
         fields = (
             'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
-            'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
+            'qinq_role', 'qinq_svlan', 'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
@@ -244,3 +220,59 @@ class InterfaceVLANTable(NetBoxTable):
     def __init__(self, interface, *args, **kwargs):
         self.interface = interface
         super().__init__(*args, **kwargs)
+
+
+#
+# VLAN Translation
+#
+
+class VLANTranslationPolicyTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    rule_count = columns.LinkedCountColumn(
+        viewname='ipam:vlantranslationrule_list',
+        url_params={'policy_id': 'pk'},
+        verbose_name=_('Rules')
+    )
+    description = tables.Column(
+        verbose_name=_('Description'),
+    )
+    tags = columns.TagColumn(
+        url_name='ipam:vlantranslationpolicy_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANTranslationPolicy
+        fields = (
+            'pk', 'id', 'name', 'rule_count', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'rule_count', 'description')
+
+
+class VLANTranslationRuleTable(NetBoxTable):
+    policy = tables.Column(
+        verbose_name=_('Policy'),
+        linkify=True
+    )
+    local_vid = tables.Column(
+        verbose_name=_('Local VID'),
+        linkify=True
+    )
+    remote_vid = tables.Column(
+        verbose_name=_('Remote VID'),
+    )
+    description = tables.Column(
+        verbose_name=_('Description'),
+    )
+    tags = columns.TagColumn(
+        url_name='ipam:vlantranslationrule_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANTranslationRule
+        fields = (
+            'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'policy', 'local_vid', 'remote_vid', 'description')

@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from django.utils.translation import gettext as _
 
-from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
+from dcim.choices import CableLengthUnitChoices
+from netbox.choices import WeightUnitChoices
 
 __all__ = (
     'to_grams',

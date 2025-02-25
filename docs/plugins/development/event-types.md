@@ -1,7 +1,5 @@
 # Event Types
 
-!!! info "This feature was introduced in NetBox v4.1."
-
 Plugins can register their own custom event types for use with NetBox [event rules](../../models/extras/eventrule.md). This is accomplished by calling the `register()` method on an instance of the `EventType` class. This can be done anywhere within the plugin. An example is provided below.
 
 ```python
