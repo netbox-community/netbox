@@ -169,15 +169,6 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
 
     selector_fields = ('filter_id', 'q')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit saved filters to those applicable to the form's model
-        object_type = ObjectType.objects.get_for_model(self.model)
-        self.fields['filter_id'].widget.add_query_params({
-            'object_type_id': object_type.pk,
-        })
-
     def _get_custom_fields(self, content_type):
         return super()._get_custom_fields(content_type).exclude(
             Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |

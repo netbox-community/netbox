@@ -166,7 +166,7 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
 
     def get_jobs(self, instance):
         object_type = ContentType.objects.get_for_model(instance)
-        return Job.objects.filter(
+        return Job.objects.defer('data').filter(
             object_type=object_type,
             object_id=instance.id
         )

@@ -43,7 +43,9 @@ function toggleCheckboxRange(
     const typedElement = element as HTMLInputElement;
     //Change loop's current checkbox state to eventTargetElement checkbox state
     if (changePkCheckboxState === true) {
-      typedElement.checked = eventTargetElement.checked;
+      if (!typedElement.closest('tr')?.classList.contains('d-none')) {
+        typedElement.checked = eventTargetElement.checked;
+      }
     }
     //The previously clicked checkbox was above the shift clicked checkbox
     if (element === previousStateElement) {
@@ -52,7 +54,9 @@ function toggleCheckboxRange(
         return;
       }
       changePkCheckboxState = true;
-      typedElement.checked = eventTargetElement.checked;
+      if (!typedElement.closest('tr')?.classList.contains('d-none')) {
+        typedElement.checked = eventTargetElement.checked;
+      }
     }
     //The previously clicked checkbox was below the shift clicked checkbox
     if (element === eventTargetElement) {

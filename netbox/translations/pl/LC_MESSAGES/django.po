@@ -1237,7 +1237,7 @@ msgstr "Przydziały grup obwodowych"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "wypowiedzenie"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1298,14 +1298,12 @@ msgstr "zakończenia obwodu"
 #: netbox/circuits/models/circuits.py:308
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
-msgstr "Zakończenie obwodu musi być podłączone do witryny lub sieci dostawcy."
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Zakończenie obwodu nie może połączyć się zarówno z witryną, jak i siecią "
-"dostawcy."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9846,7 +9844,7 @@ msgstr "Zakres ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Przypisanie witryny/sieci VLAN"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12686,7 +12684,7 @@ msgstr "Szablon renderowania błędu"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Dla tego urządzenia nie przypisano szablonu konfiguracji."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13954,7 +13952,7 @@ msgstr "Centrum pomocy"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Administrator Django"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14368,7 +14366,7 @@ msgstr "Dodaj dysk wirtualny"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr "Dla tej maszyny wirtualnej nie przypisano szablonu konfiguracji."
+msgstr ""
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15480,7 +15478,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} należy do innej strony ({device_site}) niż klaster ({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16217,7 +16214,6 @@ msgstr "łącza bezprzewodowe"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
-"Należy określić jednostkę podczas ustawiania odległości bezprzewodowej"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

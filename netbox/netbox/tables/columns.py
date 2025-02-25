@@ -719,7 +719,7 @@ class PluginActiveColumn(BooleanColumn):
         super().__init__(*args, **kwargs)
 
     def render(self, value, record, table, **kwargs):
-        if not value and self.false_mark:
+        if record.failed_to_load and self.false_mark:
             tooltip = (
                 f'Could not load due to NetBox version incompatibility. '
                 f'Min version: {record.netbox_min_version}, max version: {record.netbox_max_version}'
