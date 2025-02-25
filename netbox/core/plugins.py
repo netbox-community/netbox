@@ -66,6 +66,7 @@ class Plugin:
     release_recent_history: list[PluginVersion] = field(default_factory=list)
     is_local: bool = False  # extra field for locally installed plugins
     is_installed: bool = False
+    failed_to_load: bool = False
     installed_version: str = ''
     netbox_min_version: str = ''
     netbox_max_version: str = ''
@@ -93,7 +94,8 @@ def get_local_plugins(plugins=None):
             tag_line=plugin_config.description,
             description_short=plugin_config.description,
             is_local=True,
-            is_installed=plugin_name in registry['plugins']['installed'],
+            is_installed=True,
+            failed_to_load=plugin_name not in registry['plugins']['installed'],
             installed_version=installed_version,
             netbox_min_version=plugin_config.min_version,
             netbox_max_version=plugin_config.max_version,
