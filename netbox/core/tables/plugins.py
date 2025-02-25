@@ -50,8 +50,8 @@ class CatalogPluginTable(BaseTable):
     is_local = columns.BooleanColumn(
         verbose_name=_('Local')
     )
-    is_installed = columns.BooleanColumn(
-        verbose_name=_('Installed')
+    is_installed = columns.PluginActiveColumn(
+        verbose_name=_('Active')
     )
     is_certified = columns.BooleanColumn(
         verbose_name=_('Certified')
