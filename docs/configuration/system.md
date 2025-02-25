@@ -64,7 +64,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ## HTTP_PROXIES
 
-Default: None
+Default: Empty
 
 A dictionary of HTTP proxies to use for outbound requests originating from NetBox (e.g. when sending webhook requests). Proxies should be specified by schema (HTTP and HTTPS) as per the [Python requests library documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies). For example:
 
@@ -74,6 +74,8 @@ HTTP_PROXIES = {
     'https': 'http://10.10.1.10:1080',
 }
 ```
+
+If more flexibility is needed in determining which proxy to use for a given request, consider implementing one or more custom proxy routers via the [`PROXY_ROUTERS`](#proxy_routers) parameter.
 
 ---
 
@@ -157,6 +159,16 @@ LOGGING = {
 Default: `$INSTALL_ROOT/netbox/media/`
 
 The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media/` directory within the base NetBox installation path.
+
+---
+
+## PROXY_ROUTERS
+
+Default: `["utilities.proxy.DefaultProxyRouter"]`
+
+A list of Python classes responsible for determining which proxy server(s) to use for outbound HTTP requests. Each item in the list can be the class itself or the dotted path to the class.
+
+The `route()` method on each class must return a dictionary of candidate proxies arranged by protocol (e.g. `http` and/or `https`), or None if no viable proxy can be determined. The default class, `DefaultProxyRouter`, simply returns the content of [`HTTP_PROXIES`](#http_proxies).
 
 ---
 
