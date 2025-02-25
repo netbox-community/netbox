@@ -25,7 +25,7 @@ msgstr ""
 #: netbox/templates/users/token.html:17 netbox/users/forms/bulk_import.py:39
 #: netbox/users/forms/model_forms.py:112
 msgid "Key"
-msgstr "Clave"
+msgstr "Llave"
 
 #: netbox/account/tables.py:31 netbox/users/forms/filtersets.py:132
 msgid "Write Enabled"
@@ -61,7 +61,7 @@ msgstr "Utilizado por última vez"
 #: netbox/templates/users/token.html:47 netbox/users/forms/bulk_edit.py:122
 #: netbox/users/forms/model_forms.py:124
 msgid "Allowed IPs"
-msgstr "IP permitidas"
+msgstr "IPs permitidas"
 
 #: netbox/account/views.py:114
 #, python-brace-format
@@ -117,7 +117,7 @@ msgstr "Activo"
 #: netbox/dcim/choices.py:1659 netbox/virtualization/choices.py:24
 #: netbox/virtualization/choices.py:43
 msgid "Offline"
-msgstr "Fuera de línea"
+msgstr "Desconectado"
 
 #: netbox/circuits/choices.py:25
 msgid "Deprovisioning"
@@ -125,7 +125,7 @@ msgstr "Desaprovisionamiento"
 
 #: netbox/circuits/choices.py:26
 msgid "Decommissioned"
-msgstr "Retirado"
+msgstr "Desmantelado"
 
 #: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1619
 #: netbox/tenancy/choices.py:17
@@ -167,7 +167,7 @@ msgstr "Región (ID)"
 #: netbox/ipam/filtersets.py:968 netbox/virtualization/filtersets.py:52
 #: netbox/virtualization/filtersets.py:180 netbox/vpn/filtersets.py:353
 msgid "Region (slug)"
-msgstr "Región (babosa)"
+msgstr "Región (slug)"
 
 #: netbox/circuits/filtersets.py:44 netbox/circuits/filtersets.py:211
 #: netbox/dcim/filtersets.py:128 netbox/dcim/filtersets.py:225
@@ -261,7 +261,7 @@ msgstr "Sitio"
 #: netbox/virtualization/filtersets.py:75
 #: netbox/virtualization/filtersets.py:203 netbox/vpn/filtersets.py:363
 msgid "Site (slug)"
-msgstr "Sitio (slug)"
+msgstr "Sitio (babosa)"
 
 #: netbox/circuits/filtersets.py:67
 msgid "ASN (ID)"
@@ -284,7 +284,7 @@ msgstr "Proveedor (ID)"
 #: netbox/circuits/filtersets.py:162 netbox/circuits/filtersets.py:289
 #: netbox/circuits/filtersets.py:331 netbox/ipam/filtersets.py:251
 msgid "Provider (slug)"
-msgstr "Proveedor (slug)"
+msgstr "Proveedor (babosa)"
 
 #: netbox/circuits/filtersets.py:167
 msgid "Provider account (ID)"
@@ -394,7 +394,7 @@ msgstr "Grupo de circuitos (slug)"
 #: netbox/netbox/navigation/menu.py:172 netbox/netbox/navigation/menu.py:175
 #: netbox/templates/circuits/provider.html:23
 msgid "ASNs"
-msgstr "ASN"
+msgstr "ASNs"
 
 #: netbox/circuits/forms/bulk_edit.py:34 netbox/circuits/forms/bulk_edit.py:56
 #: netbox/circuits/forms/bulk_edit.py:83
@@ -1234,7 +1234,7 @@ msgstr "Asignaciones de grupos de circuitos"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr ""
+msgstr "terminación"
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1296,11 +1296,15 @@ msgstr "terminaciones de circuitos"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
+"Una terminación de circuito debe conectarse a un sitio o a una red de "
+"proveedores."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
+"Una terminación de circuito no puede conectarse tanto a un sitio como a una "
+"red de proveedores."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9909,7 +9913,7 @@ msgstr "Gama ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr ""
+msgstr "Asignación de sitio/VLAN"
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12765,6 +12769,7 @@ msgstr "Error al renderizar la plantilla"
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
 msgstr ""
+"No se ha asignado ninguna plantilla de configuración para este dispositivo."
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -14034,7 +14039,7 @@ msgstr "Centro de ayuda"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr ""
+msgstr "Administrador de Django"
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14449,6 +14454,8 @@ msgstr "Agregar disco virtual"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
+"No se ha asignado ninguna plantilla de configuración para esta máquina "
+"virtual."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15569,6 +15576,8 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
+"{device} pertenece a un sitio diferente ({device_site}) que el clúster "
+"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16308,7 +16317,7 @@ msgstr "enlaces inalámbricos"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr ""
+msgstr "Debe especificar una unidad al configurar una distancia inalámbrica"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

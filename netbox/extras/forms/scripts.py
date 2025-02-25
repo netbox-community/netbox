@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from core.choices import JobIntervalChoices
+from extras.choices import DurationChoices
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
 
@@ -28,7 +28,7 @@ class ScriptForm(forms.Form):
         min_value=1,
         label=_("Recurs every"),
         widget=NumberWithOptions(
-            options=JobIntervalChoices
+            options=DurationChoices
         ),
         help_text=_("Interval at which this script is re-run (in minutes)")
     )

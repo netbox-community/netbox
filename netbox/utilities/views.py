@@ -196,10 +196,7 @@ class GetRelatedModelsMixin:
         ]
         related_models.extend(extra)
 
-        return sorted(
-            filter(lambda qs: qs[0].exists(), related_models),
-            key=lambda qs: qs[0].model._meta.verbose_name.lower(),
-        )
+        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
 
 
 class ViewTab:

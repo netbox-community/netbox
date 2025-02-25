@@ -1118,7 +1118,6 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'devicerole',
         'devicetype',
         'dummymodel',  # From dummy_plugin
-        'dummynetboxmodel',  # From dummy_plugin
         'eventrule',
         'fhrpgroup',
         'frontport',

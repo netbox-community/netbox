@@ -5,13 +5,13 @@
 # 
 # Translators:
 # Martin R, 2024
+# Niklas, 2024
 # fepilins, 2024
 # Steffen, 2024
 # haagehan, 2024
-# Jeremy Stretch, 2024
 # Robin Reinhardt, 2024
+# Jeremy Stretch, 2025
 # chbally, 2025
-# Niklas, 2025
 # 
 #, fuzzy
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Niklas, 2025\n"
+"Last-Translator: chbally, 2025\n"
 "Language-Team: German (https://app.transifex.com/netbox-community/teams/178115/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1240,7 +1240,7 @@ msgstr "Transportnetzzuweisungen"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr ""
+msgstr "Abschlusspunkt"
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1303,11 +1303,15 @@ msgstr "Transportnetzabschlusspunkte"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
+"Ein Leitungsabschluss muss entweder an einen Standort oder an ein "
+"Providernetzwerk angeschlossen werden."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
+"Ein Leitungsabschluss kann nicht sowohl an einen Standort als auch an ein "
+"Providernetzwerk angeschlossen werden."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -8434,7 +8438,8 @@ msgstr "Gewicht anzeigen"
 
 #: netbox/extras/models/customfields.py:173
 msgid "Fields with higher weights appear lower in a form."
-msgstr "Höher gewichtete Felder werden im Formular weiter unten angezeigt."
+msgstr ""
+"Felder mit höheren Gewichten werden in einem Formular niedriger angezeigt."
 
 #: netbox/extras/models/customfields.py:178
 msgid "minimum value"
@@ -9526,7 +9531,7 @@ msgstr "Dienst (ID)"
 
 #: netbox/ipam/filtersets.py:675
 msgid "NAT inside IP address (ID)"
-msgstr "NAT inside IP-Adresse (ID)"
+msgstr "NAT innerhalb der IP-Adresse (ID)"
 
 #: netbox/ipam/filtersets.py:1043 netbox/ipam/forms/bulk_import.py:322
 msgid "Assigned interface"
@@ -9954,7 +9959,7 @@ msgstr "Ziel der Route"
 #: netbox/templates/ipam/aggregate.html:11
 #: netbox/templates/ipam/prefix.html:38
 msgid "Aggregate"
-msgstr "Aggregieren"
+msgstr "Aggregat"
 
 #: netbox/ipam/forms/model_forms.py:135 netbox/templates/ipam/asnrange.html:12
 msgid "ASN Range"
@@ -9962,7 +9967,7 @@ msgstr "ASN-Bereich"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr ""
+msgstr "Standort-/VLAN-Zuweisung"
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -10090,7 +10095,9 @@ msgstr "ASN-Bereiche"
 #: netbox/ipam/models/asns.py:72
 #, python-brace-format
 msgid "Starting ASN ({start}) must be lower than ending ASN ({end})."
-msgstr "Der ASN  ({start}) muss niedriger sein als das letzte ASN ({end})."
+msgstr ""
+"ASN wird gestartet ({start}) muss niedriger sein als das Ende der ASN "
+"({end})."
 
 #: netbox/ipam/models/asns.py:104
 msgid "Regional Internet Registry responsible for this AS number space"
@@ -10164,7 +10171,7 @@ msgstr "Aggregat"
 
 #: netbox/ipam/models/ip.py:116
 msgid "aggregates"
-msgstr "aggregiert"
+msgstr "Aggregate"
 
 #: netbox/ipam/models/ip.py:132
 msgid "Cannot create aggregate with /0 mask."
@@ -10220,8 +10227,7 @@ msgstr "ist ein Pool"
 #: netbox/ipam/models/ip.py:267
 msgid "All IP addresses within this prefix are considered usable"
 msgstr ""
-"Alle IP-Adressen (inklusive Netzwerk- und Broadcast-Adresse) innerhalb "
-"dieses Prefixes werden als nutzbar betrachtet"
+"Alle IP-Adressen innerhalb dieses Prefixes werden als nutzbar betrachtet"
 
 #: netbox/ipam/models/ip.py:270 netbox/ipam/models/ip.py:537
 msgid "mark utilized"
@@ -10497,7 +10503,7 @@ msgstr "einzigartigen Raum erzwingen"
 
 #: netbox/ipam/models/vrfs.py:43
 msgid "Prevent duplicate prefixes/IP addresses within this VRF"
-msgstr "Vermeiden Sie doppelte Präfixe/IP-Adressen in dieser VRF"
+msgstr "Vermeiden Sie doppelte Präfixe/IP-Adressen in diesem VRF"
 
 #: netbox/ipam/models/vrfs.py:63 netbox/netbox/navigation/menu.py:186
 #: netbox/netbox/navigation/menu.py:188
@@ -10518,7 +10524,7 @@ msgstr "Routenziele"
 
 #: netbox/ipam/tables/asn.py:52
 msgid "ASDOT"
-msgstr "ASDOT"
+msgstr "ALS PUNKT"
 
 #: netbox/ipam/tables/asn.py:57
 msgid "Site Count"
@@ -11546,7 +11552,7 @@ msgstr ""
 #: netbox/netbox/registry.py:14
 #, python-brace-format
 msgid "Invalid store: {key}"
-msgstr "Ungültiger Store: {key}"
+msgstr "Ungültiger Shop: {key}"
 
 #: netbox/netbox/registry.py:17
 msgid "Cannot add stores to registry after initialization"
@@ -12425,7 +12431,7 @@ msgstr "Warteschlange"
 
 #: netbox/templates/core/rq_task.html:65
 msgid "Timeout"
-msgstr "Timeout"
+msgstr "Auszeit"
 
 #: netbox/templates/core/rq_task.html:69
 msgid "Result TTL"
@@ -12495,7 +12501,7 @@ msgstr "Anzahl fehlgeschlagener Jobs"
 
 #: netbox/templates/core/rq_worker.html:75
 msgid "Total working time"
-msgstr "Gesamtlaufzeit"
+msgstr "Gesamtarbeitszeit"
 
 #: netbox/templates/core/rq_worker.html:76
 msgid "seconds"
@@ -12821,7 +12827,7 @@ msgstr "Fehler beim Rendern der Vorlage"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr ""
+msgstr "Diesem Gerät wurde keine Konfigurationsvorlage zugewiesen."
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -14092,7 +14098,7 @@ msgstr "Hilfecenter"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr ""
+msgstr "Django-Administrator"
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14507,6 +14513,7 @@ msgstr "Virtuelles Laufwerk hinzufügen"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
+"Für diese virtuelle Maschine wurde keine Konfigurationsvorlage zugewiesen."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -14533,11 +14540,11 @@ msgstr "Secret anzeigen"
 #: netbox/vpn/forms/model_forms.py:316 netbox/vpn/forms/model_forms.py:352
 #: netbox/vpn/tables/crypto.py:68 netbox/vpn/tables/crypto.py:134
 msgid "Proposals"
-msgstr "Proposals"
+msgstr "Vorschläge"
 
 #: netbox/templates/vpn/ikeproposal.html:10
 msgid "IKE Proposal"
-msgstr "IKE- Proposal"
+msgstr "IKE-Vorschlag"
 
 #: netbox/templates/vpn/ikeproposal.html:21 netbox/vpn/forms/bulk_edit.py:97
 #: netbox/vpn/forms/bulk_import.py:145 netbox/vpn/forms/filtersets.py:101
@@ -14568,7 +14575,7 @@ msgstr "DH-Gruppe"
 #: netbox/templates/vpn/ipsecproposal.html:29
 #: netbox/vpn/forms/bulk_edit.py:182 netbox/vpn/models/crypto.py:146
 msgid "SA lifetime (seconds)"
-msgstr "SA-Gültigkeitsdauer (Sekunden)"
+msgstr "SA-Lebensdauer (Sekunden)"
 
 #: netbox/templates/vpn/ipsecpolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:66 netbox/vpn/tables/crypto.py:170
@@ -14653,7 +14660,7 @@ msgstr "Peer-Abschlusspunkt"
 
 #: netbox/templates/wireless/inc/authentication_attrs.html:12
 msgid "Cipher"
-msgstr "Verschlüsselungsalgorithmus"
+msgstr "Chiffre"
 
 #: netbox/templates/wireless/inc/authentication_attrs.html:16
 msgid "PSK"
@@ -15631,6 +15638,8 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
+"{device} gehört zu einer anderen Seite ({device_site}) als der Cluster "
+"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -15968,7 +15977,7 @@ msgstr "SA-Lebendauer"
 #: netbox/wireless/forms/filtersets.py:64
 #: netbox/wireless/forms/filtersets.py:98
 msgid "Pre-shared key"
-msgstr "Vorab geteilter Schlüssel (PSK)"
+msgstr "Vorab geteilter Schlüssel (Pre-shared key)"
 
 #: netbox/vpn/forms/bulk_edit.py:237 netbox/vpn/forms/bulk_import.py:239
 #: netbox/vpn/forms/filtersets.py:199 netbox/vpn/forms/model_forms.py:370
@@ -15984,7 +15993,7 @@ msgstr "IPSec-Richtlinie"
 
 #: netbox/vpn/forms/bulk_import.py:50
 msgid "Tunnel encapsulation"
-msgstr "Tunnel Encapsulation"
+msgstr "Tunnelkapselung"
 
 #: netbox/vpn/forms/bulk_import.py:83
 msgid "Operational role"
@@ -16131,7 +16140,7 @@ msgstr "Vorschläge"
 
 #: netbox/vpn/models/crypto.py:91 netbox/wireless/models.py:39
 msgid "pre-shared key"
-msgstr "vorab geteilter Schlüssel (PSK)"
+msgstr "vorab geteilter Schlüssel"
 
 #: netbox/vpn/models/crypto.py:105
 msgid "IKE policies"
@@ -16264,7 +16273,7 @@ msgstr "SA-Lebensdauer"
 
 #: netbox/vpn/tables/crypto.py:71
 msgid "Pre-shared Key"
-msgstr "Vorab geteilter Schlüssel (PSK)"
+msgstr "Vorab geteilter Schlüssel"
 
 #: netbox/vpn/tables/crypto.py:103
 msgid "SA Lifetime (Seconds)"
@@ -16381,6 +16390,7 @@ msgstr "Funkverbindungen"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
+"Beim Einstellen einer Funkreichweite muss eine Einheit angegeben werden"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

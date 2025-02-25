@@ -11,9 +11,9 @@
 # stavr666, 2024
 # Alexander Ryazanov (alryaz) <alryaz@xavux.com>, 2024
 # Vladyslav V. Prodan, 2024
+# Jeremy Stretch, 2024
 # Artem Kotik, 2025
 # Michail Tatarinov, 2025
-# Jeremy Stretch, 2025
 # 
 #, fuzzy
 msgid ""
@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: Michail Tatarinov, 2025\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -64,7 +64,7 @@ msgstr "Истекает"
 
 #: netbox/account/tables.py:42 netbox/users/forms/filtersets.py:141
 msgid "Last Used"
-msgstr "Последний раз использованный"
+msgstr "Последнее использование"
 
 #: netbox/account/tables.py:45 netbox/templates/account/token.html:55
 #: netbox/templates/users/token.html:47 netbox/users/forms/bulk_edit.py:122
@@ -75,7 +75,7 @@ msgstr "Разрешенные IP-адреса"
 #: netbox/account/views.py:114
 #, python-brace-format
 msgid "Logged in as {user}."
-msgstr "Вошел в систему как {user}."
+msgstr "Вошел(-ла) в систему как {user}."
 
 #: netbox/account/views.py:164
 msgid "You have logged out."
@@ -83,13 +83,11 @@ msgstr "Вы вышли из системы."
 
 #: netbox/account/views.py:216
 msgid "Your preferences have been updated."
-msgstr "Ваши предпочтения обновлены."
+msgstr "Ваши настройки были обновлены."
 
 #: netbox/account/views.py:239
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
-msgstr ""
-"Учетные данные пользователя, аутентифицированные по протоколу LDAP, нельзя "
-"изменить в NetBox."
+msgstr "Учетные данные доменных пользователей нельзя изменить в NetBox."
 
 #: netbox/account/views.py:254
 msgid "Your password has been changed successfully."
@@ -106,7 +104,7 @@ msgstr "Запланировано"
 
 #: netbox/circuits/choices.py:22 netbox/netbox/navigation/menu.py:305
 msgid "Provisioning"
-msgstr "Выделение ресурсов"
+msgstr "Эксплутация"
 
 #: netbox/circuits/choices.py:23 netbox/core/tables/tasks.py:22
 #: netbox/dcim/choices.py:22 netbox/dcim/choices.py:103
@@ -126,11 +124,11 @@ msgstr "Активный"
 #: netbox/dcim/choices.py:1659 netbox/virtualization/choices.py:24
 #: netbox/virtualization/choices.py:43
 msgid "Offline"
-msgstr "Не в сети"
+msgstr "Оффлайн"
 
 #: netbox/circuits/choices.py:25
 msgid "Deprovisioning"
-msgstr "Выделение резервов"
+msgstr "Вывод из эксплуатации"
 
 #: netbox/circuits/choices.py:26
 msgid "Decommissioned"
@@ -139,7 +137,7 @@ msgstr "Списан"
 #: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1619
 #: netbox/tenancy/choices.py:17
 msgid "Primary"
-msgstr "Начальное"
+msgstr "Основной"
 
 #: netbox/circuits/choices.py:91 netbox/ipam/choices.py:90
 #: netbox/tenancy/choices.py:18
@@ -148,7 +146,7 @@ msgstr "Вторичный"
 
 #: netbox/circuits/choices.py:92 netbox/tenancy/choices.py:19
 msgid "Tertiary"
-msgstr "Высшее образование"
+msgstr "Третичный"
 
 #: netbox/circuits/choices.py:93 netbox/tenancy/choices.py:20
 msgid "Inactive"
@@ -176,7 +174,7 @@ msgstr "Регион (ID)"
 #: netbox/ipam/filtersets.py:968 netbox/virtualization/filtersets.py:52
 #: netbox/virtualization/filtersets.py:180 netbox/vpn/filtersets.py:353
 msgid "Region (slug)"
-msgstr "Регион (пуля)"
+msgstr "Регион (подстрока)"
 
 #: netbox/circuits/filtersets.py:44 netbox/circuits/filtersets.py:211
 #: netbox/dcim/filtersets.py:128 netbox/dcim/filtersets.py:225
@@ -199,7 +197,7 @@ msgstr "Группа сайтов (ID)"
 #: netbox/virtualization/filtersets.py:65
 #: netbox/virtualization/filtersets.py:193
 msgid "Site group (slug)"
-msgstr "Группа сайтов (слизень)"
+msgstr "Группа сайтов (подстрока)"
 
 #: netbox/circuits/filtersets.py:56 netbox/circuits/forms/bulk_edit.py:188
 #: netbox/circuits/forms/bulk_edit.py:216
@@ -1243,7 +1241,7 @@ msgstr "Назначения групп каналов связи"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr ""
+msgstr "завершение"
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1305,11 +1303,15 @@ msgstr "точки подключения канала связи"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
+"Оконечное устройство канала должно быть подключено либо к узлу, либо к сети "
+"провайдера."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
+"Терминатор канала не может быть подключен как к сайту, так и к сети "
+"поставщика."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9861,7 +9863,7 @@ msgstr "Диапазон ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr ""
+msgstr "Назначение сайта/VLAN"
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12702,7 +12704,7 @@ msgstr "Ошибка при отображении шаблона"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr ""
+msgstr "Для этого устройства не назначен шаблон конфигурации."
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13971,7 +13973,7 @@ msgstr "Справочный центр"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr ""
+msgstr "Администратор Джанго"
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14383,7 +14385,7 @@ msgstr "Добавить виртуальный диск"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr ""
+msgstr "Для этой виртуальной машины не назначен шаблон конфигурации."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15495,6 +15497,8 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
+"{device} принадлежит другому сайту ({device_site}), чем кластер "
+"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16230,6 +16234,7 @@ msgstr "беспроводные соединения"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
+"При настройке беспроводного расстояния необходимо указать единицу измерения"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format
