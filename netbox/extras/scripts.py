@@ -2,10 +2,12 @@ import inspect
 import json
 import logging
 import os
+import re
 
 import yaml
 from django import forms
 from django.conf import settings
+from django.core.files.storage import storages
 from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.utils.functional import classproperty
@@ -367,9 +369,46 @@ class BaseScript:
     def filename(self):
         return inspect.getfile(self.__class__)
 
+    def findsource(self, object):
+        storage = storages.create_storage(storages.backends["scripts"])
+        with storage.open(os.path.basename(self.filename), 'r') as f:
+            data = f.read()
+
+        # Break the source code into lines
+        lines = [line + '\n' for line in data.splitlines()]
+
+        # Find the class definition
+        name = object.__name__
+        pat = re.compile(r'^(\s*)class\s*' + name + r'\b')
+        # use the class definition with the least indentation
+        candidates = []
+        for i in range(len(lines)):
+            match = pat.match(lines[i])
+            if match:
+                if lines[i][0] == 'c':
+                    return lines, i
+
+                candidates.append((match.group(1), i))
+        if not candidates:
+            raise OSError('could not find class definition')
+
+        # Sort the candidates by whitespace, and by line number
+        candidates.sort()
+        return lines, candidates[0][1]
+
     @property
     def source(self):
-        return inspect.getsource(self.__class__)
+        # Can't use inspect.getsource() as it uses os to get the file
+        # inspect uses ast, but that is overkill for this as we only do
+        # classes.
+        object = self.__class__
+
+        try:
+            lines, lnum = self.findsource(object)
+            lines = inspect.getblock(lines[lnum:])
+            return ''.join(lines)
+        except OSError:
+            return ''
 
     @classmethod
     def _get_vars(cls):
@@ -521,6 +560,12 @@ class BaseScript:
     # Convenience functions
     #
 
+    def get_storage(self):
+        if self.storage is None:
+            self.storage = storages.create_storage(storages.backends["scripts"])
+
+        return self.storage
+
     def load_yaml(self, filename):
         """
         Return data from a YAML file
@@ -530,8 +575,9 @@ class BaseScript:
         except ImportError:
             from yaml import Loader
 
+        storage = self.get_storage()
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
+        with storage.open(file_path, 'r') as datafile:
             data = yaml.load(datafile, Loader=Loader)
 
         return data
@@ -540,8 +586,10 @@ class BaseScript:
         """
         Return data from a JSON file
         """
+
+        storage = self.get_storage()
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
+        with storage.open(file_path, 'r') as datafile:
             data = json.load(datafile)
 
         return data
@@ -555,7 +603,6 @@ class BaseScript:
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info("Running report")
-
         try:
             for test_name in self.tests:
                 self._current_test = test_name

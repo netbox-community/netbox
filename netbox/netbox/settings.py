@@ -15,6 +15,7 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+import storages.utils  # type: ignore
 from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
@@ -175,6 +176,7 @@ SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
+STORAGES = getattr(configuration, 'STORAGES', None)
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
@@ -223,60 +225,58 @@ DATABASES = {
 # Storage backend
 #
 
-# Default STORAGES for Django
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+if STORAGE_BACKEND is not None:
+    warnings.warn(
+        "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
+    )
 
+if STORAGE_BACKEND is not None and STORAGES is not None:
+    raise ImproperlyConfigured(
+        "STORAGE_BACKEND and STORAGES are both set, remove the deprecated STORAGE_BACKEND setting."
+    )
+
+# Default STORAGES for Django
+if STORAGES is None:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+        "scripts": {
+            "BACKEND": "extras.storage.ScriptFileSystemStorage",
+        },
+    }
+
+# TODO: This code is deprecated and needs to be removed in the future
 if STORAGE_BACKEND is not None:
     STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
-    # django-storages
-    if STORAGE_BACKEND.startswith('storages.'):
-        try:
-            import storages.utils  # type: ignore
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'storages':
-                raise ImproperlyConfigured(
-                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storages is not present. It can be "
-                    f"installed by running 'pip install django-storages'."
-                )
-            raise e
+# Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
+if STORAGE_CONFIG is not None:
+    def _setting(name, default=None):
+        if name in STORAGE_CONFIG:
+            return STORAGE_CONFIG[name]
+        return globals().get(name, default)
+    storages.utils.setting = _setting
 
-        # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
-        def _setting(name, default=None):
-            if name in STORAGE_CONFIG:
-                return STORAGE_CONFIG[name]
-            return globals().get(name, default)
-        storages.utils.setting = _setting
+# django-storage-swift
+if STORAGE_BACKEND == 'swift.storage.SwiftStorage':
+    try:
+        import swift.utils  # noqa: F401
+    except ModuleNotFoundError as e:
+        if getattr(e, 'name') == 'swift':
+            raise ImproperlyConfigured(
+                f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
+                "It can be installed by running 'pip install django-storage-swift'."
+            )
+        raise e
 
-    # django-storage-swift
-    elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
-        try:
-            import swift.utils  # noqa: F401
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'swift':
-                raise ImproperlyConfigured(
-                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
-                    "It can be installed by running 'pip install django-storage-swift'."
-                )
-            raise e
-
-        # Load all SWIFT_* settings from the user configuration
-        for param, value in STORAGE_CONFIG.items():
-            if param.startswith('SWIFT_'):
-                globals()[param] = value
-
-if STORAGE_CONFIG and STORAGE_BACKEND is None:
-    warnings.warn(
-        "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
-        "ignored."
-    )
+    # Load all SWIFT_* settings from the user configuration
+    for param, value in STORAGE_CONFIG.items():
+        if param.startswith('SWIFT_'):
+            globals()[param] = value
 
 
 #
