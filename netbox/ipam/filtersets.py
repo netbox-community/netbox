@@ -857,7 +857,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class VLANGroupFilterSet(OrganizationalModelFilterSet):
+class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'

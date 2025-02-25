@@ -430,11 +430,17 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         label=_('VLAN ID ranges'),
         required=False
     )
+    tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False
+    )
 
     model = VLANGroup
     fieldsets = (
         FieldSet('site', 'vid_ranges', 'description'),
         FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = ('description', 'scope')
 
