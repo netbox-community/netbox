@@ -707,22 +707,3 @@ class DistanceColumn(TemplateColumn):
 
     def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
         super().__init__(template_code=template_code, order_by=order_by, **kwargs)
-
-
-class PluginActiveColumn(BooleanColumn):
-    ALERT_MARK = (
-        '<span class="text-danger"><i class="mdi mdi-alert" data-bs-toggle="tooltip" title="{tooltip}"></i></span>'
-    )
-
-    def __init__(self, *args, tooltip=None, **kwargs):
-        self.tooltip = tooltip
-        super().__init__(*args, **kwargs)
-
-    def render(self, value, record, table, **kwargs):
-        if record.failed_to_load:
-            tooltip = (
-                f'Could not load due to NetBox version incompatibility. '
-                f'Min version: {record.netbox_min_version}, max version: {record.netbox_max_version}'
-            )
-            return mark_safe(self.ALERT_MARK.format(tooltip=tooltip))
-        return super().render(value)
