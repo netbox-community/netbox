@@ -516,7 +516,7 @@ class TaggedItemFilterSet(BaseFilterSet):
 
     class Meta:
         model = TaggedItem
-        fields = ('id',)
+        fields = ('id', 'object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

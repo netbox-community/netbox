@@ -1297,6 +1297,14 @@ class TaggedItemFilterSetTestCase(TestCase):
         params = {'object_type_id': [object_type.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+    def test_object_id(self):
+        site_ids = Site.objects.values_list('pk', flat=True)
+        params = {
+            'object_type': 'dcim.site',
+            'object_id': site_ids[:2],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ChangeLoggedFilterSetTestCase(TestCase):
     """
