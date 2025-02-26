@@ -3,7 +3,7 @@ from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
-from django.db.models import Count, Prefetch
+from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -88,7 +88,14 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
         fields_to_include = serializer_class.Meta.fields
 
     prefetch_fields = []
-    annotated_prefetch = {}
+
+    # If this serializer is nested, get annotations and prefetches for the nested serializer
+    if source_field is not None:
+        nested_annotations = get_annotations_for_serializer(serializer_class, fields_to_include=fields_to_include)
+        if nested_annotations:
+            related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**nested_annotations))
+            prefetch_fields.append(related_prefetch)
+
     for field_name in fields_to_include:
         serializer_field = serializer_class._declared_fields.get(field_name)
 
@@ -96,12 +103,6 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
         model_field_name = field_name
         if serializer_field and serializer_field.source:
             model_field_name = serializer_field.source
-
-        # If the serializer field is a RelatedObjectCountField and its a nested field
-        # Add an annotation to the annotated_prefetch
-        if isinstance(serializer_field, RelatedObjectCountField) and source_field is not None:
-            if model_field_name not in annotated_prefetch:
-                annotated_prefetch[model_field_name] = Count(serializer_field.relation)
 
         # If the serializer field does not map to a discrete model field, skip it.
         try:
@@ -124,10 +125,6 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
                     else:
                         prefetch_fields.append(f'{field_name}__{subfield}')
 
-    # If there are annotated_prefetch, add the annotaded prefetch to the prefetch_fields
-    if annotated_prefetch:
-        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**annotated_prefetch))
-        prefetch_fields.append(related_prefetch)
     return prefetch_fields
 
 
