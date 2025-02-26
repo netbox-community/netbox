@@ -2,7 +2,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.forms import BoundField
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 from utilities.forms import widgets
 from utilities.views import get_viewname
@@ -171,10 +171,8 @@ class DynamicModelChoiceMixin:
 
         # Include quick add?
         if self.quick_add:
-            app_label = self.model._meta.app_label
-            model_name = self.model._meta.model_name
             widget.quick_add_context = {
-                'url': reverse_lazy(f'{app_label}:{model_name}_add'),
+                'url': reverse(get_viewname(self.model, 'add')),
                 'params': {},
             }
             for k, v in self.quick_add_params.items():
