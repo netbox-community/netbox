@@ -1,3 +1,5 @@
+import json
+
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -1748,6 +1750,23 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             },
         ]
 
+    def _perform_interface_test_with_invalid_data(self, mode: str = None, invalid_data: dict = {}):
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface 1',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+        }
+        data.update({'mode': mode})
+        data.update(invalid_data)
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(response.content)
+        for key in invalid_data.keys():
+            self.assertIn(key, content)
+        self.assertIsNone(content.get('data'))
+
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')
         device = interface1.device
@@ -1774,6 +1793,57 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
         self.client.delete(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(device.interfaces.count(), 2)  # Child & parent were both deleted
+
+    def test_create_child_interfaces_mode_invalid_data(self):
+        """
+        POST data to test interface mode check and invalid tagged/untagged VLANS.
+        """
+        self.add_permissions('dcim.add_interface')
+
+        vlans = VLAN.objects.all()[0:3]
+
+        # Routed mode, untagged, tagged and qinq service vlan
+        invalid_data = {
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [vlans[1].pk, vlans[2].pk],
+            'qinq_svlan': vlans[2].pk
+        }
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+
+        # Routed mode, untagged and tagged vlan
+        invalid_data = {
+            'untagged_vlan': vlans[0].pk,
+            'tagged_vlans': [vlans[1].pk, vlans[2].pk],
+        }
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+
+        # Routed mode, untagged vlan
+        invalid_data = {
+            'untagged_vlan': vlans[0].pk,
+        }
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+
+        invalid_data = {
+            'tagged_vlans': [vlans[1].pk, vlans[2].pk],
+        }
+        # Routed mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+        # Access mode, tagged vlans
+        self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_ACCESS, invalid_data)
+        # All tagged mode, tagged vlans
+        self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
+
+        invalid_data = {
+            'qinq_svlan': vlans[0].pk,
+        }
+        # Routed mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(None, invalid_data)
+        # Access mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_ACCESS, invalid_data)
+        # Tagged mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
+        # Tagged-all mode, qinq service vlan
+        self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
 
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):

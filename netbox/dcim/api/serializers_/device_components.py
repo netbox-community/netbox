@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -232,8 +233,56 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
 
     def validate(self, data):
 
-        # Validate many-to-many VLAN assignments
         if not self.nested:
+
+            # Validate 802.1q mode and vlan(s)
+            mode = None
+            tagged_vlans = []
+
+            # Gather Information
+            if self.instance:
+                mode = data.get('mode') if 'mode' in data.keys() else self.instance.mode
+                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else \
+                    self.instance.untagged_vlan
+                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else \
+                    self.instance.qinq_svlan
+                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else \
+                    self.instance.tagged_vlans.all()
+            else:
+                mode = data.get('mode', None)
+                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else None
+                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else None
+                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else None
+
+            errors = {}
+
+            # Non Q-in-Q mode with service vlan set
+            if mode != InterfaceModeChoices.MODE_Q_IN_Q and qinq_svlan:
+                errors.update({
+                    'qinq_svlan': _("Interface mode does not support q-in-q service vlan")
+                })
+            # Routed mode
+            if not mode:
+                # Untagged vlan
+                if untagged_vlan:
+                    errors.update({
+                        'untagged_vlan': _("Interface mode does not support untagged vlan")
+                    })
+                # Tagged vlan
+                if tagged_vlans:
+                    errors.update({
+                        'tagged_vlans': _("Interface mode does not support tagged vlans")
+                    })
+            # Non-tagged mode
+            elif mode in (InterfaceModeChoices.MODE_TAGGED_ALL, InterfaceModeChoices.MODE_ACCESS) and tagged_vlans:
+                errors.update({
+                    'tagged_vlans': _("Interface mode does not support tagged vlans")
+                })
+
+            if errors:
+                raise serializers.ValidationError(errors)
+
+            # Validate many-to-many VLAN assignments
             device = self.instance.device if self.instance else data.get('device')
             for vlan in data.get('tagged_vlans', []):
                 if vlan.site not in [device.site, None]:

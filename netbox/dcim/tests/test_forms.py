@@ -1,8 +1,9 @@
 from django.test import TestCase
 
-from dcim.choices import DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices
+from dcim.choices import DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices, InterfaceModeChoices
 from dcim.forms import *
 from dcim.models import *
+from ipam.models import VLAN
 from utilities.testing import create_test_device
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -117,11 +118,23 @@ class DeviceTestCase(TestCase):
         self.assertIn('position', form.errors)
 
 
-class LabelTestCase(TestCase):
+class InterfaceTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         cls.device = create_test_device('Device 1')
+        cls.vlans = (
+            VLAN(name='VLAN 1', vid=1),
+            VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=3),
+        )
+        VLAN.objects.bulk_create(cls.vlans)
+        cls.interface = Interface.objects.create(
+            device=cls.device,
+            name='Interface 1',
+            type=InterfaceTypeChoices.TYPE_1GE_GBIC,
+            mode=InterfaceModeChoices.MODE_TAGGED,
+        )
 
     def test_interface_label_count_valid(self):
         """
@@ -151,3 +164,152 @@ class LabelTestCase(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('label', form.errors)
+
+    def test_create_interface_mode_valid_data(self):
+        """
+        Test that saving valid interface mode and tagged/untagged vlans works properly
+        """
+
+        # Validate access mode
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/1',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_ACCESS,
+            'untagged_vlan': self.vlans[0].pk
+        }
+        form = InterfaceCreateForm(data)
+
+        self.assertTrue(form.is_valid())
+
+        # Validate tagged vlans
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/2',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_TAGGED,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceCreateForm(data)
+        self.assertTrue(form.is_valid())
+
+        # Validate tagged vlans
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/3',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_TAGGED_ALL,
+            'untagged_vlan': self.vlans[0].pk,
+        }
+        form = InterfaceCreateForm(data)
+        self.assertTrue(form.is_valid())
+
+    def test_create_interface_mode_access_invalid_data(self):
+        """
+        Test that saving invalid interface mode and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/4',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_ACCESS,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceCreateForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_edit_interface_mode_access_invalid_data(self):
+        """
+        Test that saving invalid interface mode and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'Ethernet 1/5',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_ACCESS,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceForm(data, instance=self.interface)
+
+        self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_create_interface_mode_tagged_all_invalid_data(self):
+        """
+        Test that saving invalid interface mode and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/6',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_TAGGED_ALL,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceCreateForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_edit_interface_mode_tagged_all_invalid_data(self):
+        """
+        Test that saving invalid interface mode and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'Ethernet 1/7',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': InterfaceModeChoices.MODE_TAGGED_ALL,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceForm(data)
+        self.assertTrue(form.is_valid())
+        self.assertIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_create_interface_mode_routed_invalid_data(self):
+        """
+        Test that saving invalid interface mode (routed) and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'ethernet1/6',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': None,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceCreateForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+    def test_edit_interface_mode_routed_invalid_data(self):
+        """
+        Test that saving invalid interface mode (routed) and tagged/untagged vlans works properly
+        """
+        data = {
+            'device': self.device.pk,
+            'name': 'Ethernet 1/7',
+            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'mode': None,
+            'untagged_vlan': self.vlans[0].pk,
+            'tagged_vlans': [self.vlans[0].pk, self.vlans[1].pk, self.vlans[2].pk]
+        }
+        form = InterfaceForm(data)
+        self.assertTrue(form.is_valid())
+        self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
+        self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
+        self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
