@@ -224,7 +224,7 @@ class PowerOutletIndex(SearchIndex):
         ('label', 200),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'type', 'description')
+    display_attrs = ('device', 'label', 'type', 'status', 'description')
 
 
 @register_search
