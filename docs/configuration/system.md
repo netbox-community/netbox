@@ -174,6 +174,8 @@ Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
 
+**Note:** If configuring STORAGES to use AWS S3 set SCRIPTS_ROOT to the prefix (or folder) you want scripts stored in, for example: `scripts`
+
 ---
 
 ## SEARCH_BACKEND
@@ -184,11 +186,29 @@ The dotted path to the desired search backend class. `CachedValueSearchBackend` 
 
 ---
 
-## STORAGE_BACKEND
+## STORAGES
 
-Default: None (local storage)
+Default: See below (local storage)
 
-The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
+The backend storage engine for handling uploaded files (e.g. image attachments) and scripts. NetBox integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
+
+By default the following configuration is used:
+
+```python
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "scripts": {
+        "BACKEND": "extras.storage.ScriptFileSystemStorage",
+    },
+}
+```
+
+Within the STORAGES dict, "default" is used for image uploads and "scripts" is used for Scripts.
 
 The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
 

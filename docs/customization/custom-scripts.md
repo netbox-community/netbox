@@ -140,6 +140,8 @@ The Script class provides two convenience methods for reading data from files:
 
 These two methods will load data in YAML or JSON format, respectively, from files within the local path (i.e. `SCRIPTS_ROOT`).
 
+**Note:** These convenience methods only work if running scripts within the local path, they will not work if running scripts using AWS S3.
+
 ## Logging
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
