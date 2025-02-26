@@ -25,6 +25,9 @@ class DataSourceTable(NetBoxTable):
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
+    sync_interval = columns.ChoiceFieldColumn(
+        verbose_name=_('Sync interval'),
+    )
     tags = columns.TagColumn(
         url_name='core:datasource_list'
     )
@@ -35,10 +38,10 @@ class DataSourceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = DataSource
         fields = (
-            'pk', 'id', 'name', 'type', 'status', 'enabled', 'source_url', 'description', 'comments', 'parameters',
-            'created', 'last_updated', 'file_count',
+            'pk', 'id', 'name', 'type', 'status', 'enabled', 'source_url', 'description', 'sync_interval', 'comments',
+            'parameters', 'created', 'last_updated', 'file_count',
         )
-        default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'file_count')
+        default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'sync_interval', 'file_count')
 
 
 class DataFileTable(NetBoxTable):

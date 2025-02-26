@@ -11,5 +11,6 @@ class DataSourceImportForm(NetBoxModelImportForm):
     class Meta:
         model = DataSource
         fields = (
-            'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'parameters', 'ignore_rules',
+            'name', 'type', 'source_url', 'enabled', 'description', 'sync_interval', 'parameters', 'ignore_rules',
+            'comments',
         )
