@@ -56,7 +56,7 @@ for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
+ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
