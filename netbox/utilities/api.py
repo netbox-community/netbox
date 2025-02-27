@@ -1,8 +1,6 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
-from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils.module_loading import import_string
@@ -107,11 +105,12 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
         # If the serializer field does not map to a discrete model field, skip it.
         try:
             field = model._meta.get_field(model_field_name)
-            if (isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)) and
-                 not issubclass(type(serializer_field), Serializer)):
-                prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
+
+        # Prefetch for tags
+        if field.name == 'tags':
+            prefetch_fields.append('tags')
 
         # If this field is represented by a nested serializer, recurse to resolve prefetches
         # for the related object.
@@ -124,7 +123,6 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
                         prefetch_fields.append(subfield)
                     else:
                         prefetch_fields.append(f'{field_name}__{subfield}')
-
     return prefetch_fields
 
 
