@@ -182,7 +182,7 @@ def clear_events_queue(sender, **kwargs):
 #
 
 @receiver(post_save, sender=DataSource)
-def enqueue_sync_job(instance, **kwargs):
+def enqueue_sync_job(instance, created, **kwargs):
     """
     When a DataSource is saved, check its sync_interval and enqueue a sync job if appropriate.
     """
@@ -190,9 +190,9 @@ def enqueue_sync_job(instance, **kwargs):
 
     if instance.sync_interval:
         SyncDataSourceJob.enqueue_once(instance, interval=instance.sync_interval)
-    else:
+    elif not created:
         # Delete any previously scheduled recurring jobs for this DataSource
-        SyncDataSourceJob.get_jobs(instance).filter(sync_interval__isnull=False).delete()
+        SyncDataSourceJob.get_jobs(instance).filter(interval__isnull=False).delete()
 
 
 @receiver(post_sync)
