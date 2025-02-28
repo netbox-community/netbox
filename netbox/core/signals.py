@@ -8,7 +8,7 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from core.choices import ObjectChangeActionChoices
+from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
 from extras.events import enqueue_event
 from extras.utils import run_validators
@@ -188,11 +188,16 @@ def enqueue_sync_job(instance, created, **kwargs):
     """
     from .jobs import SyncDataSourceJob
 
-    if instance.sync_interval:
+    if instance.enabled and instance.sync_interval:
         SyncDataSourceJob.enqueue_once(instance, interval=instance.sync_interval)
     elif not created:
         # Delete any previously scheduled recurring jobs for this DataSource
-        SyncDataSourceJob.get_jobs(instance).filter(interval__isnull=False).delete()
+        for job in SyncDataSourceJob.get_jobs(instance).defer('data').filter(
+            interval__isnull=False,
+            status=JobStatusChoices.STATUS_SCHEDULED
+        ):
+            # Call delete() per instance to ensure the associated background task is deleted as well
+            job.delete()
 
 
 @receiver(post_sync)
