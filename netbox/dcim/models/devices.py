@@ -1550,7 +1550,10 @@ class MACAddress(PrimaryModel):
             ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
 
-            if original_assigned_object.primary_mac_address:
+            if (
+                original_assigned_object.primary_mac_address
+                and original_assigned_object.primary_mac_address.pk == self.pk
+            ):
                 if not assigned_object:
                     raise ValidationError(
                         _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
