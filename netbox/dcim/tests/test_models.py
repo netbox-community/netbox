@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from circuits.models import *
 from core.models import ObjectType
@@ -10,6 +10,43 @@ from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
+
+
+class MACAddressTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+        device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=device_role, site=site,
+        )
+        cls.interface = Interface.objects.create(
+            device=device,
+            name='Interface 1',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            mgmt_only=True
+        )
+
+        cls.mac_a = MACAddress.objects.create(mac_address='1234567890ab', assigned_object=cls.interface)
+        cls.mac_b = MACAddress.objects.create(mac_address='1234567890ba', assigned_object=cls.interface)
+
+        cls.interface.primary_mac_address = cls.mac_a
+        cls.interface.save()
+
+    @tag('regression')
+    def test_clean_will_not_allow_removal_of_assigned_object_if_primary(self):
+        self.mac_a.assigned_object = None
+        with self.assertRaisesMessage(ValidationError, 'Cannot unassign MAC Address while'):
+            self.mac_a.clean()
+
+    @tag('regression')
+    def test_clean_will_allow_removal_of_assigned_object_if_not_primary(self):
+        self.mac_b.assigned_object = None
+        self.mac_b.clean()
 
 
 class LocationTestCase(TestCase):
