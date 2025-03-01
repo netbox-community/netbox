@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-26 05:01+0000\n"
+"POT-Creation-Date: 2025-03-01 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -442,7 +442,7 @@ msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:42 netbox/circuits/forms/filtersets.py:64
 #: netbox/circuits/forms/model_forms.py:42
-#: netbox/circuits/tables/providers.py:33 netbox/dcim/forms/bulk_edit.py:132
+#: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:132
 #: netbox/dcim/forms/filtersets.py:196 netbox/dcim/forms/model_forms.py:127
 #: netbox/dcim/tables/sites.py:94 netbox/ipam/models/asns.py:123
 #: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:230
@@ -613,8 +613,8 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:110
 #: netbox/circuits/tables/circuits.py:57 netbox/circuits/tables/circuits.py:112
 #: netbox/circuits/tables/circuits.py:196
-#: netbox/circuits/tables/providers.py:71
-#: netbox/circuits/tables/providers.py:102
+#: netbox/circuits/tables/providers.py:70
+#: netbox/circuits/tables/providers.py:101
 #: netbox/circuits/tables/virtual_circuits.py:46
 #: netbox/circuits/tables/virtual_circuits.py:93
 #: netbox/templates/circuits/circuit.html:18
@@ -1317,7 +1317,7 @@ msgid "Site group"
 msgstr ""
 
 #: netbox/circuits/forms/filtersets.py:81 netbox/circuits/tables/circuits.py:62
-#: netbox/circuits/tables/providers.py:65
+#: netbox/circuits/tables/providers.py:64
 #: netbox/circuits/tables/virtual_circuits.py:55
 #: netbox/circuits/tables/virtual_circuits.py:103
 #: netbox/templates/circuits/circuit.html:22
@@ -1401,9 +1401,9 @@ msgstr ""
 #: netbox/dcim/models/device_component_templates.py:531
 #: netbox/dcim/models/device_component_templates.py:631
 #: netbox/dcim/models/device_components.py:476
-#: netbox/dcim/models/device_components.py:1024
-#: netbox/dcim/models/device_components.py:1095
-#: netbox/dcim/models/device_components.py:1241
+#: netbox/dcim/models/device_components.py:1026
+#: netbox/dcim/models/device_components.py:1097
+#: netbox/dcim/models/device_components.py:1243
 #: netbox/dcim/models/devices.py:478 netbox/dcim/models/racks.py:221
 #: netbox/extras/models/tags.py:28
 msgid "color"
@@ -1430,7 +1430,7 @@ msgstr ""
 #: netbox/circuits/models/circuits.py:67
 #: netbox/circuits/models/virtual_circuits.py:59 netbox/core/models/data.py:52
 #: netbox/core/models/jobs.py:85 netbox/dcim/models/cables.py:49
-#: netbox/dcim/models/device_components.py:1281
+#: netbox/dcim/models/device_components.py:1283
 #: netbox/dcim/models/devices.py:645 netbox/dcim/models/devices.py:1181
 #: netbox/dcim/models/devices.py:1409 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:288 netbox/dcim/models/sites.py:154
@@ -1668,8 +1668,8 @@ msgstr ""
 
 #: netbox/circuits/tables/circuits.py:30 netbox/circuits/tables/circuits.py:168
 #: netbox/circuits/tables/providers.py:18
-#: netbox/circuits/tables/providers.py:68
-#: netbox/circuits/tables/providers.py:98
+#: netbox/circuits/tables/providers.py:67
+#: netbox/circuits/tables/providers.py:97
 #: netbox/circuits/tables/virtual_circuits.py:18 netbox/core/tables/data.py:16
 #: netbox/core/tables/jobs.py:14 netbox/core/tables/plugins.py:44
 #: netbox/core/tables/tasks.py:11 netbox/core/tables/tasks.py:115
@@ -1789,8 +1789,8 @@ msgid "Name"
 msgstr ""
 
 #: netbox/circuits/tables/circuits.py:39 netbox/circuits/tables/circuits.py:174
-#: netbox/circuits/tables/providers.py:44
-#: netbox/circuits/tables/providers.py:78
+#: netbox/circuits/tables/providers.py:43
+#: netbox/circuits/tables/providers.py:77
 #: netbox/circuits/tables/virtual_circuits.py:27
 #: netbox/netbox/navigation/menu.py:274 netbox/netbox/navigation/menu.py:278
 #: netbox/netbox/navigation/menu.py:280
@@ -1822,9 +1822,9 @@ msgstr ""
 msgid "Commit Rate"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:84 netbox/circuits/tables/providers.py:47
-#: netbox/circuits/tables/providers.py:81
-#: netbox/circuits/tables/providers.py:106
+#: netbox/circuits/tables/circuits.py:84 netbox/circuits/tables/providers.py:46
+#: netbox/circuits/tables/providers.py:80
+#: netbox/circuits/tables/providers.py:105
 #: netbox/circuits/tables/virtual_circuits.py:68
 #: netbox/dcim/tables/devices.py:1068 netbox/dcim/tables/devicetypes.py:97
 #: netbox/dcim/tables/modules.py:29 netbox/dcim/tables/modules.py:73
@@ -1887,11 +1887,11 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: netbox/circuits/tables/providers.py:29
+#: netbox/circuits/tables/providers.py:28
 msgid "Account Count"
 msgstr ""
 
-#: netbox/circuits/tables/providers.py:38 netbox/dcim/tables/sites.py:99
+#: netbox/circuits/tables/providers.py:37 netbox/dcim/tables/sites.py:99
 msgid "ASN Count"
 msgstr ""
 
@@ -1973,12 +1973,12 @@ msgstr ""
 msgid "Device"
 msgstr ""
 
-#: netbox/circuits/views.py:355
+#: netbox/circuits/views.py:356
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
 msgstr ""
 
-#: netbox/circuits/views.py:404
+#: netbox/circuits/views.py:405
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
 msgstr ""
@@ -2507,8 +2507,8 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:337
 #: netbox/dcim/models/device_components.py:453
 #: netbox/dcim/models/device_components.py:653
-#: netbox/dcim/models/device_components.py:1019
-#: netbox/dcim/models/device_components.py:1090 netbox/dcim/models/power.py:100
+#: netbox/dcim/models/device_components.py:1021
+#: netbox/dcim/models/device_components.py:1092 netbox/dcim/models/power.py:100
 #: netbox/extras/models/customfields.py:78 netbox/extras/models/search.py:41
 #: netbox/virtualization/models/clusters.py:57 netbox/vpn/models/l2vpn.py:32
 msgid "type"
@@ -2911,6 +2911,19 @@ msgstr ""
 #: netbox/core/views.py:635
 #, python-brace-format
 msgid "Plugin {name} not found"
+msgstr ""
+
+#: netbox/dcim/api/serializers_/device_components.py:262
+msgid "Interface mode does not support q-in-q service vlan"
+msgstr ""
+
+#: netbox/dcim/api/serializers_/device_components.py:269
+msgid "Interface mode does not support untagged vlan"
+msgstr ""
+
+#: netbox/dcim/api/serializers_/device_components.py:274
+#: netbox/dcim/api/serializers_/device_components.py:279
+msgid "Interface mode does not support tagged vlans"
 msgstr ""
 
 #: netbox/dcim/api/serializers_/devices.py:53
@@ -4476,7 +4489,7 @@ msgstr ""
 msgid "Interface mode must be specified to assign VLANs"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_edit.py:1639 netbox/dcim/forms/common.py:51
+#: netbox/dcim/forms/bulk_edit.py:1639
 msgid "An access interface cannot have tagged VLANs assigned."
 msgstr ""
 
@@ -4987,32 +5000,32 @@ msgstr ""
 msgid "MTU"
 msgstr ""
 
-#: netbox/dcim/forms/common.py:66
+#: netbox/dcim/forms/common.py:60
 #, python-brace-format
 msgid ""
 "The tagged VLANs ({vlans}) must belong to the same site as the interface's "
 "parent device/VM, or they must be global"
 msgstr ""
 
-#: netbox/dcim/forms/common.py:127
+#: netbox/dcim/forms/common.py:121
 msgid ""
 "Cannot install module with placeholder values in a module bay with no "
 "position defined."
 msgstr ""
 
-#: netbox/dcim/forms/common.py:133
+#: netbox/dcim/forms/common.py:127
 #, python-brace-format
 msgid ""
 "Cannot install module with placeholder values in a module bay tree {level} "
 "in tree but {tokens} placeholders given."
 msgstr ""
 
-#: netbox/dcim/forms/common.py:148
+#: netbox/dcim/forms/common.py:142
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
 msgstr ""
 
-#: netbox/dcim/forms/common.py:157
+#: netbox/dcim/forms/common.py:151
 #, python-brace-format
 msgid "A {model} named {name} already exists"
 msgstr ""
@@ -5718,7 +5731,7 @@ msgid "Bridge interface ({bridge}) must belong to the same module type"
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:540
-#: netbox/dcim/models/device_components.py:1033
+#: netbox/dcim/models/device_components.py:1035
 msgid "rear port position"
 msgstr ""
 
@@ -5743,7 +5756,7 @@ msgid ""
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:635
-#: netbox/dcim/models/device_components.py:1099
+#: netbox/dcim/models/device_components.py:1101
 msgid "positions"
 msgstr ""
 
@@ -5756,12 +5769,12 @@ msgid "rear port templates"
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:676
-#: netbox/dcim/models/device_components.py:1146
+#: netbox/dcim/models/device_components.py:1148
 msgid "position"
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:679
-#: netbox/dcim/models/device_components.py:1149
+#: netbox/dcim/models/device_components.py:1151
 msgid "Identifier to reference when renaming installed components"
 msgstr ""
 
@@ -5789,12 +5802,12 @@ msgid ""
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:784
-#: netbox/dcim/models/device_components.py:1302
+#: netbox/dcim/models/device_components.py:1304
 msgid "part ID"
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:786
-#: netbox/dcim/models/device_components.py:1304
+#: netbox/dcim/models/device_components.py:1306
 msgid "Manufacturer-assigned part identifier"
 msgstr ""
 
@@ -6090,146 +6103,150 @@ msgstr ""
 msgid "Cannot specify custom width with channel selected."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:942
+#: netbox/dcim/models/device_components.py:938
+msgid "Interface mode does not support an untagged vlan."
+msgstr ""
+
+#: netbox/dcim/models/device_components.py:944
 #, python-brace-format
 msgid ""
 "The untagged VLAN ({untagged_vlan}) must belong to the same site as the "
 "interface's parent device, or it must be global."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1039
+#: netbox/dcim/models/device_components.py:1041
 msgid "Mapped position on corresponding rear port"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1055
+#: netbox/dcim/models/device_components.py:1057
 msgid "front port"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1056
+#: netbox/dcim/models/device_components.py:1058
 msgid "front ports"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1067
+#: netbox/dcim/models/device_components.py:1069
 #, python-brace-format
 msgid "Rear port ({rear_port}) must belong to the same device"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1075
+#: netbox/dcim/models/device_components.py:1077
 #, python-brace-format
 msgid ""
 "Invalid rear port position ({rear_port_position}): Rear port {name} has only "
 "{positions} positions."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1105
+#: netbox/dcim/models/device_components.py:1107
 msgid "Number of front ports which may be mapped"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1110
+#: netbox/dcim/models/device_components.py:1112
 msgid "rear port"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1111
+#: netbox/dcim/models/device_components.py:1113
 msgid "rear ports"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1122
+#: netbox/dcim/models/device_components.py:1124
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped front ports "
 "({frontport_count})"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1163
+#: netbox/dcim/models/device_components.py:1165
 msgid "module bay"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1164
+#: netbox/dcim/models/device_components.py:1166
 msgid "module bays"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1178
+#: netbox/dcim/models/device_components.py:1180
 #: netbox/dcim/models/devices.py:1229
 msgid "A module bay cannot belong to a module installed within it."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1204
+#: netbox/dcim/models/device_components.py:1206
 msgid "device bay"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1205
+#: netbox/dcim/models/device_components.py:1207
 msgid "device bays"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1212
+#: netbox/dcim/models/device_components.py:1214
 #, python-brace-format
 msgid "This type of device ({device_type}) does not support device bays."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1218
+#: netbox/dcim/models/device_components.py:1220
 msgid "Cannot install a device into itself."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1226
+#: netbox/dcim/models/device_components.py:1228
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1247
+#: netbox/dcim/models/device_components.py:1249
 msgid "inventory item role"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1248
+#: netbox/dcim/models/device_components.py:1250
 msgid "inventory item roles"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1308
+#: netbox/dcim/models/device_components.py:1310
 #: netbox/dcim/models/devices.py:598 netbox/dcim/models/devices.py:1189
 #: netbox/dcim/models/racks.py:304
 #: netbox/virtualization/models/virtualmachines.py:126
 msgid "serial number"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1316
+#: netbox/dcim/models/device_components.py:1318
 #: netbox/dcim/models/devices.py:606 netbox/dcim/models/devices.py:1196
 #: netbox/dcim/models/racks.py:311
 msgid "asset tag"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1317
+#: netbox/dcim/models/device_components.py:1319
 msgid "A unique tag used to identify this item"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1320
+#: netbox/dcim/models/device_components.py:1322
 msgid "discovered"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1322
+#: netbox/dcim/models/device_components.py:1324
 msgid "This item was automatically discovered"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1340
+#: netbox/dcim/models/device_components.py:1342
 msgid "inventory item"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1341
+#: netbox/dcim/models/device_components.py:1343
 msgid "inventory items"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1349
+#: netbox/dcim/models/device_components.py:1351
 msgid "Cannot assign self as parent."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1357
+#: netbox/dcim/models/device_components.py:1359
 msgid "Parent inventory item does not belong to the same device."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1363
+#: netbox/dcim/models/device_components.py:1365
 msgid "Cannot move an inventory item with dependent children"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1371
+#: netbox/dcim/models/device_components.py:1373
 msgid "Cannot assign inventory item to component on another device"
 msgstr ""
 
@@ -7374,7 +7391,7 @@ msgstr ""
 msgid "Sites"
 msgstr ""
 
-#: netbox/dcim/tests/test_api.py:48
+#: netbox/dcim/tests/test_api.py:50
 msgid "Test case must set peer_termination_type"
 msgstr ""
 
