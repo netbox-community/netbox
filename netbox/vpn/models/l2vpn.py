@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
-from vpn.choices import L2VPNTypeChoices
+from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
 from vpn.constants import L2VPN_ASSIGNMENT_MODELS
 
 __all__ = (
@@ -32,6 +32,12 @@ class L2VPN(ContactsMixin, PrimaryModel):
         verbose_name=_('type'),
         max_length=50,
         choices=L2VPNTypeChoices
+    )
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=L2VPNStatusChoices,
+        default=L2VPNStatusChoices.STATUS_ACTIVE,
     )
     identifier = models.BigIntegerField(
         verbose_name=_('identifier'),
