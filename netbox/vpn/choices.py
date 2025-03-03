@@ -277,7 +277,7 @@ class L2VPNStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONED = 'decommissioned'
 
     CHOICES = [
-        (STATUS_PLANNED, _('Planned')),
-        (STATUS_ACTIVE, _('Active')),
-        (STATUS_DECOMMISSIONED, _('Decommissioned')),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_DECOMMISSIONED, _('Decommissioned'), 'red'),
     ]

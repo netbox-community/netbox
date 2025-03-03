@@ -74,6 +74,9 @@ class L2VPN(ContactsMixin, PrimaryModel):
             return f'{self.name} ({self.identifier})'
         return f'{self.name}'
 
+    def get_status_color(self):
+        return L2VPNStatusChoices.colors.get(self.status)
+
     @cached_property
     def can_add_termination(self):
         if self.type in L2VPNTypeChoices.P2P and self.terminations.count() >= 2:
