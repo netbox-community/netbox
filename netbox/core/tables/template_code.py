@@ -16,10 +16,12 @@ OBJECTCHANGE_REQUEST_ID = """
 """
 
 PLUGIN_IS_INSTALLED = """
-{% if record.failed_to_load %}
-    <span class="text-danger"><i class="mdi mdi-alert" data-bs-toggle="tooltip" title="Could not load due to NetBox version incompatibility. Min version: {{ record.netbox_min_version }}, max version: {{ record.netbox_max_version }}"></i></span>
-{% elif value is True %}
-    <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+{% if record.is_local %}
+    {% if record.is_loaded %}
+        <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+    {% else %}
+        <span class="text-danger"><i class="mdi mdi-alert" data-bs-toggle="tooltip" title="Could not load plugin. Version may be incompatible. Min version: {{ record.netbox_min_version }}, max version: {{ record.netbox_max_version }}"></i></span>
+    {% endif %}
 {% else %}
     <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
 {% endif %}
