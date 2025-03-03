@@ -260,6 +260,10 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=L2VPNStatusChoices,
+    )
     type = forms.ChoiceField(
         label=_('Type'),
         choices=add_blank_choice(L2VPNTypeChoices),
@@ -279,7 +283,7 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
 
     model = L2VPN
     fieldsets = (
-        FieldSet('type', 'tenant', 'description'),
+        FieldSet('status', 'type', 'tenant', 'description'),
     )
     nullable_fields = ('tenant', 'description', 'comments')
 

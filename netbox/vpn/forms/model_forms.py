@@ -409,7 +409,7 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'type', 'identifier', 'description', 'tags', name=_('L2VPN')),
+        FieldSet('name', 'slug', 'type', 'status', 'identifier', 'description', 'tags', name=_('L2VPN')),
         FieldSet('import_targets', 'export_targets', name=_('Route Targets')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -417,8 +417,8 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = L2VPN
         fields = (
-            'name', 'slug', 'type', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
-            'comments', 'tags'
+            'name', 'slug', 'type', 'status', 'identifier', 'import_targets', 'export_targets', 'tenant',
+            'description', 'comments', 'tags'
         )
 
 
