@@ -38,7 +38,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
     class Meta:
         model = L2VPN
         fields = [
-            'id', 'url', 'display_url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets',
+            'id', 'url', 'display_url', 'display', 'identifier', 'name', 'slug', 'type', 'status', 'import_targets',
             'export_targets', 'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
         brief_fields = ('id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'description')
