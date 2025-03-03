@@ -520,6 +520,9 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         verbose_name=_('Power Port'),
         linkify=True
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     color = columns.ColorColumn()
     tags = columns.TagColumn(
         url_name='dcim:poweroutlet_list'

@@ -498,6 +498,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
                 _("Parent power port ({power_port}) must belong to the same device").format(power_port=self.power_port)
             )
 
+    def get_status_color(self):
+        return PowerOutletStatusChoices.colors.get(self.status)
+
 
 #
 # Interfaces
