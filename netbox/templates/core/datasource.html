@@ -47,6 +47,10 @@
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Sync interval" %}</th>
+            <td>{{ object.get_sync_interval_display|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Last synced" %}</th>
             <td>{{ object.last_synced|placeholder }}</td>
           </tr>
