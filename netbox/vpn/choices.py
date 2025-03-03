@@ -272,12 +272,12 @@ class L2VPNTypeChoices(ChoiceSet):
 class L2VPNStatusChoices(ChoiceSet):
     key = 'L2VPN.status'
 
-    STATUS_PLANNED = 'planned'
     STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
     STATUS_DECOMMISSIONED = 'decommissioned'
 
     CHOICES = [
-        (STATUS_PLANNED, _('Planned'), 'cyan'),
         (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
         (STATUS_DECOMMISSIONED, _('Decommissioned'), 'red'),
     ]
