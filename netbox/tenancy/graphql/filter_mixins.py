@@ -25,9 +25,9 @@ class TenancyFilterMixin(BaseFilterMixin):
         strawberry_django.filter_field()
     )
     tenant_id: ID | None = strawberry_django.filter_field()
-    group: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
+    tenant_group: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    group_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    tenant_group_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

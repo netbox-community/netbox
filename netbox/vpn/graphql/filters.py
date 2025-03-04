@@ -70,7 +70,7 @@ class TunnelTerminationFilter(
 
 
 @strawberry_django.filter(models.Tunnel, lookups=True)
-class TunnelFilter(PrimaryModelFilterMixin):
+class TunnelFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     status: Annotated['TunnelStatusEnum', strawberry.lazy('vpn.graphql.enums')] | None = (
         strawberry_django.filter_field()
@@ -85,10 +85,6 @@ class TunnelFilter(PrimaryModelFilterMixin):
     ipsec_profile: Annotated['IPSecProfileFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     tunnel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -164,7 +160,7 @@ class IPSecProfileFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter(models.L2VPN, lookups=True)
-class L2VPNFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     type: Annotated['L2VPNTypeEnum', strawberry.lazy('vpn.graphql.enums')] | None = strawberry_django.filter_field()
@@ -177,10 +173,6 @@ class L2VPNFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     export_targets: Annotated['RouteTargetFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.L2VPNTermination, lookups=True)

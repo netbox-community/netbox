@@ -56,20 +56,16 @@ __all__ = (
 
 
 @strawberry_django.filter(models.ASN, lookups=True)
-class ASNFilter(PrimaryModelFilterMixin):
+class ASNFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
     asn: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.ASNRange, lookups=True)
-class ASNRangeFilter(OrganizationalModelFilterMixin):
+class ASNRangeFilter(TenancyFilterMixin, OrganizationalModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
@@ -80,22 +76,14 @@ class ASNRangeFilter(OrganizationalModelFilterMixin):
     end: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.Aggregate, lookups=True)
-class AggregateFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class AggregateFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     prefix: Annotated['PrefixFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     prefix_id: ID | None = strawberry_django.filter_field()
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     date_added: DateFilterLookup[date] | None = strawberry_django.filter_field()
 
 
@@ -133,14 +121,10 @@ class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin)
 
 
 @strawberry_django.filter(models.IPAddress, lookups=True)
-class IPAddressFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     address: FilterLookup[str] | None = strawberry_django.filter_field()
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vrf_id: ID | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     status: Annotated['IPAddressStatusEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
@@ -176,7 +160,7 @@ class IPAddressFilter(ContactFilterMixin, PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter(models.IPRange, lookups=True)
-class IPRangeFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     start_address: FilterLookup[str] | None = strawberry_django.filter_field()
     end_address: FilterLookup[str] | None = strawberry_django.filter_field()
     size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -184,10 +168,6 @@ class IPRangeFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     )
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vrf_id: ID | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     status: Annotated['IPRangeStatusEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
@@ -211,14 +191,10 @@ class IPRangeFilter(ContactFilterMixin, PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter(models.Prefix, lookups=True)
-class PrefixFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class PrefixFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     prefix: FilterLookup[str] | None = strawberry_django.filter_field()
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vrf_id: ID | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     vlan: Annotated['VLANFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vlan_id: ID | None = strawberry_django.filter_field()
     status: Annotated['PrefixStatusEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
@@ -247,12 +223,8 @@ class RoleFilter(OrganizationalModelFilterMixin):
 
 
 @strawberry_django.filter(models.RouteTarget, lookups=True)
-class RouteTargetFilter(PrimaryModelFilterMixin):
+class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.Service, lookups=True)
@@ -275,7 +247,7 @@ class ServiceTemplateFilter(ServiceBaseFilterMixin, PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter(models.VLAN, lookups=True)
-class VLANFilter(PrimaryModelFilterMixin):
+class VLANFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     site_id: ID | None = strawberry_django.filter_field()
     group: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
@@ -286,10 +258,6 @@ class VLANFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     name: FilterLookup[str] | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     status: Annotated['VLANStatusEnum', strawberry.lazy('ipam.graphql.enums')] | None = strawberry_django.filter_field()
     role: Annotated['RoleFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     role_id: ID | None = strawberry_django.filter_field()
@@ -342,13 +310,9 @@ class VLANTranslationRuleFilter(NetBoxModelFilterMixin):
 
 
 @strawberry_django.filter(models.VRF, lookups=True)
-class VRFFilter(PrimaryModelFilterMixin):
+class VRFFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     rd: FilterLookup[str] | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     enforce_unique: FilterLookup[bool] | None = strawberry_django.filter_field()
     import_targets: Annotated['RouteTargetFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()

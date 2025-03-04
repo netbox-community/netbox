@@ -40,7 +40,7 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Cluster, lookups=True)
-class ClusterFilter(ContactFilterMixin, PrimaryModelFilterMixin):
+class ClusterFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     type: Annotated['ClusterTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -53,10 +53,6 @@ class ClusterFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     status: Annotated['ClusterStatusEnum', strawberry.lazy('virtualization.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     vlan_groups: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -80,6 +76,7 @@ class VirtualMachineFilter(
     ImageAttachmentFilterMixin,
     RenderConfigFilterMixin,
     ConfigContextFilterMixin,
+    TenancyFilterMixin,
     PrimaryModelFilterMixin,
 ):
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
@@ -90,10 +87,6 @@ class VirtualMachineFilter(
     cluster_id: ID | None = strawberry_django.filter_field()
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
-    tenant: Annotated['TenantFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    tenant_id: ID | None = strawberry_django.filter_field()
     platform: Annotated['PlatformFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
