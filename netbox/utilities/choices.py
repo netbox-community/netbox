@@ -1,3 +1,5 @@
+import enum
+
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -64,6 +66,23 @@ class ChoiceSet(metaclass=ChoiceSetMeta):
     @classmethod
     def values(cls):
         return [c[0] for c in unpack_grouped_choices(cls._choices)]
+
+    @classmethod
+    def as_enum(cls, name=None):
+        """
+        Return the ChoiceSet as an Enum. If no name is provided, "Choices" will be stripped from the class name (if
+        present) and "Enum" will be appended. For example, "CircuitStatusChoices" will become "CircuitStatusEnum".
+        """
+        name = name or f"{cls.__name__.split('Choices')[0]}Enum"
+        data = {}
+        choices = cls.values()
+
+        for attr in dir(cls):
+            value = getattr(cls, attr)
+            if attr.isupper() and value in choices:
+                data[attr] = value
+
+        return enum.Enum(name, data)
 
 
 def unpack_grouped_choices(choices):

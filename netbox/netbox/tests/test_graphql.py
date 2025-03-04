@@ -99,8 +99,8 @@ class GraphQLAPITestCase(APITestCase):
         # Test OR logic
         query = """{
             location_list( filters: {
-                status: \"""" + LocationStatusChoices.STATUS_PLANNED + """\",
-                OR: {status: \"""" + LocationStatusChoices.STATUS_STAGING + """\"}
+                status: STATUS_PLANNED,
+                OR: {status: STATUS_STAGING}
             }) {
                 id site {id}
             }

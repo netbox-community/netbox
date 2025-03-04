@@ -1,6 +1,6 @@
 # Filters & Filter Sets
 
-Filter sets define the mechanisms available for filtering or searching through a set of objects in NetBox. For instance, sites can be filtered by their parent region or group, status, facility ID, and so on. The same filter set is used consistently for a model whether the request is made via the UI, REST API, or GraphQL API. NetBox employs the [django-filters2](https://django-tables2.readthedocs.io/en/latest/) library to define filter sets.
+Filter sets define the mechanisms available for filtering or searching through a set of objects in NetBox. For instance, sites can be filtered by their parent region or group, status, facility ID, and so on. The same filter set is used consistently for a model whether the request is made via the UI or REST API. (Note that the GraphQL API uses a separate filter class.) NetBox employs the [django-filters2](https://django-tables2.readthedocs.io/en/latest/) library to define filter sets.
 
 ## FilterSet Classes
 
