@@ -4,10 +4,10 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# czarnian, 2024
-# Jeremy Stretch, 2024
 # Pavel Valach, 2024
 # Matěj Gordon, 2025
+# czarnian, 2025
+# Jeremy Stretch, 2025
 # 
 #, fuzzy
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Matěj Gordon, 2025\n"
+"Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Czech (https://app.transifex.com/netbox-community/teams/178115/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -64,7 +64,7 @@ msgstr "Naposledy použitý"
 #: netbox/templates/users/token.html:47 netbox/users/forms/bulk_edit.py:122
 #: netbox/users/forms/model_forms.py:124
 msgid "Allowed IPs"
-msgstr "Povolené IP adresy"
+msgstr "Povolené adresy IP"
 
 #: netbox/account/views.py:114
 #, python-brace-format
@@ -179,7 +179,7 @@ msgstr "Region (zkratka)"
 #: netbox/ipam/filtersets.py:974 netbox/virtualization/filtersets.py:58
 #: netbox/virtualization/filtersets.py:186
 msgid "Site group (ID)"
-msgstr "Skupina stránek (ID)"
+msgstr "Skupina míst (ID)"
 
 #: netbox/circuits/filtersets.py:51 netbox/circuits/filtersets.py:218
 #: netbox/dcim/filtersets.py:135 netbox/dcim/filtersets.py:232
@@ -191,7 +191,7 @@ msgstr "Skupina stránek (ID)"
 #: netbox/virtualization/filtersets.py:65
 #: netbox/virtualization/filtersets.py:193
 msgid "Site group (slug)"
-msgstr "Skupina stránek (slug)"
+msgstr "Skupina míst (zkratka)"
 
 #: netbox/circuits/filtersets.py:56 netbox/circuits/forms/bulk_edit.py:188
 #: netbox/circuits/forms/bulk_edit.py:216
@@ -252,7 +252,7 @@ msgstr "Skupina stránek (slug)"
 #: netbox/vpn/forms/filtersets.py:266 netbox/wireless/forms/model_forms.py:76
 #: netbox/wireless/forms/model_forms.py:118
 msgid "Site"
-msgstr "Stránky"
+msgstr "Místo"
 
 #: netbox/circuits/filtersets.py:62 netbox/circuits/filtersets.py:229
 #: netbox/circuits/filtersets.py:274 netbox/dcim/filtersets.py:242
@@ -262,7 +262,7 @@ msgstr "Stránky"
 #: netbox/virtualization/filtersets.py:75
 #: netbox/virtualization/filtersets.py:203 netbox/vpn/filtersets.py:363
 msgid "Site (slug)"
-msgstr "Místo (slug)"
+msgstr "Místo (zkratka)"
 
 #: netbox/circuits/filtersets.py:67
 msgid "ASN (ID)"
@@ -316,7 +316,7 @@ msgstr "Typ okruhu (URL zkratka)"
 #: netbox/ipam/filtersets.py:985 netbox/virtualization/filtersets.py:69
 #: netbox/virtualization/filtersets.py:197 netbox/vpn/filtersets.py:368
 msgid "Site (ID)"
-msgstr "Stránky (ID)"
+msgstr "Místo (ID)"
 
 #: netbox/circuits/filtersets.py:233 netbox/circuits/filtersets.py:237
 msgid "Termination A (ID)"
@@ -371,15 +371,15 @@ msgstr "Síť poskytovatele (ID)"
 
 #: netbox/circuits/filtersets.py:335
 msgid "Circuit (ID)"
-msgstr "Obvod (ID)"
+msgstr "Okruh (ID)"
 
 #: netbox/circuits/filtersets.py:341
 msgid "Circuit (CID)"
-msgstr "Obvod (CID)"
+msgstr "Okruh (CID)"
 
 #: netbox/circuits/filtersets.py:345
 msgid "Circuit group (ID)"
-msgstr "Skupina obvodů (ID)"
+msgstr "Skupina okruhů (ID)"
 
 #: netbox/circuits/filtersets.py:351
 msgid "Circuit group (slug)"
@@ -804,7 +804,7 @@ msgstr "Datum ukončení"
 #: netbox/circuits/forms/bulk_edit.py:158
 #: netbox/circuits/forms/filtersets.py:186
 msgid "Commit rate (Kbps)"
-msgstr "Rychlost odevzdání (Kbps)"
+msgstr "Smluvní rychlost (Kbps)"
 
 #: netbox/circuits/forms/bulk_edit.py:173
 #: netbox/circuits/forms/model_forms.py:112
@@ -1042,7 +1042,7 @@ msgstr "Region"
 #: netbox/virtualization/forms/filtersets.py:138
 #: netbox/virtualization/forms/model_forms.py:98
 msgid "Site group"
-msgstr "Skupina stránek"
+msgstr "Skupina míst"
 
 #: netbox/circuits/forms/filtersets.py:65
 #: netbox/circuits/forms/filtersets.py:83
@@ -1160,19 +1160,19 @@ msgstr "barva"
 
 #: netbox/circuits/models/circuits.py:36
 msgid "circuit type"
-msgstr "typ obvodu"
+msgstr "typ okruhu"
 
 #: netbox/circuits/models/circuits.py:37
 msgid "circuit types"
-msgstr "typy obvodů"
+msgstr "typy okruhů"
 
 #: netbox/circuits/models/circuits.py:48
 msgid "circuit ID"
-msgstr "ID obvodu"
+msgstr "ID okruhu"
 
 #: netbox/circuits/models/circuits.py:49
 msgid "Unique circuit ID"
-msgstr "Jedinečné ID obvodu"
+msgstr "Jedinečné ID okruhu"
 
 #: netbox/circuits/models/circuits.py:69 netbox/core/models/data.py:52
 #: netbox/core/models/jobs.py:85 netbox/dcim/models/cables.py:49
@@ -1194,11 +1194,11 @@ msgstr "nainstalován"
 
 #: netbox/circuits/models/circuits.py:89
 msgid "terminates"
-msgstr "ukončí"
+msgstr "končí"
 
 #: netbox/circuits/models/circuits.py:94
 msgid "commit rate (Kbps)"
-msgstr "rychlost odevzdání (Kbps)"
+msgstr "smluvní rychlost (Kbps)"
 
 #: netbox/circuits/models/circuits.py:95
 msgid "Committed rate"
@@ -1214,11 +1214,11 @@ msgstr "okruhy"
 
 #: netbox/circuits/models/circuits.py:170
 msgid "circuit group"
-msgstr "skupina obvodů"
+msgstr "skupina okruhů"
 
 #: netbox/circuits/models/circuits.py:171
 msgid "circuit groups"
-msgstr "skupiny obvodů"
+msgstr "skupiny okruhů"
 
 #: netbox/circuits/models/circuits.py:195 netbox/ipam/models/fhrp.py:93
 #: netbox/tenancy/models/contacts.py:134
@@ -1227,7 +1227,7 @@ msgstr "přednost"
 
 #: netbox/circuits/models/circuits.py:213
 msgid "Circuit group assignment"
-msgstr "Přiřazení skupiny obvodů"
+msgstr "Přiřazení skupiny okruhů"
 
 #: netbox/circuits/models/circuits.py:214
 msgid "Circuit group assignments"
@@ -1235,7 +1235,7 @@ msgstr "Přiřazení skupin obvodů"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "zakončení"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1297,14 +1297,11 @@ msgstr "zakončení okruhů"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Zakončení okruhu se musí připojit buď k místu, nebo k síti poskytovatele."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Zakončení okruhu se nemůže připojit jak k síti webu, tak k síti "
-"poskytovatele."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -1534,7 +1531,7 @@ msgstr "Strana Z"
 #: netbox/circuits/tables/circuits.py:77
 #: netbox/templates/circuits/circuit.html:55
 msgid "Commit Rate"
-msgstr "Míra odevzdání"
+msgstr "Smluvní rychlost"
 
 #: netbox/circuits/tables/circuits.py:80
 #: netbox/circuits/tables/providers.py:48
@@ -1563,7 +1560,7 @@ msgstr "Míra odevzdání"
 #: netbox/vpn/tables/tunnels.py:61 netbox/wireless/tables/wirelesslan.py:27
 #: netbox/wireless/tables/wirelesslan.py:58
 msgid "Comments"
-msgstr "Komentář"
+msgstr "Komentáře"
 
 #: netbox/circuits/tables/circuits.py:86
 #: netbox/templates/tenancy/contact.html:84
@@ -1586,12 +1583,12 @@ msgstr "Počet ASN"
 #: netbox/circuits/views.py:331
 #, python-brace-format
 msgid "No terminations have been defined for circuit {circuit}."
-msgstr "Pro obvod nebyla definována žádná zakončení {circuit}."
+msgstr "Pro okruh {circuit} nebyla definována žádná zakončení ."
 
 #: netbox/circuits/views.py:380
 #, python-brace-format
 msgid "Swapped terminations for circuit {circuit}."
-msgstr "Vyměněné zakončení pro obvod {circuit}."
+msgstr "Vyměněná zakončení pro okruh {circuit}."
 
 #: netbox/core/api/views.py:39
 msgid "This user does not have permission to synchronize this data source."
@@ -1620,7 +1617,7 @@ msgstr "Dokončeno"
 #: netbox/dcim/choices.py:187 netbox/dcim/choices.py:239
 #: netbox/dcim/choices.py:1609 netbox/virtualization/choices.py:47
 msgid "Failed"
-msgstr "Neuspěl"
+msgstr "Selhalo"
 
 #: netbox/core/choices.py:35 netbox/netbox/navigation/menu.py:335
 #: netbox/netbox/navigation/menu.py:339
@@ -1647,7 +1644,7 @@ msgstr "Naplánováno"
 
 #: netbox/core/choices.py:56
 msgid "Running"
-msgstr "Běh"
+msgstr "Běží"
 
 #: netbox/core/choices.py:58
 msgid "Errored"
@@ -1656,7 +1653,7 @@ msgstr "Chyba"
 #: netbox/core/choices.py:87 netbox/core/tables/plugins.py:63
 #: netbox/templates/generic/object.html:61
 msgid "Updated"
-msgstr "aktualizováno"
+msgstr "Aktualizováno"
 
 #: netbox/core/choices.py:88
 msgid "Deleted"
@@ -1725,7 +1722,7 @@ msgstr "Tajný přístupový klíč AWS"
 
 #: netbox/core/events.py:27
 msgid "Object created"
-msgstr "Vytvořený objekt"
+msgstr "Objekt vytvořen"
 
 #: netbox/core/events.py:28
 msgid "Object updated"
@@ -1737,7 +1734,7 @@ msgstr "Objekt odstraněn"
 
 #: netbox/core/events.py:30
 msgid "Job started"
-msgstr "Práce byla zahájena"
+msgstr "Úloha zahájena"
 
 #: netbox/core/events.py:31
 msgid "Job completed"
@@ -1850,7 +1847,7 @@ msgstr "Vytvořeno po"
 
 #: netbox/core/forms/filtersets.py:89
 msgid "Created before"
-msgstr "Vytvořeno dříve"
+msgstr "Vytvořeno před"
 
 #: netbox/core/forms/filtersets.py:94
 msgid "Scheduled after"
@@ -1858,7 +1855,7 @@ msgstr "Naplánováno po"
 
 #: netbox/core/forms/filtersets.py:99
 msgid "Scheduled before"
-msgstr "Naplánováno dříve"
+msgstr "Naplánováno před"
 
 #: netbox/core/forms/filtersets.py:104
 msgid "Started after"
@@ -1866,7 +1863,7 @@ msgstr "Začalo po"
 
 #: netbox/core/forms/filtersets.py:109
 msgid "Started before"
-msgstr "Začalo dříve"
+msgstr "Začalo před"
 
 #: netbox/core/forms/filtersets.py:114
 msgid "Completed after"
@@ -1905,7 +1902,7 @@ msgstr "Po"
 
 #: netbox/core/forms/filtersets.py:144 netbox/extras/forms/filtersets.py:450
 msgid "Before"
-msgstr "Dříve"
+msgstr "Před"
 
 #: netbox/core/forms/filtersets.py:148 netbox/core/tables/change_logging.py:29
 #: netbox/extras/forms/model_forms.py:396
@@ -1941,7 +1938,7 @@ msgstr ""
 #: netbox/core/forms/model_forms.py:153
 #: netbox/templates/dcim/rack_elevation_list.html:6
 msgid "Rack Elevations"
-msgstr "Výšky stojanů"
+msgstr "Přehled stojanů"
 
 #: netbox/core/forms/model_forms.py:157 netbox/dcim/choices.py:1520
 #: netbox/dcim/forms/bulk_edit.py:984 netbox/dcim/forms/bulk_edit.py:1372
@@ -2259,16 +2256,16 @@ msgstr "ID úlohy"
 
 #: netbox/core/models/jobs.py:112
 msgid "job"
-msgstr "práce"
+msgstr "úloha"
 
 #: netbox/core/models/jobs.py:113
 msgid "jobs"
-msgstr "pracovní místa"
+msgstr "úlohy"
 
 #: netbox/core/models/jobs.py:136
 #, python-brace-format
 msgid "Jobs cannot be assigned to this object type ({type})."
-msgstr "K tomuto typu objektu nelze přiřadit úlohy ({type})."
+msgstr "K tomuto typu objektu ({type}) nelze přiřadit úlohy."
 
 #: netbox/core/models/jobs.py:190
 #, python-brace-format
@@ -2278,7 +2275,7 @@ msgstr "Neplatný stav pro ukončení úlohy. Možnosti jsou: {choices}"
 #: netbox/core/models/jobs.py:221
 msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
-msgstr "enqueue () nelze volat s hodnotami pro schedule_at a instant."
+msgstr "enqueue() nelze volat s hodnotami pro schedule_at a ihned zároveň."
 
 #: netbox/core/signals.py:126
 #, python-brace-format
@@ -2396,7 +2393,7 @@ msgstr "Hostitel"
 
 #: netbox/core/tables/tasks.py:50 netbox/ipam/forms/filtersets.py:535
 msgid "Port"
-msgstr "Přístav"
+msgstr "Port"
 
 #: netbox/core/tables/tasks.py:54
 msgid "DB"
@@ -2445,7 +2442,7 @@ msgstr "Nebyli nalezeni žádní pracovníci"
 #: netbox/core/views.py:90
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
-msgstr "Úloha ve frontě #{id} synchronizovat {datasource}"
+msgstr "Úloha #{id} k synchronizaci {datasource} zařazena do fronty."
 
 #: netbox/core/views.py:319
 #, python-brace-format
@@ -2455,12 +2452,12 @@ msgstr "Obnovená revize konfigurace #{id}"
 #: netbox/core/views.py:412 netbox/core/views.py:455 netbox/core/views.py:531
 #, python-brace-format
 msgid "Job {job_id} not found"
-msgstr "Práce {job_id} nenalezeno"
+msgstr "Úloha {job_id} nenalezena"
 
 #: netbox/core/views.py:463
 #, python-brace-format
 msgid "Job {id} has been deleted."
-msgstr "Práce {id} byl vymazán."
+msgstr "Úloha {id} byla vymazána."
 
 #: netbox/core/views.py:465
 #, python-brace-format
@@ -2470,22 +2467,22 @@ msgstr "Chyba při mazání úlohy {id}: {error}"
 #: netbox/core/views.py:478 netbox/core/views.py:496
 #, python-brace-format
 msgid "Job {id} not found."
-msgstr "Práce {id} nenalezeno."
+msgstr "Úloha {id} nenalezena."
 
 #: netbox/core/views.py:484
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
-msgstr "Práce {id} byla znovu zařazena do fronty."
+msgstr "Úloha {id} byla znovu zařazena do fronty."
 
 #: netbox/core/views.py:519
 #, python-brace-format
 msgid "Job {id} has been enqueued."
-msgstr "Práce {id} byl zařazen do fronty."
+msgstr "Úloha {id} byla zařazena do fronty."
 
 #: netbox/core/views.py:538
 #, python-brace-format
 msgid "Job {id} has been stopped."
-msgstr "Práce {id} byl zastaven."
+msgstr "Úloha {id} byla zastavena."
 
 #: netbox/core/views.py:540
 #, python-brace-format
@@ -2535,7 +2532,7 @@ msgstr "4-sloupový rám"
 
 #: netbox/dcim/choices.py:67
 msgid "4-post cabinet"
-msgstr "4-sloupová skříňka"
+msgstr "4-sloupová skříň"
 
 #: netbox/dcim/choices.py:68
 msgid "Wall-mounted frame"
@@ -2547,7 +2544,7 @@ msgstr "Nástěnný rám (vertikální)"
 
 #: netbox/dcim/choices.py:70
 msgid "Wall-mounted cabinet"
-msgstr "Nástěnná skříňka"
+msgstr "Nástěnná skříň"
 
 #: netbox/dcim/choices.py:71
 msgid "Wall-mounted cabinet (vertical)"
@@ -2582,7 +2579,7 @@ msgstr "Milimetry"
 
 #: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1555
 msgid "Inches"
-msgstr "palce"
+msgstr "Palce"
 
 #: netbox/dcim/choices.py:136 netbox/dcim/choices.py:207
 #: netbox/dcim/choices.py:254
@@ -2679,12 +2676,12 @@ msgstr "Zdola nahoru"
 
 #: netbox/dcim/choices.py:214
 msgid "Top to bottom"
-msgstr "Nahoru dolů"
+msgstr "Shora dolů"
 
 #: netbox/dcim/choices.py:215 netbox/dcim/choices.py:259
 #: netbox/dcim/choices.py:1305
 msgid "Passive"
-msgstr "pasivní"
+msgstr "Pasivní"
 
 #: netbox/dcim/choices.py:216
 msgid "Mixed"
@@ -2802,17 +2799,17 @@ msgstr "Auto"
 
 #: netbox/dcim/choices.py:1265
 msgid "Access"
-msgstr "Přístup"
+msgstr "Přístupový"
 
 #: netbox/dcim/choices.py:1266 netbox/ipam/tables/vlans.py:172
 #: netbox/ipam/tables/vlans.py:217
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
-msgstr "Označeno"
+msgstr "Značkovaný"
 
 #: netbox/dcim/choices.py:1267
 msgid "Tagged (All)"
-msgstr "Označeno (Vše)"
+msgstr "Značkovaný (Vše)"
 
 #: netbox/dcim/choices.py:1296
 msgid "IEEE Standard"
@@ -2888,7 +2885,7 @@ msgstr "Gramy"
 #: netbox/dcim/choices.py:1572 netbox/templates/dcim/device.html:328
 #: netbox/templates/dcim/rack.html:108
 msgid "Pounds"
-msgstr "libry"
+msgstr "Libry"
 
 #: netbox/dcim/choices.py:1573
 msgid "Ounces"
@@ -2896,7 +2893,7 @@ msgstr "Unce"
 
 #: netbox/dcim/choices.py:1620
 msgid "Redundant"
-msgstr "Redundantní"
+msgstr "Zdvojený"
 
 #: netbox/dcim/choices.py:1641
 msgid "Single phase"
@@ -2922,15 +2919,15 @@ msgstr "Nadřazená oblast (ID)"
 
 #: netbox/dcim/filtersets.py:92
 msgid "Parent region (slug)"
-msgstr "Nadřazená oblast (URL zkratka)"
+msgstr "Nadřazená oblast (zkratka)"
 
 #: netbox/dcim/filtersets.py:116
 msgid "Parent site group (ID)"
-msgstr "Nadřazená skupina webů (ID)"
+msgstr "Nadřazená skupina míst (ID)"
 
 #: netbox/dcim/filtersets.py:122
 msgid "Parent site group (slug)"
-msgstr "Nadřazená skupina stránek (slimák)"
+msgstr "Nadřazená skupina míst (zkratka)"
 
 #: netbox/dcim/filtersets.py:164 netbox/extras/filtersets.py:364
 #: netbox/ipam/filtersets.py:843 netbox/ipam/filtersets.py:995
@@ -4231,7 +4228,7 @@ msgstr "Šířka musí být nastavena, pokud není zadán typ stojanu."
 
 #: netbox/dcim/forms/bulk_import.py:326
 msgid "U height must be set if not specifying a rack type."
-msgstr ""
+msgstr "Pokud není zadán typ stojanu, musí být nastavena výška U."
 
 #: netbox/dcim/forms/bulk_import.py:334
 msgid "Parent site"
@@ -4890,6 +4887,11 @@ msgid ""
 "present, will be automatically replaced with the position value when "
 "creating a new module."
 msgstr ""
+"Pro hromadné vytváření jsou podporovány alfanumerické rozsahy. Smíšené "
+"případy a typy v rámci jednoho rozsahu nejsou podporovány (příklad: "
+"<code>[ge, xe] -0/0/ [0-9]</code>). Žeton <code>{module}</code>, pokud je "
+"přítomen, bude automaticky nahrazen hodnotou pozice při vytváření nového "
+"modulu."
 
 #: netbox/dcim/forms/model_forms.py:1094
 msgid "Console port template"
@@ -9595,11 +9597,11 @@ msgstr "Nastavte to jako primární IP pro přiřazené zařízení"
 
 #: netbox/ipam/forms/bulk_import.py:330
 msgid "Is out-of-band"
-msgstr ""
+msgstr "Je mimo pásmo"
 
 #: netbox/ipam/forms/bulk_import.py:331
 msgid "Designate this as the out-of-band IP address for the assigned device"
-msgstr ""
+msgstr "Určete tuto adresu jako mimopásmovou IP adresu přiřazeného zařízení"
 
 #: netbox/ipam/forms/bulk_import.py:371
 msgid "No device or virtual machine specified; cannot set as primary IP"
@@ -9609,11 +9611,11 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_import.py:375
 msgid "No device specified; cannot set as out-of-band IP"
-msgstr ""
+msgstr "Není určeno žádné zařízení; nelze nastavit jako IP mimo pásmo"
 
 #: netbox/ipam/forms/bulk_import.py:379
 msgid "Cannot set out-of-band IP for virtual machines"
-msgstr ""
+msgstr "Nelze nastavit IP mimo pásmo pro virtuální počítače"
 
 #: netbox/ipam/forms/bulk_import.py:383
 msgid "No interface specified; cannot set as primary IP"
@@ -9621,7 +9623,7 @@ msgstr "Není určeno žádné rozhraní; nelze nastavit jako primární IP"
 
 #: netbox/ipam/forms/bulk_import.py:387
 msgid "No interface specified; cannot set as out-of-band IP"
-msgstr ""
+msgstr "Není určeno žádné rozhraní; nelze nastavit jako IP mimo pásmo"
 
 #: netbox/ipam/forms/bulk_import.py:422
 msgid "Auth type"
@@ -9780,7 +9782,7 @@ msgstr "Řada ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Přiřazení webu/VLAN"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -9798,7 +9800,7 @@ msgstr "Nastavte z něj primární IP pro zařízení/virtuální počítač"
 
 #: netbox/ipam/forms/model_forms.py:314
 msgid "Make this the out-of-band IP for the device"
-msgstr ""
+msgstr "Nastavte z tohoto pole IP mimo pásmo zařízení"
 
 #: netbox/ipam/forms/model_forms.py:329
 msgid "NAT IP (Inside)"
@@ -9811,10 +9813,12 @@ msgstr "IP adresu lze přiřadit pouze jednomu objektu."
 #: netbox/ipam/forms/model_forms.py:398
 msgid "Cannot reassign primary IP address for the parent device/VM"
 msgstr ""
+"Nelze znovu přiřadit primární adresu IP pro nadřazené zařízení/virtuální "
+"počítač"
 
 #: netbox/ipam/forms/model_forms.py:402
 msgid "Cannot reassign out-of-Band IP address for the parent device"
-msgstr ""
+msgstr "Nelze znovu přiřadit IP adresu mimo pásmo pro nadřazené zařízení"
 
 #: netbox/ipam/forms/model_forms.py:412
 msgid ""
@@ -9827,6 +9831,8 @@ msgid ""
 "Only IP addresses assigned to a device interface can be designated as the "
 "out-of-band IP for a device."
 msgstr ""
+"Pouze IP adresy přiřazené k rozhraní zařízení mohou být označeny jako IP "
+"adresy mimo pásmo zařízení."
 
 #: netbox/ipam/forms/model_forms.py:508
 msgid "Virtual IP Address"
@@ -10220,12 +10226,12 @@ msgstr "Nelze nastavit scope_id bez scope_type."
 #: netbox/ipam/models/vlans.py:105
 #, python-brace-format
 msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
-msgstr ""
+msgstr "Spuštění VLAN ID v dosahu ({value}) nemůže být menší než {minimum}"
 
 #: netbox/ipam/models/vlans.py:111
 #, python-brace-format
 msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
-msgstr ""
+msgstr "Ukončení VLAN ID v rozsahu ({value}) nesmí překročit {maximum}"
 
 #: netbox/ipam/models/vlans.py:118
 #, python-brace-format
@@ -10233,6 +10239,8 @@ msgid ""
 "Ending VLAN ID in range must be greater than or equal to the starting VLAN "
 "ID ({range})"
 msgstr ""
+"Koncové ID VLAN v rozsahu musí být větší nebo roven počátečnímu ID VLAN "
+"({range})"
 
 #: netbox/ipam/models/vlans.py:124
 msgid "Ranges cannot overlap."
@@ -12587,7 +12595,7 @@ msgstr "Chyba při vykreslování šablony"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Pro toto zařízení nebyla přiřazena žádná konfigurační šablona."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13852,7 +13860,7 @@ msgstr "Centrum nápovědy"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Správce Django"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14266,7 +14274,6 @@ msgstr "Přidat virtuální disk"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
-"Pro tento virtuální počítač nebyla přiřazena žádná konfigurační šablona."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15365,7 +15372,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} patří k jinému webu ({device_site}) než cluster ({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16098,7 +16104,7 @@ msgstr "bezdrátové spoje"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "Při nastavování bezdrátové vzdálenosti je nutné zadat jednotku"
+msgstr ""
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

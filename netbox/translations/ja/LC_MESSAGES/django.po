@@ -5,8 +5,8 @@
 # 
 # Translators:
 # Tatsuya Ueda <ml@tatsuya.info>, 2024
-# teapot, 2024
-# Jeremy Stretch, 2025
+# Jeremy Stretch, 2024
+# teapot, 2025
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: teapot, 2025\n"
 "Language-Team: Japanese (https://app.transifex.com/netbox-community/teams/178115/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1234,7 +1234,7 @@ msgstr "割当回線グループ"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "終了"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1295,12 +1295,12 @@ msgstr "回線終端"
 #: netbox/circuits/models/circuits.py:308
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
-msgstr "回線終端は、サイトまたはプロバイダーネットワークに接続する必要があります。"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
-msgstr "回線終端をサイトとプロバイダーネットワークの両方に接続することはできません。"
+msgstr ""
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -1565,7 +1565,7 @@ msgstr "コメント"
 #: netbox/templates/tenancy/contact.html:84
 #: netbox/tenancy/tables/contacts.py:73
 msgid "Assignments"
-msgstr "アサイメント"
+msgstr "割当"
 
 #: netbox/circuits/tables/providers.py:23
 msgid "Accounts"
@@ -1660,7 +1660,7 @@ msgstr "削除"
 
 #: netbox/core/constants.py:19 netbox/core/tables/tasks.py:30
 msgid "Finished"
-msgstr "終了しました"
+msgstr "終了済"
 
 #: netbox/core/constants.py:21 netbox/core/tables/jobs.py:38
 #: netbox/templates/core/job.html:82
@@ -1670,15 +1670,15 @@ msgstr "開始日時"
 
 #: netbox/core/constants.py:22 netbox/core/tables/tasks.py:26
 msgid "Deferred"
-msgstr "延期"
+msgstr "延期済"
 
 #: netbox/core/constants.py:24
 msgid "Stopped"
-msgstr "停止しました"
+msgstr "停止済"
 
 #: netbox/core/constants.py:25
 msgid "Cancelled"
-msgstr "キャンセルされました"
+msgstr "キャンセル済"
 
 #: netbox/core/data_backends.py:32 netbox/core/tables/plugins.py:51
 #: netbox/templates/core/plugin.html:88
@@ -1923,7 +1923,7 @@ msgstr "バックエンド設定"
 
 #: netbox/core/forms/model_forms.py:96
 msgid "File Upload"
-msgstr "ファイルのアップロード"
+msgstr "アップロード"
 
 #: netbox/core/forms/model_forms.py:108
 msgid "Cannot upload a file and sync from an existing file"
@@ -1972,7 +1972,7 @@ msgstr "ページネーション"
 #: netbox/extras/forms/model_forms.py:129
 #: netbox/templates/core/inc/config_data.html:93
 msgid "Validation"
-msgstr "バリデーション"
+msgstr "検証"
 
 #: netbox/core/forms/model_forms.py:164
 #: netbox/templates/account/preferences.html:6
@@ -2045,7 +2045,7 @@ msgstr "このオブジェクトタイプ ({type}) では変更ログはサポ�
 #: netbox/extras/models/notifications.py:186
 #: netbox/netbox/models/features.py:53 netbox/users/models/tokens.py:32
 msgid "created"
-msgstr "作成日時"
+msgstr "作成"
 
 #: netbox/core/models/config.py:22
 msgid "comment"
@@ -2380,7 +2380,7 @@ msgstr "最も古いタスク"
 
 #: netbox/core/tables/tasks.py:42 netbox/templates/core/rq_worker_list.html:39
 msgid "Workers"
-msgstr "労働者"
+msgstr "ワーカー"
 
 #: netbox/core/tables/tasks.py:46 netbox/vpn/tables/tunnels.py:88
 msgid "Host"
@@ -2939,7 +2939,7 @@ msgstr "AS (ID)"
 
 #: netbox/dcim/filtersets.py:246
 msgid "Parent location (ID)"
-msgstr "親の場所 (ID)"
+msgstr "親のロケーション (ID)"
 
 #: netbox/dcim/filtersets.py:252
 msgid "Parent location (slug)"
@@ -3052,7 +3052,7 @@ msgstr "電源コンセントがある"
 #: netbox/dcim/filtersets.py:1147 netbox/dcim/forms/filtersets.py:559
 #: netbox/dcim/forms/filtersets.py:655 netbox/dcim/forms/filtersets.py:876
 msgid "Has interfaces"
-msgstr "インタフェースがある"
+msgstr "インタフェースを持つ"
 
 #: netbox/dcim/filtersets.py:587 netbox/dcim/filtersets.py:708
 #: netbox/dcim/filtersets.py:1151 netbox/dcim/forms/filtersets.py:566
@@ -3121,7 +3121,7 @@ msgstr "サイト名 (slug)"
 
 #: netbox/dcim/filtersets.py:1067
 msgid "Parent bay (ID)"
-msgstr "ペアレントベイ (ID)"
+msgstr "親ベイ (ID)"
 
 #: netbox/dcim/filtersets.py:1071
 msgid "VM cluster (ID)"
@@ -3368,11 +3368,11 @@ msgstr "親モジュールベイ (ID)"
 
 #: netbox/dcim/filtersets.py:1808
 msgid "Installed module (ID)"
-msgstr "インストール済みモジュール (ID)"
+msgstr "インストール済モジュール (ID)"
 
 #: netbox/dcim/filtersets.py:1819
 msgid "Installed device (ID)"
-msgstr "インストール済みデバイス (ID)"
+msgstr "インストール済デバイス (ID)"
 
 #: netbox/dcim/filtersets.py:1825
 msgid "Installed device (name)"
@@ -4728,7 +4728,7 @@ msgstr "クラスタグループ"
 
 #: netbox/dcim/forms/filtersets.py:1210
 msgid "Cabled"
-msgstr "ケーブル接続済"
+msgstr "配線済"
 
 #: netbox/dcim/forms/filtersets.py:1217
 msgid "Occupied"
@@ -6820,7 +6820,7 @@ msgstr "奥行きをすべて利用する"
 
 #: netbox/dcim/tables/devicetypes.py:98
 msgid "U Height"
-msgstr "U 高さ"
+msgstr "ユニット数"
 
 #: netbox/dcim/tables/devicetypes.py:113 netbox/dcim/tables/modules.py:26
 #: netbox/dcim/tables/racks.py:89
@@ -7895,7 +7895,7 @@ msgstr "テンプレートコード"
 #: netbox/extras/forms/model_forms.py:247
 #: netbox/templates/extras/exporttemplate.html:12
 msgid "Export Template"
-msgstr "テンプレートをエクスポート"
+msgstr "エクスポートテンプレート"
 
 #: netbox/extras/forms/model_forms.py:249
 msgid "Rendering"
@@ -8204,7 +8204,7 @@ msgstr "最大許容値 (数値フィールド用)"
 
 #: netbox/extras/models/customfields.py:191
 msgid "validation regex"
-msgstr "バリデーション正規表現"
+msgstr "検証正規表現"
 
 #: netbox/extras/models/customfields.py:193
 #, python-brace-format
@@ -9071,11 +9071,11 @@ msgstr "スタンダード"
 
 #: netbox/ipam/choices.py:120
 msgid "CheckPoint"
-msgstr "チェックポイント"
+msgstr "CheckPoint"
 
 #: netbox/ipam/choices.py:123
 msgid "Cisco"
-msgstr "シスコ"
+msgstr "Cisco"
 
 #: netbox/ipam/choices.py:137
 msgid "Plaintext"
@@ -9295,7 +9295,7 @@ msgstr "重複を禁止する"
 
 #: netbox/ipam/forms/bulk_edit.py:88
 msgid "Is private"
-msgstr "非公開です"
+msgstr "非公開"
 
 #: netbox/ipam/forms/bulk_edit.py:109 netbox/ipam/forms/bulk_edit.py:138
 #: netbox/ipam/forms/bulk_edit.py:163 netbox/ipam/forms/bulk_import.py:89
@@ -9472,7 +9472,7 @@ msgstr "割当インタフェースの親VM (存在する場合)"
 
 #: netbox/ipam/forms/bulk_import.py:325
 msgid "Is primary"
-msgstr "プライマリか"
+msgstr "プライマリ"
 
 #: netbox/ipam/forms/bulk_import.py:326
 msgid "Make this the primary IP for the assigned device"
@@ -9663,7 +9663,7 @@ msgstr "ASN レンジ"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "サイト/VLAN 割り当て"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -10243,7 +10243,7 @@ msgstr "NAT (アウトサイド)"
 
 #: netbox/ipam/tables/ip.py:393
 msgid "Assigned"
-msgstr "割当済み"
+msgstr "割当済"
 
 #: netbox/ipam/tables/ip.py:429 netbox/templates/vpn/l2vpntermination.html:16
 #: netbox/vpn/forms/filtersets.py:240
@@ -10498,7 +10498,7 @@ msgstr "グローバルテーブル内で一意の IP アドレスを強制す�
 #: netbox/netbox/config/parameters.py:75
 #: netbox/templates/core/inc/config_data.html:44
 msgid "Prefer IPv4"
-msgstr "IPv4 を優先する"
+msgstr "IPv4 を優先"
 
 #: netbox/netbox/config/parameters.py:77
 msgid "Prefer IPv4 addresses over IPv6"
@@ -10982,7 +10982,7 @@ msgstr "エクスポートテンプレート"
 
 #: netbox/netbox/navigation/menu.py:329
 msgid "Saved Filters"
-msgstr "保存済みフィルタ"
+msgstr "保存済フィルタ"
 
 #: netbox/netbox/navigation/menu.py:331
 msgid "Image Attachments"
@@ -11006,7 +11006,7 @@ msgstr "イベントルール"
 
 #: netbox/netbox/navigation/menu.py:357
 msgid "Webhooks"
-msgstr "ウェブフック"
+msgstr "Webhooks"
 
 #: netbox/netbox/navigation/menu.py:361 netbox/netbox/navigation/menu.py:365
 #: netbox/netbox/views/generic/feature_views.py:153
@@ -11201,7 +11201,7 @@ msgstr "デンマーク語"
 
 #: netbox/netbox/settings.py:762
 msgid "German"
-msgstr "ドイツ人"
+msgstr "ドイツ語"
 
 #: netbox/netbox/settings.py:763
 msgid "English"
@@ -11899,7 +11899,7 @@ msgstr "ユーザープリファレンス"
 
 #: netbox/templates/core/inc/config_data.html:141
 msgid "Job retention"
-msgstr "仕事の維持"
+msgstr "ジョブの維持"
 
 #: netbox/templates/core/job.html:35 netbox/templates/core/rq_task.html:12
 #: netbox/templates/core/rq_task.html:49 netbox/templates/core/rq_task.html:58
@@ -11959,7 +11959,7 @@ msgstr "警告:非アトミックな変更と以前の変更レコードの比�
 
 #: netbox/templates/core/objectchange.html:131
 msgid "Post-Change Data"
-msgstr "変更後のデータ"
+msgstr "変更後データ"
 
 #: netbox/templates/core/objectchange.html:162
 #, python-format
@@ -12144,11 +12144,11 @@ msgstr "システムステータス"
 
 #: netbox/templates/core/system.html:31
 msgid "NetBox release"
-msgstr "ネットボックスリリース"
+msgstr "NetBoxリリース"
 
 #: netbox/templates/core/system.html:44
 msgid "Django version"
-msgstr "ジャンゴバージョン"
+msgstr "Djangoバージョン"
 
 #: netbox/templates/core/system.html:48
 msgid "PostgreSQL version"
@@ -12313,7 +12313,7 @@ msgstr "用の NAT"
 #: netbox/templates/virtualization/virtualmachine.html:59
 #: netbox/templates/virtualization/virtualmachine.html:75
 msgid "NAT"
-msgstr "ナット"
+msgstr "NAT"
 
 #: netbox/templates/dcim/device.html:252 netbox/templates/dcim/rack.html:73
 msgid "Power Utilization"
@@ -12441,11 +12441,11 @@ msgstr "エラーレンダリングテンプレート"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "このデバイスには設定テンプレートが割り当てられていません。"
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
-msgstr "ペアレントベイ"
+msgstr "親ベイ"
 
 #: netbox/templates/dcim/device_edit.html:48
 #: netbox/utilities/templates/form_helpers/render_field.html:22
@@ -12475,7 +12475,7 @@ msgstr "デバイスベイ"
 
 #: netbox/templates/dcim/devicebay.html:43
 msgid "Installed Device"
-msgstr "取付済みデバイス"
+msgstr "取付済デバイス"
 
 #: netbox/templates/dcim/devicebay_depopulate.html:6
 #, python-format
@@ -12561,15 +12561,15 @@ msgstr "B サイド"
 
 #: netbox/templates/dcim/inc/cable_termination.html:65
 msgid "No termination"
-msgstr "終了なし"
+msgstr "未終端"
 
 #: netbox/templates/dcim/inc/cable_toggle_buttons.html:3
 msgid "Mark Planned"
-msgstr "マーク・プランド"
+msgstr "計画中とマークする"
 
 #: netbox/templates/dcim/inc/cable_toggle_buttons.html:6
 msgid "Mark Installed"
-msgstr "取付済みとマークする"
+msgstr "取付済とマークする"
 
 #: netbox/templates/dcim/inc/connection_endpoints.html:13
 msgid "Path Status"
@@ -12688,7 +12688,7 @@ msgstr "チャンネル幅"
 #: netbox/wireless/forms/filtersets.py:80 netbox/wireless/models.py:82
 #: netbox/wireless/models.py:156 netbox/wireless/tables/wirelesslan.py:44
 msgid "SSID"
-msgstr "言った"
+msgstr "SSID"
 
 #: netbox/templates/dcim/interface.html:305
 msgid "LAG Members"
@@ -13273,7 +13273,7 @@ msgstr "スクリプトはソースファイルに存在しなくなりました
 
 #: netbox/templates/extras/script_list.html:47
 msgid "Last Run"
-msgstr "ラストラン"
+msgstr "最終実行"
 
 #: netbox/templates/extras/script_list.html:62
 msgid "Script is no longer present in the source file"
@@ -13285,7 +13285,7 @@ msgstr "決して"
 
 #: netbox/templates/extras/script_list.html:85
 msgid "Run Again"
-msgstr "もう一度実行"
+msgstr "再実行"
 
 #: netbox/templates/extras/script_list.html:133
 #, python-format
@@ -13317,7 +13317,7 @@ msgstr "ログ閾値"
 
 #: netbox/templates/extras/script_result.html:56
 msgid "All"
-msgstr "[すべて]"
+msgstr "すべて"
 
 #: netbox/templates/extras/tag.html:32
 msgid "Tagged Items"
@@ -13557,7 +13557,7 @@ msgstr "新しいリリースが入手可能"
 
 #: netbox/templates/home.html:16
 msgid "is available"
-msgstr "利用可能です"
+msgstr "利用可能"
 
 #: netbox/templates/home.html:18
 msgctxt "Document title"
@@ -13570,7 +13570,7 @@ msgstr "ダッシュボードのロック解除"
 
 #: netbox/templates/home.html:49
 msgid "Lock Dashboard"
-msgstr "ロックダッシュボード"
+msgstr "ダッシュボードのロック"
 
 #: netbox/templates/home.html:60
 msgid "Add Widget"
@@ -13685,7 +13685,7 @@ msgstr "ヘルプセンター"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "ジャンゴ管理者"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14094,7 +14094,7 @@ msgstr "仮想ディスクを追加"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr "このVMには構成テンプレートが割り当てられていません。"
+msgstr ""
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -14251,7 +14251,7 @@ msgstr "PSK"
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:45
 msgctxt "Abbreviation for megahertz"
 msgid "MHz"
-msgstr "メガヘルツ"
+msgstr "MHz"
 
 #: netbox/templates/wireless/wirelesslan.html:57
 msgid "Attached Interfaces"
@@ -14454,7 +14454,7 @@ msgstr "通知グループ (ID)"
 
 #: netbox/users/forms/bulk_edit.py:26
 msgid "First name"
-msgstr "ファーストネーム"
+msgstr "名前"
 
 #: netbox/users/forms/bulk_edit.py:31
 msgid "Last name"
@@ -14474,11 +14474,11 @@ msgstr "キーが指定されていない場合は、キーが自動的に生成
 
 #: netbox/users/forms/filtersets.py:51 netbox/users/tables.py:42
 msgid "Is Staff"
-msgstr "スタッフですか"
+msgstr "スタッフ"
 
 #: netbox/users/forms/filtersets.py:58 netbox/users/tables.py:45
 msgid "Is Superuser"
-msgstr "スーパーユーザですか"
+msgstr "スーパーユーザ"
 
 #: netbox/users/forms/filtersets.py:91 netbox/users/tables.py:86
 msgid "Can View"
@@ -15156,7 +15156,7 @@ msgstr "シリアル番号"
 msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
-msgstr "{device} 別のサイトに属している ({device_site}) よりもクラスタ ({cluster_site})"
+msgstr ""
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -15572,11 +15572,11 @@ msgstr "トンネルインターフェイス"
 
 #: netbox/vpn/forms/model_forms.py:150
 msgid "First Termination"
-msgstr "1 回目の解約"
+msgstr "1 回目の終端"
 
 #: netbox/vpn/forms/model_forms.py:153
 msgid "Second Termination"
-msgstr "2 回目の終了"
+msgstr "2 回目の終端"
 
 #: netbox/vpn/forms/model_forms.py:197
 msgid "This parameter is required when defining a termination."
@@ -15605,7 +15605,7 @@ msgstr "認証アルゴリズム"
 
 #: netbox/vpn/models/crypto.py:44
 msgid "Diffie-Hellman group ID"
-msgstr "ディフィー・ヘルマングループ ID"
+msgstr "Diffie-Hellmanグループ ID"
 
 #: netbox/vpn/models/crypto.py:50
 msgid "Security association lifetime (in seconds)"
@@ -15613,11 +15613,11 @@ msgstr "セキュリティアソシエーションの有効期間 (秒単位)"
 
 #: netbox/vpn/models/crypto.py:59
 msgid "IKE proposal"
-msgstr "イケアの提案"
+msgstr "IKEプロポザール"
 
 #: netbox/vpn/models/crypto.py:60
 msgid "IKE proposals"
-msgstr "IKEの提案"
+msgstr "IKEプロポザール"
 
 #: netbox/vpn/models/crypto.py:76
 msgid "version"
@@ -15875,7 +15875,7 @@ msgstr "無線リンク"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "ワイヤレス距離を設定するときは単位を指定する必要があります"
+msgstr ""
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

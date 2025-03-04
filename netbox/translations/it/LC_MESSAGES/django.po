@@ -1237,7 +1237,7 @@ msgstr "Assegnazioni di gruppi di circuiti"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "fine"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1299,15 +1299,11 @@ msgstr "terminazioni del circuito"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Una terminazione di circuito deve essere collegata a un sito o alla rete di "
-"un provider."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Una terminazione di circuito non può essere collegata sia a un sito che alla"
-" rete di un provider."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9936,7 +9932,7 @@ msgstr "Gamma ASN"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Assegnazione sito/VLAN"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12797,8 +12793,6 @@ msgstr "Errore nel rendering del modello"
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
 msgstr ""
-"Non è stato assegnato alcun modello di configurazione per questo "
-"dispositivo."
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -14070,7 +14064,7 @@ msgstr "Centro assistenza"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Amministratore Django"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14485,8 +14479,6 @@ msgstr "Aggiungi disco virtuale"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
-"Non è stato assegnato alcun modello di configurazione per questa macchina "
-"virtuale."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15600,8 +15592,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} appartiene a un sito diverso ({device_site}) rispetto al cluster "
-"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16344,7 +16334,6 @@ msgstr "collegamenti wireless"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
-"È necessario specificare un'unità quando si imposta una distanza wireless"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

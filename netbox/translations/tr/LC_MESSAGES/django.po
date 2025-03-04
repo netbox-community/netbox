@@ -1236,7 +1236,7 @@ msgstr "Devre grubu atamaları"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "sonlandırma"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1298,12 +1298,11 @@ msgstr "devre sonlandırmaları"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Bir devre sonlandırma, bir siteye veya bir sağlayıcı ağına bağlanmalıdır."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
-msgstr "Devre sonlandırma hem siteye hem de sağlayıcı ağına bağlanamaz."
+msgstr ""
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -9794,7 +9793,7 @@ msgstr "ASN Aralığı"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Site/VLAN Ataması"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12617,7 +12616,7 @@ msgstr "Hata oluşturma şablonu"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Bu aygıt için herhangi bir yapılandırma şablonu atanmadı."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -13883,7 +13882,7 @@ msgstr "Yardım Merkezi"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Django Yöneticisi"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14296,7 +14295,7 @@ msgstr "Sanal Disk Ekle"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr "Bu sanal makine için herhangi bir yapılandırma şablonu atanmadı."
+msgstr ""
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15393,7 +15392,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} farklı bir siteye aittir ({device_site}) kümeden ({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16125,7 +16123,7 @@ msgstr "kablosuz bağlantılar"
 
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
-msgstr "Kablosuz mesafeyi ayarlarken bir birim belirtmelisiniz"
+msgstr ""
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format

@@ -15,6 +15,7 @@
 # 闻寄云, 2024
 # luo jiyin, 2024
 # Jeremy Stretch, 2025
+# yawei jia, 2025
 # 
 #, fuzzy
 msgid ""
@@ -23,7 +24,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: yawei jia, 2025\n"
 "Language-Team: Chinese (https://app.transifex.com/netbox-community/teams/178115/zh/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1242,7 +1243,7 @@ msgstr "电路组分配"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "终止"
+msgstr "终端"
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1303,12 +1304,12 @@ msgstr "线路接入"
 #: netbox/circuits/models/circuits.py:308
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
-msgstr "电路终端必须连接到站点或提供商网络。"
+msgstr "电路终端必须连接到站点或服务提供商网络。"
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
-msgstr "电路终端不能同时连接到站点和提供商网络。"
+msgstr "电路终端不能同时连接到站点和服务提供商网络。"
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -1741,11 +1742,11 @@ msgstr "对象已删除"
 
 #: netbox/core/events.py:30
 msgid "Job started"
-msgstr "工作已开始"
+msgstr "作业已开始"
 
 #: netbox/core/events.py:31
 msgid "Job completed"
-msgstr "任务已完成"
+msgstr "作业已完成"
 
 #: netbox/core/events.py:32
 msgid "Job failed"
@@ -9638,7 +9639,7 @@ msgstr "ASN范围"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "站点/VLAN 分配"
+msgstr "站点/VLAN 关联"
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12414,7 +12415,7 @@ msgstr "渲染模板时出错"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "尚未为此设备分配任何配置模板。"
+msgstr "尚未为该设备分配配置模板。"
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -14051,7 +14052,7 @@ msgstr "增加虚拟硬盘"
 
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
-msgstr "尚未为此虚拟机分配任何配置模板。"
+msgstr "尚未为该虚拟机分配配置模板。"
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15100,7 +15101,7 @@ msgstr "序列号"
 msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
-msgstr "{device} 属于另一个站点 ({device_site}) 而不是集群 ({cluster_site})"
+msgstr "{device} 属于与集群 ({cluster_site}) 不同的站点 ({device_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"

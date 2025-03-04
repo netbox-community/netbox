@@ -94,7 +94,6 @@ class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('ASNs')
     )
     asn_count = columns.LinkedCountColumn(
-        accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name=_('ASN Count')

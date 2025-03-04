@@ -8,8 +8,8 @@
 # deku_m, 2024
 # Peter Mulder <mistermulder+transifex@protonmail.com>, 2024
 # Sebastian Berm, 2024
-# Jorg de Jong, 2025
 # Jeremy Stretch, 2025
+# Jorg de Jong, 2025
 # 
 #, fuzzy
 msgid ""
@@ -18,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-04 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: Jorg de Jong, 2025\n"
 "Language-Team: Dutch (https://app.transifex.com/netbox-community/teams/178115/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1239,7 +1239,7 @@ msgstr "Circuitgroeptoewijzingen"
 
 #: netbox/circuits/models/circuits.py:240
 msgid "termination"
-msgstr "beëindiging"
+msgstr ""
 
 #: netbox/circuits/models/circuits.py:257
 msgid "port speed (Kbps)"
@@ -1301,15 +1301,11 @@ msgstr "circuitafsluitingen"
 msgid ""
 "A circuit termination must attach to either a site or a provider network."
 msgstr ""
-"Een circuitafsluiting moet verbonden zijn met een site of een netwerk van "
-"een provider."
 
 #: netbox/circuits/models/circuits.py:310
 msgid ""
 "A circuit termination cannot attach to both a site and a provider network."
 msgstr ""
-"Een circuitafsluiting kan niet worden aangesloten op zowel een site als een "
-"netwerk van een provider."
 
 #: netbox/circuits/models/providers.py:22
 #: netbox/circuits/models/providers.py:66
@@ -7744,7 +7740,7 @@ msgstr "CA-bestandspad"
 #: netbox/extras/forms/bulk_edit.py:253 netbox/extras/forms/bulk_import.py:192
 #: netbox/extras/forms/model_forms.py:377
 msgid "Event types"
-msgstr "Soorten evenementen"
+msgstr "Soorten gebeurtenis"
 
 #: netbox/extras/forms/bulk_edit.py:293
 msgid "Is active"
@@ -7835,7 +7831,7 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_import.py:193
 msgid "The event type(s) which will trigger this rule"
-msgstr "Het (de) evenementtype (s) dat deze regel activeert"
+msgstr "Het (de) gebeurtenistype (s) dat deze regel activeert"
 
 #: netbox/extras/forms/bulk_import.py:196
 msgid "Action object"
@@ -7927,7 +7923,7 @@ msgstr "HTTP-inhoudstype"
 
 #: netbox/extras/forms/filtersets.py:286
 msgid "Event type"
-msgstr "Soort evenement"
+msgstr "Soort gebeurtenis"
 
 #: netbox/extras/forms/filtersets.py:291
 msgid "Action type"
@@ -8680,7 +8676,7 @@ msgstr "regel van het evenement"
 
 #: netbox/extras/models/models.py:117
 msgid "event rules"
-msgstr "regels voor evenementen"
+msgstr "regels voor gebeurtenissen"
 
 #: netbox/extras/models/models.py:166
 msgid ""
@@ -8731,11 +8727,8 @@ msgid ""
 "<code>event</code>, <code>model</code>, <code>timestamp</code>, "
 "<code>username</code>, <code>request_id</code>, and <code>data</code>."
 msgstr ""
-"Jinja2-sjabloon voor een aangepaste hoofdtekst van de aanvraag. Indien leeg,"
-" wordt een JSON-object toegevoegd dat de wijziging voorstelt. De beschikbare"
-" contextgegevens omvatten: <code>evenement</code>, <code>model-</code>, "
-"<code>tijdstempel</code>, <code>gebruikersnaam</code>, "
-"<code>aanvraag_id</code>, en <code>gegevens</code>."
+"Jinja2-sjabloon voor een aangepaste hoofdtekst van de aanvraag. Indien leeg, wordt een JSON-object toegevoegd dat de wijziging voorstelt. De beschikbare contextgegevens omvatten: <code>gebeurtenis\n"
+"</code>, <code>model-</code>, <code>tijdstempel</code>, <code>gebruikersnaam</code>, <code>aanvraag_id</code>, en <code>gegevens</code>."
 
 #: netbox/extras/models/models.py:204
 msgid "secret"
@@ -8949,7 +8942,7 @@ msgstr "lezen"
 
 #: netbox/extras/models/notifications.py:66
 msgid "event"
-msgstr "evenement"
+msgstr "gebeurtenis"
 
 #: netbox/extras/models/notifications.py:84
 msgid "notification"
@@ -9180,7 +9173,7 @@ msgstr "SSL-validatie"
 #: netbox/extras/tables/tables.py:418
 #: netbox/templates/extras/eventrule.html:37
 msgid "Event Types"
-msgstr "Soorten evenementen"
+msgstr "Soorten gebeurtenissen"
 
 #: netbox/extras/tables/tables.py:535 netbox/netbox/navigation/menu.py:77
 #: netbox/templates/dcim/devicerole.html:8
@@ -9919,7 +9912,7 @@ msgstr "ASN-assortiment"
 
 #: netbox/ipam/forms/model_forms.py:231
 msgid "Site/VLAN Assignment"
-msgstr "Site/VLAN-toewijzing"
+msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:259 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
@@ -12772,7 +12765,7 @@ msgstr "Sjabloon voor weergave van fouten"
 
 #: netbox/templates/dcim/device/render_config.html:70
 msgid "No configuration template has been assigned for this device."
-msgstr "Er is geen configuratiesjabloon toegewezen voor dit apparaat."
+msgstr ""
 
 #: netbox/templates/dcim/device_edit.html:44
 msgid "Parent Bay"
@@ -14044,7 +14037,7 @@ msgstr "Helpcentrum"
 
 #: netbox/templates/inc/user_menu.html:41
 msgid "Django Admin"
-msgstr "Django-beheerder"
+msgstr ""
 
 #: netbox/templates/inc/user_menu.html:61
 msgid "Log Out"
@@ -14459,7 +14452,6 @@ msgstr "Virtuele schijf toevoegen"
 #: netbox/templates/virtualization/virtualmachine/render_config.html:70
 msgid "No configuration template has been assigned for this virtual machine."
 msgstr ""
-"Er is geen configuratiesjabloon toegewezen voor deze virtuele machine."
 
 #: netbox/templates/vpn/ikepolicy.html:10
 #: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:166
@@ -15574,8 +15566,6 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} behoort tot een andere site ({device_site}) dan het cluster "
-"({cluster_site})"
 
 #: netbox/virtualization/forms/model_forms.py:192
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -16317,7 +16307,6 @@ msgstr "draadloze verbindingen"
 #: netbox/wireless/models.py:236
 msgid "Must specify a unit when setting a wireless distance"
 msgstr ""
-"Moet een eenheid specificeren bij het instellen van een draadloze afstand"
 
 #: netbox/wireless/models.py:242 netbox/wireless/models.py:248
 #, python-brace-format
