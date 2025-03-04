@@ -6,7 +6,7 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
@@ -590,12 +590,13 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ServiceFilterForm(ServiceTemplateFilterForm):
+class ServiceFilterForm(ContactModelFilterForm, ServiceTemplateFilterForm):
     model = Service
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('protocol', 'port', name=_('Attributes')),
         FieldSet('device_id', 'virtual_machine_id', name=_('Assignment')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),

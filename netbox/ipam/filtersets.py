@@ -12,7 +12,8 @@ from netaddr.core import AddrFormatError
 from circuits.models import Provider
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
@@ -1136,7 +1137,7 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(NetBoxModelFilterSet):
+class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
