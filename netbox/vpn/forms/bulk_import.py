@@ -260,6 +260,11 @@ class L2VPNImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=L2VPNStatusChoices,
+        help_text=_('Operational status')
+    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=L2VPNTypeChoices,

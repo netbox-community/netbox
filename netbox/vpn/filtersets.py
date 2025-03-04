@@ -298,6 +298,9 @@ class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         choices=L2VPNTypeChoices,
         null_value=None
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=L2VPNStatusChoices,
+    )
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
         queryset=RouteTarget.objects.all(),

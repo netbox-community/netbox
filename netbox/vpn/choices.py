@@ -267,3 +267,17 @@ class L2VPNTypeChoices(ChoiceSet):
         TYPE_EPLAN,
         TYPE_EPTREE
     )
+
+
+class L2VPNStatusChoices(ChoiceSet):
+    key = 'L2VPN.status'
+
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_DECOMMISSIONED = 'decommissioned'
+
+    CHOICES = [
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_DECOMMISSIONED, _('Decommissioned'), 'red'),
+    ]
