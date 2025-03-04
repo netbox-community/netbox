@@ -14,16 +14,25 @@ if TYPE_CHECKING:
     from extras.graphql.filters import *
     from ipam.graphql.filters import *
 
-__all__ = [
-    'ComponentModelFilterMixin',
-    'ModularComponentModelFilterMixin',
+__all__ = (
     'CabledObjectModelFilterMixin',
+    'ComponentModelFilterMixin',
     'ComponentTemplateFilterMixin',
-    'ModularComponentTemplateFilterMixin',
-    'RenderConfigFilterMixin',
     'InterfaceBaseFilterMixin',
+    'ModularComponentModelFilterMixin',
+    'ModularComponentTemplateFilterMixin',
     'RackBaseFilterMixin',
-]
+    'RenderConfigFilterMixin',
+    'ScopedFilterMixin',
+)
+
+
+@dataclass
+class ScopedFilterMixin(BaseFilterMixin):
+    scope_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    scope_id: ID | None = strawberry_django.filter_field()
 
 
 @dataclass

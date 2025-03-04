@@ -40,7 +40,7 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Cluster, lookups=True)
-class ClusterFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
+class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     type: Annotated['ClusterTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()

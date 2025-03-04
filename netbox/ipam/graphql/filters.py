@@ -11,9 +11,9 @@ from strawberry_django import (
     DateFilterLookup,
 )
 from core.graphql.filter_mixins import *
+from dcim.graphql.filter_mixins import ScopedFilterMixin
 from netbox.graphql.filter_mixins import *
 from tenancy.graphql.filter_mixins import *
-
 from ipam import models
 from ipam.graphql.filter_mixins import *
 
@@ -191,7 +191,7 @@ class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMi
 
 
 @strawberry_django.filter(models.Prefix, lookups=True)
-class PrefixFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
+class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     prefix: FilterLookup[str] | None = strawberry_django.filter_field()
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vrf_id: ID | None = strawberry_django.filter_field()
@@ -204,10 +204,6 @@ class PrefixFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMix
     role_id: ID | None = strawberry_django.filter_field()
     is_pool: FilterLookup[bool] | None = strawberry_django.filter_field()
     mark_utilized: FilterLookup[bool] | None = strawberry_django.filter_field()
-    scope_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    scope_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.RIR, lookups=True)
@@ -278,12 +274,7 @@ class VLANFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter(models.VLANGroup, lookups=True)
-class VLANGroupFilter(OrganizationalModelFilterMixin):
-    scope_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    scope_type_id: ID | None = strawberry_django.filter_field()
-    scope_id: ID | None = strawberry_django.filter_field()
+class VLANGroupFilter(ScopedFilterMixin, OrganizationalModelFilterMixin):
     vid_ranges: Annotated['IntegerArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

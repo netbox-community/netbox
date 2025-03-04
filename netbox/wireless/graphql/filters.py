@@ -5,6 +5,7 @@ import strawberry_django
 from strawberry_django import (
     FilterLookup,
 )
+from dcim.graphql.filter_mixins import ScopedFilterMixin
 from extras.graphql.filter_mixins import *
 from netbox.graphql.filter_mixins import *
 from core.graphql.filter_mixins import *
@@ -41,7 +42,12 @@ class WirelessLANGroupFilter(NestedGroupModelFilterMixin):
 
 
 @strawberry_django.filter(models.WirelessLAN, lookups=True)
-class WirelessLANFilter(WirelessAuthenticationBaseFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
+class WirelessLANFilter(
+    WirelessAuthenticationBaseFilterMixin,
+    ScopedFilterMixin,
+    TenancyFilterMixin,
+    PrimaryModelFilterMixin
+):
     ssid: FilterLookup[str] | None = strawberry_django.filter_field()
     group: Annotated['WirelessLANGroupFilter', strawberry.lazy('wireless.graphql.filters')] | None = (
         strawberry_django.filter_field()
