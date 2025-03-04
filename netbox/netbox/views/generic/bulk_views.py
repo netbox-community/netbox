@@ -125,6 +125,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     # Request handlers
     #
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        ordering = qs.model._meta.ordering
+        return qs.order_by(*ordering)
+
     def get(self, request):
         """
         GET request handler.

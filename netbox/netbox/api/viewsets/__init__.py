@@ -121,6 +121,11 @@ class NetBoxModelViewSet(
             obj.snapshot()
         return obj
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        ordering = qs.model._meta.ordering
+        return qs.order_by(*ordering)
+
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):
