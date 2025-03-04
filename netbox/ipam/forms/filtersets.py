@@ -163,7 +163,7 @@ class RoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm, ):
     model = Prefix
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -175,6 +175,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     mask_length__lte = forms.IntegerField(
         widget=forms.HiddenInput()

@@ -277,7 +277,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
-class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet):
+class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
