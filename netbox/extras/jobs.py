@@ -100,7 +100,10 @@ class ScriptJob(JobRunner):
 
         # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
         # change logging, event rules, etc.
-        with ExitStack() as stack:
-            for request_processor in registry['request_processors']:
-                stack.enter_context(request_processor(request))
+        if commit:
+            with ExitStack() as stack:
+                for request_processor in registry['request_processors']:
+                    stack.enter_context(request_processor(request))
+                self.run_script(script, request, data, commit)
+        else:
             self.run_script(script, request, data, commit)
