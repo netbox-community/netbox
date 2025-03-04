@@ -759,19 +759,19 @@
   resolved "https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz#927dd2fae9bc3361403ac2c7a00c32ddce9ad7e8"
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
-"@tabler/core@1.0.0-beta21":
-  version "1.0.0-beta21"
-  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.0.0-beta21.tgz#cd10d7648b3b7b31927a430fd776d3304e796403"
-  integrity sha512-9ZKu38BScc0eHruhX/SlVDSiXenBFSgBp2WDq6orkuC8J/1yutKDt7CdXuJpBwkiADEk5yqYV31Ku+CnhwOc3Q==
+"@tabler/core@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.0.0.tgz#08736378108663b5893a31ad462be7d12e64be67"
+  integrity sha512-uFmv6f8TAaW2JaGwzjT1LfK+TjmBQSTCoznCMdV5uur4cv4TtJlV8Hh1Beu55YX0svMtOQ0Xts7tYv/+qBEcfA==
   dependencies:
     "@popperjs/core" "^2.11.8"
-    "@tabler/icons" "^3.14.0"
+    "@tabler/icons" "^3.29.0"
     bootstrap "5.3.3"
 
-"@tabler/icons@^3.14.0":
-  version "3.16.0"
-  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-3.16.0.tgz#d618670b80163925a31a6c2290e8775f6058d81a"
-  integrity sha512-GU7MSx4uQEr55BmyON6hD/QYTl6k1v0YlRhM91gBWDoKAbyCt6QIYw7rpJ/ecdh5zrHaTOJKPenZ4+luoutwFA==
+"@tabler/icons@^3.29.0":
+  version "3.30.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-3.30.0.tgz#4f80f52cc6355b440a4ee0dadd4c3e3775e50663"
+  integrity sha512-c8OKLM48l00u9TFbh2qhSODMONIzML8ajtCyq95rW8vzkWcBrKRPM61tdkThz2j4kd5u17srPGIjqdeRUZdfdw==
 
 "@tanstack/react-virtual@^3.0.0-beta.60":
   version "3.5.0"

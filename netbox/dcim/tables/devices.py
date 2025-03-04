@@ -520,6 +520,9 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         verbose_name=_('Power Port'),
         linkify=True
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     color = columns.ColorColumn()
     tags = columns.TagColumn(
         url_name='dcim:poweroutlet_list'
@@ -530,9 +533,11 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'description', 'power_port',
             'color', 'feed_leg', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items',
-            'tags', 'created', 'last_updated',
+            'tags', 'created', 'last_updated', 'status',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description')
+        default_columns = (
+            'pk', 'name', 'device', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'description',
+        )
 
 
 class DevicePowerOutletTable(PowerOutletTable):
@@ -550,9 +555,11 @@ class DevicePowerOutletTable(PowerOutletTable):
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'color', 'power_port', 'feed_leg',
             'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
+            'status',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
+            'pk', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'description', 'cable',
+            'connection',
         )
 
 

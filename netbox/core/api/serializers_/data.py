@@ -26,8 +26,8 @@ class DataSourceSerializer(NetBoxModelSerializer):
         model = DataSource
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description',
-            'parameters', 'ignore_rules', 'comments', 'custom_fields', 'created', 'last_updated', 'last_synced',
-            'file_count',
+            'sync_interval', 'parameters', 'ignore_rules', 'comments', 'custom_fields', 'created', 'last_updated',
+            'last_synced', 'file_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

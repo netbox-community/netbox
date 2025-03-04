@@ -59,6 +59,12 @@ class DataSource(JobsMixin, PrimaryModel):
         verbose_name=_('enabled'),
         default=True
     )
+    sync_interval = models.PositiveSmallIntegerField(
+        verbose_name=_('sync interval'),
+        choices=JobIntervalChoices,
+        blank=True,
+        null=True
+    )
     ignore_rules = models.TextField(
         verbose_name=_('ignore rules'),
         blank=True,

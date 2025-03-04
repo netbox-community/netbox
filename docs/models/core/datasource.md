@@ -44,6 +44,12 @@ A set of rules (one per line) identifying filenames to ignore during synchroniza
 | `*.txt`        | Ignore any files with a `.txt` extension |
 | `data???.json` | Ignore e.g. `data123.json`               |
 
+### Sync Interval
+
+!!! info "This field was introduced in NetBox v4.3."
+
+The interval at which the data source should automatically synchronize. If not set, the data source must be synchronized manually.
+
 ### Last Synced
 
 The date and time at which the source was most recently synchronized successfully.

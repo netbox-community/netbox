@@ -9,6 +9,7 @@ from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from utilities.fields import ColorField
+from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Tag',
@@ -72,6 +73,7 @@ class TaggedItem(GenericTaggedItemBase):
     )
 
     _netbox_private = True
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]

@@ -29,6 +29,10 @@ class DataSourceFilterSet(NetBoxModelFilterSet):
         choices=DataSourceStatusChoices,
         null_value=None
     )
+    sync_interval = django_filters.MultipleChoiceFilter(
+        choices=JobIntervalChoices,
+        null_value=None
+    )
 
     class Meta:
         model = DataSource

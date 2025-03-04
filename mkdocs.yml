@@ -150,7 +150,6 @@ nav:
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Jobs: 'plugins/development/background-jobs.md'
             - Dashboard Widgets: 'plugins/development/dashboard-widgets.md'
-            - Staged Changes: 'plugins/development/staged-changes.md'
             - Exceptions: 'plugins/development/exceptions.md'
             - Migrating to v4.0: 'plugins/development/migration-v4.md'
     - Administration:
@@ -226,7 +225,6 @@ nav:
             - VirtualDeviceContext: 'models/dcim/virtualdevicecontext.md'
         - Extras:
             - Bookmark: 'models/extras/bookmark.md'
-            - Branch: 'models/extras/branch.md'
             - ConfigContext: 'models/extras/configcontext.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
@@ -239,7 +237,6 @@ nav:
             - Notification: 'models/extras/notification.md'
             - NotificationGroup: 'models/extras/notificationgroup.md'
             - SavedFilter: 'models/extras/savedfilter.md'
-            - StagedChange: 'models/extras/stagedchange.md'
             - Subscription: 'models/extras/subscription.md'
             - Tag: 'models/extras/tag.md'
             - Webhook: 'models/extras/webhook.md'

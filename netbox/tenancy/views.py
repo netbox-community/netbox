@@ -17,25 +17,13 @@ class ObjectContactsView(generic.ObjectChildrenView):
     template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
-        badge=lambda obj: obj.contacts.count(),
+        badge=lambda obj: obj.get_contacts().count(),
         permission='tenancy.view_contactassignment',
         weight=5000
     )
 
     def get_children(self, request, parent):
-        return ContactAssignment.objects.restrict(request.user, 'view').filter(
-            object_type=ContentType.objects.get_for_model(parent),
-            object_id=parent.pk
-        ).order_by('priority', 'contact', 'role')
-
-    def get_table(self, *args, **kwargs):
-        table = super().get_table(*args, **kwargs)
-
-        # Hide object columns
-        table.columns.hide('object_type')
-        table.columns.hide('object')
-
-        return table
+        return parent.get_contacts().restrict(request.user, 'view').order_by('priority', 'contact', 'role')
 
 
 #
