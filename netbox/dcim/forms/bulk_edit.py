@@ -1379,7 +1379,10 @@ class PowerPortBulkEditForm(
 
 class PowerOutletBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(PowerOutlet, ['label', 'type', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description'])
+    form_from_model(
+        PowerOutlet,
+        ['label', 'type', 'status', 'color', 'feed_leg', 'power_port', 'mark_connected', 'description']
+    )
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
@@ -1389,7 +1392,7 @@ class PowerOutletBulkEditForm(
 
     model = PowerOutlet
     fieldsets = (
-        FieldSet('module', 'type', 'label', 'description', 'mark_connected', 'color'),
+        FieldSet('module', 'type', 'label', 'status', 'description', 'mark_connected', 'color'),
         FieldSet('feed_leg', 'power_port', name=_('Power')),
     )
     nullable_fields = ('module', 'label', 'type', 'feed_leg', 'power_port', 'description')

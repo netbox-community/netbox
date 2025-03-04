@@ -2513,6 +2513,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Power Outlet X',
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'status': PowerOutletStatusChoices.STATUS_ENABLED,
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
@@ -2523,6 +2524,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Power Outlet [4-6]',
             'type': PowerOutletTypeChoices.TYPE_IEC_C13,
+            'status': PowerOutletStatusChoices.STATUS_ENABLED,
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
@@ -2531,6 +2533,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.bulk_edit_data = {
             'type': PowerOutletTypeChoices.TYPE_IEC_C15,
+            'status': PowerOutletStatusChoices.STATUS_ENABLED,
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'New description',

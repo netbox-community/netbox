@@ -3684,6 +3684,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
                 description='First',
                 color='ff0000',
+                status=PowerOutletStatusChoices.STATUS_ENABLED,
             ),
             PowerOutlet(
                 device=devices[1],
@@ -3693,6 +3694,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B,
                 description='Second',
                 color='00ff00',
+                status=PowerOutletStatusChoices.STATUS_DISABLED,
             ),
             PowerOutlet(
                 device=devices[2],
@@ -3702,6 +3704,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C,
                 description='Third',
                 color='0000ff',
+                status=PowerOutletStatusChoices.STATUS_FAULTY,
             ),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
@@ -3795,6 +3798,23 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {'status': [PowerOutletStatusChoices.STATUS_ENABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'status': [PowerOutletStatusChoices.STATUS_DISABLED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'status': [PowerOutletStatusChoices.STATUS_FAULTY]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'status': [
+            PowerOutletStatusChoices.STATUS_ENABLED,
+            PowerOutletStatusChoices.STATUS_DISABLED,
+            PowerOutletStatusChoices.STATUS_FAULTY,
+        ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):

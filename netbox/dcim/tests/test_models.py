@@ -465,7 +465,8 @@ class DeviceTestCase(TestCase):
             device=device,
             name='Power Outlet 1',
             power_port=powerport,
-            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
+            status=PowerOutletStatusChoices.STATUS_ENABLED,
         )
         self.assertEqual(poweroutlet.cf['cf1'], 'foo')
 

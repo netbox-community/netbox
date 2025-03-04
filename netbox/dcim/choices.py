@@ -1628,6 +1628,23 @@ class PowerFeedPhaseChoices(ChoiceSet):
 
 
 #
+# PowerOutlets
+#
+class PowerOutletStatusChoices(ChoiceSet):
+    key = 'PowerOutlet.status'
+
+    STATUS_ENABLED = 'enabled'
+    STATUS_DISABLED = 'disabled'
+    STATUS_FAULTY = 'faulty'
+
+    CHOICES = [
+        (STATUS_ENABLED, _('Enabled'), 'green'),
+        (STATUS_DISABLED, _('Disabled'), 'red'),
+        (STATUS_FAULTY, _('Faulty'), 'gray'),
+    ]
+
+
+#
 # VDC
 #
 class VirtualDeviceContextStatusChoices(ChoiceSet):

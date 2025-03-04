@@ -1591,11 +1591,15 @@ class PowerOutletFilterSet(
         queryset=PowerPort.objects.all(),
         label=_('Power port (ID)'),
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=PowerOutletStatusChoices,
+        null_value=None
+    )
 
     class Meta:
         model = PowerOutlet
         fields = (
-            'id', 'name', 'label', 'feed_leg', 'description', 'color', 'mark_connected', 'cable_end',
+            'id', 'name', 'status', 'label', 'feed_leg', 'description', 'color', 'mark_connected', 'cable_end',
         )
 
 
