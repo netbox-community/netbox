@@ -16,7 +16,7 @@ def update_content_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('ipam', '0067_ipaddress_index_host'),
+        ('ipam', '0054_squashed_0067'),
     ]
 
     operations = [

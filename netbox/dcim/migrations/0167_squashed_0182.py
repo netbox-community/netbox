@@ -27,10 +27,10 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('extras', '0086_configtemplate'),
-        ('tenancy', '0010_tenant_relax_uniqueness'),
+        ('extras', '0060_squashed_0086'),
+        ('tenancy', '0002_squashed_0011'),
         ('ipam', '0047_squashed_0053'),
-        ('dcim', '0166_virtualdevicecontext'),
+        ('dcim', '0160_squashed_0166'),
     ]
 
     operations = [

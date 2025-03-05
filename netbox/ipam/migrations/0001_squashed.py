@@ -13,9 +13,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('dcim', '0002_auto_20160622_1821'),
-        ('extras', '0001_initial'),
-        ('tenancy', '0001_initial'),
+        ('dcim', '0002_squashed'),
+        ('extras', '0001_squashed'),
+        ('tenancy', '0001_squashed_0012'),
     ]
 
     replaces = [

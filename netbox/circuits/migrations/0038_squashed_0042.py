@@ -15,8 +15,8 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('circuits', '0037_new_cabling_models'),
-        ('dcim', '0160_populate_cable_ends'),
+        ('circuits', '0003_squashed_0037'),
+        ('dcim', '0160_squashed_0166'),
     ]
 
     operations = [

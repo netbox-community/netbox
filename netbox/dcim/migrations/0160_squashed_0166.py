@@ -18,9 +18,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0047_squashed_0053'),
-        ('tenancy', '0009_standardize_description_comments'),
-        ('circuits', '0037_new_cabling_models'),
-        ('dcim', '0159_populate_cable_paths'),
+        ('tenancy', '0001_squashed_0012'),
+        ('circuits', '0003_squashed_0037'),
+        ('dcim', '0131_squashed_0159'),
     ]
 
     operations = [

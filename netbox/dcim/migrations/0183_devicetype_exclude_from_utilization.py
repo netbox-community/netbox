@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0182_zero_length_cable_fix'),
+        ('dcim', '0167_squashed_0182'),
     ]
 
     operations = [

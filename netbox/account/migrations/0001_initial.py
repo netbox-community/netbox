@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0004_netboxgroup_netboxuser'),
+        ('users', '0002_squashed_0004'),
     ]
 
     operations = [

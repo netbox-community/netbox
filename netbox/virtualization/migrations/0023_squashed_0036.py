@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         ('dcim', '0003_squashed_0130'),
         ('extras', '0098_webhook_custom_field_data_webhook_tags'),
         ('ipam', '0047_squashed_0053'),
-        ('virtualization', '0022_vminterface_parent'),
+        ('virtualization', '0001_squashed_0022'),
     ]
 
     operations = [

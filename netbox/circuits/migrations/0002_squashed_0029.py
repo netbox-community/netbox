@@ -5,11 +5,11 @@ import taggit.managers
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0001_initial'),
+        ('dcim', '0001_squashed'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('circuits', '0001_initial'),
-        ('extras', '0001_initial'),
-        ('tenancy', '0001_initial'),
+        ('circuits', '0001_squashed'),
+        ('extras', '0001_squashed'),
+        ('tenancy', '0001_squashed_0012'),
     ]
 
     replaces = [
