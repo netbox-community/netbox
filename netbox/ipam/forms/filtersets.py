@@ -264,12 +264,13 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
     model = IPRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_utilized', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     family = forms.ChoiceField(
         required=False,

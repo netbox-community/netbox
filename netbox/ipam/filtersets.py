@@ -431,7 +431,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
         ).distinct()
 
 
-class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
+class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
