@@ -10,6 +10,9 @@ __all__ = (
 
 
 class CustomStoragesLoader(importlib.abc.Loader):
+    """
+    Custom loader for exec_module to use django-storages instead of the file system.
+    """
     def __init__(self, filename):
         self.filename = filename
 

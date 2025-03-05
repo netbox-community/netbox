@@ -1,5 +1,6 @@
 import logging
 import os
+from functools import cached_property
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -20,8 +21,6 @@ logger = logging.getLogger('netbox.core.files')
 
 
 class ManagedFile(SyncedDataMixin, models.Model):
-    storage = None
-
     """
     Database representation for a file on disk. This class is typically wrapped by a proxy class (e.g. ScriptModule)
     to provide additional functionality.
@@ -101,11 +100,9 @@ class ManagedFile(SyncedDataMixin, models.Model):
         with storage.open(path, 'wb+') as new_file:
             new_file.write(self.data)
 
+    @cached_property
     def get_storage(self):
-        if self.storage is None:
-            self.storage = storages.create_storage(storages.backends["scripts"])
-
-        return self.storage
+        return storages.create_storage(storages.backends["scripts"])
 
     def clean(self):
         super().clean()

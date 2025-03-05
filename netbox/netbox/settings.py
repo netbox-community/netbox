@@ -236,13 +236,18 @@ DATABASES = {
 #
 
 if STORAGE_BACKEND is not None:
-    warnings.warn(
-        "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
-    )
+    if STORAGES is not None:
+        raise ImproperlyConfigured(
+            "STORAGE_BACKEND and STORAGES are both set, remove the deprecated STORAGE_BACKEND setting."
+        )
+    else:
+        warnings.warn(
+            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
+        )
 
-if STORAGE_BACKEND is not None and STORAGES is not None:
-    raise ImproperlyConfigured(
-        "STORAGE_BACKEND and STORAGES are both set, remove the deprecated STORAGE_BACKEND setting."
+if STORAGE_CONFIG is not None:
+    warnings.warn(
+        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead."
     )
 
 # Default STORAGES for Django
@@ -287,7 +292,7 @@ if STORAGE_BACKEND == 'swift.storage.SwiftStorage':
     for param, value in STORAGE_CONFIG.items():
         if param.startswith('SWIFT_'):
             globals()[param] = value
-
+# TODO: End of deprecated code
 
 #
 # Redis

@@ -186,8 +186,6 @@ Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.
 
-**Note:** If configuring STORAGES to use AWS S3 set SCRIPTS_ROOT to the prefix (or folder) you want scripts stored in, for example: `scripts`
-
 ---
 
 ## SEARCH_BACKEND
