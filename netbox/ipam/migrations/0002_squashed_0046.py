@@ -5,12 +5,12 @@ import taggit.managers
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0003_auto_20160628_1721'),
-        ('virtualization', '0001_virtualization'),
+        ('dcim', '0003_squashed_0130'),
+        ('virtualization', '0001_squashed_0022'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('ipam', '0001_initial'),
-        ('extras', '0002_custom_fields'),
-        ('tenancy', '0001_initial'),
+        ('ipam', '0001_squashed'),
+        ('extras', '0002_squashed_0059'),
+        ('tenancy', '0001_squashed_0012'),
     ]
 
     replaces = [

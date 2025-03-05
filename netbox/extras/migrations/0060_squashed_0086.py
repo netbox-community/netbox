@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         ('wireless', '0008_wirelesslan_status'),
         ('dcim', '0166_virtualdevicecontext'),
         ('tenancy', '0009_standardize_description_comments'),
-        ('extras', '0059_exporttemplate_as_attachment'),
+        ('extras', '0002_squashed_0059'),
         ('circuits', '0041_standardize_description_comments'),
     ]
 

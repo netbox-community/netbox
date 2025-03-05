@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0002_auto_20160622_1821'),
-        ('extras', '0001_initial'),
+        ('extras', '0001_squashed'),
         ('virtualization', '0001_virtualization'),
         ('tenancy', '0001_initial'),
     ]
