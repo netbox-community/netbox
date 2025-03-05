@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from dcim.models import Device, Region, Site
 from ipam.models import RouteTarget, VLAN
 from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
@@ -206,12 +206,13 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
     model = L2VPN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('type', 'import_target_id', 'export_target_id', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     type = forms.ChoiceField(
         label=_('Type'),
