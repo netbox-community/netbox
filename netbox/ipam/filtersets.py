@@ -523,7 +523,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilte
         return queryset.filter(q)
 
 
-class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'
