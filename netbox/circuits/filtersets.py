@@ -95,7 +95,7 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         )
 
 
-class ProviderAccountFilterSet(NetBoxModelFilterSet):
+class ProviderAccountFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
