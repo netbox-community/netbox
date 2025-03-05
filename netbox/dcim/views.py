@@ -505,18 +505,24 @@ class SiteContactsView(ObjectContactsView):
 @register_model_view(Location, 'list', path='', detail=False)
 class LocationListView(generic.ObjectListView):
     queryset = Location.objects.add_related_count(
-        Location.objects.add_related_count(
-            Location.objects.all(),
-            Device,
-            'location',
-            'device_count',
-            cumulative=True
-        ),
-        Rack,
-        'location',
-        'rack_count',
-        cumulative=True
-    )
+                Location.objects.add_related_count(
+                        Location.objects.add_related_count(
+                            Location.objects.all(),
+                            Device,
+                            'location',
+                            'device_count',
+                            cumulative=True
+                        ),
+                        Rack,
+                        'location',
+                        'rack_count',
+                        cumulative=True
+                    ),
+                VLANGroup,
+                'location',
+                'vlangroup_count',
+                cumulative=True
+            )
     filterset = filtersets.LocationFilterSet
     filterset_form = forms.LocationFilterForm
     table = tables.LocationTable
@@ -528,6 +534,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
+        location_content_type = ContentType.objects.get_for_model(instance)
         return {
             'related_models': self.get_related_models(
                 request,
@@ -545,6 +552,8 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                     (Cluster.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (Prefix.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (WirelessLAN.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
+                    (VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type_id=location_content_type.id, scope_id=instance.id), 'location'),
                 ),
             ),
         }
