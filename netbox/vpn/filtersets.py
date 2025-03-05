@@ -25,7 +25,7 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterSet(OrganizationalModelFilterSet):
+class TunnelGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = TunnelGroup

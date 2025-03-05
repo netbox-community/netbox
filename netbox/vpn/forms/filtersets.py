@@ -30,8 +30,12 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterForm(NetBoxModelFilterSetForm):
+class TunnelGroupFilterForm(NetBoxModelFilterSetForm, ContactModelFilterForm):
     model = TunnelGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+    )
     tag = TagFilterField(model)
 
 
