@@ -24,6 +24,7 @@ class BaseObjectTypeFilterMixin(BaseFilterMixin):
 
 @dataclass
 class ChangeLogFilterMixin(BaseFilterMixin):
+    id: ID | None = strawberry.UNSET
     changelog: Annotated['ObjectChangeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

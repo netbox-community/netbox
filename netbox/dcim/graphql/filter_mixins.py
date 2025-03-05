@@ -40,7 +40,7 @@ class ComponentModelFilterMixin(NetBoxModelFilterMixin):
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
-    lable: FilterLookup[str] | None = strawberry_django.filter_field()
+    label: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
