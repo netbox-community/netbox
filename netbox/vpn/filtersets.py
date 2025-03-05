@@ -32,7 +32,7 @@ class TunnelGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=TunnelStatusChoices
     )

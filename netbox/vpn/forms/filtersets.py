@@ -39,13 +39,14 @@ class TunnelGroupFilterForm(NetBoxModelFilterSetForm, ContactModelFilterForm):
     tag = TagFilterField(model)
 
 
-class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
     model = Tunnel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('status', 'encapsulation', 'tunnel_id', name=_('Tunnel')),
         FieldSet('ipsec_profile_id', name=_('Security')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenancy')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
