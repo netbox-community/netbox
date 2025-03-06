@@ -75,9 +75,9 @@ class ScriptFileForm(ManagedFileForm):
 
             filename = self.cleaned_data['upload_file'].name
             if isinstance(storage, ScriptFileSystemStorage):
-                full_path = filename
-            else:
                 full_path = os.path.join(settings.SCRIPTS_ROOT, filename)
+            else:
+                full_path = filename
 
             self.instance.file_path = full_path
             data = self.cleaned_data['upload_file']
