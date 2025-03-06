@@ -210,6 +210,7 @@ class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'priority': ContactPriorityChoices.PRIORITY_INACTIVE,
     }
+    user_permissions = ('tenancy.view_contact', )
 
     @classmethod
     def setUpTestData(cls):
@@ -238,9 +239,24 @@ class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
         ContactRole.objects.bulk_create(contact_roles)
 
         contact_assignments = (
-            ContactAssignment(object=sites[0], contact=contacts[0], role=contact_roles[0], priority=ContactPriorityChoices.PRIORITY_PRIMARY),
-            ContactAssignment(object=sites[0], contact=contacts[1], role=contact_roles[1], priority=ContactPriorityChoices.PRIORITY_SECONDARY),
-            ContactAssignment(object=sites[0], contact=contacts[2], role=contact_roles[2], priority=ContactPriorityChoices.PRIORITY_TERTIARY),
+            ContactAssignment(
+                object=sites[0],
+                contact=contacts[0],
+                role=contact_roles[0],
+                priority=ContactPriorityChoices.PRIORITY_PRIMARY,
+            ),
+            ContactAssignment(
+                object=sites[0],
+                contact=contacts[1],
+                role=contact_roles[1],
+                priority=ContactPriorityChoices.PRIORITY_SECONDARY,
+            ),
+            ContactAssignment(
+                object=sites[0],
+                contact=contacts[2],
+                role=contact_roles[2],
+                priority=ContactPriorityChoices.PRIORITY_TERTIARY,
+            ),
         )
         ContactAssignment.objects.bulk_create(contact_assignments)
 

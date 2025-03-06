@@ -39,3 +39,7 @@ An alternative part number to uniquely identify the module type.
 ### Weight
 
 The numeric weight of the module, including a unit designation (e.g. 3 kilograms or 1 pound).
+
+### Airflow
+
+The direction in which air circulates through the device chassis for cooling.

@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -15,7 +14,7 @@ class UserConfig(models.Model):
     This model stores arbitrary user-specific preferences in a JSON data structure.
     """
     user = models.OneToOneField(
-        to=get_user_model(),
+        to='users.User',
         on_delete=models.CASCADE,
         related_name='config'
     )

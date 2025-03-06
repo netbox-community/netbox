@@ -1,5 +1,3 @@
-import itertools
-
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 

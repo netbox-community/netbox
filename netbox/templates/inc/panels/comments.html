@@ -2,9 +2,7 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">
-    {% trans "Comments" %}
-  </h5>
+  <h2 class="card-header">{% trans "Comments" %}</h2>
   <div class="card-body">
     {% if object.comments %}
       {{ object.comments|markdown }}

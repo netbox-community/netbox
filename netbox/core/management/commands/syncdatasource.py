@@ -26,7 +26,7 @@ class Command(BaseCommand):
             if invalid_names := set(options['name']) - found_names:
                 raise CommandError(f"Invalid data source names: {', '.join(invalid_names)}")
         else:
-            raise CommandError(f"Must specify at least one data source, or set --all.")
+            raise CommandError("Must specify at least one data source, or set --all.")
 
         if len(options['name']) > 1:
             self.stdout.write(f"Syncing {len(datasources)} data sources.")
@@ -43,4 +43,4 @@ class Command(BaseCommand):
                 raise e
 
         if len(options['name']) > 1:
-            self.stdout.write(f"Finished.")
+            self.stdout.write("Finished.")

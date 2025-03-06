@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Location, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import VRF
@@ -43,7 +43,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('group_id', 'type_id', 'status', name=_('Attributes')),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -57,11 +57,6 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         queryset=Region.objects.all(),
         required=False,
         label=_('Region')
-    )
-    status = forms.MultipleChoiceField(
-        label=_('Status'),
-        choices=ClusterStatusChoices,
-        required=False
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -77,6 +72,16 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
             'site_group_id': '$site_group_id',
         },
         label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        label=_('Location')
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=ClusterStatusChoices,
+        required=False
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -100,7 +105,7 @@ class VirtualMachineFilterForm(
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet(
             'status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id',
-            'local_context_data', name=_('Attributes')
+            'local_context_data', 'serial', name=_('Attributes')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -178,6 +183,10 @@ class VirtualMachineFilterForm(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    serial = forms.CharField(
+        required=False,
+        label=_('Serial number')
+    )
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
@@ -244,7 +253,7 @@ class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
         label=_('Virtual machine')
     )
     size = forms.IntegerField(
-        label=_('Size (GB)'),
+        label=_('Size (MB)'),
         required=False,
         min_value=1
     )

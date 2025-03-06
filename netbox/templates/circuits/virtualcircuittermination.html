@@ -1,0 +1,81 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'circuits:virtualcircuit_list' %}?provider_id={{ object.virtual_circuit.provider.pk }}">{{ object.virtual_circuit.provider }}</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{% url 'circuits:virtualcircuit_list' %}?provider_network_id={{ object.virtual_circuit.provider_network.pk }}">{{ object.virtual_circuit.provider_network }}</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{% url 'circuits:virtualcircuittermination_list' %}?virtual_circuit_id={{ object.virtual_circuit.pk }}">{{ object.virtual_circuit }}</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Virtual Circuit Termination" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Provider" %}</th>
+            <td>{{ object.virtual_circuit.provider|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Provider Network" %}</th>
+            <td>{{ object.virtual_circuit.provider_network|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Provider account" %}</th>
+            <td>{{ object.virtual_circuit.provider_account|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Virtual circuit" %}</th>
+            <td>{{ object.virtual_circuit|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Role" %}</th>
+            <td>{% badge object.get_role_display bg_color=object.get_role_color %}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Interface" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Device" %}</th>
+            <td>{{ object.interface.device|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Interface" %}</th>
+            <td>{{ object.interface|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ object.interface.get_type_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.interface.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

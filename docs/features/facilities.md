@@ -56,6 +56,10 @@ A site typically represents a building within a region and/or site group. Each s
 
 A location can be any logical subdivision within a building, such as a floor or room. Like regions and site groups, locations can be nested into a self-recursive hierarchy for maximum flexibility. And like sites, each location has an operational status assigned to it.
 
+## Rack Types
+
+A rack type represents a unique specification of a rack which exists in the real world. Each rack type can be setup with weight, height, and unit ordering. New racks of this type can then be created in NetBox, and any associated specifications will be automatically replicated from the device type.
+
 ## Racks
 
 Finally, NetBox models each equipment rack as a discrete object within a site and location. These are physical objects into which devices are installed. Each rack can be assigned an operational status, type, facility ID, and other attributes related to inventory tracking. Each rack also must define a height (in rack units) and width, and may optionally specify its physical dimensions.

@@ -27,9 +27,12 @@ An interface on the same VM with which this interface is bridged.
 
 If not selected, this interface will be treated as disabled/inoperative.
 
-### MAC Address
+### Primary MAC Address
 
-The 48-bit MAC address (for Ethernet interfaces).
+The [MAC address](../dcim/macaddress.md) assigned to this interface which is designated as its primary.
+
+!!! note "Changed in NetBox v4.2"
+    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](../dcim/macaddress.md) object.
 
 ### MTU
 
@@ -42,6 +45,7 @@ For switched Ethernet interfaces, this identifies the 802.1Q encapsulation strat
 * **Access:** All traffic is assigned to a single VLAN, with no tagging.
 * **Tagged:** One untagged "native" VLAN is allowed, as well as any number of tagged VLANs.
 * **Tagged (all):** Implies that all VLANs are carried by the interface. One untagged VLAN may be designated.
+* **Q-in-Q:** Q-in-Q (IEEE 802.1ad) encapsulation is performed using the assigned SVLAN.
 
 This field must be left blank for routed interfaces which do employ 802.1Q encapsulation.
 
@@ -53,6 +57,18 @@ The "native" (untagged) VLAN for the interface. Valid only when one of the above
 
 The tagged VLANs which are configured to be carried by this interface. Valid only for the "tagged" 802.1Q mode above.
 
+### Q-in-Q SVLAN
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
+
 ### VRF
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
+
+### VLAN Translation Policy
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
 from django.dispatch import Signal
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -43,7 +42,8 @@ class Cable(PrimaryModel):
         verbose_name=_('type'),
         max_length=50,
         choices=CableTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     status = models.CharField(
         verbose_name=_('status'),
@@ -79,6 +79,7 @@ class Cable(PrimaryModel):
         max_length=50,
         choices=CableLengthUnitChoices,
         blank=True,
+        null=True
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
@@ -87,6 +88,8 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ('tenant', 'type',)
 
     class Meta:
         ordering = ('pk',)
@@ -113,9 +116,6 @@ class Cable(PrimaryModel):
     def __str__(self):
         pk = self.pk or self._pk
         return self.label or f'#{pk}'
-
-    def get_absolute_url(self):
-        return reverse('dcim:cable', args=[self.pk])
 
     @property
     def a_terminations(self):
@@ -162,7 +162,7 @@ class Cable(PrimaryModel):
         if self.length is not None and not self.length_unit:
             raise ValidationError(_("Must specify a unit when setting a cable length"))
 
-        if self.pk is None and (not self.a_terminations or not self.b_terminations):
+        if self._state.adding and self.pk is None and (not self.a_terminations or not self.b_terminations):
             raise ValidationError(_("Must define A and B terminations when creating a new cable."))
 
         if self._terminations_modified:
@@ -208,7 +208,7 @@ class Cable(PrimaryModel):
 
         # Clear length_unit if no length is defined
         if self.length is None:
-            self.length_unit = ''
+            self.length_unit = None
 
         super().save(*args, **kwargs)
 
@@ -344,7 +344,7 @@ class CableTermination(ChangeLoggedModel):
             )
 
         # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
-        if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:
+        if self.termination_type.model == 'circuittermination' and self.termination._provider_network is not None:
             raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
 
     def save(self, *args, **kwargs):
@@ -355,20 +355,20 @@ class CableTermination(ChangeLoggedModel):
         super().save(*args, **kwargs)
 
         # Set the cable on the terminating object
-        termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(
-            cable=self.cable,
-            cable_end=self.cable_end
-        )
+        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
+        termination.snapshot()
+        termination.cable = self.cable
+        termination.cable_end = self.cable_end
+        termination.save()
 
     def delete(self, *args, **kwargs):
 
         # Delete the cable association on the terminating object
-        termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(
-            cable=None,
-            cable_end=''
-        )
+        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
+        termination.snapshot()
+        termination.cable = None
+        termination.cable_end = None
+        termination.save()
 
         super().delete(*args, **kwargs)
 
@@ -608,6 +608,10 @@ class CablePath(models.Model):
                     cable_end = 'A' if lct.cable_end == 'B' else 'B'
                     q_filter |= Q(cable=lct.cable, cable_end=cable_end)
 
+                # Make sure this filter has been populated; if not, we have probably been given invalid data
+                if not q_filter:
+                    break
+
                 remote_cable_terminations = CableTermination.objects.filter(q_filter)
                 remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:
@@ -667,6 +671,14 @@ class CablePath(models.Model):
                         rear_port_id=remote_terminations[0].pk,
                         rear_port_position__in=position_stack.pop()
                     )
+                # If all rear ports have a single position, we can just get the front ports
+                elif all([rp.positions == 1 for rp in remote_terminations]):
+                    front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
+
+                    if len(front_ports) != len(remote_terminations):
+                        # Some rear ports does not have a front port
+                        is_split = True
+                        break
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
                     is_split = True
@@ -685,19 +697,19 @@ class CablePath(models.Model):
                 ).first()
                 if circuit_termination is None:
                     break
-                elif circuit_termination.provider_network:
+                elif circuit_termination._provider_network:
                     # Circuit terminates to a ProviderNetwork
                     path.extend([
                         [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination.provider_network)],
+                        [object_to_path_node(circuit_termination._provider_network)],
                     ])
                     is_complete = True
                     break
-                elif circuit_termination.site and not circuit_termination.cable:
-                    # Circuit terminates to a Site
+                elif circuit_termination.termination and not circuit_termination.cable:
+                    # Circuit terminates to a Region/Site/etc.
                     path.extend([
                         [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination.site)],
+                        [object_to_path_node(circuit_termination.termination)],
                     ])
                     break
 

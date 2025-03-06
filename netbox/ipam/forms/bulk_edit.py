@@ -1,21 +1,24 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Location, Rack, Region, Site, SiteGroup
+from dcim.forms.mixins import ScopedBulkEditForm
+from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice
+from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import BulkEditNullBooleanSelect
-from virtualization.models import Cluster, ClusterGroup
+from utilities.forms.widgets import BulkEditNullBooleanSelect, HTMXSelect
+from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
     'AggregateBulkEditForm',
@@ -32,6 +35,8 @@ __all__ = (
     'ServiceTemplateBulkEditForm',
     'VLANBulkEditForm',
     'VLANGroupBulkEditForm',
+    'VLANTranslationPolicyBulkEditForm',
+    'VLANTranslationRuleBulkEditForm',
     'VRFBulkEditForm',
 )
 
@@ -201,24 +206,18 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class PrefixBulkEditForm(NetBoxModelBulkEditForm):
-    region = DynamicModelChoiceField(
-        label=_('Region'),
-        queryset=Region.objects.all(),
-        required=False
-    )
-    site_group = DynamicModelChoiceField(
-        label=_('Site group'),
-        queryset=SiteGroup.objects.all(),
-        required=False
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
+class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
         required=False,
+        label=_('VLAN Group')
+    )
+    vlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('VLAN'),
         query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
+            'group_id': '$vlan_group',
         }
     )
     vrf = DynamicModelChoiceField(
@@ -267,11 +266,12 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     model = Prefix
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
-        FieldSet('region', 'site_group', 'site', name=_('Site')),
         FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
     nullable_fields = (
-        'site', 'vrf', 'tenant', 'role', 'description', 'comments',
+        'vlan', 'vrf', 'tenant', 'role', 'scope', 'description', 'comments',
     )
 
 
@@ -408,103 +408,49 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    min_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Minimum child VLAN VID')
-    )
-    max_vid = forms.IntegerField(
-        min_value=VLAN_VID_MIN,
-        max_value=VLAN_VID_MAX,
-        required=False,
-        label=_('Maximum child VLAN VID')
-    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
         required=False
     )
     scope_type = ContentTypeChoiceField(
-        label=_('Scope type'),
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
+        required=False,
+        label=_('Scope type')
+    )
+    scope = DynamicModelChoiceField(
+        label=_('Scope'),
+        queryset=Site.objects.none(),  # Initial queryset
+        required=False,
+        disabled=True,
+        selector=True
+    )
+    vid_ranges = NumericRangeArrayField(
+        label=_('VLAN ID ranges'),
         required=False
-    )
-    scope_id = forms.IntegerField(
-        required=False,
-        widget=forms.HiddenInput()
-    )
-    region = DynamicModelChoiceField(
-        label=_('Region'),
-        queryset=Region.objects.all(),
-        required=False
-    )
-    sitegroup = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        label=_('Site group')
-    )
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False,
-        query_params={
-            'region_id': '$region',
-            'group_id': '$sitegroup',
-        }
-    )
-    location = DynamicModelChoiceField(
-        label=_('Location'),
-        queryset=Location.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site',
-        }
-    )
-    rack = DynamicModelChoiceField(
-        label=_('Rack'),
-        queryset=Rack.objects.all(),
-        required=False,
-        query_params={
-            'site_id': '$site',
-            'location_id': '$location',
-        }
-    )
-    clustergroup = DynamicModelChoiceField(
-        queryset=ClusterGroup.objects.all(),
-        required=False,
-        label=_('Cluster group')
-    )
-    cluster = DynamicModelChoiceField(
-        label=_('Cluster'),
-        queryset=Cluster.objects.all(),
-        required=False,
-        query_params={
-            'group_id': '$clustergroup',
-        }
     )
 
     model = VLANGroup
     fieldsets = (
-        FieldSet('site', 'min_vid', 'max_vid', 'description'),
-        FieldSet(
-            'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster', name=_('Scope')
-        ),
+        FieldSet('site', 'vid_ranges', 'description'),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'scope')
 
-    def clean(self):
-        super().clean()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        # Assign scope based on scope_type
-        if self.cleaned_data.get('scope_type'):
-            scope_field = self.cleaned_data['scope_type'].model
-            if scope_obj := self.cleaned_data.get(scope_field):
-                self.cleaned_data['scope_id'] = scope_obj.pk
-                self.changed_data.append('scope_id')
-            else:
-                self.cleaned_data.pop('scope_type')
-                self.changed_data.remove('scope_type')
+        if scope_type_id := get_field_value(self, 'scope_type'):
+            try:
+                scope_type = ContentType.objects.get(pk=scope_type_id)
+                model = scope_type.model_class()
+                self.fields['scope'].queryset = model.objects.all()
+                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['scope'].disabled = False
+                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
 
 
 class VLANBulkEditForm(NetBoxModelBulkEditForm):
@@ -555,16 +501,60 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    qinq_role = forms.ChoiceField(
+        label=_('Q-in-Q role'),
+        choices=add_blank_choice(VLANQinQRoleChoices),
+        required=False
+    )
+    qinq_svlan = DynamicModelChoiceField(
+        label=_('Q-in-Q SVLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        query_params={
+            'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
+        }
+    )
     comments = CommentField()
 
     model = VLAN
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'description'),
+        FieldSet('qinq_role', 'qinq_svlan', name=_('Q-in-Q')),
         FieldSet('region', 'site_group', 'site', 'group', name=_('Site & Group')),
     )
     nullable_fields = (
-        'site', 'group', 'tenant', 'role', 'description', 'comments',
+        'site', 'group', 'tenant', 'role', 'description', 'qinq_role', 'qinq_svlan', 'comments',
     )
+
+
+class VLANTranslationPolicyBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = VLANTranslationPolicy
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description',)
+
+
+class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
+    policy = DynamicModelChoiceField(
+        label=_('Policy'),
+        queryset=VLANTranslationPolicy.objects.all(),
+        selector=True
+    )
+    local_vid = forms.IntegerField(required=False)
+    remote_vid = forms.IntegerField(required=False)
+
+    model = VLANTranslationRule
+    fieldsets = (
+        FieldSet('policy', 'local_vid', 'remote_vid'),
+    )
+    fields = ('policy', 'local_vid', 'remote_vid')
 
 
 class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):

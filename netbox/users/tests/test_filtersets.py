@@ -1,15 +1,12 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from core.models import ObjectType
 from users import filtersets
-from users.models import Group, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import BaseFilterSetTests
-
-User = get_user_model()
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):
@@ -289,9 +286,15 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         future_date = make_aware(datetime.datetime(3000, 1, 1))
         past_date = make_aware(datetime.datetime(2000, 1, 1))
         tokens = (
-            Token(user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar1'),
-            Token(user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar2'),
-            Token(user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False),
+            Token(
+                user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar1'
+            ),
+            Token(
+                user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar2'
+            ),
+            Token(
+                user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False
+            ),
         )
         Token.objects.bulk_create(tokens)
 

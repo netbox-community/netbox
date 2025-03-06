@@ -1,6 +1,6 @@
 {% load i18n %}
 <div style="margin-left: -30px">
-    <object data="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" class="rack_elevation"></object>
+    <object data="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" class="rack_elevation" aria-label="{% trans "Rack elevation" %}"></object>
 </div>
 <div class="text-center mt-3">
     <a class="btn btn-outline-primary" href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" hx-boost="false">

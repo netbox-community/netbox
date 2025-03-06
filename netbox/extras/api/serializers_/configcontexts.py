@@ -20,7 +20,6 @@ __all__ = (
 
 
 class ConfigContextSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configcontext-detail')
     regions = SerializedPKRelatedField(
         queryset=Region.objects.all(),
         serializer=RegionSerializer,
@@ -123,9 +122,9 @@ class ConfigContextSerializer(ValidatedModelSerializer):
     class Meta:
         model = ConfigContext
         fields = [
-            'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
-            'locations', 'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file', 'data_synced', 'data',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'weight', 'description', 'is_active', 'regions',
+            'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path',
+            'data_file', 'data_synced', 'data', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

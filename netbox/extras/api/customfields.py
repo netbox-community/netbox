@@ -6,6 +6,7 @@ from rest_framework.serializers import ValidationError
 
 from core.models import ObjectType
 from extras.choices import CustomFieldTypeChoices
+from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.models import CustomField
 from utilities.api import get_serializer_for_model
 
@@ -75,7 +76,7 @@ class CustomFieldsDataField(Field):
 
         # Serialize object and multi-object values
         for cf in self._get_custom_fields():
-            if cf.name in data and data[cf.name] not in (None, []) and cf.type in (
+            if cf.name in data and data[cf.name] not in CUSTOMFIELD_EMPTY_VALUES and cf.type in (
                     CustomFieldTypeChoices.TYPE_OBJECT,
                     CustomFieldTypeChoices.TYPE_MULTIOBJECT
             ):

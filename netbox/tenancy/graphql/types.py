@@ -66,6 +66,7 @@ class TenantGroupType(OrganizationalObjectType):
     parent: Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     tenants: List[TenantType]
+    children: List[Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]]
 
 
 #
@@ -99,6 +100,7 @@ class ContactGroupType(OrganizationalObjectType):
     parent: Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     contacts: List[ContactType]
+    children: List[Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')]]
 
 
 @strawberry_django.type(

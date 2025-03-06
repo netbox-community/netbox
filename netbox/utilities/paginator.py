@@ -87,7 +87,7 @@ def get_paginate_count(request):
             pass
 
     if request.user.is_authenticated:
-        per_page = request.user.config.get('pagination.per_page', config.PAGINATE_COUNT)
+        per_page = request.user.config.get('pagination.per_page') or config.PAGINATE_COUNT
         return _max_allowed(per_page)
 
     return _max_allowed(config.PAGINATE_COUNT)

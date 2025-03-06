@@ -5,8 +5,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from core.choices import JobIntervalChoices
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
+from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -36,12 +38,7 @@ class PluginTest(TestCase):
         instance.delete()
         self.assertIsNone(instance.pk)
 
-    def test_admin(self):
-
-        # Test admin view URL resolution
-        url = reverse('admin:dummy_plugin_dummymodel_add')
-        self.assertEqual(url, '/admin/dummy_plugin/dummymodel/add/')
-
+    @override_settings(LOGIN_REQUIRED=False)
     def test_views(self):
 
         # Test URL resolution
@@ -53,7 +50,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
     def test_api_views(self):
 
         # Test URL resolution
@@ -65,6 +62,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(LOGIN_REQUIRED=False)
     def test_registered_views(self):
 
         # Test URL resolution
@@ -97,8 +95,9 @@ class PluginTest(TestCase):
         """
         Check that plugin TemplateExtensions are registered.
         """
-        from netbox.tests.dummy_plugin.template_content import SiteContent
+        from netbox.tests.dummy_plugin.template_content import GlobalContent, SiteContent
 
+        self.assertIn(GlobalContent, registry['plugins']['template_extensions'][None])
         self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
 
     def test_registered_columns(self):
@@ -133,6 +132,13 @@ class PluginTest(TestCase):
         self.assertIn('dummy', registry['data_backends'])
         self.assertIs(registry['data_backends']['dummy'], DummyBackend)
 
+    def test_system_jobs(self):
+        """
+        Check registered system jobs.
+        """
+        self.assertIn(DummySystemJob, registry['system_jobs'])
+        self.assertEqual(registry['system_jobs'][DummySystemJob]['interval'], JobIntervalChoices.INTERVAL_HOURLY)
+
     def test_queues(self):
         """
         Check that plugin queues are registered with the accurate name.
@@ -163,11 +169,11 @@ class PluginTest(TestCase):
             required_settings = ['foo']
 
         # Validation should pass when all required settings are present
-        DummyConfigWithRequiredSettings.validate({'foo': True}, settings.VERSION)
+        DummyConfigWithRequiredSettings.validate({'foo': True}, settings.RELEASE.version)
 
         # Validation should fail when a required setting is missing
         with self.assertRaises(ImproperlyConfigured):
-            DummyConfigWithRequiredSettings.validate({}, settings.VERSION)
+            DummyConfigWithRequiredSettings.validate({}, settings.RELEASE.version)
 
     def test_default_settings(self):
         """
@@ -180,12 +186,12 @@ class PluginTest(TestCase):
 
         # Populate the default value if setting has not been specified
         user_config = {}
-        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.RELEASE.version)
         self.assertEqual(user_config['bar'], 123)
 
         # Don't overwrite specified values
         user_config = {'bar': 456}
-        DummyConfigWithDefaultSettings.validate(user_config, settings.VERSION)
+        DummyConfigWithDefaultSettings.validate(user_config, settings.RELEASE.version)
         self.assertEqual(user_config['bar'], 456)
 
     def test_graphql(self):
@@ -206,3 +212,9 @@ class PluginTest(TestCase):
         self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
         self.assertEqual(get_plugin_config(plugin, 'bar'), None)
         self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
+
+    def test_events_pipeline(self):
+        """
+        Check that events pipeline is registered.
+        """
+        self.assertIn('netbox.tests.dummy_plugin.events.process_events_queue', settings.EVENTS_PIPELINE)

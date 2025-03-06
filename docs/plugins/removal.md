@@ -70,3 +70,19 @@ DROP TABLE
 netbox=> DROP TABLE pluginname_bar;
 DROP TABLE
 ```
+
+### Remove the Django Migration Records
+
+After removing the tables created by a plugin, the migrations that created the tables need to be removed from Django's migration history as well. This is necessary to make it possible to reinstall the plugin at a later time. If the migration history were left in place, Django would skip all migrations that were executed in the course of a previous installation, which would cause the plugin to fail after reinstallation.
+
+```no-highlight
+netbox=> SELECT * FROM django_migrations WHERE app='pluginname';
+ id  |    app     |          name          |            applied
+-----+------------+------------------------+-------------------------------
+ 492 | pluginname | 0001_initial           | 2023-12-21 11:59:59.325995+00
+ 493 | pluginname | 0002_add_foo           | 2023-12-21 11:59:59.330026+00
+netbox=> DELETE FROM django_migrations WHERE app='pluginname';
+```
+
+!!! warning
+    Exercise extreme caution when altering Django system tables. Users are strongly encouraged to perform a backup of their database immediately before taking these actions.

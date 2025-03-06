@@ -49,12 +49,12 @@ def handler_500(request, template_name=ERROR_500_TEMPLATE_NAME):
         template = loader.get_template(template_name)
     except TemplateDoesNotExist:
         return HttpResponseServerError('<h1>Server Error (500)</h1>', content_type='text/html')
-    type_, error, traceback = sys.exc_info()
+    type_, error = sys.exc_info()[:2]
 
     return HttpResponseServerError(template.render({
         'error': error,
         'exception': str(type_),
-        'netbox_version': settings.VERSION,
+        'netbox_version': settings.RELEASE.full_version,
         'python_version': platform.python_version(),
         'plugins': get_installed_plugins(),
     }))

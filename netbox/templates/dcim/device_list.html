@@ -78,7 +78,7 @@
   {% if 'bulk_edit' in actions %}
     <div class="btn-group" role="group">
       {% bulk_edit_button model query_params=request.GET %}
-      <button type="submit" name="_rename" {% formaction %}="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning">
+      <button type="submit" name="_rename" {% formaction %}="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning btn-float">
         <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> {% trans "Rename" %}
       </button>
     </div>

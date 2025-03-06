@@ -66,7 +66,7 @@ class StatusView(APIView):
         return Response({
             'django-version': DJANGO_VERSION,
             'installed-apps': installed_apps,
-            'netbox-version': settings.VERSION,
+            'netbox-version': settings.RELEASE.full_version,
             'plugins': get_installed_plugins(),
             'python-version': platform.python_version(),
             'rq-workers-running': Worker.count(get_connection('default')),

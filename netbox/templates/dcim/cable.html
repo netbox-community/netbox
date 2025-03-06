@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Cable" %}</h5>
+        <h2 class="card-header">{% trans "Cable" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Type" %}</th>
@@ -65,11 +65,11 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Termination" %} A</h5>
+        <h2 class="card-header">{% trans "Termination" %} A</h2>
         {% include 'dcim/inc/cable_termination.html' with terminations=object.a_terminations %}
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Termination" %} B</h5>
+        <h2 class="card-header">{% trans "Termination" %} B</h2>
         {% include 'dcim/inc/cable_termination.html' with terminations=object.b_terminations %}
       </div>
       {% plugin_right_page object %}

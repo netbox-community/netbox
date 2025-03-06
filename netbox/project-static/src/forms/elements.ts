@@ -39,10 +39,17 @@ export function initFormElements(): void {
     // Find each of the form's submitters. Most object edit forms have a "Create" and
     // a "Create & Add", so we need to add a listener to both.
     const submitters = form.querySelectorAll<HTMLButtonElement>('button[type=submit]');
-
     for (const submitter of submitters) {
       // Add the event listener to each submitter.
       submitter.addEventListener('click', (event: Event) => handleFormSubmit(event, form));
+    }
+
+    // Initialize any reset buttons so that when clicked, the page is reloaded without query parameters.
+    const resetButton = document.querySelector<HTMLButtonElement>('button[data-reset-select]');
+    if (resetButton !== null) {
+      resetButton.addEventListener('click', () => {
+        window.location.assign(window.location.origin + window.location.pathname);
+      });
     }
   }
 }

@@ -1,10 +1,8 @@
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ipam.constants import *
 from netbox.models import PrimaryModel
-
 
 __all__ = (
     'RouteTarget',
@@ -20,7 +18,8 @@ class VRF(PrimaryModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     rd = models.CharField(
         max_length=VRF_RD_MAX_LENGTH,
@@ -67,9 +66,6 @@ class VRF(PrimaryModel):
             return f'{self.name} ({self.rd})'
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('ipam:vrf', args=[self.pk])
-
 
 class RouteTarget(PrimaryModel):
     """
@@ -79,7 +75,8 @@ class RouteTarget(PrimaryModel):
         verbose_name=_('name'),
         max_length=VRF_RD_MAX_LENGTH,  # Same format options as VRF RD (RFC 4360 section 4)
         unique=True,
-        help_text=_('Route target value (formatted in accordance with RFC 4360)')
+        help_text=_('Route target value (formatted in accordance with RFC 4360)'),
+        db_collation="natural_sort"
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -96,6 +93,3 @@ class RouteTarget(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('ipam:routetarget', args=[self.pk])

@@ -16,7 +16,7 @@
 <div class="row">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Power Panel" %}</h5>
+      <h2 class="card-header">{% trans "Power Panel" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Site" %}</th>
@@ -48,7 +48,7 @@
     <form method="post">
       {% csrf_token %}
       <div class="card">
-        <h5 class="card-header">{% trans "Power Feeds" %}</h5>
+        <h2 class="card-header">{% trans "Power Feeds" %}</h2>
         {% htmx_table 'dcim:powerfeed_list' power_panel_id=object.pk %}
         <div class="card-footer d-print-none">
           {% if perms.dcim.change_powerfeed %}

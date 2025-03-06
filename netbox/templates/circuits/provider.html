@@ -17,7 +17,7 @@
 <div class="row mb-3">
 	  <div class="col col-md-6">
         <div class="card">
-          <h5 class="card-header">{% trans "Provider" %}</h5>
+          <h2 class="card-header">{% trans "Provider" %}</h2>
           <table class="table table-hover attr-table">
             <tr>
               <th scope="row">{% trans "ASNs" %}</th>
@@ -48,13 +48,13 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Provider Accounts" %}</h5>
+      <h2 class="card-header">{% trans "Provider Accounts" %}</h2>
       {% htmx_table 'circuits:provideraccount_list' provider_id=object.pk %}
     </div>
   </div>
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Circuits" %}</h5>
+      <h2 class="card-header">{% trans "Circuits" %}</h2>
       {% htmx_table 'circuits:circuit_list' provider_id=object.pk %}
     </div>
     {% plugin_full_width_page object %}

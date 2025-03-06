@@ -14,7 +14,7 @@
   </div>
   {% if perms.extras.add_journalentry %}
     <div class="card">
-      <h4 class="card-header">{% trans "New Journal Entry" %}</h4>
+      <h2 class="card-header">{% trans "New Journal Entry" %}</h2>
       <div class="card-body">
         <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data">
           <div class="container">

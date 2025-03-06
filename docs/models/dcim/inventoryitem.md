@@ -25,6 +25,12 @@ The inventory item's name. If the inventory item is assigned to a parent item, i
 
 An alternative physical label identifying the inventory item.
 
+### Status
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The inventory item's operational status.
+
 ### Role
 
 The functional [role](./inventoryitemrole.md) assigned to this inventory item.

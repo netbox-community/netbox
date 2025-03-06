@@ -2,9 +2,9 @@
 
 This documentation describes the process of packaging and publishing a new NetBox release. There are three types of release:
 
-* Major release (e.g. v2.11 to v3.0)
-* Minor release (e.g. v3.2 to v3.3)
-* Patch release (e.g. v3.3.0 to v3.3.1)
+* Major release (e.g. v3.7.8 to v4.0.0)
+* Minor release (e.g. v4.0.10 to v4.1.0)
+* Patch release (e.g. v4.1.0 to v4.1.1)
 
 While major releases generally introduce some very substantial change to the application, they are typically treated the same as minor version increments for the purpose of release packaging.
 
@@ -19,7 +19,7 @@ Sometimes it becomes necessary to constrain dependencies to a particular version
 djangorestframework==3.8.1
 ```
 
-These version constraints are added to `base_requirements.txt` to ensure that newer packages are not installed when updating the pinned dependencies in `requirements.txt` (see the [Update Requirements](#update-requirements) section below). Before each new minor version of NetBox is released, all such constraints on dependent packages should be addressed if feasible. This guards against the collection of stale constraints over time.
+These version constraints are added to `base_requirements.txt` to ensure that newer packages are not installed when updating the pinned dependencies in `requirements.txt` (see the [Update Requirements](#update-python-dependencies) section below). Before each new minor version of NetBox is released, all such constraints on dependent packages should be addressed if feasible. This guards against the collection of stale constraints over time.
 
 ### Close the Release Milestone
 
@@ -38,6 +38,10 @@ mkdocs serve
 ```
 
 Follow these instructions to perform a new installation of NetBox in a temporary environment. This process must not be automated: The goal of this step is to catch any errors or omissions in the documentation, and ensure that it is kept up-to-date for each release. Make any necessary changes to the documentation before proceeding with the release.
+
+### Test Upgrade Paths
+
+Upgrading from a previous version typically involves database migrations, which must work without errors. Supported upgrade paths include from one minor version to another within the same major version (i.e. 4.0 to 4.1), as well as from the latest patch version of the previous minor version (i.e. 3.7 to 4.0 or to 4.1). Prior to release, test all these supported paths by loading demo data from the source version and performing a `./manage.py migrate`.
 
 ### Merge the Release Branch
 
@@ -72,7 +76,7 @@ In cases where upgrading a dependency to its most recent release is breaking, it
 
 ### Update UI Dependencies
 
-Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](http://0.0.0.0:9000/development/web-ui/#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
+Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
 
 ### Rebuild the Device Type Definition Schema
 
@@ -86,19 +90,24 @@ This will automatically update the schema file at `contrib/generated_schema.json
 
 ### Update & Compile Translations
 
-Log into [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) to download the updated string maps. Download the resource (portable object, or `.po`) file for each language and save them to `netbox/translations/$lang/LC_MESSAGES/django.po`, overwriting the current files. (Be sure to click the **Download for use** link.)
+Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. First, retrieve any updated translation files using the Transifex CLI client:
 
-![Transifex download](../media/development/transifex_download.png)
+```no-highlight
+tx pull
+```
 
-Once the resource files for all languages have been updated, compile the machine object (`.mo`) files using the `compilemessages` management command:
+Then, compile these portable (`.po`) files for use in the application:
 
-```nohighlight
+```no-highlight
 ./manage.py compilemessages
 ```
 
+!!! tip
+    Consult the translation documentation for more detail on [updating translated strings](./translations.md#updating-translated-strings) if you've not set up the Transifex client already.
+
 ### Update Version and Changelog
 
-* Update the `VERSION` constant in `settings.py` to the new release version.
+* Update the version and published date in `release.yaml` with the current version & date. Add a designation (e.g.g `beta1`) if applicable.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Replace the "FUTURE" placeholder in the release notes with the current date.
 
@@ -121,16 +130,18 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 * **Tag:** Current version (e.g. `v3.3.1`)
 * **Target:** `master`
 * **Title:** Version and date (e.g. `v3.3.1 - 2022-08-25`)
-* **Description:** Copy from the pull request body
+* **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
 Once created, the release will become available for users to install.
 
-### Update the Development Version
+### Update the Public Documentation
 
-On the `develop` branch, update `VERSION` in `settings.py` to point to the next release. For example, if you just released v3.3.1, set:
+After a release has been published, the public NetBox documentation needs to be updated. This is accomplished by running two actions on the [netboxlabs-docs](https://github.com/netboxlabs/netboxlabs-docs) repository.
 
-```
-VERSION = 'v3.3.2-dev'
-```
+First, run the `build-site` action, by navigating to Actions > build-site > Run workflow. This process compiles the documentation along with an overlay for integration with the documentation portal at <https://netboxlabs.com/docs>. The job should take about two minutes.
 
-Commit this change with the comment "PRVB" (for _post-release version bump_) and push the commit upstream.
+Once the documentation files have been compiled, they must be published by running the `deploy-kinsta` action. Select the desired deployment environment (staging or production) and specify `latest` as the deploy tag.
+
+Clear the CDN cache from the [Kinsta](https://my.kinsta.com/) portal. Navigate to _Sites_ / _NetBox Labs_ / _Live_, select _Cache_ in the left-nav, click the _Clear Cache_ button, and confirm the clear operation.
+
+Finally, verify that the documentation at <https://netboxlabs.com/docs/netbox/en/stable/> has been updated.

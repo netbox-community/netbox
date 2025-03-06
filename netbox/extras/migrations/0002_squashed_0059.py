@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('dcim', '0002_auto_20160622_1821'),
         ('extras', '0001_initial'),
@@ -130,10 +129,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='webhook',
             unique_together={('payload_url', 'type_create', 'type_update', 'type_delete')},
-        ),
-        migrations.AlterIndexTogether(
-            name='taggeditem',
-            index_together={('content_type', 'object_id')},
         ),
         migrations.AlterUniqueTogether(
             name='exporttemplate',

@@ -10,4 +10,4 @@ A human-friendly name that is unique to the assigned virtual machine.
 
 ### Size
 
-The allocated disk size, in gigabytes.
+The allocated disk size, in megabytes.

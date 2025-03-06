@@ -3,22 +3,25 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.contenttypes.fields import GenericRel
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
+from mptt.models import MPTTModel
 
 from core.models import ObjectType
-from extras.models import ExportTemplate
-from extras.signals import clear_events
+from core.signals import clear_events
+from extras.choices import CustomFieldUIEditableChoices
+from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -106,7 +109,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         try:
             return template.render_to_response(self.queryset)
         except Exception as e:
-            messages.error(request, f"There was an error rendering the selected export template ({template.name}): {e}")
+            messages.error(
+                request,
+                _("There was an error rendering the selected export template ({template}): {error}").format(
+                    template=template.name,
+                    error=e
+                )
+            )
             # Strip the `export` param and redirect user to the filtered objects list
             query_params = request.GET.copy()
             query_params.pop('export')
@@ -163,20 +172,22 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
-            if not request.htmx.target:
+            if request.GET.get('embedded', False):
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
                     table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
+                'model': model,
+                'actions': actions,
             })
 
         context = {
             'model': model,
             'table': table,
             'actions': actions,
-            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
             'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }
@@ -409,6 +420,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 if instance.pk and hasattr(instance, 'snapshot'):
                     instance.snapshot()
 
+            else:
+                # For newly created objects, apply any default custom field values
+                custom_fields = CustomField.objects.filter(
+                    object_types=ContentType.objects.get_for_model(self.queryset.model),
+                    ui_editable=CustomFieldUIEditableChoices.YES
+                )
+                for cf in custom_fields:
+                    field_name = f'cf_{cf.name}'
+                    if field_name not in record:
+                        record[field_name] = cf.default
+
             # Instantiate the model form for the object
             model_form_kwargs = {
                 'data': record,
@@ -519,6 +541,17 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
+    def post_save_operations(self, form, obj):
+        """
+        This method is called for each object in _update_objects. Override to perform additional object-level
+        operations that are specific to a particular ModelForm.
+        """
+        # Add/remove tags
+        if form.cleaned_data.get('add_tags', None):
+            obj.tags.add(*form.cleaned_data['add_tags'])
+        if form.cleaned_data.get('remove_tags', None):
+            obj.tags.remove(*form.cleaned_data['remove_tags'])
+
     def _update_objects(self, form, request):
         custom_fields = getattr(form, 'custom_fields', {})
         standard_fields = [
@@ -554,7 +587,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             for name, model_field in model_fields.items():
                 # Handle nullification
                 if name in form.nullable_fields and name in nullified_fields:
-                    setattr(obj, name, None if model_field.null else '')
+                    if type(model_field) is GenericForeignKey:
+                        setattr(obj, name, None)
+                    else:
+                        setattr(obj, name, None if model_field.null else '')
                 # Normal fields
                 elif name in form.changed_data:
                     setattr(obj, name, form.cleaned_data[name])
@@ -587,11 +623,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 elif form.cleaned_data[name]:
                     getattr(obj, name).set(form.cleaned_data[name])
 
-            # Add/remove tags
-            if form.cleaned_data.get('add_tags', None):
-                obj.tags.add(*form.cleaned_data['add_tags'])
-            if form.cleaned_data.get('remove_tags', None):
-                obj.tags.remove(*form.cleaned_data['remove_tags'])
+            self.post_save_operations(form, obj)
+
+        # Rebuild the tree for MPTT models
+        if issubclass(self.queryset.model, MPTTModel):
+            self.queryset.model.objects.rebuild()
 
         return updated_objects
 
@@ -625,15 +661,13 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         elif 'virtual_machine' in request.GET:
             initial_data['virtual_machine'] = request.GET.get('virtual_machine')
 
-        if '_apply' in request.POST:
-            form = self.form(request.POST, initial=initial_data)
-            restrict_form_fields(form, request.user)
+        form = self.form(request.POST, initial=initial_data)
+        restrict_form_fields(form, request.user)
 
+        if '_apply' in request.POST:
             if form.is_valid():
                 logger.debug("Form validation was successful")
-
                 try:
-
                     with transaction.atomic():
                         updated_objects = self._update_objects(form, request)
 
@@ -661,14 +695,13 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 logger.debug("Form validation failed")
 
-        else:
-            form = self.form(initial=initial_data)
-            restrict_form_fields(form, request.user)
-
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
@@ -705,7 +738,6 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         renamed_pks = []
 
         for obj in selected_objects:
-
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
@@ -719,7 +751,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 except re.error:
                     obj.new_name = obj.name
             else:
-                obj.new_name = obj.name.replace(find, replace)
+                obj.new_name = (obj.name or '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -745,9 +777,18 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
                                 raise PermissionsViolation
 
-                            model_name = self.queryset.model._meta.verbose_name_plural
-                            messages.success(request, f"Renamed {len(selected_objects)} {model_name}")
+                            messages.success(
+                                request,
+                                _("Renamed {count} {object_type}").format(
+                                    count=len(selected_objects),
+                                    object_type=self.queryset.model._meta.verbose_name_plural
+                                )
+                            )
                             return redirect(self.get_return_url(request))
+
+                except IntegrityError as e:
+                    messages.error(self.request, ", ".join(e.args))
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
@@ -838,7 +879,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
 
-                msg = f"Deleted {deleted_count} {model._meta.verbose_name_plural}"
+                msg = _("Deleted {count} {object_type}").format(
+                    count=deleted_count,
+                    object_type=model._meta.verbose_name_plural
+                )
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
@@ -855,7 +899,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         # Retrieve objects being deleted
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
@@ -900,7 +947,10 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
+            messages.warning(
+                request,
+                _("No {object_type} were selected.").format(object_type=self.parent_model._meta.verbose_name_plural)
+            )
             return redirect(self.get_return_url(request))
         table = self.table(selected_objects, orderable=False)
 
@@ -942,7 +992,8 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                                             form.add_error(field, '{}: {}'.format(obj, ', '.join(e)))
 
                         # Enforce object-level permissions
-                        if self.queryset.filter(pk__in=[obj.pk for obj in new_components]).count() != len(new_components):
+                        component_ids = [obj.pk for obj in new_components]
+                        if self.queryset.filter(pk__in=component_ids).count() != len(new_components):
                             raise PermissionsViolation
 
                 except IntegrityError:

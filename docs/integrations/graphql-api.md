@@ -1,6 +1,6 @@
 # GraphQL API Overview
 
-NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by the [Graphene](https://graphene-python.org/) library and [Graphene-Django](https://docs.graphene-python.org/projects/django/en/latest/).
+NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by [Strawberry Django](https://strawberry-graphql.github.io/strawberry-django/).
 
 ## Queries
 
@@ -47,7 +47,7 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
-For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/) as well as the [GraphQL queries documentation](https://graphql.org/learn/queries/).
+For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry-graphql.github.io/strawberry-django/guide/filters/).
 
 ## Filtering
 
@@ -112,4 +112,4 @@ Authorization: Token $TOKEN
 
 ## Disabling the GraphQL API
 
-If not needed, the GraphQL API can be disabled by setting the [`GRAPHQL_ENABLED`](../configuration/miscellaneous.md#graphql_enabled) configuration parameter to False and restarting NetBox.
+If not needed, the GraphQL API can be disabled by setting the [`GRAPHQL_ENABLED`](../configuration/graphql-api.md#graphql_enabled) configuration parameter to False and restarting NetBox.

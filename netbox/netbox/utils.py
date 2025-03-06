@@ -3,6 +3,7 @@ from netbox.registry import registry
 __all__ = (
     'get_data_backend_choices',
     'register_data_backend',
+    'register_request_processor',
 )
 
 
@@ -24,3 +25,12 @@ def register_data_backend():
         return cls
 
     return _wrapper
+
+
+def register_request_processor(func):
+    """
+    Decorator for registering a request processor.
+    """
+    registry['request_processors'].append(func)
+
+    return func

@@ -36,6 +36,7 @@ class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Interface B'),
         linkify=True
     )
+    distance = columns.DistanceColumn()
     tags = columns.TagColumn(
         url_name='wireless:wirelesslink_list'
     )
@@ -44,7 +45,8 @@ class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
         model = WirelessLink
         fields = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'tenant',
-            'tenant_group', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags', 'created', 'last_updated',
+            'tenant_group', 'distance', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'status', 'device_a', 'interface_a', 'device_b', 'interface_b', 'ssid', 'auth_type',

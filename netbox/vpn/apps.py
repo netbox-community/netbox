@@ -7,7 +7,7 @@ class VPNConfig(AppConfig):
 
     def ready(self):
         from netbox.models.features import register_models
-        from . import search
+        from . import search  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

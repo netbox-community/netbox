@@ -25,7 +25,7 @@ Some configuration parameters are primarily controlled via NetBox's admin interf
 * [`CUSTOM_VALIDATORS`](./data-validation.md#custom_validators)
 * [`DEFAULT_USER_PREFERENCES`](./default-values.md#default_user_preferences)
 * [`ENFORCE_GLOBAL_UNIQUE`](./miscellaneous.md#enforce_global_unique)
-* [`GRAPHQL_ENABLED`](./miscellaneous.md#graphql_enabled)
+* [`GRAPHQL_ENABLED`](./graphql-api.md#graphql_enabled)
 * [`JOB_RETENTION`](./miscellaneous.md#job_retention)
 * [`MAINTENANCE_MODE`](./miscellaneous.md#maintenance_mode)
 * [`MAPS_URL`](./miscellaneous.md#maps_url)

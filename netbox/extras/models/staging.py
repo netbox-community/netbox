@@ -1,9 +1,10 @@
 import logging
+import warnings
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
+from mptt.models import MPTTModel
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
@@ -33,7 +34,7 @@ class Branch(ChangeLoggedModel):
         blank=True
     )
     user = models.ForeignKey(
-        to=get_user_model(),
+        to='users.User',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -43,6 +44,13 @@ class Branch(ChangeLoggedModel):
         ordering = ('name',)
         verbose_name = _('branch')
         verbose_name_plural = _('branches')
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'The staged changes functionality has been deprecated and will be removed in a future release.',
+            DeprecationWarning
+        )
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name} ({self.pk})'
@@ -97,6 +105,13 @@ class StagedChange(CustomValidationMixin, EventRulesMixin, models.Model):
         verbose_name = _('staged change')
         verbose_name_plural = _('staged changes')
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            'The staged changes functionality has been deprecated and will be removed in a future release.',
+            DeprecationWarning
+        )
+        super().__init__(*args, **kwargs)
+
     def __str__(self):
         action = self.get_action_display()
         app_label, model_name = self.object_type.natural_key()
@@ -124,6 +139,11 @@ class StagedChange(CustomValidationMixin, EventRulesMixin, models.Model):
             instance = self.model.objects.get(pk=self.object_id)
             logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()
+
+        # Rebuild the MPTT tree where applicable
+        if issubclass(self.model, MPTTModel):
+            self.model.objects.rebuild()
+
     apply.alters_data = True
 
     def get_action_color(self):

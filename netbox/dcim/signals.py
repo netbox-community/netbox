@@ -85,7 +85,8 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     if instance._terminations_modified:
         a_terminations = []
         b_terminations = []
-        for t in instance.terminations.all():
+        # Note: instance.terminations.all() is not safe to use here as it might be stale
+        for t in CableTermination.objects.filter(cable=instance):
             if t.cable_end == CableEndChoices.SIDE_A:
                 a_terminations.append(t.termination)
             else:

@@ -50,7 +50,7 @@ If you're adding a relational field (e.g. `ForeignKey`) and intend to include th
 
 ## 5. Update API serializer
 
-Extend the model's API serializer in `<app>.api.serializers` to include the new field. In most cases, it will not be necessary to also extend the nested serializer, which produces a minimal representation of the model.
+Extend the model's API serializer in `<app>.api.serializers` to include the new field.
 
 ## 6. Add fields to forms
 

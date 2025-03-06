@@ -2,9 +2,7 @@ from collections import OrderedDict
 
 from django.apps import apps
 from django.conf import settings
-from django.shortcuts import render
 from django.urls.exceptions import NoReverseMatch
-from django.views.generic import View
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.response import Response

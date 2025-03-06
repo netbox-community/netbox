@@ -1,0 +1,44 @@
+repos:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.6.9
+  hooks:
+    - id: ruff
+      name: "Ruff linter"
+      args: [ netbox/ ]
+- repo: local
+  hooks:
+    - id: django-check
+      name: "Django system check"
+      description: "Run Django's internal check for common problems"
+      entry: python netbox/manage.py check
+      language: system
+      pass_filenames: false
+      types: [python]
+    - id: django-makemigrations
+      name: "Django migrations check"
+      description: "Check for any missing Django migrations"
+      entry: python netbox/manage.py makemigrations --check
+      language: system
+      pass_filenames: false
+      types: [python]
+    - id: mkdocs-build
+      name: "Build documentation"
+      description: "Build the documentation with mkdocs"
+      files: 'docs/'
+      entry: mkdocs build
+      language: system
+      pass_filenames: false
+    - id: yarn-validate
+      name: "Yarn validate"
+      description: "Check UI ESLint, TypeScript, and Prettier compliance"
+      files: 'netbox/project-static/'
+      entry: yarn --cwd netbox/project-static validate
+      language: system
+      pass_filenames: false
+    - id: verify-bundles
+      name: "Verify static asset bundles"
+      description: "Ensure that any modified static assets have been compiled"
+      files: 'netbox/project-static/'
+      entry: scripts/verify-bundles.sh
+      language: system
+      pass_filenames: false

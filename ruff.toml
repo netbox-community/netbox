@@ -1,0 +1,15 @@
+exclude = [
+    "netbox/project-static/**"
+]
+line-length = 120
+
+[lint]
+extend-select = ["E1", "E2", "E3", "E501", "W"]
+ignore = ["F403", "F405"]
+preview = true
+
+[lint.per-file-ignores]
+"template_code.py" = ["E501"]
+
+[format]
+quote-style = "single"

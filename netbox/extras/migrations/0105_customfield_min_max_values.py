@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0104_stagedchange_remove_change_logging'),
     ]

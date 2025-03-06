@@ -56,6 +56,26 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 #
+# Circuit Groups
+#
+
+class CircuitGroupViewSet(NetBoxModelViewSet):
+    queryset = CircuitGroup.objects.all()
+    serializer_class = serializers.CircuitGroupSerializer
+    filterset_class = filtersets.CircuitGroupFilterSet
+
+
+#
+# Circuit Group Assignments
+#
+
+class CircuitGroupAssignmentViewSet(NetBoxModelViewSet):
+    queryset = CircuitGroupAssignment.objects.all()
+    serializer_class = serializers.CircuitGroupAssignmentSerializer
+    filterset_class = filtersets.CircuitGroupAssignmentFilterSet
+
+
+#
 # Provider accounts
 #
 
@@ -73,3 +93,33 @@ class ProviderNetworkViewSet(NetBoxModelViewSet):
     queryset = ProviderNetwork.objects.all()
     serializer_class = serializers.ProviderNetworkSerializer
     filterset_class = filtersets.ProviderNetworkFilterSet
+
+
+#
+#  Virtual circuit types
+#
+
+class VirtualCircuitTypeViewSet(NetBoxModelViewSet):
+    queryset = VirtualCircuitType.objects.all()
+    serializer_class = serializers.VirtualCircuitTypeSerializer
+    filterset_class = filtersets.VirtualCircuitTypeFilterSet
+
+
+#
+# Virtual circuits
+#
+
+class VirtualCircuitViewSet(NetBoxModelViewSet):
+    queryset = VirtualCircuit.objects.all()
+    serializer_class = serializers.VirtualCircuitSerializer
+    filterset_class = filtersets.VirtualCircuitFilterSet
+
+
+#
+# Virtual circuit terminations
+#
+
+class VirtualCircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
+    queryset = VirtualCircuitTermination.objects.all()
+    serializer_class = serializers.VirtualCircuitTerminationSerializer
+    filterset_class = filtersets.VirtualCircuitTerminationFilterSet

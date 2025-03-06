@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
@@ -21,7 +20,8 @@ class L2VPN(ContactsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -67,9 +67,6 @@ class L2VPN(ContactsMixin, PrimaryModel):
         if self.identifier:
             return f'{self.name} ({self.identifier})'
         return f'{self.name}'
-
-    def get_absolute_url(self):
-        return reverse('vpn:l2vpn', args=[self.pk])
 
     @cached_property
     def can_add_termination(self):
@@ -120,9 +117,6 @@ class L2VPNTermination(NetBoxModel):
         if self.pk is not None:
             return f'{self.assigned_object} <> {self.l2vpn}'
         return super().__str__()
-
-    def get_absolute_url(self):
-        return reverse('vpn:l2vpntermination', args=[self.pk])
 
     def clean(self):
         # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.

@@ -6,6 +6,7 @@ from django_tables2.utils import Accessor
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
+from .template_code import *
 
 __all__ = (
     'AggregateTable',
@@ -20,61 +21,6 @@ __all__ = (
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
 
-AGGREGATE_COPY_BUTTON = """
-{% copy_content record.pk prefix="aggregate_" %}
-"""
-
-PREFIX_LINK = """
-{% if record.pk %}
-  <a href="{{ record.get_absolute_url }}" id="prefix_{{ record.pk }}">{{ record.prefix }}</a>
-{% else %}
-  <a href="{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}">{{ record.prefix }}</a>
-{% endif %}
-"""
-
-PREFIX_COPY_BUTTON = """
-{% copy_content record.pk prefix="prefix_" %}
-"""
-
-PREFIX_LINK_WITH_DEPTH = """
-{% load helpers %}
-{% if record.depth %}
-    <div class="record-depth">
-        {% for i in record.depth|as_range %}
-            <span>•</span>
-        {% endfor %}
-    </div>
-{% endif %}
-""" + PREFIX_LINK
-
-IPADDRESS_LINK = """
-{% if record.pk %}
-    <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk }}">{{ record.address }}</a>
-{% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-sm btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
-{% else %}
-    {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
-{% endif %}
-"""
-
-IPADDRESS_COPY_BUTTON = """
-{% copy_content record.pk prefix="ipaddress_" %}
-"""
-
-IPADDRESS_ASSIGN_LINK = """
-<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?{% if request.GET.interface %}interface={{ request.GET.interface }}{% elif request.GET.vminterface %}vminterface={{ request.GET.vminterface }}{% endif %}&return_url={{ request.GET.return_url }}">{{ record }}</a>
-"""
-
-VRF_LINK = """
-{% if value %}
-    <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
-{% elif object.vrf %}
-    <a href="{{ object.vrf.get_absolute_url }}">{{ object.vrf }}</a>
-{% else %}
-    Global
-{% endif %}
-"""
-
 
 #
 # RIRs
@@ -86,7 +32,8 @@ class RIRTable(NetBoxTable):
         linkify=True
     )
     is_private = columns.BooleanColumn(
-        verbose_name=_('Private')
+        verbose_name=_('Private'),
+        false_mark=None
     )
     aggregate_count = columns.LinkedCountColumn(
         viewname='ipam:aggregate_list',
@@ -240,8 +187,11 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         template_code=VRF_LINK,
         verbose_name=_('VRF')
     )
-    site = tables.Column(
-        verbose_name=_('Site'),
+    scope_type = columns.ContentTypeColumn(
+        verbose_name=_('Scope Type'),
+    )
+    scope = tables.Column(
+        verbose_name=_('Scope'),
         linkify=True
     )
     vlan_group = tables.Column(
@@ -258,10 +208,12 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         linkify=True
     )
     is_pool = columns.BooleanColumn(
-        verbose_name=_('Pool')
+        verbose_name=_('Pool'),
+        false_mark=None
     )
     mark_utilized = columns.BooleanColumn(
-        verbose_name=_('Marked Utilized')
+        verbose_name=_('Marked Utilized'),
+        false_mark=None
     )
     utilization = PrefixUtilizationColumn(
         verbose_name=_('Utilization'),
@@ -282,11 +234,12 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         model = Prefix
         fields = (
             'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'site', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description',
+            'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',
+            'description',
         )
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
@@ -314,7 +267,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         linkify=True
     )
     mark_utilized = columns.BooleanColumn(
-        verbose_name=_('Marked Utilized')
+        verbose_name=_('Marked Utilized'),
+        false_mark=None
     )
     utilization = columns.UtilizationColumn(
         verbose_name=_('Utilization'),
@@ -386,7 +340,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
         linkify=lambda record: record.assigned_object.get_absolute_url(),
-        verbose_name=_('Assigned')
+        verbose_name=_('Assigned'),
+        false_mark=None
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),

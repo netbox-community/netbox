@@ -12,7 +12,7 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Circuit" %}</h5>
+        <h2 class="card-header">{% trans "Circuit" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Provider" %}</th>
@@ -33,6 +33,16 @@
           <tr>
             <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Distance" %}</th>
+            <td>
+              {% if object.distance is not None %}
+                {{ object.distance|floatformat }} {{ object.get_distance_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Tenant" %}</th>
@@ -60,6 +70,19 @@
             <td>{{ object.description|placeholder }}</td>
           </tr>
         </table>
+      </div>
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "Group Assignments" %}
+          {% if perms.circuits.add_circuitgroupassignment %}
+            <div class="card-actions">
+              <a href="{% url 'circuits:circuitgroupassignment_add' %}?member_type={{ object|content_type_id }}&member={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Assign Group" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'circuits:circuitgroupassignment_list' circuit_id=object.pk %}
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}

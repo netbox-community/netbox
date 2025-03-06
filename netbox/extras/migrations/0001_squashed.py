@@ -9,7 +9,6 @@ import utilities.validators
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -99,8 +98,22 @@ class Migration(migrations.Migration):
             fields=[
                 ('object_id', models.IntegerField(db_index=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(app_label)s_%(class)s_tagged_items', to='contenttypes.contenttype')),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(app_label)s_%(class)s_items', to='extras.tag')),
+                (
+                    'content_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='%(app_label)s_%(class)s_tagged_items',
+                        to='contenttypes.contenttype',
+                    ),
+                ),
+                (
+                    'tag',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='%(app_label)s_%(class)s_items',
+                        to='extras.tag',
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -116,9 +129,32 @@ class Migration(migrations.Migration):
                 ('object_repr', models.CharField(editable=False, max_length=200)),
                 ('prechange_data', models.JSONField(blank=True, editable=False, null=True)),
                 ('postchange_data', models.JSONField(blank=True, editable=False, null=True)),
-                ('changed_object_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                ('related_object_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='changes', to=settings.AUTH_USER_MODEL)),
+                (
+                    'changed_object_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype'
+                    ),
+                ),
+                (
+                    'related_object_type',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='+',
+                        to='contenttypes.contenttype',
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='changes',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'ordering': ['-time'],
@@ -133,8 +169,16 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('kind', models.CharField(default='info', max_length=30)),
                 ('comments', models.TextField()),
-                ('assigned_object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    'assigned_object_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
                 'verbose_name_plural': 'journal entries',
@@ -151,8 +195,24 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='pending', max_length=30)),
                 ('data', models.JSONField(blank=True, null=True)),
                 ('job_id', models.UUIDField(unique=True)),
-                ('obj_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='job_results', to='contenttypes.contenttype')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
+                (
+                    'obj_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='job_results',
+                        to='contenttypes.contenttype',
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'ordering': ['obj_type', 'name', '-created'],
@@ -163,12 +223,20 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('object_id', models.PositiveIntegerField()),
-                ('image', models.ImageField(height_field='image_height', upload_to=extras.utils.image_upload, width_field='image_width')),
+                (
+                    'image',
+                    models.ImageField(
+                        height_field='image_height', upload_to=extras.utils.image_upload, width_field='image_width'
+                    ),
+                ),
                 ('image_height', models.PositiveSmallIntegerField()),
                 ('image_width', models.PositiveSmallIntegerField()),
                 ('name', models.CharField(blank=True, max_length=50)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    'content_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+                ),
             ],
             options={
                 'ordering': ('name', 'pk'),
@@ -184,7 +252,10 @@ class Migration(migrations.Migration):
                 ('mime_type', models.CharField(blank=True, max_length=50)),
                 ('file_extension', models.CharField(blank=True, max_length=15)),
                 ('as_attachment', models.BooleanField(default=True)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    'content_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+                ),
             ],
             options={
                 'ordering': ['content_type', 'name'],
@@ -201,7 +272,10 @@ class Migration(migrations.Migration):
                 ('group_name', models.CharField(blank=True, max_length=50)),
                 ('button_class', models.CharField(default='default', max_length=30)),
                 ('new_window', models.BooleanField(default=False)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    'content_type',
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype'),
+                ),
             ],
             options={
                 'ordering': ['group_name', 'weight', 'name'],
@@ -221,8 +295,16 @@ class Migration(migrations.Migration):
                 ('weight', models.PositiveSmallIntegerField(default=100)),
                 ('validation_minimum', models.PositiveIntegerField(blank=True, null=True)),
                 ('validation_maximum', models.PositiveIntegerField(blank=True, null=True)),
-                ('validation_regex', models.CharField(blank=True, max_length=500, validators=[utilities.validators.validate_regex])),
-                ('choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, null=True, size=None)),
+                (
+                    'validation_regex',
+                    models.CharField(blank=True, max_length=500, validators=[utilities.validators.validate_regex]),
+                ),
+                (
+                    'choices',
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=100), blank=True, null=True, size=None
+                    ),
+                ),
                 ('content_types', models.ManyToManyField(related_name='custom_fields', to='contenttypes.ContentType')),
             ],
             options={

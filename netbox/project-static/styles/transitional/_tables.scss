@@ -23,7 +23,7 @@ table.attr-table {
 
   // Restyle row header
   th {
-    font-weight: normal;
+    font-weight: $font-weight-base;
     width: min-content;
   }
 
@@ -47,4 +47,16 @@ table.attr-table {
 // Remove bottom margin from <pre> elements inside table cells
 td pre {
   margin-bottom: 0;
+}
+
+// Use base text color for table header links
+table th.orderable a {
+  color: var(--#{$prefix}body-color);
+}
+
+body[data-bs-theme=dark] {
+  // Adjust table header background color
+  .table thead th, .markdown>table thead th {
+    background: $rich-black !important;
+  }
 }

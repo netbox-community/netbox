@@ -43,9 +43,12 @@ class HTMXSelect(forms.Select):
     """
     Selection widget that will re-generate the HTML form upon the selection of a new option.
     """
-    def __init__(self, hx_url='.', hx_target_id='form_fields', attrs=None, **kwargs):
+    def __init__(self, method='get', hx_url='.', hx_target_id='form_fields', attrs=None, **kwargs):
+        method = method.lower()
+        if method not in ('delete', 'get', 'patch', 'post', 'put'):
+            raise ValueError(f"Unsupported HTTP method: {method}")
         _attrs = {
-            'hx-get': hx_url,
+            f'hx-{method}': hx_url,
             'hx-include': f'#{hx_target_id}',
             'hx-target': f'#{hx_target_id}',
         }

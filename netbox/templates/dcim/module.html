@@ -19,25 +19,28 @@
       </button>
       <ul class="dropdown-menu" aria-labeled-by="add-components">
         {% if perms.dcim.add_consoleport %}
-          <li><a class="dropdown-item" href="{% url 'dcim:consoleport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.device.pk %}">{% trans "Console Ports" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Console Ports" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_consoleserverport %}
-          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.device.pk %}">{% trans "Console Server Ports" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:consoleserverport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Console Server Ports" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_powerport %}
-          <li><a class="dropdown-item" href="{% url 'dcim:powerport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_powerports' pk=object.device.pk %}">{% trans "Power Ports" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:powerport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Power Ports" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_poweroutlet %}
-          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.device.pk %}">{% trans "Power Outlets" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Power Outlets" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_interface %}
-          <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.device.pk %}">{% trans "Interfaces" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Interfaces" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_frontport %}
-          <li><a class="dropdown-item" href="{% url 'dcim:frontport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.device.pk %}">{% trans "Front Ports" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:frontport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Front Ports" %}</a></li>
         {% endif %}
         {% if perms.dcim.add_rearport %}
-          <li><a class="dropdown-item" href="{% url 'dcim:rearport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={% url 'dcim:device_rearports' pk=object.device.pk %}">{% trans "Rear Ports" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dcim:rearport_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Rear Ports" %}</a></li>
+        {% endif %}
+        {% if perms.dcim.add_modulebay %}
+          <li><a class="dropdown-item" href="{% url 'dcim:modulebay_add' %}?device={{ object.device.pk }}&module={{ object.pk }}&return_url={{ object.get_absolute_url }}">{% trans "Module Bays" %}</a></li>
         {% endif %}
       </ul>
     </div>
@@ -48,7 +51,7 @@
 <div class="row">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Module" %}</h5>
+      <h2 class="card-header">{% trans "Module" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Device" %}</th>
@@ -60,7 +63,7 @@
         </tr>
         <tr>
           <th scope="row">{% trans "Module Type" %}</th>
-          <td>{{ object.module_type|linkify }}</td>
+          <td>{{ object.module_type|linkify:"full_name" }}</td>
         </tr>
         <tr>
           <th scope="row">{% trans "Status" %}</th>

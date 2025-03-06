@@ -44,12 +44,8 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
         max_length=64,
         help_text=_(
             "{module} is accepted as a substitution for the module bay position when attached to a module type."
-        )
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
+        ),
+        db_collation="natural_sort"
     )
     label = models.CharField(
         verbose_name=_('label'),
@@ -65,7 +61,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
 
     class Meta:
         abstract = True
-        ordering = ('device_type', '_name')
+        ordering = ('device_type', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'name'),
@@ -98,7 +94,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self._original_device_type != self.device_type_id:
+        if not self._state.adding and self._original_device_type != self.device_type_id:
             raise ValidationError({
                 "device_type": _("Component templates cannot be moved to a different device type.")
             })
@@ -125,7 +121,7 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     class Meta:
         abstract = True
-        ordering = ('device_type', 'module_type', '_name')
+        ordering = ('device_type', 'module_type', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'name'),
@@ -158,14 +154,40 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 _("A component template must be associated with either a device type or a module type.")
             )
 
+    def _get_module_tree(self, module):
+        modules = []
+        while module:
+            modules.append(module)
+            if module.module_bay:
+                module = module.module_bay.module
+            else:
+                module = None
+
+        modules.reverse()
+        return modules
+
     def resolve_name(self, module):
+        if MODULE_TOKEN not in self.name:
+            return self.name
+
         if module:
-            return self.name.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            name = self.name
+            for module in modules:
+                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return name
         return self.name
 
     def resolve_label(self, module):
+        if MODULE_TOKEN not in self.label:
+            return self.label
+
         if module:
-            return self.label.replace(MODULE_TOKEN, module.module_bay.position)
+            modules = self._get_module_tree(module)
+            label = self.label
+            for module in modules:
+                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            return label
         return self.label
 
 
@@ -177,7 +199,8 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     component_model = ConsolePort
@@ -211,7 +234,8 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=ConsolePortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
 
     component_model = ConsoleServerPort
@@ -246,7 +270,8 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=PowerPortTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     maximum_draw = models.PositiveIntegerField(
         verbose_name=_('maximum draw'),
@@ -286,7 +311,9 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         if self.maximum_draw is not None and self.allocated_draw is not None:
             if self.allocated_draw > self.maximum_draw:
                 raise ValidationError({
-                    'allocated_draw': _("Allocated draw cannot exceed the maximum draw ({maximum_draw}W).").format(maximum_draw=self.maximum_draw)
+                    'allocated_draw': _(
+                        "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
+                    ).format(maximum_draw=self.maximum_draw)
                 })
 
     def to_yaml(self):
@@ -308,7 +335,8 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         verbose_name=_('type'),
         max_length=50,
         choices=PowerOutletTypeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     power_port = models.ForeignKey(
         to='dcim.PowerPortTemplate',
@@ -322,6 +350,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
+        null=True,
         help_text=_('Phase (for three-phase feeds)')
     )
 
@@ -338,11 +367,15 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         if self.power_port:
             if self.device_type and self.power_port.device_type != self.device_type:
                 raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same device type").format(power_port=self.power_port)
+                    _("Parent power port ({power_port}) must belong to the same device type").format(
+                        power_port=self.power_port
+                    )
                 )
             if self.module_type and self.power_port.module_type != self.module_type:
                 raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same module type").format(power_port=self.power_port)
+                    _("Parent power port ({power_port}) must belong to the same module type").format(
+                        power_port=self.power_port
+                    )
                 )
 
     def instantiate(self, **kwargs):
@@ -408,18 +441,21 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE type')
     )
     rf_role = models.CharField(
         max_length=30,
         choices=WirelessRoleChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless role')
     )
 
@@ -437,11 +473,15 @@ class InterfaceTemplate(ModularComponentTemplateModel):
                 raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
             if self.device_type and self.device_type != self.bridge.device_type:
                 raise ValidationError({
-                    'bridge': _("Bridge interface ({bridge}) must belong to the same device type").format(bridge=self.bridge)
+                    'bridge': _(
+                        "Bridge interface ({bridge}) must belong to the same device type"
+                    ).format(bridge=self.bridge)
                 })
             if self.module_type and self.module_type != self.bridge.module_type:
                 raise ValidationError({
-                    'bridge': _("Bridge interface ({bridge}) must belong to the same module type").format(bridge=self.bridge)
+                    'bridge': _(
+                        "Bridge interface ({bridge}) must belong to the same module type"
+                    ).format(bridge=self.bridge)
                 })
 
         if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
@@ -628,7 +668,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         }
 
 
-class ModuleBayTemplate(ComponentTemplateModel):
+class ModuleBayTemplate(ModularComponentTemplateModel):
     """
     A template for a ModuleBay to be created for a new parent Device.
     """
@@ -641,16 +681,16 @@ class ModuleBayTemplate(ComponentTemplateModel):
 
     component_model = ModuleBay
 
-    class Meta(ComponentTemplateModel.Meta):
+    class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
-    def instantiate(self, device):
+    def instantiate(self, **kwargs):
         return self.component_model(
-            device=device,
             name=self.name,
             label=self.label,
-            position=self.position
+            position=self.position,
+            **kwargs
         )
     instantiate.do_not_call_in_templates = True
 
@@ -684,7 +724,9 @@ class DeviceBayTemplate(ComponentTemplateModel):
     def clean(self):
         if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
             raise ValidationError(
-                _("Subdevice role of device type ({device_type}) must be set to \"parent\" to allow device bays.").format(device_type=self.device_type)
+                _(
+                    'Subdevice role of device type ({device_type}) must be set to "parent" to allow device bays.'
+                ).format(device_type=self.device_type)
             )
 
     def to_yaml(self):
@@ -748,7 +790,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
     component_model = InventoryItem
 
     class Meta:
-        ordering = ('device_type__id', 'parent__id', '_name')
+        ordering = ('device_type__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
         )

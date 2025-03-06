@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.models import *
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import DynamicModelMultipleChoiceField
 from .model_forms import CableForm
 
 
@@ -19,7 +19,7 @@ def get_cable_form(a_type, b_type):
                 # Device component
                 if hasattr(term_cls, 'device'):
 
-                    attrs[f'termination_{cable_end}_device'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_device'] = DynamicModelMultipleChoiceField(
                         queryset=Device.objects.all(),
                         label=_('Device'),
                         required=False,
@@ -33,6 +33,7 @@ def get_cable_form(a_type, b_type):
                         label=term_cls._meta.verbose_name.title(),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'device',
                         },
                         query_params={
                             'device_id': f'$termination_{cable_end}_device',
@@ -43,7 +44,7 @@ def get_cable_form(a_type, b_type):
                 # PowerFeed
                 elif term_cls == PowerFeed:
 
-                    attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_powerpanel'] = DynamicModelMultipleChoiceField(
                         queryset=PowerPanel.objects.all(),
                         label=_('Power Panel'),
                         required=False,
@@ -57,6 +58,7 @@ def get_cable_form(a_type, b_type):
                         label=_('Power Feed'),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'powerpanel',
                         },
                         query_params={
                             'power_panel_id': f'$termination_{cable_end}_powerpanel',
@@ -66,7 +68,7 @@ def get_cable_form(a_type, b_type):
                 # CircuitTermination
                 elif term_cls == CircuitTermination:
 
-                    attrs[f'termination_{cable_end}_circuit'] = DynamicModelChoiceField(
+                    attrs[f'termination_{cable_end}_circuit'] = DynamicModelMultipleChoiceField(
                         queryset=Circuit.objects.all(),
                         label=_('Circuit'),
                         selector=True,
@@ -79,6 +81,7 @@ def get_cable_form(a_type, b_type):
                         label=_('Side'),
                         context={
                             'disabled': '_occupied',
+                            'parent': 'circuit',
                         },
                         query_params={
                             'circuit_id': f'$termination_{cable_end}_circuit',
@@ -90,14 +93,14 @@ def get_cable_form(a_type, b_type):
     class _CableForm(CableForm, metaclass=FormMetaclass):
 
         def __init__(self, *args, initial=None, **kwargs):
-
             initial = initial or {}
+
             if a_type:
-                ct = ContentType.objects.get_for_model(a_type)
-                initial['a_terminations_type'] = f'{ct.app_label}.{ct.model}'
+                a_ct = ContentType.objects.get_for_model(a_type)
+                initial['a_terminations_type'] = f'{a_ct.app_label}.{a_ct.model}'
             if b_type:
-                ct = ContentType.objects.get_for_model(b_type)
-                initial['b_terminations_type'] = f'{ct.app_label}.{ct.model}'
+                b_ct = ContentType.objects.get_for_model(b_type)
+                initial['b_terminations_type'] = f'{b_ct.app_label}.{b_ct.model}'
 
             # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
             for field_name in ('a_terminations', 'b_terminations'):
@@ -108,8 +111,23 @@ def get_cable_form(a_type, b_type):
 
             if self.instance and self.instance.pk:
                 # Initialize A/B terminations when modifying an existing Cable instance
-                self.initial['a_terminations'] = self.instance.a_terminations
-                self.initial['b_terminations'] = self.instance.b_terminations
+                if (
+                        a_type and self.instance.a_terminations and
+                        a_ct == ContentType.objects.get_for_model(self.instance.a_terminations[0])
+                ):
+                    self.initial['a_terminations'] = self.instance.a_terminations
+                if (
+                        b_type and self.instance.b_terminations and
+                        b_ct == ContentType.objects.get_for_model(self.instance.b_terminations[0])
+                ):
+                    self.initial['b_terminations'] = self.instance.b_terminations
+            else:
+                # Need to clear terminations if swapped type - but need to do it only
+                # if not from instance
+                if a_type:
+                    initial.pop('a_terminations', None)
+                if b_type:
+                    initial.pop('b_terminations', None)
 
         def clean(self):
             super().clean()

@@ -4,7 +4,7 @@
 {% load log_levels %}
 {% load i18n %}
 
-{% block title %}{{ script }}{% endblock %}
+{% block title %}{{ script.python_class.name }}{% endblock %}
 
 {% block object_identifier %}
   {{ script.full_name }}
@@ -17,7 +17,7 @@
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
-    {{ script.Meta.description|markdown }}
+    {{ script.python_class.Meta.description|markdown }}
   </div>
 {% endblock subtitle %}
 

@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from django.utils.translation import gettext as _
 
-from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
+from dcim.choices import CableLengthUnitChoices
+from netbox.choices import WeightUnitChoices
 
 __all__ = (
     'to_grams',
@@ -10,9 +11,9 @@ __all__ = (
 )
 
 
-def to_grams(weight, unit):
+def to_grams(weight, unit) -> int:
     """
-    Convert the given weight to kilograms.
+    Convert the given weight to integer grams.
     """
     try:
         if weight < 0:
@@ -21,13 +22,13 @@ def to_grams(weight, unit):
         raise TypeError(_("Invalid value '{weight}' for weight (must be a number)").format(weight=weight))
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
-        return weight * 1000
+        return int(weight * 1000)
     if unit == WeightUnitChoices.UNIT_GRAM:
-        return weight
+        return int(weight)
     if unit == WeightUnitChoices.UNIT_POUND:
-        return weight * Decimal(453.592)
+        return int(weight * Decimal(453.592))
     if unit == WeightUnitChoices.UNIT_OUNCE:
-        return weight * Decimal(28.3495)
+        return int(weight * Decimal(28.3495))
     raise ValueError(
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,

@@ -4,11 +4,11 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
 from django.db.models.functions import Cast
-from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
+from dcim.models.mixins import CachedScopeMixin
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -18,6 +18,7 @@ from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'Aggregate',
@@ -70,11 +71,8 @@ class RIR(OrganizationalModel):
         verbose_name = _('RIR')
         verbose_name_plural = _('RIRs')
 
-    def get_absolute_url(self):
-        return reverse('ipam:rir', args=[self.pk])
 
-
-class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
+class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -116,9 +114,6 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
 
     def __str__(self):
         return str(self.prefix)
-
-    def get_absolute_url(self):
-        return reverse('ipam:aggregate', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -202,26 +197,16 @@ class Role(OrganizationalModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('ipam:role', args=[self.pk])
 
-
-class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
+class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, PrimaryModel):
     """
-    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
-    VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
-    assigned to a VLAN where appropriate.
+    A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be scoped to certain
+    areas and/or assigned to VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role.
+    A Prefix can also be assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
-    )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.PROTECT,
-        related_name='prefixes',
-        blank=True,
-        null=True
     )
     vrf = models.ForeignKey(
         to='ipam.VRF',
@@ -284,7 +269,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
-        'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        'scope_type', 'scope_id', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     )
 
     class Meta:
@@ -301,9 +286,6 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
 
     def __str__(self):
         return str(self.prefix)
-
-    def get_absolute_url(self):
-        return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -334,6 +316,9 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
 
             # Clear host bits from prefix
             self.prefix = self.prefix.cidr
+
+        # Cache objects associated with the terminating object (for filtering)
+        self.cache_related_objects()
 
         super().save(*args, **kwargs)
 
@@ -433,7 +418,9 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         available_ips = prefix - child_ips - netaddr.IPSet(child_ranges)
 
         # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
-        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
+        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (
+                self.family == 4 and self.prefix.prefixlen >= 31
+        ):
             return available_ips
 
         if self.family == 4:
@@ -486,7 +473,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         return min(utilization, 100)
 
 
-class IPRange(PrimaryModel):
+class IPRange(ContactsMixin, PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
@@ -550,9 +537,6 @@ class IPRange(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('ipam:iprange', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -574,20 +558,36 @@ class IPRange(PrimaryModel):
             if not self.end_address > self.start_address:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be lower than the starting address ({start_address})"
+                        "Ending address must be greater than the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
             # Check for overlapping ranges
-            overlapping_range = IPRange.objects.exclude(pk=self.pk).filter(vrf=self.vrf).filter(
-                Q(start_address__gte=self.start_address, start_address__lte=self.end_address) |  # Starts inside
-                Q(end_address__gte=self.start_address, end_address__lte=self.end_address) |  # Ends inside
-                Q(start_address__lte=self.start_address, end_address__gte=self.end_address)  # Starts & ends outside
-            ).first()
-            if overlapping_range:
+            overlapping_ranges = (
+                IPRange.objects.exclude(pk=self.pk)
+                .filter(vrf=self.vrf)
+                .filter(
+                    # Starts inside
+                    Q(
+                        start_address__host__inet__gte=self.start_address.ip,
+                        start_address__host__inet__lte=self.end_address.ip,
+                    ) |
+                    # Ends inside
+                    Q(
+                        end_address__host__inet__gte=self.start_address.ip,
+                        end_address__host__inet__lte=self.end_address.ip,
+                    ) |
+                    # Starts & ends outside
+                    Q(
+                        start_address__host__inet__lte=self.start_address.ip,
+                        end_address__host__inet__gte=self.end_address.ip,
+                    )
+                )
+            )
+            if overlapping_ranges.exists():
                 raise ValidationError(
                     _("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
-                        overlapping_range=overlapping_range,
+                        overlapping_range=overlapping_ranges.first(),
                         vrf=self.vrf
                     ))
 
@@ -695,7 +695,7 @@ class IPRange(PrimaryModel):
         return min(float(child_count) / self.size * 100, 100)
 
 
-class IPAddress(PrimaryModel):
+class IPAddress(ContactsMixin, PrimaryModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
@@ -737,6 +737,7 @@ class IPAddress(PrimaryModel):
         max_length=50,
         choices=IPAddressRoleChoices,
         blank=True,
+        null=True,
         help_text=_('The functional role of this IP')
     )
     assigned_object_type = models.ForeignKey(
@@ -796,9 +797,6 @@ class IPAddress(PrimaryModel):
         # Denote the original assigned object (if any) for validation in clean()
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
-
-    def get_absolute_url(self):
-        return reverse('ipam:ipaddress', args=[self.pk])
 
     def get_duplicates(self):
         return IPAddress.objects.filter(
@@ -886,10 +884,12 @@ class IPAddress(PrimaryModel):
 
             # can't use is_primary_ip as self.assigned_object might be changed
             is_primary = False
-            if self.family == 4 and hasattr(original_parent, 'primary_ip4') and original_parent.primary_ip4_id == self.pk:
-                is_primary = True
-            if self.family == 6 and hasattr(original_parent, 'primary_ip6') and original_parent.primary_ip6_id == self.pk:
-                is_primary = True
+            if self.family == 4 and hasattr(original_parent, 'primary_ip4'):
+                if original_parent.primary_ip4_id == self.pk:
+                    is_primary = True
+            if self.family == 6 and hasattr(original_parent, 'primary_ip6'):
+                if original_parent.primary_ip6_id == self.pk:
+                    is_primary = True
 
             if is_primary and (parent != original_parent):
                 raise ValidationError(

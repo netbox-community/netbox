@@ -4,7 +4,7 @@
     <i class="mdi mdi-download"></i> {% trans "Export" %}
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table">{% trans "Current View" %}</a></li>
+    <li><a id="export_current_view" class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export=table">{% trans "Current View" %}</a></li>
     <li><a class="dropdown-item" href="?{% if url_params %}{{ url_params }}&{% endif %}export">{% trans "All Data" %} ({{ data_format }})</a></li>
     {% if export_templates %}
       <li>

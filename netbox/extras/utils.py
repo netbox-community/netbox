@@ -1,4 +1,18 @@
+import importlib
+
+from django.core.exceptions import ImproperlyConfigured
 from taggit.managers import _TaggableManager
+
+from netbox.context import current_request
+from .validators import CustomValidator
+
+__all__ = (
+    'image_upload',
+    'is_report',
+    'is_script',
+    'is_taggable',
+    'run_validators',
+)
 
 
 def is_taggable(obj):
@@ -19,7 +33,7 @@ def image_upload(instance, filename):
 
     # Rename the file to the provided name, if any. Attempt to preserve the file extension.
     extension = filename.rsplit('.')[-1].lower()
-    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png']:
+    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png', 'webp']:
         filename = '.'.join([instance.name, extension])
     elif instance.name:
         filename = instance.name
@@ -48,3 +62,25 @@ def is_report(obj):
         return issubclass(obj, Report) and obj != Report
     except TypeError:
         return False
+
+
+def run_validators(instance, validators):
+    """
+    Run the provided iterable of CustomValidators for the instance.
+    """
+    request = current_request.get()
+    for validator in validators:
+
+        # Loading a validator class by dotted path
+        if type(validator) is str:
+            module, cls = validator.rsplit('.', 1)
+            validator = getattr(importlib.import_module(module), cls)()
+
+        # Constructing a new instance on the fly from a ruleset
+        elif type(validator) is dict:
+            validator = CustomValidator(validator)
+
+        elif not issubclass(validator.__class__, CustomValidator):
+            raise ImproperlyConfigured(f"Invalid value for custom validator: {validator}")
+
+        validator(instance, request)

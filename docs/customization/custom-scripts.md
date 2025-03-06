@@ -17,6 +17,9 @@ They can also be used as a mechanism for validating the integrity of data within
 
 Custom scripts are Python code which exists outside the NetBox code base, so they can be updated and changed without interfering with the core NetBox installation. And because they're completely custom, there is no inherent limitation on what a script can accomplish.
 
+!!! danger "Only install trusted scripts"
+    Custom scripts have unrestricted access to change anything in the databse and are inherently unsafe and should only be installed and run from trusted sources.  You should also review and set permissions for who can run scripts if the script can modify any data.
+
 ## Writing Custom Scripts
 
 All custom scripts must inherit from the `extras.scripts.Script` base class. This class provides the functionality necessary to generate forms and log activity.
@@ -65,15 +68,12 @@ class AnotherCustomScript(Script):
 script_order = (MyCustomScript, AnotherCustomScript)
 ```
 
-## Module Attributes
-
-### `name`
-
-You can define `name` within a script module (the Python file which contains one or more scripts) to set the module name. If `name` is not defined, the module's file name will be used.
-
 ## Script Attributes
 
 Script attributes are defined under a class named `Meta` within the script. These are optional, but encouraged.
+
+!!! warning
+    These are also defined and used as properties on the base custom script class, so don't use the same names as variables or override them in your custom script.
 
 ### `name`
 
@@ -144,11 +144,11 @@ These two methods will load data in YAML or JSON format, respectively, from file
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
 
-* `log_debug(message, object=None)`
-* `log_success(message, object=None)`
-* `log_info(message, object=None)`
-* `log_warning(message, object=None)`
-* `log_failure(message, object=None)`
+* `log_debug(message=None, obj=None)`
+* `log_success(message=None, obj=None)`
+* `log_info(message=None, obj=None)`
+* `log_warning(message=None, obj=None)`
+* `log_failure(message=None, obj=None)`
 
 Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages. A message may optionally be associated with a particular object by passing it as the second argument to the logging method.
 
@@ -157,6 +157,8 @@ Log messages are returned to the user upon execution of the script. Markdown ren
 A script can define one or more test methods to report on certain conditions. All test methods must have a name beginning with `test_` and accept no arguments beyond `self`.
 
 These methods are detected and run automatically when the script is executed, unless its `run()` method has been overridden. (When overriding `run()`, `run_tests()` can be called to run all test methods present in the script.)
+
+Calling any of these logging methods without a message will increment the relevant counter, but will not generate an output line in the script's log.
 
 !!! info
     This functionality was ported from [legacy reports](./reports.md) in NetBox v4.0.

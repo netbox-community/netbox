@@ -24,7 +24,12 @@
   </div>
 {% endblock page-header %}
 
-{% block title %}{{ status|capfirst }} {% trans "Workers in " %}{{ queue.name }}{% endblock %}
+{% block title %}
+  {{ status|capfirst }}
+  {% blocktrans trimmed with queue_name=queue.name %}
+    Workers in {{ queue_name }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block controls %}{% endblock %}
 

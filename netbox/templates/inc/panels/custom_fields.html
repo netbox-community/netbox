@@ -4,7 +4,7 @@
 {% with custom_fields=object.get_custom_fields_by_group %}
   {% if custom_fields %}
     <div class="card">
-      <h5 class="card-header">{% trans "Custom Fields" %}</h5>
+      <h2 class="card-header">{% trans "Custom Fields" %}</h2>
       <table class="table table-hover attr-table">
         {% for group_name, fields in custom_fields.items %}
           {% if group_name %}

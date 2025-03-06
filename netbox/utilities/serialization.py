@@ -2,7 +2,6 @@ import json
 
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from mptt.models import MPTTModel
 
 from extras.utils import is_taggable
 
@@ -16,8 +15,7 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
-    can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
-    implicitly excluded.
+    can be provided to exclude them from the returned dictionary.
 
     Args:
         obj: The object to serialize
@@ -30,11 +28,6 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     data = json.loads(json_str)[0]['fields']
     exclude = exclude or []
 
-    # Exclude any MPTTModel fields
-    if issubclass(obj.__class__, MPTTModel):
-        for field in ['level', 'lft', 'rght', 'tree_id']:
-            data.pop(field)
-
     # Include custom_field_data as "custom_fields"
     if hasattr(obj, 'custom_field_data'):
         data['custom_fields'] = data.pop('custom_field_data')
@@ -45,9 +38,9 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
         data['tags'] = sorted([tag.name for tag in tags])
 
-    # Skip excluded and private (prefixes with an underscore) attributes
+    # Skip any excluded attributes
     for key in list(data.keys()):
-        if key in exclude or (isinstance(key, str) and key.startswith('_')):
+        if key in exclude:
             data.pop(key)
 
     # Append any extra data

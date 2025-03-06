@@ -5,13 +5,12 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MACAddressField, WWNField
+from dcim.fields import WWNField
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -21,7 +20,6 @@ from utilities.query_functions import CollateAsChar
 from utilities.tracking import TrackingModelMixin
 from wireless.choices import *
 from wireless.utils import get_channel_attr
-
 
 __all__ = (
     'BaseInterface',
@@ -52,12 +50,8 @@ class ComponentModel(NetBoxModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
+        max_length=64,
+        db_collation="natural_sort"
     )
     label = models.CharField(
         verbose_name=_('label'),
@@ -73,7 +67,7 @@ class ComponentModel(NetBoxModel):
 
     class Meta:
         abstract = True
-        ordering = ('device', '_name')
+        ordering = ('device', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'name'),
@@ -144,8 +138,9 @@ class CabledObjectModel(models.Model):
     cable_end = models.CharField(
         verbose_name=_('cable end'),
         max_length=1,
+        choices=CableEndChoices,
         blank=True,
-        choices=CableEndChoices
+        null=True
     )
     mark_connected = models.BooleanField(
         verbose_name=_('mark connected'),
@@ -288,6 +283,7 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
@@ -304,9 +300,6 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         verbose_name = _('console port')
         verbose_name_plural = _('console ports')
 
-    def get_absolute_url(self):
-        return reverse('dcim:consoleport', kwargs={'pk': self.pk})
-
 
 class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
@@ -317,6 +310,7 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
         max_length=50,
         choices=ConsolePortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     speed = models.PositiveIntegerField(
@@ -333,9 +327,6 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
         verbose_name = _('console server port')
         verbose_name_plural = _('console server ports')
 
-    def get_absolute_url(self):
-        return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
-
 
 #
 # Power components
@@ -350,6 +341,7 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
         max_length=50,
         choices=PowerPortTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     maximum_draw = models.PositiveIntegerField(
@@ -372,9 +364,6 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('power port')
         verbose_name_plural = _('power ports')
-
-    def get_absolute_url(self):
-        return reverse('dcim:powerport', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -468,6 +457,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=PowerOutletTypeChoices,
         blank=True,
+        null=True,
         help_text=_('Physical port type')
     )
     power_port = models.ForeignKey(
@@ -482,7 +472,12 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         max_length=50,
         choices=PowerOutletFeedLegChoices,
         blank=True,
+        null=True,
         help_text=_('Phase (for three-phase feeds)')
+    )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
     )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
@@ -490,9 +485,6 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('power outlet')
         verbose_name_plural = _('power outlets')
-
-    def get_absolute_url(self):
-        return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -516,11 +508,6 @@ class BaseInterface(models.Model):
         verbose_name=_('enabled'),
         default=True
     )
-    mac_address = MACAddressField(
-        null=True,
-        blank=True,
-        verbose_name=_('MAC address')
-    )
     mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -535,6 +522,7 @@ class BaseInterface(models.Model):
         max_length=50,
         choices=InterfaceModeChoices,
         blank=True,
+        null=True,
         help_text=_('IEEE 802.1Q tagging strategy')
     )
     parent = models.ForeignKey(
@@ -553,9 +541,63 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
+    untagged_vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='%(class)ss_as_untagged',
+        null=True,
+        blank=True,
+        verbose_name=_('untagged VLAN')
+    )
+    tagged_vlans = models.ManyToManyField(
+        to='ipam.VLAN',
+        related_name='%(class)ss_as_tagged',
+        blank=True,
+        verbose_name=_('tagged VLANs')
+    )
+    qinq_svlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='%(class)ss_svlan',
+        null=True,
+        blank=True,
+        verbose_name=_('Q-in-Q SVLAN')
+    )
+    vlan_translation_policy = models.ForeignKey(
+        to='ipam.VLANTranslationPolicy',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name=_('VLAN Translation Policy')
+    )
+    primary_mac_address = models.OneToOneField(
+        to='dcim.MACAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name=_('primary MAC address')
+    )
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        super().clean()
+
+        # SVLAN can be defined only for Q-in-Q interfaces
+        if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
+            raise ValidationError({
+                'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
+            })
+
+        # Check that the primary MAC address (if any) is assigned to this interface
+        if self.primary_mac_address and self.primary_mac_address.assigned_object != self:
+            raise ValidationError({
+                'primary_mac_address': _("MAC address {mac_address} is not assigned to this interface.").format(
+                    mac_address=self.primary_mac_address
+                )
+            })
 
     def save(self, *args, **kwargs):
 
@@ -564,7 +606,7 @@ class BaseInterface(models.Model):
             self.untagged_vlan = None
 
         # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if self.pk and self.mode != InterfaceModeChoices.MODE_TAGGED:
+        if not self._state.adding and self.mode != InterfaceModeChoices.MODE_TAGGED:
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
@@ -580,6 +622,11 @@ class BaseInterface(models.Model):
     @property
     def count_fhrp_groups(self):
         return self.fhrp_group_assignments.count()
+
+    @cached_property
+    def mac_address(self):
+        if self.primary_mac_address:
+            return self.primary_mac_address.mac_address
 
 
 class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
@@ -637,12 +684,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=30,
         choices=WirelessRoleChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless role')
     )
     rf_channel = models.CharField(
         max_length=50,
         choices=WirelessChannelChoices,
         blank=True,
+        null=True,
         verbose_name=_('wireless channel')
     )
     rf_channel_frequency = models.DecimalField(
@@ -671,12 +720,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
+        null=True,
         verbose_name=_('PoE type')
     )
     wireless_link = models.ForeignKey(
@@ -692,20 +743,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         blank=True,
         verbose_name=_('wireless LANs')
     )
-    untagged_vlan = models.ForeignKey(
-        to='ipam.VLAN',
-        on_delete=models.SET_NULL,
-        related_name='interfaces_as_untagged',
-        null=True,
-        blank=True,
-        verbose_name=_('untagged VLAN')
-    )
-    tagged_vlans = models.ManyToManyField(
-        to='ipam.VLAN',
-        related_name='interfaces_as_tagged',
-        blank=True,
-        verbose_name=_('tagged VLANs')
-    )
     vrf = models.ForeignKey(
         to='ipam.VRF',
         on_delete=models.SET_NULL,
@@ -716,6 +753,12 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
+    )
+    mac_addresses = GenericRelation(
+        to='dcim.MACAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface'
@@ -748,9 +791,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         ordering = ('device', CollateAsChar('_name'))
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
-
-    def get_absolute_url(self):
-        return reverse('dcim:interface', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -961,6 +1001,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
 
+    @cached_property
+    def connected_endpoints(self):
+        # If this is a virtual interface, return the remote endpoint of the connected
+        # virtual circuit, if any.
+        if self.is_virtual and hasattr(self, 'virtual_circuit_termination'):
+            return self.virtual_circuit_termination.peer_terminations
+        return super().connected_endpoints
+
 
 #
 # Pass-through ports
@@ -1009,9 +1057,6 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         )
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
-
-    def get_absolute_url(self):
-        return reverse('dcim:frontport', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -1068,14 +1113,11 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name = _('rear port')
         verbose_name_plural = _('rear ports')
 
-    def get_absolute_url(self):
-        return reverse('dcim:rearport', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
-        if self.pk:
+        if not self._state.adding:
             frontport_count = self.frontports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
@@ -1090,10 +1132,19 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ComponentModel, TrackingModelMixin):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     """
     An empty space within a Device which can house a child device
     """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        editable=False,
+        db_index=True
+    )
     position = models.CharField(
         verbose_name=_('position'),
         max_length=30,
@@ -1101,14 +1152,41 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
         help_text=_('Identifier to reference when renaming installed components')
     )
 
+    objects = TreeManager()
+
     clone_fields = ('device',)
 
-    class Meta(ComponentModel.Meta):
+    class Meta(ModularComponentModel.Meta):
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'module', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_module_name'
+            ),
+        )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
 
-    def get_absolute_url(self):
-        return reverse('dcim:modulebay', kwargs={'pk': self.pk})
+    class MPTTMeta:
+        order_insertion_by = ('module',)
+
+    def clean(self):
+        super().clean()
+
+        # Check for recursion
+        if module := self.module:
+            module_bays = [self.pk]
+            modules = []
+            while module:
+                if module.pk in modules or module.module_bay.pk in module_bays:
+                    raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+                modules.append(module.pk)
+                module_bays.append(module.module_bay.pk)
+                module = module.module_bay.module if module.module_bay else None
+
+    def save(self, *args, **kwargs):
+        if self.module:
+            self.parent = self.module.module_bay
+        super().save(*args, **kwargs)
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
@@ -1128,9 +1206,6 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
     class Meta(ComponentModel.Meta):
         verbose_name = _('device bay')
         verbose_name_plural = _('device bays')
-
-    def get_absolute_url(self):
-        return reverse('dcim:devicebay', kwargs={'pk': self.pk})
 
     def clean(self):
         super().clean()
@@ -1175,9 +1250,6 @@ class InventoryItemRole(OrganizationalModel):
         verbose_name = _('inventory item role')
         verbose_name_plural = _('inventory item roles')
 
-    def get_absolute_url(self):
-        return reverse('dcim:inventoryitemrole', args=[self.pk])
-
 
 class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     """
@@ -1207,6 +1279,12 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     component = GenericForeignKey(
         ct_field='component_type',
         fk_field='component_id'
+    )
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=InventoryItemStatusChoices,
+        default=InventoryItemStatusChoices.STATUS_ACTIVE
     )
     role = models.ForeignKey(
         to='dcim.InventoryItemRole',
@@ -1249,10 +1327,10 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     objects = TreeManager()
 
-    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'part_id',)
+    clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
 
     class Meta:
-        ordering = ('device__id', 'parent__id', '_name')
+        ordering = ('device__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
         )
@@ -1265,9 +1343,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         verbose_name = _('inventory item')
         verbose_name_plural = _('inventory items')
 
-    def get_absolute_url(self):
-        return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})
-
     def clean(self):
         super().clean()
 
@@ -1278,7 +1353,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
             })
 
         # Validation for moving InventoryItems
-        if self.pk:
+        if not self._state.adding:
             # Cannot move an InventoryItem to another device if it has a parent
             if self.parent and self.parent.device != self.device:
                 raise ValidationError({
@@ -1298,3 +1373,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 raise ValidationError({
                     "device": _("Cannot assign inventory item to component on another device")
                 })
+
+    def get_status_color(self):
+        return InventoryItemStatusChoices.colors.get(self.status)

@@ -343,6 +343,74 @@ class CustomFieldTest(TestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
+    def test_remove_selected_choice(self):
+        """
+        Removing a ChoiceSet choice that is referenced by an object should raise
+        a ValidationError exception.
+        """
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+            ('d', 'Option D'),
+        )
+
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=CHOICES
+        )
+
+        # Create a select custom field
+        cf = CustomField.objects.create(
+            name='select_field',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            required=False,
+            choice_set=choice_set
+        )
+        cf.object_types.set([self.object_type])
+
+        # Create a multi-select custom field
+        cf_multiselect = CustomField.objects.create(
+            name='multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            required=False,
+            choice_set=choice_set
+        )
+        cf_multiselect.object_types.set([self.object_type])
+
+        # Assign a choice for both custom fields on an object
+        instance = Site.objects.first()
+        instance.custom_field_data[cf.name] = 'a'
+        instance.custom_field_data[cf_multiselect.name] = ['b', 'c']
+        instance.save()
+
+        # Attempting to delete a selected choice should fail
+        with self.assertRaises(ValidationError):
+            choice_set.extra_choices = (
+                ('b', 'Option B'),
+                ('c', 'Option C'),
+                ('d', 'Option D'),
+            )
+            choice_set.full_clean()
+
+        # Attempting to delete either of the multi-select choices should fail
+        with self.assertRaises(ValidationError):
+            choice_set.extra_choices = (
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+                ('d', 'Option D'),
+            )
+            choice_set.full_clean()
+
+        # Removing a non-selected choice should succeed
+        choice_set.extra_choices = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
+        choice_set.full_clean()
+
     def test_object_field(self):
         value = VLAN.objects.create(name='VLAN 1', vid=1).pk
 
@@ -569,15 +637,51 @@ class CustomFieldAPITest(APITestCase):
         )
 
         custom_fields = (
-            CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
-            CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DATETIME, name='datetime_field', default='2020-01-01T01:23:45'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_TEXT,
+                name='text_field',
+                default='foo'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_LONGTEXT,
+                name='longtext_field',
+                default='ABC'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_INTEGER,
+                name='integer_field',
+                default=123
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DECIMAL,
+                name='decimal_field',
+                default=123.45
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_BOOLEAN,
+                name='boolean_field',
+                default=False)
+            ,
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DATE,
+                name='date_field',
+                default='2020-01-01'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_DATETIME,
+                name='datetime_field',
+                default='2020-01-01T01:23:45'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_URL,
+                name='url_field',
+                default='http://example.com/1'
+            ),
+            CustomField(
+                type=CustomFieldTypeChoices.TYPE_JSON,
+                name='json_field',
+                default='{"x": "y"}'
+            ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_SELECT,
                 name='select_field',
@@ -588,7 +692,7 @@ class CustomFieldAPITest(APITestCase):
                 type=CustomFieldTypeChoices.TYPE_MULTISELECT,
                 name='multiselect_field',
                 default=['foo'],
-                choice_set=choice_set
+                choice_set=choice_set,
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_OBJECT,
@@ -1140,6 +1244,29 @@ class CustomFieldAPITest(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_uniqueness_validation(self):
+        # Create a unique custom field
+        cf_text = CustomField.objects.get(name='text_field')
+        cf_text.unique = True
+        cf_text.save()
+
+        # Set a value on site 1
+        site1 = Site.objects.get(name='Site 1')
+        site1.custom_field_data['text_field'] = 'ABC123'
+        site1.save()
+
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        data = {'custom_fields': {'text_field': 'ABC123'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        data = {'custom_fields': {'text_field': 'DEF456'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
 
 class CustomFieldImportTest(TestCase):
     user_permissions = (
@@ -1182,14 +1309,23 @@ class CustomFieldImportTest(TestCase):
         Import a Site in CSV format, including a value for each CustomField.
         """
         data = (
-            ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date', 'cf_datetime', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01', '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'a', '"a,b"'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02', '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'b', '"b,c"'),
+            (
+                'name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date',
+                'cf_datetime', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect',
+            ),
+            (
+                'Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01',
+                '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'a', '"a,b"',
+            ),
+            (
+                'Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02',
+                '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'b', '"b,c"',
+            ),
             ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {
+        response = self.client.post(reverse('dcim:site_bulk_import'), {
             'data': csv_data,
             'format': ImportFormatChoices.CSV,
             'csv_delimiter': CSVDelimiterChoices.AUTO,
@@ -1525,7 +1661,10 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf6__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
 
     def test_filter_url_strict(self):
-        self.assertEqual(self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(
+            self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(),
+            2
+        )
         self.assertEqual(self.filterset({'cf_cf7__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf7__ic': ['b']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__nic': ['b']}, self.queryset).qs.count(), 2)
@@ -1549,9 +1688,18 @@ class CustomFieldModelFilterTest(TestCase):
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
+        self.assertEqual(
+            self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
+            2
+        )
 
     def test_filter_multiobject(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
-        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(), 3)
+        self.assertEqual(
+            self.filterset({'cf_cf12': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
+            2
+        )
+        self.assertEqual(
+            self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(),
+            3
+        )

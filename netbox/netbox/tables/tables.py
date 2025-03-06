@@ -1,10 +1,12 @@
 from copy import deepcopy
+from functools import cached_property
 
 import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.db.models.fields.reverse_related import ManyToOneRel
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
@@ -14,6 +16,7 @@ from django_tables2.data import TableQuerysetData
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomLink
+from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -52,7 +55,7 @@ class BaseTable(tables.Table):
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
-            self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
+            self.empty_text = _("No {model_name} found").format(model_name=self._meta.model._meta.verbose_name_plural)
 
         # Determine the table columns to display by checking the following:
         #   1. User's configuration for the table
@@ -100,7 +103,7 @@ class BaseTable(tables.Table):
                             field = model._meta.get_field(field_name)
                         except FieldDoesNotExist:
                             break
-                        if isinstance(field, RelatedField):
+                        if isinstance(field, (RelatedField, ManyToOneRel)):
                             # Follow ForeignKeys to the related model
                             prefetch_path.append(field_name)
                             model = field.remote_field.model
@@ -188,6 +191,7 @@ class NetBoxTable(BaseTable):
     actions = columns.ActionsColumn()
 
     exempt_columns = ('pk', 'actions')
+    embedded = False
 
     class Meta(BaseTable.Meta):
         pass
@@ -217,12 +221,12 @@ class NetBoxTable(BaseTable):
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
-    @property
+    @cached_property
     def htmx_url(self):
         """
         Return the base HTML request URL for embedded tables.
         """
-        if getattr(self, 'embedded', False):
+        if self.embedded:
             viewname = get_viewname(self._meta.model, action='list')
             try:
                 return reverse(viewname)
@@ -258,7 +262,7 @@ class SearchTable(tables.Table):
         attrs = {
             'class': 'table table-hover object-list',
         }
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
 
     def __init__(self, data, highlight=None, **kwargs):
         self.highlight = highlight

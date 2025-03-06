@@ -6,7 +6,6 @@ import utilities.fields
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('dcim', '0167_module_status'),
         ('dcim', '0168_interface_template_enabled'),
@@ -24,7 +23,7 @@ class Migration(migrations.Migration):
         ('dcim', '0179_interfacetemplate_rf_role'),
         ('dcim', '0180_powerfeed_tenant'),
         ('dcim', '0181_rename_device_role_device_role'),
-        ('dcim', '0182_zero_length_cable_fix')
+        ('dcim', '0182_zero_length_cable_fix'),
     ]
 
     dependencies = [
@@ -48,27 +47,57 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interfacetemplate',
             name='bridge',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bridge_interfaces', to='dcim.interfacetemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='bridge_interfaces',
+                to='dcim.interfacetemplate',
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='default_platform',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.platform'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.platform',
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='config_template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='%(class)ss', to='extras.configtemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='%(class)ss',
+                to='extras.configtemplate',
+            ),
         ),
         migrations.AddField(
             model_name='devicerole',
             name='config_template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='device_roles', to='extras.configtemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='device_roles',
+                to='extras.configtemplate',
+            ),
         ),
         migrations.AddField(
             model_name='platform',
             name='config_template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='platforms', to='extras.configtemplate'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='platforms',
+                to='extras.configtemplate',
+            ),
         ),
         migrations.AddField(
             model_name='cabletermination',
@@ -83,22 +112,30 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='powerport',
             name='allocated_draw',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+            ),
         ),
         migrations.AlterField(
             model_name='powerport',
             name='maximum_draw',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+            ),
         ),
         migrations.AlterField(
             model_name='powerporttemplate',
             name='allocated_draw',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+            ),
         ),
         migrations.AlterField(
             model_name='powerporttemplate',
             name='maximum_draw',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+            ),
         ),
         migrations.RemoveField(
             model_name='platform',
@@ -126,112 +163,160 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='oob_ip',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='ipam.ipaddress'),
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='ipam.ipaddress',
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='console_port_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.ConsolePort'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.ConsolePort'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='console_server_port_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.ConsoleServerPort'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.ConsoleServerPort'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='power_port_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.PowerPort'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.PowerPort'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='power_outlet_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.PowerOutlet'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.PowerOutlet'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='interface_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.Interface'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.Interface'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='front_port_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.FrontPort'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.FrontPort'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='rear_port_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.RearPort'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.RearPort'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='device_bay_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.DeviceBay'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.DeviceBay'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='module_bay_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.ModuleBay'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.ModuleBay'
+            ),
         ),
         migrations.AddField(
             model_name='device',
             name='inventory_item_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device', to_model='dcim.InventoryItem'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device', to_model='dcim.InventoryItem'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='console_port_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.ConsolePortTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.ConsolePortTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='console_server_port_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.ConsoleServerPortTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.ConsoleServerPortTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='power_port_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.PowerPortTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.PowerPortTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='power_outlet_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.PowerOutletTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.PowerOutletTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='interface_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.InterfaceTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.InterfaceTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='front_port_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.FrontPortTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.FrontPortTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='rear_port_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.RearPortTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.RearPortTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='device_bay_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.DeviceBayTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.DeviceBayTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='module_bay_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.ModuleBayTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.ModuleBayTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='devicetype',
             name='inventory_item_template_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='device_type', to_model='dcim.InventoryItemTemplate'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='device_type', to_model='dcim.InventoryItemTemplate'
+            ),
         ),
         migrations.AddField(
             model_name='virtualchassis',
             name='member_count',
-            field=utilities.fields.CounterCacheField(default=0, editable=False, to_field='virtual_chassis', to_model='dcim.Device'),
+            field=utilities.fields.CounterCacheField(
+                default=0, editable=False, to_field='virtual_chassis', to_model='dcim.Device'
+            ),
         ),
         migrations.AddField(
             model_name='interfacetemplate',
@@ -241,7 +326,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerfeed',
             name='tenant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='power_feeds', to='tenancy.tenant'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='power_feeds',
+                to='tenancy.tenant',
+            ),
         ),
         migrations.RenameField(
             model_name='device',

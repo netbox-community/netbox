@@ -86,8 +86,6 @@ CUSTOM_VALIDATORS = {
 
 #### Referencing Related Object Attributes
 
-!!! info "This feature was introduced in NetBox v4.0."
-
 The attributes of a related object can be referenced by specifying a dotted path. For example, to reference the name of a region to which a site is assigned, use `region.name`:
 
 ```python
@@ -103,8 +101,6 @@ CUSTOM_VALIDATORS = {
 ```
 
 #### Validating Request Parameters
-
-!!! info "This feature was introduced in NetBox v4.0."
 
 In addition to validating object attributes, custom validators can also match against parameters of the current request (where available). For example, the following rule will permit only the user named "admin" to modify an object:
 

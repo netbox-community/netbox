@@ -2,11 +2,12 @@ from django.forms import PasswordInput
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Location, Site
+from dcim.forms.mixins import ScopedForm
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from wireless.models import *
 
 __all__ = (
@@ -35,11 +36,12 @@ class WirelessLANGroupForm(NetBoxModelForm):
         ]
 
 
-class WirelessLANForm(TenancyForm, NetBoxModelForm):
+class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
-        required=False
+        required=False,
+        quick_add=True
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
@@ -51,6 +53,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         FieldSet('ssid', 'group', 'vlan', 'status', 'description', 'tags', name=_('Wireless LAN')),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -59,7 +62,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         model = WirelessLAN
         fields = [
             'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'description', 'comments', 'tags',
+            'scope_type', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(
@@ -159,7 +162,14 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     fieldsets = (
         FieldSet('site_a', 'location_a', 'device_a', 'interface_a', name=_('Side A')),
         FieldSet('site_b', 'location_b', 'device_b', 'interface_b', name=_('Side B')),
-        FieldSet('status', 'ssid', 'description', 'tags', name=_('Link')),
+        FieldSet(
+            'status',
+            'ssid',
+            InlineFields('distance', 'distance_unit', label=_('Distance')),
+            'description',
+            'tags',
+            name=_('Link')
+        ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -168,8 +178,8 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
         model = WirelessLink
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
-            'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
-            'comments', 'tags',
+            'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
+            'distance', 'distance_unit', 'description', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(

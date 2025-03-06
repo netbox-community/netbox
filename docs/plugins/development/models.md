@@ -130,6 +130,8 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.ExportTemplatesMixin
 
+::: netbox.models.features.JobsMixin
+
 ::: netbox.models.features.JournalingMixin
 
 ::: netbox.models.features.TagsMixin

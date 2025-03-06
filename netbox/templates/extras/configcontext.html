@@ -7,7 +7,7 @@
   <div class="row">
     <div class="col col-md-5">
       <div class="card">
-        <h5 class="card-header">{% trans "Config Context" %}</h5>
+        <h2 class="card-header">{% trans "Config Context" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Name" %}</th>
@@ -57,7 +57,7 @@
         </table>
       </div>
       <div class="card">
-        <h5 class="card-header">{% trans "Assignment" %}</h5>
+        <h2 class="card-header">{% trans "Assignment" %}</h2>
         <table class="table table-hover attr-table">
           {% for title, objects in assigned_objects %}
             <tr>
@@ -77,15 +77,9 @@
       </div>
     </div>
     <div class="col col-md-7">
+      {% include 'inc/sync_warning.html' %}
       <div class="card">
-        <h5 class="card-header d-flex justify-content-between">
-          {% trans "Data" %}
-          {% include 'extras/inc/configcontext_format.html' %}
-        </h5>
-        <div class="card-body">
-          {% include 'inc/sync_warning.html' %}
-          {% include 'extras/inc/configcontext_data.html' with data=object.data format=format %}
-        </div>
+        {% include 'extras/inc/configcontext_data.html' with title="Data" data=object.data format=format copyid="data" %}
       </div>
     </div>
   </div>

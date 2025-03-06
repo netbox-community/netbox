@@ -45,9 +45,12 @@ The operation duplex (full, half, or auto).
 
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
 
-### MAC Address
+### Primary MAC Address
 
-The 48-bit MAC address (for Ethernet interfaces).
+The [MAC address](./macaddress.md) assigned to this interface which is designated as its primary.
+
+!!! note "Changed in NetBox v4.2"
+    The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
 ### WWN
 
@@ -109,6 +112,7 @@ For switched Ethernet interfaces, this identifies the 802.1Q encapsulation strat
 * **Access:** All traffic is assigned to a single VLAN, with no tagging.
 * **Tagged:** One untagged "native" VLAN is allowed, as well as any number of tagged VLANs.
 * **Tagged (all):** Implies that all VLANs are carried by the interface. One untagged VLAN may be designated.
+* **Q-in-Q:** Q-in-Q (IEEE 802.1ad) encapsulation is performed using the assigned SVLAN.
 
 This field must be left blank for routed interfaces which do employ 802.1Q encapsulation.
 
@@ -119,6 +123,12 @@ The "native" (untagged) VLAN for the interface. Valid only when one of the above
 ### Tagged VLANs
 
 The tagged VLANs which are configured to be carried by this interface. Valid only for the "tagged" 802.1Q mode above.
+
+### Q-in-Q SVLAN
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 
 ### Wireless Role
 
@@ -142,3 +152,9 @@ The configured channel width of a wireless interface, in MHz. This is typically 
 ### Wireless LANs
 
 The [wireless LANs](../wireless/wirelesslan.md) for which this interface carries traffic. (Valid for wireless interfaces only.)
+
+### VLAN Translation Policy
+
+!!! info "This field was introduced in NetBox v4.2."
+
+The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

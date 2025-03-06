@@ -1,30 +1,42 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import reverse
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
+from utilities.data import check_ranges_overlap, ranges_to_string
 from virtualization.models import VMInterface
 
 __all__ = (
     'VLAN',
     'VLANGroup',
+    'VLANTranslationPolicy',
+    'VLANTranslationRule',
 )
+
+
+def default_vid_ranges():
+    return [
+        NumericRange(VLAN_VID_MIN, VLAN_VID_MAX, bounds='[]')
+    ]
 
 
 class VLANGroup(OrganizationalModel):
     """
-    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique. Each group must
+     define one or more ranges of valid VLAN IDs, and may be assigned a specific scope.
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -45,23 +57,13 @@ class VLANGroup(OrganizationalModel):
         ct_field='scope_type',
         fk_field='scope_id'
     )
-    min_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('minimum VLAN ID'),
-        default=VLAN_VID_MIN,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Lowest permissible ID of a child VLAN')
+    vid_ranges = ArrayField(
+        IntegerRangeField(),
+        verbose_name=_('VLAN ID ranges'),
+        default=default_vid_ranges
     )
-    max_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('maximum VLAN ID'),
-        default=VLAN_VID_MAX,
-        validators=(
-            MinValueValidator(VLAN_VID_MIN),
-            MaxValueValidator(VLAN_VID_MAX)
-        ),
-        help_text=_('Highest permissible ID of a child VLAN')
+    _total_vlan_ids = models.PositiveBigIntegerField(
+        default=VLAN_VID_MAX - VLAN_VID_MIN + 1
     )
 
     objects = VLANGroupQuerySet.as_manager()
@@ -84,9 +86,6 @@ class VLANGroup(OrganizationalModel):
         verbose_name = _('VLAN group')
         verbose_name_plural = _('VLAN groups')
 
-    def get_absolute_url(self):
-        return reverse('ipam:vlangroup', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -96,17 +95,49 @@ class VLANGroup(OrganizationalModel):
         if self.scope_id and not self.scope_type:
             raise ValidationError(_("Cannot set scope_id without scope_type."))
 
-        # Validate min/max child VID limits
-        if self.max_vid < self.min_vid:
-            raise ValidationError({
-                'max_vid': _("Maximum child VID must be greater than or equal to minimum child VID")
-            })
+        # Validate VID ranges
+        for vid_range in self.vid_ranges:
+            lower_vid = vid_range.lower if vid_range.lower_inc else vid_range.lower + 1
+            upper_vid = vid_range.upper if vid_range.upper_inc else vid_range.upper - 1
+            if lower_vid < VLAN_VID_MIN:
+                raise ValidationError({
+                    'vid_ranges': _("Starting VLAN ID in range ({value}) cannot be less than {minimum}").format(
+                        value=lower_vid, minimum=VLAN_VID_MIN
+                    )
+                })
+            if upper_vid > VLAN_VID_MAX:
+                raise ValidationError({
+                    'vid_ranges': _("Ending VLAN ID in range ({value}) cannot exceed {maximum}").format(
+                        value=upper_vid, maximum=VLAN_VID_MAX
+                    )
+                })
+            if lower_vid > upper_vid:
+                raise ValidationError({
+                    'vid_ranges': _(
+                        "Ending VLAN ID in range must be greater than or equal to the starting VLAN ID ({range})"
+                    ).format(range=f'{lower_vid}-{upper_vid}')
+                })
+
+        # Check for overlapping VID ranges
+        if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
+            raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
+
+    def save(self, *args, **kwargs):
+        self._total_vlan_ids = 0
+        for vid_range in self.vid_ranges:
+            self._total_vlan_ids += vid_range.upper - vid_range.lower + 1
+
+        super().save(*args, **kwargs)
 
     def get_available_vids(self):
         """
         Return all available VLANs within this group.
         """
-        available_vlans = {vid for vid in range(self.min_vid, self.max_vid + 1)}
+        available_vlans = set()
+        for vlan_range in self.vid_ranges:
+            available_vlans = available_vlans.union({
+                vid for vid in range(vlan_range.lower, vlan_range.upper)
+            })
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
@@ -125,6 +156,10 @@ class VLANGroup(OrganizationalModel):
         Return all VLANs within this group.
         """
         return VLAN.objects.filter(group=self).order_by('vid')
+
+    @property
+    def vid_ranges_list(self):
+        return ranges_to_string(self.vid_ranges)
 
 
 class VLAN(PrimaryModel):
@@ -186,6 +221,21 @@ class VLAN(PrimaryModel):
         null=True,
         help_text=_("The primary function of this VLAN")
     )
+    qinq_svlan = models.ForeignKey(
+        to='self',
+        on_delete=models.PROTECT,
+        related_name='qinq_cvlans',
+        blank=True,
+        null=True
+    )
+    qinq_role = models.CharField(
+        verbose_name=_('Q-in-Q role'),
+        max_length=50,
+        choices=VLANQinQRoleChoices,
+        blank=True,
+        null=True,
+        help_text=_("Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)")
+    )
     l2vpn_terminations = GenericRelation(
         to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
@@ -196,7 +246,7 @@ class VLAN(PrimaryModel):
     objects = VLANQuerySet.as_manager()
 
     clone_fields = [
-        'site', 'group', 'tenant', 'status', 'role', 'description',
+        'site', 'group', 'tenant', 'status', 'role', 'description', 'qinq_role', 'qinq_svlan',
     ]
 
     class Meta:
@@ -210,15 +260,20 @@ class VLAN(PrimaryModel):
                 fields=('group', 'name'),
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
+            models.UniqueConstraint(
+                fields=('qinq_svlan', 'vid'),
+                name='%(app_label)s_%(class)s_unique_qinq_svlan_vid'
+            ),
+            models.UniqueConstraint(
+                fields=('qinq_svlan', 'name'),
+                name='%(app_label)s_%(class)s_unique_qinq_svlan_name'
+            ),
         )
         verbose_name = _('VLAN')
         verbose_name_plural = _('VLANs')
 
     def __str__(self):
         return f'{self.name} ({self.vid})'
-
-    def get_absolute_url(self):
-        return reverse('ipam:vlan', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -231,16 +286,32 @@ class VLAN(PrimaryModel):
                 ).format(group=self.group, scope=self.group.scope, site=self.site)
             )
 
-        # Validate group min/max VIDs
-        if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
+        # Check that the VLAN ID is permitted in the assigned group (if any)
+        if self.group:
+            if not any([self.vid in r for r in self.group.vid_ranges]):
+                raise ValidationError({
+                    'vid': _(
+                        "VID must be in ranges {ranges} for VLANs in group {group}"
+                    ).format(ranges=ranges_to_string(self.group.vid_ranges), group=self.group)
+                })
+
+        # Only Q-in-Q customer VLANs may be assigned to a service VLAN
+        if self.qinq_svlan and self.qinq_role != VLANQinQRoleChoices.ROLE_CUSTOMER:
             raise ValidationError({
-                'vid': _(
-                    "VID must be between {minimum} and {maximum} for VLANs in group {group}"
-                ).format(minimum=self.group.min_vid, maximum=self.group.max_vid, group=self.group)
+                'qinq_svlan': _("Only Q-in-Q customer VLANs maybe assigned to a service VLAN.")
+            })
+
+        # A Q-in-Q customer VLAN must be assigned to a service VLAN
+        if self.qinq_role == VLANQinQRoleChoices.ROLE_CUSTOMER and not self.qinq_svlan:
+            raise ValidationError({
+                'qinq_role': _("A Q-in-Q customer VLAN must be assigned to a service VLAN.")
             })
 
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)
+
+    def get_qinq_role_color(self):
+        return VLANQinQRoleChoices.colors.get(self.qinq_role)
 
     def get_interfaces(self):
         # Return all device interfaces assigned to this VLAN
@@ -259,3 +330,75 @@ class VLAN(PrimaryModel):
     @property
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
+
+
+class VLANTranslationPolicy(PrimaryModel):
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+        unique=True,
+    )
+
+    class Meta:
+        verbose_name = _('VLAN translation policy')
+        verbose_name_plural = _('VLAN translation policies')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class VLANTranslationRule(NetBoxModel):
+    policy = models.ForeignKey(
+        to=VLANTranslationPolicy,
+        related_name='rules',
+        on_delete=models.CASCADE,
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
+    local_vid = models.PositiveSmallIntegerField(
+        verbose_name=_('Local VLAN ID'),
+            validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text=_("Numeric VLAN ID (1-4094)")
+    )
+    remote_vid = models.PositiveSmallIntegerField(
+        verbose_name=_('Remote VLAN ID'),
+            validators=(
+            MinValueValidator(VLAN_VID_MIN),
+            MaxValueValidator(VLAN_VID_MAX)
+        ),
+        help_text=_("Numeric VLAN ID (1-4094)")
+    )
+    prerequisite_models = (
+        'ipam.VLANTranslationPolicy',
+    )
+
+    clone_fields = ['policy']
+
+    class Meta:
+        verbose_name = _('VLAN translation rule')
+        ordering = ('policy', 'local_vid',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('policy', 'local_vid'),
+                name='%(app_label)s_%(class)s_unique_policy_local_vid'
+            ),
+            models.UniqueConstraint(
+                fields=('policy', 'remote_vid'),
+                name='%(app_label)s_%(class)s_unique_policy_remote_vid'
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.local_vid} -> {self.remote_vid} ({self.policy})'
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.policy
+        return objectchange

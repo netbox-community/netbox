@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ipam', '0069_gfk_indexes'),
         ('vpn', '0002_move_l2vpn'),
@@ -15,6 +14,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='tunneltermination',
             name='outside_ip',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnel_terminations', to='ipam.ipaddress'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='tunnel_terminations',
+                to='ipam.ipaddress',
+            ),
         ),
     ]

@@ -1,6 +1,275 @@
 # NetBox v4.0
 
-## v4.0.1 (FUTURE)
+## v4.0.11 (2024-09-03)
+
+### Bug Fixes
+
+* [#17310](https://github.com/netbox-community/netbox/issues/17310) - Enforce restricted queryset for related objects in GraphQL API requests
+* [#17321](https://github.com/netbox-community/netbox/issues/17321) - Ensure the job is attributed to the specified user when using the `runscript` management command
+* [#17323](https://github.com/netbox-community/netbox/issues/17323) - Associate job with script object when executed using the `runscript` management command
+* [#17337](https://github.com/netbox-community/netbox/issues/17337) - Fix ordering of virtual device contexts by device name
+* [#17341](https://github.com/netbox-community/netbox/issues/17341) - Avoid `NoReverseMatch` exceptions with specific dashboard widget configurations
+
+## v4.0.10 (2024-08-29)
+
+### Enhancements
+
+* [#16857](https://github.com/netbox-community/netbox/issues/16857) - Scroll long rendered Markdown content within tables
+* [#16905](https://github.com/netbox-community/netbox/issues/16905) - Enable filtering of device components by device status
+* [#16949](https://github.com/netbox-community/netbox/issues/16949) - Add device count column to sites table
+* [#17072](https://github.com/netbox-community/netbox/issues/17072) - Linkify email addresses & phone numbers in contact assignments list
+* [#17177](https://github.com/netbox-community/netbox/issues/17177) - Add facility field to locations filter form
+
+### Bug Fixes
+
+* [#16292](https://github.com/netbox-community/netbox/issues/16292) - Ensure consistent evaluation of queryset for both individual and list GraphQL API queries
+* [#16385](https://github.com/netbox-community/netbox/issues/16385) - Restore support for white, gray, and black background colors
+* [#16640](https://github.com/netbox-community/netbox/issues/16640) - Fix potential corruption of JSON values in custom fields that are not UI-editable
+* [#16670](https://github.com/netbox-community/netbox/issues/16670) - Fix conflicts within OpenAPI schema definition regarding nested serializers
+* [#16733](https://github.com/netbox-community/netbox/issues/16733) - Fix bulk edit/delete of objects when using "select all" widget
+* [#16756](https://github.com/netbox-community/netbox/issues/16756) - Fix dynamic pagination of custom script results table
+* [#16825](https://github.com/netbox-community/netbox/issues/16825) - Avoid `NoReverseMatch` exception when displaying count of related object type with no list view
+* [#16946](https://github.com/netbox-community/netbox/issues/16946) - GraphQL API requests with an invalid filter should return an empty set
+* [#16959](https://github.com/netbox-community/netbox/issues/16959) - Fix function of "reset" button on objects filter form
+* [#16973](https://github.com/netbox-community/netbox/issues/16973) - Fix support for evaluating user token (`$user`) against custom field values in permission constraints
+* [#17007](https://github.com/netbox-community/netbox/issues/17007) - Center SSO authentication icon when backend is unnamed
+* [#17070](https://github.com/netbox-community/netbox/issues/17070) - Image height & width values should not be required when creating an image attachment via the REST API
+* [#17108](https://github.com/netbox-community/netbox/issues/17108) - Ensure template date & time filters always return localtime-aware values
+* [#17117](https://github.com/netbox-community/netbox/issues/17117) - Work around Safari rendering bug
+* [#17186](https://github.com/netbox-community/netbox/issues/17186) - Fix display of custom links with default style under dark mode
+* [#17219](https://github.com/netbox-community/netbox/issues/17219) - Fix system config view exception when custom validator classes are employed
+* [#17230](https://github.com/netbox-community/netbox/issues/17230) - Ensure consistent rendering for all dashboard widget colors
+* [#17256](https://github.com/netbox-community/netbox/issues/17256) - Fix VLAN group scope selection for non-English languages
+* [#17278](https://github.com/netbox-community/netbox/issues/17278) - Ensure hierarchy is recalculated when bulk editing recursively nested object types (e.g. tenant groups)
+* [#17279](https://github.com/netbox-community/netbox/issues/17279) - Do not regenerate key when updating a token via REST API
+* [#17286](https://github.com/netbox-community/netbox/issues/17286) - Fix exception when adding member device to virtual chassis via web UI
+
+---
+
+## v4.0.9 (2024-08-14)
+
+### Enhancements
+
+* [#16692](https://github.com/netbox-community/netbox/issues/16692) - Enable modifying VLAN assignment while bulk editing prefixes
+* [#17006](https://github.com/netbox-community/netbox/issues/17006) - Add IEEE 802.11be interface type
+
+### Bug Fixes
+
+* [#13459](https://github.com/netbox-community/netbox/issues/13459) - Correct OpenAPI schema type for `TreeNodeMultipleChoiceFilter`
+* [#16073](https://github.com/netbox-community/netbox/issues/16073) - Respect default values for custom fields during bulk import of objects
+* [#16176](https://github.com/netbox-community/netbox/issues/16176) - Restore ability to select multiple terminating devices when connecting a cable
+* [#16871](https://github.com/netbox-community/netbox/issues/16871) - Sanitize device ID query parameter when bulk editing components to prevent exception
+* [#17038](https://github.com/netbox-community/netbox/issues/17038) - Fix AttributeError exception when attempting to export system status data
+* [#17064](https://github.com/netbox-community/netbox/issues/17064) - Fix misaligned text within rendered Markdown code blocks
+* [#17124](https://github.com/netbox-community/netbox/issues/17124) - `BaseTable` should follow reverse one-to-one relationships when prefetching related objects
+* [#17131](https://github.com/netbox-community/netbox/issues/17131) - Fix exception when creating object-type custom field without selecting related object type
+* [#17144](https://github.com/netbox-community/netbox/issues/17144) - Avoid showing duplicated pop-up messages
+
+---
+
+## v4.0.8 (2024-07-26)
+
+### Enhancements
+
+* [#14640](https://github.com/netbox-community/netbox/issues/14640) - Add Dutch language support
+* [#14792](https://github.com/netbox-community/netbox/issues/14792) - Add Polish language support
+* [#15375](https://github.com/netbox-community/netbox/issues/15375) - Enable customization of SSO backend name & icon
+* [#15660](https://github.com/netbox-community/netbox/issues/15660) - Add Czech language support
+* [#15696](https://github.com/netbox-community/netbox/issues/15696) - Add Danish language support
+* [#16793](https://github.com/netbox-community/netbox/issues/16793) - Add Italian language support
+* [#16933](https://github.com/netbox-community/netbox/issues/16933) - Enable toggling true/false marks on BooleanColumn
+* [#16943](https://github.com/netbox-community/netbox/issues/16943) - Expand navigation breadcrumbs on job view to include the parent object
+
+### Bug Fixes
+
+* [#16357](https://github.com/netbox-community/netbox/issues/16357) - Replicate assigned type & tenant for cable when clicking "create an add another"
+* [#16402](https://github.com/netbox-community/netbox/issues/16402) - Remove inoperative links from report result view
+* [#16536](https://github.com/netbox-community/netbox/issues/16536) - Revert `role` & `role_id` filters for device components to `device_role` & `device_role_id` to avoid conflict with inventory item `role` field
+* [#16624](https://github.com/netbox-community/netbox/issues/16624) - Correct OpenAPI schema definitions for several fields
+* [#16760](https://github.com/netbox-community/netbox/issues/16760) - Fix data source syncing using git via a local path
+* [#16819](https://github.com/netbox-community/netbox/issues/16819) - Highlight parent device in rack when viewing child device
+* [#16838](https://github.com/netbox-community/netbox/issues/16838) - ActionsColumn should render extra buttons even when no stock actions are enabled
+* [#16867](https://github.com/netbox-community/netbox/issues/16867) - Fix exception when a dashboard list widget references a model which has been removed
+* [#16963](https://github.com/netbox-community/netbox/issues/16963) - Fix filtering of "accounts" link under providers list
+* [#16964](https://github.com/netbox-community/netbox/issues/16964) - Ensure configured password validators are enforced
+
+---
+
+## v4.0.7 (2024-07-09)
+
+### Enhancements
+
+* [#14554](https://github.com/netbox-community/netbox/issues/14554) - Add support for [django-storage-swift](https://github.com/dennisv/django-storage-swift) storage backend
+* [#16424](https://github.com/netbox-community/netbox/issues/16424) - Enable filtering of devices by cluster and cluster group
+* [#16716](https://github.com/netbox-community/netbox/issues/16716) - Display NAT address (if any) for OOB IP address under device view
+* [#16725](https://github.com/netbox-community/netbox/issues/16725) - Always position the admin section last in the navigation menu
+* [#16791](https://github.com/netbox-community/netbox/issues/16791) - Add 200 & 400 Gbps selections for circuit termination port speed
+* [#16802](https://github.com/netbox-community/netbox/issues/16802) - Introduce `SENTRY_SEND_DEFAULT_PII` configuration parameter and disable PII export by default
+* [#16817](https://github.com/netbox-community/netbox/issues/16817) - Add 200 & 400 Gbps selections for circuit commit rate
+
+### Bug Fixes
+
+* [#16523](https://github.com/netbox-community/netbox/issues/16523) - Restore highlighting of current device in virtual chassis members panel
+* [#16654](https://github.com/netbox-community/netbox/issues/16654) - Fix parent item assignment for inventory item bulk import
+* [#16657](https://github.com/netbox-community/netbox/issues/16657) - Fix translation of object types in global search
+* [#16679](https://github.com/netbox-community/netbox/issues/16679) - Avoid overwriting custom JSON fields during bulk edit
+* [#16689](https://github.com/netbox-community/netbox/issues/16689) - System configuration view should reflect static parameters when no config revisions exist
+* [#16714](https://github.com/netbox-community/netbox/issues/16714) - Fix cloning of device types with 0U height
+* [#16721](https://github.com/netbox-community/netbox/issues/16721) - Fix errant API request after deselecting a rack in device edit form
+* [#16723](https://github.com/netbox-community/netbox/issues/16723) - Fix escaping of path to virtual environment in `upgrade.sh`
+* [#16735](https://github.com/netbox-community/netbox/issues/16735) - Object list "results" tab should show a count of zero when empty
+* [#16747](https://github.com/netbox-community/netbox/issues/16747) - Avoid clearing entire search cache when manually reindexing specific apps/models
+* [#16758](https://github.com/netbox-community/netbox/issues/16758) - Ensure manually selected lagnuage persists across browser sessions
+* [#16779](https://github.com/netbox-community/netbox/issues/16779) - Fix saved filter selection for child object lists
+* [#16780](https://github.com/netbox-community/netbox/issues/16780) - IKE proposal created via REST API should not require authentication_algorithm
+* [#16796](https://github.com/netbox-community/netbox/issues/16796) - Allow assignment of VM with no site to a cluster with a site
+* [#16806](https://github.com/netbox-community/netbox/issues/16806) - Fix redirect URL when creating contact assignments with "add another" button
+* [#16807](https://github.com/netbox-community/netbox/issues/16807) - Fix layout of VLAN edit form when custom fields are present
+* [#16808](https://github.com/netbox-community/netbox/issues/16808) - Fix event rule triggering in scenario where objects are updated immediately prior to deletion
+* [#16813](https://github.com/netbox-community/netbox/issues/16813) - Fix AttributeError exception when filtering bookmarks in dashboard widget by object type
+* [#16843](https://github.com/netbox-community/netbox/issues/16843) - Permit creation of IKE policies via REST API without specifying an IKE mode
+
+---
+
+## v4.0.6 (2024-06-24)
+
+### Enhancements
+
+* [#15348](https://github.com/netbox-community/netbox/issues/15348) - Show saved filters alongside quick search on object list views
+* [#15794](https://github.com/netbox-community/netbox/issues/15794) - Dynamically populate related objects in UI views
+* [#16256](https://github.com/netbox-community/netbox/issues/16256) - Enable alphabetical ordering of bookmarks on dashboard
+* [#16307](https://github.com/netbox-community/netbox/issues/16307) - Enable calling `log_*()` methods on Script without passing a message
+
+### Bug Fixes
+
+* [#13925](https://github.com/netbox-community/netbox/issues/13925) - Fix support for "zulu" (UTC) timestamps for custom fields
+* [#14829](https://github.com/netbox-community/netbox/issues/14829) - Fix support for simple conditions (without AND/OR) in event rules
+* [#15717](https://github.com/netbox-community/netbox/issues/15717) - Allow assigning a device/VM in a site to a cluster with no site assigned
+* [#16143](https://github.com/netbox-community/netbox/issues/16143) - Display timestamps in tables in the configured timezone
+* [#16149](https://github.com/netbox-community/netbox/issues/16149) - Fix object linking in custom script logs
+* [#16252](https://github.com/netbox-community/netbox/issues/16252) - Fix total count in tab at top of rack elevations view
+* [#16273](https://github.com/netbox-community/netbox/issues/16273) - Restore global search bar on mobile
+* [#16416](https://github.com/netbox-community/netbox/issues/16416) - Retain dark/light mode toggle on mobile view
+* [#16444](https://github.com/netbox-community/netbox/issues/16444) - Disable ordering circuits list by A/Z termination
+* [#16450](https://github.com/netbox-community/netbox/issues/16450) - Searching for rack unit in form dropdown should be case-insensitive
+* [#16452](https://github.com/netbox-community/netbox/issues/16452) - Fix sizing of buttons within object attribute panels
+* [#16454](https://github.com/netbox-community/netbox/issues/16454) - Address DNS lookup bug in `django-debug-toolbar
+* [#16460](https://github.com/netbox-community/netbox/issues/16460) - Omit spaces from telephone number URLs
+* [#16512](https://github.com/netbox-community/netbox/issues/16512) - Restore a user's preferred language (if any) on login
+* [#16542](https://github.com/netbox-community/netbox/issues/16542) - Fix bulk form operations when HTMX is enabled
+* [#16702](https://github.com/netbox-community/netbox/issues/16702) - Fix validation of `return_url` query parameter
+
+---
+
+## v4.0.5 (2024-06-06)
+
+### Enhancements
+
+* [#14810](https://github.com/netbox-community/netbox/issues/14810) - Enable contact assignment for services
+* [#15489](https://github.com/netbox-community/netbox/issues/15489) - Add 1000Base-TX interface type
+* [#15873](https://github.com/netbox-community/netbox/issues/15873) - Improve readability of allocates resource numbers for clusters
+* [#16290](https://github.com/netbox-community/netbox/issues/16290) - Capture entire object in changelog data (but continue to display only non-internal attributes)
+* [#16353](https://github.com/netbox-community/netbox/issues/16353) - Enable plugins to extend object change view with custom content
+
+### Bug Fixes
+
+* [#13422](https://github.com/netbox-community/netbox/issues/13422) - Rebuild MPTT trees for applicable models after merging staged changes
+* [#14567](https://github.com/netbox-community/netbox/issues/14567) - Apply active quicksearch value when exporting "current view" from object list
+* [#15194](https://github.com/netbox-community/netbox/issues/15194) - Avoid enqueuing duplicate event triggers for a modified object
+* [#16039](https://github.com/netbox-community/netbox/issues/16039) - Fix row highlighting for front & rear port connections under device view
+* [#16050](https://github.com/netbox-community/netbox/issues/16050) - Fix display of names & descriptions defined for custom scripts
+* [#16083](https://github.com/netbox-community/netbox/issues/16083) - Disable font ligatures to avoid peculiarities in rendered text
+* [#16202](https://github.com/netbox-community/netbox/issues/16202) - Fix site map button URL for certain localizations
+* [#16261](https://github.com/netbox-community/netbox/issues/16261) - Fix GraphQL filtering for certain multi-value filters
+* [#16286](https://github.com/netbox-community/netbox/issues/16286) - Fix global search support for provider accounts
+* [#16312](https://github.com/netbox-community/netbox/issues/16312) - Fix object list navigation for dashboard widgets
+* [#16315](https://github.com/netbox-community/netbox/issues/16315) - Fix filtering change log & journal entries by object type in UI
+* [#16376](https://github.com/netbox-community/netbox/issues/16376) - Update change log for the terminating object (e.g. interface) when attaching a cable
+* [#16400](https://github.com/netbox-community/netbox/issues/16400) - Fix AttributeError when attempting to restore a previous configuration revision after deleting the current one
+
+---
+
+## v4.0.3 (2024-05-22)
+
+### Enhancements
+
+* [#12984](https://github.com/netbox-community/netbox/issues/12984) - Add Molex Micro-Fit power port & outlet types
+* [#13764](https://github.com/netbox-community/netbox/issues/13764) - Enable contact assignments for aggregates, prefixes, IP ranges, and IP addresses
+* [#14639](https://github.com/netbox-community/netbox/issues/14639) - Add Ukrainian translation support
+* [#14653](https://github.com/netbox-community/netbox/issues/14653) - Add an inventory items table column for all device components
+* [#14686](https://github.com/netbox-community/netbox/issues/14686) - Add German translation support
+* [#14855](https://github.com/netbox-community/netbox/issues/14855) - Add Chinese translation support
+* [#14948](https://github.com/netbox-community/netbox/issues/14948) - Introduce the `has_virtual_device_context` filter for devices
+* [#15353](https://github.com/netbox-community/netbox/issues/15353) - Improve error reporting when custom scripts fail to load
+* [#15496](https://github.com/netbox-community/netbox/issues/15496) - Implement dedicated views for management of circuit terminations
+* [#15603](https://github.com/netbox-community/netbox/issues/15603) - Add 4G & 5G cellular interface types
+* [#15962](https://github.com/netbox-community/netbox/issues/15962) - Enable UNIX socket connections for Redis
+
+### Bug Fixes
+
+* [#13293](https://github.com/netbox-community/netbox/issues/13293) - Limit interface selector for IP address to current device/VM
+* [#14953](https://github.com/netbox-community/netbox/issues/14953) - Ensure annotated count fields are present in REST API response data when creating new objects
+* [#14982](https://github.com/netbox-community/netbox/issues/14982) - Fix OpenAPI schema definition for SerializedPKRelatedFields
+* [#15082](https://github.com/netbox-community/netbox/issues/15082) - Strip whitespace from choice values & labels when creating a custom field choice set
+* [#16138](https://github.com/netbox-community/netbox/issues/16138) - Fix support for referencing users & groups in object permissions
+* [#16145](https://github.com/netbox-community/netbox/issues/16145) - Restore ability to reference custom scripts via module & name in REST API
+* [#16164](https://github.com/netbox-community/netbox/issues/16164) - Correct display of selected values in UI when filtering object list by a null value
+* [#16173](https://github.com/netbox-community/netbox/issues/16173) - Fix TypeError exception when viewing object list with no pagination preference defined
+* [#16228](https://github.com/netbox-community/netbox/issues/16228) - Fix permissions enforcement for GraphQL queries of users & groups
+* [#16232](https://github.com/netbox-community/netbox/issues/16232) - Preserve bulk action checkboxes on dynamic tables when using pagination
+* [#16240](https://github.com/netbox-community/netbox/issues/16240) - Fixed NoReverseMatch exception when adding circuit terminations to an object counts dashboard widget
+
+---
+
+## v4.0.2 (2024-05-14)
+
+!!! warning "Important"
+    This release includes an important security fix, and is a strongly recommended update for all users. More details will follow.
+
+### Enhancements
+
+* [#15119](https://github.com/netbox-community/netbox/issues/15119) - Add cluster & cluster group UI filter fields for VLAN groups
+* [#16090](https://github.com/netbox-community/netbox/issues/16090) - Include current NetBox version when an unsupported plugin is detected
+* [#16096](https://github.com/netbox-community/netbox/issues/16096) - Introduce the `ENABLE_TRANSLATION` configuration parameter
+* [#16107](https://github.com/netbox-community/netbox/issues/16107) - Change the default value for `LOGIN_REQUIRED` to True
+* [#16127](https://github.com/netbox-community/netbox/issues/16127) - Add integration point for unsupported settings
+
+### Bug Fixes
+
+* [#16077](https://github.com/netbox-community/netbox/issues/16077) - Fix display of parameter values when viewing configuration revisions
+* [#16078](https://github.com/netbox-community/netbox/issues/16078) - Fix integer filters mistakenly marked as required for GraphQL API
+* [#16101](https://github.com/netbox-community/netbox/issues/16101) - Fix initial loading of pagination widget for dynamic object tables
+* [#16123](https://github.com/netbox-community/netbox/issues/16123) - Fix custom script execution via REST API
+* [#16124](https://github.com/netbox-community/netbox/issues/16124) - Fix GraphQL API support for querying virtual machine interfaces
+
+---
+
+## v4.0.1 (2024-05-09)
+
+### Enhancements
+
+* [#15148](https://github.com/netbox-community/netbox/issues/15148) - Add copy-to-clipboard button for config context data
+* [#15328](https://github.com/netbox-community/netbox/issues/15328) - Add a virtual machines UI tab for host devices
+* [#15451](https://github.com/netbox-community/netbox/issues/15451) - Add 2.5 and 5 Gbps backplane Ethernet interface types
+* [#16010](https://github.com/netbox-community/netbox/issues/16010) - Enable Prometheus middleware only if metrics are enabled
+
+### Bug Fixes
+
+* [#15968](https://github.com/netbox-community/netbox/issues/15968) - Avoid resizing quick search field to display clear button
+* [#15973](https://github.com/netbox-community/netbox/issues/15973) - Fix AttributeError exception when modifying cable termination type
+* [#15977](https://github.com/netbox-community/netbox/issues/15977) - Hide all admin menu items for non-authenticated users
+* [#15982](https://github.com/netbox-community/netbox/issues/15982) - Restore the "assign IP" tab for assigning existing IP addresses to interfaces
+* [#15992](https://github.com/netbox-community/netbox/issues/15992) - Fix AttributeError exception when Sentry integration is enabled
+* [#15995](https://github.com/netbox-community/netbox/issues/15995) - Permit nullable fields referenced by unique constraints to be omitted from REST API requests
+* [#15999](https://github.com/netbox-community/netbox/issues/15999) - Fix layout of login form labels for certain languages
+* [#16003](https://github.com/netbox-community/netbox/issues/16003) - Enable cache busting for `setmode.js` asset to avoid breaking dark mode support on upgrade
+* [#16011](https://github.com/netbox-community/netbox/issues/16011) - Fix site tenant assignment by PK via REST API
+* [#16020](https://github.com/netbox-community/netbox/issues/16020) - Include Python version in system UI view
+* [#16022](https://github.com/netbox-community/netbox/issues/16022) - Fix database migration failure when encountering a script module which no longer exists on disk
+* [#16025](https://github.com/netbox-community/netbox/issues/16025) - Fix execution of scripts via the `runscript` management command
+* [#16031](https://github.com/netbox-community/netbox/issues/16031) - Render Markdown content in script log messages
+* [#16051](https://github.com/netbox-community/netbox/issues/16051) - Translate "empty" text for object tables
+* [#16061](https://github.com/netbox-community/netbox/issues/16061) - Omit hidden fields from display within event rule edit form
 
 ---
 

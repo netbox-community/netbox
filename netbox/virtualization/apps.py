@@ -9,7 +9,7 @@ class VirtualizationConfig(AppConfig):
     def ready(self):
         from netbox.models.features import register_models
         from utilities.counters import connect_counters
-        from . import search, signals
+        from . import search, signals  # noqa: F401
         from .models import VirtualMachine
 
         # Register models
@@ -17,7 +17,7 @@ class VirtualizationConfig(AppConfig):
 
         # Register denormalized fields
         denormalized.register(VirtualMachine, 'cluster', {
-            'site': 'site',
+            'site': '_site',
         })
 
         # Register counters

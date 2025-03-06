@@ -12,7 +12,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('extras', '0060_customlink_button_class'),
         ('extras', '0061_extras_change_logging'),
@@ -40,7 +39,7 @@ class Migration(migrations.Migration):
         ('extras', '0083_search'),
         ('extras', '0084_staging'),
         ('extras', '0085_synced_data'),
-        ('extras', '0086_configtemplate')
+        ('extras', '0086_configtemplate'),
     ]
 
     dependencies = [
@@ -114,7 +113,23 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='name',
-            field=models.CharField(max_length=50, unique=True, validators=[django.core.validators.RegexValidator(flags=re.RegexFlag['IGNORECASE'], message='Only alphanumeric characters and underscores are allowed.', regex='^[a-z0-9_]+$'), django.core.validators.RegexValidator(flags=re.RegexFlag['IGNORECASE'], inverse_match=True, message='Double underscores are not permitted in custom field names.', regex='__')]),
+            field=models.CharField(
+                max_length=50,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        flags=re.RegexFlag['IGNORECASE'],
+                        message='Only alphanumeric characters and underscores are allowed.',
+                        regex='^[a-z0-9_]+$',
+                    ),
+                    django.core.validators.RegexValidator(
+                        flags=re.RegexFlag['IGNORECASE'],
+                        inverse_match=True,
+                        message='Double underscores are not permitted in custom field names.',
+                        regex='__',
+                    ),
+                ],
+            ),
         ),
         migrations.AlterField(
             model_name='customfield',
@@ -134,7 +149,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='customfield',
             name='object_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'
+            ),
         ),
         migrations.AddField(
             model_name='customlink',
@@ -314,11 +331,16 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='exporttemplate',
-            constraint=models.UniqueConstraint(fields=('content_type', 'name'), name='extras_exporttemplate_unique_content_type_name'),
+            constraint=models.UniqueConstraint(
+                fields=('content_type', 'name'), name='extras_exporttemplate_unique_content_type_name'
+            ),
         ),
         migrations.AddConstraint(
             model_name='webhook',
-            constraint=models.UniqueConstraint(fields=('payload_url', 'type_create', 'type_update', 'type_delete'), name='extras_webhook_unique_payload_url_types'),
+            constraint=models.UniqueConstraint(
+                fields=('payload_url', 'type_create', 'type_update', 'type_delete'),
+                name='extras_webhook_unique_payload_url_types',
+            ),
         ),
         migrations.AddField(
             model_name='jobresult',
@@ -328,7 +350,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='jobresult',
             name='interval',
-            field=models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+            field=models.PositiveIntegerField(
+                blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+            ),
         ),
         migrations.AddField(
             model_name='jobresult',
@@ -379,7 +403,12 @@ class Migration(migrations.Migration):
                 ('shared', models.BooleanField(default=True)),
                 ('parameters', models.JSONField()),
                 ('content_types', models.ManyToManyField(related_name='saved_filters', to='contenttypes.contenttype')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
                 'ordering': ('weight', 'name'),
@@ -400,7 +429,12 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=30)),
                 ('value', extras.fields.CachedValueField()),
                 ('weight', models.PositiveSmallIntegerField(default=1000)),
-                ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
+                (
+                    'object_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype'
+                    ),
+                ),
             ],
             options={
                 'ordering': ('weight', 'object_type', 'object_id'),
@@ -414,7 +448,12 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
                 'ordering': ('name',),
@@ -429,8 +468,18 @@ class Migration(migrations.Migration):
                 ('action', models.CharField(max_length=20)),
                 ('object_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('data', models.JSONField(blank=True, null=True)),
-                ('branch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='staged_changes', to='extras.branch')),
-                ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype')),
+                (
+                    'branch',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='staged_changes', to='extras.branch'
+                    ),
+                ),
+                (
+                    'object_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name='+', to='contenttypes.contenttype'
+                    ),
+                ),
             ],
             options={
                 'ordering': ('pk',),
@@ -439,7 +488,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='configcontext',
             name='data_file',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='core.datafile'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='core.datafile',
+            ),
         ),
         migrations.AddField(
             model_name='configcontext',
@@ -449,7 +504,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='configcontext',
             name='data_source',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='+',
+                to='core.datasource',
+            ),
         ),
         migrations.AddField(
             model_name='configcontext',
@@ -464,7 +525,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='exporttemplate',
             name='data_file',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='core.datafile'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='core.datafile',
+            ),
         ),
         migrations.AddField(
             model_name='exporttemplate',
@@ -474,7 +541,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='exporttemplate',
             name='data_source',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='+',
+                to='core.datasource',
+            ),
         ),
         migrations.AddField(
             model_name='exporttemplate',
@@ -498,8 +571,26 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('template_code', models.TextField()),
                 ('environment_params', models.JSONField(blank=True, default=dict, null=True)),
-                ('data_file', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='core.datafile')),
-                ('data_source', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='core.datasource')),
+                (
+                    'data_file',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='+',
+                        to='core.datafile',
+                    ),
+                ),
+                (
+                    'data_source',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='+',
+                        to='core.datasource',
+                    ),
+                ),
                 ('auto_sync_enabled', models.BooleanField(default=False)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],

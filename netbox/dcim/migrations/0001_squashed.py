@@ -13,11 +13,9 @@ import utilities.validators
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     replaces = [
         ('dcim', '0001_initial'),
@@ -64,7 +62,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
@@ -83,7 +86,12 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(blank=True, max_length=50)),
@@ -100,7 +108,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
@@ -119,7 +132,12 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(blank=True, max_length=50)),
@@ -137,14 +155,34 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('local_context_data', models.JSONField(blank=True, null=True)),
                 ('name', models.CharField(blank=True, max_length=64, null=True)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize, null=True)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize, null=True
+                    ),
+                ),
                 ('serial', models.CharField(blank=True, max_length=50)),
                 ('asset_tag', models.CharField(blank=True, max_length=50, null=True, unique=True)),
-                ('position', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
+                (
+                    'position',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
                 ('face', models.CharField(blank=True, max_length=50)),
                 ('status', models.CharField(default='active', max_length=50)),
-                ('vc_position', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)])),
-                ('vc_priority', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)])),
+                (
+                    'vc_position',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)]
+                    ),
+                ),
+                (
+                    'vc_priority',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)]
+                    ),
+                ),
                 ('comments', models.TextField(blank=True)),
             ],
             options={
@@ -159,7 +197,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
@@ -174,7 +217,12 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
@@ -228,13 +276,27 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('mark_connected', models.BooleanField(default=False)),
                 ('type', models.CharField(max_length=50)),
-                ('rear_port_position', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1024)])),
+                (
+                    'rear_port_position',
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1024),
+                        ],
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device', '_name'),
@@ -247,11 +309,25 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(max_length=50)),
-                ('rear_port_position', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1024)])),
+                (
+                    'rear_port_position',
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1024),
+                        ],
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device_type', '_name'),
@@ -271,9 +347,24 @@ class Migration(migrations.Migration):
                 ('mark_connected', models.BooleanField(default=False)),
                 ('enabled', models.BooleanField(default=True)),
                 ('mac_address', dcim.fields.MACAddressField(blank=True, null=True)),
-                ('mtu', models.PositiveIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(65536)])),
+                (
+                    'mtu',
+                    models.PositiveIntegerField(
+                        blank=True,
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(65536),
+                        ],
+                    ),
+                ),
                 ('mode', models.CharField(blank=True, max_length=50)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface
+                    ),
+                ),
                 ('type', models.CharField(max_length=50)),
                 ('mgmt_only', models.BooleanField(default=False)),
             ],
@@ -290,7 +381,12 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=64)),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize_interface
+                    ),
+                ),
                 ('type', models.CharField(max_length=50)),
                 ('mgmt_only', models.BooleanField(default=False)),
             ],
@@ -306,7 +402,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('part_id', models.CharField(blank=True, max_length=50)),
@@ -388,8 +489,19 @@ class Migration(migrations.Migration):
                 ('supply', models.CharField(default='ac', max_length=50)),
                 ('phase', models.CharField(default='single-phase', max_length=50)),
                 ('voltage', models.SmallIntegerField(validators=[utilities.validators.ExclusionValidator([0])])),
-                ('amperage', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1)])),
-                ('max_utilization', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
+                (
+                    'amperage',
+                    models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1)]),
+                ),
+                (
+                    'max_utilization',
+                    models.PositiveSmallIntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(100),
+                        ]
+                    ),
+                ),
                 ('available_power', models.PositiveIntegerField(default=0, editable=False)),
                 ('comments', models.TextField(blank=True)),
             ],
@@ -405,7 +517,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
@@ -424,7 +541,12 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(blank=True, max_length=50)),
@@ -455,14 +577,29 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('mark_connected', models.BooleanField(default=False)),
                 ('type', models.CharField(blank=True, max_length=50)),
-                ('maximum_draw', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
-                ('allocated_draw', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
+                (
+                    'maximum_draw',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
+                (
+                    'allocated_draw',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device', '_name'),
@@ -475,12 +612,27 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(blank=True, max_length=50)),
-                ('maximum_draw', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
-                ('allocated_draw', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)])),
+                (
+                    'maximum_draw',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
+                (
+                    'allocated_draw',
+                    models.PositiveSmallIntegerField(
+                        blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device_type', '_name'),
@@ -494,14 +646,28 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('facility_id', models.CharField(blank=True, max_length=50, null=True)),
                 ('status', models.CharField(default='active', max_length=50)),
                 ('serial', models.CharField(blank=True, max_length=50)),
                 ('asset_tag', models.CharField(blank=True, max_length=50, null=True, unique=True)),
                 ('type', models.CharField(blank=True, max_length=50)),
                 ('width', models.PositiveSmallIntegerField(default=19)),
-                ('u_height', models.PositiveSmallIntegerField(default=42, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
+                (
+                    'u_height',
+                    models.PositiveSmallIntegerField(
+                        default=42,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(100),
+                        ],
+                    ),
+                ),
                 ('desc_units', models.BooleanField(default=False)),
                 ('outer_width', models.PositiveSmallIntegerField(blank=True, null=True)),
                 ('outer_depth', models.PositiveSmallIntegerField(blank=True, null=True)),
@@ -519,7 +685,10 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('units', django.contrib.postgres.fields.ArrayField(base_field=models.PositiveSmallIntegerField(), size=None)),
+                (
+                    'units',
+                    django.contrib.postgres.fields.ArrayField(base_field=models.PositiveSmallIntegerField(), size=None),
+                ),
                 ('description', models.CharField(max_length=200)),
             ],
             options={
@@ -550,13 +719,27 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('_cable_peer_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('mark_connected', models.BooleanField(default=False)),
                 ('type', models.CharField(max_length=50)),
-                ('positions', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1024)])),
+                (
+                    'positions',
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1024),
+                        ],
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device', '_name'),
@@ -569,11 +752,25 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('label', models.CharField(blank=True, max_length=64)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('type', models.CharField(max_length=50)),
-                ('positions', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1024)])),
+                (
+                    'positions',
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1024),
+                        ],
+                    ),
+                ),
             ],
             options={
                 'ordering': ('device_type', '_name'),
@@ -606,7 +803,12 @@ class Migration(migrations.Migration):
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
-                ('_name', utilities.fields.NaturalOrderingField('name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize)),
+                (
+                    '_name',
+                    utilities.fields.NaturalOrderingField(
+                        'name', blank=True, max_length=100, naturalize_function=utilities.ordering.naturalize
+                    ),
+                ),
                 ('slug', models.SlugField(max_length=100, unique=True)),
                 ('status', models.CharField(default='active', max_length=50)),
                 ('facility', models.CharField(blank=True, max_length=50)),
@@ -654,7 +856,16 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
                 ('domain', models.CharField(blank=True, max_length=30)),
-                ('master', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vc_master_for', to='dcim.device')),
+                (
+                    'master',
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vc_master_for',
+                        to='dcim.device',
+                    ),
+                ),
             ],
             options={
                 'verbose_name_plural': 'virtual chassis',

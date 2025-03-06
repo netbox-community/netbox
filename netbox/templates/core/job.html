@@ -4,6 +4,24 @@
 {% load perms %}
 {% load i18n %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.object %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
+    </li>
+    {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
+      <li class="breadcrumb-item">
+        <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
+      </li>
+    {% endwith %}
+  {% else %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'core:job_list' %}?name={{ object.name|urlencode }}">{{ object.name }}</a>
+    </li>
+  {% endif %}
+{% endblock breadcrumbs %}
+
 {% block control-buttons %}
   {% if request.user|can_delete:object %}
     {% delete_button object %}
@@ -14,7 +32,7 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Job" %}</h5>
+        <h2 class="card-header">{% trans "Job" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Object Type" %}</th>
@@ -45,7 +63,7 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Scheduling" %}</h5>
+        <h2 class="card-header">{% trans "Scheduling" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
             <th scope="row">{% trans "Created" %}</th>
@@ -75,7 +93,7 @@
   <div class="row">
     <div class="col col-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Data" %}</h5>
+        <h2 class="card-header">{% trans "Data" %}</h2>
         <div class="card-body">
           <pre>{{ object.data|json }}</pre>
         </div>

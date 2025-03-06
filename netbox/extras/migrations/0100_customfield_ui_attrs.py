@@ -14,7 +14,6 @@ def update_ui_attrs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('extras', '0099_cachedvalue_ordering'),
     ]
@@ -30,10 +29,7 @@ class Migration(migrations.Migration):
             name='ui_visible',
             field=models.CharField(default='always', max_length=50),
         ),
-        migrations.RunPython(
-            code=update_ui_attrs,
-            reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(code=update_ui_attrs, reverse_code=migrations.RunPython.noop),
         migrations.RemoveField(
             model_name='customfield',
             name='ui_visibility',

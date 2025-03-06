@@ -9,8 +9,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
-from core.models import Job
-from extras.models import ObjectChange
+from core.models import Job, ObjectChange
 from netbox.config import Config
 
 
@@ -94,7 +93,10 @@ class Command(BaseCommand):
         # Check for new releases (if enabled)
         if options['verbosity']:
             self.stdout.write("[*] Checking for latest release")
-        if settings.RELEASE_CHECK_URL:
+        if settings.ISOLATED_DEPLOYMENT:
+            if options['verbosity']:
+                self.stdout.write("\tSkipping: ISOLATED_DEPLOYMENT is enabled")
+        elif settings.RELEASE_CHECK_URL:
             headers = {
                 'Accept': 'application/vnd.github.v3+json',
             }
@@ -127,7 +129,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"\tRequest error: {exc}", self.style.ERROR)
         else:
             if options['verbosity']:
-                self.stdout.write(f"\tSkipping: RELEASE_CHECK_URL not set")
+                self.stdout.write("\tSkipping: RELEASE_CHECK_URL not set")
 
         if options['verbosity']:
             self.stdout.write("Finished.", self.style.SUCCESS)

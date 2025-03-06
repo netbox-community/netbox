@@ -38,6 +38,8 @@ class CircuitCommitRateChoices(ChoiceSet):
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
         (100000000, '100 Gbps'),
+        (200000000, '200 Gbps'),
+        (400000000, '400 Gbps'),
         (1544, 'T1 (1.544 Mbps)'),
         (2048, 'E1 (2.048 Mbps)'),
     ]
@@ -69,6 +71,40 @@ class CircuitTerminationPortSpeedChoices(ChoiceSet):
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
         (100000000, '100 Gbps'),
+        (200000000, '200 Gbps'),
+        (400000000, '400 Gbps'),
         (1544, 'T1 (1.544 Mbps)'),
         (2048, 'E1 (2.048 Mbps)'),
+    ]
+
+
+class CircuitPriorityChoices(ChoiceSet):
+    key = 'CircuitGroupAssignment.priority'
+
+    PRIORITY_PRIMARY = 'primary'
+    PRIORITY_SECONDARY = 'secondary'
+    PRIORITY_TERTIARY = 'tertiary'
+    PRIORITY_INACTIVE = 'inactive'
+
+    CHOICES = [
+        (PRIORITY_PRIMARY, _('Primary')),
+        (PRIORITY_SECONDARY, _('Secondary')),
+        (PRIORITY_TERTIARY, _('Tertiary')),
+        (PRIORITY_INACTIVE, _('Inactive')),
+    ]
+
+
+#
+# Virtual circuits
+#
+
+class VirtualCircuitTerminationRoleChoices(ChoiceSet):
+    ROLE_PEER = 'peer'
+    ROLE_HUB = 'hub'
+    ROLE_SPOKE = 'spoke'
+
+    CHOICES = [
+        (ROLE_PEER, _('Peer'), 'green'),
+        (ROLE_HUB, _('Hub'), 'blue'),
+        (ROLE_SPOKE, _('Spoke'), 'orange'),
     ]

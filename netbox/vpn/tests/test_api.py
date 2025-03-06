@@ -116,6 +116,7 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'role': TunnelTerminationRoleChoices.ROLE_PEER,
     }
+    user_permissions = ('vpn.view_tunnel', )
 
     @classmethod
     def setUpTestData(cls):
@@ -430,6 +431,7 @@ class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
 class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
     model = IPSecProfile
     brief_fields = ['description', 'display', 'id', 'name', 'url']
+    user_permissions = ('vpn.view_ikepolicy', 'vpn.view_ipsecpolicy')
 
     @classmethod
     def setUpTestData(cls):
@@ -558,6 +560,7 @@ class L2VPNTest(APIViewTestCases.APIViewTestCase):
 class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
     model = L2VPNTermination
     brief_fields = ['display', 'id', 'l2vpn', 'url']
+    user_permissions = ('dcim.view_location', 'vpn.view_l2vpn')
 
     @classmethod
     def setUpTestData(cls):

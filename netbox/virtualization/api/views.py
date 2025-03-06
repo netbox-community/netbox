@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework.routers import APIRootView
 
 from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
@@ -33,7 +34,11 @@ class ClusterGroupViewSet(NetBoxModelViewSet):
 
 
 class ClusterViewSet(NetBoxModelViewSet):
-    queryset = Cluster.objects.all()
+    queryset = Cluster.objects.prefetch_related('virtual_machines').annotate(
+        allocated_vcpus=Sum('virtual_machines__vcpus'),
+        allocated_memory=Sum('virtual_machines__memory'),
+        allocated_disk=Sum('virtual_machines__disk'),
+    )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filtersets.ClusterFilterSet
 

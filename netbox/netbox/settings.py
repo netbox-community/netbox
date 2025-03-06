@@ -5,27 +5,26 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlencode
 
-import django
 import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
-from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
+from utilities.release import load_release_data
 from utilities.string import trailing_slash
-
 
 #
 # Environment setup
 #
 
-VERSION = '4.0.1-dev'
+RELEASE = load_release_data()
+VERSION = RELEASE.full_version  # Retained for backward compatibility
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -61,7 +60,17 @@ for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
-AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
+AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
+    },
+    {
+        "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
+    },
+])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
@@ -82,6 +91,16 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'extras.add_bookmark': ({'user': '$user'},),
     'extras.change_bookmark': ({'user': '$user'},),
     'extras.delete_bookmark': ({'user': '$user'},),
+    # Permit users to manage their own notifications
+    'extras.view_notification': ({'user': '$user'},),
+    'extras.add_notification': ({'user': '$user'},),
+    'extras.change_notification': ({'user': '$user'},),
+    'extras.delete_notification': ({'user': '$user'},),
+    # Permit users to manage their own subscriptions
+    'extras.view_subscription': ({'user': '$user'},),
+    'extras.add_subscription': ({'user': '$user'},),
+    'extras.change_subscription': ({'user': '$user'},),
+    'extras.delete_subscription': ({'user': '$user'},),
     # Permit users to manage their own API tokens
     'users.view_token': ({'user': '$user'},),
     'users.add_token': ({'user': '$user'},),
@@ -89,23 +108,24 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
+EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
-))
+])
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
+ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
-LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
@@ -147,6 +167,7 @@ SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
@@ -156,6 +177,7 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
@@ -175,7 +197,7 @@ if len(SECRET_KEY) < 50:
 if RELEASE_CHECK_URL:
     try:
         URLValidator()(RELEASE_CHECK_URL)
-    except ValidationError as e:
+    except ValidationError:
         raise ImproperlyConfigured(
             "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
         )
@@ -224,6 +246,23 @@ if STORAGE_BACKEND is not None:
             return globals().get(name, default)
         storages.utils.setting = _setting
 
+    # django-storage-swift
+    elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
+        try:
+            import swift.utils  # noqa: F401
+        except ModuleNotFoundError as e:
+            if getattr(e, 'name') == 'swift':
+                raise ImproperlyConfigured(
+                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
+                    "It can be installed by running 'pip install django-storage-swift'."
+                )
+            raise e
+
+        # Load all SWIFT_* settings from the user configuration
+        for param, value in STORAGE_CONFIG.items():
+            if param.startswith('SWIFT_'):
+                globals()[param] = value
+
 if STORAGE_CONFIG and STORAGE_BACKEND is None:
     warnings.warn(
         "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
@@ -241,6 +280,7 @@ if 'tasks' not in REDIS:
 TASKS_REDIS = REDIS['tasks']
 TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
 TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
+TASKS_REDIS_URL = TASKS_REDIS.get('URL')
 TASKS_REDIS_SENTINELS = TASKS_REDIS.get('SENTINELS', [])
 TASKS_REDIS_USING_SENTINEL = all([
     isinstance(TASKS_REDIS_SENTINELS, (list, tuple)),
@@ -269,7 +309,7 @@ CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'defau
 CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
 CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
 CACHING_REDIS_CA_CERT_PATH = REDIS['caching'].get('CA_CERT_PATH', False)
-CACHING_REDIS_URL = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}'
+CACHING_REDIS_URL = REDIS['caching'].get('URL', f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}')
 
 # Configure Django's default cache to use Redis
 CACHES = {
@@ -330,7 +370,6 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 #
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -366,13 +405,11 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
-if not DJANGO_ADMIN_ENABLED:
-    INSTALLED_APPS.remove('django.contrib.admin')
+if not DEBUG:
+    INSTALLED_APPS.remove('debug_toolbar')
 
 # Middleware
 MIDDLEWARE = [
-    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -386,8 +423,21 @@ MIDDLEWARE = [
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE = [
+        "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
+        *MIDDLEWARE,
+    ]
+
+if METRICS_ENABLED:
+    # If metrics are enabled, add the before & after Prometheus middleware
+    MIDDLEWARE = [
+        'django_prometheus.middleware.PrometheusBeforeMiddleware',
+        *MIDDLEWARE,
+        'django_prometheus.middleware.PrometheusAfterMiddleware',
+    ]
 
 # URLs
 ROOT_URLCONF = 'netbox.urls'
@@ -440,6 +490,9 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 # Use timezone-aware datetime objects
 USE_TZ = True
 
+# Toggle language translation support
+USE_I18N = TRANSLATION_ENABLED
+
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -488,18 +541,8 @@ EXEMPT_EXCLUDE_MODELS = (
     ('users', 'user'),
 )
 
-# All URLs starting with a string listed here are exempt from login enforcement
-AUTH_EXEMPT_PATHS = (
-    f'/{BASE_PATH}api/',
-    f'/{BASE_PATH}graphql/',
-    f'/{BASE_PATH}login/',
-    f'/{BASE_PATH}oauth/',
-    f'/{BASE_PATH}metrics',
-)
-
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
-    f'/{BASE_PATH}admin/',
     f'/{BASE_PATH}extras/config-revisions/',  # Allow modifying the configuration
     LOGIN_URL,
     LOGIN_REDIRECT_URL,
@@ -521,10 +564,10 @@ if SENTRY_ENABLED:
     # Initialize the SDK
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        release=VERSION,
+        release=RELEASE.full_version,
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=True,
+        send_default_pii=SENTRY_SEND_DEFAULT_PII,
         http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
     )
@@ -539,13 +582,13 @@ if SENTRY_ENABLED:
 
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
-CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
 CENSUS_PARAMS = {
-    'version': VERSION,
+    'version': RELEASE.full_version,
     'python_version': sys.version.split()[0],
     'deployment_id': DEPLOYMENT_ID,
 }
-if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
     try:
         # Report anonymous census data
         requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
@@ -599,7 +642,7 @@ FILTERS_NULL_CHOICE_VALUE = 'null'
 # Django REST framework (API)
 #
 
-REST_FRAMEWORK_VERSION = '.'.join(VERSION.split('-')[0].split('.')[:2])  # Use major.minor as API version
+REST_FRAMEWORK_VERSION = '.'.join(RELEASE.version.split('-')[0].split('.')[:2])  # Use major.minor as API version
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'COERCE_DECIMAL_TO_STRING': False,
@@ -644,7 +687,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'NetBox REST API',
     'LICENSE': {'name': 'Apache v2 License'},
-    'VERSION': VERSION,
+    'VERSION': RELEASE.full_version,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
     'SERVERS': [{
@@ -668,6 +711,12 @@ if TASKS_REDIS_USING_SENTINEL:
         'CONNECTION_KWARGS': {
             'socket_connect_timeout': TASKS_REDIS_SENTINEL_TIMEOUT
         },
+    }
+elif TASKS_REDIS_URL:
+    RQ_PARAMS = {
+        'URL': TASKS_REDIS_URL,
+        'SSL': TASKS_REDIS_SSL,
+        'SSL_CERT_REQS': None if TASKS_REDIS_SKIP_TLS_VERIFY else 'required',
     }
 else:
     RQ_PARAMS = {
@@ -703,13 +752,21 @@ RQ_QUEUES.update({
 
 # Supported translation languages
 LANGUAGES = (
+    ('cs', _('Czech')),
+    ('da', _('Danish')),
+    ('de', _('German')),
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
+    ('it', _('Italian')),
     ('ja', _('Japanese')),
+    ('nl', _('Dutch')),
+    ('pl', _('Polish')),
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
     ('tr', _('Turkish')),
+    ('uk', _('Ukrainian')),
+    ('zh', _('Chinese')),
 )
 LOCALE_PATHS = (
     BASE_DIR + '/translations',
@@ -719,6 +776,7 @@ LOCALE_PATHS = (
 # Strawberry (GraphQL)
 #
 STRAWBERRY_DJANGO = {
+    "DEFAULT_PK_FIELD_NAME": "id",
     "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
     "USE_DEPRECATED_FILTERS": True,
 }
@@ -726,6 +784,12 @@ STRAWBERRY_DJANGO = {
 #
 # Plugins
 #
+
+PLUGIN_CATALOG_URL = 'https://api.netbox.oss.netboxlabs.com/v1/plugins'
+
+EVENTS_PIPELINE = list(EVENTS_PIPELINE)
+if 'extras.events.process_event_queue' not in EVENTS_PIPELINE:
+    EVENTS_PIPELINE.insert(0, 'extras.events.process_event_queue')
 
 # Register any configured plugins
 for plugin_name in PLUGINS:
@@ -781,7 +845,7 @@ for plugin_name in PLUGINS:
     # Validate user-provided configuration settings and assign defaults
     if plugin_name not in PLUGINS_CONFIG:
         PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name], VERSION)
+    plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
 
     # Add middleware
     plugin_middleware = plugin_config.middleware
@@ -796,3 +860,17 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+
+    events_pipeline = plugin_config.events_pipeline
+    if events_pipeline:
+        if type(events_pipeline) in (list, tuple):
+            EVENTS_PIPELINE.extend(events_pipeline)
+        else:
+            raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
+
+# UNSUPPORTED FUNCTIONALITY: Import any local overrides.
+try:
+    from .local_settings import *
+    _UNSUPPORTED_SETTINGS = True
+except ImportError:
+    pass

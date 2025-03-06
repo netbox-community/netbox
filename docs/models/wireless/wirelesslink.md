@@ -20,6 +20,10 @@ The operational status of the link. Options include:
 
 The service set identifier (SSID) for the wireless link (optional).
 
+### Distance
+
+The distance between the link's two endpoints, including a unit designation (e.g. 100 meters or 25 feet).
+
 ### Authentication Type
 
 The type of wireless authentication in use. Options include:

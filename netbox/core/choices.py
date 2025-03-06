@@ -59,8 +59,45 @@ class JobStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
     )
 
+    ENQUEUED_STATE_CHOICES = (
+        STATUS_PENDING,
+        STATUS_SCHEDULED,
+        STATUS_RUNNING,
+    )
+
     TERMINAL_STATE_CHOICES = (
         STATUS_COMPLETED,
         STATUS_ERRORED,
         STATUS_FAILED,
+    )
+
+
+class JobIntervalChoices(ChoiceSet):
+    INTERVAL_MINUTELY = 1
+    INTERVAL_HOURLY = 60
+    INTERVAL_DAILY = 60 * 24
+    INTERVAL_WEEKLY = 60 * 24 * 7
+
+    CHOICES = (
+        (INTERVAL_MINUTELY, _('Minutely')),
+        (INTERVAL_HOURLY, _('Hourly')),
+        (INTERVAL_DAILY, _('Daily')),
+        (INTERVAL_WEEKLY, _('Weekly')),
+    )
+
+
+#
+# ObjectChanges
+#
+
+class ObjectChangeActionChoices(ChoiceSet):
+
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_DELETE = 'delete'
+
+    CHOICES = (
+        (ACTION_CREATE, _('Created'), 'green'),
+        (ACTION_UPDATE, _('Updated'), 'blue'),
+        (ACTION_DELETE, _('Deleted'), 'red'),
     )

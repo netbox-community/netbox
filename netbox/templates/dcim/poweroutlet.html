@@ -14,7 +14,7 @@
     <div class="row mb-3">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">{% trans "Power Outlet" %}</h5>
+                <h2 class="card-header">{% trans "Power Outlet" %}</h2>
                 <table class="table table-hover attr-table">
                     <tr>
                         <th scope="row">{% trans "Device" %}</th>
@@ -41,6 +41,16 @@
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
+                      <th scope="row">{% trans "Color" %}</th>
+                      <td>
+                        {% if object.color %}
+                          <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Power Port" %}</th>
                         <td>{{ object.power_port|linkify|placeholder }}</td>
                     </tr>
@@ -56,7 +66,7 @@
         </div>
         <div class="col col-md-6">
           <div class="card">
-            <h5 class="card-header">{% trans "Connection" %}</h5>
+            <h2 class="card-header">{% trans "Connection" %}</h2>
             {% if object.mark_connected %}
               <div class="card-body">
                 <span class="text-success"><i class="mdi mdi-check-bold"></i></span>

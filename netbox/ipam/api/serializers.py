@@ -5,4 +5,3 @@ from .serializers_.vlans import *
 from .serializers_.ip import *
 from .serializers_.fhrpgroups import *
 from .serializers_.services import *
-from .nested_serializers import *

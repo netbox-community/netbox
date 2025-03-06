@@ -23,6 +23,7 @@ __all__ = (
     'InventoryItemFilter',
     'InventoryItemRoleFilter',
     'LocationFilter',
+    'MACAddressFilter',
     'ManufacturerFilter',
     'ModuleFilter',
     'ModuleBayFilter',
@@ -38,6 +39,7 @@ __all__ = (
     'RackFilter',
     'RackReservationFilter',
     'RackRoleFilter',
+    'RackTypeFilter',
     'RearPortFilter',
     'RearPortTemplateFilter',
     'RegionFilter',
@@ -129,6 +131,12 @@ class FrontPortFilter(BaseFilterMixin):
 @strawberry_django.filter(models.FrontPortTemplate, lookups=True)
 @autotype_decorator(filtersets.FrontPortTemplateFilterSet)
 class FrontPortTemplateFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.MACAddress, lookups=True)
+@autotype_decorator(filtersets.MACAddressFilterSet)
+class MACAddressFilter(BaseFilterMixin):
     pass
 
 
@@ -231,6 +239,12 @@ class PowerPortFilter(BaseFilterMixin):
 @strawberry_django.filter(models.PowerPortTemplate, lookups=True)
 @autotype_decorator(filtersets.PowerPortTemplateFilterSet)
 class PowerPortTemplateFilter(BaseFilterMixin):
+    pass
+
+
+@strawberry_django.filter(models.RackType, lookups=True)
+@autotype_decorator(filtersets.RackTypeFilterSet)
+class RackTypeFilter(BaseFilterMixin):
     pass
 
 

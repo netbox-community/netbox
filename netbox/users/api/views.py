@@ -1,6 +1,5 @@
 import logging
 
-from django.contrib.auth import get_user_model
 from django.db.models import Count
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
@@ -13,7 +12,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
-from users.models import Group, ObjectPermission, Token, UserConfig
+from users.models import Group, ObjectPermission, Token, User, UserConfig
 from utilities.data import deepmerge
 from utilities.querysets import RestrictedQuerySet
 from . import serializers
@@ -32,7 +31,7 @@ class UsersRootView(APIRootView):
 #
 
 class UserViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=get_user_model()).order_by('username')
+    queryset = RestrictedQuerySet(model=User).order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filtersets.UserFilterSet
 
@@ -74,7 +73,7 @@ class TokenProvisionView(APIView):
 
     def perform_create(self, serializer):
         model = serializer.Meta.model
-        logger = logging.getLogger(f'netbox.api.views.TokenProvisionView')
+        logger = logging.getLogger('netbox.api.views.TokenProvisionView')
         logger.info(f"Creating new {model._meta.verbose_name}")
         serializer.save()
 

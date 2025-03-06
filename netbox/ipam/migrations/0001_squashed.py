@@ -9,7 +9,6 @@ import taggit.managers
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -50,7 +49,23 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='active', max_length=50)),
                 ('role', models.CharField(blank=True, max_length=50)),
                 ('assigned_object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('dns_name', models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(code='invalid', message='Only alphanumeric characters, asterisks, hyphens, periods, and underscores are allowed in DNS names', regex='^([0-9A-Za-z_-]+|\\*)(\\.[0-9A-Za-z_-]+)*\\.?$')])),
+                (
+                    'dns_name',
+                    models.CharField(
+                        blank=True,
+                        max_length=255,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                code='invalid',
+                                message=(
+                                    'Only alphanumeric characters, asterisks, hyphens, periods, and underscores are '
+                                    'allowed in DNS names'
+                                ),
+                                regex='^([0-9A-Za-z_-]+|\\*)(\\.[0-9A-Za-z_-]+)*\\.?$',
+                            )
+                        ],
+                    ),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
             ],
             options={
@@ -73,7 +88,11 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name_plural': 'prefixes',
-                'ordering': (django.db.models.expressions.OrderBy(django.db.models.expressions.F('vrf'), nulls_first=True), 'prefix', 'pk'),
+                'ordering': (
+                    django.db.models.expressions.OrderBy(django.db.models.expressions.F('vrf'), nulls_first=True),
+                    'prefix',
+                    'pk',
+                ),
             },
         ),
         migrations.CreateModel(
@@ -135,10 +154,25 @@ class Migration(migrations.Migration):
                 ('rd', models.CharField(blank=True, max_length=21, null=True, unique=True)),
                 ('enforce_unique', models.BooleanField(default=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('export_targets', models.ManyToManyField(blank=True, related_name='exporting_vrfs', to='ipam.RouteTarget')),
-                ('import_targets', models.ManyToManyField(blank=True, related_name='importing_vrfs', to='ipam.RouteTarget')),
+                (
+                    'export_targets',
+                    models.ManyToManyField(blank=True, related_name='exporting_vrfs', to='ipam.RouteTarget'),
+                ),
+                (
+                    'import_targets',
+                    models.ManyToManyField(blank=True, related_name='importing_vrfs', to='ipam.RouteTarget'),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vrfs', to='tenancy.tenant')),
+                (
+                    'tenant',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vrfs',
+                        to='tenancy.tenant',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'VRF',
@@ -157,7 +191,21 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=100)),
                 ('scope_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('scope_type', models.ForeignKey(blank=True, limit_choices_to=models.Q(('model__in', ('region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster'))), null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    'scope_type',
+                    models.ForeignKey(
+                        blank=True,
+                        limit_choices_to=models.Q(
+                            (
+                                'model__in',
+                                ('region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster'),
+                            )
+                        ),
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='contenttypes.contenttype',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'VLAN group',
@@ -172,15 +220,59 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=CustomFieldJSONEncoder)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('vid', models.PositiveSmallIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(4094)])),
+                (
+                    'vid',
+                    models.PositiveSmallIntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(4094),
+                        ]
+                    ),
+                ),
                 ('name', models.CharField(max_length=64)),
                 ('status', models.CharField(default='active', max_length=50)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('group', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlans', to='ipam.vlangroup')),
-                ('role', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='vlans', to='ipam.role')),
-                ('site', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlans', to='dcim.site')),
+                (
+                    'group',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vlans',
+                        to='ipam.vlangroup',
+                    ),
+                ),
+                (
+                    'role',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name='vlans',
+                        to='ipam.role',
+                    ),
+                ),
+                (
+                    'site',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vlans',
+                        to='dcim.site',
+                    ),
+                ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
-                ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vlans', to='tenancy.tenant')),
+                (
+                    'tenant',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='vlans',
+                        to='tenancy.tenant',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'VLAN',
@@ -197,9 +289,29 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
                 ('protocol', models.CharField(max_length=50)),
-                ('ports', django.contrib.postgres.fields.ArrayField(base_field=models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(65535)]), size=None)),
+                (
+                    'ports',
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.PositiveIntegerField(
+                            validators=[
+                                django.core.validators.MinValueValidator(1),
+                                django.core.validators.MaxValueValidator(65535),
+                            ]
+                        ),
+                        size=None,
+                    ),
+                ),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('device', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='services', to='dcim.device')),
+                (
+                    'device',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='services',
+                        to='dcim.device',
+                    ),
+                ),
                 ('ipaddresses', models.ManyToManyField(blank=True, related_name='services', to='ipam.IPAddress')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],

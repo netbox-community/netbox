@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, FieldError
 from django.db.models import Q
 
 from utilities.choices import unpack_grouped_choices
@@ -63,6 +63,10 @@ class CSVModelChoiceField(forms.ModelChoiceField):
         except MultipleObjectsReturned:
             raise forms.ValidationError(
                 _('"{value}" is not a unique value for this field; multiple objects were found').format(value=value)
+            )
+        except FieldError:
+            raise forms.ValidationError(
+                _('"{field_name}" is an invalid accessor field name.').format(field_name=self.to_field_name)
             )
 
 

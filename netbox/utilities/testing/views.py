@@ -8,9 +8,8 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
@@ -62,7 +61,7 @@ class ViewTestCases:
         """
         Retrieve a single instance.
         """
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
         def test_get_object_anonymous(self):
             # Make the request as an unauthenticated user
             self.client.logout()
@@ -421,7 +420,7 @@ class ViewTestCases:
         """
         Retrieve multiple instances.
         """
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
         def test_list_objects_anonymous(self):
             # Make the request as an unauthenticated user
             self.client.logout()
@@ -595,10 +594,10 @@ class ViewTestCases:
 
             # Test GET without permission
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.get(self._get_url('import')), 403)
+                self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 403)
 
             # Try POST without permission
-            response = self.client.post(self._get_url('import'), data)
+            response = self.client.post(self._get_url('bulk_import'), data)
             with disable_warnings('django.request'):
                 self.assertHttpStatus(response, 403)
 
@@ -621,10 +620,10 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET with model-level permission
-            self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+            self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -650,7 +649,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
             self.assertEqual(initial_count, self._get_queryset().count())
 
             reader = csv.DictReader(array, delimiter=',')
@@ -685,7 +684,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Attempt to import non-permitted objects
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 200)
             self.assertEqual(self._get_queryset().count(), initial_count)
 
             # Update permission constraints
@@ -693,7 +692,7 @@ class ViewTestCases:
             obj_perm.save()
 
             # Import permitted objects
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
     class BulkEditObjectsViewTestCase(ModelViewTestCase):

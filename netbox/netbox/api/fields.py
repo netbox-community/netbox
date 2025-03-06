@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -11,6 +12,7 @@ __all__ = (
     'ChoiceField',
     'ContentTypeField',
     'IPNetworkSerializer',
+    'IntegerRangeSerializer',
     'RelatedObjectCountField',
     'SerializedPKRelatedField',
 )
@@ -154,3 +156,19 @@ class RelatedObjectCountField(serializers.ReadOnlyField):
         self.relation = relation
 
         super().__init__(**kwargs)
+
+
+class IntegerRangeSerializer(serializers.Serializer):
+    """
+    Represents a range of integers.
+    """
+    def to_internal_value(self, data):
+        if not isinstance(data, (list, tuple)) or len(data) != 2:
+            raise ValidationError(_("Ranges must be specified in the form (lower, upper)."))
+        if type(data[0]) is not int or type(data[1]) is not int:
+            raise ValidationError(_("Range boundaries must be defined as integers."))
+
+        return NumericRange(data[0], data[1], bounds='[]')
+
+    def to_representation(self, instance):
+        return instance.lower, instance.upper - 1

@@ -6,9 +6,11 @@
 
   {# Render the field label (if any), except for checkboxes #}
   {% if label and not field|widget_type == 'checkboxinput' %}
-    <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label text-lg-end{% if field.field.required %} required{% endif %}">
-      {{ label }}
-    </label>
+    <div class="col-sm-3 text-lg-end">
+      <label for="{{ field.id_for_label }}" class="col-form-label d-inline-block{% if field.field.required %} required{% endif %}">
+        {{ label }}
+      </label>
+    </div>
   {% endif %}
 
   {# Render the field itself #}

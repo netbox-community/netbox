@@ -10,6 +10,7 @@ from .filters import *
 __all__ = (
     'DataFileType',
     'DataSourceType',
+    'ObjectChangeType',
 )
 
 
@@ -30,3 +31,12 @@ class DataFileType(BaseObjectType):
 class DataSourceType(NetBoxObjectType):
 
     datafiles: List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]
+
+
+@strawberry_django.type(
+    models.ObjectChange,
+    fields='__all__',
+    filters=ObjectChangeFilter
+)
+class ObjectChangeType(BaseObjectType):
+    pass

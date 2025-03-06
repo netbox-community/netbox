@@ -25,6 +25,7 @@ class TenancyForm(forms.Form):
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
+        quick_add=True,
         query_params={
             'group_id': '$tenant_group'
         }

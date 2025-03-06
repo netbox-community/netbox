@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ipam.fields import ASNField
@@ -17,7 +16,8 @@ class ASNRange(OrganizationalModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
@@ -53,9 +53,6 @@ class ASNRange(OrganizationalModel):
 
     def __str__(self):
         return f'{self.name} ({self.range_as_string()})'
-
-    def get_absolute_url(self):
-        return reverse('ipam:asnrange', args=[self.pk])
 
     @property
     def range(self):
@@ -128,9 +125,6 @@ class ASN(PrimaryModel):
     def __str__(self):
         return f'AS{self.asn_with_asdot}'
 
-    def get_absolute_url(self):
-        return reverse('ipam:asn', args=[self.pk])
-
     @property
     def asn_asdot(self):
         """
@@ -149,3 +143,7 @@ class ASN(PrimaryModel):
             return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
         else:
             return self.asn
+
+    @property
+    def prefixed_name(self):
+        return f'AS{self.asn_with_asdot}'

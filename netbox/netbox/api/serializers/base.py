@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 from utilities.api import get_related_object_by_attrs
+from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
 
 __all__ = (
     'BaseModelSerializer',
@@ -14,6 +15,8 @@ __all__ = (
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
+    url = NetBoxAPIHyperlinkedIdentityField()
+    display_url = NetBoxURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):
@@ -73,6 +76,12 @@ class ValidatedModelSerializer(BaseModelSerializer):
     Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
+
+    # Bypass DRF's built-in validation of unique constraints due to DRF bug #9410. Rely instead
+    # on our own custom model validation (below).
+    def get_unique_together_constraints(self, model):
+        return []
+
     def validate(self, data):
 
         # Skip validation if we're being used to represent a nested object

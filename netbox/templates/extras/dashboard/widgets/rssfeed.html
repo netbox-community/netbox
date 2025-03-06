@@ -12,6 +12,10 @@
       <div class="list-group-item text-muted">{% trans "No content found" %}</div>
     {% endfor %}
   </div>
+{% elif isolated_deployment %}
+  <span class="text-danger">
+    <i class="mdi mdi-alert"></i> {% trans "This RSS feed requires an external connection. Check the ISOLATED_DEPLOYMENT setting." %}
+  </span>
 {% else %}
   {# There was an error retrieving/parsing the feed #}
   <span class="text-danger">

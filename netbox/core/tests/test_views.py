@@ -1,4 +1,4 @@
-import logging
+import urllib.parse
 import uuid
 from datetime import datetime
 
@@ -10,8 +10,11 @@ from django_rq.workers import get_worker
 from rq.job import Job as RQ_Job, JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
 
+from core.choices import ObjectChangeActionChoices
+from core.models import *
+from dcim.models import Site
+from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags
-from ..models import *
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -97,6 +100,43 @@ class DataFileTestCase(
             ),
         )
         DataFile.objects.bulk_create(data_files)
+
+
+# TODO: Convert to StandardTestCases.Views
+class ObjectChangeTestCase(TestCase):
+    user_permissions = (
+        'core.view_objectchange',
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+
+        # Create three ObjectChanges
+        user = User.objects.create_user(username='testuser2')
+        for i in range(1, 4):
+            oc = site.to_objectchange(action=ObjectChangeActionChoices.ACTION_UPDATE)
+            oc.user = user
+            oc.request_id = uuid.uuid4()
+            oc.save()
+
+    def test_objectchange_list(self):
+
+        url = reverse('core:objectchange_list')
+        params = {
+            "user": User.objects.first().pk,
+        }
+
+        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
+        self.assertHttpStatus(response, 200)
+
+    def test_objectchange(self):
+
+        objectchange = ObjectChange.objects.first()
+        response = self.client.get(objectchange.get_absolute_url())
+        self.assertHttpStatus(response, 200)
 
 
 class BackgroundTaskTestCase(TestCase):
@@ -268,6 +308,7 @@ class BackgroundTaskTestCase(TestCase):
         worker = get_worker('default')
         job = queue.enqueue(self.dummy_job_default)
         worker.prepare_job_execution(job)
+        worker.prepare_execution(job)
 
         self.assertEqual(job.get_status(), JobStatus.STARTED)
 
@@ -305,3 +346,32 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIn(str(worker1.name), str(response.content))
         self.assertIn('Birth', str(response.content))
         self.assertIn('Total working time', str(response.content))
+
+
+class SystemTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.user.is_staff = True
+        self.user.save()
+
+    def test_system_view_default(self):
+        # Test UI render
+        response = self.client.get(reverse('core:system'))
+        self.assertEqual(response.status_code, 200)
+
+        # Test export
+        response = self.client.get(f"{reverse('core:system')}?export=true")
+        self.assertEqual(response.status_code, 200)
+
+    def test_system_view_with_config_revision(self):
+        ConfigRevision.objects.create()
+
+        # Test UI render
+        response = self.client.get(reverse('core:system'))
+        self.assertEqual(response.status_code, 200)
+
+        # Test export
+        response = self.client.get(f"{reverse('core:system')}?export=true")
+        self.assertEqual(response.status_code, 200)

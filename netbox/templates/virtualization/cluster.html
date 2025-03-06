@@ -7,7 +7,7 @@
 <div class="row">
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Cluster" %}</h5>
+      <h2 class="card-header">{% trans "Cluster" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Name" %}</th>
@@ -39,8 +39,12 @@
             </td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Site" %}</th>
-          <td>{{ object.site|linkify|placeholder }}</td>
+          <th scope="row">{% trans "Scope" %}</th>
+          {% if object.scope %}
+            <td>{{ object.scope|linkify }} ({% trans object.scope_type.name %})</td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
         </tr>
       </table>
     </div>
@@ -49,7 +53,7 @@
   </div>
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Allocated Resources" %}</h5>
+      <h2 class="card-header">{% trans "Allocated Resources" %}</h2>
       <table class="table table-hover attr-table">
           <tr>
               <th scope="row"><i class="mdi mdi-gauge"></i> {% trans "Virtual CPUs" %}</th>
@@ -59,7 +63,7 @@
               <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
               <td>
                   {% if memory_sum %}
-                      {{ memory_sum|humanize_megabytes }}
+                      <span title={{ memory_sum }}>{{ memory_sum|humanize_megabytes }}</span>
                   {% else %}
                       {{ ''|placeholder }}
                   {% endif %}
@@ -69,7 +73,7 @@
               <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}</th>
               <td>
                   {% if disk_sum %}
-                      {{ disk_sum }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                      {{ disk_sum|humanize_megabytes }}
                   {% else %}
                       {{ ''|placeholder }}
                   {% endif %}

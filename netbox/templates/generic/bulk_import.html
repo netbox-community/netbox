@@ -110,7 +110,7 @@ Context:
   <div class="row my-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Field Options" %}</h5>
+        <h2 class="card-header">{% trans "Field Options" %}</h2>
         <table class="table">
           <thead>
             <tr>
@@ -145,7 +145,7 @@ Context:
                     {{ field.label }}
                   {% endif %}
                   {% if field.STATIC_CHOICES %}
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices"><i class="mdi mdi-help-circle"></i></a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices" aria-label="{{ name }} {% trans "choices" %}"><i class="mdi mdi-help-circle"></i></a>
                     <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">

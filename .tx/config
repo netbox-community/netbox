@@ -1,0 +1,12 @@
+[main]
+host = https://app.transifex.com
+
+[o:netbox-community:p:netbox:r:9cbf4fcf95b3d92e4ebbf1a5e5d1caee]
+file_filter            = netbox/translations/<lang>/LC_MESSAGES/django.po
+source_file            = netbox/translations/en/LC_MESSAGES/django.po
+type                   = PO
+minimum_perc           = 0
+resource_name          = django.po
+replace_edited_strings = false
+keep_translations      = false
+

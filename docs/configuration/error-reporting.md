@@ -31,6 +31,17 @@ The sampling rate for errors. Must be a value between 0 (disabled) and 1.0 (repo
 
 ---
 
+## SENTRY_SEND_DEFAULT_PII
+
+Default: False
+
+Maps to the Sentry SDK's [`send_default_pii`](https://docs.sentry.io/platforms/python/configuration/options/#send-default-pii) parameter. If enabled, certain personally identifiable information (PII) is added.
+
+!!! warning "Sensitive data"
+    If you enable this option, be aware that sensitive data such as cookies and authentication tokens will be logged.
+
+---
+
 ## SENTRY_TAGS
 
 An optional dictionary of tag names and values to apply to Sentry error reports.For example:

@@ -8,8 +8,8 @@ from extras.choices import *
 
 
 def move_webhooks(apps, schema_editor):
-    Webhook = apps.get_model("extras", "Webhook")
-    EventRule = apps.get_model("extras", "EventRule")
+    Webhook = apps.get_model('extras', 'Webhook')
+    EventRule = apps.get_model('extras', 'EventRule')
 
     webhook_ct = ContentType.objects.get_for_model(Webhook).pk
     for webhook in Webhook.objects.all():
@@ -39,7 +39,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-
         # Create the EventRule model
         migrations.CreateModel(
             name='EventRule',
@@ -93,12 +92,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='eventrule',
-            index=models.Index(fields=['action_object_type', 'action_object_id'], name='extras_even_action__d9e2af_idx'),
+            index=models.Index(
+                fields=['action_object_type', 'action_object_id'], name='extras_even_action__d9e2af_idx'
+            ),
         ),
-
         # Replicate Webhook data
         migrations.RunPython(move_webhooks),
-
         # Remove obsolete fields from Webhook
         migrations.RemoveConstraint(
             model_name='webhook',
@@ -136,7 +135,6 @@ class Migration(migrations.Migration):
             model_name='webhook',
             name='type_update',
         ),
-
         # Add description field to Webhook
         migrations.AddField(
             model_name='webhook',

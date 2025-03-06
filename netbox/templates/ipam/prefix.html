@@ -9,7 +9,7 @@
 <div class="row">
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Prefix" %}</h5>
+      <h2 class="card-header">{% trans "Prefix" %}</h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Family" %}</th>
@@ -44,17 +44,13 @@
             {% endif %}
           </td>
         </tr>
-        {% if object.site.region %}
-          <tr>
-            <th scope="row">{% trans "Region" %}</th>
-            <td>
-              {% nested_tree object.site.region %}
-            </td>
-          </tr>
-        {% endif %}
         <tr>
-          <th scope="row">{% trans "Site" %}</th>
-          <td>{{ object.site|linkify|placeholder }}</td>
+          <th scope="row">{% trans "Scope" %}</th>
+          {% if object.scope %}
+            <td>{{ object.scope|linkify }} ({% trans object.scope_type.name %})</td>
+          {% else %}
+            <td>{{ ''|placeholder }}</td>
+          {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans "VLAN" %}</th>
@@ -91,7 +87,7 @@
   </div>
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
+      <h2 class="card-header">
         {% trans "Addressing" %}
         {% if object.prefix.version == 4 %}
           <div class="card-actions">
@@ -100,7 +96,7 @@
             </a>
           </div>
         {% endif %}
-      </h5>
+      </h2>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Utilization" %}</th>

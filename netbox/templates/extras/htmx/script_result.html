@@ -20,11 +20,11 @@
     {% if tests %}
       {# Summary of test methods #}
       <div class="card">
-        <h5 class="card-header">{% trans "Test Summary" %}</h5>
+        <h2 class="card-header">{% trans "Test Summary" %}</h2>
         <table class="table table-hover">
           {% for test, data in tests.items %}
             <tr>
-              <td class="font-monospace"><a href="#{{ test }}">{{ test }}</a></td>
+              <td class="font-monospace">{{ test }}</td>
               <td class="text-end report-stats">
                 <span class="badge text-bg-success">{{ data.success }}</span>
                 <span class="badge text-bg-info">{{ data.info }}</span>
@@ -40,8 +40,12 @@
     {% if table %}
     <div class="card">
       <div class="table-responsive" id="object_list">
-        <h5 class="card-header">{% trans "Log" %}</h5>
-        {% include 'htmx/table.html' %}
+        <h2 class="card-header">{% trans "Log" %}</h2>
+        <div class="htmx-container table-responsive"
+          hx-get="{% url 'extras:script_result' job_pk=job.pk %}?embedded=True&log=True&log_threshold={{log_threshold}}"
+          hx-target="this"
+          hx-trigger="load" hx-select=".htmx-container" hx-swap="outerHTML"
+        ></div>
       </div>
     </div>
     {% endif %}
@@ -49,7 +53,7 @@
     {# Script output. Legacy reports will not have this. #}
     {% if 'output' in job.data %}
       <div class="card mb-3">
-      <h5 class="card-header">{% trans "Output" %}</h5>
+      <h2 class="card-header">{% trans "Output" %}</h2>
         {% if job.data.output %}
           <pre class="card-body font-monospace">{{ job.data.output }}</pre>
         {% else %}

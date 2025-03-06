@@ -1,6 +1,6 @@
 # IKE Policies
 
-An [Internet Key Exhcnage (IKE)](https://en.wikipedia.org/wiki/Internet_Key_Exchange) policy defines an IKE version, mode, and set of [proposals](./ikeproposal.md) to be used in IKE negotiation. These policies are referenced by [IPSec profiles](./ipsecprofile.md).
+An [Internet Key Exchange (IKE)](https://en.wikipedia.org/wiki/Internet_Key_Exchange) policy defines an IKE version, mode, and set of [proposals](./ikeproposal.md) to be used in IKE negotiation. These policies are referenced by [IPSec profiles](./ipsecprofile.md).
 
 ## Fields
 

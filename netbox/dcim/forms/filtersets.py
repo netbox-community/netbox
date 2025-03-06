@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -8,12 +7,15 @@ from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF
+from netbox.choices import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import *
 
@@ -32,8 +34,8 @@ __all__ = (
     'InventoryItemFilterForm',
     'InventoryItemRoleFilterForm',
     'LocationFilterForm',
+    'MACAddressFilterForm',
     'ManufacturerFilterForm',
-    'ModuleFilterForm',
     'ModuleFilterForm',
     'ModuleBayFilterForm',
     'ModuleTypeFilterForm',
@@ -47,6 +49,7 @@ __all__ = (
     'RackElevationFilterForm',
     'RackReservationFilterForm',
     'RackRoleFilterForm',
+    'RackTypeFilterForm',
     'RearPortFilterForm',
     'RegionFilterForm',
     'SiteFilterForm',
@@ -128,6 +131,11 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Device')
     )
+    device_status = forms.MultipleChoiceField(
+        choices=DeviceStatusChoices,
+        required=False,
+        label=_('Device Status'),
+    )
 
 
 class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
@@ -194,7 +202,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     model = Location
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'parent_id', 'status', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'parent_id', 'status', 'facility', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -231,6 +239,10 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
         choices=LocationStatusChoices,
         required=False
     )
+    facility = forms.CharField(
+        label=_('Facility'),
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -239,16 +251,82 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class RackBaseFilterForm(NetBoxModelFilterSetForm):
+    form_factor = forms.MultipleChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
+        required=False
+    )
+    width = forms.MultipleChoiceField(
+        label=_('Width'),
+        choices=RackWidthChoices,
+        required=False
+    )
+    u_height = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    starting_unit = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    desc_units = forms.NullBooleanField(
+        required=False,
+        label=_('Descending units'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False
+    )
+    weight = forms.DecimalField(
+        label=_('Weight'),
+        required=False,
+        min_value=1
+    )
+    max_weight = forms.IntegerField(
+        label=_('Max weight'),
+        required=False,
+        min_value=1
+    )
+    weight_unit = forms.ChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False
+    )
+
+
+class RackTypeFilterForm(RackBaseFilterForm):
+    model = RackType
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('form_factor', 'width', 'u_height', name=_('Rack Type')),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+    )
+    selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    tag = TagFilterField(model)
+
+
+class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
     model = Rack
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
-        FieldSet('status', 'role_id', name=_('Function')),
-        FieldSet('type', 'width', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
-        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+        FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
+        FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
+        FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'location_id')
     region_id = DynamicModelMultipleChoiceField(
@@ -283,21 +361,24 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         choices=RackStatusChoices,
         required=False
     )
-    type = forms.MultipleChoiceField(
-        label=_('Type'),
-        choices=RackTypeChoices,
-        required=False
-    )
-    width = forms.MultipleChoiceField(
-        label=_('Width'),
-        choices=RackWidthChoices,
-        required=False
-    )
     role_id = DynamicModelMultipleChoiceField(
         queryset=RackRole.objects.all(),
         required=False,
         null_option='None',
         label=_('Role')
+    )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    rack_type_id = DynamicModelMultipleChoiceField(
+        queryset=RackType.objects.all(),
+        required=False,
+        query_params={
+            'manufacturer_id': '$manufacturer_id'
+        },
+        label=_('Rack type')
     )
     serial = forms.CharField(
         label=_('Serial'),
@@ -308,21 +389,6 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     tag = TagFilterField(model)
-    weight = forms.DecimalField(
-        label=_('Weight'),
-        required=False,
-        min_value=1
-    )
-    max_weight = forms.IntegerField(
-        label=_('Max weight'),
-        required=False,
-        min_value=1
-    )
-    weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
-        choices=add_blank_choice(WeightUnitChoices),
-        required=False
-    )
 
 
 class RackElevationFilterForm(RackFilterForm):
@@ -392,7 +458,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Rack')
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
+        queryset=User.objects.all(),
         required=False,
         label=_('User')
     )
@@ -540,7 +606,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('manufacturer_id', 'part_number', name=_('Hardware')),
+        FieldSet('manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -600,6 +666,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         )
     )
     tag = TagFilterField(model)
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(ModuleAirflowChoices),
+        required=False
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False
@@ -655,8 +726,10 @@ class DeviceFilterForm(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
             name=_('Components')
         ),
+        FieldSet('cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet(
             'has_primary_ip', 'has_oob_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data',
+            'has_virtual_device_context',
             name=_('Miscellaneous')
         )
     )
@@ -812,6 +885,23 @@ class DeviceFilterForm(
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    has_virtual_device_context = forms.NullBooleanField(
+        required=False,
+        label=_('Has virtual device contexts'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    cluster_id = DynamicModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        label=_('Cluster')
+    )
+    cluster_group_id = DynamicModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        label=_('Cluster group')
     )
     tag = TagFilterField(model)
 
@@ -1149,7 +1239,9 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+        ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
     type = forms.MultipleChoiceField(
@@ -1171,7 +1263,10 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
     type = forms.MultipleChoiceField(
@@ -1193,7 +1288,9 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+        ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
     type = forms.MultipleChoiceField(
@@ -1208,9 +1305,12 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
     type = forms.MultipleChoiceField(
@@ -1219,6 +1319,10 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
 
 
 class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
@@ -1230,7 +1334,10 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', 'vdc_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', 'vdc_id',
+            name=_('Device')
+        ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
     selector_fields = ('filter_id', 'q', 'device_id')
@@ -1338,7 +1445,9 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+        ),
         FieldSet('cabled', 'occupied', name=_('Cable')),
     )
     model = FrontPort
@@ -1360,7 +1469,10 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
         FieldSet('cabled', 'occupied', name=_('Cable')),
     )
     type = forms.MultipleChoiceField(
@@ -1381,7 +1493,10 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'position', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
     )
     tag = TagFilterField(model)
     position = forms.CharField(
@@ -1396,7 +1511,10 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
     )
     tag = TagFilterField(model)
 
@@ -1406,11 +1524,14 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
+            'name', 'label', 'status', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered',
             name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', name=_('Device')),
+        FieldSet(
+            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),
@@ -1437,6 +1558,11 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -1446,6 +1572,34 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 
 class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
     model = InventoryItemRole
+    tag = TagFilterField(model)
+
+
+#
+# Addressing
+#
+
+class MACAddressFilterForm(NetBoxModelFilterSetForm):
+    model = MACAddress
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('mac_address', 'device_id', 'virtual_machine_id', name=_('MAC address')),
+    )
+    selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
+    mac_address = forms.CharField(
+        required=False,
+        label=_('MAC address')
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
+    )
     tag = TagFilterField(model)
 
 

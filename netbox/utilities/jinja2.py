@@ -28,10 +28,14 @@ class DataFileLoader(BaseLoader):
             raise TemplateNotFound(template)
 
         # Find and pre-fetch referenced templates
-        if referenced_templates := find_referenced_templates(environment.parse(template_source)):
+        if referenced_templates := tuple(find_referenced_templates(environment.parse(template_source))):
+            related_files = DataFile.objects.filter(source=self.data_source)
+            # None indicates the use of dynamic resolution. If dependent files are statically
+            # defined, we can filter by path for optimization.
+            if None not in referenced_templates:
+                related_files = related_files.filter(path__in=referenced_templates)
             self.cache_templates({
-                df.path: df.data_as_string for df in
-                DataFile.objects.filter(source=self.data_source, path__in=referenced_templates)
+                df.path: df.data_as_string for df in related_files
             })
 
         return template_source, template, lambda: True

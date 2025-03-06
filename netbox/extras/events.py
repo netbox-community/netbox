@@ -1,19 +1,22 @@
+import logging
+from collections import defaultdict
+
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
-from core.models import Job
+from core.events import *
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
+from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
-from .choices import *
+from .choices import EventRuleActionChoices
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -32,12 +35,12 @@ def serialize_for_event(instance):
     return serializer.data
 
 
-def get_snapshots(instance, action):
+def get_snapshots(instance, event_type):
     snapshots = {
         'prechange': getattr(instance, '_prechange_snapshot', None),
         'postchange': None,
     }
-    if action != ObjectChangeActionChoices.ACTION_DELETE:
+    if event_type != OBJECT_DELETED:
         # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
         if hasattr(instance, 'serialize_object'):
             snapshots['postchange'] = instance.serialize_object()
@@ -47,7 +50,7 @@ def get_snapshots(instance, action):
     return snapshots
 
 
-def enqueue_object(queue, instance, user, request_id, action):
+def enqueue_event(queue, instance, user, request_id, event_type):
     """
     Enqueue a serialized representation of a created/updated/deleted object for the processing of
     events once the request has completed.
@@ -58,28 +61,38 @@ def enqueue_object(queue, instance, user, request_id, action):
     if model_name not in registry['model_features']['event_rules'].get(app_label, []):
         return
 
-    queue.append({
-        'content_type': ContentType.objects.get_for_model(instance),
-        'object_id': instance.pk,
-        'event': action,
-        'data': serialize_for_event(instance),
-        'snapshots': get_snapshots(instance, action),
-        'username': user.username,
-        'request_id': request_id
-    })
-
-
-def process_event_rules(event_rules, model_name, event, data, username=None, snapshots=None, request_id=None):
-    if username:
-        user = get_user_model().objects.get(username=username)
+    assert instance.pk is not None
+    key = f'{app_label}.{model_name}:{instance.pk}'
+    if key in queue:
+        queue[key]['data'] = serialize_for_event(instance)
+        queue[key]['snapshots']['postchange'] = get_snapshots(instance, event_type)['postchange']
+        # If the object is being deleted, update any prior "update" event to "delete"
+        if event_type == OBJECT_DELETED:
+            queue[key]['event_type'] = event_type
     else:
-        user = None
+        queue[key] = {
+            'object_type': ContentType.objects.get_for_model(instance),
+            'object_id': instance.pk,
+            'event_type': event_type,
+            'data': serialize_for_event(instance),
+            'snapshots': get_snapshots(instance, event_type),
+            'username': user.username,
+            'request_id': request_id
+        }
+
+
+def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request_id=None):
+    user = User.objects.get(username=username) if username else None
 
     for event_rule in event_rules:
 
         # Evaluate event rule conditions (if any)
         if not event_rule.eval_conditions(data):
             continue
+
+        # Compile event data
+        event_data = event_rule.action_data or {}
+        event_data.update(data)
 
         # Webhooks
         if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
@@ -91,9 +104,9 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             # Compile the task parameters
             params = {
                 "event_rule": event_rule,
-                "model_name": model_name,
-                "event": event,
-                "data": data,
+                "model_name": object_type.model,
+                "event_type": event_type,
+                "data": event_data,
                 "snapshots": snapshots,
                 "timestamp": timezone.now().isoformat(),
                 "username": username,
@@ -116,12 +129,22 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
-            Job.enqueue(
-                "extras.scripts.run_script",
+            from extras.jobs import ScriptJob
+            ScriptJob.enqueue(
                 instance=event_rule.action_object,
                 name=script.name,
                 user=user,
-                data=data
+                data=event_data
+            )
+
+        # Notification groups
+        elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
+            # Bulk-create notifications for all members of the notification group
+            event_rule.action_object.notify(
+                object_type=object_type,
+                object_id=event_data['id'],
+                object_repr=event_data.get('display'),
+                event_type=event_type
             )
 
         else:
@@ -134,43 +157,40 @@ def process_event_queue(events):
     """
     Flush a list of object representation to RQ for EventRule processing.
     """
-    events_cache = {
-        'type_create': {},
-        'type_update': {},
-        'type_delete': {},
-    }
+    events_cache = defaultdict(dict)
 
-    for data in events:
-        action_flag = {
-            ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
-            ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
-            ObjectChangeActionChoices.ACTION_DELETE: 'type_delete',
-        }[data['event']]
-        content_type = data['content_type']
+    for event in events:
+        event_type = event['event_type']
+        object_type = event['object_type']
 
         # Cache applicable Event Rules
-        if content_type not in events_cache[action_flag]:
-            events_cache[action_flag][content_type] = EventRule.objects.filter(
-                **{action_flag: True},
-                object_types=content_type,
+        if object_type not in events_cache[event_type]:
+            events_cache[event_type][object_type] = EventRule.objects.filter(
+                event_types__contains=[event['event_type']],
+                object_types=object_type,
                 enabled=True
             )
-        event_rules = events_cache[action_flag][content_type]
+        event_rules = events_cache[event_type][object_type]
 
         process_event_rules(
-            event_rules, content_type.model, data['event'], data['data'], data['username'],
-            snapshots=data['snapshots'], request_id=data['request_id']
+            event_rules=event_rules,
+            object_type=object_type,
+            event_type=event['event_type'],
+            data=event['data'],
+            username=event['username'],
+            snapshots=event['snapshots'],
+            request_id=event['request_id']
         )
 
 
-def flush_events(queue):
+def flush_events(events):
     """
-    Flush a list of object representation to RQ for webhook processing.
+    Flush a list of object representations to RQ for event processing.
     """
-    if queue:
+    if events:
         for name in settings.EVENTS_PIPELINE:
             try:
                 func = import_string(name)
-                func(queue)
+                func(events)
             except Exception as e:
                 logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

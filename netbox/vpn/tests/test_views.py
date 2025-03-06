@@ -542,9 +542,9 @@ class IPSecProfileTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,mode,ike_policy,ipsec_policy",
-            f"IKE Proposal 4,ah,IKE Policy 2,IPSec Policy 2",
-            f"IKE Proposal 5,ah,IKE Policy 2,IPSec Policy 2",
-            f"IKE Proposal 6,ah,IKE Policy 2,IPSec Policy 2",
+            "IKE Proposal 4,ah,IKE Policy 2,IPSec Policy 2",
+            "IKE Proposal 5,ah,IKE Policy 2,IPSec Policy 2",
+            "IKE Proposal 6,ah,IKE Policy 2,IPSec Policy 2",
         )
 
         cls.csv_update_data = (
@@ -661,7 +661,7 @@ class L2VPNTerminationTestCase(
         )
 
         cls.csv_update_data = (
-            f"id,l2vpn",
+            "id,l2vpn",
             f"{terminations[0].pk},{l2vpns[0].name}",
             f"{terminations[1].pk},{l2vpns[0].name}",
             f"{terminations[2].pk},{l2vpns[0].name}",

@@ -1,17 +1,10 @@
-from typing import Annotated, List
-
 import strawberry
-from strawberry import auto
 import strawberry_django
-
-from core.models import ObjectType as ObjectType_
 from django.contrib.contenttypes.models import ContentType
-from extras.graphql.mixins import (
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
-)
+
+from core.graphql.mixins import ChangelogMixin
+from core.models import ObjectType as ObjectType_
+from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
 
 __all__ = (
     'BaseObjectType',

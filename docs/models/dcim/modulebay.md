@@ -14,6 +14,10 @@ Module bays represent a space or slot within a device in which a field-replaceab
 
 The device to which this module bay belongs.
 
+### Module
+
+The module to which this bay belongs (optional).
+
 ### Name
 
 The module bay's name. Must be unique to the parent device.

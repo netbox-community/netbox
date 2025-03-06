@@ -54,14 +54,18 @@ class VirtualMachineTestCase(TestCase):
         Site.objects.bulk_create(sites)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_type, site=sites[0]),
-            Cluster(name='Cluster 2', type=cluster_type, site=sites[1]),
-            Cluster(name='Cluster 3', type=cluster_type, site=None),
+            Cluster(name='Cluster 1', type=cluster_type, scope=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, scope=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, scope=None),
         )
-        Cluster.objects.bulk_create(clusters)
+        for cluster in clusters:
+            cluster.save()
 
         # VM with site only should pass
         VirtualMachine(name='vm1', site=sites[0]).full_clean()
+
+        # VM with site, cluster non-site should pass
+        VirtualMachine(name='vm1', site=sites[0], cluster=clusters[2]).full_clean()
 
         # VM with non-site cluster only should pass
         VirtualMachine(name='vm1', cluster=clusters[2]).full_clean()

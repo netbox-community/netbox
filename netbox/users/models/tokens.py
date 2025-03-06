@@ -2,7 +2,6 @@ import binascii
 import os
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
@@ -25,7 +24,7 @@ class Token(models.Model):
     It also supports setting an expiration time and toggling write ability.
     """
     user = models.ForeignKey(
-        to=get_user_model(),
+        to='users.User',
         on_delete=models.CASCADE,
         related_name='tokens'
     )

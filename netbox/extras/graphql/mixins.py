@@ -2,12 +2,8 @@ from typing import TYPE_CHECKING, Annotated, List
 
 import strawberry
 import strawberry_django
-from django.contrib.contenttypes.models import ContentType
-
-from extras.models import ObjectChange
 
 __all__ = (
-    'ChangelogMixin',
     'ConfigContextMixin',
     'ContactsMixin',
     'CustomFieldsMixin',
@@ -17,21 +13,8 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
-    from .types import ImageAttachmentType, JournalEntryType, ObjectChangeType, TagType
+    from .types import ImageAttachmentType, JournalEntryType, TagType
     from tenancy.graphql.types import ContactAssignmentType
-
-
-@strawberry.type
-class ChangelogMixin:
-
-    @strawberry_django.field
-    def changelog(self, info) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
-        content_type = ContentType.objects.get_for_model(self)
-        object_changes = ObjectChange.objects.filter(
-            changed_object_type=content_type,
-            changed_object_id=self.pk
-        )
-        return object_changes.restrict(info.context.request.user, 'view')
 
 
 @strawberry.type

@@ -96,6 +96,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     Proxy model for script module files.
     """
     objects = ScriptModuleManager()
+    error = None
 
     event_rules = GenericRelation(
         to='extras.EventRule',
@@ -126,6 +127,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         try:
             module = self.get_module()
         except Exception as e:
+            self.error = e
             logger.debug(f"Failed to load script: {self.python_name} error: {e}")
             module = None
 

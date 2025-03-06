@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import PrimaryModel
@@ -23,7 +22,8 @@ class IKEProposal(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     authentication_method = models.CharField(
         verbose_name=('authentication method'),
@@ -36,7 +36,8 @@ class IKEProposal(PrimaryModel):
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication algorithm'),
         choices=AuthenticationAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     group = models.PositiveSmallIntegerField(
         verbose_name=_('group'),
@@ -62,15 +63,13 @@ class IKEProposal(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ikeproposal', args=[self.pk])
-
 
 class IKEPolicy(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     version = models.PositiveSmallIntegerField(
         verbose_name=_('version'),
@@ -80,7 +79,8 @@ class IKEPolicy(PrimaryModel):
     mode = models.CharField(
         verbose_name=_('mode'),
         choices=IKEModeChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     proposals = models.ManyToManyField(
         to='vpn.IKEProposal',
@@ -107,9 +107,6 @@ class IKEPolicy(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ikepolicy', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -130,17 +127,20 @@ class IPSecProposal(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     encryption_algorithm = models.CharField(
         verbose_name=_('encryption'),
         choices=EncryptionAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication'),
         choices=AuthenticationAlgorithmChoices,
-        blank=True
+        blank=True,
+        null=True
     )
     sa_lifetime_seconds = models.PositiveIntegerField(
         verbose_name=_('SA lifetime (seconds)'),
@@ -167,9 +167,6 @@ class IPSecProposal(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecproposal', args=[self.pk])
-
     def clean(self):
         super().clean()
 
@@ -182,7 +179,8 @@ class IPSecPolicy(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     proposals = models.ManyToManyField(
         to='vpn.IPSecProposal',
@@ -212,15 +210,13 @@ class IPSecPolicy(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecpolicy', args=[self.pk])
-
 
 class IPSecProfile(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation="natural_sort"
     )
     mode = models.CharField(
         verbose_name=_('mode'),
@@ -252,6 +248,3 @@ class IPSecProfile(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def get_absolute_url(self):
-        return reverse('vpn:ipsecprofile', args=[self.pk])

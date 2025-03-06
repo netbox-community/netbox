@@ -5,7 +5,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('tenancy', '0011_contactassignment_tags'),
     ]

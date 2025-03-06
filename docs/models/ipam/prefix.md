@@ -34,9 +34,11 @@ Designates whether the prefix should be treated as a pool. If selected, the firs
 
 If selected, this prefix will report 100% utilization regardless of how many child objects have been defined within it.
 
-### Site
+### Scope
 
-The [site](../dcim/site.md) to which this prefix is assigned (optional).
+!!! info "This field replaced the `site` field in NetBox v4.2."
+
+The [region](../dcim/region.md), [site](../dcim/site.md), [site group](../dcim/sitegroup.md) or [location](../dcim/location.md) to which the prefix is assigned (optional).
 
 ### VLAN
 

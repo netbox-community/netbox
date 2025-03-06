@@ -11,7 +11,7 @@
           {{ field }}
         {% endfor %}
         <div class="card border-danger">
-          <h5 class="card-header">{% block confirmation_title %}{% endblock %}</h5>
+          <h2 class="card-header">{% block confirmation_title %}{% endblock %}</h2>
           <div class="card-body">
             {% block message %}<p>{% trans "Are you sure" %}?</p>{% endblock %}
           </div>

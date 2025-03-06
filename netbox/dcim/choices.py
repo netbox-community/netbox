@@ -51,7 +51,7 @@ class LocationStatusChoices(ChoiceSet):
 # Racks
 #
 
-class RackTypeChoices(ChoiceSet):
+class RackFormFactorChoices(ChoiceSet):
 
     TYPE_2POST = '2-post-frame'
     TYPE_4POST = '4-post-frame'
@@ -127,6 +127,17 @@ class RackElevationDetailRenderChoices(ChoiceSet):
     )
 
 
+class RackAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
+    )
+
+
 #
 # DeviceTypes
 #
@@ -186,6 +197,9 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_LEFT_TO_RIGHT = 'left-to-right'
     AIRFLOW_RIGHT_TO_LEFT = 'right-to-left'
     AIRFLOW_SIDE_TO_REAR = 'side-to-rear'
+    AIRFLOW_REAR_TO_SIDE = 'rear-to-side'
+    AIRFLOW_BOTTOM_TO_TOP = 'bottom-to-top'
+    AIRFLOW_TOP_TO_BOTTOM = 'top-to-bottom'
     AIRFLOW_PASSIVE = 'passive'
     AIRFLOW_MIXED = 'mixed'
 
@@ -195,6 +209,9 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
         (AIRFLOW_RIGHT_TO_LEFT, _('Right to left')),
         (AIRFLOW_SIDE_TO_REAR, _('Side to rear')),
+        (AIRFLOW_REAR_TO_SIDE, _('Rear to side')),
+        (AIRFLOW_BOTTOM_TO_TOP, _('Bottom to top')),
+        (AIRFLOW_TOP_TO_BOTTOM, _('Top to bottom')),
         (AIRFLOW_PASSIVE, _('Passive')),
         (AIRFLOW_MIXED, _('Mixed')),
     )
@@ -222,6 +239,25 @@ class ModuleStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
+
+
+class ModuleAirflowChoices(ChoiceSet):
+
+    FRONT_TO_REAR = 'front-to-rear'
+    REAR_TO_FRONT = 'rear-to-front'
+    LEFT_TO_RIGHT = 'left-to-right'
+    RIGHT_TO_LEFT = 'right-to-left'
+    SIDE_TO_REAR = 'side-to-rear'
+    PASSIVE = 'passive'
+
+    CHOICES = (
+        (FRONT_TO_REAR, _('Front to rear')),
+        (REAR_TO_FRONT, _('Rear to front')),
+        (LEFT_TO_RIGHT, _('Left to right')),
+        (RIGHT_TO_LEFT, _('Right to left')),
+        (SIDE_TO_REAR, _('Side to rear')),
+        (PASSIVE, _('Passive')),
+    )
 
 
 #
@@ -366,6 +402,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560P = 'nema-l15-60p'
     TYPE_NEMA_L2120P = 'nema-l21-20p'
     TYPE_NEMA_L2130P = 'nema-l21-30p'
+    TYPE_NEMA_L2220P = 'nema-l22-20p'
     TYPE_NEMA_L2230P = 'nema-l22-30p'
     # California style
     TYPE_CS6361C = 'cs6361c'
@@ -399,6 +436,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -483,6 +524,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
             (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
             (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
+            (TYPE_NEMA_L2220P, 'NEMA L22-20P'),
             (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
         )),
         (_('California Style'), (
@@ -519,6 +561,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_MICRO_AB, 'USB Micro AB'),
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
+        )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
         )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
@@ -610,6 +657,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_NEMA_L1560R = 'nema-l15-60r'
     TYPE_NEMA_L2120R = 'nema-l21-20r'
     TYPE_NEMA_L2130R = 'nema-l21-30r'
+    TYPE_NEMA_L2220R = 'nema-l22-20r'
     TYPE_NEMA_L2230R = 'nema-l22-30r'
     # California style
     TYPE_CS6360C = 'CS6360C'
@@ -635,9 +683,14 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
+    TYPE_EATON_C39 = 'eaton-c39'
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20a'
@@ -720,6 +773,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
             (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
             (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
+            (TYPE_NEMA_L2220R, 'NEMA L22-20R'),
             (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
         )),
         (_('California Style'), (
@@ -749,10 +803,16 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
         (_('Proprietary'), (
+            (TYPE_EATON_C39, 'Eaton C39'),
             (TYPE_HDOT_CX, 'HDOT Cx'),
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
             (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
@@ -809,7 +869,10 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_LFX = '100base-lfx'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
+    TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
+    TYPE_1GE_LX_FIXED = '1000base-lx'
+    TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
     TYPE_2GE_FIXED = '2.5gbase-t'
@@ -848,6 +911,8 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Ethernet Backplane
     TYPE_1GE_KX = '1000base-kx'
+    TYPE_2GE_KX = '2.5gbase-kx'
+    TYPE_5GE_KR = '5gbase-kr'
     TYPE_10GE_KR = '10gbase-kr'
     TYPE_10GE_KX4 = '10gbase-kx4'
     TYPE_25GE_KR = '25gbase-kr'
@@ -865,13 +930,17 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_80211AD = 'ieee802.11ad'
     TYPE_80211AX = 'ieee802.11ax'
     TYPE_80211AY = 'ieee802.11ay'
+    TYPE_80211BE = 'ieee802.11be'
     TYPE_802151 = 'ieee802.15.1'
+    TYPE_802154 = 'ieee802.15.4'
     TYPE_OTHER_WIRELESS = 'other-wireless'
 
     # Cellular
     TYPE_GSM = 'gsm'
     TYPE_CDMA = 'cdma'
     TYPE_LTE = 'lte'
+    TYPE_4G = '4g'
+    TYPE_5G = '5g'
 
     # SONET
     TYPE_SONET_OC3 = 'sonet-oc3'
@@ -919,12 +988,15 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_DOCSIS = 'docsis'
 
     # PON
+    TYPE_BPON = 'bpon'
+    TYPE_EPON = 'epon'
+    TYPE_10G_EPON = '10g-epon'
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
     TYPE_XGS_PON = 'xgs-pon'
     TYPE_NG_PON2 = 'ng-pon2'
-    TYPE_EPON = 'epon'
-    TYPE_10G_EPON = '10g-epon'
+    TYPE_25G_PON = '25g-pon'
+    TYPE_50G_PON = '50g-pon'
 
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
@@ -962,6 +1034,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
+                (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
                 (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
                 (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
@@ -971,6 +1045,7 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('Ethernet (modular)'),
             (
+                (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
@@ -1008,6 +1083,8 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Ethernet (backplane)'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
+                (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
+                (TYPE_5GE_KR, '5GBASE-KR (5GE)'),
                 (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
                 (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
                 (TYPE_25GE_KR, '25GBASE-KR (25GE)'),
@@ -1028,7 +1105,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_80211AD, 'IEEE 802.11ad'),
                 (TYPE_80211AX, 'IEEE 802.11ax'),
                 (TYPE_80211AY, 'IEEE 802.11ay'),
+                (TYPE_80211BE, 'IEEE 802.11be'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
+                (TYPE_802154, 'IEEE 802.15.4 (LR-WPAN)'),
                 (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
             )
         ),
@@ -1038,6 +1117,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_GSM, 'GSM'),
                 (TYPE_CDMA, 'CDMA'),
                 (TYPE_LTE, 'LTE'),
+                (TYPE_4G, '4G'),
+                (TYPE_5G, '5G'),
             )
         ),
         (
@@ -1106,12 +1187,15 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'PON',
             (
-                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
+                (TYPE_BPON, 'BPON (622 Mbps / 155 Mbps)'),
+                (TYPE_EPON, 'EPON (1 Gbps)'),
+                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gbps)'),
                 (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
                 (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
                 (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
-                (TYPE_EPON, 'EPON (1 Gbps)'),
-                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_25G_PON, '25G-PON (25 Gbps)'),
+                (TYPE_50G_PON, '50G-PON (50 Gbps)'),
             )
         ),
         (
@@ -1176,11 +1260,13 @@ class InterfaceModeChoices(ChoiceSet):
     MODE_ACCESS = 'access'
     MODE_TAGGED = 'tagged'
     MODE_TAGGED_ALL = 'tagged-all'
+    MODE_Q_IN_Q = 'q-in-q'
 
     CHOICES = (
         (MODE_ACCESS, _('Access')),
         (MODE_TAGGED, _('Tagged')),
         (MODE_TAGGED_ALL, _('Tagged (All)')),
+        (MODE_Q_IN_Q, _('Q-in-Q (802.1ad)')),
     )
 
 
@@ -1281,6 +1367,14 @@ class PortTypeChoices(ChoiceSet):
     TYPE_URM_P2 = 'urm-p2'
     TYPE_URM_P4 = 'urm-p4'
     TYPE_URM_P8 = 'urm-p8'
+    TYPE_USB_A = 'usb-a'
+    TYPE_USB_B = 'usb-b'
+    TYPE_USB_C = 'usb-c'
+    TYPE_USB_MINI_A = 'usb-mini-a'
+    TYPE_USB_MINI_B = 'usb-mini-b'
+    TYPE_USB_MICRO_A = 'usb-micro-a'
+    TYPE_USB_MICRO_B = 'usb-micro-b'
+    TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_OTHER = 'other'
 
     CHOICES = (
@@ -1341,6 +1435,19 @@ class PortTypeChoices(ChoiceSet):
             ),
         ),
         (
+            _('USB'),
+            (
+                (TYPE_USB_A, 'USB Type A'),
+                (TYPE_USB_B, 'USB Type B'),
+                (TYPE_USB_C, 'USB Type C'),
+                (TYPE_USB_MINI_A, 'USB Mini A'),
+                (TYPE_USB_MINI_B, 'USB Mini B'),
+                (TYPE_USB_MICRO_A, 'USB Micro A'),
+                (TYPE_USB_MICRO_B, 'USB Micro B'),
+                (TYPE_USB_MICRO_AB, 'USB Micro AB'),
+            ),
+        ),
+        (
             _('Other'),
             (
                 (TYPE_OTHER, _('Other')),
@@ -1378,6 +1485,7 @@ class CableTypeChoices(ChoiceSet):
     TYPE_SMF_OS2 = 'smf-os2'
     TYPE_AOC = 'aoc'
     TYPE_POWER = 'power'
+    TYPE_USB = 'usb'
 
     CHOICES = (
         (
@@ -1410,6 +1518,7 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
+        (TYPE_USB, _('USB')),
         (TYPE_POWER, _('Power')),
     )
 
@@ -1446,24 +1555,6 @@ class CableLengthUnitChoices(ChoiceSet):
         (UNIT_MILE, _('Miles')),
         (UNIT_FOOT, _('Feet')),
         (UNIT_INCH, _('Inches')),
-    )
-
-
-class WeightUnitChoices(ChoiceSet):
-
-    # Metric
-    UNIT_KILOGRAM = 'kg'
-    UNIT_GRAM = 'g'
-
-    # Imperial
-    UNIT_POUND = 'lb'
-    UNIT_OUNCE = 'oz'
-
-    CHOICES = (
-        (UNIT_KILOGRAM, _('Kilograms')),
-        (UNIT_GRAM, _('Grams')),
-        (UNIT_POUND, _('Pounds')),
-        (UNIT_OUNCE, _('Ounces')),
     )
 
 
@@ -1550,4 +1641,28 @@ class VirtualDeviceContextStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, _('Active'), 'green'),
         (STATUS_PLANNED, _('Planned'), 'cyan'),
         (STATUS_OFFLINE, _('Offline'), 'red'),
+    ]
+
+
+#
+# InventoryItem
+#
+
+class InventoryItemStatusChoices(ChoiceSet):
+    key = 'InventoryItem.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_STAGED = 'staged'
+    STATUS_FAILED = 'failed'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGED, _('Staged'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]

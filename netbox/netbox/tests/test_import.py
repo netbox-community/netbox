@@ -2,6 +2,7 @@ from django.test import override_settings
 
 from core.models import ObjectType
 from dcim.models import *
+from extras.models import CustomField
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import ObjectPermission
 from utilities.testing import ModelViewTestCase, create_tags
@@ -36,7 +37,7 @@ class CSVImportTestCase(ModelViewTestCase):
         }
 
         # Form validation should fail with invalid header present
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 200)
         self.assertEqual(Region.objects.count(), 0)
 
         # Correct the CSV header name
@@ -44,7 +45,7 @@ class CSVImportTestCase(ModelViewTestCase):
         data['data'] = self._get_csv_data(csv_data)
 
         # Validation should succeed
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(Region.objects.count(), 3)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -70,13 +71,12 @@ class CSVImportTestCase(ModelViewTestCase):
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+        self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
         # Test POST with permission
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         regions = Region.objects.all()
         self.assertEqual(regions.count(), 4)
-        region = Region.objects.get(slug="region-4")
         self.assertEqual(
             list(regions[0].tags.values_list('name', flat=True)),
             ['Alpha', 'Bravo']
@@ -111,8 +111,33 @@ class CSVImportTestCase(ModelViewTestCase):
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+        self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
         # Test POST with permission
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 200)
         self.assertEqual(Region.objects.count(), 0)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_custom_field_defaults(self):
+        self.add_permissions('dcim.add_region')
+        csv_data = [
+            'name,slug,description',
+            'Region 1,region-1,abc',
+        ]
+        data = {
+            'format': ImportFormatChoices.CSV,
+            'data': self._get_csv_data(csv_data),
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        cf = CustomField.objects.create(
+            name='tcf',
+            type='text',
+            required=False,
+            default='def-cf-text'
+        )
+        cf.object_types.set([ObjectType.objects.get_for_model(self.model)])
+
+        self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
+        region = Region.objects.get(slug='region-1')
+        self.assertEqual(region.cf['tcf'], 'def-cf-text')

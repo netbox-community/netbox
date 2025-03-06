@@ -1,6 +1,7 @@
+from contextlib import ExitStack
+
 import logging
 import uuid
-from urllib import parse
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -10,8 +11,8 @@ from django.db import connection, ProgrammingError
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
-from extras.context_managers import event_tracking
 from netbox.config import clear_config, get_config
+from netbox.registry import registry
 from netbox.views import handler_500
 from utilities.api import is_api_request
 from utilities.error_handlers import handle_rest_api_exception
@@ -33,19 +34,16 @@ class CoreMiddleware:
         # Assign a random unique ID to the request. This will be used for change logging.
         request.id = uuid.uuid4()
 
-        # Enforce the LOGIN_REQUIRED config parameter. If true, redirect all non-exempt unauthenticated requests
-        # to the login page.
-        if (
-            settings.LOGIN_REQUIRED and
-            not request.user.is_authenticated and
-            not request.path_info.startswith(settings.AUTH_EXEMPT_PATHS)
-        ):
-            login_url = f'{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}'
-            return HttpResponseRedirect(login_url)
-
-        # Enable the event_tracking context manager and process the request.
-        with event_tracking(request):
+        # Apply all registered request processors
+        with ExitStack() as stack:
+            for request_processor in registry['request_processors']:
+                stack.enter_context(request_processor(request))
             response = self.get_response(request)
+
+        # Check if language cookie should be renewed
+        if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
+            if language := request.user.config.get('locale.language'):
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
 
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id

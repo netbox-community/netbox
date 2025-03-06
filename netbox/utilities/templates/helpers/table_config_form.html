@@ -16,10 +16,10 @@
           </div>
           <div class="col-2 d-flex align-items-center">
             <div>
-              <a class="btn btn-success btn-sm w-100 my-2" id="add_columns">
+              <a tabindex="0" class="btn btn-success btn-sm w-100 my-2" id="add_columns">
                 <i class="mdi mdi-arrow-right-bold"></i> {% trans "Add" %}
               </a>
-              <a class="btn btn-danger btn-sm w-100 my-2" id="remove_columns">
+              <a tabindex="0" class="btn btn-danger btn-sm w-100 my-2" id="remove_columns">
                 <i class="mdi mdi-arrow-left-bold"></i> {% trans "Remove" %}
               </a>
             </div>
@@ -27,10 +27,10 @@
           <div class="col-5 text-center">
             {{ form.columns.label }}
             {{ form.columns }}
-            <a class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
+            <a tabindex="0" class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
                 <i class="mdi mdi-arrow-up-bold"></i> {% trans "Move Up" %}
             </a>
-            <a class="btn btn-primary btn-sm mt-2" id="move-option-down" data-target="id_columns">
+            <a tabindex="0" class="btn btn-primary btn-sm mt-2" id="move-option-down" data-target="id_columns">
                 <i class="mdi mdi-arrow-down-bold"></i> {% trans "Move Down" %}
             </a>
           </div>

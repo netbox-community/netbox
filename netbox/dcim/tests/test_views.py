@@ -2,7 +2,6 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -11,12 +10,11 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
+from users.models import User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
-
-User = get_user_model()
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -198,9 +196,27 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         locations = (
-            Location(name='Location 1', slug='location-1', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
-            Location(name='Location 2', slug='location-2', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
-            Location(name='Location 3', slug='location-3', site=site, status=LocationStatusChoices.STATUS_ACTIVE, tenant=tenant),
+            Location(
+                name='Location 1',
+                slug='location-1',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
+            Location(
+                name='Location 2',
+                slug='location-2',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
+            Location(
+                name='Location 3',
+                slug='location-3',
+                site=site,
+                status=LocationStatusChoices.STATUS_ACTIVE,
+                tenant=tenant,
+            ),
         )
         for location in locations:
             location.save()
@@ -336,6 +352,91 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = RackType
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        rack_types = (
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 1',
+                slug='rack-type-1',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 2',
+                slug='rack-type-2',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+            RackType(
+                manufacturer=manufacturers[0],
+                model='RackType 3',
+                slug='rack-type-3',
+                form_factor=RackFormFactorChoices.TYPE_CABINET,
+            ),
+        )
+        RackType.objects.bulk_create(rack_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'model': 'RackType X',
+            'slug': 'rack-type-x',
+            'type': RackFormFactorChoices.TYPE_CABINET,
+            'width': RackWidthChoices.WIDTH_19IN,
+            'u_height': 48,
+            'desc_units': False,
+            'outer_width': 500,
+            'outer_depth': 500,
+            'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
+            'weight': 100,
+            'max_weight': 2000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
+            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
+        )
+
+        cls.csv_update_data = (
+            "id,model",
+            f"{rack_types[0].pk},RackType 7",
+            f"{rack_types[1].pk},RackType 8",
+            f"{rack_types[2].pk},RackType 9",
+        )
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'type': RackFormFactorChoices.TYPE_4POST,
+            'width': RackWidthChoices.WIDTH_23IN,
+            'u_height': 49,
+            'desc_units': True,
+            'outer_width': 30,
+            'outer_depth': 30,
+            'outer_unit': RackDimensionUnitChoices.UNIT_INCH,
+            'weight': 200,
+            'max_weight': 4000,
+            'weight_unit': WeightUnitChoices.UNIT_POUND,
+            'comments': 'New comments',
+        }
+
+
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Rack
 
@@ -380,7 +481,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': rackroles[1].pk,
             'serial': '123456',
             'asset_tag': 'ABCDEF',
-            'type': RackTypeChoices.TYPE_CABINET,
+            'form_factor': RackFormFactorChoices.TYPE_CABINET,
             'width': RackWidthChoices.WIDTH_19IN,
             'u_height': 48,
             'desc_units': False,
@@ -416,7 +517,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,
             'serial': '654321',
-            'type': RackTypeChoices.TYPE_4POST,
+            'form_factor': RackFormFactorChoices.TYPE_4POST,
             'width': RackWidthChoices.WIDTH_23IN,
             'u_height': 49,
             'desc_units': True,
@@ -524,7 +625,7 @@ class DeviceTypeTestCase(
             'part_number': '123ABC',
             'u_height': 2,
             'is_full_depth': True,
-            'subdevice_role': '',  # CharField
+            'subdevice_role': None,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -624,9 +725,15 @@ class DeviceTypeTestCase(
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
+            ),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
 
@@ -793,7 +900,7 @@ inventory-items:
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         device_type = DeviceType.objects.get(model='TEST-1000')
@@ -1013,9 +1120,15 @@ class ModuleTypeTestCase(
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPortTemplate(module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPortTemplate(module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
+            ),
+            FrontPortTemplate(
+                module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
+            ),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
 
@@ -1115,7 +1228,7 @@ front-ports:
             'data': IMPORT_DATA,
             'format': 'yaml'
         }
-        response = self.client.post(reverse('dcim:moduletype_import'), data=form_data, follow=True)
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
 
         module_type = ModuleType.objects.get(model='TEST-1000')
@@ -1385,11 +1498,19 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         )
         RearPortTemplate.objects.bulk_create(rearports)
 
-        FrontPortTemplate.objects.bulk_create((
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1),
-            FrontPortTemplate(device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1),
-        ))
+        FrontPortTemplate.objects.bulk_create(
+            (
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1
+                ),
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1
+                ),
+                FrontPortTemplate(
+                    device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1
+                ),
+            )
+        )
 
         cls.form_data = {
             'device_type': devicetype.pk,
@@ -1482,7 +1603,12 @@ class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', subdevice_role=SubdeviceRoleChoices.ROLE_PARENT)
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
 
         DeviceBayTemplate.objects.bulk_create((
             DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 1'),
@@ -1516,12 +1642,20 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
-        devicetype = DeviceType.objects.create(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'
+        )
 
         inventory_item_templates = (
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturers[0]),
-            InventoryItemTemplate(device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturers[0]),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 1', manufacturer=manufacturers[0]
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 2', manufacturer=manufacturers[0]
+            ),
+            InventoryItemTemplate(
+                device_type=devicetype, name='Inventory Item Template 3', manufacturer=manufacturers[0]
+            ),
         )
         for item in inventory_item_templates:
             item.save()
@@ -1673,9 +1807,30 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Platform.objects.bulk_create(platforms)
 
         devices = (
-            Device(name='Device 1', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
-            Device(name='Device 2', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
-            Device(name='Device 3', site=sites[0], rack=racks[0], device_type=devicetypes[0], role=roles[0], platform=platforms[0]),
+            Device(
+                name='Device 1',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            Device(
+                name='Device 2',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
+            Device(
+                name='Device 3',
+                site=sites[0],
+                rack=racks[0],
+                device_type=devicetypes[0],
+                role=roles[0],
+                platform=platforms[0],
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -1710,10 +1865,22 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "role,manufacturer,device_type,status,name,site,location,rack,position,face,virtual_chassis,vc_position,vc_priority",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front,Virtual Chassis 1,1,10",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front,Virtual Chassis 1,2,20",
-            "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front,Virtual Chassis 1,3,30",
+            (
+                "role,manufacturer,device_type,status,name,site,location,rack,position,face,virtual_chassis,"
+                "vc_position,vc_priority"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 4,Site 1,Location 1,Rack 1,10,front,"
+                "Virtual Chassis 1,1,10"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 5,Site 1,Location 1,Rack 1,20,front,"
+                "Virtual Chassis 1,2,20"
+            ),
+            (
+                "Device Role 1,Manufacturer 1,Device Type 1,active,Device 6,Site 1,Location 1,Rack 1,30,front,"
+                "Virtual Chassis 1,3,30"
+            ),
         )
 
         cls.csv_update_data = (
@@ -1832,12 +1999,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_device_modulebays(self):
         device = Device.objects.first()
-        device_bays = (
-            ModuleBay(device=device, name='Module Bay 1'),
-            ModuleBay(device=device, name='Module Bay 2'),
-            ModuleBay(device=device, name='Module Bay 3'),
-        )
-        ModuleBay.objects.bulk_create(device_bays)
+        ModuleBay.objects.create(device=device, name='Module Bay 1')
+        ModuleBay.objects.create(device=device, name='Module Bay 2')
+        ModuleBay.objects.create(device=device, name='Module Bay 3')
 
         url = reverse('dcim:device_modulebays', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -1913,7 +2077,8 @@ class ModuleTestCase(
             ModuleBay(device=devices[1], name='Module Bay 4'),
             ModuleBay(device=devices[1], name='Module Bay 5'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         modules = (
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_types[0]),
@@ -2005,7 +2170,7 @@ class ModuleTestCase(
             f"{device.name},{module_bay.name},{module_type.model},active,false"
         ]
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
@@ -2022,7 +2187,7 @@ class ModuleTestCase(
         module_bay = ModuleBay.objects.get(device=device, name='Module Bay 5')
         csv_data[1] = f"{device.name},{module_bay.name},{module_type.model},active,true"
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
@@ -2099,7 +2264,7 @@ class ModuleTestCase(
             f"{device.name},{module_bay.name},{module_type.model},active,false,true"
         ]
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
@@ -2442,7 +2607,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
-            'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 65000,
             'speed': 1000000,
@@ -2467,7 +2631,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
-            'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
             'speed': 100000,
@@ -2488,7 +2651,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
             'enabled': True,
             'lag': interfaces[3].pk,
-            'mac_address': EUI('01:02:03:04:05:06'),
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
             'speed': 1000000,
@@ -2505,7 +2667,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            f"device,name,type,vrf.pk,poe_mode,poe_type",
+            "device,name,type,vrf.pk,poe_mode,poe_type",
             f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
             f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
             f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
@@ -2715,7 +2877,8 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             ModuleBay(device=device, name='Module Bay 2'),
             ModuleBay(device=device, name='Module Bay 3'),
         )
-        ModuleBay.objects.bulk_create(module_bays)
+        for module_bay in module_bays:
+            module_bay.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -2820,9 +2983,15 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         InventoryItemRole.objects.bulk_create(roles)
 
-        inventory_item1 = InventoryItem.objects.create(device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer)
-        inventory_item2 = InventoryItem.objects.create(device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer)
-        inventory_item3 = InventoryItem.objects.create(device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer)
+        inventory_item1 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 1', role=roles[0], manufacturer=manufacturer
+        )
+        inventory_item2 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 2', role=roles[0], manufacturer=manufacturer
+        )
+        inventory_item3 = InventoryItem.objects.create(
+            device=device, name='Inventory Item 3', role=roles[0], manufacturer=manufacturer
+        )
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -2836,6 +3005,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'part_id': '123456',
             'serial': '123ABC',
             'asset_tag': 'ABC123',
+            'status': InventoryItemStatusChoices.STATUS_ACTIVE,
             'description': 'An inventory item',
             'tags': [t.pk for t in tags],
         }
@@ -2849,6 +3019,7 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'discovered': False,
             'part_id': '123456',
             'serial': '123ABC',
+            'status': InventoryItemStatusChoices.STATUS_ACTIVE,
             'description': 'An inventory item',
             'tags': [t.pk for t in tags],
         }
@@ -2860,10 +3031,10 @@ class InventoryItemTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,parent",
-            "Device 1,Inventory Item 4,Inventory Item 1",
-            "Device 1,Inventory Item 5,Inventory Item 2",
-            "Device 1,Inventory Item 6,Inventory Item 3",
+            "device,name,parent,status",
+            "Device 1,Inventory Item 4,Inventory Item 1,active",
+            "Device 1,Inventory Item 5,Inventory Item 2,planned",
+            "Device 1,Inventory Item 6,Inventory Item 3,failed",
         )
 
         cls.csv_update_data = (

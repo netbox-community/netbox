@@ -191,7 +191,7 @@ class BulkImportCustomValidationTest(ModelViewTestCase):
 
         # Attempt to import providers without tags
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': post_data(data),
         }
         response = self.client.post(**request)
@@ -207,7 +207,7 @@ class BulkImportCustomValidationTest(ModelViewTestCase):
         )
         data['data'] = '\n'.join(csv_data)
         request = {
-            'path': self._get_url('import'),
+            'path': self._get_url('bulk_import'),
             'data': post_data(data),
         }
         response = self.client.post(**request)

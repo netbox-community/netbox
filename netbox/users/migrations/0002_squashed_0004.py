@@ -5,11 +5,10 @@ import ipam.fields
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('users', '0002_standardize_id_fields'),
         ('users', '0003_token_allowed_ips_last_used'),
-        ('users', '0004_netboxgroup_netboxuser')
+        ('users', '0004_netboxgroup_netboxuser'),
     ]
 
     dependencies = [
@@ -36,7 +35,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='token',
             name='allowed_ips',
-            field=django.contrib.postgres.fields.ArrayField(base_field=ipam.fields.IPNetworkField(), blank=True, null=True, size=None),
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=ipam.fields.IPNetworkField(), blank=True, null=True, size=None
+            ),
         ),
         migrations.AddField(
             model_name='token',
@@ -45,8 +46,7 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='NetBoxGroup',
-            fields=[
-            ],
+            fields=[],
             options={
                 'verbose_name': 'Group',
                 'proxy': True,
