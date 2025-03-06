@@ -532,6 +532,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             }
             if not for_csv_import:
                 kwargs['query_params'] = self.related_object_filter
+                kwargs['selector'] = True
 
             field = field_class(**kwargs)
 
@@ -546,6 +547,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             }
             if not for_csv_import:
                 kwargs['query_params'] = self.related_object_filter
+                kwargs['selector'] = True
 
             field = field_class(**kwargs)
 
