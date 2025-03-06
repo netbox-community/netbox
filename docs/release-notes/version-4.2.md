@@ -1,5 +1,36 @@
 # NetBox v4.2
 
+## v4.2.5 (2025-03-06)
+
+### Enhancements
+
+* [#17357](https://github.com/netbox-community/netbox/issues/17357) - Use VirtualChassis name as fallback for unnamed devices
+* [#17542](https://github.com/netbox-community/netbox/issues/17542) - Add contact assignments to VPN tunnels
+* [#17944](https://github.com/netbox-community/netbox/issues/17944) - Allow script inputs to be filtered on ObjectVar and MultiObjectVar selections
+* [#18024](https://github.com/netbox-community/netbox/issues/18024) - Add permalink URL pattern to match a custom script by module and class name
+* [#18095](https://github.com/netbox-community/netbox/issues/18095) - Ensure contacts are shown on children of objects with contacts
+* [#18141](https://github.com/netbox-community/netbox/issues/18141) - Support "Quick Add" for plugins
+* [#18403](https://github.com/netbox-community/netbox/issues/18403) - Improve performance of job list views
+* [#18693](https://github.com/netbox-community/netbox/issues/18693) - Support setting VLAN translation on bulk edit of interfaces
+* [#18772](https://github.com/netbox-community/netbox/issues/18772) - Add "type" filter for virtual circuits
+* [#18774](https://github.com/netbox-community/netbox/issues/18774) - Add tooltip preview of tag descriptions when hovering over tags
+
+### Bug Fixes
+
+* [#15016](https://github.com/netbox-community/netbox/issues/15016) - Prevent AssertionError when adding multiple devices "mid-span" in a cable trace
+* [#15924](https://github.com/netbox-community/netbox/issues/15924) - Prevent setting tagged VLANs on interfaces with mode: tagged-all
+* [#17488](https://github.com/netbox-community/netbox/issues/17488) - Ensure VLANGroup.vid_ranges shows up in API results
+* [#17709](https://github.com/netbox-community/netbox/issues/17709) - Allow primary key for nested models in OpenAPI request schemas
+* [#17796](https://github.com/netbox-community/netbox/issues/17796) - Fix IndexError on "Create & Add Another" operation on custom field choices
+* [#18605](https://github.com/netbox-community/netbox/issues/18605) - Limit VLAN selection dropdown to choices appropriate to site
+* [#18722](https://github.com/netbox-community/netbox/issues/18722) - Improve UI feedback on failed script execution
+* [#18729](https://github.com/netbox-community/netbox/issues/18729) - Fix unpredictable ordering on querysets with annotations/groupings
+* [#18753](https://github.com/netbox-community/netbox/issues/18753) - Prevent webhooks from being triggered on a script dry-run
+* [#18758](https://github.com/netbox-community/netbox/issues/18758) - Fix FieldError when sorting by account count field in providers list
+* [#18768](https://github.com/netbox-community/netbox/issues/18768) - Fix removing a secondary MAC address from an interface
+
+---
+
 ## v4.2.4 (2025-02-21)
 
 ### Enhancements
