@@ -79,6 +79,7 @@ class VirtualMachineFilter(
     TenancyFilterMixin,
     PrimaryModelFilterMixin,
 ):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     site_id: ID | None = strawberry_django.filter_field()
     cluster: Annotated['ClusterFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
@@ -116,6 +117,8 @@ class VirtualMachineFilter(
         strawberry_django.filter_field()
     )
     serial: FilterLookup[str] | None = strawberry_django.filter_field()
+    interface_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    virtual_disk_count: FilterLookup[int] | None = strawberry_django.filter_field()
     interfaces: Annotated['VMInterfaceFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

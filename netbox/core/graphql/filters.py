@@ -75,7 +75,9 @@ class ObjectChangeFilter(BaseFilterMixin):
     )
     changed_object_type_id: ID | None = strawberry_django.filter_field()
     changed_object_id: ID | None = strawberry_django.filter_field()
-    related_object_type_id: ID | None = strawberry_django.filter_field()
+    related_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     related_object_id: ID | None = strawberry_django.filter_field()
     object_repr: FilterLookup[str] | None = strawberry_django.filter_field()
     prechange_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (

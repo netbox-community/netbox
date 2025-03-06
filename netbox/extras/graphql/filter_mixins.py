@@ -39,10 +39,7 @@ class TagsFilterMixin(BaseFilterMixin):
 
 @dataclass
 class ConfigContextFilterMixin(BaseFilterMixin):
-    local_config_context: Annotated['ConfigContextFilter', strawberry.lazy('extras.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    config_context: Annotated['ConfigContextFilter', strawberry.lazy('extras.graphql.filters')] | None = (
+    local_context_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 

@@ -150,6 +150,9 @@ class ContactGroupFilter(NestedGroupModelFilterMixin):
 
 @strawberry_django.filter(models.ContactAssignment, lookups=True)
 class ContactAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin):
+    object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     object_id: ID | None = strawberry_django.filter_field()
     contact: Annotated['ContactFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()

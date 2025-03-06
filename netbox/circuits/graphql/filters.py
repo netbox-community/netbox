@@ -121,7 +121,7 @@ class CircuitGroupAssignmentFilter(
     member_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    member_type_id: ID | None = strawberry_django.filter_field()
+    member_id: ID | None = strawberry_django.filter_field()
     group: Annotated['CircuitGroupFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

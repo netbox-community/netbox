@@ -118,7 +118,12 @@ class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
     type: Annotated['CustomFieldTypeEnum', strawberry.lazy('extras.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    related_object_type_id: ID | None = strawberry_django.filter_field()
+    object_types: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    related_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     label: FilterLookup[str] | None = strawberry_django.filter_field()
     group_name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -202,6 +207,9 @@ class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
 
 @strawberry_django.filter(models.ImageAttachment, lookups=True)
 class ImageAttachmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+    object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     object_id: ID | None = strawberry_django.filter_field()
     image_height: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()

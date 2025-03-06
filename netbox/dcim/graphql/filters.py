@@ -47,7 +47,6 @@ __all__ = (
     'DeviceFilter',
     'DeviceBayFilter',
     'DeviceBayTemplateFilter',
-    'InventoryItemTemplateFilter',
     'DeviceRoleFilter',
     'DeviceTypeFilter',
     'FrontPortFilter',
@@ -56,6 +55,7 @@ __all__ = (
     'InterfaceTemplateFilter',
     'InventoryItemFilter',
     'InventoryItemRoleFilter',
+    'InventoryItemTemplateFilter',
     'LocationFilter',
     'MACAddressFilter',
     'ManufacturerFilter',
@@ -253,6 +253,16 @@ class DeviceFilter(
     modules: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+    console_port_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    console_server_port_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    power_port_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    power_outlet_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    interface_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    front_port_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    rear_port_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    device_bay_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    module_bay_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    inventory_item_count: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.DeviceBay, lookups=True)
@@ -324,6 +334,16 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     rear_image: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+    console_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    console_server_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    power_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    power_outlet_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    interface_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    front_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    rear_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    device_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    module_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    inventory_item_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.FrontPort, lookups=True)
@@ -802,6 +822,7 @@ class VirtualChassisFilter(PrimaryModelFilterMixin):
     master_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     domain: FilterLookup[str] | None = strawberry_django.filter_field()
+    member_count: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.VirtualDeviceContext, lookups=True)

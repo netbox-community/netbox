@@ -107,7 +107,7 @@ class FHRPGroupFilter(PrimaryModelFilterMixin):
 
 @strawberry_django.filter(models.FHRPGroupAssignment, lookups=True)
 class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
-    inteface_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+    interface_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
     interface_id: FilterLookup[str] | None = strawberry_django.filter_field()
