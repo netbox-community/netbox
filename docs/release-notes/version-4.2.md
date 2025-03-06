@@ -20,8 +20,8 @@
 * [#15016](https://github.com/netbox-community/netbox/issues/15016) - Prevent AssertionError when adding multiple devices "mid-span" in a cable trace
 * [#15924](https://github.com/netbox-community/netbox/issues/15924) - Prevent setting tagged VLANs on interfaces with mode: tagged-all
 * [#17488](https://github.com/netbox-community/netbox/issues/17488) - Ensure VLANGroup.vid_ranges shows up in API results
-* [#17796](https://github.com/netbox-community/netbox/issues/17796) - Fix IndexError on "Create & Add Another" operation on custom field choices
 * [#17709](https://github.com/netbox-community/netbox/issues/17709) - Allow primary key for nested models in OpenAPI request schemas
+* [#17796](https://github.com/netbox-community/netbox/issues/17796) - Fix IndexError on "Create & Add Another" operation on custom field choices
 * [#18605](https://github.com/netbox-community/netbox/issues/18605) - Limit VLAN selection dropdown to choices appropriate to site
 * [#18722](https://github.com/netbox-community/netbox/issues/18722) - Improve UI feedback on failed script execution
 * [#18729](https://github.com/netbox-community/netbox/issues/18729) - Fix unpredictable ordering on querysets with annotations/groupings
