@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-05 05:01+0000\n"
+"POT-Creation-Date: 2025-03-06 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11741,24 +11741,24 @@ msgid ""
 "{error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:416
+#: netbox/netbox/views/generic/bulk_views.py:421
 #, python-brace-format
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:703
-#: netbox/netbox/views/generic/bulk_views.py:904
-#: netbox/netbox/views/generic/bulk_views.py:952
+#: netbox/netbox/views/generic/bulk_views.py:708
+#: netbox/netbox/views/generic/bulk_views.py:909
+#: netbox/netbox/views/generic/bulk_views.py:957
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:782
+#: netbox/netbox/views/generic/bulk_views.py:787
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:882
+#: netbox/netbox/views/generic/bulk_views.py:887
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
