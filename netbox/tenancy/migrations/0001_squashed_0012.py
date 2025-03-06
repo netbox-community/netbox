@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('extras', '0001_initial'),
+        ('extras', '0001_squashed'),
     ]
 
     replaces = [

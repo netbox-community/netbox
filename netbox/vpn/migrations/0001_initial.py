@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('extras', '0099_cachedvalue_ordering'),
-        ('ipam', '0067_ipaddress_index_host'),
+        ('ipam', '0054_squashed_0067'),
         ('tenancy', '0012_contactassignment_custom_fields'),
     ]
 
