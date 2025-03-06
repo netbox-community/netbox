@@ -1,5 +1,4 @@
 import itertools
-from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError

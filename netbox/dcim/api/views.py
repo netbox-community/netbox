@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.prefetch import GenericPrefetch
-from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes

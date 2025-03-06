@@ -140,4 +140,3 @@ class GenericArrayForeignKey(FieldCacheMixin, Field):
             data.append(rel_objects)
         self.set_cached_value(instance, data)
         return data
-
