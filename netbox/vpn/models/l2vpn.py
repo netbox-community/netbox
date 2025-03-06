@@ -62,7 +62,7 @@ class L2VPN(ContactsMixin, PrimaryModel):
         null=True
     )
 
-    clone_fields = ('type',)
+    clone_fields = ('type', 'status')
 
     class Meta:
         ordering = ('name', 'identifier')
