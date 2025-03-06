@@ -122,6 +122,10 @@ class NetBoxModelViewSet(
         return obj
 
     def get_queryset(self):
+        """
+        Reapply model-level ordering in case it has been lost through .annotate().
+        https://code.djangoproject.com/ticket/32811
+        """
         qs = super().get_queryset()
         ordering = qs.model._meta.ordering
         return qs.order_by(*ordering)
