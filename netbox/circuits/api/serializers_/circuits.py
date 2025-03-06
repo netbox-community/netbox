@@ -48,7 +48,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
     provider = ProviderSerializer(nested=True)
-    provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True)
+    provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = CircuitTypeSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)

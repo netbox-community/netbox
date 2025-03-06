@@ -27,7 +27,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
 
 class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
-    group = TenantGroupSerializer(nested=True, required=False, allow_null=True)
+    group = TenantGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts
     circuit_count = RelatedObjectCountField('circuits')

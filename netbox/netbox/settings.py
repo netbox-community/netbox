@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.0'
+VERSION = '4.0.1-dev'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -522,7 +522,6 @@ if SENTRY_ENABLED:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
-        integrations=[sentry_sdk.integrations.django.DjangoIntegration()],
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,

@@ -31,11 +31,11 @@ __all__ = (
 class VirtualMachineSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
-    site = SiteSerializer(nested=True, required=False, allow_null=True)
-    cluster = ClusterSerializer(nested=True, required=False, allow_null=True)
-    device = DeviceSerializer(nested=True, required=False, allow_null=True)
+    site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
+    cluster = ClusterSerializer(nested=True, required=False, allow_null=True, default=None)
+    device = DeviceSerializer(nested=True, required=False, allow_null=True, default=None)
     role = DeviceRoleSerializer(nested=True, required=False, allow_null=True)
-    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
     platform = PlatformSerializer(nested=True, required=False, allow_null=True)
     primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
     primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
@@ -55,7 +55,6 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
             'interface_count', 'virtual_disk_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
-        validators = []
 
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
