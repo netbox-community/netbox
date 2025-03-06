@@ -75,6 +75,7 @@ AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
+CONFIG_STORAGES = getattr(configuration, 'STORAGES', {})
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
@@ -178,7 +179,6 @@ SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
-STORAGES = getattr(configuration, 'STORAGES', None)
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
@@ -236,7 +236,7 @@ DATABASES = {
 #
 
 if STORAGE_BACKEND is not None:
-    if STORAGES is not None:
+    if not CONFIG_STORAGES:
         raise ImproperlyConfigured(
             "STORAGE_BACKEND and STORAGES are both set, remove the deprecated STORAGE_BACKEND setting."
         )
@@ -251,18 +251,18 @@ if STORAGE_CONFIG is not None:
     )
 
 # Default STORAGES for Django
-if STORAGES is None:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-        "scripts": {
-            "BACKEND": "extras.storage.ScriptFileSystemStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "scripts": {
+        "BACKEND": "extras.storage.ScriptFileSystemStorage",
+    },
+}
+STORAGES.update(CONFIG_STORAGES)
 
 # TODO: This code is deprecated and needs to be removed in the future
 if STORAGE_BACKEND is not None:

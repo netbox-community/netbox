@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from ..choices import ManagedFileRootPathChoices
+from extras.storage import ScriptFileSystemStorage
 from netbox.models.features import SyncedDataMixin
 from utilities.querysets import RestrictedQuerySet
 
@@ -78,10 +79,14 @@ class ManagedFile(SyncedDataMixin, models.Model):
         return os.path.join(self._resolve_root_path(), self.file_path)
 
     def _resolve_root_path(self):
-        return {
-            'scripts': settings.SCRIPTS_ROOT,
-            'reports': settings.REPORTS_ROOT,
-        }[self.file_root]
+        storage = self.get_storage
+        if isinstance(storage, ScriptFileSystemStorage):
+            return {
+                'scripts': settings.SCRIPTS_ROOT,
+                'reports': settings.REPORTS_ROOT,
+            }[self.file_root]
+        else:
+            return ""
 
     def sync_data(self):
         if self.data_file:
