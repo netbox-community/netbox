@@ -81,7 +81,7 @@ class ScriptFileForm(ManagedFileForm):
 
             self.instance.file_path = full_path
             data = self.cleaned_data['upload_file']
-            storage.save(full_path, data)
+            storage.save(filename, data)
 
         # need to skip ManagedFileForm save method
         return super(ManagedFileForm, self).save(*args, **kwargs)
