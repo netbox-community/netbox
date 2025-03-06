@@ -12,7 +12,7 @@ from netaddr.core import AddrFormatError
 from circuits.models import Provider
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
-from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,

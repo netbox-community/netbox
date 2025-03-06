@@ -264,7 +264,7 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
+class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -304,7 +304,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactMode
     tag = TagFilterField(model)
 
 
-class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
+class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),

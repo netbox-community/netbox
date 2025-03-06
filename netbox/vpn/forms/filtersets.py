@@ -30,7 +30,7 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterForm(NetBoxModelFilterSetForm, ContactModelFilterForm):
+class TunnelGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -39,7 +39,7 @@ class TunnelGroupFilterForm(NetBoxModelFilterSetForm, ContactModelFilterForm):
     tag = TagFilterField(model)
 
 
-class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
+class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Tunnel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -211,7 +211,7 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm, ContactModelFilterForm):
+class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = L2VPN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
