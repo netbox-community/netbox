@@ -220,17 +220,21 @@ STORAGES = {
 
 Within the STORAGES dict, "default" is used for image uploads and "scripts" is used for Scripts.
 
-The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
+If using a remote storage like S3, define the config as STORAGES[key]["OPTIONS"] for each storage item as needed. For example:
 
----
+```python
+STORAGES = { 
+    "scripts": { 
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage", 
+        "OPTIONS": { 
+            'access_key': 'access key', 
+            'secret_key': 'secret key',
+        }
+    }, 
+}
+```
 
-## STORAGE_CONFIG
-
-Default: Empty
-
-A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the documentation for your selected backend ([`django-storages`](https://django-storages.readthedocs.io/en/stable/) or [`django-storage-swift`](https://github.com/dennisv/django-storage-swift)) for more detail.
-
-If `STORAGE_BACKEND` is not defined, this setting will be ignored.
+The specific configuration settings for each storage can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
 
 ---
 

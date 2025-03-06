@@ -93,7 +93,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
         Write the object's data to disk at the specified path
         """
         # Check whether file already exists
-        storage = self.get_storage()
+        storage = self.get_storage
         if storage.exists(path) and not overwrite:
             raise FileExistsError()
 
@@ -122,7 +122,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
     def delete(self, *args, **kwargs):
         # Delete file from disk
-        storage = self.get_storage()
+        storage = self.get_storage
         try:
             storage.delete(self.full_path)
         except FileNotFoundError:

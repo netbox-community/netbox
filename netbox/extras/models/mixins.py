@@ -26,17 +26,6 @@ class CustomStoragesLoader(importlib.abc.Loader):
         exec(code, module.__dict__)
 
 
-def load_module(module_name, filename):
-    spec = importlib.util.spec_from_file_location(module_name, filename)
-    if spec is None:
-        raise ModuleNotFoundError(f"Could not find module: {module_name}")
-    loader = CustomStoragesLoader(filename)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    loader.exec_module(module)
-    return module
-
-
 class PythonModuleMixin:
 
     def get_jobs(self, name):
@@ -64,5 +53,16 @@ class PythonModuleMixin:
             return name
 
     def get_module(self):
-        module = load_module(self.python_name, self.name)
+        """
+        Load the module using importlib, but use a custom loader to use django-storages
+        instead of the file system.
+        """
+        spec = importlib.util.spec_from_file_location(self.python_name, self.name)
+        if spec is None:
+            raise ModuleNotFoundError(f"Could not find module: {self.python_name}")
+        loader = CustomStoragesLoader(self.name)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[self.python_name] = module
+        loader.exec_module(module)
+
         return module
