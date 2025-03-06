@@ -579,7 +579,7 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650001'
             ),
             L2VPN(
-                name='L2VPN 2', slug='l2vpn-2', status=L2VPNStatusChoices.STATUS_DECOMMISSIONED,
+                name='L2VPN 2', slug='l2vpn-2', status=L2VPNStatusChoices.STATUS_DECOMMISSIONING,
                 type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650002'
             ),
             L2VPN(
@@ -603,7 +603,7 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New Description',
-            'status': L2VPNStatusChoices.STATUS_DECOMMISSIONED,
+            'status': L2VPNStatusChoices.STATUS_DECOMMISSIONING,
         }
 
         cls.form_data = {
