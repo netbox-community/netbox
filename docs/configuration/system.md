@@ -236,6 +236,9 @@ STORAGES = {
 
 The specific configuration settings for each storage can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
 
+!!! note
+    The default STORAGES is used as a base and any values defined in configuration.py STORAGES is overlaid, so you only need to define the specific sections you are overriding.
+
 ---
 
 ## TIME_ZONE
