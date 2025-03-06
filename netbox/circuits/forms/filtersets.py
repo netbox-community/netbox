@@ -66,11 +66,12 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
+class ProviderAccountFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'account', name=_('Attributes')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
