@@ -326,7 +326,7 @@ class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = L2VPN
-        fields = ('id', 'identifier', 'name', 'slug', 'type', 'description')
+        fields = ('id', 'identifier', 'name', 'slug', 'status', 'type', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
