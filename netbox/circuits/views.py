@@ -23,6 +23,7 @@ class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
         count_circuits=count_related(Circuit, 'provider'),
         asn_count=count_related(ASN, 'providers'),
+        account_count=count_related(ProviderAccount, 'provider'),
     )
     filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm

@@ -327,7 +327,7 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBox
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type', 'status', name=_('Attributes')),
+        FieldSet('type_id', 'status', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', 'provider_id', 'provider_network_id')

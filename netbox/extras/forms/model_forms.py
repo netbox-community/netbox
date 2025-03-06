@@ -162,6 +162,7 @@ class CustomFieldForm(forms.ModelForm):
 
 
 class CustomFieldChoiceSetForm(forms.ModelForm):
+    # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
         required=False,
@@ -178,12 +179,25 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        # Escape colons in extra_choices
+        # TODO: The check for str / list below is to handle difference in extra_choices field definition
+        # In CustomFieldChoiceSetForm, extra_choices is a CharField but in CustomFieldChoiceSet, it is an ArrayField
+        # if standardize these, we can simplify this code
+
+        # Convert extra_choices Array Field from model to CharField for form
         if 'extra_choices' in self.initial and self.initial['extra_choices']:
-            choices = []
-            for choice in self.initial['extra_choices']:
-                choice = (choice[0].replace(':', '\\:'), choice[1].replace(':', '\\:'))
-                choices.append(choice)
+            extra_choices = self.initial['extra_choices']
+            if isinstance(extra_choices, str):
+                extra_choices = [extra_choices]
+            choices = ""
+            for choice in extra_choices:
+                # Setup choices in Add Another use case
+                if isinstance(choice, str):
+                    choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
+                    choices += choice_str + "\n"
+                # Setup choices in Edit use case
+                elif isinstance(choice, list):
+                    choice_str = ":".join(choice)
+                    choices += choice_str + "\n"
 
             self.initial['extra_choices'] = choices
 
