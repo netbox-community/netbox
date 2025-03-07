@@ -110,20 +110,12 @@ class GenericArrayForeignKey(FieldCacheMixin, Field):
     def __get__(self, instance, cls=None):
         if instance is None:
             return self
-        rel_objects = self.get_cached_value(instance, default=None)
+        rel_objects = self.get_cached_value(instance, default=...)
         expected_ids = self._get_ids(instance)
-        # check cache actual
-        if rel_objects is not None:
-            actual = [
-                [
-                    (self.get_content_type_of_obj(obj=item).id, item.pk)
-                    for item in step
-                ]
-                for step in rel_objects
-            ]
-            if expected_ids == actual:
-                return rel_objects
-        # reload value
+        # we do not check if cache actual
+        if rel_objects is not ...:
+            return rel_objects
+        # load value
         if expected_ids is None:
             self.set_cached_value(instance, rel_objects)
             return rel_objects
