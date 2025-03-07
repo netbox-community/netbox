@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
 import strawberry_django
 from strawberry_django import FilterLookup
@@ -7,10 +8,11 @@ from strawberry_django import FilterLookup
 from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
-    from .filters import *
     from .enums import *
 
-__all__ = ['WirelessAuthenticationBaseFilterMixin']
+__all__ = (
+    'WirelessAuthenticationBaseFilterMixin',
+)
 
 
 @dataclass

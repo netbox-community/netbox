@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry import ID
 import strawberry_django
+from strawberry import ID
 from strawberry_django import FilterLookup
 
 from netbox.graphql.filter_mixins import NetBoxModelFilterMixin
 
 if TYPE_CHECKING:
-    from .filters import *
+    from .filters import VirtualMachineFilter
 
-__all__ = ['VMComponentFilterMixin']
+__all__ = (
+    'VMComponentFilterMixin',
+)
 
 
 @dataclass

@@ -1,33 +1,33 @@
 from typing import Annotated, TYPE_CHECKING
-import strawberry
-from strawberry.scalars import ID
-import strawberry_django
-from strawberry_django import (
-    FilterLookup,
-)
-from core.graphql.filter_mixins import *
-from netbox.graphql.filter_mixins import *
-from tenancy.graphql.filter_mixins import *
-from dcim.graphql.filter_mixins import *
-from extras.graphql.filter_mixins import *
-from virtualization.graphql.filter_mixins import *
 
+import strawberry
+import strawberry_django
+from strawberry.scalars import ID
+from strawberry_django import FilterLookup
+
+from dcim.graphql.filter_mixins import InterfaceBaseFilterMixin, RenderConfigFilterMixin, ScopedFilterMixin
+from extras.graphql.filter_mixins import ConfigContextFilterMixin
+from netbox.graphql.filter_mixins import (
+    ImageAttachmentFilterMixin,
+    OrganizationalModelFilterMixin,
+    PrimaryModelFilterMixin,
+)
+from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization import models
+from virtualization.graphql.filter_mixins import VMComponentFilterMixin
 
 if TYPE_CHECKING:
     from .enums import *
-    from netbox.graphql.enums import *
-    from wireless.graphql.enums import *
-    from netbox.graphql.filter_lookups import *
-    from extras.graphql.filters import *
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from tenancy.graphql.filters import *
-    from wireless.graphql.filters import *
-    from users.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
+    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup
+    from dcim.graphql.filters import DeviceFilter, DeviceRoleFilter, MACAddressFilter, PlatformFilter, SiteFilter
+    from ipam.graphql.filters import (
+        FHRPGroupAssignmentFilter,
+        IPAddressFilter,
+        ServiceFilter,
+        VLANGroupFilter,
+        VRFFilter,
+    )
+    from vpn.graphql.filters import L2VPNFilter, TunnelTerminationFilter
 
 __all__ = (
     'ClusterFilter',

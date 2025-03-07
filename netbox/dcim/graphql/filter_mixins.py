@@ -1,18 +1,21 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry import ID
 import strawberry_django
+from strawberry import ID
 from strawberry_django import FilterLookup
-from core.graphql.filter_mixins import *
-from netbox.graphql.filter_mixins import *
+
+from core.graphql.filter_mixins import BaseFilterMixin, ChangeLogFilterMixin
+from core.graphql.filters import ContentTypeFilter
+from netbox.graphql.filter_mixins import NetBoxModelFilterMixin, PrimaryModelFilterMixin, WeightFilterMixin
 from .enums import *
 
 if TYPE_CHECKING:
+    from netbox.graphql.filter_lookups import IntegerLookup
+    from extras.graphql.filters import ConfigTemplateFilter
+    from ipam.graphql.filters import VLANFilter, VLANTranslationPolicyFilter
     from .filters import *
-    from netbox.graphql.filter_lookups import *
-    from extras.graphql.filters import *
-    from ipam.graphql.filters import *
 
 __all__ = (
     'CabledObjectModelFilterMixin',
@@ -111,9 +114,8 @@ class InterfaceBaseFilterMixin(BaseFilterMixin):
     qinq_svlan: Annotated['VLANFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    vlan_tranlation_policy: Annotated['VLANTranslationPolicyFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
+    vlan_translation_policy: Annotated['VLANTranslationPolicyFilter', strawberry.lazy('ipam.graphql.filters')] | None \
+        = strawberry_django.filter_field()
     primary_mac_address: Annotated['MACAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

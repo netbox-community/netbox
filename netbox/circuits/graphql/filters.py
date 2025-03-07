@@ -1,33 +1,30 @@
 from datetime import date
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry.scalars import ID
 import strawberry_django
+from strawberry.scalars import ID
 from strawberry_django import FilterLookup, DateFilterLookup
-from extras.graphql.filter_mixins import *
-from netbox.graphql.filter_mixins import *
-from core.graphql.filter_mixins import *
-from tenancy.graphql.filter_mixins import *
-from dcim.graphql.filter_mixins import *
-from .filter_mixins import *
 
 from circuits import models
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
+from dcim.graphql.filter_mixins import CabledObjectModelFilterMixin
+from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
+from netbox.graphql.filter_mixins import (
+    DistanceFilterMixin,
+    ImageAttachmentFilterMixin,
+    OrganizationalModelFilterMixin,
+    PrimaryModelFilterMixin,
+)
+from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
+from .filter_mixins import BaseCircuitTypeFilterMixin
 
 if TYPE_CHECKING:
+    from core.graphql.filters import ContentTypeFilter
+    from dcim.graphql.filters import InterfaceFilter
+    from ipam.graphql.filters import ASNFilter
+    from netbox.graphql.filter_lookups import IntegerLookup
     from .enums import *
-    from netbox.graphql.enums import *
-    from wireless.graphql.enums import *
-    from netbox.graphql.filter_lookups import *
-    from core.graphql.filters import *
-    from extras.graphql.filters import *
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from tenancy.graphql.filters import *
-    from wireless.graphql.filters import *
-    from users.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
 
 __all__ = (
     'CircuitFilter',

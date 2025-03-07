@@ -1,33 +1,26 @@
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry.scalars import ID
 import strawberry_django
-from strawberry_django import (
-    FilterLookup,
-)
-from netbox.graphql.filter_mixins import (
-    BaseObjectTypeFilterMixin,
-    ChangeLogFilterMixin,
-    SyncedDataFilterMixin,
-)
+from strawberry.scalars import ID
+from strawberry_django import FilterLookup
+
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 from extras import models
 from extras.graphql.filter_mixins import TagBaseFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin
+from netbox.graphql.filter_mixins import SyncedDataFilterMixin
 
 if TYPE_CHECKING:
+    from core.graphql.filters import ContentTypeFilter
+    from dcim.graphql.filters import (
+        DeviceRoleFilter, DeviceTypeFilter, LocationFilter, PlatformFilter, RegionFilter, SiteFilter, SiteGroupFilter,
+    )
+    from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
+    from netbox.graphql.enums import ColorEnum
+    from netbox.graphql.filter_lookups import IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
+    from users.graphql.filters import GroupFilter, UserFilter
+    from virtualization.graphql.filters import ClusterFilter, ClusterGroupFilter, ClusterTypeFilter
     from .enums import *
-    from netbox.graphql.enums import *
-    from wireless.graphql.enums import *
-    from netbox.graphql.filter_lookups import *
-    from extras.graphql.filters import *
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from tenancy.graphql.filters import *
-    from wireless.graphql.filters import *
-    from users.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
-
 
 __all__ = (
     'ConfigContextFilter',

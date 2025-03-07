@@ -1,32 +1,33 @@
 from enum import Enum
 from typing import TypeVar, Tuple, Generic
-from django.db.models import Q, QuerySet
-from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel
+
 import strawberry
+import strawberry_django
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Q, QuerySet
+from django.db.models.fields.related import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel
 from strawberry import ID
 from strawberry.types import Info
-import strawberry_django
 from strawberry_django import (
-    process_filters,
-    FilterLookup,
-    RangeLookup,
     ComparisonFilterLookup,
     DateFilterLookup,
     DatetimeFilterLookup,
+    FilterLookup,
+    RangeLookup,
     TimeFilterLookup,
+    process_filters,
 )
 
-__all__ = [
-    'JSONFilter',
-    'TreeNodeFilter',
-    'IntegerLookup',
-    'FloatLookup',
+__all__ = (
     'ArrayLookup',
-    'IntegerArrayLookup',
     'FloatArrayLookup',
+    'FloatLookup',
+    'IntegerArrayLookup',
+    'IntegerLookup',
+    'JSONFilter',
     'StringArrayLookup',
-]
+    'TreeNodeFilter',
+)
 
 T = TypeVar('T')
 SKIP_MSG = 'Filter will be skipped on `null` value'

@@ -1,31 +1,12 @@
 from datetime import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import Annotated
+
 import strawberry
 import strawberry_django
-from strawberry_django import (
-    FilterLookup,
-    DatetimeFilterLookup,
-)
-from core.graphql.filter_mixins import *
-from netbox.graphql.filter_mixins import *
-from tenancy.graphql.filter_mixins import *
+from strawberry_django import DatetimeFilterLookup, FilterLookup
 
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
 from users import models
-
-if TYPE_CHECKING:
-    from .enums import *
-    from netbox.graphql.enums import *
-    from wireless.graphql.enums import *
-    from netbox.graphql.filter_lookups import *
-    from extras.graphql.filters import *
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from tenancy.graphql.filters import *
-    from wireless.graphql.filters import *
-    from users.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
 
 __all__ = (
     'GroupFilter',

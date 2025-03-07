@@ -1,21 +1,23 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
 import strawberry_django
 from strawberry_django import FilterLookup
+
 from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import JSONFilter
     from .filters import *
 
-__all__ = [
+__all__ = (
     'CustomFieldsFilterMixin',
     'JournalEntriesFilterMixin',
     'TagsFilterMixin',
     'ConfigContextFilterMixin',
     'TagBaseFilterMixin',
-]
+)
 
 
 @dataclass

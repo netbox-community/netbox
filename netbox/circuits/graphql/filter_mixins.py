@@ -1,15 +1,17 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
 import strawberry_django
+
 from netbox.graphql.filter_mixins import OrganizationalModelFilterMixin
 
 if TYPE_CHECKING:
-    from .filters import *
-    from netbox.graphql.filter_lookups import *
-    from netbox.graphql.enums import *
+    from netbox.graphql.enums import ColorEnum
 
-__all__ = ['BaseCircuitTypeFilterMixin']
+__all__ = (
+    'BaseCircuitTypeFilterMixin',
+)
 
 
 @dataclass

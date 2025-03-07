@@ -1,16 +1,20 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, TYPE_CHECKING
-import strawberry
-from strawberry import ID
-import strawberry_django
-from strawberry_django import DatetimeFilterLookup
 
+import strawberry
+import strawberry_django
+from strawberry import ID
+from strawberry_django import DatetimeFilterLookup
 
 if TYPE_CHECKING:
     from .filters import *
 
-__all__ = ['BaseFilterMixin', 'BaseObjectTypeFilterMixin', 'ChangeLogFilterMixin']
+__all__ = (
+    'BaseFilterMixin',
+    'BaseObjectTypeFilterMixin',
+    'ChangeLogFilterMixin',
+)
 
 
 # @strawberry.input

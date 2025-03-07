@@ -1,29 +1,49 @@
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry.scalars import ID
 import strawberry_django
-from strawberry_django import (
-    FilterLookup,
-)
-from netbox.graphql.filter_mixins import (
-    PrimaryModelFilterMixin,
-    OrganizationalModelFilterMixin,
-    NestedGroupModelFilterMixin,
-)
-from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
+from strawberry.scalars import ID
+from strawberry_django import FilterLookup
+
 from core.graphql.filter_mixins import ChangeLogFilterMixin
+from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
+from netbox.graphql.filter_mixins import (
+    NestedGroupModelFilterMixin,
+    OrganizationalModelFilterMixin,
+    PrimaryModelFilterMixin,
+)
 from tenancy import models
 from .filter_mixins import ContactFilterMixin
 
 if TYPE_CHECKING:
-    from .enums import *
+    from core.graphql.filters import ContentTypeFilter
+    from circuits.graphql.filters import CircuitFilter
+    from dcim.graphql.filters import (
+        CableFilter,
+        DeviceFilter,
+        LocationFilter,
+        PowerFeedFilter,
+        RackFilter,
+        RackReservationFilter,
+        SiteFilter,
+        VirtualDeviceContextFilter,
+    )
+    from ipam.graphql.filters import (
+        AggregateFilter,
+        ASNFilter,
+        ASNRangeFilter,
+        IPAddressFilter,
+        IPRangeFilter,
+        PrefixFilter,
+        RouteTargetFilter,
+        VLANFilter,
+        VRFFilter,
+    )
     from netbox.graphql.filter_lookups import TreeNodeFilter
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from wireless.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
+    from wireless.graphql.filters import WirelessLANFilter, WirelessLinkFilter
+    from virtualization.graphql.filters import ClusterFilter, VirtualMachineFilter
+    from vpn.graphql.filters import L2VPNFilter, TunnelFilter
+    from .enums import *
 
 __all__ = (
     'TenantFilter',

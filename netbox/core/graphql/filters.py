@@ -1,25 +1,19 @@
 from datetime import datetime
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry.scalars import ID
 import strawberry_django
-from strawberry_django import (
-    DatetimeFilterLookup,
-    FilterLookup,
-)
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
-from core.graphql.filter_mixins import BaseFilterMixin
-from netbox.graphql.filter_lookups import JSONFilter
-from netbox.graphql.filter_mixins import (
-    PrimaryModelFilterMixin,
-)
+from strawberry.scalars import ID
+from strawberry_django import DatetimeFilterLookup, FilterLookup
 
 from core import models
+from core.graphql.filter_mixins import BaseFilterMixin
+from netbox.graphql.filter_mixins import PrimaryModelFilterMixin
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import *
-    from users.graphql.filters import *
-
+    from netbox.graphql.filter_lookups import IntegerLookup, JSONFilter
+    from users.graphql.filters import UserFilter
 
 __all__ = (
     'DataFileFilter',

@@ -1,15 +1,18 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
 import strawberry_django
 
-from core.graphql.filter_mixins import *
+from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
+    from netbox.graphql.filter_lookups import IntegerLookup
     from .enums import *
-    from netbox.graphql.filter_lookups import *
 
-__all__ = ['ServiceBaseFilterMixin']
+__all__ = (
+    'ServiceBaseFilterMixin',
+)
 
 
 @dataclass

@@ -1,33 +1,20 @@
 from typing import Annotated, TYPE_CHECKING
-import strawberry
-from strawberry.scalars import ID
-import strawberry_django
-from strawberry_django import (
-    FilterLookup,
-)
-from dcim.graphql.filter_mixins import ScopedFilterMixin
-from extras.graphql.filter_mixins import *
-from netbox.graphql.filter_mixins import *
-from core.graphql.filter_mixins import *
-from tenancy.graphql.filter_mixins import *
-from .filter_mixins import *
 
+import strawberry
+import strawberry_django
+from strawberry.scalars import ID
+from strawberry_django import FilterLookup
+
+from dcim.graphql.filter_mixins import ScopedFilterMixin
+from netbox.graphql.filter_mixins import DistanceFilterMixin, PrimaryModelFilterMixin, NestedGroupModelFilterMixin
+from tenancy.graphql.filter_mixins import TenancyFilterMixin
 from wireless import models
+from .filter_mixins import WirelessAuthenticationBaseFilterMixin
 
 if TYPE_CHECKING:
+    from dcim.graphql.filters import InterfaceFilter
+    from ipam.graphql.filters import VLANFilter
     from .enums import *
-    from netbox.graphql.enums import *
-    from wireless.graphql.enums import *
-    from netbox.graphql.filter_lookups import *
-    from extras.graphql.filters import *
-    from circuits.graphql.filters import *
-    from dcim.graphql.filters import *
-    from ipam.graphql.filters import *
-    from tenancy.graphql.filters import *
-    from wireless.graphql.filters import *
-    from users.graphql.filters import *
-    from virtualization.graphql.filters import *
-    from vpn.graphql.filters import *
 
 __all__ = (
     'WirelessLANGroupFilter',

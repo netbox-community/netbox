@@ -1,30 +1,26 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import TypeVar, TYPE_CHECKING, Annotated
 
-
-from datetime import datetime
 import strawberry
-from strawberry import ID
 import strawberry_django
+from strawberry import ID
 from strawberry_django import FilterLookup, DatetimeFilterLookup
 
-from extras.models import *
-from utilities.filters import *
-from netbox.graphql.filter_lookups import *
-from core.graphql.filter_mixins import *
-from extras.graphql.filter_mixins import *
+from core.graphql.filter_mixins import BaseFilterMixin, BaseObjectTypeFilterMixin, ChangeLogFilterMixin
+from extras.graphql.filter_mixins import CustomFieldsFilterMixin, JournalEntriesFilterMixin, TagsFilterMixin
+from netbox.graphql.filter_lookups import IntegerLookup
 
-__all__ = [
+__all__ = (
+    'DistanceFilterMixin',
+    'ImageAttachmentFilterMixin',
+    'NestedGroupModelFilterMixin',
     'NetBoxModelFilterMixin',
     'OrganizationalModelFilterMixin',
     'PrimaryModelFilterMixin',
-    # 'autotype_decorator',
-    'NestedGroupModelFilterMixin',
-    'ImageAttachmentFilterMixin',
-    'WeightFilterMixin',
     'SyncedDataFilterMixin',
-    'DistanceFilterMixin',
-]
+    'WeightFilterMixin',
+)
 
 T = TypeVar('T')
 
@@ -32,7 +28,6 @@ T = TypeVar('T')
 if TYPE_CHECKING:
     from .enums import *
     from core.graphql.filters import *
-    from tenancy.graphql.filters import *
     from extras.graphql.filters import *
 
 

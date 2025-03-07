@@ -1,15 +1,20 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
+
 import strawberry
-from strawberry import ID
 import strawberry_django
+from strawberry import ID
+
 from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
-    from .filters import *
-    from netbox.graphql.filter_lookups import *
+    from netbox.graphql.filter_lookups import TreeNodeFilter
+    from .filters import ContactFilter, TenantFilter, TenantGroupFilter
 
-__all__ = ['TenancyFilterMixin', 'ContactFilterMixin']
+__all__ = (
+    'ContactFilterMixin',
+    'TenancyFilterMixin',
+)
 
 
 @dataclass
