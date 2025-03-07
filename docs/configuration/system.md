@@ -196,23 +196,48 @@ The dotted path to the desired search backend class. `CachedValueSearchBackend` 
 
 ---
 
-## STORAGE_BACKEND
+## STORAGES
 
-Default: None (local storage)
+Default: See below (local storage)
 
-The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
+The backend storage engine for handling uploaded files (e.g. image attachments) and scripts. NetBox integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
 
-The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
+By default the following configuration is used:
 
----
+```python
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "scripts": {
+        "BACKEND": "extras.storage.ScriptFileSystemStorage",
+    },
+}
+```
 
-## STORAGE_CONFIG
+Within the STORAGES dict, "default" is used for image uploads and "scripts" is used for Scripts.
 
-Default: Empty
+If using a remote storage like S3, define the config as STORAGES[key]["OPTIONS"] for each storage item as needed. For example:
 
-A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the documentation for your selected backend ([`django-storages`](https://django-storages.readthedocs.io/en/stable/) or [`django-storage-swift`](https://github.com/dennisv/django-storage-swift)) for more detail.
+```python
+STORAGES = { 
+    "scripts": { 
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage", 
+        "OPTIONS": { 
+            'access_key': 'access key', 
+            'secret_key': 'secret key',
+        }
+    }, 
+}
+```
 
-If `STORAGE_BACKEND` is not defined, this setting will be ignored.
+The specific configuration settings for each storage can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
+
+!!! note
+    The default STORAGES is used as a base and any values defined in configuration.py STORAGES is overlaid, so you only need to define the specific sections you are overriding.
 
 ---
 
