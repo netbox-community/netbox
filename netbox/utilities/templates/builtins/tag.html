@@ -1,3 +1,3 @@
 {% load helpers %}
 
-{% if viewname %}<a href="{% url viewname %}?tag={{ tag.slug }}">{% endif %}<span class="badge" style="color: {{ tag.color|fgcolor }}; background-color: #{{ tag.color }}">{{ tag }}</span>{% if viewname %}</a>{% endif %}
+{% if viewname %}<a href="{% url viewname %}?tag={{ tag.slug }}">{% endif %}<span {% if tag.description %}title="{{ tag.description }}"{% endif %} class="badge" style="color: {{ tag.color|fgcolor }}; background-color: #{{ tag.color }}">{{ tag }}</span>{% if viewname %}</a>{% endif %}

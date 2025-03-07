@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
@@ -25,14 +25,14 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterSet(OrganizationalModelFilterSet):
+class TunnelGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = TunnelGroup
         fields = ('id', 'name', 'slug', 'description')
 
 
-class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=TunnelStatusChoices
     )
@@ -293,7 +293,7 @@ class IPSecProfileFilterSet(NetBoxModelFilterSet):
         )
 
 
-class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=L2VPNTypeChoices,
         null_value=None

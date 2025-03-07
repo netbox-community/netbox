@@ -66,11 +66,12 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
+class ProviderAccountFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'account', name=_('Attributes')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -327,7 +328,7 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBox
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type', 'status', name=_('Attributes')),
+        FieldSet('type_id', 'status', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     selector_fields = ('filter_id', 'q', 'provider_id', 'provider_network_id')

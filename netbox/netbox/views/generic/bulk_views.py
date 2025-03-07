@@ -125,6 +125,15 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     # Request handlers
     #
 
+    def get_queryset(self, request):
+        """
+        Reapply model-level ordering in case it has been lost through .annotate().
+        https://code.djangoproject.com/ticket/32811
+        """
+        qs = super().get_queryset(request)
+        ordering = qs.model._meta.ordering
+        return qs.order_by(*ordering)
+
     def get(self, request):
         """
         GET request handler.

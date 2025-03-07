@@ -1251,6 +1251,14 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
 
+    def get_object(self, **kwargs):
+        if pk := kwargs.get('pk', False):
+            return get_object_or_404(self.queryset, pk=pk)
+        elif (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
+            return get_object_or_404(self.queryset, module__file_path=f'{module}.py', name=name)
+        else:
+            raise Http404
+
     def _get_script_class(self, script):
         """
         Return an instance of the Script's Python class
