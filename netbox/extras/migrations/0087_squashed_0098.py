@@ -26,9 +26,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0086_configtemplate'),
+        ('extras', '0060_squashed_0086'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0002_managedfile'),
+        ('core', '0001_squashed_0005'),
     ]
 
     operations = [

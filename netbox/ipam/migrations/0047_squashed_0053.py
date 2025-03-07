@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('ipam', '0046_set_vlangroup_scope_types'),
+        ('ipam', '0002_squashed_0046'),
         ('tenancy', '0001_squashed_0012'),
         ('extras', '0002_squashed_0059'),
         ('contenttypes', '0002_remove_content_type_name'),
