@@ -12,6 +12,7 @@ from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
@@ -821,6 +822,15 @@ for plugin_name in PLUGINS:
             f"__init__.py file and point to the PluginConfig subclass."
         )
 
+    # Validate version compatibility and user-provided configuration settings and assign defaults
+    if plugin_name not in PLUGINS_CONFIG:
+        PLUGINS_CONFIG[plugin_name] = {}
+    try:
+        plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
+    except IncompatiblePluginError as e:
+        warnings.warn(f'Unable to load plugin {plugin_name}: {e}')
+        continue
+
     # Register the plugin as installed successfully
     registry['plugins']['installed'].append(plugin_name)
 
@@ -853,11 +863,6 @@ for plugin_name in PLUGINS:
     sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
     INSTALLED_APPS = list(sorted_apps)
 
-    # Validate user-provided configuration settings and assign defaults
-    if plugin_name not in PLUGINS_CONFIG:
-        PLUGINS_CONFIG[plugin_name] = {}
-    plugin_config.validate(PLUGINS_CONFIG[plugin_name], RELEASE.version)
-
     # Add middleware
     plugin_middleware = plugin_config.middleware
     if plugin_middleware and type(plugin_middleware) in (list, tuple):
@@ -878,6 +883,7 @@ for plugin_name in PLUGINS:
             EVENTS_PIPELINE.extend(events_pipeline)
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
+
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.
 try:
