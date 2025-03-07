@@ -6,16 +6,36 @@ import strawberry_django
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from tenancy import models
-from .mixins import ContactAssignmentsMixin
 from .filters import *
+from .mixins import ContactAssignmentsMixin
 
 if TYPE_CHECKING:
-    from circuits.graphql.types import *
-    from dcim.graphql.types import *
-    from ipam.graphql.types import *
-    from wireless.graphql.types import *
-    from virtualization.graphql.types import *
-    from vpn.graphql.types import *
+    from circuits.graphql.types import CircuitType
+    from dcim.graphql.types import (
+        CableType,
+        DeviceType,
+        LocationType,
+        PowerFeedType,
+        RackType,
+        RackReservationType,
+        SiteType,
+        VirtualDeviceContextType,
+    )
+    from ipam.graphql.types import (
+        AggregateType,
+        ASNType,
+        ASNRangeType,
+        IPAddressType,
+        IPRangeType,
+        PrefixType,
+        RouteTargetType,
+        VLANType,
+        VRFType,
+    )
+    from netbox.graphql.types import ContentTypeType
+    from wireless.graphql.types import WirelessLANType, WirelessLinkType
+    from virtualization.graphql.types import ClusterType, VirtualMachineType
+    from vpn.graphql.types import L2VPNType, TunnelType
 
 __all__ = (
     'ContactAssignmentType',

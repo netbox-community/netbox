@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -10,11 +10,15 @@ from netbox.graphql.types import BaseObjectType, NetBoxObjectType, ObjectType, O
 from tenancy.graphql.types import TenantType
 from .filters import *
 
+if TYPE_CHECKING:
+    from dcim.graphql.types import InterfaceType, LocationType, RegionType, SiteGroupType, SiteType
+    from ipam.graphql.types import ASNType
+
 __all__ = (
-    'CircuitTerminationType',
-    'CircuitType',
     'CircuitGroupAssignmentType',
     'CircuitGroupType',
+    'CircuitTerminationType',
+    'CircuitType',
     'CircuitTypeType',
     'ProviderType',
     'ProviderAccountType',
@@ -62,7 +66,7 @@ class ProviderNetworkType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.CircuitTermination,
-    exclude=('termination_type', 'termination_id', '_location', '_region', '_site', '_site_group', '_provider_network'),
+    exclude=['termination_type', 'termination_id', '_location', '_region', '_site', '_site_group', '_provider_network'],
     filters=CircuitTerminationFilter
 )
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
@@ -117,7 +121,7 @@ class CircuitGroupType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.CircuitGroupAssignment,
-    exclude=('member_type', 'member_id'),
+    exclude=['member_type', 'member_id'],
     filters=CircuitGroupAssignmentFilter
 )
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
