@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -7,6 +7,13 @@ from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 from vpn import models
 from .filters import *
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import InterfaceType
+    from ipam.graphql.types import IPAddressType, RouteTargetType, VLANType
+    from netbox.graphql.types import ContentTypeType
+    from tenancy.graphql.types import TenantType
+    from virtualization.graphql.types import VMInterfaceType
 
 __all__ = (
     'IKEPolicyType',
@@ -125,7 +132,7 @@ class L2VPNType(ContactsMixin, NetBoxObjectType):
 
 @strawberry_django.type(
     models.L2VPNTermination,
-    exclude=('assigned_object_type', 'assigned_object_id'),
+    exclude=['assigned_object_type', 'assigned_object_id'],
     filters=L2VPNTerminationFilter
 )
 class L2VPNTerminationType(NetBoxObjectType):

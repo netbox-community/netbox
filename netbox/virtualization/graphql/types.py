@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -9,6 +9,21 @@ from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
 from virtualization import models
 from .filters import *
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import (
+        DeviceRoleType,
+        DeviceType,
+        LocationType,
+        MACAddressType,
+        PlatformType,
+        RegionType,
+        SiteGroupType,
+        SiteType,
+    )
+    from extras.graphql.types import ConfigTemplateType
+    from ipam.graphql.types import IPAddressType, ServiceType, VLANTranslationPolicyType, VLANType, VRFType
+    from tenancy.graphql.types import TenantType
 
 __all__ = (
     'ClusterType',
@@ -30,7 +45,7 @@ class ComponentType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Cluster,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
+    exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
     filters=ClusterFilter
 )
 class ClusterType(VLANGroupsMixin, NetBoxObjectType):

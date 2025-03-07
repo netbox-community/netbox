@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, TYPE_CHECKING
 
 import strawberry
 import strawberry_django
@@ -7,6 +7,22 @@ from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ContentTypeType, ObjectType, OrganizationalObjectType
 from .filters import *
+
+if TYPE_CHECKING:
+    from core.graphql.types import DataFileType, DataSourceType
+    from dcim.graphql.types import (
+        DeviceRoleType,
+        DeviceType,
+        DeviceTypeType,
+        LocationType,
+        PlatformType,
+        RegionType,
+        SiteGroupType,
+        SiteType,
+    )
+    from tenancy.graphql.types import TenantGroupType, TenantType
+    from users.graphql.types import GroupType, UserType
+    from virtualization.graphql.types import ClusterGroupType, ClusterType, ClusterTypeType, VirtualMachineType
 
 __all__ = (
     'ConfigContextType',
@@ -35,7 +51,6 @@ __all__ = (
 class ConfigContextType(ObjectType):
     data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
     data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
-
     roles: List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
     device_types: List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
     tags: List[Annotated["TagType", strawberry.lazy('extras.graphql.types')]]
@@ -78,7 +93,7 @@ class CustomFieldType(ObjectType):
 
 @strawberry_django.type(
     models.CustomFieldChoiceSet,
-    exclude=('extra_choices', ),
+    exclude=['extra_choices'],
     filters=CustomFieldChoiceSetFilter
 )
 class CustomFieldChoiceSetType(ObjectType):

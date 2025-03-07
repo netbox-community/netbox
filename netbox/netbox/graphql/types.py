@@ -8,6 +8,7 @@ from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMi
 
 __all__ = (
     'BaseObjectType',
+    'ContentTypeType',
     'ObjectType',
     'OrganizationalObjectType',
     'NetBoxObjectType',

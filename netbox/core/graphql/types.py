@@ -2,12 +2,14 @@ from typing import Annotated, List
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.models import ContentType as DjangoContentType
 
 from core import models
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType
 from .filters import *
 
 __all__ = (
+    'ContentType',
     'DataFileType',
     'DataSourceType',
     'ObjectChangeType',
@@ -39,4 +41,9 @@ class DataSourceType(NetBoxObjectType):
     filters=ObjectChangeFilter
 )
 class ObjectChangeType(BaseObjectType):
+    pass
+
+
+@strawberry_django.type(DjangoContentType, fields='__all__')
+class ContentType:
     pass

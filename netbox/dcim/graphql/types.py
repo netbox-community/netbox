@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -6,13 +6,34 @@ import strawberry_django
 from core.graphql.mixins import ChangelogMixin
 from dcim import models
 from extras.graphql.mixins import (
-    ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
+    ConfigContextMixin,
+    ContactsMixin,
+    CustomFieldsMixin,
+    ImageAttachmentsMixin,
+    TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
+
+if TYPE_CHECKING:
+    from circuits.graphql.types import CircuitTerminationType
+    from extras.graphql.types import ConfigTemplateType
+    from ipam.graphql.types import (
+        ASNType,
+        IPAddressType,
+        PrefixType,
+        ServiceType,
+        VLANTranslationPolicyType,
+        VLANType,
+        VRFType,
+    )
+    from tenancy.graphql.types import TenantType
+    from users.graphql.types import UserType
+    from virtualization.graphql.types import ClusterType, VMInterfaceType, VirtualMachineType
+    from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
     'CableType',
@@ -111,7 +132,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.CableTermination,
-    exclude=('termination_type', 'termination_id', '_device', '_rack', '_location', '_site'),
+    exclude=['termination_type', 'termination_id', '_device', '_rack', '_location', '_site'],
     filters=CableTerminationFilter
 )
 class CableTerminationType(NetBoxObjectType):
@@ -167,7 +188,7 @@ class CableType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ConsolePort,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=ConsolePortFilter
 )
 class ConsolePortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
@@ -185,7 +206,7 @@ class ConsolePortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.ConsoleServerPort,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=ConsoleServerPortFilter
 )
 class ConsoleServerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
@@ -276,7 +297,7 @@ class DeviceBayTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItemTemplate,
-    exclude=('component_type', 'component_id', 'parent'),
+    exclude=['component_type', 'component_id', 'parent'],
     filters=InventoryItemTemplateFilter
 )
 class InventoryItemTemplateType(ComponentTemplateType):
@@ -369,7 +390,7 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.MACAddress,
-    exclude=('assigned_object_type', 'assigned_object_id'),
+    exclude=['assigned_object_type', 'assigned_object_id'],
     filters=MACAddressFilter
 )
 class MACAddressType(NetBoxObjectType):
@@ -385,7 +406,7 @@ class MACAddressType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Interface,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=InterfaceFilter
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
@@ -424,7 +445,7 @@ class InterfaceTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItem,
-    exclude=('component_type', 'component_id', 'parent'),
+    exclude=['component_type', 'component_id', 'parent'],
     filters=InventoryItemFilter
 )
 class InventoryItemType(ComponentType):
@@ -463,7 +484,7 @@ class InventoryItemRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Location,
     # fields='__all__',
-    exclude=('parent',),  # bug - temp
+    exclude=['parent'],  # bug - temp
     filters=LocationFilter
 )
 class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, OrganizationalObjectType):
@@ -524,7 +545,7 @@ class ModuleType(NetBoxObjectType):
 @strawberry_django.type(
     models.ModuleBay,
     # fields='__all__',
-    exclude=('parent',),
+    exclude=['parent'],
     filters=ModuleBayFilter
 )
 class ModuleBayType(ModularComponentType):
@@ -579,7 +600,7 @@ class PlatformType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.PowerFeed,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=PowerFeedFilter
 )
 class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
@@ -590,7 +611,7 @@ class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
 
 @strawberry_django.type(
     models.PowerOutlet,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=PowerOutletFilter
 )
 class PowerOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
@@ -621,7 +642,7 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
 
 @strawberry_django.type(
     models.PowerPort,
-    exclude=('_path',),
+    exclude=['_path'],
     filters=PowerPortFilter
 )
 class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
@@ -712,8 +733,7 @@ class RearPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Region,
-    exclude=('parent',),
-    # fields='__all__',
+    exclude=['parent'],
     filters=RegionFilter
 )
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
@@ -772,8 +792,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 
 @strawberry_django.type(
     models.SiteGroup,
-    # fields='__all__',
-    exclude=('parent',),  # bug - temp
+    exclude=['parent'],  # bug - temp
     filters=SiteGroupFilter
 )
 class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
