@@ -54,6 +54,7 @@ Icons](https://github.com/google/material-design-icons) icon's name; or be
 `None` for no icon.
 
 For instance, the OIDC backend may be customized with
+
 ```python
 SOCIAL_AUTH_BACKEND_ATTRS = {
     'oidc': ("My awesome SSO", "login"),

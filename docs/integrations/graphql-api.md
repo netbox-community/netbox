@@ -60,6 +60,7 @@ query {
   }
 }
 ```
+
 In addition, filtering can be done on list of related objects as shown in the following query:
 
 ```
@@ -98,8 +99,8 @@ Certain queries can return multiple types of objects, for example cable terminat
       }
     }
 }
-
 ```
+
 The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
 
 ## Authentication

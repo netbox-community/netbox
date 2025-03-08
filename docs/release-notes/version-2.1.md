@@ -150,5 +150,5 @@ The [NAPALM automation](https://github.com/napalm-automation/napalm) library pro
 * Modified the interface serializer to include three discrete fields relating to connections: `is_connected` (boolean), `interface_connection`, and `circuit_termination`
 * Added two new fields to the inventory item serializer: `asset_tag` and `description`
 * Added "wireless" to interface type filter (in addition to physical, virtual, and LAG)
-* Added a new endpoint at /api/ipam/prefixes/<pk>/available-ips/ to retrieve or create available IPs within a prefix
+* Added a new endpoint at /api/ipam/prefixes/<pk\>/available-ips/ to retrieve or create available IPs within a prefix
 * Extended `parent_device` on DeviceSerializer to include the `url` and `display_name` of the parent Device, and the `url` of the DeviceBay
