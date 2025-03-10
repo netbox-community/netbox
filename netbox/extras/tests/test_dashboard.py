@@ -4,6 +4,11 @@ from extras.dashboard.widgets import ObjectListWidget
 
 
 class ObjectListWidgetTests(TestCase):
+    def test_widget_config_form_validates_model(self):
+        model_info = 'extras.notification'
+        form = ObjectListWidget.ConfigForm({'model': model_info})
+        self.assertFalse(form.is_valid())
+
     @tag('regression')
     def test_widget_fails_gracefully(self):
         """
