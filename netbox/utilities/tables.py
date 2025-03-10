@@ -32,15 +32,6 @@ def linkify_phone(value):
     return f"tel:{value.replace(' ', '')}"
 
 
-def linkify_url(value):
-    """
-    Render a URL as a hyperlink.
-    """
-    if value is None:
-        return None
-    return value
-
-
 def register_table_column(column, name, *tables):
     """
     Register a custom column for use on one or more tables.
