@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import BaseTable, columns
+from .template_code import PLUGIN_IS_INSTALLED
 
 __all__ = (
     'CatalogPluginTable',
@@ -48,12 +49,15 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Author')
     )
     is_local = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Local')
     )
-    is_installed = columns.BooleanColumn(
-        verbose_name=_('Installed')
+    is_installed = columns.TemplateColumn(
+        verbose_name=_('Active'),
+        template_code=PLUGIN_IS_INSTALLED
     )
     is_certified = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Certified')
     )
     created_at = columns.DateTimeColumn(
