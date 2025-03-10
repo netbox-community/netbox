@@ -202,6 +202,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='',
             ),
             Location(
                 name='Location 2',
@@ -209,6 +210,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='First comment!',
             ),
             Location(
                 name='Location 3',
@@ -216,6 +218,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='_This_ is a **bold comment**',
             ),
         )
         for location in locations:
@@ -232,24 +235,26 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
+            'comments': 'This comment is really boring',
         }
 
         cls.csv_data = (
-            "site,tenant,name,slug,status,description",
-            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location",
-            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location",
-            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
+            "site,tenant,name,slug,status,description,comments",
+            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location,",
+            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location,",
+            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location,hi!",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{locations[0].pk},Location 7,Fourth location7",
-            f"{locations[1].pk},Location 8,Fifth location8",
-            f"{locations[2].pk},Location 0,Sixth location9",
+            "id,name,description,comments",
+            f"{locations[0].pk},Location 7,Fourth location7,Useful comment",
+            f"{locations[1].pk},Location 8,Fifth location8,unuseful comment",
+            f"{locations[2].pk},Location 0,Sixth location9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'This comment is also really boring',
         }
 
 

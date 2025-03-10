@@ -401,6 +401,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_PLANNED,
                 facility='Facility 1',
                 description='foobar1',
+                comments='',
             ),
             Location(
                 name='Location 2A',
@@ -410,6 +411,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_STAGING,
                 facility='Facility 2',
                 description='foobar2',
+                comments='First comment!',
             ),
             Location(
                 name='Location 3A',
@@ -419,6 +421,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_DECOMMISSIONING,
                 facility='Facility 3',
                 description='foobar3',
+                comments='_This_ is a **bold comment**',
             ),
         )
         for location in locations:
@@ -435,6 +438,13 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'this'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Location 1', 'Location 2']}

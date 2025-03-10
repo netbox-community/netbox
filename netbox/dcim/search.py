@@ -144,6 +144,7 @@ class LocationIndex(SearchIndex):
         ('facility', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('site', 'status', 'tenant', 'facility', 'description')
 

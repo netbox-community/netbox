@@ -212,12 +212,14 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 name='Parent Location 1',
                 slug='parent-location-1',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='First!'
             ),
             Location.objects.create(
                 site=sites[1],
                 name='Parent Location 2',
                 slug='parent-location-2',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='Second!'
             ),
         )
 
@@ -227,6 +229,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
             slug='location-1',
             parent=parent_locations[0],
             status=LocationStatusChoices.STATUS_ACTIVE,
+            comments='Third!'
         )
         Location.objects.create(
             site=sites[0],
@@ -250,6 +253,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': '',
             },
             {
                 'name': 'Test Location 5',
@@ -257,6 +261,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': 'Somebody should check on this location',
             },
             {
                 'name': 'Test Location 6',

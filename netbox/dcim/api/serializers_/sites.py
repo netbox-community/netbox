@@ -93,6 +93,6 @@ class LocationSerializer(NestedGroupModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'facility',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count',
-            'prefix_count', '_depth',
+            'prefix_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')

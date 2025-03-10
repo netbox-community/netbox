@@ -160,7 +160,10 @@ class LocationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description', 'tags')
+        fields = (
+            'site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description',
+            'tags', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

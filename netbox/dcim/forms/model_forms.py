@@ -179,6 +179,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
         }
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags', name=_('Location')),
@@ -188,7 +189,8 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant', 'facility', 'tags',
+            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
+            'facility', 'tags', 'comments',
         )
 
 

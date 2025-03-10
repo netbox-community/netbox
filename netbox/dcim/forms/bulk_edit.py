@@ -197,12 +197,13 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = Location
     fieldsets = (
         FieldSet('site', 'parent', 'status', 'tenant', 'description'),
     )
-    nullable_fields = ('parent', 'tenant', 'description')
+    nullable_fields = ('parent', 'tenant', 'description', 'comments')
 
 
 class RackRoleBulkEditForm(NetBoxModelBulkEditForm):
