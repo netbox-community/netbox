@@ -257,7 +257,7 @@ class ObjectListWidget(DashboardWidget):
             parameters['per_page'] = page_size
         parameters['embedded'] = True
 
-        if parameters:
+        if parameters and htmx_url is not None:
             try:
                 htmx_url = f'{htmx_url}?{urlencode(parameters, doseq=True)}'
             except ValueError:
