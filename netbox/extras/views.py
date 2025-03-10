@@ -12,7 +12,6 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from core.choices import ManagedFileRootPathChoices
-from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
 from dcim.models import Device, DeviceRole, Platform
@@ -1163,7 +1162,7 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
 @register_model_view(ScriptModule, 'edit')
 class ScriptModuleCreateView(generic.ObjectEditView):
     queryset = ScriptModule.objects.all()
-    form = ManagedFileForm
+    form = forms.ScriptFileForm
 
     def alter_object(self, obj, *args, **kwargs):
         obj.file_root = ManagedFileRootPathChoices.SCRIPTS

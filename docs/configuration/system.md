@@ -196,23 +196,46 @@ The dotted path to the desired search backend class. `CachedValueSearchBackend` 
 
 ---
 
-## STORAGE_BACKEND
+## STORAGES
 
-Default: None (local storage)
+The backend storage engine for handling uploaded files such as [image attachments](../models/extras/imageattachment.md) and [custom scripts](../customization/custom-scripts.md). NetBox integrates with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) libraries, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
 
-The backend storage engine for handling uploaded files (e.g. image attachments). NetBox supports integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
+By default, the following configuration is used:
 
-The configuration parameters for the specified storage backend are defined under the `STORAGE_CONFIG` setting.
+```python
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "scripts": {
+        "BACKEND": "extras.storage.ScriptFileSystemStorage",
+    },
+}
+```
 
----
+Within the `STORAGES` dictionary, `"default"` is used for image uploads, "staticfiles" is for static files and `"scripts"` is used for custom scripts.
 
-## STORAGE_CONFIG
+If using a remote storage like S3, define the config as `STORAGES[key]["OPTIONS"]` for each storage item as needed. For example:
 
-Default: Empty
+```python
+STORAGES = { 
+    "scripts": { 
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage", 
+        "OPTIONS": { 
+            'access_key': 'access key', 
+            'secret_key': 'secret key',
+        }
+    }, 
+}
+```
 
-A dictionary of configuration parameters for the storage backend configured as `STORAGE_BACKEND`. The specific parameters to be used here are specific to each backend; see the documentation for your selected backend ([`django-storages`](https://django-storages.readthedocs.io/en/stable/) or [`django-storage-swift`](https://github.com/dennisv/django-storage-swift)) for more detail.
+The specific configuration settings for each storage backend can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
 
-If `STORAGE_BACKEND` is not defined, this setting will be ignored.
+!!! note
+    Any keys defined in the `STORAGES` configuration parameter replace those in the default configuration. It is only necessary to define keys within the `STORAGES` for the specific backend(s) you wish to configure.
 
 ---
 
