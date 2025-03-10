@@ -515,7 +515,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
-            field = LaxURLField(required=required, initial=initial)
+            field = LaxURLField(assume_scheme='https', required=required, initial=initial)
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:

@@ -284,7 +284,8 @@ class RSSFeedWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         feed_url = forms.URLField(
-            label=_('Feed URL')
+            label=_('Feed URL'),
+            assume_scheme='https'
         )
         requires_internet = forms.BooleanField(
             label=_('Requires external connection'),
