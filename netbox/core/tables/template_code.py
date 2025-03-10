@@ -23,6 +23,6 @@ PLUGIN_IS_INSTALLED = """
         <span class="text-danger"><i class="mdi mdi-alert" data-bs-toggle="tooltip" title="Could not load plugin. Version may be incompatible. Min version: {{ record.netbox_min_version }}, max version: {{ record.netbox_max_version }}"></i></span>
     {% endif %}
 {% else %}
-    <span class="text-danger"><i class="mdi mdi-close-thick"></i></span>
+    <span class="text-muted">&mdash;</span>
 {% endif %}
 """

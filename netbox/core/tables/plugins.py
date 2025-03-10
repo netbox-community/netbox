@@ -49,6 +49,7 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Author')
     )
     is_local = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Local')
     )
     is_installed = columns.TemplateColumn(
@@ -56,6 +57,7 @@ class CatalogPluginTable(BaseTable):
         template_code=PLUGIN_IS_INSTALLED
     )
     is_certified = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Certified')
     )
     created_at = columns.DateTimeColumn(
