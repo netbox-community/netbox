@@ -198,11 +198,9 @@ The dotted path to the desired search backend class. `CachedValueSearchBackend` 
 
 ## STORAGES
 
-Default: See below (local storage)
+The backend storage engine for handling uploaded files such as [image attachments](../models/extras/imageattachment.md) and [custom scripts](../customization/custom-scripts.md). NetBox integrates with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) libraries, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
 
-The backend storage engine for handling uploaded files (e.g. image attachments) and scripts. NetBox integration with the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) and [`django-storage-swift`](https://github.com/dennisv/django-storage-swift) packages, which provide backends for several popular file storage services. If not configured, local filesystem storage will be used.
-
-By default the following configuration is used:
+By default, the following configuration is used:
 
 ```python
 STORAGES = {
@@ -218,9 +216,9 @@ STORAGES = {
 }
 ```
 
-Within the STORAGES dict, "default" is used for image uploads and "scripts" is used for Scripts.
+Within the `STORAGES` dictionary, `"default"` is used for image uploads, "staticfiles" is for static files and `"scripts"` is used for custom scripts.
 
-If using a remote storage like S3, define the config as STORAGES[key]["OPTIONS"] for each storage item as needed. For example:
+If using a remote storage like S3, define the config as `STORAGES[key]["OPTIONS"]` for each storage item as needed. For example:
 
 ```python
 STORAGES = { 
@@ -234,10 +232,10 @@ STORAGES = {
 }
 ```
 
-The specific configuration settings for each storage can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
+The specific configuration settings for each storage backend can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
 
 !!! note
-    The default STORAGES is used as a base and any values defined in configuration.py STORAGES is overlaid, so you only need to define the specific sections you are overriding.
+    Any keys defined in the `STORAGES` configuration parameter replace those in the default configuration. It is only necessary to define keys within the `STORAGES` for the specific backend(s) you wish to configure.
 
 ---
 
