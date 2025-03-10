@@ -1396,6 +1396,34 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
 
+    def test_valid_local_context_data(self):
+        self.add_permissions('dcim.change_device')
+        device = Device.objects.first()
+        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk})
+
+        response = self.client.patch(url, {"local_context_data": None}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        response = self.client.patch(url, {"local_context_data": {"foo": "bar"}}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_invalid_local_context_data(self):
+        self.add_permissions('dcim.change_device')
+        device = Device.objects.first()
+        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk})
+
+        response = self.client.patch(url, {"local_context_data": ""}, format='json', **self.header)
+        self.assertContains(response, 'JSON data must be in object form.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.patch(url, {"local_context_data": 0}, format='json', **self.header)
+        self.assertContains(response, 'JSON data must be in object form.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.patch(url, {"local_context_data": False}, format='json', **self.header)
+        self.assertContains(response, 'JSON data must be in object form.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.patch(url, {"local_context_data": "foo"}, format='json', **self.header)
+        self.assertContains(response, 'JSON data must be in object form.', status_code=status.HTTP_400_BAD_REQUEST)
+
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):
     model = Module
