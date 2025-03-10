@@ -74,6 +74,7 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Region 4',
             'slug': 'region-4',
+            'comments': 'this is region 4, not region 5',
         },
         {
             'name': 'Region 5',
@@ -86,13 +87,14 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'New comments',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         Region.objects.create(name='Region 1', slug='region-1')
-        Region.objects.create(name='Region 2', slug='region-2')
+        Region.objects.create(name='Region 2', slug='region-2', comments='what in the world is happening?')
         Region.objects.create(name='Region 3', slug='region-3')
 
 

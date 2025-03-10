@@ -78,6 +78,7 @@ class RegionForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -86,7 +87,7 @@ class RegionForm(NetBoxModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'tags', 'comments',
         )
 
 

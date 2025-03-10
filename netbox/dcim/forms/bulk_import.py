@@ -68,7 +68,7 @@ class RegionImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Region
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class SiteGroupImportForm(NetBoxModelImportForm):

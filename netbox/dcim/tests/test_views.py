@@ -25,8 +25,10 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         # Create three Regions
         regions = (
-            Region(name='Region 1', slug='region-1'),
-            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 1', slug='region-1', comments=''),
+            Region(
+                name='Region 2', slug='region-2', comments="It's going to take a lot to drag me away from you"
+            ),
             Region(name='Region 3', slug='region-3'),
         )
         for region in regions:
@@ -40,13 +42,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'parent': regions[2].pk,
             'description': 'A new region',
             'tags': [t.pk for t in tags],
+            'comments': 'This comment is really exciting!',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Region 4,region-4,Fourth region",
-            "Region 5,region-5,Fifth region",
-            "Region 6,region-6,Sixth region",
+            "name,slug,description,comments",
+            "Region 4,region-4,Fourth region,",
+            "Region 5,region-5,Fifth region,hi guys",
+            "Region 6,region-6,Sixth region,bye guys",
         )
 
         cls.csv_update_data = (
@@ -58,6 +61,7 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'This comment is super exciting!!!',
         }
 
 

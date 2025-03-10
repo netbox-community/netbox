@@ -67,9 +67,15 @@ class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         parent_regions = (
-            Region(name='Region 1', slug='region-1', description='foobar1'),
-            Region(name='Region 2', slug='region-2', description='foobar2'),
-            Region(name='Region 3', slug='region-3', description='foobar3'),
+            Region(
+                name='Region 1', slug='region-1', description='foobar1', comments="There's nothing that",
+            ),
+            Region(
+                name='Region 2', slug='region-2', description='foobar2', comments='a hundred men or more',
+            ),
+            Region(
+                name='Region 3', slug='region-3', description='foobar3', comments='could ever do'
+            ),
         )
         for region in parent_regions:
             region.save()
@@ -99,6 +105,13 @@ class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'there'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'hundred men could'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_name(self):
         params = {'name': ['Region 1', 'Region 2']}
