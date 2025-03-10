@@ -79,7 +79,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
         return os.path.join(self._resolve_root_path(), self.file_path)
 
     def _resolve_root_path(self):
-        storage = self.get_storage
+        storage = self.storage
         if isinstance(storage, ScriptFileSystemStorage):
             return {
                 'scripts': settings.SCRIPTS_ROOT,
@@ -98,7 +98,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
         Write the object's data to disk at the specified path
         """
         # Check whether file already exists
-        storage = self.get_storage
+        storage = self.storage
         if storage.exists(path) and not overwrite:
             raise FileExistsError()
 
@@ -106,7 +106,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
             new_file.write(self.data)
 
     @cached_property
-    def get_storage(self):
+    def storage(self):
         return storages.create_storage(storages.backends["scripts"])
 
     def clean(self):
@@ -127,7 +127,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
     def delete(self, *args, **kwargs):
         # Delete file from disk
-        storage = self.get_storage
+        storage = self.storage
         try:
             storage.delete(self.full_path)
         except FileNotFoundError:
