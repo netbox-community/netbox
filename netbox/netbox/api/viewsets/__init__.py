@@ -12,6 +12,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
+from utilities.mptt import TreeManager
 from . import mixins
 
 __all__ = (
@@ -127,6 +128,9 @@ class NetBoxModelViewSet(
         https://code.djangoproject.com/ticket/32811
         """
         qs = super().get_queryset()
+        # MPTT-based models are exempt from this; use caution when annotating querysets of these models
+        if any(isinstance(manager, TreeManager) for manager in qs.model._meta.local_managers):
+            return qs
         ordering = qs.model._meta.ordering
         return qs.order_by(*ordering)
 
