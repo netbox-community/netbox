@@ -24,6 +24,9 @@ class TenantGroupTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = TenantGroup

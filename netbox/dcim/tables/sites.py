@@ -32,6 +32,9 @@ class RegionTable(ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:region_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Region
@@ -58,6 +61,9 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     )
     tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
     )
 
     class Meta(NetBoxTable.Meta):
@@ -152,6 +158,9 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     actions = columns.ActionsColumn(
         extra_buttons=LOCATION_BUTTONS
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
     )
 
     class Meta(NetBoxTable.Meta):
