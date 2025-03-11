@@ -4,9 +4,9 @@ A contact represents an individual or group that has been associated with an obj
 
 ## Fields
 
-### Group
+### Groups
 
-The [contact group](./contactgroup.md) to which this contact is assigned (if any).
+The [contact groups](./contactgroup.md) to which this contact is assigned (if any).
 
 ### Name
 
