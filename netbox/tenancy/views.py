@@ -170,7 +170,7 @@ class ContactGroupListView(generic.ObjectListView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -183,12 +183,14 @@ class ContactGroupListView(generic.ObjectListView):
 class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactGroup.objects.all()
 
+    """
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
 
         return {
             'related_models': self.get_related_models(request, groups),
         }
+    """
 
 
 @register_model_view(ContactGroup, 'add', detail=False)
@@ -214,7 +216,7 @@ class ContactGroupBulkEditView(generic.BulkEditView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -228,7 +230,7 @@ class ContactGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )

@@ -62,13 +62,13 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 class ContactFilterSet(NetBoxModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='group',
+        field_name='groups',
         lookup_expr='in',
         label=_('Contact group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='group',
+        field_name='groups__slug',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Contact group (slug)'),
@@ -105,13 +105,13 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     )
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='contact__group',
+        field_name='contact__groups',
         lookup_expr='in',
         label=_('Contact group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='contact__group',
+        field_name='contact__groups__slug',
         lookup_expr='in',
         to_field_name='slug',
         label=_('Contact group (slug)'),
@@ -153,7 +153,7 @@ class ContactModelFilterSet(django_filters.FilterSet):
     )
     contact_group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='contacts__contact__group',
+        field_name='contacts__contact__groups',
         lookup_expr='in',
         label=_('Contact group'),
     )
