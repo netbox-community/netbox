@@ -63,8 +63,8 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = SiteGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
 

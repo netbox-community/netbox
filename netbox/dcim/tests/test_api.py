@@ -105,26 +105,30 @@ class SiteGroupTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Site Group 4',
             'slug': 'site-group-4',
+            'comments': '',
         },
         {
             'name': 'Site Group 5',
             'slug': 'site-group-5',
+            'comments': 'not actually empty',
         },
         {
             'name': 'Site Group 6',
             'slug': 'site-group-6',
+            'comments': 'Do I really exist?',
         },
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'I do exist!',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
-        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
-        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2', comments='')
+        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3', comments='Hi!')
 
 
 class SiteTest(APIViewTestCases.APIViewTestCase):

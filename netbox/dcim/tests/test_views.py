@@ -73,7 +73,7 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         # Create three SiteGroups
         sitegroups = (
-            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 1', slug='site-group-1', comments='Still here'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
@@ -88,24 +88,26 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'parent': sitegroups[2].pk,
             'description': 'A new site group',
             'tags': [t.pk for t in tags],
+            'comments': 'still here',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Site Group 4,site-group-4,Fourth site group",
-            "Site Group 5,site-group-5,Fifth site group",
-            "Site Group 6,site-group-6,Sixth site group",
+            "name,slug,description,comments",
+            "Site Group 4,site-group-4,Fourth site group,",
+            "Site Group 5,site-group-5,Fifth site group,still hear",
+            "Site Group 6,site-group-6,Sixth site group,"
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{sitegroups[0].pk},Site Group 7,Fourth site group7",
-            f"{sitegroups[1].pk},Site Group 8,Fifth site group8",
-            f"{sitegroups[2].pk},Site Group 0,Sixth site group9",
+            "id,name,description,comments",
+            f"{sitegroups[0].pk},Site Group 7,Fourth site group7,",
+            f"{sitegroups[1].pk},Site Group 8,Fifth site group8,when will it end",
+            f"{sitegroups[2].pk},Site Group 0,Sixth site group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'the end',
         }
 
 

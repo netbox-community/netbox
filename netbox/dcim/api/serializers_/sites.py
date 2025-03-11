@@ -41,7 +41,7 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
         model = SiteGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'prefix_count', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 

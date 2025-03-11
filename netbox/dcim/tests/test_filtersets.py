@@ -161,13 +161,17 @@ class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             SiteGroup(name='Site Group 2A', slug='site-group-2a', parent=parent_groups[1]),
             SiteGroup(name='Site Group 2B', slug='site-group-2b', parent=parent_groups[1]),
             SiteGroup(name='Site Group 3A', slug='site-group-3a', parent=parent_groups[2]),
-            SiteGroup(name='Site Group 3B', slug='site-group-3b', parent=parent_groups[2]),
+            SiteGroup(
+                name='Site Group 3B', slug='site-group-3b', parent=parent_groups[2], comments='this is a parent group',
+            ),
         )
         for site_group in groups:
             site_group.save()
 
         child_groups = (
-            SiteGroup(name='Site Group 1A1', slug='site-group-1a1', parent=groups[0]),
+            SiteGroup(
+                name='Site Group 1A1', slug='site-group-1a1', parent=groups[0], comments='this is a child group',
+            ),
             SiteGroup(name='Site Group 1B1', slug='site-group-1b1', parent=groups[1]),
             SiteGroup(name='Site Group 2A1', slug='site-group-2a1', parent=groups[2]),
             SiteGroup(name='Site Group 2B1', slug='site-group-2b1', parent=groups[3]),
@@ -179,6 +183,13 @@ class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_q(self):
         params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'this'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'q': 'child'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):

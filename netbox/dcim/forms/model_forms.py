@@ -98,6 +98,7 @@ class SiteGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -106,7 +107,7 @@ class SiteGroupForm(NetBoxModelForm):
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'comments', 'tags',
         )
 
 

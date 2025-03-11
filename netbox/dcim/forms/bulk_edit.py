@@ -98,12 +98,13 @@ class SiteGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = SiteGroup
     fieldsets = (
         FieldSet('parent', 'description'),
     )
-    nullable_fields = ('parent', 'description')
+    nullable_fields = ('parent', 'description', 'comments')
 
 
 class SiteBulkEditForm(NetBoxModelBulkEditForm):

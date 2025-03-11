@@ -82,7 +82,7 @@ class SiteGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = SiteGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'comments', 'tags')
 
 
 class SiteImportForm(NetBoxModelImportForm):
