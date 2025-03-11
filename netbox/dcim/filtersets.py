@@ -115,6 +115,7 @@ class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(slug__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
@@ -154,6 +155,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(slug__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
@@ -297,6 +299,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(slug__icontains=value) |
             Q(facility__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
