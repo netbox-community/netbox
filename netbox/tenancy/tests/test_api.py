@@ -21,6 +21,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'New Comment',
     }
 
     @classmethod
@@ -28,12 +29,17 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
 
         parent_tenant_groups = (
             TenantGroup.objects.create(name='Parent Tenant Group 1', slug='parent-tenant-group-1'),
-            TenantGroup.objects.create(name='Parent Tenant Group 2', slug='parent-tenant-group-2'),
+            TenantGroup.objects.create(
+                name='Parent Tenant Group 2', slug='parent-tenant-group-2', comments='Parent Group 2 comment',
+            ),
         )
 
         TenantGroup.objects.create(name='Tenant Group 1', slug='tenant-group-1', parent=parent_tenant_groups[0])
         TenantGroup.objects.create(name='Tenant Group 2', slug='tenant-group-2', parent=parent_tenant_groups[0])
-        TenantGroup.objects.create(name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[0])
+        TenantGroup.objects.create(
+            name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[0],
+            comments='Tenant Group 3 comment'
+        )
 
         cls.create_data = [
             {
@@ -50,6 +56,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Tenant Group 6',
                 'slug': 'tenant-group-6',
                 'parent': parent_tenant_groups[1].pk,
+                'comments': 'Tenant Group 6 comment',
             },
         ]
 

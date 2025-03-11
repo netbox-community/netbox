@@ -27,6 +27,7 @@ class TenantGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Tenant Group')),
@@ -35,7 +36,7 @@ class TenantGroupForm(NetBoxModelForm):
     class Meta:
         model = TenantGroup
         fields = [
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'tags', 'comments'
         ]
 
 

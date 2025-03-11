@@ -15,7 +15,7 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', comments='Tenant Group 2 comment'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenanantgroup in tenant_groups:
@@ -28,24 +28,26 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'tenant-group-x',
             'description': 'A new tenant group',
             'tags': [t.pk for t in tags],
+            'comments': 'Tenant Group X comment',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Tenant Group 4,tenant-group-4,Fourth tenant group",
-            "Tenant Group 5,tenant-group-5,Fifth tenant group",
-            "Tenant Group 6,tenant-group-6,Sixth tenant group",
+            "name,slug,description,comments",
+            "Tenant Group 4,tenant-group-4,Fourth tenant group,",
+            "Tenant Group 5,tenant-group-5,Fifth tenant group,",
+            "Tenant Group 6,tenant-group-6,Sixth tenant group,Sixth tenant group comment",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7",
-            f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8",
-            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9",
+            "id,name,description,comments",
+            f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7,Group 7 comment",
+            f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8,",
+            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'New comment',
         }
 
 

@@ -31,7 +31,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = TenantGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class TenantImportForm(NetBoxModelImportForm):

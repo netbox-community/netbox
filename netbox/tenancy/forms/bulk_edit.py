@@ -33,9 +33,10 @@ class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = TenantGroup
-    nullable_fields = ('parent', 'description')
+    nullable_fields = ('parent', 'description', 'comments')
 
 
 class TenantBulkEditForm(NetBoxModelBulkEditForm):

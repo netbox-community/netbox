@@ -16,7 +16,7 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         parent_tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', comments='Parent group 2 comment'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenant_group in parent_tenant_groups:
@@ -27,7 +27,8 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Tenant Group 1A',
                 slug='tenant-group-1a',
                 parent=parent_tenant_groups[0],
-                description='foobar1'
+                description='foobar1',
+                comments='Tenant Group 1A comment',
             ),
             TenantGroup(
                 name='Tenant Group 2A',
@@ -48,7 +49,10 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         child_tenant_groups = (
             TenantGroup(name='Tenant Group 1A1', slug='tenant-group-1a1', parent=tenant_groups[0]),
             TenantGroup(name='Tenant Group 2A1', slug='tenant-group-2a1', parent=tenant_groups[1]),
-            TenantGroup(name='Tenant Group 3A1', slug='tenant-group-3a1', parent=tenant_groups[2]),
+            TenantGroup(
+                name='Tenant Group 3A1', slug='tenant-group-3a1', parent=tenant_groups[2],
+                comments='Tenant Group 3A1 comment',
+            ),
         )
         for tenant_group in child_tenant_groups:
             tenant_group.save()
@@ -56,6 +60,13 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
         params = {'name': ['Tenant Group 1', 'Tenant Group 2']}

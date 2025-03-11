@@ -28,7 +28,8 @@ class TenantGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = TenantGroup
         fields = (
-            'pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'tenant_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
