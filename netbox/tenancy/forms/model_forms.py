@@ -70,6 +70,7 @@ class ContactGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Contact Group')),
@@ -77,7 +78,7 @@ class ContactGroupForm(NetBoxModelForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('parent', 'name', 'slug', 'description', 'tags')
+        fields = ('parent', 'name', 'slug', 'description', 'tags', 'comments')
 
 
 class ContactRoleForm(NetBoxModelForm):

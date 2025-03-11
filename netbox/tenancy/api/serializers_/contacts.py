@@ -26,7 +26,7 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
         model = ContactGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'contact_count', '_depth',
+            'created', 'last_updated', 'contact_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'contact_count', '_depth')
 

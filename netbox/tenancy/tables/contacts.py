@@ -31,7 +31,8 @@ class ContactGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ContactGroup
         fields = (
-            'pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'name', 'contact_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'contact_count', 'description')
 

@@ -139,7 +139,7 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         parent_contact_groups = (
             ContactGroup(name='Contact Group 1', slug='contact-group-1'),
-            ContactGroup(name='Contact Group 2', slug='contact-group-2'),
+            ContactGroup(name='Contact Group 2', slug='contact-group-2', comments='Parent group 2'),
             ContactGroup(name='Contact Group 3', slug='contact-group-3'),
         )
         for contact_group in parent_contact_groups:
@@ -162,14 +162,18 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Contact Group 3A',
                 slug='contact-group-3a',
                 parent=parent_contact_groups[2],
-                description='foobar3'
+                description='foobar3',
+                comments='Contact Group 3A comment, not a parent',
             ),
         )
         for contact_group in contact_groups:
             contact_group.save()
 
         child_contact_groups = (
-            ContactGroup(name='Contact Group 1A1', slug='contact-group-1a1', parent=contact_groups[0]),
+            ContactGroup(
+                name='Contact Group 1A1', slug='contact-group-1a1', parent=contact_groups[0],
+                comments='Contact Group 1A1 comment',
+            ),
             ContactGroup(name='Contact Group 2A1', slug='contact-group-2a1', parent=contact_groups[1]),
             ContactGroup(name='Contact Group 3A1', slug='contact-group-3a1', parent=contact_groups[2]),
         )
@@ -178,6 +182,13 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_q(self):
         params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'q': '1A1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):

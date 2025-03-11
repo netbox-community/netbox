@@ -51,6 +51,16 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
         model = ContactGroup
         fields = ('id', 'name', 'slug', 'description')
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(slug__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
 
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
 

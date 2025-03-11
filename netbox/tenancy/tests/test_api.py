@@ -107,13 +107,18 @@ class ContactGroupTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         parent_contact_groups = (
-            ContactGroup.objects.create(name='Parent Contact Group 1', slug='parent-contact-group-1'),
+            ContactGroup.objects.create(
+                name='Parent Contact Group 1', slug='parent-contact-group-1', comments='Parent 1 comment'
+            ),
             ContactGroup.objects.create(name='Parent Contact Group 2', slug='parent-contact-group-2'),
         )
 
         ContactGroup.objects.create(name='Contact Group 1', slug='contact-group-1', parent=parent_contact_groups[0])
         ContactGroup.objects.create(name='Contact Group 2', slug='contact-group-2', parent=parent_contact_groups[0])
-        ContactGroup.objects.create(name='Contact Group 3', slug='contact-group-3', parent=parent_contact_groups[0])
+        ContactGroup.objects.create(
+            name='Contact Group 3', slug='contact-group-3', parent=parent_contact_groups[0],
+            comments='Child Group 3 comment',
+        )
 
         cls.create_data = [
             {
@@ -125,11 +130,13 @@ class ContactGroupTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Contact Group 5',
                 'slug': 'contact-group-5',
                 'parent': parent_contact_groups[1].pk,
+                'comments': '',
             },
             {
                 'name': 'Contact Group 6',
                 'slug': 'contact-group-6',
                 'parent': parent_contact_groups[1].pk,
+                'comments': 'Child Group 6 comment',
             },
         ]
 

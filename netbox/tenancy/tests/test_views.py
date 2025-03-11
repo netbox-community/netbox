@@ -106,7 +106,7 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     def setUpTestData(cls):
 
         contact_groups = (
-            ContactGroup(name='Contact Group 1', slug='contact-group-1'),
+            ContactGroup(name='Contact Group 1', slug='contact-group-1', comments='Comment 1'),
             ContactGroup(name='Contact Group 2', slug='contact-group-2'),
             ContactGroup(name='Contact Group 3', slug='contact-group-3'),
         )
@@ -120,24 +120,26 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'contact-group-x',
             'description': 'A new contact group',
             'tags': [t.pk for t in tags],
+            'comments': 'Form data comment',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Contact Group 4,contact-group-4,Fourth contact group",
-            "Contact Group 5,contact-group-5,Fifth contact group",
-            "Contact Group 6,contact-group-6,Sixth contact group",
+            "name,slug,description,comments",
+            "Contact Group 4,contact-group-4,Fourth contact group,",
+            "Contact Group 5,contact-group-5,Fifth contact group,Fifth comment",
+            "Contact Group 6,contact-group-6,Sixth contact group,",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7",
-            f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8",
-            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9",
+            "id,name,description,comments",
+            f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7,",
+            f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8,Group 8 comment",
+            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'Bulk update comment',
         }
 
 
