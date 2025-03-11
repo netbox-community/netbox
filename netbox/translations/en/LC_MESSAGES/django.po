@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-08 05:01+0000\n"
+"POT-Creation-Date: 2025-03-11 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -575,7 +575,7 @@ msgstr ""
 #: netbox/templates/wireless/wirelesslangroup.html:33
 #: netbox/templates/wireless/wirelesslink.html:34
 #: netbox/tenancy/forms/bulk_edit.py:32 netbox/tenancy/forms/bulk_edit.py:80
-#: netbox/tenancy/forms/bulk_edit.py:122 netbox/users/forms/bulk_edit.py:64
+#: netbox/tenancy/forms/bulk_edit.py:123 netbox/users/forms/bulk_edit.py:64
 #: netbox/users/forms/bulk_edit.py:82 netbox/users/forms/bulk_edit.py:112
 #: netbox/virtualization/forms/bulk_edit.py:33
 #: netbox/virtualization/forms/bulk_edit.py:47
@@ -1044,7 +1044,7 @@ msgstr ""
 #: netbox/templates/dcim/virtualchassis.html:68
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:26
-#: netbox/tenancy/forms/bulk_edit.py:147 netbox/tenancy/forms/filtersets.py:110
+#: netbox/tenancy/forms/bulk_edit.py:148 netbox/tenancy/forms/filtersets.py:110
 msgid "Priority"
 msgstr ""
 
@@ -1095,7 +1095,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine.html:23
 #: netbox/templates/vpn/tunneltermination.html:17
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:20
-#: netbox/tenancy/forms/bulk_edit.py:142 netbox/tenancy/forms/filtersets.py:107
+#: netbox/tenancy/forms/bulk_edit.py:143 netbox/tenancy/forms/filtersets.py:107
 #: netbox/tenancy/forms/model_forms.py:137
 #: netbox/tenancy/tables/contacts.py:102
 #: netbox/virtualization/forms/bulk_edit.py:127
@@ -7832,25 +7832,25 @@ msgstr ""
 msgid "Feed URL"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:290
+#: netbox/extras/dashboard/widgets.py:291
 msgid "Requires external connection"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:296
+#: netbox/extras/dashboard/widgets.py:297
 msgid "The maximum number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:301
+#: netbox/extras/dashboard/widgets.py:302
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:358 netbox/templates/account/base.html:10
+#: netbox/extras/dashboard/widgets.py:359 netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:43
 msgid "Bookmarks"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:362
+#: netbox/extras/dashboard/widgets.py:363
 msgid "Show your personal bookmarks"
 msgstr ""
 
@@ -14416,7 +14416,7 @@ msgid ""
 msgstr ""
 
 #: netbox/templates/tenancy/contact.html:18 netbox/tenancy/filtersets.py:147
-#: netbox/tenancy/forms/bulk_edit.py:137 netbox/tenancy/forms/filtersets.py:102
+#: netbox/tenancy/forms/bulk_edit.py:138 netbox/tenancy/forms/filtersets.py:102
 #: netbox/tenancy/forms/forms.py:57 netbox/tenancy/forms/model_forms.py:106
 #: netbox/tenancy/forms/model_forms.py:130 netbox/tenancy/tables/contacts.py:98
 msgid "Contact"
@@ -14894,7 +14894,7 @@ msgstr ""
 msgid "Contact Link"
 msgstr ""
 
-#: netbox/tenancy/tables/contacts.py:133
+#: netbox/tenancy/tables/contacts.py:134
 msgid "Contact Description"
 msgstr ""
 
