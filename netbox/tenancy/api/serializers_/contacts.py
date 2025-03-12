@@ -43,7 +43,7 @@ class ContactRoleSerializer(NetBoxModelSerializer):
 
 
 class ContactSerializer(NetBoxModelSerializer):
-    group = ContactGroupSerializer(nested=True, required=False, allow_null=True, default=None)
+    groups = ContactGroupSerializer(many=True, nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = Contact

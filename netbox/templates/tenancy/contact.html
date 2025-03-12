@@ -18,8 +18,12 @@
         <h2 class="card-header">{% trans "Contact" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">{% trans "Group" %}</th>
-            <td>{{ object.group|linkify|placeholder }}</td>
+            <th scope="row">{% trans "Groups" %}</th>
+            <td>
+              {% for group in object.groups.all %}
+                {{ group|linkify|placeholder }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Name" %}</th>
