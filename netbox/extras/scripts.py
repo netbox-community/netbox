@@ -563,7 +563,12 @@ class BaseScript:
     def load_yaml(self, filename):
         """
         Return data from a YAML file
+        TODO: DEPRECATED: Remove this method in v4.4
         """
+        self._log(
+            _("load_yaml is deprecated and will be removed in v4.4"),
+            level=LogLevelChoices.LOG_WARNING
+        )
         try:
             from yaml import CLoader as Loader
         except ImportError:
@@ -578,7 +583,12 @@ class BaseScript:
     def load_json(self, filename):
         """
         Return data from a JSON file
+        TODO: DEPRECATED: Remove this method in v4.4
         """
+        self._log(
+            _("load_json is deprecated and will be removed in v4.4"),
+            level=LogLevelChoices.LOG_WARNING
+        )
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
         with open(file_path, 'r') as datafile:
             data = json.load(datafile)
