@@ -190,6 +190,7 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
         Contact.objects.bulk_create(contacts)
         contacts[0].groups.add(contact_groups[0])
         contacts[1].groups.add(contact_groups[0])
+        contacts[2].groups.add(contact_groups[0])
 
         cls.create_data = [
             {
