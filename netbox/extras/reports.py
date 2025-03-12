@@ -15,7 +15,7 @@ class Report(BaseScript):
 
     # There is no generic log() equivalent on BaseScript
     def log(self, message):
-        self._log(message, None, level=LogLevelChoices.LOG_DEFAULT)
+        self._log(message, None, level=LogLevelChoices.LOG_INFO)
 
     def log_success(self, obj=None, message=None):
         super().log_success(message, obj)

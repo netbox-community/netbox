@@ -1,6 +1,6 @@
 # GraphQL API Overview
 
-NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by [Strawberry Django](https://strawberry-graphql.github.io/strawberry-django/).
+NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by [Strawberry Django](https://strawberry.rocks/).
 
 ## Queries
 
@@ -47,7 +47,7 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
-For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry-graphql.github.io/strawberry-django/guide/filters/).
+For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry.rocks/docs/django/guide/filters).
 
 ## Filtering
 
@@ -60,6 +60,7 @@ query {
   }
 }
 ```
+
 In addition, filtering can be done on list of related objects as shown in the following query:
 
 ```
@@ -98,8 +99,8 @@ Certain queries can return multiple types of objects, for example cable terminat
       }
     }
 }
-
 ```
+
 The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
 
 ## Authentication

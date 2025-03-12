@@ -5,9 +5,7 @@ import os
 import platform
 import sys
 import warnings
-from urllib.parse import urlencode
 
-import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -178,6 +176,12 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
+DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
+if DISK_BASE_UNIT not in [1000, 1024]:
+    raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
+RAM_BASE_UNIT = getattr(configuration, 'RAM_BASE_UNIT', 1000)
+if RAM_BASE_UNIT not in [1000, 1024]:
+    raise ImproperlyConfigured(f"RAM_BASE_UNIT must be 1000 or 1024 (found {RAM_BASE_UNIT})")
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
@@ -224,8 +228,18 @@ DATABASES = {
 # Storage backend
 #
 
+# Default STORAGES for Django
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 if STORAGE_BACKEND is not None:
-    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+    STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
@@ -583,17 +597,6 @@ if SENTRY_ENABLED:
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
-CENSUS_PARAMS = {
-    'version': RELEASE.full_version,
-    'python_version': sys.version.split()[0],
-    'deployment_id': DEPLOYMENT_ID,
-}
-if CENSUS_REPORTING_ENABLED and not ISOLATED_DEPLOYMENT and not DEBUG and 'test' not in sys.argv:
-    try:
-        # Report anonymous census data
-        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
-    except requests.exceptions.RequestException:
-        pass
 
 
 #

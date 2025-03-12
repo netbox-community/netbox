@@ -29,7 +29,7 @@ python3 -V
 
 ## Download NetBox
 
-This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by re-pulling the `master` branch.
+This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by checking out the latest release tag.
 
 ### Option A: Download a Release Archive
 
@@ -67,16 +67,13 @@ If `git` is not already installed, install it:
     sudo yum install -y git
     ```
 
-Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
+Next, clone the git repository:
 
 ```no-highlight
-sudo git clone -b master --depth 1 https://github.com/netbox-community/netbox.git .
+sudo git clone https://github.com/netbox-community/netbox.git .
 ```
 
-!!! note
-    The `git clone` command above utilizes a "shallow clone" to retrieve only the most recent commit. If you need to download the entire history, omit the `--depth 1` argument.
-
-The `git clone` command should generate output similar to the following:
+This command should generate output similar to the following:
 
 ```
 Cloning into '.'...
@@ -88,8 +85,13 @@ Receiving objects: 100% (996/996), 4.26 MiB | 9.81 MiB/s, done.
 Resolving deltas: 100% (148/148), done.
 ```
 
-!!! note
-    Installation via git also allows you to easily try out different versions of NetBox. To check out a [specific NetBox release](https://github.com/netbox-community/netbox/releases), use the `git checkout` command with the desired release tag. For example, `git checkout v3.0.8`.
+Finally, check out the tag for the desired release. You can find these on our [releases page](https://github.com/netbox-community/netbox/releases). Replace `vX.Y.Z` with your selected release tag below.
+
+```
+sudo git checkout vX.Y.Z
+```
+
+Using this installation method enables easy upgrades in the future by simply checking out the latest release tag.
 
 ## Create the NetBox System User
 

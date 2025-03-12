@@ -28,12 +28,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          setup_commands:
-            - import os
-            - import django
-            - os.chdir('netbox/')
-            - os.environ.setdefault("DJANGO_SETTINGS_MODULE", "netbox.settings")
-            - django.setup()
+          paths: ["netbox"]
           options:
             heading_level: 3
             members_order: source
@@ -64,6 +59,8 @@ markdown_extensions:
             format: !!python/name:pymdownx.superfences.fence_code_format
     - pymdownx.tabbed:
         alternate_style: true
+not_in_nav: |
+    /index.md
 nav:
     - Introduction: 'introduction.md'
     - Features:
@@ -176,6 +173,7 @@ nav:
             - Provider Network: 'models/circuits/providernetwork.md'
             - Virtual Circuit: 'models/circuits/virtualcircuit.md'
             - Virtual Circuit Termination: 'models/circuits/virtualcircuittermination.md'
+            - Virtual Circuit Type: 'models/circuits/virtualcircuittype.md'
         - Core:
             - DataFile: 'models/core/datafile.md'
             - DataSource: 'models/core/datasource.md'

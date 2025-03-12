@@ -29,7 +29,7 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     exclude = exclude or []
 
     # Include custom_field_data as "custom_fields"
-    if hasattr(obj, 'custom_field_data'):
+    if 'custom_field_data' in data:
         data['custom_fields'] = data.pop('custom_field_data')
 
     # Resolve any assigned tags to their names. Check for tags cached on the instance;

@@ -103,7 +103,7 @@
   <tr>
     <th scope="row" class="border-0 ps-3">{% trans "Protection rules" %}</th>
     {% if config.PROTECTION_RULES %}
-      <td class="border-0"><pre>{{ config.PROTECTION_RULES|json }}</pre></td>
+      <td class="border-0"><pre>{{ config.PROTECTION_RULES }}</pre></td>
     {% else %}
       <td class="border-0">{{ ''|placeholder }}</td>
     {% endif %}

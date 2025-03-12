@@ -23,7 +23,6 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Accounts')
     )
     account_count = columns.LinkedCountColumn(
-        accessor=tables.A('accounts__count'),
         viewname='circuits:provideraccount_list',
         url_params={'provider_id': 'pk'},
         verbose_name=_('Account Count')
@@ -33,7 +32,6 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
         verbose_name=_('ASNs')
     )
     asn_count = columns.LinkedCountColumn(
-        accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'provider_id': 'pk'},
         verbose_name=_('ASN Count')

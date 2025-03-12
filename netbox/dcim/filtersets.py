@@ -1193,6 +1193,7 @@ class DeviceFilterSet(
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
@@ -1652,8 +1653,8 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         qs_filter = (
-                Q(mac_address__icontains=value) |
-                Q(description__icontains=value)
+            Q(mac_address__icontains=value) |
+            Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
 

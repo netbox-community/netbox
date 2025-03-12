@@ -1,11 +1,6 @@
 #!/bin/sh
-# Create a link to this file at .git/hooks/pre-commit to
-# force PEP8 validation prior to committing
-#
-# Ignored violations:
-#
-#   W504: Line break after binary operator
-#   E501: Line too long
+# TODO: Remove this file in NetBox v4.3
+# This script has been maintained to ease transition to the pre-commit tool.
 
 exec 1>&2
 
@@ -14,48 +9,8 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NOCOLOR='\033[0m'
 
-printf "${YELLOW}This script is obsolete and will be removed in a future release.\n"
-printf "Please use pre-commit instead:\n"
+printf "${YELLOW}The pre-commit hook script is obsolete. Please use pre-commit instead:${NOCOLOR}\n"
 printf "  pip install pre-commit\n"
 printf "  pre-commit install${NOCOLOR}\n"
 
-if [ -d ./venv/ ]; then
-    VENV="$PWD/venv"
-    if [ -e $VENV/bin/python ]; then
-        PATH=$VENV/bin:$PATH
-    elif [ -e $VENV/Scripts/python.exe ]; then
-        PATH=$VENV/Scripts:$PATH
-    fi
-fi
-
-if [ ${NOVALIDATE} ]; then
-  echo "${YELLOW}Skipping validation checks${NOCOLOR}"
-  exit $EXIT
-fi
-
-echo "Linting with ruff..."
-ruff check netbox/
-if [ $? != 0 ]; then
-	EXIT=1
-fi
-
-echo "Checking for missing migrations..."
-python netbox/manage.py makemigrations --dry-run --check
-if [ $? != 0 ]; then
-	EXIT=1
-fi
-
-git diff --cached --name-only | if grep --quiet 'netbox/project-static/'
-then
-    echo "Checking UI ESLint, TypeScript, and Prettier compliance..."
-    yarn --cwd "$PWD/netbox/project-static" validate
-    if [ $? != 0 ]; then
-    	EXIT=1
-    fi
-fi
-
-if [ $EXIT != 0 ]; then
-  printf "${RED}COMMIT FAILED${NOCOLOR}\n"
-fi
-
-exit $EXIT
+exit 1

@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "@graphiql/plugin-explorer": "3.2.3",
-    "graphiql": "3.7.2",
-    "graphql": "16.9.0",
+    "@graphiql/plugin-explorer": "3.2.5",
+    "graphiql": "3.8.3",
+    "graphql": "16.10.0",
     "js-cookie": "3.0.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"

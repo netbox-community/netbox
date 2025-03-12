@@ -8,7 +8,9 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {%  include 'dcim/inc/devicetype_breadcrumbs.html' %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'dcim:moduletype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a>
+  </li>
 {% endblock %}
 
 {% block extra_controls %}

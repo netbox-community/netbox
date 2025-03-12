@@ -361,7 +361,7 @@ class VLANTranslationRule(NetBoxModel):
     )
     local_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Local VLAN ID'),
-            validators=(
+        validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),
@@ -369,7 +369,7 @@ class VLANTranslationRule(NetBoxModel):
     )
     remote_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Remote VLAN ID'),
-            validators=(
+        validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),

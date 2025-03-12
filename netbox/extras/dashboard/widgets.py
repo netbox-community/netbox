@@ -284,7 +284,8 @@ class RSSFeedWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         feed_url = forms.URLField(
-            label=_('Feed URL')
+            label=_('Feed URL'),
+            assume_scheme='https'
         )
         requires_internet = forms.BooleanField(
             label=_('Requires external connection'),
@@ -314,7 +315,7 @@ class RSSFeedWidget(DashboardWidget):
         return f'dashboard_rss_{url_checksum}'
 
     def get_feed(self):
-        if self.config['requires_internet'] and settings.ISOLATED_DEPLOYMENT:
+        if self.config.get('requires_internet') and settings.ISOLATED_DEPLOYMENT:
             return {
                 'isolated_deployment': True,
             }

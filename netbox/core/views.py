@@ -165,7 +165,7 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Job, 'list', path='', detail=False)
 class JobListView(generic.ObjectListView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
@@ -182,12 +182,12 @@ class JobView(generic.ObjectView):
 
 @register_model_view(Job, 'delete')
 class JobDeleteView(generic.ObjectDeleteView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
 
 
 @register_model_view(Job, 'bulk_delete', path='delete', detail=False)
 class JobBulkDeleteView(generic.BulkDeleteView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
     filterset = filtersets.JobFilterSet
     table = tables.JobTable
 
@@ -570,8 +570,9 @@ class SystemView(UserPassesTestMixin, View):
             return response
 
         # Serialize any CustomValidator classes
-        if hasattr(config, 'CUSTOM_VALIDATORS') and config.CUSTOM_VALIDATORS:
-            config.CUSTOM_VALIDATORS = json.dumps(config.CUSTOM_VALIDATORS, cls=ConfigJSONEncoder, indent=4)
+        for attr in ['CUSTOM_VALIDATORS', 'PROTECTION_RULES']:
+            if hasattr(config, attr) and getattr(config, attr, None):
+                setattr(config, attr, json.dumps(getattr(config, attr), cls=ConfigJSONEncoder, indent=4))
 
         return render(request, 'core/system.html', {
             'stats': stats,
@@ -594,7 +595,7 @@ class BasePluginView(UserPassesTestMixin, View):
         catalog_plugins_error = cache.get(self.CACHE_KEY_CATALOG_ERROR, default=False)
         if not catalog_plugins_error:
             catalog_plugins = get_catalog_plugins()
-            if not catalog_plugins:
+            if not catalog_plugins and not settings.ISOLATED_DEPLOYMENT:
                 # Cache for 5 minutes to avoid spamming connection
                 cache.set(self.CACHE_KEY_CATALOG_ERROR, True, 300)
                 messages.warning(request, _("Plugins catalog could not be loaded"))

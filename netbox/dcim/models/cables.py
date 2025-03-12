@@ -14,6 +14,7 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
+from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from wireless.models import WirelessLink
@@ -25,6 +26,7 @@ __all__ = (
     'CableTermination',
 )
 
+from ..exceptions import UnsupportedCablePath
 
 trace_paths = Signal()
 
@@ -235,8 +237,10 @@ class Cable(PrimaryModel):
             for termination in self.b_terminations:
                 if not termination.pk or termination not in b_terminations:
                     CableTermination(cable=self, cable_end='B', termination=termination).save()
-
-        trace_paths.send(Cable, instance=self, created=_created)
+        try:
+            trace_paths.send(Cable, instance=self, created=_created)
+        except UnsupportedCablePath as e:
+            raise AbortRequest(e)
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
@@ -533,8 +537,8 @@ class CablePath(models.Model):
             return None
 
         # Ensure all originating terminations are attached to the same link
-        if len(terminations) > 1:
-            assert all(t.link == terminations[0].link for t in terminations[1:])
+        if len(terminations) > 1 and not all(t.link == terminations[0].link for t in terminations[1:]):
+            raise UnsupportedCablePath(_("All originating terminations must be attached to the same link"))
 
         path = []
         position_stack = []
@@ -545,12 +549,13 @@ class CablePath(models.Model):
         while terminations:
 
             # Terminations must all be of the same type
-            assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
+            if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
+                raise UnsupportedCablePath(_("All mid-span terminations must have the same termination type"))
 
             # All mid-span terminations must all be attached to the same device
-            if not isinstance(terminations[0], PathEndpoint):
-                assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
-                assert all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
+            if (not isinstance(terminations[0], PathEndpoint) and not
+                    all(t.parent_object == terminations[0].parent_object for t in terminations[1:])):
+                raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
@@ -573,8 +578,10 @@ class CablePath(models.Model):
                     return None
                 # Otherwise, halt the trace if no link exists
                 break
-            assert all(type(link) in (Cable, WirelessLink) for link in links)
-            assert all(isinstance(link, type(links[0])) for link in links)
+            if not all(type(link) in (Cable, WirelessLink) for link in links):
+                raise UnsupportedCablePath(_("All links must be cable or wireless"))
+            if not all(isinstance(link, type(links[0])) for link in links):
+                raise UnsupportedCablePath(_("All links must match first link type"))
 
             # Step 3: Record asymmetric paths as split
             not_connected_terminations = [termination.link for termination in terminations if termination.link is None]
@@ -655,14 +662,18 @@ class CablePath(models.Model):
                     positions = position_stack.pop()
 
                     # Ensure we have a number of positions equal to the amount of remote terminations
-                    assert len(remote_terminations) == len(positions)
+                    if len(remote_terminations) != len(positions):
+                        raise UnsupportedCablePath(
+                            _("All positions counts within the path on opposite ends of links must match")
+                        )
 
                     # Get our front ports
                     q_filter = Q()
                     for rt in remote_terminations:
                         position = positions.pop()
                         q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
-                    assert q_filter is not Q()
+                    if q_filter is Q():
+                        raise UnsupportedCablePath(_("Remote termination position filter is missing"))
                     front_ports = FrontPort.objects.filter(q_filter)
                 # Obtain the individual front ports based on the termination and position
                 elif position_stack:

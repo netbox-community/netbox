@@ -121,6 +121,15 @@ class NetBoxModelViewSet(
             obj.snapshot()
         return obj
 
+    def get_queryset(self):
+        """
+        Reapply model-level ordering in case it has been lost through .annotate().
+        https://code.djangoproject.com/ticket/32811
+        """
+        qs = super().get_queryset()
+        ordering = qs.model._meta.ordering
+        return qs.order_by(*ordering)
+
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):

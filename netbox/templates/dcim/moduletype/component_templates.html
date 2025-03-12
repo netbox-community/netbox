@@ -3,13 +3,6 @@
 {% load helpers %}
 {% load i18n %}
 
-{% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  {%  include 'dcim/inc/devicetype_breadcrumbs.html' %}
-{% endblock %}
-
 {% block extra_controls %}
   {%  include 'dcim/inc/moduletype_buttons.html' %}
 {% endblock %}

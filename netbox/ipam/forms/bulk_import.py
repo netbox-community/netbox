@@ -177,6 +177,13 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
         to_field_name='name',
         help_text=_("VLAN's group (if any)")
     )
+    vlan_site = CSVModelChoiceField(
+        label=_('VLAN Site'),
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_("VLAN's site (if any)")
+    )
     vlan = CSVModelChoiceField(
         label=_('VLAN'),
         queryset=VLAN.objects.all(),
@@ -200,8 +207,8 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
     class Meta:
         model = Prefix
         fields = (
-            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan', 'status', 'role', 'scope_type', 'scope_id', 'is_pool',
-            'mark_utilized', 'description', 'comments', 'tags',
+            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan_site', 'vlan', 'status', 'role', 'scope_type', 'scope_id',
+            'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),
@@ -213,19 +220,19 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
         if not data:
             return
 
-        site = data.get('site')
+        vlan_site = data.get('vlan_site')
         vlan_group = data.get('vlan_group')
 
         # Limit VLAN queryset by assigned site and/or group (if specified)
         query = Q()
 
-        if site:
+        if vlan_site:
             query |= Q(**{
-                f"site__{self.fields['site'].to_field_name}": site
+                f"site__{self.fields['vlan_site'].to_field_name}": vlan_site
             })
             # Don't Forget to include VLANs without a site in the filter
             query |= Q(**{
-                f"site__{self.fields['site'].to_field_name}__isnull": True
+                f"site__{self.fields['vlan_site'].to_field_name}__isnull": True
             })
 
         if vlan_group:

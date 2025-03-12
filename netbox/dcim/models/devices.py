@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
@@ -801,14 +802,10 @@ class Device(
         verbose_name_plural = _('devices')
 
     def __str__(self):
-        if self.name and self.asset_tag:
-            return f'{self.name} ({self.asset_tag})'
-        elif self.name:
-            return self.name
-        elif self.virtual_chassis and self.asset_tag:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.asset_tag})'
-        elif self.virtual_chassis:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        if self.label and self.asset_tag:
+            return f'{self.label} ({self.asset_tag})'
+        elif self.label:
+            return self.label
         elif self.device_type and self.asset_tag:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.asset_tag})'
         elif self.device_type:
@@ -1073,13 +1070,21 @@ class Device(
             device.save()
 
     @property
+    def label(self):
+        """
+        Return the device name if set; otherwise return a generated name if available.
+        """
+        if self.name:
+            return self.name
+        if self.virtual_chassis:
+            return f'{self.virtual_chassis.name}:{self.vc_position}'
+
+    @property
     def identifier(self):
         """
         Return the device name if set; otherwise return the Device's primary key as {pk}
         """
-        if self.name is not None:
-            return self.name
-        return '{{{}}}'.format(self.pk)
+        return self.label or '{{{}}}'.format(self.pk)
 
     @property
     def primary_ip(self):
@@ -1297,6 +1302,7 @@ class Module(PrimaryModel, ConfigContextModel):
             else:
                 # ModuleBays must be saved individually for MPTT
                 for instance in create_instances:
+                    instance.name = instance.name.replace(MODULE_TOKEN, str(self.module_bay.position))
                     instance.save()
 
             update_fields = ['module']
@@ -1522,3 +1528,37 @@ class MACAddress(PrimaryModel):
 
     def __str__(self):
         return str(self.mac_address)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Denote the original assigned object (if any) for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
+    @cached_property
+    def is_primary(self):
+        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
+            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
+                return True
+        return False
+
+    def clean(self, *args, **kwargs):
+        super().clean()
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
+            assigned_object = self.assigned_object
+            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+
+            if (
+                original_assigned_object.primary_mac_address
+                and original_assigned_object.primary_mac_address.pk == self.pk
+            ):
+                if not assigned_object:
+                    raise ValidationError(
+                        _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
+                    )
+                elif original_assigned_object != assigned_object:
+                    raise ValidationError(
+                        _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
+                    )
