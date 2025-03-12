@@ -68,9 +68,9 @@ class ContactFilterSet(NetBoxModelFilterSet):
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        field_name='groups__slug',
-        lookup_expr='in',
+        field_name='groups',
         to_field_name='slug',
+        lookup_expr='in',
         label=_('Contact group (slug)'),
     )
 
@@ -112,7 +112,6 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='contact__groups__slug',
-        lookup_expr='in',
         to_field_name='slug',
         label=_('Contact group (slug)'),
     )

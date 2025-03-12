@@ -183,20 +183,22 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
         )
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[0]),
-            Contact(name='Contact 3', group=contact_groups[0]),
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[0])
 
         cls.create_data = [
             {
                 'name': 'Contact 4',
-                'group': contact_groups[1].pk,
+                'groups': [contact_groups[1].pk],
             },
             {
                 'name': 'Contact 5',
-                'group': contact_groups[1].pk,
+                'groups': [contact_groups[1].pk],
             },
             {
                 'name': 'Contact 6',

@@ -311,11 +311,14 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         ContactRole.objects.bulk_create(contact_roles)
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[1]),
-            Contact(name='Contact 3', group=contact_groups[2]),
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
+        contacts[2].groups.add(contact_groups[2])
 
         assignments = (
             ContactAssignment(object=sites[0], contact=contacts[0], role=contact_roles[0]),
