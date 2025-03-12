@@ -193,10 +193,9 @@ class CounterCacheField(models.BigIntegerField):
         return name, path, args, kwargs
 
 
-
 class GenericArrayForeignKey(FieldCacheMixin, models.Field):
     """
-    Provide a generic many-to-many relation through an array field
+    Provide a generic many-to-many relation through an 2d array field
     """
 
     many_to_many = True
@@ -212,7 +211,7 @@ class GenericArrayForeignKey(FieldCacheMixin, models.Field):
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, private_only=True, **kwargs)
-        # GenericForeignKey is its own descriptor.
+        # GenericArrayForeignKey is its own descriptor.
         setattr(cls, self.attname, self)
 
     @cached_property
