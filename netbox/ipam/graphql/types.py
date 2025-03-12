@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -10,6 +10,21 @@ from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
 from .filters import *
 from .mixins import IPAddressesMixin
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import (
+        DeviceType,
+        InterfaceType,
+        LocationType,
+        RackType,
+        RegionType,
+        SiteGroupType,
+        SiteType,
+    )
+    from tenancy.graphql.types import TenantType
+    from virtualization.graphql.types import ClusterGroupType, ClusterType, VMInterfaceType, VirtualMachineType
+    from vpn.graphql.types import L2VPNType, TunnelTerminationType
+    from wireless.graphql.types import WirelessLANType
 
 __all__ = (
     'ASNType',
@@ -101,7 +116,7 @@ class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
 @strawberry_django.type(
     models.FHRPGroupAssignment,
-    exclude=('interface_type', 'interface_id'),
+    exclude=['interface_type', 'interface_id'],
     filters=FHRPGroupAssignmentFilter
 )
 class FHRPGroupAssignmentType(BaseObjectType):
@@ -117,7 +132,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
 
 @strawberry_django.type(
     models.IPAddress,
-    exclude=('assigned_object_type', 'assigned_object_id', 'address'),
+    exclude=['assigned_object_type', 'assigned_object_id', 'address'],
     filters=IPAddressFilter
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
@@ -154,7 +169,7 @@ class IPRangeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Prefix,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
+    exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
     filters=PrefixFilter
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
@@ -236,7 +251,7 @@ class ServiceTemplateType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.VLAN,
-    exclude=('qinq_svlan',),
+    exclude=['qinq_svlan'],
     filters=VLANFilter
 )
 class VLANType(NetBoxObjectType):
@@ -259,7 +274,7 @@ class VLANType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.VLANGroup,
-    exclude=('scope_type', 'scope_id'),
+    exclude=['scope_type', 'scope_id'],
     filters=VLANGroupFilter
 )
 class VLANGroupType(OrganizationalObjectType):

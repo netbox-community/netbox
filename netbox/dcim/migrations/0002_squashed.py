@@ -7,11 +7,11 @@ import taggit.managers
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0001_initial'),
+        ('dcim', '0001_squashed'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0001_initial'),
-        ('tenancy', '0001_initial'),
+        ('extras', '0001_squashed'),
+        ('tenancy', '0001_squashed_0012'),
     ]
 
     replaces = [
