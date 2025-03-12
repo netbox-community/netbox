@@ -170,7 +170,7 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
     model = Contact
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
-        'group': None,
+        'groups': None,
         'comments': 'New comments',
     }
 
