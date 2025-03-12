@@ -208,13 +208,13 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Contact X',
-            'group': contact_groups[1].pk,
+            'groups': [contact_groups[1].pk],
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "group,name",
+            "groups,name",
             "Contact Group 1,Contact 4",
             "Contact Group 1,Contact 5",
             "Contact Group 1,Contact 6",
@@ -228,7 +228,7 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'group': contact_groups[1].pk,
+            'description':  "New description",
         }
 
 
