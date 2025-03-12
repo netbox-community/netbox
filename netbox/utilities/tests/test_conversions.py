@@ -28,8 +28,8 @@ class ConversionsTest(TestCase):
 
     def test_to_meters(self):
         self.assertEqual(
-            to_meters(1, CableLengthUnitChoices.UNIT_KILOMETER),
-            Decimal('1000')
+            to_meters(1.5, CableLengthUnitChoices.UNIT_KILOMETER),
+            Decimal('1500')
         )
         self.assertEqual(
             to_meters(1, CableLengthUnitChoices.UNIT_METER),

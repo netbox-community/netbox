@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.utils.translation import gettext as _
 
@@ -42,10 +42,11 @@ def to_meters(length, unit) -> Decimal:
     Convert the given length to meters, returning a Decimal value.
     """
     try:
-        if length < 0:
-            raise ValueError(_("Length must be a positive number"))
-    except TypeError:
+        length = Decimal(length)
+    except InvalidOperation:
         raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
+    if length < 0:
+        raise ValueError(_("Length must be a positive number"))
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
         return round(Decimal(length * 1000), 4)
