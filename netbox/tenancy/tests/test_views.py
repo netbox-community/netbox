@@ -214,10 +214,10 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "groups,name",
-            "Contact Group 1,Contact 4",
-            "Contact Group 1,Contact 5",
-            "Contact Group 1,Contact 6",
+            "name",
+            "Contact 4",
+            "Contact 5",
+            "Contact 6",
         )
 
         cls.csv_update_data = (

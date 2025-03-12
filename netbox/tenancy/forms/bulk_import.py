@@ -77,17 +77,10 @@ class ContactRoleImportForm(NetBoxModelImportForm):
 
 
 class ContactImportForm(NetBoxModelImportForm):
-    group = CSVModelChoiceField(
-        label=_('Group'),
-        queryset=ContactGroup.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_('Assigned group')
-    )
 
     class Meta:
         model = Contact
-        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'group', 'description', 'comments', 'tags')
+        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags')
 
 
 class ContactAssignmentImportForm(NetBoxModelImportForm):
