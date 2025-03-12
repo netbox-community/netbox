@@ -143,10 +143,8 @@ class PlatformTable(NetBoxTable):
 class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
-        accessor=Accessor('label'),
         template_code=DEVICE_LINK,
         linkify=True,
-        order_by=('name',)
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),

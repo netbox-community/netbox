@@ -35,7 +35,7 @@ WEIGHT = """
 """
 
 DEVICE_LINK = """
-{{ value|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
+{{ record.label|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
 """
 
 DEVICEBAY_STATUS = """
