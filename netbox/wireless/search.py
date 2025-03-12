@@ -11,7 +11,7 @@ class WirelessLANIndex(SearchIndex):
         ('auth_psk', 2000),
         ('comments', 5000),
     )
-    display_attrs = ('group', 'status', 'vlan', 'tenant', 'description')
+    display_attrs = ('group', 'status', 'vlan', 'tenant', 'scope', 'description')
 
 
 @register_search

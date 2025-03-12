@@ -15,7 +15,7 @@ def populate_denormalized_fields(apps, schema_editor):
         cluster._site_id = cluster.site_id
         # Note: Location cannot be set prior to migration
 
-    Cluster.objects.bulk_update(clusters, ['_region', '_site_group', '_site'])
+    Cluster.objects.bulk_update(clusters, ['_region', '_site_group', '_site'], batch_size=100)
 
 
 class Migration(migrations.Migration):

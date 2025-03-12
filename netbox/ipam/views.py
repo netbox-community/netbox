@@ -863,6 +863,13 @@ class IPAddressEditView(generic.ObjectEditView):
 
         return obj
 
+    def get_extra_addanother_params(self, request):
+        if 'interface' in request.GET:
+            return {'interface': request.GET['interface']}
+        elif 'vminterface' in request.GET:
+            return {'vminterface': request.GET['vminterface']}
+        return {}
+
 
 # TODO: Standardize or remove this view
 @register_model_view(IPAddress, 'assign', path='assign', detail=False)

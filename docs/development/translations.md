@@ -14,10 +14,10 @@ To update the English `.po` file from which all translations are derived, use th
 ./manage.py makemessages -l en -i "project-static/*"
 ```
 
-Then, commit the change and push to the `develop` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
+Then, commit the change and push to the `main` branch on GitHub. Any new strings will appear for translation on Transifex automatically.
 
 !!! note
-    It is typically not necessary to update source strings manually, as this is done nightly by a [GitHub action](https://github.com/netbox-community/netbox/blob/develop/.github/workflows/update-translation-strings.yml).
+    It is typically not necessary to update source strings manually, as this is done nightly by a [GitHub action](https://github.com/netbox-community/netbox/blob/main/.github/workflows/update-translation-strings.yml).
 
 ## Updating Translated Strings
 
@@ -30,7 +30,7 @@ To download translated strings automatically, you'll need to:
 1. Install the [Transifex CLI client](https://github.com/transifex/cli)
 2. Generate a [Transifex API token](https://app.transifex.com/user/settings/api/)
 
-Once you have the client set up, run the following command:
+Once you have the client set up, run the following command from the project root (e.g. `/opt/netbox/`):
 
 ```no-highlight
 TX_TOKEN=$TOKEN tx pull
@@ -45,6 +45,9 @@ Once retrieved, the updated strings need to be compiled into new `.mo` files so 
 ```
 
 Once any new `.mo` files have been generated, they need to be committed and pushed back up to GitHub. (Again, this is typically done as part of publishing a new NetBox release.)
+
+!!! tip
+    Run `git status` to check that both `*.mo` & `*.po` files have been updated as expected.
 
 ## Proposing New Languages
 

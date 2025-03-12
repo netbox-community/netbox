@@ -1,17 +1,15 @@
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
 from dcim.forms import DeviceFilterForm
 from dcim.models import Device
 from dcim.tables import DeviceTable
-from extras.views import ObjectConfigContextView
+from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -427,53 +425,13 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 
 
 @register_model_view(VirtualMachine, 'render-config')
-class VirtualMachineRenderConfigView(generic.ObjectView):
+class VirtualMachineRenderConfigView(ObjectRenderConfigView):
     queryset = VirtualMachine.objects.all()
-    template_name = 'virtualization/virtualmachine/render_config.html'
+    base_template = 'virtualization/virtualmachine/base.html'
     tab = ViewTab(
         label=_('Render Config'),
-        weight=2100
+        weight=2100,
     )
-
-    def get(self, request, **kwargs):
-        instance = self.get_object(**kwargs)
-        context = self.get_extra_context(request, instance)
-
-        # If a direct export has been requested, return the rendered template content as a
-        # downloadable file.
-        if request.GET.get('export'):
-            content = context['rendered_config'] or context['error_message']
-            response = HttpResponse(content, content_type='text')
-            filename = f"{instance.name or 'config'}.txt"
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
-
-        return render(request, self.get_template_name(), {
-            'object': instance,
-            'tab': self.tab,
-            **context,
-        })
-
-    def get_extra_context(self, request, instance):
-        # Compile context data
-        context_data = instance.get_config_context()
-        context_data.update({'virtualmachine': instance})
-
-        # Render the config template
-        rendered_config = None
-        error_message = None
-        if config_template := instance.get_config_template():
-            try:
-                rendered_config = config_template.render(context=context_data)
-            except TemplateError as e:
-                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
-
-        return {
-            'config_template': config_template,
-            'context_data': context_data,
-            'rendered_config': rendered_config,
-            'error_message': error_message,
-        }
 
 
 @register_model_view(VirtualMachine, 'add', detail=False)

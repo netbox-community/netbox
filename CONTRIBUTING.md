@@ -84,7 +84,7 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * It's very important that you not submit a pull request until a relevant issue has been opened **and** assigned to you. Otherwise, you risk wasting time on work that may ultimately not be needed.
 
-* New pull requests should generally be based off of the `develop` branch, rather than `master`. The `develop` branch is used for ongoing development, while `master` is used for tracking stable releases. (If you're developing for an upcoming minor release, use `feature` instead.)
+* New pull requests should generally be based off of the `main` branch. This branch, in keeping with the [trunk-based development](https://trunkbaseddevelopment.com/) approach, is used for ongoing development and bug fixes and always represents the newest stable code, from which releases are periodically branched. (If you're developing for an upcoming minor release, use `feature` instead.)
 
 * In most cases, it is not necessary to add a changelog entry: A maintainer will take care of this when the PR is merged. (This helps avoid merge conflicts resulting from multiple PRs being submitted simultaneously.)
 

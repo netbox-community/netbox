@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo_light.svg" width="400" alt="NetBox logo" />
+  <img src="https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg" width="400" alt="NetBox logo" />
   <p><strong>The cornerstone of every automated network</strong></p>
   <a href="https://github.com/netbox-community/netbox/releases"><img src="https://img.shields.io/github/v/release/netbox-community/netbox" alt="Latest release" /></a>
-  <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
+  <a href="https://github.com/netbox-community/netbox/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
   <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" /></a>
   <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
   <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-15-blue" alt="Languages supported" /></a>
-  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" /></a>
+  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=main" alt="CI status" /></a>
   <p>
     <strong><a href="https://github.com/netbox-community/netbox/">NetBox Community</a></strong> |
     <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong> |

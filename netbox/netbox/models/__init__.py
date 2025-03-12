@@ -10,6 +10,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
+from utilities.views import get_viewname
 
 
 __all__ = (
@@ -42,7 +43,7 @@ class NetBoxFeatureSet(
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     def get_absolute_url(self):
-        return reverse(f'{self._meta.app_label}:{self._meta.model_name}', args=[self.pk])
+        return reverse(get_viewname(self), args=[self.pk])
 
 
 #

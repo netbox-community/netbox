@@ -120,11 +120,12 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             is_active=True,
         )
 
+        # Apply Location & DeviceType filters only for VirtualMachines
         if self.model._meta.model_name == 'device':
             base_query.add((Q(locations=OuterRef('location')) | Q(locations=None)), Q.AND)
             base_query.add((Q(device_types=OuterRef('device_type')) | Q(device_types=None)), Q.AND)
-
         elif self.model._meta.model_name == 'virtualmachine':
+            base_query.add(Q(locations=None), Q.AND)
             base_query.add(Q(device_types=None), Q.AND)
 
         base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)

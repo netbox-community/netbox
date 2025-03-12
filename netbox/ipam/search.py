@@ -79,7 +79,7 @@ class PrefixIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description')
+    display_attrs = ('scope', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description')
 
 
 @register_search

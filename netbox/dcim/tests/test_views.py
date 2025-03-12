@@ -3470,3 +3470,54 @@ class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'status': VirtualDeviceContextStatusChoices.STATUS_OFFLINE,
         }
+
+
+class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = MACAddress
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device(name='Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type='1000base-t'),
+            Interface(device=device, name='Interface 2', type='1000base-t'),
+            Interface(device=device, name='Interface 3', type='1000base-t'),
+            Interface(device=device, name='Interface 4', type='1000base-t'),
+            Interface(device=device, name='Interface 5', type='1000base-t'),
+            Interface(device=device, name='Interface 6', type='1000base-t'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        mac_addresses = (
+            MACAddress(mac_address='00:00:00:00:00:01', assigned_object=interfaces[0]),
+            MACAddress(mac_address='00:00:00:00:00:02', assigned_object=interfaces[1]),
+            MACAddress(mac_address='00:00:00:00:00:03', assigned_object=interfaces[2]),
+        )
+        MACAddress.objects.bulk_create(mac_addresses)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'mac_address': EUI('00:00:00:00:00:04'),
+            'description': 'New MAC address',
+            'interface_id': interfaces[3].pk,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "mac_address,device,interface",
+            "00:00:00:00:00:04,Device 1,Interface 4",
+            "00:00:00:00:00:05,Device 1,Interface 5",
+            "00:00:00:00:00:06,Device 1,Interface 6",
+        )
+
+        cls.csv_update_data = (
+            "id,mac_address",
+            f"{mac_addresses[0].pk},00:00:00:00:00:0a",
+            f"{mac_addresses[1].pk},00:00:00:00:00:0b",
+            f"{mac_addresses[2].pk},00:00:00:00:00:0c",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }

@@ -15,7 +15,7 @@ def populate_denormalized_fields(apps, schema_editor):
         prefix._site_id = prefix.site_id
         # Note: Location cannot be set prior to migration
 
-    Prefix.objects.bulk_update(prefixes, ['_region', '_site_group', '_site'])
+    Prefix.objects.bulk_update(prefixes, ['_region', '_site_group', '_site'], batch_size=100)
 
 
 class Migration(migrations.Migration):

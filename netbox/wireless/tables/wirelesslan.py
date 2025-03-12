@@ -56,7 +56,8 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     )
     scope = tables.Column(
         verbose_name=_('Scope'),
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     interface_count = tables.Column(
         verbose_name=_('Interfaces')

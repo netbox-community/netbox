@@ -80,6 +80,13 @@ def get_local_plugins(plugins=None):
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
 
+        if plugin_config.author:
+            author = PluginAuthor(
+                name=plugin_config.author,
+            )
+        else:
+            author = None
+
         local_plugins[plugin_config.name] = Plugin(
             config_name=plugin_config.name,
             title_short=plugin_config.verbose_name,
@@ -88,6 +95,7 @@ def get_local_plugins(plugins=None):
             description_short=plugin_config.description,
             is_local=True,
             is_installed=True,
+            author=author,
             installed_version=plugin_config.version,
         )
 
