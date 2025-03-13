@@ -123,7 +123,7 @@ class ContactAssignmentForm(NetBoxModelForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         initial_params={
-            'contacts': '$contact'
+            'contact': '$contact'
         }
     )
     contact = DynamicModelChoiceField(

@@ -80,7 +80,7 @@ class ContactImportForm(NetBoxModelImportForm):
     groups = CSVModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
-        to_field_name='slug',
+        to_field_name='name',
         help_text=_('Groups')
     )
 
