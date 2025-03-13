@@ -1,4 +1,4 @@
-Django==5.1.5
+Django==5.2b1
 django-cors-headers==4.6.0
 django-debug-toolbar==5.0.1
 django-filter==24.3
@@ -20,8 +20,8 @@ feedparser==6.0.11
 gunicorn==23.0.0
 Jinja2==3.1.5
 Markdown==3.7
-mkdocs-material==9.6.2
-mkdocstrings[python-legacy]==0.27.0
+mkdocs-material==9.6.7
+mkdocstrings[python]==0.28.2
 netaddr==1.3.0
 nh3==0.2.20
 Pillow==11.1.0
