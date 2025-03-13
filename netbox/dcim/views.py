@@ -2034,7 +2034,7 @@ class PlatformBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Device, 'list', path='', detail=False)
 class DeviceListView(generic.ObjectListView):
-    queryset = Device.objects.all()
+    queryset = Device.objects.select_related('virtual_chassis')
     filterset = filtersets.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
