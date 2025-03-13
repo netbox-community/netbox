@@ -25,8 +25,10 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         # Create three Regions
         regions = (
-            Region(name='Region 1', slug='region-1'),
-            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 1', slug='region-1', comments=''),
+            Region(
+                name='Region 2', slug='region-2', comments="It's going to take a lot to drag me away from you"
+            ),
             Region(name='Region 3', slug='region-3'),
         )
         for region in regions:
@@ -40,13 +42,14 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'parent': regions[2].pk,
             'description': 'A new region',
             'tags': [t.pk for t in tags],
+            'comments': 'This comment is really exciting!',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Region 4,region-4,Fourth region",
-            "Region 5,region-5,Fifth region",
-            "Region 6,region-6,Sixth region",
+            "name,slug,description,comments",
+            "Region 4,region-4,Fourth region,",
+            "Region 5,region-5,Fifth region,hi guys",
+            "Region 6,region-6,Sixth region,bye guys",
         )
 
         cls.csv_update_data = (
@@ -58,6 +61,7 @@ class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'This comment is super exciting!!!',
         }
 
 
@@ -69,7 +73,7 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         # Create three SiteGroups
         sitegroups = (
-            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 1', slug='site-group-1', comments='Still here'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
@@ -84,24 +88,26 @@ class SiteGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'parent': sitegroups[2].pk,
             'description': 'A new site group',
             'tags': [t.pk for t in tags],
+            'comments': 'still here',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Site Group 4,site-group-4,Fourth site group",
-            "Site Group 5,site-group-5,Fifth site group",
-            "Site Group 6,site-group-6,Sixth site group",
+            "name,slug,description,comments",
+            "Site Group 4,site-group-4,Fourth site group,",
+            "Site Group 5,site-group-5,Fifth site group,still hear",
+            "Site Group 6,site-group-6,Sixth site group,"
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{sitegroups[0].pk},Site Group 7,Fourth site group7",
-            f"{sitegroups[1].pk},Site Group 8,Fifth site group8",
-            f"{sitegroups[2].pk},Site Group 0,Sixth site group9",
+            "id,name,description,comments",
+            f"{sitegroups[0].pk},Site Group 7,Fourth site group7,",
+            f"{sitegroups[1].pk},Site Group 8,Fifth site group8,when will it end",
+            f"{sitegroups[2].pk},Site Group 0,Sixth site group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'the end',
         }
 
 
@@ -202,6 +208,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='',
             ),
             Location(
                 name='Location 2',
@@ -209,6 +216,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='First comment!',
             ),
             Location(
                 name='Location 3',
@@ -216,6 +224,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
                 site=site,
                 status=LocationStatusChoices.STATUS_ACTIVE,
                 tenant=tenant,
+                comments='_This_ is a **bold comment**',
             ),
         )
         for location in locations:
@@ -232,24 +241,26 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
+            'comments': 'This comment is really boring',
         }
 
         cls.csv_data = (
-            "site,tenant,name,slug,status,description",
-            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location",
-            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location",
-            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location",
+            "site,tenant,name,slug,status,description,comments",
+            "Site 1,Tenant 1,Location 4,location-4,planned,Fourth location,",
+            "Site 1,Tenant 1,Location 5,location-5,planned,Fifth location,",
+            "Site 1,Tenant 1,Location 6,location-6,planned,Sixth location,hi!",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{locations[0].pk},Location 7,Fourth location7",
-            f"{locations[1].pk},Location 8,Fifth location8",
-            f"{locations[2].pk},Location 0,Sixth location9",
+            "id,name,description,comments",
+            f"{locations[0].pk},Location 7,Fourth location7,Useful comment",
+            f"{locations[1].pk},Location 8,Fifth location8,unuseful comment",
+            f"{locations[2].pk},Location 0,Sixth location9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'This comment is also really boring',
         }
 
 

@@ -31,7 +31,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = TenantGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class TenantImportForm(NetBoxModelImportForm):
@@ -65,7 +65,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class ContactRoleImportForm(NetBoxModelImportForm):

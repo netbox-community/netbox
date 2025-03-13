@@ -68,7 +68,7 @@ class RegionImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Region
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class SiteGroupImportForm(NetBoxModelImportForm):
@@ -82,7 +82,7 @@ class SiteGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = SiteGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'comments', 'tags')
 
 
 class SiteImportForm(NetBoxModelImportForm):
@@ -160,7 +160,10 @@ class LocationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description', 'tags')
+        fields = (
+            'site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description',
+            'tags', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

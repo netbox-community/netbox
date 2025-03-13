@@ -21,7 +21,10 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         parent_groups = (
             WirelessLANGroup(name='Wireless LAN Group 1', slug='wireless-lan-group-1', description='A'),
             WirelessLANGroup(name='Wireless LAN Group 2', slug='wireless-lan-group-2', description='B'),
-            WirelessLANGroup(name='Wireless LAN Group 3', slug='wireless-lan-group-3', description='C'),
+            WirelessLANGroup(
+                name='Wireless LAN Group 3', slug='wireless-lan-group-3', description='C',
+                comments='Parent Group 3 comment',
+            ),
         )
         for group in parent_groups:
             group.save()
@@ -38,10 +41,15 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 slug='wireless-lan-group-1b',
                 parent=parent_groups[0],
                 description='foobar2',
+                comments='Child Group 1B comment',
             ),
             WirelessLANGroup(name='Wireless LAN Group 2A', slug='wireless-lan-group-2a', parent=parent_groups[1]),
             WirelessLANGroup(name='Wireless LAN Group 2B', slug='wireless-lan-group-2b', parent=parent_groups[1]),
-            WirelessLANGroup(name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=parent_groups[2]),
+            WirelessLANGroup(
+                name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=parent_groups[2],
+                comments='Wireless LAN Group 3A comment',
+
+            ),
             WirelessLANGroup(name='Wireless LAN Group 3B', slug='wireless-lan-group-3b', parent=parent_groups[2]),
         )
         for group in groups:
@@ -61,6 +69,13 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
         params = {'name': ['Wireless LAN Group 1', 'Wireless LAN Group 2']}

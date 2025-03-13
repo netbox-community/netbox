@@ -27,7 +27,7 @@ class RegionSerializer(NestedGroupModelSerializer):
         model = Region
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'prefix_count', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
@@ -41,7 +41,7 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
         model = SiteGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'prefix_count', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
@@ -93,6 +93,6 @@ class LocationSerializer(NestedGroupModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'facility',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count',
-            'prefix_count', '_depth',
+            'prefix_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')

@@ -11,7 +11,8 @@ from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
+    BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
@@ -81,7 +82,7 @@ __all__ = (
 )
 
 
-class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
+class RegionFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label=_('Parent region (ID)'),
@@ -111,7 +112,7 @@ class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
+class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         label=_('Parent site group (ID)'),
@@ -205,7 +206,7 @@ class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         return queryset.filter(qs_filter).distinct()
 
 
-class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalModelFilterSet):
+class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -275,13 +276,13 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
         fields = ('id', 'name', 'slug', 'facility', 'description')
 
     def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(facility__icontains=value) |
-            Q(description__icontains=value)
-        )
+        # extended in order to include querying on Location.facility
+        queryset = super().search(queryset, name, value)
+
+        if value.strip():
+            queryset = queryset | queryset.model.objects.filter(facility__icontains=value)
+
+        return queryset
 
 
 class RackRoleFilterSet(OrganizationalModelFilterSet):
