@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
@@ -22,7 +22,7 @@ __all__ = (
 # Contacts
 #
 
-class ContactGroupFilterSet(OrganizationalModelFilterSet):
+class ContactGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         label=_('Parent contact group (ID)'),
@@ -50,16 +50,6 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
     class Meta:
         model = ContactGroup
         fields = ('id', 'name', 'slug', 'description')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(slug__icontains=value) |
-            Q(description__icontains=value) |
-            Q(comments__icontains=value)
-        )
 
 
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
@@ -173,7 +163,7 @@ class ContactModelFilterSet(django_filters.FilterSet):
 # Tenancy
 #
 
-class TenantGroupFilterSet(OrganizationalModelFilterSet):
+class TenantGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         label=_('Parent tenant group (ID)'),
@@ -201,16 +191,6 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
     class Meta:
         model = TenantGroup
         fields = ('id', 'name', 'slug', 'description')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(slug__icontains=value) |
-            Q(description__icontains=value) |
-            Q(comments__icontains=value)
-        )
 
 
 class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
