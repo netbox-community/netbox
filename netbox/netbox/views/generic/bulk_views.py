@@ -28,6 +28,7 @@ from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fiel
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
+from utilities.query import reapply_model_ordering
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -126,13 +127,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     #
 
     def get_queryset(self, request):
-        """
-        Reapply model-level ordering in case it has been lost through .annotate().
-        https://code.djangoproject.com/ticket/32811
-        """
         qs = super().get_queryset(request)
-        ordering = qs.model._meta.ordering
-        return qs.order_by(*ordering)
+        return reapply_model_ordering(qs)
 
     def get(self, request):
         """

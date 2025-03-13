@@ -12,6 +12,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
+from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
@@ -122,13 +123,8 @@ class NetBoxModelViewSet(
         return obj
 
     def get_queryset(self):
-        """
-        Reapply model-level ordering in case it has been lost through .annotate().
-        https://code.djangoproject.com/ticket/32811
-        """
         qs = super().get_queryset()
-        ordering = qs.model._meta.ordering
-        return qs.order_by(*ordering)
+        return reapply_model_ordering(qs)
 
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
