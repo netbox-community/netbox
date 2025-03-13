@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
-from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentImportForm',
@@ -77,10 +77,16 @@ class ContactRoleImportForm(NetBoxModelImportForm):
 
 
 class ContactImportForm(NetBoxModelImportForm):
+    groups = CSVModelMultipleChoiceField(
+        queryset=ContactGroup.objects.all(),
+        required=False,
+        to_field_name='slug',
+        help_text=_('Groups')
+    )
 
     class Meta:
         model = Contact
-        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags')
+        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'groups', 'description', 'comments', 'tags')
 
 
 class ContactAssignmentImportForm(NetBoxModelImportForm):
