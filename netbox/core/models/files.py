@@ -1,13 +1,16 @@
 import logging
 import os
+from functools import cached_property
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.core.files.storage import storages
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from ..choices import ManagedFileRootPathChoices
+from extras.storage import ScriptFileSystemStorage
 from netbox.models.features import SyncedDataMixin
 from utilities.querysets import RestrictedQuerySet
 
@@ -76,15 +79,35 @@ class ManagedFile(SyncedDataMixin, models.Model):
         return os.path.join(self._resolve_root_path(), self.file_path)
 
     def _resolve_root_path(self):
-        return {
-            'scripts': settings.SCRIPTS_ROOT,
-            'reports': settings.REPORTS_ROOT,
-        }[self.file_root]
+        storage = self.storage
+        if isinstance(storage, ScriptFileSystemStorage):
+            return {
+                'scripts': settings.SCRIPTS_ROOT,
+                'reports': settings.REPORTS_ROOT,
+            }[self.file_root]
+        else:
+            return ""
 
     def sync_data(self):
         if self.data_file:
             self.file_path = os.path.basename(self.data_path)
-            self.data_file.write_to_disk(self.full_path, overwrite=True)
+            self._write_to_disk(self.full_path, overwrite=True)
+
+    def _write_to_disk(self, path, overwrite=False):
+        """
+        Write the object's data to disk at the specified path
+        """
+        # Check whether file already exists
+        storage = self.storage
+        if storage.exists(path) and not overwrite:
+            raise FileExistsError()
+
+        with storage.open(path, 'wb+') as new_file:
+            new_file.write(self.data)
+
+    @cached_property
+    def storage(self):
+        return storages.create_storage(storages.backends["scripts"])
 
     def clean(self):
         super().clean()
@@ -104,8 +127,9 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
     def delete(self, *args, **kwargs):
         # Delete file from disk
+        storage = self.storage
         try:
-            os.remove(self.full_path)
+            storage.delete(self.full_path)
         except FileNotFoundError:
             pass
 
