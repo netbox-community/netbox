@@ -1,11 +1,12 @@
 import uuid
+from functools import partial
 
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -258,10 +259,12 @@ class Job(models.Model):
 
         # Schedule the job to run at a specific date & time.
         elif schedule_at:
-            queue.enqueue_at(schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
+            callback = partial(queue.enqueue_at, schedule_at, func, job_id=str(job.job_id), job=job, **kwargs)
+            transaction.on_commit(callback)
 
         # Schedule the job to run asynchronously at this first available opportunity.
         else:
-            queue.enqueue(func, job_id=str(job.job_id), job=job, **kwargs)
+            callback = partial(queue.enqueue, func, job_id=str(job.job_id), job=job, **kwargs)
+            transaction.on_commit(callback)
 
         return job
