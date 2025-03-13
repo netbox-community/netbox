@@ -196,26 +196,28 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             contactgroup.save()
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[0]),
-            Contact(name='Contact 3', group=contact_groups[0]),
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Contact X',
-            'group': contact_groups[1].pk,
+            'groups': [contact_groups[1].pk],
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "group,name",
-            "Contact Group 1,Contact 4",
-            "Contact Group 1,Contact 5",
-            "Contact Group 1,Contact 6",
+            "name",
+            "Contact 4",
+            "Contact 5",
+            "Contact 6",
         )
 
         cls.csv_update_data = (
@@ -226,7 +228,7 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'group': contact_groups[1].pk,
+            'description':  "New description",
         }
 
 

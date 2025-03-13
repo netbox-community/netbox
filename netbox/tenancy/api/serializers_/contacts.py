@@ -3,7 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import ContactAssignment, Contact, ContactGroup, ContactRole
@@ -43,12 +43,17 @@ class ContactRoleSerializer(NetBoxModelSerializer):
 
 
 class ContactSerializer(NetBoxModelSerializer):
-    group = ContactGroupSerializer(nested=True, required=False, allow_null=True, default=None)
+    groups = SerializedPKRelatedField(
+        queryset=ContactGroup.objects.all(),
+        serializer=ContactGroupSerializer,
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = Contact
         fields = [
-            'id', 'url', 'display_url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'link',
+            'id', 'url', 'display_url', 'display', 'groups', 'name', 'title', 'phone', 'email', 'address', 'link',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

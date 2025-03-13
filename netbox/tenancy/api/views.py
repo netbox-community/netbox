@@ -44,7 +44,7 @@ class ContactGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
