@@ -51,6 +51,7 @@ class Contact(PrimaryModel):
         to='tenancy.ContactGroup',
         related_name='contacts',
         through='tenancy.ContactGroupMembership',
+        related_query_name='contact',
         blank=True
     )
     name = models.CharField(
@@ -96,8 +97,8 @@ class Contact(PrimaryModel):
 
 
 class ContactGroupMembership(models.Model):
-    group = models.ForeignKey(ContactGroup, on_delete=models.CASCADE)
-    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    group = models.ForeignKey(ContactGroup, related_name="+", on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, related_name="+", on_delete=models.CASCADE)
 
     class Meta:
         constraints = [

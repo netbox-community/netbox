@@ -66,4 +66,29 @@ class Migration(migrations.Migration):
                 blank=True, related_name='contacts', through='tenancy.ContactGroupMembership', to='tenancy.contactgroup'
             ),
         ),
+        migrations.AlterField(
+            model_name='contactgroupmembership',
+            name='contact',
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='+', to='tenancy.contact'
+            ),
+        ),
+        migrations.AlterField(
+            model_name='contactgroupmembership',
+            name='group',
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='+', to='tenancy.contactgroup'
+            ),
+        ),
+        migrations.AlterField(
+            model_name='contact',
+            name='groups',
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='contacts',
+                related_query_name='contact',
+                through='tenancy.ContactGroupMembership',
+                to='tenancy.contactgroup',
+            ),
+        ),
     ]

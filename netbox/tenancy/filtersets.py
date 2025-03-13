@@ -46,6 +46,11 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label=_('Contact group (slug)'),
     )
+    contact_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='contact',
+        queryset=Contact.objects.all(),
+        label=_('Contact (ID)'),
+    )
 
     class Meta:
         model = ContactGroup
@@ -60,13 +65,13 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class ContactFilterSet(NetBoxModelFilterSet):
-    group_id = TreeNodeMultipleChoiceFilter(
+    contact_group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='groups',
         lookup_expr='in',
         label=_('Contact group (ID)'),
     )
-    group = TreeNodeMultipleChoiceFilter(
+    contact_group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='groups',
         to_field_name='slug',

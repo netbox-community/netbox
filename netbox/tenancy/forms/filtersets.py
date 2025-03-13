@@ -71,7 +71,7 @@ class ContactRoleFilterForm(NetBoxModelFilterSetForm):
 
 class ContactFilterForm(NetBoxModelFilterSetForm):
     model = Contact
-    group_id = DynamicModelMultipleChoiceField(
+    contact_group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
         null_option='None',

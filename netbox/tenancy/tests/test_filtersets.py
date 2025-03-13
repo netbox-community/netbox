@@ -277,9 +277,9 @@ class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_group(self):
         group = ContactGroup.objects.all()[:2]
-        params = {'group_id': [group[0].pk, group[1].pk]}
+        params = {'contact_group_id': [group[0].pk, group[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'group': [group[0].slug, group[1].slug]}
+        params = {'contact_group': [group[0].slug, group[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
