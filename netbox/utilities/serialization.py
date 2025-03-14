@@ -1,5 +1,6 @@
 import json
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 
@@ -56,13 +57,25 @@ def deserialize_object(model, fields, pk=None):
     the complement to serialize_object().
     """
     content_type = ContentType.objects.get_for_model(model)
+    m2m_data = {}
+
+    # Account for custom field data
     if 'custom_fields' in fields:
         fields['custom_field_data'] = fields.pop('custom_fields')
+
+    # Pop any assigned tags to handle the M2M relationships manually
+    if is_taggable(model) and fields.get('tags'):
+        Tag = apps.get_model('extras', 'Tag')
+        m2m_data['tags'] = Tag.objects.filter(name__in=fields.pop('tags'))
+
     data = {
         'model': '.'.join(content_type.natural_key()),
         'pk': pk,
         'fields': fields,
     }
     instance = list(serializers.deserialize('python', [data]))[0]
+
+    # Apply any additional M2M assignments
+    instance.m2m_data.update(**m2m_data)
 
     return instance
