@@ -1162,12 +1162,13 @@ class InventoryItemImportForm(NetBoxModelImportForm):
             self.fields['parent'].queryset = InventoryItem.objects.none()
 
     def clean(self):
+        super().clean()
         cleaned_data = self.cleaned_data
-        content_type = cleaned_data.get('component_type')
+        component_type = cleaned_data.get('component_type')
         component_name = cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
-        if content_type:
+        if component_type:
             if device is None:
                 cleaned_data.pop('component_type')
             if component_name is None:
@@ -1177,9 +1178,8 @@ class InventoryItemImportForm(NetBoxModelImportForm):
                 )
             if all([device, component_name]):
                 try:
-                    model = content_type.model_class()
-                    component = model.objects.get(device=device, name=component_name)
-                    self.instance.component = component
+                    model = component_type.model_class()
+                    self.instance.component = model.objects.get(device=device, name=component_name)
                 except ObjectDoesNotExist:
                     cleaned_data.pop('component_type')
                     cleaned_data.pop('component_name')
@@ -1188,7 +1188,11 @@ class InventoryItemImportForm(NetBoxModelImportForm):
                             device=device, component_name=component_name
                         )
                     )
-
+        else:
+            if component_name:
+                raise forms.ValidationError(
+                    _("Component type must be specified when component name is specified")
+                )
         return cleaned_data
 
 
