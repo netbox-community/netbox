@@ -27,7 +27,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         model = ExportTemplate
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced', 'created',
-            'last_updated',
+            'file_name', 'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

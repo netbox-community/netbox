@@ -479,6 +479,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             'object_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            'file_name': 'test_export_template_6',
         },
     ]
     bulk_update_data = {
@@ -494,7 +495,9 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
             ExportTemplate(
                 name='Export Template 2',
-                template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
+                template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+                file_name='export_template_2',
+                file_extension='test',
             ),
             ExportTemplate(
                 name='Export Template 3',
@@ -502,8 +505,10 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+
+        device_object_type = ObjectType.objects.get_for_model(Device)
         for et in export_templates:
-            et.object_types.set([ObjectType.objects.get_for_model(Device)])
+            et.object_types.set([device_object_type])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):

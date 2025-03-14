@@ -24,6 +24,12 @@ Jinja2 template code for rendering the exported data.
 
 The MIME type to indicate in the response when rendering the export template (optional). Defaults to `text/plain`.
 
+### File Name
+
+The file name to give to the rendered export file (optional).
+
+!!! info "This field was introduced in NetBox v4.3."
+
 ### File Extension
 
 The file extension to append to the file name in the response (optional).
