@@ -5,13 +5,15 @@
 
 ALLOWED_HOSTS = ['*']
 
-DATABASE = {
-    'NAME': 'netbox',
-    'USER': 'netbox',
-    'PASSWORD': 'netbox',
-    'HOST': 'localhost',
-    'PORT': '',
-    'CONN_MAX_AGE': 300,
+DATABASES = {
+    'default': {
+        'NAME': 'netbox',
+        'USER': 'netbox',
+        'PASSWORD': 'netbox',
+        'HOST': 'localhost',
+        'PORT': '',
+        'CONN_MAX_AGE': 300,
+    }
 }
 
 PLUGINS = [
