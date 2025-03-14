@@ -115,7 +115,7 @@ You may also need to set up the yarn packages as shown in the [Web UI Developmen
 Within the `netbox/netbox/` directory, copy `configuration_example.py` to `configuration.py` and update the following parameters:
 
 * `ALLOWED_HOSTS`: This can be set to `['*']` for development purposes
-* `DATABASE`: PostgreSQL database connection parameters
+* `DATABASES`: PostgreSQL database connection parameters
 * `REDIS`: Redis configuration (if different from the defaults)
 * `SECRET_KEY`: Set to a random string (use `generate_secret_key.py` in the parent directory to generate a suitable key)
 * `DEBUG`: Set to `True`

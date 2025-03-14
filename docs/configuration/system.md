@@ -12,6 +12,14 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## DATABASE_ROUTERS
+
+Default: `[]` (empty list)
+
+An iterable of [database routers](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) to use for automatically selecting the appropriate database(s) for a query. This is useful only when [multiple databases](./required-parameters.md#databases) have been configured.
+
+---
+
 ## DEFAULT_LANGUAGE
 
 Default: `en-us` (US English)
