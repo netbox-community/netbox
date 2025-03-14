@@ -88,6 +88,7 @@ CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 DATABASE = getattr(configuration, 'DATABASE', None)  # Legacy DB definition
+DATABASE_ROUTERS = getattr(configuration, 'DATABASE_ROUTERS', [])
 DATABASES = getattr(configuration, 'DATABASES', {'default': DATABASE})
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)

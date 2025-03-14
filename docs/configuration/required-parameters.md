@@ -46,7 +46,7 @@ DATABASES = {
 }
 ```
 
-NetBox itself requires only a `default` database be defined. However, certain plugins may require the configuration of additional databases.
+NetBox itself requires only that a `default` database is defined. However, certain plugins may require the configuration of additional databases. (Consider also configuring the [`DATABASE_ROUTERS`](./system.md#database_routers) parameter when multiple databases are in use.)
 
 The following parameters must be defined for each database:
 
