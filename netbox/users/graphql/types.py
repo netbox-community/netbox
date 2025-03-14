@@ -15,7 +15,8 @@ __all__ = (
 @strawberry_django.type(
     Group,
     fields=['id', 'name'],
-    filters=GroupFilter
+    filters=GroupFilter,
+    pagination=True
 )
 class GroupType(BaseObjectType):
     pass
@@ -26,7 +27,8 @@ class GroupType(BaseObjectType):
     fields=[
         'id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined', 'groups',
     ],
-    filters=UserFilter
+    filters=UserFilter,
+    pagination=True
 )
 class UserType(BaseObjectType):
     groups: List[GroupType]
