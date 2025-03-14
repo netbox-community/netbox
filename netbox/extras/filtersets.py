@@ -258,8 +258,8 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
     class Meta:
         model = ExportTemplate
         fields = (
-            'id', 'name', 'description', 'mime_type', 'file_extension', 'as_attachment', 'auto_sync_enabled',
-            'data_synced',
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'auto_sync_enabled', 'data_synced',
         )
 
     def search(self, queryset, name, value):
@@ -267,7 +267,8 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(file_name__icontains=value)
         )
 
 
