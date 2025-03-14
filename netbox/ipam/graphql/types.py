@@ -145,7 +145,6 @@ class FHRPGroupAssignmentType(BaseObjectType):
     exclude=['assigned_object_type', 'assigned_object_id', 'address'],
     filters=IPAddressFilter,
     pagination=True
-
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     address: str
@@ -354,7 +353,8 @@ class VLANTranslationRuleType(NetBoxObjectType):
 @strawberry_django.type(
     models.VRF,
     fields='__all__',
-    filters=VRFFilter
+    filters=VRFFilter,
+    pagination=True
 )
 class VRFType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None

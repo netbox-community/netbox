@@ -48,7 +48,6 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
     fields='__all__',
     filters=ProviderAccountFilter,
     pagination=True
-
 )
 class ProviderAccountType(NetBoxObjectType):
     provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
@@ -61,7 +60,6 @@ class ProviderAccountType(NetBoxObjectType):
     fields='__all__',
     filters=ProviderNetworkFilter,
     pagination=True
-
 )
 class ProviderNetworkType(NetBoxObjectType):
     provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
@@ -74,7 +72,6 @@ class ProviderNetworkType(NetBoxObjectType):
     exclude=['termination_type', 'termination_id', '_location', '_region', '_site', '_site_group', '_provider_network'],
     filters=CircuitTerminationFilter,
     pagination=True
-
 )
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
     circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
@@ -95,7 +92,6 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
     fields='__all__',
     filters=CircuitTypeFilter,
     pagination=True
-
 )
 class CircuitTypeType(OrganizationalObjectType):
     color: str
@@ -108,7 +104,6 @@ class CircuitTypeType(OrganizationalObjectType):
     fields='__all__',
     filters=CircuitFilter,
     pagination=True
-
 )
 class CircuitType(NetBoxObjectType, ContactsMixin):
     provider: ProviderType
@@ -126,7 +121,6 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     fields='__all__',
     filters=CircuitGroupFilter,
     pagination=True
-
 )
 class CircuitGroupType(OrganizationalObjectType):
     tenant: TenantType | None
@@ -137,7 +131,6 @@ class CircuitGroupType(OrganizationalObjectType):
     exclude=['member_type', 'member_id'],
     filters=CircuitGroupAssignmentFilter,
     pagination=True
-
 )
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated["CircuitGroupType", strawberry.lazy('circuits.graphql.types')]
@@ -155,7 +148,6 @@ class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     fields='__all__',
     filters=VirtualCircuitTypeFilter,
     pagination=True
-
 )
 class VirtualCircuitTypeType(OrganizationalObjectType):
     color: str
@@ -168,7 +160,6 @@ class VirtualCircuitTypeType(OrganizationalObjectType):
     fields='__all__',
     filters=VirtualCircuitTerminationFilter,
     pagination=True
-
 )
 class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     virtual_circuit: Annotated[
@@ -186,7 +177,6 @@ class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     fields='__all__',
     filters=VirtualCircuitFilter,
     pagination=True
-
 )
 class VirtualCircuitType(NetBoxObjectType):
     provider_network: ProviderNetworkType = strawberry_django.field(select_related=["provider_network"])
