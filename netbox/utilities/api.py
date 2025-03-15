@@ -77,7 +77,7 @@ def get_view_name(view):
     return drf_get_view_name(view)
 
 
-def get_prefetches_for_serializer(serializer_class, fields_to_include=None, source_field=None):
+def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
     """
     Compile and return a list of fields which should be prefetched on the queryset for a serializer.
     """
@@ -88,13 +88,6 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
         fields_to_include = serializer_class.Meta.fields
 
     prefetch_fields = []
-
-    # If this serializer is nested, get annotations and prefetches for the nested serializer
-    if source_field is not None:
-        nested_annotations = get_annotations_for_serializer(serializer_class, fields_to_include=fields_to_include)
-        if nested_annotations:
-            related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**nested_annotations))
-            prefetch_fields.append(related_prefetch)
 
     for field_name in fields_to_include:
         serializer_field = serializer_class._declared_fields.get(field_name)
@@ -112,18 +105,29 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None, sour
 
         # If this field is represented by a nested serializer, recurse to resolve prefetches
         # for the related object.
-        if serializer_field and source_field is None:
+        if serializer_field:
             if issubclass(type(serializer_field), Serializer):
                 # Determine which fields to prefetch for the nested object
                 subfields = serializer_field.Meta.brief_fields if serializer_field.nested else None
-                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields, field_name):
-                    if isinstance(subfield, Prefetch):
-                        prefetch_fields.append(subfield)
-                    else:
-                        prefetch_fields.append(f'{field_name}__{subfield}')
+                annotated_prefetch = get_annotations_for_subfields(
+                    serializer_field, field_name, fields_to_include=subfields)
+                if annotated_prefetch:
+                    prefetch_fields.append(annotated_prefetch)
+                else:
+                    prefetch_fields.append(field_name)
             elif isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
                 prefetch_fields.append(field.name)
     return prefetch_fields
+
+
+def get_annotations_for_subfields(serializer_class, source_field, fields_to_include=None):
+
+    nested_annotations = get_annotations_for_serializer(serializer_class, fields_to_include=fields_to_include)
+    model = serializer_class.Meta.model
+    related_prefetch = None
+    if nested_annotations:
+        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**nested_annotations))
+    return related_prefetch
 
 
 def get_annotations_for_serializer(serializer_class, fields_to_include=None):
