@@ -3,6 +3,7 @@ from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
+from django.db.models import Prefetch
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -87,6 +88,7 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
         fields_to_include = serializer_class.Meta.fields
 
     prefetch_fields = []
+
     for field_name in fields_to_include:
         serializer_field = serializer_class._declared_fields.get(field_name)
 
@@ -98,8 +100,6 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
         # If the serializer field does not map to a discrete model field, skip it.
         try:
             field = model._meta.get_field(model_field_name)
-            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
-                prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
 
@@ -109,10 +109,25 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
             if issubclass(type(serializer_field), Serializer):
                 # Determine which fields to prefetch for the nested object
                 subfields = serializer_field.Meta.brief_fields if serializer_field.nested else None
-                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields):
-                    prefetch_fields.append(f'{field_name}__{subfield}')
-
+                annotated_prefetch = get_annotations_for_subfields(
+                    serializer_field, field_name, fields_to_include=subfields)
+                if annotated_prefetch:
+                    prefetch_fields.append(annotated_prefetch)
+                else:
+                    prefetch_fields.append(field_name)
+            elif isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+                prefetch_fields.append(field.name)
     return prefetch_fields
+
+
+def get_annotations_for_subfields(serializer_class, source_field, fields_to_include=None):
+
+    nested_annotations = get_annotations_for_serializer(serializer_class, fields_to_include=fields_to_include)
+    model = serializer_class.Meta.model
+    related_prefetch = None
+    if nested_annotations:
+        related_prefetch = Prefetch(source_field, queryset=model.objects.all().annotate(**nested_annotations))
+    return related_prefetch
 
 
 def get_annotations_for_serializer(serializer_class, fields_to_include=None):
