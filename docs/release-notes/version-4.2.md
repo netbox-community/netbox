@@ -40,6 +40,7 @@ NetBox now supports the designation of customer VLANs (CVLANs) and service VLANs
 
 ### Enhancements
 
+* [18816](https://github.com/netbox-community/netbox/issues/18816) - Added FC/UPC, FC/APC and FC/PC port types
 * [#6414](https://github.com/netbox-community/netbox/issues/6414) - Prefixes can now be scoped by region, site group, site, or location
 * [#7699](https://github.com/netbox-community/netbox/issues/7699) - Virtualization clusters can now be scoped by region, site group, site, or location
 * [#9604](https://github.com/netbox-community/netbox/issues/9604) - The scope of a circuit termination now include a region, site group, site, location, or provider network
