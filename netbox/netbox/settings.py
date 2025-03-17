@@ -53,10 +53,14 @@ except ModuleNotFoundError as e:
         )
     raise
 
-# Check for missing required configuration parameters
-for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
+# Check for missing/conflicting required configuration parameters
+for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
     if not hasattr(configuration, parameter):
         raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
+if not hasattr(configuration, 'DATABASE') and not hasattr(configuration, 'DATABASES'):
+    raise ImproperlyConfigured("The database configuration must be defined using DATABASE or DATABASES.")
+elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
+    raise ImproperlyConfigured("DATABASE and DATABASES may not be set together. The use of DATABASES is encouraged.")
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
@@ -84,7 +88,9 @@ CSRF_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
 CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-DATABASE = getattr(configuration, 'DATABASE')  # Required
+DATABASE = getattr(configuration, 'DATABASE', None)  # Legacy DB definition
+DATABASE_ROUTERS = getattr(configuration, 'DATABASE_ROUTERS', [])
+DATABASES = getattr(configuration, 'DATABASES', {'default': DATABASE})
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
 DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
@@ -220,17 +226,15 @@ for path in PROXY_ROUTERS:
 # Database
 #
 
-# Set the database engine
-if 'ENGINE' not in DATABASE:
-    if METRICS_ENABLED:
-        DATABASE.update({'ENGINE': 'django_prometheus.db.backends.postgresql'})
-    else:
-        DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
+# Verify that a default database has been configured
+if 'default' not in DATABASES:
+    raise ImproperlyConfigured("No default database has been configured.")
 
-# Define the DATABASES setting for Django
-DATABASES = {
-    'default': DATABASE,
-}
+# Set the database engine
+if 'ENGINE' not in DATABASES['default']:
+    DATABASES['default'].update({
+        'ENGINE': 'django_prometheus.db.backends.postgresql' if METRICS_ENABLED else 'django.db.backends.postgresql'
+    })
 
 
 #
