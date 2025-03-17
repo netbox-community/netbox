@@ -195,6 +195,7 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'name': 'Contact 4',
+                'groups': [contact_groups[1].pk],
             },
             {
                 'name': 'Contact 5',

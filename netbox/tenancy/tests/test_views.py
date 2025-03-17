@@ -215,16 +215,17 @@ class ContactTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name",
+            "groups",
             "Contact 4",
             "Contact 5",
             "Contact 6",
         )
 
         cls.csv_update_data = (
-            "id,name,comments",
-            f"{contacts[0].pk},Contact Group 7,New comments 7",
-            f"{contacts[1].pk},Contact Group 8,New comments 8",
-            f"{contacts[2].pk},Contact Group 9,New comments 9",
+            "id,name,groups,comments",
+            f'{contacts[0].pk},Contact 7,"Contact Group 1,Contact Group 2",New comments 7',
+            f'{contacts[1].pk},Contact 8,"Contact Group 1",New comments 8',
+            f'{contacts[2].pk},Contact 9,"Contact Group 1",New comments 9',
         )
 
         cls.bulk_edit_data = {
