@@ -339,6 +339,15 @@ class ContactBulkEditView(generic.BulkEditView):
     table = tables.ContactTable
     form = forms.ContactBulkEditForm
 
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
+        # Add/remove groups
+        if form.cleaned_data.get('add_groups', None):
+            obj.groups.add(*form.cleaned_data['add_groups'])
+        if form.cleaned_data.get('remove_groups', None):
+            obj.groups.remove(*form.cleaned_data['remove_groups'])
+
 
 @register_model_view(Contact, 'bulk_delete', path='delete', detail=False)
 class ContactBulkDeleteView(generic.BulkDeleteView):
@@ -399,15 +408,6 @@ class ContactAssignmentBulkEditView(generic.BulkEditView):
     filterset = filtersets.ContactAssignmentFilterSet
     table = tables.ContactAssignmentTable
     form = forms.ContactAssignmentBulkEditForm
-
-    def post_save_operations(self, form, obj):
-        super().post_save_operations(form, obj)
-
-        # Add/remove groups
-        if form.cleaned_data.get('add_groups', None):
-            obj.groups.add(*form.cleaned_data['add_groups'])
-        if form.cleaned_data.get('remove_groups', None):
-            obj.groups.remove(*form.cleaned_data['remove_groups'])
 
 
 @register_model_view(ContactAssignment, 'bulk_delete', path='delete', detail=False)
