@@ -190,7 +190,7 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 Default: False
 
-Option to hide the login form when only SSO authentication is in use. Appending `skipsso` as GET parameter shows the login form in case there is a problem with the SSO provider.
+Option to hide the login form when only SSO authentication is in use.
 
 ---
 

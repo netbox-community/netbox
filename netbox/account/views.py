@@ -89,7 +89,7 @@ class LoginView(View):
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
-        login_form_hidden = settings.LOGIN_FORM_HIDDEN and "skipsso" not in request.GET
+        login_form_hidden = settings.LOGIN_FORM_HIDDEN
 
         return render(request, self.template_name, {
             'form': form,
