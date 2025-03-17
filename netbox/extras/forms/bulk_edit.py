@@ -275,6 +275,10 @@ class TagBulkEditForm(BulkEditForm):
         max_length=200,
         required=False
     )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
 
     nullable_fields = ('description',)
 

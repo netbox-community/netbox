@@ -441,8 +441,8 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         tags = (
             Tag(name='Tag 1', slug='tag-1'),
-            Tag(name='Tag 2', slug='tag-2'),
-            Tag(name='Tag 3', slug='tag-3'),
+            Tag(name='Tag 2', slug='tag-2', weight=1),
+            Tag(name='Tag 3', slug='tag-3', weight=32767),
         )
         Tag.objects.bulk_create(tags)
 
@@ -451,13 +451,14 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'tag-x',
             'color': 'c0c0c0',
             'comments': 'Some comments',
+            'weight': 11,
         }
 
         cls.csv_data = (
-            "name,slug,color,description",
-            "Tag 4,tag-4,ff0000,Fourth tag",
-            "Tag 5,tag-5,00ff00,Fifth tag",
-            "Tag 6,tag-6,0000ff,Sixth tag",
+            "name,slug,color,description,weight",
+            "Tag 4,tag-4,ff0000,Fourth tag,0",
+            "Tag 5,tag-5,00ff00,Fifth tag,1111",
+            "Tag 6,tag-6,0000ff,Sixth tag,0",
         )
 
         cls.csv_update_data = (

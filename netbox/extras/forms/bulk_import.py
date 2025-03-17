@@ -232,10 +232,14 @@ class EventRuleImportForm(NetBoxModelImportForm):
 
 class TagImportForm(CSVModelForm):
     slug = SlugField()
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
 
     class Meta:
         model = Tag
-        fields = ('name', 'slug', 'color', 'description')
+        fields = ('name', 'slug', 'color', 'weight', 'description')
 
 
 class JournalEntryImportForm(NetBoxModelImportForm):

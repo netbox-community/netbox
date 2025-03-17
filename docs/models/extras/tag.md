@@ -16,6 +16,12 @@ A unique URL-friendly identifier. (This value will be used for filtering.) This 
 
 The color to use when displaying the tag in the NetBox UI.
 
+### Weight
+
+A numeric weight employed to influence the ordering of tags. Tags with a lower weight will be listed before those with higher weights. Values must be within the range **0** to **32767**.
+
+!!! info "This field was introduced in NetBox v4.3."
+
 ### Object Types
 
 The assignment of a tag may be limited to a prescribed set of objects. For example, it may be desirable to limit the application of a specific tag to only devices and virtual machines.

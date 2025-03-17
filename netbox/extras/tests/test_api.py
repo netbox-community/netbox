@@ -513,6 +513,7 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Tag 4',
             'slug': 'tag-4',
+            'weight': 1000,
         },
         {
             'name': 'Tag 5',
@@ -533,7 +534,7 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
-            Tag(name='Tag 3', slug='tag-3'),
+            Tag(name='Tag 3', slug='tag-3', weight=26),
         )
         Tag.objects.bulk_create(tags)
 
