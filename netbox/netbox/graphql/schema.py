@@ -20,22 +20,6 @@ from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
 
 
-"""
-class ModelOrderingExtension(SchemaExtension):
-
-    def resolve(self, next_, root, info, *args, **kwargs):
-        ret = next_(root, info, *args, **kwargs)
-
-        if isinstance(ret, BaseManager):
-            ret = ret.all()
-
-        if isinstance(ret, QuerySet) and ret._result_cache is None:  # type: ignore
-            ret = reapply_model_ordering(ret)
-
-        return ret
-"""
-
-
 @strawberry.type
 class Query(
     UsersQuery,
