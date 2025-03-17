@@ -65,13 +65,13 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class ContactFilterSet(NetBoxModelFilterSet):
-    contact_group_id = TreeNodeMultipleChoiceFilter(
+    group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='groups',
         lookup_expr='in',
         label=_('Contact group (ID)'),
     )
-    contact_group = TreeNodeMultipleChoiceFilter(
+    group = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='groups',
         to_field_name='slug',

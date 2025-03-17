@@ -71,11 +71,11 @@ class ContactRoleFilterForm(NetBoxModelFilterSetForm):
 
 class ContactFilterForm(NetBoxModelFilterSetForm):
     model = Contact
-    contact_group_id = DynamicModelMultipleChoiceField(
+    group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group')
+        label=_('Groups')
     )
     tag = TagFilterField(model)
 

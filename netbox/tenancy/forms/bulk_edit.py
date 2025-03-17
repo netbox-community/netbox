@@ -90,8 +90,13 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ContactBulkEditForm(NetBoxModelBulkEditForm):
-    groups = DynamicModelMultipleChoiceField(
-        label=_('Groups'),
+    add_groups = DynamicModelMultipleChoiceField(
+        label=_('Add groups'),
+        queryset=ContactGroup.objects.all(),
+        required=False
+    )
+    remove_groups = DynamicModelMultipleChoiceField(
+        label=_('Remove groups'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
@@ -127,9 +132,11 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Contact
     fieldsets = (
-        FieldSet('groups', 'title', 'phone', 'email', 'address', 'link', 'description'),
+        FieldSet('add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description'),
     )
-    nullable_fields = ('groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments')
+    nullable_fields = (
+        'add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments'
+    )
 
 
 class ContactAssignmentBulkEditForm(NetBoxModelBulkEditForm):
