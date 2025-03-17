@@ -81,7 +81,7 @@ class ContactImportForm(NetBoxModelImportForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Groups')
+        help_text=_('Group names separated by commas, encased with double quotes (e.g. "Group 1,Group 2")')
     )
 
     class Meta:
