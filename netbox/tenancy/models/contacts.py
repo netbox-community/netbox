@@ -13,6 +13,7 @@ __all__ = (
     'ContactAssignment',
     'Contact',
     'ContactGroup',
+    'ContactGroupMembership',
     'ContactRole',
 )
 
@@ -104,6 +105,8 @@ class ContactGroupMembership(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['group', 'contact'], name='unique_group_name')
         ]
+        verbose_name = _('contact group membership')
+        verbose_name_plural = _('contact group memberships')
 
 
 class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

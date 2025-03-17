@@ -20,9 +20,15 @@
           <tr>
             <th scope="row">{% trans "Groups" %}</th>
             <td>
-              {% for group in object.groups.all %}
-                {{ group|linkify|placeholder }}{% if not forloop.last %}, {% endif %}
-              {% endfor %}
+              {% if object.groups.all|length > 0 %}
+                <ol class="list-unstyled mb-0">
+                  {% for group in object.groups.all %}
+                    <li>{{ group|linkify|placeholder }}</li>
+                  {% endfor %}
+                </ol>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
             </td>
           </tr>
           <tr>
