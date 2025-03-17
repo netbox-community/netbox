@@ -340,6 +340,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (Device.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (VLAN.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (
                         VirtualMachine.objects.restrict(request.user, 'view').filter(
