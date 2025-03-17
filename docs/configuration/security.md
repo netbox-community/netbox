@@ -186,6 +186,17 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 ---
 
+## LOGIN_FORM_HIDDEN
+
+Default: False
+
+Option to hide the login form when only SSO authentication is in use. 
+
+!!! warning
+    If the SSO provider is unreachable, login to NetBox will be impossible if this option is enabled. The only recourse is to disable it in the local configuration and restart the NetBox service.
+
+---
+
 ## LOGOUT_REDIRECT_URL
 
 Default: `'home'`
