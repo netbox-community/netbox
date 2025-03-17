@@ -28,7 +28,7 @@ AUTH_BACKEND_ATTRS = {
     'bitbucket-oauth2': ('BitBucket', 'bitbucket'),
     'digitalocean': ('DigitalOcean', 'digital-ocean'),
     'docker': ('Docker', 'docker'),
-    'github': ('GitHub', 'docker'),
+    'github': ('GitHub', 'github'),
     'github-app': ('GitHub', 'github'),
     'github-org': ('GitHub', 'github'),
     'github-team': ('GitHub', 'github'),
