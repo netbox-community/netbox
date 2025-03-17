@@ -342,6 +342,13 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (VLAN.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (
+                        VLANGroup.objects.restrict(request.user, 'view').filter(
+                            scope_type=ContentType.objects.get_for_model(SiteGroup),
+                            scope_id__in=groups
+                        ).distinct(),
+                            'site_group'
+                    ),
+                    (
                         Circuit.objects.restrict(request.user, 'view').filter(
                             terminations___site_group=instance
                         ).distinct(),
