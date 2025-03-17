@@ -8,6 +8,8 @@ A contact represents an individual or group that has been associated with an obj
 
 The [contact groups](./contactgroup.md) to which this contact is assigned (if any).
 
+!!! info "This field was renamed from `group` to `groups` in NetBox v4.3, and now supports the assignment of a contact to more than one group."
+
 ### Name
 
 The name of the contact. This may be an individual or a team/department. (This is the only required contact detail; all others are optional.)

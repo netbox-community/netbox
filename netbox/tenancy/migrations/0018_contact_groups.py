@@ -10,7 +10,6 @@ def migrate_contact_groups(apps, schema_editor):
     qs = Contacts.objects.filter(group__isnull=False)
     for contact in qs:
         contact.groups.add(contact.group)
-        contact.save()
 
 
 class Migration(migrations.Migration):
