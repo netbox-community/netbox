@@ -532,6 +532,33 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 8)
 
+    def test_get_prefix_with_aggregate_and_rir(self):
+        self.add_permissions('ipam.view_prefix')
+        rir = RIR.objects.create(name='RFC 1918', slug='rfc-1918')
+        aggregate = Aggregate.objects.create(prefix=IPNetwork('192.168.0.0/16'), rir=rir)
+        prefixes = [
+            Prefix.objects.filter(prefix=IPNetwork('192.168.2.0/24')).first(),
+            Prefix.objects.create(prefix=IPNetwork('10.0.0.0/24'))
+        ]
+
+        self.assertIsNotNone(prefixes[0])
+
+        url = self._get_detail_url(prefixes[0])
+        response = self.client.get(url, **self.header)
+        self.assertIsNotNone(prefixes[0].aggregate)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data.get('aggregate'))
+        self.assertIsNotNone(response.data.get('rir'))
+        self.assertEqual(response.data.get('aggregate').get('id', None), aggregate.pk)
+        self.assertEqual(response.data.get('rir').get('id', None), rir.pk)
+
+        url = self._get_detail_url(prefixes[1])
+        response = self.client.get(url, **self.header)
+        self.assertIsNone(prefixes[1].aggregate)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data.get('aggregate'))
+        self.assertIsNone(response.data.get('rir'))
+
 
 class IPRangeTest(APIViewTestCases.APIViewTestCase):
     model = IPRange

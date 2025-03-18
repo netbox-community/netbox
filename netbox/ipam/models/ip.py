@@ -323,6 +323,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         super().save(*args, **kwargs)
 
     @property
+    def aggregate(self):
+        return Aggregate.objects.filter(prefix__net_contains_or_equals=self.prefix).first()
+
+    @property
+    def rir(self):
+        aggregate = self.aggregate
+        return aggregate.rir if aggregate else None
+
+    @property
     def family(self):
         return self.prefix.version if self.prefix else None
 

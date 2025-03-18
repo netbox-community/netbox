@@ -44,6 +44,8 @@ class AggregateSerializer(NetBoxModelSerializer):
 
 
 class PrefixSerializer(NetBoxModelSerializer):
+    aggregate = AggregateSerializer(nested=True, read_only=True, allow_null=True)
+    rir = RIRSerializer(nested=True, read_only=True, allow_null=True)
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
@@ -67,9 +69,9 @@ class PrefixSerializer(NetBoxModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'id', 'url', 'display_url', 'display', 'aggregate', 'rir', 'family', 'prefix', 'vrf', 'scope_type',
+            'scope_id', 'scope', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
 
