@@ -5,7 +5,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 
 __all__ = (
@@ -90,8 +90,13 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ContactBulkEditForm(NetBoxModelBulkEditForm):
-    group = DynamicModelChoiceField(
-        label=_('Group'),
+    add_groups = DynamicModelMultipleChoiceField(
+        label=_('Add groups'),
+        queryset=ContactGroup.objects.all(),
+        required=False
+    )
+    remove_groups = DynamicModelMultipleChoiceField(
+        label=_('Remove groups'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
@@ -127,9 +132,13 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Contact
     fieldsets = (
-        FieldSet('group', 'title', 'phone', 'email', 'address', 'link', 'description'),
+        FieldSet('title', 'phone', 'email', 'address', 'link', 'description'),
+        FieldSet('add_groups', 'remove_groups', name=_('Groups')),
     )
-    nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments')
+
+    nullable_fields = (
+        'add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments'
+    )
 
 
 class ContactAssignmentBulkEditForm(NetBoxModelBulkEditForm):

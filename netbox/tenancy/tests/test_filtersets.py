@@ -241,6 +241,7 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Contact.objects.all()
     filterset = ContactFilterSet
+    ignore_fields = ('groups',)
 
     @classmethod
     def setUpTestData(cls):
@@ -254,11 +255,14 @@ class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
             contactgroup.save()
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0], description='foobar1'),
-            Contact(name='Contact 2', group=contact_groups[1], description='foobar2'),
-            Contact(name='Contact 3', group=contact_groups[2], description='foobar3'),
+            Contact(name='Contact 1', description='foobar1'),
+            Contact(name='Contact 2', description='foobar2'),
+            Contact(name='Contact 3', description='foobar3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
+        contacts[2].groups.add(contact_groups[2])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -311,11 +315,14 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         ContactRole.objects.bulk_create(contact_roles)
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[1]),
-            Contact(name='Contact 3', group=contact_groups[2]),
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
+        contacts[2].groups.add(contact_groups[2])
 
         assignments = (
             ContactAssignment(object=sites[0], contact=contacts[0], role=contact_roles[0]),

@@ -56,9 +56,9 @@ class ContactTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    group = tables.Column(
-        verbose_name=_('Group'),
-        linkify=True
+    groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
+        linkify_item=('tenancy:contactgroup', {'pk': tables.A('pk')})
     )
     phone = tables.Column(
         verbose_name=_('Phone'),
@@ -79,10 +79,10 @@ class ContactTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Contact
         fields = (
-            'pk', 'name', 'group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments',
+            'pk', 'name', 'groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments',
             'assignment_count', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'group', 'assignment_count', 'title', 'phone', 'email')
+        default_columns = ('pk', 'name', 'groups', 'assignment_count', 'title', 'phone', 'email')
 
 
 class ContactAssignmentTable(NetBoxTable):
