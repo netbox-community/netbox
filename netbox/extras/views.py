@@ -1103,7 +1103,7 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
         }
         widget_form = DashboardWidgetAddForm(initial=initial)
         widget_name = get_field_value(widget_form, 'widget_class')
-        widget_class = get_widget_class(widget_name)
+        widget_class = get_widget_class(widget_name or 'extras.NoteWidget')
         config_form = widget_class.ConfigForm(initial=widget_class.default_config, prefix='config')
 
         return render(request, self.template_name, {
