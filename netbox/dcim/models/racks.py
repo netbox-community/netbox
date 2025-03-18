@@ -376,7 +376,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
         if (
             self.outer_width is not None or self.outer_depth is not None or self.outer_height is not None
         ) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer width/depth"))
+            raise ValidationError(_("Must specify a unit when setting an outer width/depth/height"))
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
