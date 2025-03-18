@@ -132,8 +132,10 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Contact
     fieldsets = (
-        FieldSet('add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description'),
+        FieldSet('title', 'phone', 'email', 'address', 'link', 'description'),
+        FieldSet('add_groups', 'remove_groups', name=_('Groups')),
     )
+
     nullable_fields = (
         'add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments'
     )
