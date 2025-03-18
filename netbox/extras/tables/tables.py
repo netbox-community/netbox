@@ -498,13 +498,16 @@ class ConfigContextTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Synced')
     )
+    tags = columns.TagColumn(
+        url_name='dcim:site_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
             'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
             'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
-            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'data_source', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
 
