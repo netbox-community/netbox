@@ -2,7 +2,10 @@
 
 ## ALLOW_TOKEN_RETRIEVAL
 
-Default: True
+Default: False
+
+!!! note
+    The default value of this parameter changed from true to false in NetBox v4.3.0.
 
 If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token prior to its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
 
