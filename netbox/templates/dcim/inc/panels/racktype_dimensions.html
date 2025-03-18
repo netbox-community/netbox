@@ -25,6 +25,16 @@
       </td>
     </tr>
     <tr>
+      <th scope="row">{% trans "Outer Height" %}</th>
+      <td>
+        {% if object.outer_height %}
+          {{ object.outer_height }} {{ object.get_outer_unit_display }}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
       <th scope="row">{% trans "Outer Depth" %}</th>
       <td>
         {% if object.outer_depth %}

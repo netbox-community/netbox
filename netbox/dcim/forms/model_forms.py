@@ -222,7 +222,7 @@ class RackTypeForm(NetBoxModelForm):
         FieldSet('manufacturer', 'model', 'slug', 'description', 'form_factor', 'tags', name=_('Rack Type')),
         FieldSet(
             'width', 'u_height',
-            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('outer_width', 'outer_height', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth', name=_('Dimensions')
         ),
@@ -233,8 +233,8 @@ class RackTypeForm(NetBoxModelForm):
         model = RackType
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
-            'description', 'comments', 'tags',
+            'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+            'weight_unit', 'description', 'comments', 'tags',
         ]
 
 
@@ -279,8 +279,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
         fields = [
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit',
-            'description', 'comments', 'tags',
+            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
+            'weight_unit', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -302,7 +302,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
                 *self.fieldsets,
                 FieldSet(
                     'form_factor', 'width', 'starting_unit', 'u_height',
-                    InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+                    InlineFields('outer_width', 'outer_height', 'outer_depth', 'outer_unit',
+                                 label=_('Outer Dimensions')),
                     InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
                     'mounting_depth', 'desc_units', name=_('Dimensions')
                 ),
