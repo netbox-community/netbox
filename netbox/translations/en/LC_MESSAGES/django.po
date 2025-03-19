@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-18 05:01+0000\n"
+"POT-Creation-Date: 2025-03-19 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7777,84 +7777,88 @@ msgstr ""
 msgid "Unregistered widget class: {name}"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:125
+#: netbox/extras/dashboard/widgets.py:147
 #, python-brace-format
 msgid "{class_name} must define a render() method."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:144
+#: netbox/extras/dashboard/widgets.py:166
 msgid "Note"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:145
+#: netbox/extras/dashboard/widgets.py:167
 msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:158
+#: netbox/extras/dashboard/widgets.py:180
 msgid "Object Counts"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:159
+#: netbox/extras/dashboard/widgets.py:181
 msgid ""
 "Display a set of NetBox models and the number of objects created for each "
 "type."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:169
+#: netbox/extras/dashboard/widgets.py:191
 msgid "Filters to apply when counting the number of objects"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:177
+#: netbox/extras/dashboard/widgets.py:199
 msgid "Invalid format. Object filters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:208
+#: netbox/extras/dashboard/widgets.py:230
 msgid "Object List"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:209
+#: netbox/extras/dashboard/widgets.py:231
 msgid "Display an arbitrary list of objects."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:222
+#: netbox/extras/dashboard/widgets.py:244
 msgid "The default number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:234
+#: netbox/extras/dashboard/widgets.py:256
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:274
+#: netbox/extras/dashboard/widgets.py:265
+msgid "Invalid model selection: {self['model'].data} is not supported."
+msgstr ""
+
+#: netbox/extras/dashboard/widgets.py:307
 msgid "RSS Feed"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:280
+#: netbox/extras/dashboard/widgets.py:313
 msgid "Embed an RSS feed from an external website."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:287
+#: netbox/extras/dashboard/widgets.py:320
 msgid "Feed URL"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:291
+#: netbox/extras/dashboard/widgets.py:324
 msgid "Requires external connection"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:297
+#: netbox/extras/dashboard/widgets.py:330
 msgid "The maximum number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:302
+#: netbox/extras/dashboard/widgets.py:335
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:359 netbox/templates/account/base.html:10
+#: netbox/extras/dashboard/widgets.py:392 netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:43
 msgid "Bookmarks"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:363
+#: netbox/extras/dashboard/widgets.py:396
 msgid "Show your personal bookmarks"
 msgstr ""
 
