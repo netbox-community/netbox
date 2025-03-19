@@ -328,11 +328,11 @@ class IPAddressImportForm(NetBoxModelImportForm):
         help_text=_('Assigned interface')
     )
     fhrpgroup = CSVModelChoiceField(
-        label=_('FHRP Group (ID)'),
+        label=_('FHRP Group'),
         queryset=FHRPGroup.objects.all(),
         required=False,
-        to_field_name='group_id',
-        help_text=_('Assigned FHRP Group ID')
+        to_field_name='name',
+        help_text=_('Assigned FHRP Group name')
     )
     is_primary = forms.BooleanField(
         label=_('Is primary'),
