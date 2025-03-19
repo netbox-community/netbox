@@ -170,7 +170,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('description', 'mime_type', 'file_extension')
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
 class SavedFilterBulkEditForm(BulkEditForm):

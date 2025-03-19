@@ -624,7 +624,10 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         export_templates = (
             ExportTemplate(name='Export Template 1', template_code='TESTING', description='foobar1'),
-            ExportTemplate(name='Export Template 2', template_code='TESTING', description='foobar2'),
+            ExportTemplate(
+                name='Export Template 2', template_code='TESTING', description='foobar2',
+                file_name='export_template_2', file_extension='nagios',
+            ),
             ExportTemplate(name='Export Template 3', template_code='TESTING', file_name='export_filename'),
         )
         ExportTemplate.objects.bulk_create(export_templates)
@@ -655,6 +658,16 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_file_name(self):
         params = {'file_name': ['export_filename']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_file_extension(self):
+        params = {'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'file_name': ['export_template_2'], 'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'file_name': 'export_filename', 'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 
 class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):

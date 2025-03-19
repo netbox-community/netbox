@@ -409,16 +409,16 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         verbose_name=_('MIME type'),
         help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
     )
+    file_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=_('Filename to give to the rendered export file')
+    )
     file_extension = models.CharField(
         verbose_name=_('file extension'),
         max_length=15,
         blank=True,
         help_text=_('Extension to append to the rendered filename')
-    )
-    file_name = models.CharField(
-        max_length=1000,
-        blank=True,
-        help_text=_('Filename to give to the rendered export file')
     )
     as_attachment = models.BooleanField(
         verbose_name=_('as attachment'),
