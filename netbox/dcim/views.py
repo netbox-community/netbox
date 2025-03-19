@@ -343,6 +343,11 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                     (Device.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (VLAN.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (
+                        ASN.objects.restrict(request.user, 'view').filter(
+                            sites__group__in=groups
+                        ).distinct(),
+                        'site_group_id'),
+                    (
                         VirtualMachine.objects.restrict(request.user, 'view').filter(
                             site__group__in=groups),
                         'site_group_id'
