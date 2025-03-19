@@ -24,10 +24,12 @@ class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Wireless LAN Group 4',
             'slug': 'wireless-lan-group-4',
+            'comments': '',
         },
         {
             'name': 'Wireless LAN Group 5',
             'slug': 'wireless-lan-group-5',
+            'comments': 'LAN Group 5 comment',
         },
         {
             'name': 'Wireless LAN Group 6',
@@ -36,6 +38,7 @@ class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'New comment',
     }
 
     @classmethod

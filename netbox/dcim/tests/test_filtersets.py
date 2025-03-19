@@ -67,9 +67,15 @@ class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         parent_regions = (
-            Region(name='Region 1', slug='region-1', description='foobar1'),
-            Region(name='Region 2', slug='region-2', description='foobar2'),
-            Region(name='Region 3', slug='region-3', description='foobar3'),
+            Region(
+                name='Region 1', slug='region-1', description='foobar1', comments="There's nothing that",
+            ),
+            Region(
+                name='Region 2', slug='region-2', description='foobar2', comments='a hundred men or more',
+            ),
+            Region(
+                name='Region 3', slug='region-3', description='foobar3', comments='could ever do'
+            ),
         )
         for region in parent_regions:
             region.save()
@@ -99,6 +105,13 @@ class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'there'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'hundred men could'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_name(self):
         params = {'name': ['Region 1', 'Region 2']}
@@ -148,13 +161,17 @@ class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             SiteGroup(name='Site Group 2A', slug='site-group-2a', parent=parent_groups[1]),
             SiteGroup(name='Site Group 2B', slug='site-group-2b', parent=parent_groups[1]),
             SiteGroup(name='Site Group 3A', slug='site-group-3a', parent=parent_groups[2]),
-            SiteGroup(name='Site Group 3B', slug='site-group-3b', parent=parent_groups[2]),
+            SiteGroup(
+                name='Site Group 3B', slug='site-group-3b', parent=parent_groups[2], comments='this is a parent group',
+            ),
         )
         for site_group in groups:
             site_group.save()
 
         child_groups = (
-            SiteGroup(name='Site Group 1A1', slug='site-group-1a1', parent=groups[0]),
+            SiteGroup(
+                name='Site Group 1A1', slug='site-group-1a1', parent=groups[0], comments='this is a child group',
+            ),
             SiteGroup(name='Site Group 1B1', slug='site-group-1b1', parent=groups[1]),
             SiteGroup(name='Site Group 2A1', slug='site-group-2a1', parent=groups[2]),
             SiteGroup(name='Site Group 2B1', slug='site-group-2b1', parent=groups[3]),
@@ -166,6 +183,13 @@ class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_q(self):
         params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'this'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'q': 'child'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
@@ -401,6 +425,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_PLANNED,
                 facility='Facility 1',
                 description='foobar1',
+                comments='',
             ),
             Location(
                 name='Location 2A',
@@ -410,6 +435,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_STAGING,
                 facility='Facility 2',
                 description='foobar2',
+                comments='First comment!',
             ),
             Location(
                 name='Location 3A',
@@ -419,6 +445,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 status=LocationStatusChoices.STATUS_DECOMMISSIONING,
                 facility='Facility 3',
                 description='foobar3',
+                comments='_This_ is a **bold comment**',
             ),
         )
         for location in locations:
@@ -435,6 +462,13 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'this'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Location 1', 'Location 2']}

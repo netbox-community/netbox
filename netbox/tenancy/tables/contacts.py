@@ -27,11 +27,15 @@ class ContactGroupTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='tenancy:contactgroup_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ContactGroup
         fields = (
-            'pk', 'name', 'contact_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'name', 'contact_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'contact_count', 'description')
 

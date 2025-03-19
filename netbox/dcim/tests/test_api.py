@@ -74,6 +74,7 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Region 4',
             'slug': 'region-4',
+            'comments': 'this is region 4, not region 5',
         },
         {
             'name': 'Region 5',
@@ -86,13 +87,14 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'New comments',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         Region.objects.create(name='Region 1', slug='region-1')
-        Region.objects.create(name='Region 2', slug='region-2')
+        Region.objects.create(name='Region 2', slug='region-2', comments='what in the world is happening?')
         Region.objects.create(name='Region 3', slug='region-3')
 
 
@@ -103,26 +105,30 @@ class SiteGroupTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Site Group 4',
             'slug': 'site-group-4',
+            'comments': '',
         },
         {
             'name': 'Site Group 5',
             'slug': 'site-group-5',
+            'comments': 'not actually empty',
         },
         {
             'name': 'Site Group 6',
             'slug': 'site-group-6',
+            'comments': 'Do I really exist?',
         },
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'I do exist!',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
-        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
-        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2', comments='')
+        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3', comments='Hi!')
 
 
 class SiteTest(APIViewTestCases.APIViewTestCase):
@@ -212,12 +218,14 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 name='Parent Location 1',
                 slug='parent-location-1',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='First!'
             ),
             Location.objects.create(
                 site=sites[1],
                 name='Parent Location 2',
                 slug='parent-location-2',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='Second!'
             ),
         )
 
@@ -227,6 +235,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
             slug='location-1',
             parent=parent_locations[0],
             status=LocationStatusChoices.STATUS_ACTIVE,
+            comments='Third!'
         )
         Location.objects.create(
             site=sites[0],
@@ -250,6 +259,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': '',
             },
             {
                 'name': 'Test Location 5',
@@ -257,6 +267,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': 'Somebody should check on this location',
             },
             {
                 'name': 'Test Location 6',

@@ -15,7 +15,7 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', comments='Tenant Group 2 comment'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenanantgroup in tenant_groups:
@@ -28,24 +28,26 @@ class TenantGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'tenant-group-x',
             'description': 'A new tenant group',
             'tags': [t.pk for t in tags],
+            'comments': 'Tenant Group X comment',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Tenant Group 4,tenant-group-4,Fourth tenant group",
-            "Tenant Group 5,tenant-group-5,Fifth tenant group",
-            "Tenant Group 6,tenant-group-6,Sixth tenant group",
+            "name,slug,description,comments",
+            "Tenant Group 4,tenant-group-4,Fourth tenant group,",
+            "Tenant Group 5,tenant-group-5,Fifth tenant group,",
+            "Tenant Group 6,tenant-group-6,Sixth tenant group,Sixth tenant group comment",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7",
-            f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8",
-            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9",
+            "id,name,description,comments",
+            f"{tenant_groups[0].pk},Tenant Group 7,Fourth tenant group7,Group 7 comment",
+            f"{tenant_groups[1].pk},Tenant Group 8,Fifth tenant group8,",
+            f"{tenant_groups[2].pk},Tenant Group 0,Sixth tenant group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'New comment',
         }
 
 
@@ -106,7 +108,7 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     def setUpTestData(cls):
 
         contact_groups = (
-            ContactGroup(name='Contact Group 1', slug='contact-group-1'),
+            ContactGroup(name='Contact Group 1', slug='contact-group-1', comments='Comment 1'),
             ContactGroup(name='Contact Group 2', slug='contact-group-2'),
             ContactGroup(name='Contact Group 3', slug='contact-group-3'),
         )
@@ -120,24 +122,26 @@ class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'contact-group-x',
             'description': 'A new contact group',
             'tags': [t.pk for t in tags],
+            'comments': 'Form data comment',
         }
 
         cls.csv_data = (
-            "name,slug,description",
-            "Contact Group 4,contact-group-4,Fourth contact group",
-            "Contact Group 5,contact-group-5,Fifth contact group",
-            "Contact Group 6,contact-group-6,Sixth contact group",
+            "name,slug,description,comments",
+            "Contact Group 4,contact-group-4,Fourth contact group,",
+            "Contact Group 5,contact-group-5,Fifth contact group,Fifth comment",
+            "Contact Group 6,contact-group-6,Sixth contact group,",
         )
 
         cls.csv_update_data = (
-            "id,name,description",
-            f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7",
-            f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8",
-            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9",
+            "id,name,description,comments",
+            f"{contact_groups[0].pk},Contact Group 7,Fourth contact group7,",
+            f"{contact_groups[1].pk},Contact Group 8,Fifth contact group8,Group 8 comment",
+            f"{contact_groups[2].pk},Contact Group 0,Sixth contact group9,",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'comments': 'Bulk update comment',
         }
 
 
