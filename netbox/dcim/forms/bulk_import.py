@@ -1164,8 +1164,8 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     def clean(self):
         super().clean()
         cleaned_data = self.cleaned_data
-        component_type = cleaned_data.get('component_type', None)
-        component_name = cleaned_data.get('component_name', None)
+        component_type = cleaned_data.get('component_type')
+        component_name = cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
         if component_type:
