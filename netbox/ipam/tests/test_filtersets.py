@@ -133,10 +133,18 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ASN.objects.bulk_create(asns)
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = [
-            Site(name='Site 1', slug='site-1'),
-            Site(name='Site 2', slug='site-2'),
-            Site(name='Site 3', slug='site-3')
+            Site(name='Site 1', slug='site-1', group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', group=site_groups[2]),
         ]
         Site.objects.bulk_create(sites)
         asns[0].sites.set([sites[0]])
@@ -176,6 +184,13 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
