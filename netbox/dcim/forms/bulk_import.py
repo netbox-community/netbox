@@ -1164,15 +1164,15 @@ class InventoryItemImportForm(NetBoxModelImportForm):
     def clean(self):
         super().clean()
         cleaned_data = self.cleaned_data
-        component_type = cleaned_data.get('component_type')
-        component_name = cleaned_data.get('component_name')
+        component_type = cleaned_data.get('component_type', None)
+        component_name = cleaned_data.get('component_name', None)
         device = self.cleaned_data.get("device")
 
         if component_type:
             if device is None:
-                cleaned_data.pop('component_type')
+                cleaned_data.pop('component_type', None)
             if component_name is None:
-                cleaned_data.pop('component_type')
+                cleaned_data.pop('component_type', None)
                 raise forms.ValidationError(
                     _("Component name must be specified when component type is specified")
                 )
@@ -1181,12 +1181,18 @@ class InventoryItemImportForm(NetBoxModelImportForm):
                     model = component_type.model_class()
                     self.instance.component = model.objects.get(device=device, name=component_name)
                 except ObjectDoesNotExist:
-                    cleaned_data.pop('component_type')
-                    cleaned_data.pop('component_name')
+                    cleaned_data.pop('component_type', None)
+                    cleaned_data.pop('component_name', None)
                     raise forms.ValidationError(
                         _("Component not found: {device} - {component_name}").format(
                             device=device, component_name=component_name
                         )
+                    )
+            else:
+                cleaned_data.pop('component_type', None)
+                if not component_name:
+                    raise forms.ValidationError(
+                        _("Component name must be specified when component type is specified")
                     )
         else:
             if component_name:
