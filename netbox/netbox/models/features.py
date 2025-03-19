@@ -455,7 +455,8 @@ class TagsMixin(models.Model):
     which is a `TaggableManager` instance.
     """
     tags = TaggableManager(
-        through='extras.TaggedItem'
+        through='extras.TaggedItem',
+        ordering=('weight', 'name'),
     )
 
     class Meta:

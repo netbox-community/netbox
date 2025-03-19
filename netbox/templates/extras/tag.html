@@ -29,6 +29,10 @@
             </td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Weight" %}</th>
+            <td>{{ object.weight }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Tagged Items" %}</th>
             <td>
                 {{ taggeditem_table.rows|length }}

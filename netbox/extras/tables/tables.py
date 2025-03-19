@@ -449,8 +449,8 @@ class TagTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Tag
         fields = (
-            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'weight', 'description', 'object_types',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
