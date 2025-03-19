@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tenancy', '0017_natural_ordering'),
+        ('tenancy', '0018_contact_groups'),
     ]
 
     operations = [
