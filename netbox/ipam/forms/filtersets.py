@@ -142,13 +142,18 @@ class ASNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('rir_id', 'site_id', name=_('Assignment')),
+        FieldSet('rir_id', 'site_group_id', 'site_id', name=_('Assignment')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         required=False,
         label=_('RIR')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
