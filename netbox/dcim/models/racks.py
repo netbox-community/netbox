@@ -335,8 +335,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'u_height', 'desc_units',
-        'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth',
-        'weight', 'max_weight', 'weight_unit',
+        'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+        'weight_unit',
     )
     prerequisite_models = (
         'dcim.Site',
