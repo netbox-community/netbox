@@ -180,7 +180,7 @@ class RackType(RackBase):
 
         # Validate outer dimensions and unit
         if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer width/depth/height"))
+            raise ValidationError(_("Must specify a unit when setting an outer dimension"))
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
