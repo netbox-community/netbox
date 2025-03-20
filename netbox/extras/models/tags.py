@@ -40,13 +40,17 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         blank=True,
         help_text=_("The object type(s) to which this tag can be applied.")
     )
+    weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
+        default=0,
+    )
 
     clone_fields = (
         'color', 'description', 'object_types',
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('weight', 'name')
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
 

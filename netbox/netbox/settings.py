@@ -17,6 +17,7 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+import storages.utils  # type: ignore
 from utilities.release import load_release_data
 from utilities.string import trailing_slash
 
@@ -52,14 +53,18 @@ except ModuleNotFoundError as e:
         )
     raise
 
-# Check for missing required configuration parameters
-for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
+# Check for missing/conflicting required configuration parameters
+for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
     if not hasattr(configuration, parameter):
         raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
+if not hasattr(configuration, 'DATABASE') and not hasattr(configuration, 'DATABASES'):
+    raise ImproperlyConfigured("The database configuration must be defined using DATABASE or DATABASES.")
+elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
+    raise ImproperlyConfigured("DATABASE and DATABASES may not be set together. The use of DATABASES is encouraged.")
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
+ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
@@ -83,7 +88,9 @@ CSRF_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
 CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-DATABASE = getattr(configuration, 'DATABASE')  # Required
+DATABASE = getattr(configuration, 'DATABASE', None)  # Legacy DB definition
+DATABASE_ROUTERS = getattr(configuration, 'DATABASE_ROUTERS', [])
+DATABASES = getattr(configuration, 'DATABASES', {'default': DATABASE})
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
 DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
@@ -128,6 +135,7 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
+LOGIN_FORM_HIDDEN = getattr(configuration, 'LOGIN_FORM_HIDDEN', False)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
@@ -177,7 +185,8 @@ SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
 SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
-STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
+STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', None)
+STORAGES = getattr(configuration, 'STORAGES', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
@@ -217,78 +226,79 @@ for path in PROXY_ROUTERS:
 # Database
 #
 
-# Set the database engine
-if 'ENGINE' not in DATABASE:
-    if METRICS_ENABLED:
-        DATABASE.update({'ENGINE': 'django_prometheus.db.backends.postgresql'})
-    else:
-        DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
+# Verify that a default database has been configured
+if 'default' not in DATABASES:
+    raise ImproperlyConfigured("No default database has been configured.")
 
-# Define the DATABASES setting for Django
-DATABASES = {
-    'default': DATABASE,
-}
+# Set the database engine
+if 'ENGINE' not in DATABASES['default']:
+    DATABASES['default'].update({
+        'ENGINE': 'django_prometheus.db.backends.postgresql' if METRICS_ENABLED else 'django.db.backends.postgresql'
+    })
 
 
 #
 # Storage backend
 #
 
+if STORAGE_BACKEND is not None:
+    if not STORAGES:
+        raise ImproperlyConfigured(
+            "STORAGE_BACKEND and STORAGES are both set, remove the deprecated STORAGE_BACKEND setting."
+        )
+    else:
+        warnings.warn(
+            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
+        )
+
+if STORAGE_CONFIG is not None:
+    warnings.warn(
+        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead."
+    )
+
 # Default STORAGES for Django
-STORAGES = {
+DEFAULT_STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
+    "scripts": {
+        "BACKEND": "extras.storage.ScriptFileSystemStorage",
+    },
 }
+STORAGES = DEFAULT_STORAGES | STORAGES
 
+# TODO: This code is deprecated and needs to be removed in the future
 if STORAGE_BACKEND is not None:
     STORAGES['default']['BACKEND'] = STORAGE_BACKEND
 
-    # django-storages
-    if STORAGE_BACKEND.startswith('storages.'):
-        try:
-            import storages.utils  # type: ignore
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'storages':
-                raise ImproperlyConfigured(
-                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storages is not present. It can be "
-                    f"installed by running 'pip install django-storages'."
-                )
-            raise e
+# Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
+if STORAGE_CONFIG is not None:
+    def _setting(name, default=None):
+        if name in STORAGE_CONFIG:
+            return STORAGE_CONFIG[name]
+        return globals().get(name, default)
+    storages.utils.setting = _setting
 
-        # Monkey-patch django-storages to fetch settings from STORAGE_CONFIG
-        def _setting(name, default=None):
-            if name in STORAGE_CONFIG:
-                return STORAGE_CONFIG[name]
-            return globals().get(name, default)
-        storages.utils.setting = _setting
+# django-storage-swift
+if STORAGE_BACKEND == 'swift.storage.SwiftStorage':
+    try:
+        import swift.utils  # noqa: F401
+    except ModuleNotFoundError as e:
+        if getattr(e, 'name') == 'swift':
+            raise ImproperlyConfigured(
+                f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
+                "It can be installed by running 'pip install django-storage-swift'."
+            )
+        raise e
 
-    # django-storage-swift
-    elif STORAGE_BACKEND == 'swift.storage.SwiftStorage':
-        try:
-            import swift.utils  # noqa: F401
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'swift':
-                raise ImproperlyConfigured(
-                    f"STORAGE_BACKEND is set to {STORAGE_BACKEND} but django-storage-swift is not present. "
-                    "It can be installed by running 'pip install django-storage-swift'."
-                )
-            raise e
-
-        # Load all SWIFT_* settings from the user configuration
-        for param, value in STORAGE_CONFIG.items():
-            if param.startswith('SWIFT_'):
-                globals()[param] = value
-
-if STORAGE_CONFIG and STORAGE_BACKEND is None:
-    warnings.warn(
-        "STORAGE_CONFIG has been set in configuration.py but STORAGE_BACKEND is not defined. STORAGE_CONFIG will be "
-        "ignored."
-    )
-
+    # Load all SWIFT_* settings from the user configuration
+    for param, value in STORAGE_CONFIG.items():
+        if param.startswith('SWIFT_'):
+            globals()[param] = value
+# TODO: End of deprecated code
 
 #
 # Redis

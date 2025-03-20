@@ -16,7 +16,7 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
-from extras.utils import image_upload
+from extras.utils import filename_from_model, image_upload
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
@@ -409,6 +409,11 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         verbose_name=_('MIME type'),
         help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
     )
+    file_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=_('Filename to give to the rendered export file')
+    )
     file_extension = models.CharField(
         verbose_name=_('file extension'),
         max_length=15,
@@ -422,7 +427,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
     )
 
     clone_fields = (
-        'object_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
+        'object_types', 'template_code', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
     )
 
     class Meta:
@@ -480,10 +485,10 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         response = HttpResponse(output, content_type=mime_type)
 
         if self.as_attachment:
-            basename = queryset.model._meta.verbose_name_plural.replace(' ', '_')
             extension = f'.{self.file_extension}' if self.file_extension else ''
-            filename = f'netbox_{basename}{extension}'
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            filename = self.file_name or filename_from_model(queryset.model)
+            full_filename = f'{filename}{extension}'
+            response['Content-Disposition'] = f'attachment; filename="{full_filename}"'
 
         return response
 

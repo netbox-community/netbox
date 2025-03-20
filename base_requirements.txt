@@ -42,6 +42,10 @@ django-rich
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
 django-rq
 
+# Provides a variety of storage backends
+# https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst
+django-storages
+
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
 django-tables2

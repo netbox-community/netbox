@@ -170,7 +170,7 @@ class ContactGroupListView(generic.ObjectListView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -214,7 +214,7 @@ class ContactGroupBulkEditView(generic.BulkEditView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -228,7 +228,7 @@ class ContactGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -336,6 +336,15 @@ class ContactBulkEditView(generic.BulkEditView):
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
     form = forms.ContactBulkEditForm
+
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
+        # Add/remove groups
+        if form.cleaned_data.get('add_groups', None):
+            obj.groups.add(*form.cleaned_data['add_groups'])
+        if form.cleaned_data.get('remove_groups', None):
+            obj.groups.remove(*form.cleaned_data['remove_groups'])
 
 
 @register_model_view(Contact, 'bulk_delete', path='delete', detail=False)

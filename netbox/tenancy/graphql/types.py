@@ -112,7 +112,7 @@ class TenantGroupType(OrganizationalObjectType):
     pagination=True
 )
 class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
-    group: Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')] | None
+    groups: List[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
 @strawberry_django.type(
