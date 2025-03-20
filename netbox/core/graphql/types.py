@@ -47,6 +47,10 @@ class ObjectChangeType(BaseObjectType):
     pass
 
 
-@strawberry_django.type(DjangoContentType, fields='__all__')
+@strawberry_django.type(
+    DjangoContentType,
+    fields='__all__',
+    pagination=True
+)
 class ContentType:
     pass

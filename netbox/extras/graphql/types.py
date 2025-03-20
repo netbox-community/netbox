@@ -151,6 +151,7 @@ class JournalEntryType(CustomFieldsMixin, TagsMixin, ObjectType):
 @strawberry_django.type(
     models.Notification,
     # filters=NotificationFilter
+    pagination=True
 )
 class NotificationType(ObjectType):
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
@@ -179,6 +180,7 @@ class SavedFilterType(ObjectType):
 @strawberry_django.type(
     models.Subscription,
     # filters=NotificationFilter
+    pagination=True
 )
 class SubscriptionType(ObjectType):
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
