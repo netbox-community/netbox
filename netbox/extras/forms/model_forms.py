@@ -246,7 +246,7 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     fieldsets = (
         FieldSet('name', 'object_types', 'description', 'template_code', name=_('Export Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
-        FieldSet('mime_type', 'file_extension', 'as_attachment', name=_('Rendering')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
     )
 
     class Meta:

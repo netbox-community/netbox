@@ -305,7 +305,7 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         export_templates = (
             ExportTemplate(name='Export Template 1', template_code=TEMPLATE_CODE),
             ExportTemplate(name='Export Template 2', template_code=TEMPLATE_CODE),
-            ExportTemplate(name='Export Template 3', template_code=TEMPLATE_CODE),
+            ExportTemplate(name='Export Template 3', template_code=TEMPLATE_CODE, file_name='export_template_3')
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for et in export_templates:
@@ -315,13 +315,14 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Export Template X',
             'object_types': [site_type.pk],
             'template_code': TEMPLATE_CODE,
+            'file_name': 'template_x',
         }
 
         cls.csv_data = (
-            "name,object_types,template_code",
-            f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
-            f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
-            f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+            "name,object_types,template_code,file_name",
+            f"Export Template 4,dcim.site,{TEMPLATE_CODE},",
+            f"Export Template 5,dcim.site,{TEMPLATE_CODE},template_5",
+            f"Export Template 6,dcim.site,{TEMPLATE_CODE},",
         )
 
         cls.csv_update_data = (

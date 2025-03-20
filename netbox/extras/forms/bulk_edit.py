@@ -155,6 +155,10 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         max_length=50,
         required=False
     )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
+    )
     file_extension = forms.CharField(
         label=_('File extension'),
         max_length=15,
@@ -166,7 +170,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('description', 'mime_type', 'file_extension')
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
 class SavedFilterBulkEditForm(BulkEditForm):
