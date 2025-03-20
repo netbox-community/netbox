@@ -131,6 +131,18 @@ Certain queries can return multiple types of objects, for example cable terminat
 ```
 The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
 
+## Pagination
+
+Queries can be paginated by specifying pagination in the query and supplying an offset and optionaly a limit in the query.  If no limit is given, a default of 100 is used.  Queries are not paginated unless requested in the query. An example paginated query is shown below:
+
+```
+query {
+  device_list(pagination: { offset: 0, limit: 20 }) {
+    id
+  }
+}
+```
+
 ## Authentication
 
 NetBox's GraphQL API uses the same API authentication tokens as its REST API. Authentication tokens are included with requests by attaching an `Authorization` HTTP header in the following form:

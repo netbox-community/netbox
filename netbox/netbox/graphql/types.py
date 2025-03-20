@@ -84,6 +84,7 @@ class NetBoxObjectType(
 @strawberry_django.type(
     ContentType,
     fields=['id', 'app_label', 'model'],
+    pagination=True
 )
 class ContentTypeType:
     pass
@@ -92,6 +93,7 @@ class ContentTypeType:
 @strawberry_django.type(
     ObjectType_,
     fields=['id', 'app_label', 'model'],
+    pagination=True
 )
 class ObjectTypeType:
     pass
