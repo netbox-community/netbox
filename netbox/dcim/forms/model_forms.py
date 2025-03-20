@@ -78,6 +78,7 @@ class RegionForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -86,7 +87,7 @@ class RegionForm(NetBoxModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'tags', 'comments',
         )
 
 
@@ -97,6 +98,7 @@ class SiteGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -105,7 +107,7 @@ class SiteGroupForm(NetBoxModelForm):
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'comments', 'tags',
         )
 
 
@@ -179,6 +181,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
         }
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags', name=_('Location')),
@@ -188,7 +191,8 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant', 'facility', 'tags',
+            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
+            'facility', 'tags', 'comments',
         )
 
 

@@ -329,3 +329,19 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
             models.Q(slug__icontains=value) |
             models.Q(description__icontains=value)
         )
+
+
+class NestedGroupModelFilterSet(NetBoxModelFilterSet):
+    """
+    A base FilterSet for models that inherit from NestedGroupModel
+    """
+    def search(self, queryset, name, value):
+        if value.strip():
+            queryset = queryset.filter(
+                models.Q(name__icontains=value) |
+                models.Q(slug__icontains=value) |
+                models.Q(description__icontains=value) |
+                models.Q(comments__icontains=value)
+            )
+
+        return queryset

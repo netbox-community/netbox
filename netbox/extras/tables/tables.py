@@ -203,11 +203,12 @@ class ExportTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'id', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
-            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'pk', 'id', 'name', 'object_types', 'description', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
+            'pk', 'name', 'object_types', 'description', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'is_synced',
         )
 
 
@@ -449,8 +450,8 @@ class TagTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Tag
         fields = (
-            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'weight', 'description', 'object_types',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 

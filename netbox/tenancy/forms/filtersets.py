@@ -75,7 +75,7 @@ class ContactFilterForm(NetBoxModelFilterSetForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Group')
+        label=_('Groups')
     )
     tag = TagFilterField(model)
 
