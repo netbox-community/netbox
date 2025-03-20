@@ -72,7 +72,6 @@ class BaseIPAddressFamilyType:
     fields='__all__',
     filters=ASNFilter,
     pagination=True
-
 )
 class ASNType(NetBoxObjectType):
     asn: BigInt
@@ -88,7 +87,6 @@ class ASNType(NetBoxObjectType):
     fields='__all__',
     filters=ASNRangeFilter,
     pagination=True
-
 )
 class ASNRangeType(NetBoxObjectType):
     start: BigInt
@@ -102,7 +100,6 @@ class ASNRangeType(NetBoxObjectType):
     fields='__all__',
     filters=AggregateFilter,
     pagination=True
-
 )
 class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
     prefix: str
@@ -115,7 +112,6 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
     fields='__all__',
     filters=FHRPGroupFilter,
     pagination=True
-
 )
 class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
@@ -127,7 +123,6 @@ class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
     exclude=['interface_type', 'interface_id'],
     filters=FHRPGroupAssignmentFilter,
     pagination=True
-
 )
 class FHRPGroupAssignmentType(BaseObjectType):
     group: Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')]
@@ -170,7 +165,6 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     fields='__all__',
     filters=IPRangeFilter,
     pagination=True
-
 )
 class IPRangeType(NetBoxObjectType):
     start_address: str
@@ -185,7 +179,6 @@ class IPRangeType(NetBoxObjectType):
     exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
     filters=PrefixFilter,
     pagination=True
-
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
     prefix: str
@@ -209,7 +202,6 @@ class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
     fields='__all__',
     filters=RIRFilter,
     pagination=True
-
 )
 class RIRType(OrganizationalObjectType):
 
@@ -223,7 +215,6 @@ class RIRType(OrganizationalObjectType):
     fields='__all__',
     filters=RoleFilter,
     pagination=True
-
 )
 class RoleType(OrganizationalObjectType):
 
@@ -237,7 +228,6 @@ class RoleType(OrganizationalObjectType):
     fields='__all__',
     filters=RouteTargetFilter,
     pagination=True
-
 )
 class RouteTargetType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -253,7 +243,6 @@ class RouteTargetType(NetBoxObjectType):
     fields='__all__',
     filters=ServiceFilter,
     pagination=True
-
 )
 class ServiceType(NetBoxObjectType):
     ports: List[int]
@@ -268,7 +257,6 @@ class ServiceType(NetBoxObjectType):
     fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
-
 )
 class ServiceTemplateType(NetBoxObjectType):
     ports: List[int]
@@ -279,7 +267,6 @@ class ServiceTemplateType(NetBoxObjectType):
     exclude=['qinq_svlan'],
     filters=VLANFilter,
     pagination=True
-
 )
 class VLANType(NetBoxObjectType):
     site: Annotated["SiteType", strawberry.lazy('ipam.graphql.types')] | None
@@ -304,7 +291,6 @@ class VLANType(NetBoxObjectType):
     exclude=['scope_type', 'scope_id'],
     filters=VLANGroupFilter,
     pagination=True
-
 )
 class VLANGroupType(OrganizationalObjectType):
 
@@ -330,7 +316,6 @@ class VLANGroupType(OrganizationalObjectType):
     fields='__all__',
     filters=VLANTranslationPolicyFilter,
     pagination=True
-
 )
 class VLANTranslationPolicyType(NetBoxObjectType):
     rules: List[Annotated["VLANTranslationRuleType", strawberry.lazy('ipam.graphql.types')]]
@@ -341,7 +326,6 @@ class VLANTranslationPolicyType(NetBoxObjectType):
     fields='__all__',
     filters=VLANTranslationRuleFilter,
     pagination=True
-
 )
 class VLANTranslationRuleType(NetBoxObjectType):
     policy: Annotated[

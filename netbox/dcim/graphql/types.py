@@ -452,7 +452,6 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     fields='__all__',
     filters=InterfaceTemplateFilter,
     pagination=True
-
 )
 class InterfaceTemplateType(ModularComponentTemplateType):
     _name: str

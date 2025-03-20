@@ -1,7 +1,5 @@
 import strawberry
 from django.conf import settings
-# from django.db.models.manager import BaseManager
-# from django.db.models.query import QuerySet
 from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.extensions import MaxAliasesLimiter  # , SchemaExtension
 from strawberry.schema.config import StrawberryConfig
@@ -14,7 +12,6 @@ from ipam.graphql.schema import IPAMQuery
 from netbox.registry import registry
 from tenancy.graphql.schema import TenancyQuery
 from users.graphql.schema import UsersQuery
-# from utilities.query import reapply_model_ordering
 from virtualization.graphql.schema import VirtualizationQuery
 from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
