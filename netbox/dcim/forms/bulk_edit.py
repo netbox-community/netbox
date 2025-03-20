@@ -461,10 +461,8 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
-        FieldSet(
-            'form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'outer_width', 'outer_height', 'outer_depth',
-            'outer_unit', 'mounting_depth', name=_('Hardware')
-        ),
+        FieldSet('outer_width', 'outer_height', 'outer_depth', 'outer_unit', name=_('Outer Dimensions')),
+        FieldSet('form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'mounting_depth', name=_('Hardware')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (

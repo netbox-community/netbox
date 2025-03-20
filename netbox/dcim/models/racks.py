@@ -194,7 +194,7 @@ class RackType(RackBase):
             self._abs_max_weight = None
 
         # Clear unit if outer width & depth are not set
-        if self.outer_width is None and self.outer_depth is None and self.outer_height is None:
+        if not any([self.outer_width, self.outer_depth, self.outer_height]):
             self.outer_unit = None
 
         super().save(*args, **kwargs)
@@ -371,9 +371,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit
-        if (
-            self.outer_width is not None or self.outer_depth is not None or self.outer_height is not None
-        ) and not self.outer_unit:
+        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
             raise ValidationError(_("Must specify a unit when setting an outer dimension"))
 
         # Validate max_weight and weight_unit
@@ -423,7 +421,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             self._abs_max_weight = None
 
         # Clear unit if outer width & depth are not set
-        if self.outer_width is None and self.outer_depth is None and self.outer_height is None:
+        if not any([self.outer_width, self.outer_depth, self.outer_height]):
             self.outer_unit = None
 
         super().save(*args, **kwargs)
