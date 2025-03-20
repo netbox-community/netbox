@@ -23,7 +23,8 @@ from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
+
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
@@ -468,6 +469,28 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 # Devices
 #
 
+class DeviceRoleGroup(NestedGroupModel):
+    """
+    An arbitrary collection of Tenants.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+        unique=True,
+        db_collation="natural_sort"
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+        unique=True
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('device role group')
+        verbose_name_plural = _('device role groups')
+
+
 class DeviceRole(OrganizationalModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -486,6 +509,13 @@ class DeviceRole(OrganizationalModel):
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',
         on_delete=models.PROTECT,
+        related_name='device_roles',
+        blank=True,
+        null=True
+    )
+    group = models.ForeignKey(
+        to='dcim.DeviceRoleGroup',
+        on_delete=models.SET_NULL,
         related_name='device_roles',
         blank=True,
         null=True
