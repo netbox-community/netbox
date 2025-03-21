@@ -2298,6 +2298,13 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'vm_role': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_group(self):
+        group = DeviceRoleGroup.objects.all()[:2]
+        params = {'group_id': [group[0].pk, group[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [group[0].slug, group[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

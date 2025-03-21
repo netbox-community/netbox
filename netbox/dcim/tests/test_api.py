@@ -1149,7 +1149,7 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceRoleGroupTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRoleGroup
-    brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'role_count', 'url']
+    brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'role_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
         'comments': 'New Comment',
