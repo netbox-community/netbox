@@ -1136,6 +1136,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'device',
         'devicebay',
         'devicerole',
+        'devicerolegroup',
         'devicetype',
         'dummymodel',  # From dummy_plugin
         'eventrule',

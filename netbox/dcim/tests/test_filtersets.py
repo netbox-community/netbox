@@ -2269,10 +2269,38 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
+        device_role_groups = (
+            DeviceRoleGroup(name='Device Role Group 1', slug='device-role-group-1'),
+            DeviceRoleGroup(name='Device Role Group 2', slug='device-role-group-2'),
+            DeviceRoleGroup(name='Device Role Group 3', slug='device-role-group-3'),
+        )
+        for device_role_group in device_role_groups:
+            device_role_group.save()
+
         roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
+            DeviceRole(
+                name='Device Role 1',
+                slug='device-role-1',
+                color='ff0000',
+                vm_role=True,
+                description='foobar1',
+                group=device_role_groups[0]
+            ),
+            DeviceRole(
+                name='Device Role 2',
+                slug='device-role-2',
+                color='00ff00',
+                vm_role=True,
+                description='foobar2',
+                group=device_role_groups[1]
+            ),
+            DeviceRole(
+                name='Device Role 3',
+                slug='device-role-3',
+                color='0000ff',
+                vm_role=False,
+                group=device_role_groups[2]
+            ),
         )
         DeviceRole.objects.bulk_create(roles)
 
