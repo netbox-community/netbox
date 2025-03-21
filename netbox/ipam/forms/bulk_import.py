@@ -327,7 +327,7 @@ class IPAddressImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned interface')
     )
-    fhrpgroup = CSVModelChoiceField(
+    fhrp_group = CSVModelChoiceField(
         label=_('FHRP Group'),
         queryset=FHRPGroup.objects.all(),
         required=False,
@@ -348,7 +348,7 @@ class IPAddressImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'fhrpgroup',
+            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'fhrp_group',
             'is_primary', 'is_oob', 'dns_name', 'description', 'comments', 'tags',
         ]
 
@@ -405,8 +405,8 @@ class IPAddressImportForm(NetBoxModelImportForm):
         # Set interface assignment
         if self.cleaned_data.get('interface'):
             self.instance.assigned_object = self.cleaned_data['interface']
-        if self.cleaned_data.get('fhrpgroup'):
-            self.instance.assigned_object = self.cleaned_data['fhrpgroup']
+        if self.cleaned_data.get('fhrp_group'):
+            self.instance.assigned_object = self.cleaned_data['fhrp_group']
 
         ipaddress = super().save(*args, **kwargs)
 
