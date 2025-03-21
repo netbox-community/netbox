@@ -339,7 +339,7 @@ class DeviceRoleType(OrganizationalObjectType):
 class DeviceRoleGroupType(OrganizationalObjectType):
     parent: Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')] | None
 
-    roles: List[DeviceRoleType]
+    device_roles: List[DeviceRoleType]
     children: List[Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')]]
 
 
