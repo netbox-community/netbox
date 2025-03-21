@@ -1098,8 +1098,8 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
         if not request.htmx:
             return redirect('home')
 
-        initial = request.GET or {
-            'widget_class': 'extras.NoteWidget',
+        initial = {
+            'widget_class': request.GET.get('widget_class') or 'extras.NoteWidget',
         }
         widget_form = DashboardWidgetAddForm(initial=initial)
         widget_name = get_field_value(widget_form, 'widget_class')

@@ -1161,27 +1161,45 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         else:
             self.fields['parent'].queryset = InventoryItem.objects.none()
 
-    def clean_component_name(self):
-        content_type = self.cleaned_data.get('component_type')
-        component_name = self.cleaned_data.get('component_name')
+    def clean(self):
+        super().clean()
+        cleaned_data = self.cleaned_data
+        component_type = cleaned_data.get('component_type')
+        component_name = cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
-        if not device and hasattr(self, 'instance') and hasattr(self.instance, 'device'):
-            device = self.instance.device
-
-        if not all([device, content_type, component_name]):
-            return None
-
-        model = content_type.model_class()
-        try:
-            component = model.objects.get(device=device, name=component_name)
-            self.instance.component = component
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                _("Component not found: {device} - {component_name}").format(
-                    device=device, component_name=component_name
+        if component_type:
+            if device is None:
+                cleaned_data.pop('component_type', None)
+            if component_name is None:
+                cleaned_data.pop('component_type', None)
+                raise forms.ValidationError(
+                    _("Component name must be specified when component type is specified")
                 )
-            )
+            if all([device, component_name]):
+                try:
+                    model = component_type.model_class()
+                    self.instance.component = model.objects.get(device=device, name=component_name)
+                except ObjectDoesNotExist:
+                    cleaned_data.pop('component_type', None)
+                    cleaned_data.pop('component_name', None)
+                    raise forms.ValidationError(
+                        _("Component not found: {device} - {component_name}").format(
+                            device=device, component_name=component_name
+                        )
+                    )
+            else:
+                cleaned_data.pop('component_type', None)
+                if not component_name:
+                    raise forms.ValidationError(
+                        _("Component name must be specified when component type is specified")
+                    )
+        else:
+            if component_name:
+                raise forms.ValidationError(
+                    _("Component type must be specified when component name is specified")
+                )
+        return cleaned_data
 
 
 #

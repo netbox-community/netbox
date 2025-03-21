@@ -14,7 +14,7 @@ from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.forms import add_blank_choice, get_field_value
+from utilities.forms import get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
@@ -687,8 +687,7 @@ class ImageAttachmentForm(forms.ModelForm):
 class JournalEntryForm(NetBoxModelForm):
     kind = forms.ChoiceField(
         label=_('Kind'),
-        choices=add_blank_choice(JournalEntryKindChoices),
-        required=False
+        choices=JournalEntryKindChoices
     )
     comments = CommentField()
 
