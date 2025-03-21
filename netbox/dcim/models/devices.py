@@ -36,6 +36,7 @@ from .mixins import RenderConfigMixin
 __all__ = (
     'Device',
     'DeviceRole',
+    'DeviceRoleGroup',
     'DeviceType',
     'MACAddress',
     'Manufacturer',
@@ -471,7 +472,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
 class DeviceRoleGroup(NestedGroupModel):
     """
-    An arbitrary collection of Tenants.
+    An arbitrary collection of DeviceRoles.
     """
     name = models.CharField(
         verbose_name=_('name'),

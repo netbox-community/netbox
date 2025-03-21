@@ -32,6 +32,7 @@ __all__ = (
     'DeviceBayTemplateForm',
     'DeviceForm',
     'DeviceRoleForm',
+    'DeviceRoleGroupForm',
     'DeviceTypeForm',
     'DeviceVCMembershipForm',
     'FrontPortForm',
@@ -420,6 +421,26 @@ class ModuleTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
             'comments', 'tags',
+        ]
+
+
+class DeviceRoleGroupForm(NetBoxModelForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False
+    )
+    slug = SlugField()
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Device Role Group')),
+    )
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = [
+            'parent', 'name', 'slug', 'description', 'tags', 'comments'
         ]
 
 

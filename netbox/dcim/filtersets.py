@@ -43,6 +43,7 @@ __all__ = (
     'DeviceBayTemplateFilterSet',
     'DeviceFilterSet',
     'DeviceRoleFilterSet',
+    'DeviceRoleGroupFilterSet',
     'DeviceTypeFilterSet',
     'FrontPortFilterSet',
     'FrontPortTemplateFilterSet',
@@ -915,6 +916,36 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+class DeviceRoleGroupFilterSet(NestedGroupModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        label=_('Parent device role group (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=DeviceRoleGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Parent device role group (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Device role group (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Device role group (slug)'),
+    )
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):

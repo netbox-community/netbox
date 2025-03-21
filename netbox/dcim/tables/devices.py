@@ -24,6 +24,7 @@ __all__ = (
     'DevicePowerOutletTable',
     'DeviceRearPortTable',
     'DeviceRoleTable',
+    'DeviceRoleGroupTable',
     'DeviceTable',
     'FrontPortTable',
     'InterfaceTable',
@@ -57,6 +58,32 @@ MACADDRESS_COPY_BUTTON = """
 #
 # Device roles
 #
+
+class DeviceRoleGroupTable(NetBoxTable):
+    name = columns.MPTTColumn(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    role_count = columns.LinkedCountColumn(
+        viewname='dcim:devicerole_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Device Roles')
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:devicerolegroup_list'
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = models.DeviceRoleGroup
+        fields = (
+            'pk', 'id', 'name', 'role_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'name', 'role_count', 'description')
+
 
 class DeviceRoleTable(NetBoxTable):
     name = tables.Column(

@@ -7,6 +7,7 @@ from dcim import models
 __all__ = (
     'NestedDeviceBaySerializer',
     'NestedDeviceSerializer',
+    'NestedDeviceRoleGroupSerializer',
     'NestedInterfaceSerializer',
     'NestedInterfaceTemplateSerializer',
     'NestedLocationSerializer',
@@ -50,6 +51,18 @@ class NestedLocationSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Location
         fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'rack_count', '_depth']
+
+
+@extend_schema_serializer(
+    exclude_fields=('tenant_count',),
+)
+class NestedDeviceRoleGroupSerializer(WritableNestedSerializer):
+    role_count = serializers.IntegerField(read_only=True)
+    _depth = serializers.IntegerField(source='level', read_only=True)
+
+    class Meta:
+        model = models.DeviceRoleGroup
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'role_count', '_depth']
 
 
 class NestedDeviceSerializer(WritableNestedSerializer):

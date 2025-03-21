@@ -28,6 +28,7 @@ __all__ = (
     'DeviceBayImportForm',
     'DeviceImportForm',
     'DeviceRoleImportForm',
+    'DeviceRoleGroupImportForm',
     'DeviceTypeImportForm',
     'FrontPortImportForm',
     'InterfaceImportForm',
@@ -457,6 +458,21 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
             'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments',
             'tags',
         ]
+
+
+class DeviceRoleGroupImportForm(NetBoxModelImportForm):
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent group')
+    )
+    slug = SlugField()
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
