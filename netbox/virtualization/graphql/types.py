@@ -33,7 +33,7 @@ class ComponentType(NetBoxObjectType):
     exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
     filters=ClusterFilter
 )
-class ClusterType(VLANGroupsMixin, NetBoxObjectType):
+class ClusterType(ContactsMixin, VLANGroupsMixin, NetBoxObjectType):
     type: Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')] | None
     group: Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -55,7 +55,7 @@ class ClusterType(VLANGroupsMixin, NetBoxObjectType):
     fields='__all__',
     filters=ClusterGroupFilter
 )
-class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
+class ClusterGroupType(ContactsMixin, VLANGroupsMixin, OrganizationalObjectType):
 
     clusters: List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
 

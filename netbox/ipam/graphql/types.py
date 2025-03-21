@@ -5,6 +5,7 @@ import strawberry_django
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
+from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
@@ -83,7 +84,7 @@ class ASNRangeType(NetBoxObjectType):
     fields='__all__',
     filters=AggregateFilter
 )
-class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
+class AggregateType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     prefix: str
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -120,7 +121,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
     exclude=('assigned_object_type', 'assigned_object_id', 'address'),
     filters=IPAddressFilter
 )
-class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
+class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     address: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -144,7 +145,7 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     fields='__all__',
     filters=IPRangeFilter
 )
-class IPRangeType(NetBoxObjectType):
+class IPRangeType(NetBoxObjectType, ContactsMixin):
     start_address: str
     end_address: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
@@ -157,7 +158,7 @@ class IPRangeType(NetBoxObjectType):
     exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
     filters=PrefixFilter
 )
-class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
+class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     prefix: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -217,7 +218,7 @@ class RouteTargetType(NetBoxObjectType):
     fields='__all__',
     filters=ServiceFilter
 )
-class ServiceType(NetBoxObjectType):
+class ServiceType(NetBoxObjectType, ContactsMixin):
     ports: List[int]
     device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')] | None

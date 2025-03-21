@@ -27,7 +27,7 @@ __all__ = (
     fields='__all__',
     filters=TunnelGroupFilter
 )
-class TunnelGroupType(OrganizationalObjectType):
+class TunnelGroupType(ContactsMixin, OrganizationalObjectType):
 
     tunnels: List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]
 
@@ -48,7 +48,7 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     fields='__all__',
     filters=TunnelFilter
 )
-class TunnelType(NetBoxObjectType):
+class TunnelType(ContactsMixin, NetBoxObjectType):
     group: Annotated["TunnelGroupType", strawberry.lazy('vpn.graphql.types')] | None
     ipsec_profile: Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
