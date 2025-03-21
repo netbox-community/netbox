@@ -185,6 +185,7 @@ nav:
             - DeviceBay: 'models/dcim/devicebay.md'
             - DeviceBayTemplate: 'models/dcim/devicebaytemplate.md'
             - DeviceRole: 'models/dcim/devicerole.md'
+            - DeviceRoleGroup: 'models/dcim/devicerolegroup.md'
             - DeviceType: 'models/dcim/devicetype.md'
             - FrontPort: 'models/dcim/frontport.md'
             - FrontPortTemplate: 'models/dcim/frontporttemplate.md'
