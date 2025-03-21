@@ -1147,6 +1147,66 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class DeviceRoleGroupTest(APIViewTestCases.APIViewTestCase):
+    model = DeviceRoleGroup
+    brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'role_count', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+        'comments': 'New Comment',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        parent_device_role_groups = (
+            DeviceRoleGroup.objects.create(
+                name='Parent Device Role Group 1',
+                slug='parent-device-role-group-1'
+            ),
+            DeviceRoleGroup.objects.create(
+                name='Parent Device Role Group 2',
+                slug='parent-device-role-group-2',
+                comments='Parent Group 2 comment',
+            ),
+        )
+
+        DeviceRoleGroup.objects.create(
+            name='Device Role Group 1',
+            slug='device-role-group-1',
+            parent=parent_device_role_groups[0]
+        )
+        DeviceRoleGroup.objects.create(
+            name='Device Role Group 2',
+            slug='device_role-group-2',
+            parent=parent_device_role_groups[0]
+        )
+        DeviceRoleGroup.objects.create(
+            name='Device Role Group 3',
+            slug='device-role-group-3',
+            parent=parent_device_role_groups[0],
+            comments='Device Role Group 3 comment'
+        )
+
+        cls.create_data = [
+            {
+                'name': 'Device Role Group 4',
+                'slug': 'device-role-group-4',
+                'parent': parent_device_role_groups[1].pk,
+            },
+            {
+                'name': 'Device Role Group 5',
+                'slug': 'device-role-group-5',
+                'parent': parent_device_role_groups[1].pk,
+            },
+            {
+                'name': 'Device Role Group 6',
+                'slug': 'device-role-group-6',
+                'parent': parent_device_role_groups[1].pk,
+                'comments': 'Device Role Group 6 comment',
+            },
+        ]
+
+
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
     brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']

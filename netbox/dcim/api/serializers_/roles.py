@@ -15,7 +15,7 @@ __all__ = (
 
 class DeviceRoleGroupSerializer(NestedGroupModelSerializer):
     parent = NestedDeviceRoleGroupSerializer(required=False, allow_null=True)
-    tenant_count = serializers.IntegerField(read_only=True, default=0)
+    role_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = DeviceRoleGroup
