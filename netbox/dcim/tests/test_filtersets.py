@@ -2236,11 +2236,11 @@ class DeviceRoleGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
-        params = {'name': ['Tenant Group 1', 'Tenant Group 2']}
+        params = {'name': ['Device Role Group 1', 'Device Role Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_slug(self):
-        params = {'slug': ['tenant-group-1', 'tenant-group-2']}
+        params = {'slug': ['device-role-group-1', 'device-role-group-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -2248,17 +2248,17 @@ class DeviceRoleGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        tenant_groups = TenantGroup.objects.filter(parent__isnull=True)[:2]
-        params = {'parent_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        device_role_groups = DeviceRoleGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [device_role_groups[0].pk, device_role_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'parent': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        params = {'parent': [device_role_groups[0].slug, device_role_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_ancestor(self):
-        tenant_groups = TenantGroup.objects.filter(parent__isnull=True)[:2]
-        params = {'ancestor_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        device_role_groups = DeviceRoleGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [device_role_groups[0].pk, device_role_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'ancestor': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        params = {'ancestor': [device_role_groups[0].slug, device_role_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 

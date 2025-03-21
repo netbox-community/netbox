@@ -328,6 +328,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
     filters=DeviceRoleFilter
 )
 class DeviceRoleType(OrganizationalObjectType):
+    group: Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')] | None
     color: str
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
