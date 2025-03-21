@@ -522,6 +522,10 @@ class DeviceRole(OrganizationalModel):
         null=True
     )
 
+    clone_fields = (
+        'group', 'description',
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('device role')

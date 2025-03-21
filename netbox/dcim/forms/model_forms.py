@@ -450,18 +450,23 @@ class DeviceRoleForm(NetBoxModelForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False
+    )
     slug = SlugField()
 
     fieldsets = (
         FieldSet(
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
+            'name', 'slug', 'group', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
         ),
     )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'name', 'slug', 'group', 'color', 'vm_role', 'config_template', 'description', 'tags',
         ]
 
 

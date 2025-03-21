@@ -700,6 +700,12 @@ class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Config template')
     )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Group')
+    )
     tag = TagFilterField(model)
 
 

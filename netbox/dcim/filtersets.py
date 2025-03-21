@@ -953,6 +953,19 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
     )
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
+        label=_('Device role group (ID)'),
+    )
+    group = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Device role group (slug)'),
+    )
 
     class Meta:
         model = DeviceRole

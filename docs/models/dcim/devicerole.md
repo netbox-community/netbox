@@ -12,6 +12,10 @@ A unique human-friendly name.
 
 A unique URL-friendly identifier. (This value can be used for filtering.)
 
+### Group
+
+The [device role group](./devicerolegroup.md) to which this device role belongs (if any).
+
 ### Color
 
 The color used when displaying the role in the NetBox UI.

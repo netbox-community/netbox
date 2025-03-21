@@ -27,6 +27,10 @@
           <td>{{ object.name }}</td>
         </tr>
         <tr>
+          <th scope="row">{% trans "Group" %}</th>
+          <td>{{ object.group|linkify|placeholder }}</td>
+        </tr>
+        <tr>
           <th scope="row">{% trans "Description" %}</th>
           <td>{{ object.description|placeholder }}</td>
         </tr>
