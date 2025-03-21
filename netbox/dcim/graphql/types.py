@@ -46,6 +46,7 @@ __all__ = (
     'DeviceBayType',
     'DeviceBayTemplateType',
     'DeviceRoleType',
+    'DeviceRoleGroupType',
     'DeviceTypeType',
     'FrontPortType',
     'FrontPortTemplateType',
@@ -332,6 +333,14 @@ class DeviceRoleType(OrganizationalObjectType):
 
     virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(models.DeviceRoleGroup, fields='__all__', filters=DeviceRoleGroupFilter)
+class DeviceRoleGroupType(OrganizationalObjectType):
+    parent: Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')] | None
+
+    roles: List[DeviceRoleType]
+    children: List[Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

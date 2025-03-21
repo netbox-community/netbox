@@ -53,6 +53,7 @@ __all__ = (
     'DeviceBayFilter',
     'DeviceBayTemplateFilter',
     'DeviceRoleFilter',
+    'DeviceRoleGroupFilter',
     'DeviceTypeFilter',
     'FrontPortFilter',
     'FrontPortTemplateFilter',
@@ -307,6 +308,20 @@ class InventoryItemTemplateFilter(ComponentTemplateFilterMixin):
 class DeviceRoleFilter(OrganizationalModelFilterMixin, RenderConfigFilterMixin):
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
     vm_role: FilterLookup[bool] | None = strawberry_django.filter_field()
+
+
+@strawberry_django.filter(models.DeviceRoleGroup, lookups=True)
+class DeviceRoleGroupFilter(OrganizationalModelFilterMixin):
+    parent: Annotated['DeviceRoleGroupFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    parent_id: ID | None = strawberry.UNSET
+    roles: Annotated['DeviceRoleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    children: Annotated['DeviceRoleGroupFilter', strawberry.lazy('dcim.graphql.filters'), True] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter(models.DeviceType, lookups=True)
