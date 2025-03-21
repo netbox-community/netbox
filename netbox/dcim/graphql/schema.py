@@ -35,6 +35,9 @@ class DCIMQuery:
     device_role: DeviceRoleType = strawberry_django.field()
     device_role_list: List[DeviceRoleType] = strawberry_django.field()
 
+    device_role_group: DeviceRoleGroupType = strawberry_django.field()
+    device_role_group_list: List[DeviceRoleGroupType] = strawberry_django.field()
+
     device_type: DeviceTypeType = strawberry_django.field()
     device_type_list: List[DeviceTypeType] = strawberry_django.field()
 

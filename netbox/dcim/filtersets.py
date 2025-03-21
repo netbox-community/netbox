@@ -43,6 +43,7 @@ __all__ = (
     'DeviceBayTemplateFilterSet',
     'DeviceFilterSet',
     'DeviceRoleFilterSet',
+    'DeviceRoleGroupFilterSet',
     'DeviceTypeFilterSet',
     'FrontPortFilterSet',
     'FrontPortTemplateFilterSet',
@@ -917,10 +918,53 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         return queryset.filter(qs_filter)
 
 
+class DeviceRoleGroupFilterSet(NestedGroupModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        label=_('Parent device role group (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=DeviceRoleGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Parent device role group (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Device role group (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Device role group (slug)'),
+    )
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = ('id', 'name', 'slug', 'description')
+
+
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
+    )
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
+        label=_('Device role group (ID)'),
+    )
+    group = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRoleGroup.objects.all(),
+        field_name='group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Device role group (slug)'),
     )
 
     class Meta:

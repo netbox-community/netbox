@@ -28,6 +28,7 @@ __all__ = (
     'DeviceBayImportForm',
     'DeviceImportForm',
     'DeviceRoleImportForm',
+    'DeviceRoleGroupImportForm',
     'DeviceTypeImportForm',
     'FrontPortImportForm',
     'InterfaceImportForm',
@@ -459,6 +460,21 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         ]
 
 
+class DeviceRoleGroupImportForm(NetBoxModelImportForm):
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent group')
+    )
+    slug = SlugField()
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
+
+
 class DeviceRoleImportForm(NetBoxModelImportForm):
     config_template = CSVModelChoiceField(
         label=_('Config template'),
@@ -467,11 +483,18 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Config template')
     )
+    group = CSVModelChoiceField(
+        label=_('Group'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned group')
+    )
     slug = SlugField()
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
+        fields = ('name', 'slug', 'group', 'color', 'vm_role', 'config_template', 'description', 'tags')
 
 
 class PlatformImportForm(NetBoxModelImportForm):

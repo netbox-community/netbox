@@ -46,6 +46,7 @@ __all__ = (
     'DeviceBayType',
     'DeviceBayTemplateType',
     'DeviceRoleType',
+    'DeviceRoleGroupType',
     'DeviceTypeType',
     'FrontPortType',
     'FrontPortTemplateType',
@@ -338,11 +339,20 @@ class InventoryItemTemplateType(ComponentTemplateType):
     pagination=True
 )
 class DeviceRoleType(OrganizationalObjectType):
+    group: Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')] | None
     color: str
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
     virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(models.DeviceRoleGroup, fields='__all__', filters=DeviceRoleGroupFilter)
+class DeviceRoleGroupType(OrganizationalObjectType):
+    parent: Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')] | None
+
+    device_roles: List[DeviceRoleType]
+    children: List[Annotated['DeviceRoleGroupType', strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

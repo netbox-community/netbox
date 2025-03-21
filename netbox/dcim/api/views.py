@@ -343,6 +343,18 @@ class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 # Device roles
 #
 
+class DeviceRoleGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+    queryset = DeviceRoleGroup.objects.add_related_count(
+        DeviceRoleGroup.objects.all(),
+        DeviceRole,
+        'group',
+        'role_count',
+        cumulative=True
+    )
+    serializer_class = serializers.DeviceRoleGroupSerializer
+    filterset_class = filtersets.DeviceRoleGroupFilterSet
+
+
 class DeviceRoleViewSet(NetBoxModelViewSet):
     queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer

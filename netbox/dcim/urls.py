@@ -73,6 +73,9 @@ urlpatterns = [
     path('device-roles/', include(get_model_urls('dcim', 'devicerole', detail=False))),
     path('device-roles/<int:pk>/', include(get_model_urls('dcim', 'devicerole'))),
 
+    path('device-role-groups/', include(get_model_urls('dcim', 'devicerolegroup', detail=False))),
+    path('device-role-groups/<int:pk>/', include(get_model_urls('dcim', 'devicerolegroup'))),
+
     path('platforms/', include(get_model_urls('dcim', 'platform', detail=False))),
     path('platforms/<int:pk>/', include(get_model_urls('dcim', 'platform'))),
 

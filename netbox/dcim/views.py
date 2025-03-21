@@ -1898,6 +1898,61 @@ class InventoryItemTemplateBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Device role groups
+#
+
+@register_model_view(DeviceRoleGroup, 'list', path='', detail=False)
+class DeviceRoleGroupListView(generic.ObjectListView):
+    queryset = DeviceRoleGroup.objects.all()
+    filterset = filtersets.DeviceRoleGroupFilterSet
+    filterset_form = forms.DeviceRoleGroupFilterForm
+    table = tables.DeviceRoleGroupTable
+
+
+@register_model_view(DeviceRoleGroup)
+class DeviceRoleGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = DeviceRoleGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(DeviceRoleGroup, 'add', detail=False)
+@register_model_view(DeviceRoleGroup, 'edit')
+class DeviceRoleGroupEditView(generic.ObjectEditView):
+    queryset = DeviceRoleGroup.objects.all()
+    form = forms.DeviceRoleGroupForm
+
+
+@register_model_view(DeviceRoleGroup, 'delete')
+class DeviceRoleGroupDeleteView(generic.ObjectDeleteView):
+    queryset = DeviceRoleGroup.objects.all()
+
+
+@register_model_view(DeviceRoleGroup, 'bulk_import', detail=False)
+class DeviceRoleGroupBulkImportView(generic.BulkImportView):
+    queryset = DeviceRoleGroup.objects.all()
+    model_form = forms.DeviceRoleGroupImportForm
+
+
+@register_model_view(DeviceRoleGroup, 'bulk_edit', path='edit', detail=False)
+class DeviceRoleGroupBulkEditView(generic.BulkEditView):
+    queryset = DeviceRoleGroup.objects.all()
+    filterset = filtersets.DeviceRoleGroupFilterSet
+    table = tables.DeviceRoleGroupTable
+    form = forms.DeviceRoleGroupBulkEditForm
+
+
+@register_model_view(DeviceRoleGroup, 'bulk_delete', path='delete', detail=False)
+class DeviceRoleGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = DeviceRoleGroup.objects.all()
+    filterset = filtersets.DeviceRoleGroupFilterSet
+    table = tables.DeviceRoleGroupTable
+
+
+#
 # Device roles
 #
 

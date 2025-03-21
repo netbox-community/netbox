@@ -2168,6 +2168,100 @@ class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class DeviceRoleGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = DeviceRoleGroup.objects.all()
+    filterset = DeviceRoleGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        parent_device_role_groups = (
+            DeviceRoleGroup(name='Device Role Group 1', slug='device-role-group-1'),
+            DeviceRoleGroup(
+                name='Device Role Group 2',
+                slug='device-role-group-2',
+                comments='Parent group 2 comment'
+            ),
+            DeviceRoleGroup(name='Device Role Group 3', slug='device-role-group-3'),
+        )
+        for device_role_group in parent_device_role_groups:
+            device_role_group.save()
+
+        device_role_groups = (
+            DeviceRoleGroup(
+                name='Device Role Group 1A',
+                slug='device-role-group-1a',
+                parent=parent_device_role_groups[0],
+                description='foobar1',
+                comments='Device Role Group 1A comment',
+            ),
+            DeviceRoleGroup(
+                name='Device Role Group 2A',
+                slug='device-role-group-2a',
+                parent=parent_device_role_groups[1],
+                description='foobar2'
+            ),
+            DeviceRoleGroup(
+                name='Device Role Group 3A',
+                slug='device-role-group-3a',
+                parent=parent_device_role_groups[2],
+                description='foobar3'
+            ),
+        )
+        for device_role_group in device_role_groups:
+            device_role_group.save()
+
+        child_device_role_groups = (
+            DeviceRoleGroup(name='Device Role Group 1A1', slug='device-role-group-1a1', parent=device_role_groups[0]),
+            DeviceRoleGroup(name='Device Role Group 2A1', slug='device-role-group-2a1', parent=device_role_groups[1]),
+            DeviceRoleGroup(
+                name='Device Role Group 3A1',
+                slug='device-role-group-3a1',
+                parent=device_role_groups[2],
+                comments='Device Role Group 3A1 comment',
+            ),
+        )
+        for device_role_group in child_device_role_groups:
+            device_role_group.save()
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_name(self):
+        params = {'name': ['Device Role Group 1', 'Device Role Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['device-role-group-1', 'device-role-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        device_role_groups = DeviceRoleGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [device_role_groups[0].pk, device_role_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': [device_role_groups[0].slug, device_role_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ancestor(self):
+        device_role_groups = DeviceRoleGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [device_role_groups[0].pk, device_role_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'ancestor': [device_role_groups[0].slug, device_role_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
 class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DeviceRole.objects.all()
     filterset = DeviceRoleFilterSet
@@ -2175,10 +2269,38 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
+        device_role_groups = (
+            DeviceRoleGroup(name='Device Role Group 1', slug='device-role-group-1'),
+            DeviceRoleGroup(name='Device Role Group 2', slug='device-role-group-2'),
+            DeviceRoleGroup(name='Device Role Group 3', slug='device-role-group-3'),
+        )
+        for device_role_group in device_role_groups:
+            device_role_group.save()
+
         roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
+            DeviceRole(
+                name='Device Role 1',
+                slug='device-role-1',
+                color='ff0000',
+                vm_role=True,
+                description='foobar1',
+                group=device_role_groups[0]
+            ),
+            DeviceRole(
+                name='Device Role 2',
+                slug='device-role-2',
+                color='00ff00',
+                vm_role=True,
+                description='foobar2',
+                group=device_role_groups[1]
+            ),
+            DeviceRole(
+                name='Device Role 3',
+                slug='device-role-3',
+                color='0000ff',
+                vm_role=False,
+                group=device_role_groups[2]
+            ),
         )
         DeviceRole.objects.bulk_create(roles)
 
@@ -2203,6 +2325,13 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vm_role': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_group(self):
+        group = DeviceRoleGroup.objects.all()[:2]
+        params = {'group_id': [group[0].pk, group[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [group[0].slug, group[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}

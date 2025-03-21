@@ -27,6 +27,7 @@ __all__ = (
     'DeviceBayFilterForm',
     'DeviceFilterForm',
     'DeviceRoleFilterForm',
+    'DeviceRoleGroupFilterForm',
     'DeviceTypeFilterForm',
     'FrontPortFilterForm',
     'InterfaceConnectionFilterForm',
@@ -682,12 +683,28 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     )
 
 
+class DeviceRoleGroupFilterForm(NetBoxModelFilterSetForm):
+    model = DeviceRoleGroup
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        label=_('Parent group')
+    )
+    tag = TagFilterField(model)
+
+
 class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
     model = DeviceRole
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
         label=_('Config template')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Group')
     )
     tag = TagFilterField(model)
 

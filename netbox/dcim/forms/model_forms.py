@@ -32,6 +32,7 @@ __all__ = (
     'DeviceBayTemplateForm',
     'DeviceForm',
     'DeviceRoleForm',
+    'DeviceRoleGroupForm',
     'DeviceTypeForm',
     'DeviceVCMembershipForm',
     'FrontPortForm',
@@ -423,24 +424,49 @@ class ModuleTypeForm(NetBoxModelForm):
         ]
 
 
+class DeviceRoleGroupForm(NetBoxModelForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False
+    )
+    slug = SlugField()
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Device Role Group')),
+    )
+
+    class Meta:
+        model = DeviceRoleGroup
+        fields = [
+            'parent', 'name', 'slug', 'description', 'tags', 'comments'
+        ]
+
+
 class DeviceRoleForm(NetBoxModelForm):
     config_template = DynamicModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False
+    )
     slug = SlugField()
 
     fieldsets = (
         FieldSet(
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
+            'name', 'slug', 'group', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
         ),
     )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'name', 'slug', 'group', 'color', 'vm_role', 'config_template', 'description', 'tags',
         ]
 
 

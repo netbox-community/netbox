@@ -31,6 +31,7 @@ __all__ = (
     'DeviceBayTemplateBulkEditForm',
     'DeviceBulkEditForm',
     'DeviceRoleBulkEditForm',
+    'DeviceRoleGroupBulkEditForm',
     'DeviceTypeBulkEditForm',
     'FrontPortBulkEditForm',
     'FrontPortTemplateBulkEditForm',
@@ -611,9 +612,31 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
 
 
+class DeviceRoleGroupBulkEditForm(NetBoxModelBulkEditForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRoleGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = DeviceRoleGroup
+    nullable_fields = ('parent', 'description', 'comments')
+
+
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
     color = ColorField(
         label=_('Color'),
+        required=False
+    )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=DeviceRoleGroup.objects.all(),
         required=False
     )
     vm_role = forms.NullBooleanField(
@@ -634,9 +657,9 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DeviceRole
     fieldsets = (
-        FieldSet('color', 'vm_role', 'config_template', 'description'),
+        FieldSet('color', 'group', 'vm_role', 'config_template', 'description'),
     )
-    nullable_fields = ('color', 'config_template', 'description')
+    nullable_fields = ('color', 'group', 'config_template', 'description')
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):

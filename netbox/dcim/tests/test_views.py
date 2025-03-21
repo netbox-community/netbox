@@ -1688,6 +1688,57 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         }
 
 
+class DeviceRoleGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = DeviceRoleGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        device_role_groups = (
+            DeviceRoleGroup(name='Device Role Group 1', slug='device-role-group-1'),
+            DeviceRoleGroup(
+                name='Device Role Group 2',
+                slug='device-role-group-2',
+                comments='Device Role Group 2 comment'
+            ),
+            DeviceRoleGroup(
+                name='Device Role Group 3',
+                slug='device-role-group-3',
+            ),
+        )
+        for device_role_group in device_role_groups:
+            device_role_group.save()
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Device Role Group X',
+            'slug': 'device-role-group-x',
+            'description': 'A new device role group',
+            'tags': [t.pk for t in tags],
+            'comments': 'Device Role Group X comment',
+        }
+
+        cls.csv_data = (
+            "name,slug,description,comments",
+            "Device Role Group 4,device-role-group-4,Fourth device role group,",
+            "Device Role Group 5,device-role-group-5,Fifth device role group,",
+            "Device Role Group 6,device-role-group-6,Sixth device role group,Sixth device role group comment",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description,comments",
+            f"{device_role_groups[0].pk},Device Role Group 7,Fourth device role group7,Group 7 comment",
+            f"{device_role_groups[1].pk},Device Role Group 8,Fifth device role group8,",
+            f"{device_role_groups[2].pk},Device Role Group 0,Sixth device role group9,",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+            'comments': 'New comment',
+        }
+
+
 class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = DeviceRole
 
