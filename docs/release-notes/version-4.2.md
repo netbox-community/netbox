@@ -16,22 +16,21 @@
 
 * [#18409](https://github.com/netbox-community/netbox/issues/18409) - Eliminate N+1 issue by adding generic prefetch operation to Interface API endpoint
 * [#18557](https://github.com/netbox-community/netbox/issues/18557) - Update JSONField to enclose bare string values in quotes
-* [#18582](https://github.com/netbox-community/netbox/issues/18582) - Fix prefix bulk import with
-* associated VLAN and conflicting VLAN IDs
+* [#18582](https://github.com/netbox-community/netbox/issues/18582) - Fix prefix bulk import with associated VLAN and conflicting VLAN IDs
 * [#18742](https://github.com/netbox-community/netbox/issues/18742) - Ensure location list and detail views show related VLAN group information
 * [#18782](https://github.com/netbox-community/netbox/issues/18782) - Ensure misconfigured object list widgets on the dashboard now degrade gracefully
-* [#18833](https://github.com/netbox-community/netbox/issues/18833) - Fix inventory item bulk to ensure that component name and type are both validated properly
-* [#18838](https://github.com/netbox-community/netbox/issues/18838) - Esnure that local context context data correctly rejects false-y value
+* [#18833](https://github.com/netbox-community/netbox/issues/18833) - Fix inventory item bulk edit to ensure that component name and type are both validated Ensure
+* [#18838](https://github.com/netbox-community/netbox/issues/18838) - Ensure that local context data correctly rejects falsy values
 * [#18845](https://github.com/netbox-community/netbox/issues/18845) - Restore default sort behavior of name column on devices list view
 * [#18863](https://github.com/netbox-community/netbox/issues/18863) - Exempt MPTT-based models from ordering fix introduced in #18279
 * [#18869](https://github.com/netbox-community/netbox/issues/18869) - Ensure numeric conversion helper always return a clean decimal value
 * [#18872](https://github.com/netbox-community/netbox/issues/18872) - Ensure that `kind` is a required field when making journal entries
 * [#18884](https://github.com/netbox-community/netbox/issues/18884) - Ensure tag deserialization is handled correctly
 * [#18887](https://github.com/netbox-community/netbox/issues/18887) - Allow VM interface objects to be set on prefix object-type custom field
-* [#18926](https://github.com/netbox-community/netbox/issues/18926) - Fix icon displayed for Github authentication on login page
+* [#18926](https://github.com/netbox-community/netbox/issues/18926) - Fix icon displayed for GitHub authentication on login page
 * [#18928](https://github.com/netbox-community/netbox/issues/18928) - Support cascading deletions when cleaning up expired changelog records
 * [#18933](https://github.com/netbox-community/netbox/issues/18933) - Allow filtering VLAN groups by associated site groups
-* [#18944](https://github.com/netbox-community/netbox/issues/18944) - Ensure clearing widget type field when adding widgets to dashboard does not cause a 500 error
+* [#18944](https://github.com/netbox-community/netbox/issues/18944) - Ensure clearing "Widget type" field when adding widgets to dashboard does not cause a "ValueError: Unregistered widget class" error
 * [#18949](https://github.com/netbox-community/netbox/issues/18949) - Add missing contacts property to GraphQL types where the associated model has a connection to a contact
 
 ---
