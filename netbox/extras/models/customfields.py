@@ -9,6 +9,8 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
+from django.db.models import F, Func, Value
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -281,12 +283,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         Populate initial custom field data upon either a) the creation of a new CustomField, or
         b) the assignment of an existing CustomField to new object types.
         """
+        if self.default is None:
+            # We have to convert None to a JSON null for jsonb_set()
+            value = RawSQL("'null'::jsonb", [])
+        else:
+            value = Value(self.default, models.JSONField())
         for ct in content_types:
-            model = ct.model_class()
-            instances = model.objects.exclude(**{'custom_field_data__contains': self.name})
-            for instance in instances:
-                instance.custom_field_data[self.name] = self.default
-            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            ct.model_class().objects.update(
+                custom_field_data=Func(F('custom_field_data'), Value([self.name]), value, function='jsonb_set')
+            )
 
     def remove_stale_data(self, content_types):
         """
@@ -294,11 +299,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         no longer assigned to a model, or because it has been deleted).
         """
         for ct in content_types:
-            if model := ct.model_class():
-                instances = model.objects.filter(custom_field_data__has_key=self.name)
-                for instance in instances:
-                    del instance.custom_field_data[self.name]
-                model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            ct.model_class().objects.update(
+                custom_field_data=F('custom_field_data') - self.name
+            )
 
     def rename_object_data(self, old_name, new_name):
         """
