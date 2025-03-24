@@ -304,9 +304,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         no longer assigned to a model, or because it has been deleted).
         """
         for ct in content_types:
-            ct.model_class().objects.update(
-                custom_field_data=F('custom_field_data') - self.name
-            )
+            if model := ct.model_class():
+                model.objects.update(
+                    custom_field_data=F('custom_field_data') - self.name
+                )
 
     def rename_object_data(self, old_name, new_name):
         """
