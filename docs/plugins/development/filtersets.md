@@ -60,9 +60,10 @@ class MyModelViewSet(...):
 ### TagFilter
 
 The `TagFilter` class is available for all models which support tag assignment (those which inherit from `NetBoxModel` or `TagsMixin`). This filter subclasses django-filter's `ModelMultipleChoiceFilter` to work with NetBox's `TaggedItem` class.
+
 This class filters `tags` using the `slug` field. For example:
 
-`GET /api/dcim/sites/?tag=alpha&tag_id=bravo`
+`GET /api/dcim/sites/?tag=alpha&tag=bravo`
 
 
 ```python
@@ -76,6 +77,7 @@ class MyModelFilterSet(FilterSet):
 ### TagIDFilter
 
 The `TagIDFilter` class is available for all models which support tag assignment (those which inherit from `NetBoxModel` or `TagsMixin`). This filter subclasses django-filter's `ModelMultipleChoiceFilter` to work with NetBox's `TaggedItem` class.
+
 This class filters `tags` using the `id` field. For example:
 
 `GET /api/dcim/sites/?tag_id=100&tag_id=200`
