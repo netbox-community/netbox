@@ -499,7 +499,7 @@ class ConfigContextTable(NetBoxTable):
         verbose_name=_('Synced')
     )
     tags = columns.TagColumn(
-        url_name='dcim:site_list'
+        url_name='extras:configcontext_list'
     )
 
     class Meta(NetBoxTable.Meta):
