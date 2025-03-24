@@ -1,12 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
-from django.utils.safestring import mark_safe
 
 from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from .template_code import WEIGHT
+from .template_code import OUTER_UNIT, WEIGHT
 
 __all__ = (
     'RackTable',
@@ -14,19 +13,6 @@ __all__ = (
     'RackRoleTable',
     'RackTypeTable',
 )
-
-
-class OuterUnitColumn(tables.Column):
-    """
-    Render a model's outer unit value with unit designation or placeholder if the value is None.
-    """
-    DEFAULT_BG_COLOR = 'secondary'
-
-    def render(self, record, value):
-        if value is None:
-            return mark_safe('<span class="text-muted">&mdash;</span>')
-
-        return mark_safe(f'{value} {record.outer_unit}')
 
 
 #
@@ -76,13 +62,16 @@ class RackTypeTable(NetBoxTable):
         template_code="{{ value }}U",
         verbose_name=_('Height')
     )
-    outer_width = OuterUnitColumn(
+    outer_width = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_height = OuterUnitColumn(
+    outer_height = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Height')
     )
-    outer_depth = OuterUnitColumn(
+    outer_depth = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
     weight = columns.TemplateColumn(
@@ -174,13 +163,16 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
-    outer_width = OuterUnitColumn(
+    outer_width = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_height = OuterUnitColumn(
+    outer_height = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Height')
     )
-    outer_depth = OuterUnitColumn(
+    outer_depth = tables.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
     weight = columns.TemplateColumn(

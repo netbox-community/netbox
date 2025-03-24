@@ -109,6 +109,11 @@ LOCATION_BUTTONS = """
 </a>
 """
 
+OUTER_UNIT = """
+{% load helpers %}
+{% if value %}{{ value }} {{ record.outer_unit }}{% else %}{{ ''|placeholder }}{% endif %}
+"""
+
 #
 # Device component templatebuttons
 #
