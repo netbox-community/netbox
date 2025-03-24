@@ -290,7 +290,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             value = Value(self.default, models.JSONField())
         for ct in content_types:
             ct.model_class().objects.update(
-                custom_field_data=Func(F('custom_field_data'), Value([self.name]), value, function='jsonb_set')
+                custom_field_data=Func(
+                    F('custom_field_data'),
+                    Value([self.name]),
+                    value,
+                    function='jsonb_set'
+                )
             )
 
     def remove_stale_data(self, content_types):
@@ -305,15 +310,21 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     def rename_object_data(self, old_name, new_name):
         """
-        Called when a CustomField has been renamed. Updates all assigned object data.
+        Called when a CustomField has been renamed. Removes the original key and inserts the new
+        one, copying the value of the old key.
         """
         for ct in self.object_types.all():
-            model = ct.model_class()
-            params = {f'custom_field_data__{old_name}__isnull': False}
-            instances = model.objects.filter(**params)
-            for instance in instances:
-                instance.custom_field_data[new_name] = instance.custom_field_data.pop(old_name)
-            model.objects.bulk_update(instances, ['custom_field_data'], batch_size=100)
+            ct.model_class().objects.update(
+                custom_field_data=Func(
+                    F('custom_field_data') - old_name,
+                    Value([new_name]),
+                    Func(
+                        F('custom_field_data'),
+                        function='jsonb_extract_path_text',
+                        template=f"to_jsonb(%(expressions)s -> '{old_name}')"
+                    ),
+                    function='jsonb_set')
+            )
 
     def clean(self):
         super().clean()
