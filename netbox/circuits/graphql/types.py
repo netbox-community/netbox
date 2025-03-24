@@ -43,7 +43,7 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
     fields='__all__',
     filters=ProviderAccountFilter
 )
-class ProviderAccountType(NetBoxObjectType):
+class ProviderAccountType(ContactsMixin, NetBoxObjectType):
     provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
 
     circuits: List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]

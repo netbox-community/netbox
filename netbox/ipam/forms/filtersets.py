@@ -142,13 +142,18 @@ class ASNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('rir_id', 'site_id', name=_('Assignment')),
+        FieldSet('rir_id', 'site_group_id', 'site_id', name=_('Assignment')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
         required=False,
         label=_('RIR')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -418,7 +423,7 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
 class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region', 'sitegroup', 'site', 'location', 'rack', name=_('Location')),
+        FieldSet('region', 'site_group', 'site', 'location', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
         FieldSet('contains_vid', name=_('VLANs')),
     )
@@ -428,7 +433,7 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Region')
     )
-    sitegroup = DynamicModelMultipleChoiceField(
+    site_group = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
         label=_('Site group')

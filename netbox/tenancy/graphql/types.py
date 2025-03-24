@@ -3,7 +3,7 @@ from typing import Annotated, List
 import strawberry
 import strawberry_django
 
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
+from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from tenancy import models
 from .mixins import ContactAssignmentsMixin
@@ -28,7 +28,7 @@ __all__ = (
     fields='__all__',
     filters=TenantFilter
 )
-class TenantType(NetBoxObjectType):
+class TenantType(ContactsMixin, NetBoxObjectType):
     group: Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     asns: List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]
