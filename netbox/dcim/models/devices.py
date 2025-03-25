@@ -21,6 +21,7 @@ from dcim.constants import *
 from dcim.fields import MACAddressField
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
+from mptt.models import MPTTModel, TreeForeignKey
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -468,12 +469,20 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 # Devices
 #
 
-class DeviceRole(OrganizationalModel):
+class DeviceRole(OrganizationalModel, MPTTModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
     virtual machines as well.
     """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
     color = ColorField(
         verbose_name=_('color'),
         default=ColorChoices.COLOR_GREY
