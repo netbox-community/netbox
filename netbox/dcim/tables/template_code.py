@@ -111,7 +111,7 @@ LOCATION_BUTTONS = """
 
 OUTER_UNIT = """
 {% load helpers %}
-{% if value %}{{ value }} {{ record.outer_unit }}{% else %}{{ ''|placeholder }}{% endif %}
+{% if value %}{{ value }} {{ record.outer_unit }}{% endif %}
 """
 
 #

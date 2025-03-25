@@ -62,15 +62,15 @@ class RackTypeTable(NetBoxTable):
         template_code="{{ value }}U",
         verbose_name=_('Height')
     )
-    outer_width = tables.TemplateColumn(
+    outer_width = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_height = tables.TemplateColumn(
+    outer_height = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Height')
     )
-    outer_depth = tables.TemplateColumn(
+    outer_depth = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
@@ -163,15 +163,15 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
-    outer_width = tables.TemplateColumn(
+    outer_width = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_height = tables.TemplateColumn(
+    outer_height = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Height')
     )
-    outer_depth = tables.TemplateColumn(
+    outer_depth = columns.TemplateColumn(
         template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
