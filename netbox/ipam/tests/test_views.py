@@ -1065,9 +1065,9 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         interface = Interface.objects.create(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
 
         services = (
-            Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            Service(device=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            Service(parent=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            Service(parent=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            Service(parent=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         )
         Service.objects.bulk_create(services)
 
@@ -1125,13 +1125,13 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request = {
             'path': self._get_url('add'),
             'data': {
-                'device': device.pk,
+                'parent': device.pk,
                 'service_template': service_template.pk,
             },
         }
         self.assertHttpStatus(self.client.post(**request), 302)
         instance = self._get_queryset().order_by('pk').last()
-        self.assertEqual(instance.device, device)
+        self.assertEqual(instance.parent, device)
         self.assertEqual(instance.name, service_template.name)
         self.assertEqual(instance.protocol, service_template.protocol)
         self.assertEqual(instance.ports, service_template.ports)

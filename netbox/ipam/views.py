@@ -1409,7 +1409,7 @@ class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Service, 'list', path='', detail=False)
 class ServiceListView(generic.ObjectListView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable

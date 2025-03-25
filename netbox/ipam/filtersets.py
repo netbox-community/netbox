@@ -1150,26 +1150,36 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label=_('Device (ID)'),
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__name',
-        queryset=Device.objects.all(),
-        to_field_name='name',
+class ServiceFilterSet(NetBoxModelFilterSet):
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
         label=_('Device (name)'),
     )
-    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=VirtualMachine.objects.all(),
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
+        label=_('Device (ID)'),
+    )
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
+        label=_('Virtual machine (name)'),
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        field_name='virtual_machine__name',
-        queryset=VirtualMachine.objects.all(),
-        to_field_name='name',
-        label=_('Virtual machine (name)'),
+    fhrp_group = MultiValueCharFilter(
+        method='filter_fhrp_group',
+        field_name='name',
+        label=_('FHRP Group (name)'),
+    )
+    fhrp_group_id = MultiValueNumberFilter(
+        method='filter_fhrp_group',
+        field_name='pk',
+        label=_('FHRP Group (ID)'),
     )
     ip_address_id = django_filters.ModelMultipleChoiceFilter(
         field_name='ipaddresses',
@@ -1196,6 +1206,33 @@ class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
             return queryset
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
         return queryset.filter(qs_filter)
+
+    def filter_device(self, queryset, name, value):
+        devices = Device.objects.filter(**{'{}__in'.format(name): value})
+        if not devices.exists():
+            return queryset.none()
+        service_ids = []
+        for device in devices:
+            service_ids.extend(device.services.values_list('id', flat=True))
+        return queryset.filter(id__in=service_ids)
+
+    def filter_fhrp_group(self, queryset, name, value):
+        groups = FHRPGroup.objects.filter(**{'{}__in'.format(name): value})
+        if not groups.exists():
+            return queryset.none()
+        service_ids = []
+        for group in groups:
+            service_ids.extend(group.services.values_list('id', flat=True))
+        return queryset.filter(id__in=service_ids)
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{'{}__in'.format(name): value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        service_ids = []
+        for vm in virtual_machines:
+            service_ids.extend(vm.services.values_list('id', flat=True))
+        return queryset.filter(id__in=service_ids)
 
 
 class PrimaryIPFilterSet(django_filters.FilterSet):

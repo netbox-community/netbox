@@ -763,13 +763,19 @@ class ServiceForm(NetBoxModelForm):
         label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
-        selector=True
+        selector=True,
     )
     virtual_machine = DynamicModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
-        selector=True
+        selector=True,
+    )
+    fhrp_group = DynamicModelChoiceField(
+        label=_('FHRP Group'),
+        queryset=FHRPGroup.objects.all(),
+        required=False,
+        selector=True,
     )
     ports = NumericArrayField(
         label=_('Ports'),
@@ -795,6 +801,7 @@ class ServiceForm(NetBoxModelForm):
             TabbedGroups(
                 FieldSet('device', name=_('Device')),
                 FieldSet('virtual_machine', name=_('Virtual Machine')),
+                FieldSet('fhrp_group', name=_('FHRP Group')),
             ),
             'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
@@ -805,8 +812,41 @@ class ServiceForm(NetBoxModelForm):
     class Meta:
         model = Service
         fields = [
-            'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        if instance:
+            parent_type = type(instance.parent)
+            if parent_type is Device:
+                initial['device'] = instance.parent
+            elif parent_type is VirtualMachine:
+                initial['virtual_machine'] = instance.parent
+            elif parent_type is FHRPGroup:
+                initial['fhrp_group'] = instance.parent
+        kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        selected_objects = [f for f in ('device', 'virtual_machine', 'fhrp_group') if self.cleaned_data[f]]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError({
+                field: _("A Service must be associated with exactly one device, virtual machine, or FHRP group.")
+                for field in selected_objects
+            })
+        elif selected_objects:
+            self.instance.parent = self.cleaned_data[selected_objects[0]]
+        else:
+            raise forms.ValidationError({
+                'device': _("A service must be associated with a device, a virtual machine, or an FHRP group.")
+            })
 
 
 class ServiceCreateForm(ServiceForm):
@@ -821,6 +861,7 @@ class ServiceCreateForm(ServiceForm):
             TabbedGroups(
                 FieldSet('device', name=_('Device')),
                 FieldSet('virtual_machine', name=_('Virtual Machine')),
+                FieldSet('fhrp_group', name=_('FHRP Group')),
             ),
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
@@ -832,7 +873,7 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
             'comments', 'tags',
         ]
 
