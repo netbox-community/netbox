@@ -1174,12 +1174,9 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff'),
-        )
-        DeviceRole.objects.bulk_create(roles)
+        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        DeviceRole.objects.create(name='Device Role 2', slug='device-role-2', color='00ff00')
+        DeviceRole.objects.create(name='Device Role 3', slug='device-role-3', color='0000ff')
 
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
