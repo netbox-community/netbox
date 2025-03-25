@@ -406,6 +406,9 @@ class DeviceTypeForm(NetBoxModelForm):
 
 
 class ModuleTypeProfileForm(NetBoxModelForm):
+    schema = JSONField(
+        label=_('Schema')
+    )
     comments = CommentField()
 
     fieldsets = (

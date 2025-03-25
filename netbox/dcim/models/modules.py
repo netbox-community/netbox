@@ -1,8 +1,11 @@
+import jsonschema
 import yaml
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import SchemaError, ValidationError as JSONValidationError
+from jsonschema.validators import Draft202012Validator as JSONSchemaValidator
 
 from dcim.choices import *
 from dcim.utils import update_interface_bridges
@@ -41,6 +44,17 @@ class ModuleTypeProfile(PrimaryModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+
+        # Validate the schema definition
+        try:
+            JSONSchemaValidator.check_schema(self.schema)
+        except SchemaError as e:
+            raise ValidationError({
+                'schema': _("Invalid schema: {error}").format(error=e)
+            })
 
 
 class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
@@ -107,6 +121,20 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     @property
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
+
+    def clean(self):
+        super().clean()
+
+        # Validate any attributes against the assigned profile's schema
+        if self.profile:
+            try:
+                jsonschema.validate(self.attributes, schema=self.profile.schema)
+            except JSONValidationError as e:
+                raise ValidationError({
+                    'attributes': _("Invalid schema: {error}").format(error=e)
+                })
+        else:
+            self.attributes = None
 
     def to_yaml(self):
         data = {
