@@ -5,9 +5,11 @@ import strawberry_django
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
+from dcim.models import Device
 from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
+from virtualization.models import VirtualMachine
 from .filters import *
 from .mixins import IPAddressesMixin
 
@@ -246,10 +248,42 @@ class RouteTargetType(NetBoxObjectType):
 )
 class ServiceType(NetBoxObjectType):
     ports: List[int]
-    device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
-    virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')] | None
-
+    # device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
+    # virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')] | None
+    # fhrp_group: Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')] | None
     ipaddresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
+
+    @strawberry_django.field
+    def device(self) -> Annotated[Union[
+        Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("ServiceAssignmentType")] | None:
+        if isinstance(self.parent, Device):
+            return self.parent
+        return None
+
+    @strawberry_django.field
+    def virtual_machine(self) -> Annotated[Union[
+        Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("ServiceAssignmentType")] | None:
+        if isinstance(self.parent, VirtualMachine):
+            return self.parent
+        return None
+
+    @strawberry_django.field
+    def fhrp_group(self) -> Annotated[Union[
+        Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')],
+    ], strawberry.union("ServiceAssignmentType")] | None:
+        if isinstance(self.parent, models.FHRPGroup):
+            return self.parent
+        return None
+
+    @strawberry_django.field
+    def parent(self) -> Annotated[Union[
+        Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')],
+        Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')],
+    ], strawberry.union("ServiceParentType")] | None:
+        return self.parent
 
 
 @strawberry_django.type(
