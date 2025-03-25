@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.models import DeviceType, ModuleType
+from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.choices import *
@@ -13,6 +13,7 @@ from .platforms import PlatformSerializer
 
 __all__ = (
     'DeviceTypeSerializer',
+    'ModuleTypeProfileSerializer',
     'ModuleTypeSerializer',
 )
 
@@ -62,7 +63,23 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'device_count')
 
 
+class ModuleTypeProfileSerializer(NetBoxModelSerializer):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'schema', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
 class ModuleTypeSerializer(NetBoxModelSerializer):
+    profile = ModuleTypeProfileSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
     manufacturer = ManufacturerSerializer(
         nested=True
     )
@@ -82,8 +99,8 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = ModuleType
         fields = [
-            'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'part_number', 'airflow',
-            'weight', 'weight_unit', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
+            'weight', 'weight_unit', 'description', 'attributes', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'description')
+        brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')

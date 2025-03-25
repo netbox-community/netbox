@@ -1,0 +1,57 @@
+import django.db.models.deletion
+import taggit.managers
+from django.db import migrations, models
+
+import utilities.json
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ('dcim', '0202_location_comments_region_comments_sitegroup_comments'),
+        ('extras', '0125_exporttemplate_file_name'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='ModuleTypeProfile',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('created', models.DateTimeField(auto_now_add=True, null=True)),
+                ('last_updated', models.DateTimeField(auto_now=True, null=True)),
+                (
+                    'custom_field_data',
+                    models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
+                ),
+                ('description', models.CharField(blank=True, max_length=200)),
+                ('comments', models.TextField(blank=True)),
+                ('name', models.CharField(max_length=100, unique=True)),
+                ('schema', models.JSONField()),
+                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+            ],
+            options={
+                'verbose_name': 'module type profile',
+                'verbose_name_plural': 'module type profiles',
+                'ordering': ('name',),
+            },
+        ),
+        migrations.AddField(
+            model_name='moduletype',
+            name='attributes',
+            field=models.JSONField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='moduletype',
+            name='profile',
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='module_types',
+                to='dcim.moduletypeprofile',
+            ),
+        ),
+        migrations.AlterModelOptions(
+            name='moduletype',
+            options={'ordering': ('profile', 'manufacturer', 'model')},
+        ),
+    ]

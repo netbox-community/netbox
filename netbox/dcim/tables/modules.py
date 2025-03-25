@@ -7,18 +7,41 @@ from .template_code import WEIGHT
 
 __all__ = (
     'ModuleTable',
+    'ModuleTypeProfileTable',
     'ModuleTypeTable',
 )
 
 
+class ModuleTypeProfileTable(NetBoxTable):
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:moduletype_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ModuleType
+        fields = (
+            'pk', 'id', 'name', 'description', 'comments', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'description',
+        )
+
+
 class ModuleTypeTable(NetBoxTable):
-    model = tables.Column(
-        linkify=True,
-        verbose_name=_('Module Type')
+    profile = tables.Column(
+        verbose_name=_('Profile'),
+        linkify=True
     )
     manufacturer = tables.Column(
         verbose_name=_('Manufacturer'),
         linkify=True
+    )
+    model = tables.Column(
+        linkify=True,
+        verbose_name=_('Module Type')
     )
     instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
@@ -40,11 +63,11 @@ class ModuleTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'part_number', 'airflow', 'weight', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'model', 'manufacturer', 'part_number',
+            'pk', 'model', 'profile', 'manufacturer', 'part_number',
         )
 
 

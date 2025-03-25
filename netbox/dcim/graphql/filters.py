@@ -68,6 +68,7 @@ __all__ = (
     'ModuleBayFilter',
     'ModuleBayTemplateFilter',
     'ModuleTypeFilter',
+    'ModuleTypeProfileFilter',
     'PlatformFilter',
     'PowerFeedFilter',
     'PowerOutletFilter',
@@ -557,6 +558,11 @@ class ModuleBayFilter(ModularComponentModelFilterMixin):
 @strawberry_django.filter(models.ModuleBayTemplate, lookups=True)
 class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin):
     position: FilterLookup[str] | None = strawberry_django.filter_field()
+
+
+@strawberry_django.filter(models.ModuleTypeProfile, lookups=True)
+class ModuleTypeProfileFilter(PrimaryModelFilterMixin):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.ModuleType, lookups=True)

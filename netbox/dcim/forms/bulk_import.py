@@ -39,6 +39,7 @@ __all__ = (
     'ModuleImportForm',
     'ModuleBayImportForm',
     'ModuleTypeImportForm',
+    'ModuleTypeProfileImportForm',
     'PlatformImportForm',
     'PowerFeedImportForm',
     'PowerOutletImportForm',
@@ -427,7 +428,22 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         ]
 
 
+class ModuleTypeProfileImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeImportForm(NetBoxModelImportForm):
+    profile = forms.ModelChoiceField(
+        label=_('Profile'),
+        queryset=ModuleTypeProfile.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     manufacturer = forms.ModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),

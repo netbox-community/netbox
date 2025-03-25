@@ -591,7 +591,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
     model = ModuleType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }

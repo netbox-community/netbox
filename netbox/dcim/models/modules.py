@@ -15,7 +15,32 @@ from .device_components import *
 __all__ = (
     'Module',
     'ModuleType',
+    'ModuleTypeProfile',
 )
+
+
+class ModuleTypeProfile(PrimaryModel):
+    """
+    A profile which defines the attributes which can be set on one or more ModuleTypes.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+        unique=True
+    )
+    schema = models.JSONField(
+        verbose_name=_('schema')
+    )
+
+    clone_fields = ('schema',)
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('module type profile')
+        verbose_name_plural = _('module type profiles')
+
+    def __str__(self):
+        return self.name
 
 
 class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
@@ -25,6 +50,13 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     DeviceType, each ModuleType can have console, power, interface, and pass-through port templates assigned to it. It
     cannot, however house device bays or module bays.
     """
+    profile = models.ForeignKey(
+        to='dcim.ModuleTypeProfile',
+        on_delete=models.PROTECT,
+        related_name='module_types',
+        blank=True,
+        null=True
+    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -47,14 +79,19 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    attributes = models.JSONField(
+        blank=True,
+        null=True,
+        verbose_name=_('attributes')
+    )
 
-    clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
+    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
 
     class Meta:
-        ordering = ('manufacturer', 'model')
+        ordering = ('profile', 'manufacturer', 'model')
         constraints = (
             models.UniqueConstraint(
                 fields=('manufacturer', 'model'),
@@ -73,6 +110,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def to_yaml(self):
         data = {
+            'profile': self.profile.name if self.profile else None,
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'part_number': self.part_number,

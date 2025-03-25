@@ -59,6 +59,7 @@ __all__ = (
     'ModuleBayTemplateFilterSet',
     'ModuleFilterSet',
     'ModuleTypeFilterSet',
+    'ModuleTypeProfileFilterSet',
     'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
@@ -674,7 +675,33 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
+class ModuleTypeProfileFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
 class ModuleTypeFilterSet(NetBoxModelFilterSet):
+    profile_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ModuleTypeProfile.objects.all(),
+        label=_('Profile (ID)'),
+    )
+    profile = django_filters.ModelMultipleChoiceFilter(
+        field_name='profile__name',
+        queryset=ModuleTypeProfile.objects.all(),
+        to_field_name='name',
+        label=_('Profile (name)'),
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label=_('Manufacturer (ID)'),

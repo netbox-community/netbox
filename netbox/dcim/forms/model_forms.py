@@ -48,6 +48,7 @@ __all__ = (
     'ModuleBayForm',
     'ModuleBayTemplateForm',
     'ModuleTypeForm',
+    'ModuleTypeProfileForm',
     'PlatformForm',
     'PopulateDeviceBayForm',
     'PowerFeedForm',
@@ -404,7 +405,26 @@ class DeviceTypeForm(NetBoxModelForm):
         }
 
 
+class ModuleTypeProfileForm(NetBoxModelForm):
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet('name', 'description', 'schema', 'tags', name=_('Profile')),
+    )
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeForm(NetBoxModelForm):
+    profile = DynamicModelChoiceField(
+        label=_('Profile'),
+        queryset=ModuleTypeProfile.objects.all(),
+        required=False
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
@@ -412,15 +432,16 @@ class ModuleTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-        FieldSet('airflow', 'weight', 'weight_unit', name=_('Chassis'))
+        FieldSet('profile', 'manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
+        FieldSet('attributes', name=_('Profile Attributes')),
+        FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
     )
 
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
-            'comments', 'tags',
+            'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
+            'attributes', 'comments', 'tags',
         ]
 
 
