@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-22 05:01+0000\n"
+"POT-Creation-Date: 2025-03-25 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr ""
 
 #: netbox/account/tables.py:35 netbox/core/choices.py:102
 #: netbox/core/tables/jobs.py:29 netbox/core/tables/tasks.py:79
-#: netbox/extras/tables/tables.py:335 netbox/extras/tables/tables.py:566
+#: netbox/extras/tables/tables.py:335 netbox/extras/tables/tables.py:569
 #: netbox/templates/account/token.html:43
 #: netbox/templates/core/configrevision.html:26
 #: netbox/templates/core/configrevision_restore.html:12
@@ -1541,7 +1541,7 @@ msgstr ""
 #: netbox/dcim/models/device_component_templates.py:57
 #: netbox/dcim/models/device_components.py:63 netbox/dcim/models/racks.py:681
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:219
-#: netbox/extras/models/customfields.py:125 netbox/extras/models/models.py:61
+#: netbox/extras/models/customfields.py:127 netbox/extras/models/models.py:61
 #: netbox/extras/models/models.py:158 netbox/extras/models/models.py:396
 #: netbox/extras/models/models.py:511 netbox/extras/models/notifications.py:131
 #: netbox/extras/models/staging.py:32 netbox/extras/models/tags.py:32
@@ -1575,7 +1575,7 @@ msgstr ""
 #: netbox/dcim/models/power.py:38 netbox/dcim/models/power.py:89
 #: netbox/dcim/models/racks.py:257 netbox/dcim/models/sites.py:142
 #: netbox/extras/models/configs.py:36 netbox/extras/models/configs.py:215
-#: netbox/extras/models/customfields.py:92 netbox/extras/models/models.py:56
+#: netbox/extras/models/customfields.py:94 netbox/extras/models/models.py:56
 #: netbox/extras/models/models.py:153 netbox/extras/models/models.py:296
 #: netbox/extras/models/models.py:392 netbox/extras/models/models.py:501
 #: netbox/extras/models/models.py:596 netbox/extras/models/notifications.py:126
@@ -1701,7 +1701,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:180 netbox/extras/tables/tables.py:246
 #: netbox/extras/tables/tables.py:361 netbox/extras/tables/tables.py:378
 #: netbox/extras/tables/tables.py:401 netbox/extras/tables/tables.py:439
-#: netbox/extras/tables/tables.py:491 netbox/extras/tables/tables.py:514
+#: netbox/extras/tables/tables.py:491 netbox/extras/tables/tables.py:517
 #: netbox/ipam/forms/bulk_edit.py:391 netbox/ipam/forms/filtersets.py:398
 #: netbox/ipam/forms/filtersets.py:483 netbox/ipam/tables/asn.py:16
 #: netbox/ipam/tables/ip.py:31 netbox/ipam/tables/ip.py:106
@@ -1839,7 +1839,7 @@ msgstr ""
 #: netbox/dcim/tables/power.py:39 netbox/dcim/tables/power.py:96
 #: netbox/dcim/tables/racks.py:84 netbox/dcim/tables/racks.py:144
 #: netbox/dcim/tables/racks.py:224 netbox/dcim/tables/sites.py:107
-#: netbox/extras/tables/tables.py:582 netbox/ipam/tables/asn.py:69
+#: netbox/extras/tables/tables.py:585 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:82
 #: netbox/ipam/tables/ip.py:226 netbox/ipam/tables/ip.py:281
 #: netbox/ipam/tables/ip.py:349 netbox/ipam/tables/services.py:24
@@ -2234,7 +2234,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:262
 #: netbox/extras/forms/model_forms.py:592
 #: netbox/extras/forms/model_forms.py:646 netbox/extras/tables/tables.py:191
-#: netbox/extras/tables/tables.py:483 netbox/extras/tables/tables.py:518
+#: netbox/extras/tables/tables.py:483 netbox/extras/tables/tables.py:521
 #: netbox/templates/core/datasource.html:31
 #: netbox/templates/extras/configcontext.html:29
 #: netbox/templates/extras/configtemplate.html:21
@@ -2260,7 +2260,7 @@ msgstr ""
 #: netbox/core/forms/filtersets.py:75 netbox/core/forms/filtersets.py:161
 #: netbox/extras/forms/filtersets.py:469 netbox/extras/tables/tables.py:220
 #: netbox/extras/tables/tables.py:294 netbox/extras/tables/tables.py:326
-#: netbox/extras/tables/tables.py:571 netbox/templates/core/job.html:38
+#: netbox/extras/tables/tables.py:574 netbox/templates/core/job.html:38
 #: netbox/templates/core/objectchange.html:52
 #: netbox/tenancy/tables/contacts.py:90 netbox/vpn/tables/l2vpn.py:59
 msgid "Object Type"
@@ -2316,7 +2316,7 @@ msgid "User"
 msgstr ""
 
 #: netbox/core/forms/filtersets.py:135 netbox/core/tables/change_logging.py:15
-#: netbox/extras/tables/tables.py:609 netbox/extras/tables/tables.py:646
+#: netbox/extras/tables/tables.py:612 netbox/extras/tables/tables.py:649
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr ""
@@ -2517,13 +2517,13 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:656
 #: netbox/dcim/models/device_components.py:1024
 #: netbox/dcim/models/device_components.py:1095 netbox/dcim/models/power.py:100
-#: netbox/extras/models/customfields.py:78 netbox/extras/models/search.py:41
+#: netbox/extras/models/customfields.py:80 netbox/extras/models/search.py:41
 #: netbox/virtualization/models/clusters.py:57 netbox/vpn/models/l2vpn.py:32
 msgid "type"
 msgstr ""
 
 #: netbox/core/models/data.py:49 netbox/extras/choices.py:37
-#: netbox/extras/models/models.py:164 netbox/extras/tables/tables.py:656
+#: netbox/extras/models/models.py:164 netbox/extras/tables/tables.py:659
 #: netbox/templates/core/datasource.html:58
 #: netbox/templates/core/plugin.html:66
 msgid "URL"
@@ -2716,8 +2716,8 @@ msgstr ""
 #: netbox/extras/choices.py:41 netbox/extras/tables/tables.py:279
 #: netbox/extras/tables/tables.py:297 netbox/extras/tables/tables.py:329
 #: netbox/extras/tables/tables.py:409 netbox/extras/tables/tables.py:470
-#: netbox/extras/tables/tables.py:576 netbox/extras/tables/tables.py:616
-#: netbox/extras/tables/tables.py:653 netbox/netbox/tables/tables.py:247
+#: netbox/extras/tables/tables.py:579 netbox/extras/tables/tables.py:619
+#: netbox/extras/tables/tables.py:656 netbox/netbox/tables/tables.py:247
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -5149,7 +5149,7 @@ msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1353 netbox/extras/forms/bulk_edit.py:326
 #: netbox/extras/forms/bulk_import.py:247 netbox/extras/forms/filtersets.py:472
-#: netbox/extras/forms/model_forms.py:689 netbox/extras/tables/tables.py:579
+#: netbox/extras/forms/model_forms.py:689 netbox/extras/tables/tables.py:582
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr ""
@@ -5522,7 +5522,7 @@ msgstr ""
 #: netbox/dcim/models/cables.py:63
 #: netbox/dcim/models/device_component_templates.py:51
 #: netbox/dcim/models/device_components.py:57
-#: netbox/extras/models/customfields.py:111
+#: netbox/extras/models/customfields.py:113
 msgid "label"
 msgstr ""
 
@@ -6639,7 +6639,7 @@ msgstr ""
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1443 netbox/extras/models/customfields.py:225
+#: netbox/dcim/models/devices.py:1443 netbox/extras/models/customfields.py:227
 #: netbox/extras/models/models.py:107 netbox/extras/models/models.py:694
 #: netbox/netbox/models/__init__.py:120
 msgid "comments"
@@ -7048,7 +7048,7 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:69 netbox/dcim/tables/devices.py:117
 #: netbox/dcim/tables/racks.py:149 netbox/dcim/tables/sites.py:104
-#: netbox/dcim/tables/sites.py:147 netbox/extras/tables/tables.py:545
+#: netbox/dcim/tables/sites.py:147 netbox/extras/tables/tables.py:548
 #: netbox/netbox/navigation/menu.py:69 netbox/netbox/navigation/menu.py:73
 #: netbox/netbox/navigation/menu.py:75
 #: netbox/virtualization/forms/model_forms.py:122
@@ -7277,7 +7277,7 @@ msgid "Module Types"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:57 netbox/extras/forms/filtersets.py:378
-#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:540
+#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:543
 #: netbox/netbox/navigation/menu.py:78
 msgid "Platforms"
 msgstr ""
@@ -7469,7 +7469,7 @@ msgstr ""
 msgid "Render Config"
 msgstr ""
 
-#: netbox/dcim/views.py:2282 netbox/extras/tables/tables.py:550
+#: netbox/dcim/views.py:2282 netbox/extras/tables/tables.py:553
 #: netbox/netbox/navigation/menu.py:255 netbox/netbox/navigation/menu.py:257
 #: netbox/virtualization/views.py:190
 msgid "Virtual Machines"
@@ -7946,13 +7946,13 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:61 netbox/extras/forms/bulk_import.py:60
 #: netbox/extras/forms/filtersets.py:90
-#: netbox/extras/models/customfields.py:209
+#: netbox/extras/models/customfields.py:211
 msgid "UI visible"
 msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:66 netbox/extras/forms/bulk_import.py:66
 #: netbox/extras/forms/filtersets.py:95
-#: netbox/extras/models/customfields.py:216
+#: netbox/extras/models/customfields.py:218
 msgid "UI editable"
 msgstr ""
 
@@ -8525,126 +8525,126 @@ msgstr ""
 msgid "config templates"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:75
+#: netbox/extras/models/customfields.py:77
 msgid "The object(s) to which this field applies."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:82
+#: netbox/extras/models/customfields.py:84
 msgid "The type of data this custom field holds"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:89
+#: netbox/extras/models/customfields.py:91
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:95
+#: netbox/extras/models/customfields.py:97
 msgid "Internal field name"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:99
+#: netbox/extras/models/customfields.py:101
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:104
+#: netbox/extras/models/customfields.py:106
 msgid "Double underscores are not permitted in custom field names."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:115
+#: netbox/extras/models/customfields.py:117
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:119 netbox/extras/models/models.py:317
+#: netbox/extras/models/customfields.py:121 netbox/extras/models/models.py:317
 msgid "group name"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:122
+#: netbox/extras/models/customfields.py:124
 msgid "Custom fields within the same group will be displayed together"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:130
+#: netbox/extras/models/customfields.py:132
 msgid "required"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:132
+#: netbox/extras/models/customfields.py:134
 msgid ""
 "This field is required when creating new objects or editing an existing "
 "object."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:135
+#: netbox/extras/models/customfields.py:137
 msgid "must be unique"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:137
+#: netbox/extras/models/customfields.py:139
 msgid "The value of this field must be unique for the assigned object"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:140
+#: netbox/extras/models/customfields.py:142
 msgid "search weight"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:143
+#: netbox/extras/models/customfields.py:145
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:148
+#: netbox/extras/models/customfields.py:150
 msgid "filter logic"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:152
+#: netbox/extras/models/customfields.py:154
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire field."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:155
+#: netbox/extras/models/customfields.py:157
 msgid "default"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:159
+#: netbox/extras/models/customfields.py:161
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with "
 "double quotes (e.g. \"Foo\")."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:166
+#: netbox/extras/models/customfields.py:168
 msgid ""
 "Filter the object selection choices using a query_params dict (must be a "
 "JSON value).Encapsulate strings with double quotes (e.g. \"Foo\")."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:172
+#: netbox/extras/models/customfields.py:174
 msgid "display weight"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:173
+#: netbox/extras/models/customfields.py:175
 msgid "Fields with higher weights appear lower in a form."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:178
+#: netbox/extras/models/customfields.py:180
 msgid "minimum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:179
+#: netbox/extras/models/customfields.py:181
 msgid "Minimum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:184
+#: netbox/extras/models/customfields.py:186
 msgid "maximum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:185
+#: netbox/extras/models/customfields.py:187
 msgid "Maximum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:191
+#: netbox/extras/models/customfields.py:193
 msgid "validation regex"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:193
+#: netbox/extras/models/customfields.py:195
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -8652,184 +8652,184 @@ msgid ""
 "values to exactly three uppercase letters."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:201
+#: netbox/extras/models/customfields.py:203
 msgid "choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:210
+#: netbox/extras/models/customfields.py:212
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:217
+#: netbox/extras/models/customfields.py:219
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:221
+#: netbox/extras/models/customfields.py:223
 msgid "is cloneable"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:222
+#: netbox/extras/models/customfields.py:224
 msgid "Replicate this value when cloning objects"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:239
+#: netbox/extras/models/customfields.py:241
 msgid "custom field"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:240
+#: netbox/extras/models/customfields.py:242
 msgid "custom fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:329
+#: netbox/extras/models/customfields.py:344
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:336
+#: netbox/extras/models/customfields.py:351
 msgid "A minimum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:338
+#: netbox/extras/models/customfields.py:353
 msgid "A maximum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:348
+#: netbox/extras/models/customfields.py:363
 msgid "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:354
+#: netbox/extras/models/customfields.py:369
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:364
+#: netbox/extras/models/customfields.py:379
 msgid "Selection fields must specify a set of choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:368
+#: netbox/extras/models/customfields.py:383
 msgid "Choices may be set only on selection fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:375
+#: netbox/extras/models/customfields.py:390
 msgid "Object fields must define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:379
+#: netbox/extras/models/customfields.py:394
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:386
+#: netbox/extras/models/customfields.py:401
 msgid "A related object filter can be defined only for object fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:390
+#: netbox/extras/models/customfields.py:405
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:469
+#: netbox/extras/models/customfields.py:484
 msgid "True"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:470
+#: netbox/extras/models/customfields.py:485
 msgid "False"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:560
+#: netbox/extras/models/customfields.py:575
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:654
+#: netbox/extras/models/customfields.py:669
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:656
+#: netbox/extras/models/customfields.py:671
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:661
+#: netbox/extras/models/customfields.py:676
 msgid "Value must be an integer."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:664
 #: netbox/extras/models/customfields.py:679
+#: netbox/extras/models/customfields.py:694
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:668
 #: netbox/extras/models/customfields.py:683
+#: netbox/extras/models/customfields.py:698
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:676
+#: netbox/extras/models/customfields.py:691
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:688
+#: netbox/extras/models/customfields.py:703
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:696
+#: netbox/extras/models/customfields.py:711
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:705
+#: netbox/extras/models/customfields.py:720
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:712
+#: netbox/extras/models/customfields.py:727
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:722
+#: netbox/extras/models/customfields.py:737
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:731
+#: netbox/extras/models/customfields.py:746
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:737
+#: netbox/extras/models/customfields.py:752
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:741
+#: netbox/extras/models/customfields.py:756
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:744
+#: netbox/extras/models/customfields.py:759
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:764
+#: netbox/extras/models/customfields.py:779
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:776
+#: netbox/extras/models/customfields.py:791
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:783
+#: netbox/extras/models/customfields.py:798
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:784
+#: netbox/extras/models/customfields.py:799
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:826
+#: netbox/extras/models/customfields.py:841
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:850
+#: netbox/extras/models/customfields.py:865
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -9320,7 +9320,7 @@ msgid "As Attachment"
 msgstr ""
 
 #: netbox/extras/tables/tables.py:195 netbox/extras/tables/tables.py:487
-#: netbox/extras/tables/tables.py:522 netbox/templates/core/datafile.html:24
+#: netbox/extras/tables/tables.py:525 netbox/templates/core/datafile.html:24
 #: netbox/templates/extras/configcontext.html:39
 #: netbox/templates/extras/configtemplate.html:31
 #: netbox/templates/extras/exporttemplate.html:45
@@ -9330,7 +9330,7 @@ msgid "Data File"
 msgstr ""
 
 #: netbox/extras/tables/tables.py:200 netbox/extras/tables/tables.py:499
-#: netbox/extras/tables/tables.py:527
+#: netbox/extras/tables/tables.py:530
 msgid "Synced"
 msgstr ""
 
@@ -9354,28 +9354,28 @@ msgstr ""
 msgid "Event Types"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:535 netbox/netbox/navigation/menu.py:77
+#: netbox/extras/tables/tables.py:538 netbox/netbox/navigation/menu.py:77
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:587
+#: netbox/extras/tables/tables.py:590
 msgid "Comments (Short)"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:606 netbox/extras/tables/tables.py:640
+#: netbox/extras/tables/tables.py:609 netbox/extras/tables/tables.py:643
 msgid "Line"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:613 netbox/extras/tables/tables.py:650
+#: netbox/extras/tables/tables.py:616 netbox/extras/tables/tables.py:653
 msgid "Level"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:619 netbox/extras/tables/tables.py:659
+#: netbox/extras/tables/tables.py:622 netbox/extras/tables/tables.py:662
 msgid "Message"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:643
+#: netbox/extras/tables/tables.py:646
 msgid "Method"
 msgstr ""
 
