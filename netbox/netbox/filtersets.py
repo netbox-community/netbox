@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
 from extras.choices import CustomFieldFilterLogicChoices
-from extras.filters import TagFilter
+from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
@@ -286,6 +286,7 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
         label=_('Search'),
     )
     tag = TagFilter()
+    tag_id = TagIDFilter()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
