@@ -2178,9 +2178,10 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
+            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False)
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -2293,7 +2294,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
@@ -2953,12 +2955,9 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1'),
-            DeviceRole(name='Device Role 2', slug='device-role-2'),
-            DeviceRole(name='Device Role 3', slug='device-role-3'),
-        )
-        DeviceRole.objects.bulk_create(roles)
+        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        DeviceRole.objects.create(name='Device Role 2', slug='device-role-2')
+        DeviceRole.objects.create(name='Device Role 3', slug='device-role-3')
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3170,7 +3169,8 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3388,7 +3388,8 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3632,7 +3633,8 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3897,7 +3899,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -4476,7 +4479,8 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -4748,7 +4752,8 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -4988,7 +4993,8 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -5160,7 +5166,8 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -5295,7 +5302,8 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         regions = (
             Region(name='Region 1', slug='region-1'),

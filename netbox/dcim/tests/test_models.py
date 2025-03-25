@@ -346,7 +346,8 @@ class DeviceTestCase(TestCase):
             DeviceRole(name='Test Role 1', slug='test-role-1'),
             DeviceRole(name='Test Role 2', slug='test-role-2'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         # Create a CustomField with a default value & assign it to all component models
         cf1 = CustomField.objects.create(name='cf1', default='foo')

@@ -1699,7 +1699,8 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -1809,7 +1810,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
