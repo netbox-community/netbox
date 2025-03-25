@@ -700,6 +700,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 logger.debug("Form validation failed")
 
+        else:
+            form = self.form(initial=initial_data)
+            restrict_form_fields(form, request.user)
+
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
