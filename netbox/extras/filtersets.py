@@ -13,7 +13,7 @@ from utilities.filters import (
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
-from .filters import TagFilter
+from .filters import TagFilter, TagIDFilter
 from .models import *
 
 __all__ = (
@@ -704,6 +704,7 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
         label=_('Data file (ID)'),
     )
     tag = TagFilter()
+    tag_id = TagIDFilter()
 
     class Meta:
         model = ConfigTemplate
