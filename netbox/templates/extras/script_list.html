@@ -79,6 +79,9 @@
                       {% if request.user|can_run:script and script.is_executable %}
                         <div class="float-end d-print-none">
                           <form action="{% url 'extras:script' script.pk %}" method="post">
+                            {% if script.python_class.commit_default %}
+                              <input type="checkbox" name="_commit" hidden checked>
+                            {% endif %}
                             {% csrf_token %}
                             <button type="submit" name="_run" class="btn btn-primary btn-sm">
                               {% if last_job %}
