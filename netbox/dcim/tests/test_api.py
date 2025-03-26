@@ -1249,7 +1249,8 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
