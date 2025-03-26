@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-25 05:01+0000\n"
+"POT-Creation-Date: 2025-03-26 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -343,7 +343,7 @@ msgstr ""
 #: netbox/extras/filtersets.py:276 netbox/extras/filtersets.py:348
 #: netbox/extras/filtersets.py:391 netbox/extras/filtersets.py:438
 #: netbox/extras/filtersets.py:498 netbox/extras/filtersets.py:657
-#: netbox/extras/filtersets.py:703 netbox/ipam/forms/model_forms.py:492
+#: netbox/extras/filtersets.py:704 netbox/ipam/forms/model_forms.py:492
 #: netbox/netbox/filtersets.py:286 netbox/netbox/forms/__init__.py:22
 #: netbox/netbox/forms/base.py:167
 #: netbox/templates/htmx/object_selector.html:28
@@ -7925,7 +7925,7 @@ msgstr ""
 msgid "Tag (slug)"
 msgstr ""
 
-#: netbox/extras/filtersets.py:689 netbox/extras/forms/filtersets.py:437
+#: netbox/extras/filtersets.py:690 netbox/extras/forms/filtersets.py:437
 msgid "Has local config context data"
 msgstr ""
 
