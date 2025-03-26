@@ -733,8 +733,11 @@ class RackTypeBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Rack, 'list', path='', detail=False)
 class RackListView(generic.ObjectListView):
-    queryset = Rack.objects.annotate(
-        device_count=count_related(Device, 'rack')
+    queryset = Rack.objects.prefetch_related(
+        'reservations',
+        'devices__device_type'
+    ).annotate(
+        device_count=count_related(Device, 'rack'),
     )
     filterset = filtersets.RackFilterSet
     filterset_form = forms.RackFilterForm
