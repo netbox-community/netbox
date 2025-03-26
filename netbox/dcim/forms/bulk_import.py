@@ -481,7 +481,9 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags'
+        )
 
 
 class PlatformImportForm(NetBoxModelImportForm):

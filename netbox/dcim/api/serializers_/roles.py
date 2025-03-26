@@ -23,7 +23,7 @@ class DeviceRoleSerializer(NestedGroupModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template', 'parent',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
-            '_depth',
+            'comments', '_depth',
         ]
         brief_fields = (
             'id', 'url', 'display', 'name', 'slug', 'description', 'device_count', 'virtualmachine_count', '_depth'

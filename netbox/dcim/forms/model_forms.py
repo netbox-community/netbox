@@ -436,6 +436,7 @@ class DeviceRoleForm(NetBoxModelForm):
         queryset=DeviceRole.objects.all(),
         required=False,
     )
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -447,7 +448,7 @@ class DeviceRoleForm(NetBoxModelForm):
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags',
         ]
 
 
