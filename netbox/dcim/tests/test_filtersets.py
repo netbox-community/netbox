@@ -1486,7 +1486,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ModuleType.objects.all()
     filterset = ModuleTypeFilterSet
-    ignore_fields = ['attributes']
+    ignore_fields = ['attribute_data']
 
     @classmethod
     def setUpTestData(cls):

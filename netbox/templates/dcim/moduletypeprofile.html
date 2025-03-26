@@ -7,7 +7,7 @@
 {% block title %}{{ object.name }}{% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Module Type Profile" %}</h2>
@@ -34,13 +34,25 @@
         </h2>
         <pre id="profile_schema">{{ object.schema|json }}</pre>
       </div>
-      {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_right_page object %}
     </div>
   </div>
-  <div class="row">
+  <div class="row mb-3">
     <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "Module Types" %}
+          {% if perms.dcim.add_moduletype %}
+            <div class="card-actions">
+              <a href="{% url 'dcim:moduletype_add' %}?profile={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Module Type" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'dcim:moduletype_list' profile_id=object.pk %}
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

@@ -13,6 +13,7 @@ from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.string import title
 from .device_components import *
 
 __all__ = (
@@ -131,7 +132,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             return {}
         attrs = {}
         for name, options in self.profile.schema.get('properties', {}).items():
-            key = options.get('title', name)
+            key = options.get('title', title(name))
             attrs[key] = self.attribute_data.get(name)
         return dict(sorted(attrs.items()))
 

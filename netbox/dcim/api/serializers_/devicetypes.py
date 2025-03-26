@@ -100,7 +100,7 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
-            'weight', 'weight_unit', 'description', 'attributes', 'comments', 'tags', 'custom_fields', 'created',
+            'weight', 'weight_unit', 'description', 'attribute_data', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')
