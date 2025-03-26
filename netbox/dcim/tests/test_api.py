@@ -1149,7 +1149,9 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
-    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = [
+        '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count'
+    ]
     create_data = [
         {
             'name': 'Device Role 4',

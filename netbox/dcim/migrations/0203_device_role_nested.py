@@ -12,12 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelManagers(
-            name='devicerole',
-            managers=[
-                ('_tree_manager', django.db.models.manager.Manager()),
-            ],
-        ),
         migrations.AddField(
             model_name='devicerole',
             name='level',
@@ -52,5 +46,20 @@ class Migration(migrations.Migration):
                 related_name='children',
                 to='dcim.devicerole',
             ),
+        ),
+        migrations.AddField(
+            model_name='devicerole',
+            name='comments',
+            field=models.TextField(blank=True),
+        ),
+        migrations.AlterField(
+            model_name='devicerole',
+            name='name',
+            field=models.CharField(max_length=100),
+        ),
+        migrations.AlterField(
+            model_name='devicerole',
+            name='slug',
+            field=models.SlugField(max_length=100),
         ),
     ]
