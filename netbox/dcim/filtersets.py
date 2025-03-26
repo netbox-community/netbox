@@ -1013,14 +1013,16 @@ class DeviceFilterSet(
         queryset=DeviceType.objects.all(),
         label=_('Device type (ID)'),
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='role_id',
+    role_id = TreeNodeMultipleChoiceFilter(
+        field_name='role',
         queryset=DeviceRole.objects.all(),
+        lookup_expr='in',
         label=_('Role (ID)'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
-        field_name='role__slug',
+    role = TreeNodeMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
+        field_name='role',
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Role (slug)'),
     )

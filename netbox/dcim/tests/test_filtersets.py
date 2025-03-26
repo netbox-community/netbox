@@ -2955,9 +2955,13 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        DeviceRole.objects.create(name='Device Role 2', slug='device-role-2')
-        DeviceRole.objects.create(name='Device Role 3', slug='device-role-3')
+        roles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+            DeviceRole(name='Device Role 3', slug='device-role-3'),
+        )
+        for role in roles:
+            role.save()
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
