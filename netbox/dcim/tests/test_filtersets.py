@@ -585,6 +585,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 starting_unit=1,
                 desc_units=False,
                 outer_width=100,
+                outer_height=100,
                 outer_depth=100,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 mounting_depth=100,
@@ -603,6 +604,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 starting_unit=2,
                 desc_units=False,
                 outer_width=200,
+                outer_height=200,
                 outer_depth=200,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 mounting_depth=200,
@@ -621,6 +623,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 starting_unit=3,
                 desc_units=True,
                 outer_width=300,
+                outer_height=300,
                 outer_depth=300,
                 outer_unit=RackDimensionUnitChoices.UNIT_INCH,
                 mounting_depth=300,
@@ -679,6 +682,10 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_outer_width(self):
         params = {'outer_width': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_height(self):
+        params = {'outer_height': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_depth(self):
@@ -764,6 +771,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 starting_unit=1,
                 desc_units=False,
                 outer_width=100,
+                outer_height=100,
                 outer_depth=100,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 mounting_depth=100,
@@ -782,6 +790,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 starting_unit=2,
                 desc_units=False,
                 outer_width=200,
+                outer_height=200,
                 outer_depth=200,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 mounting_depth=200,
@@ -831,6 +840,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 u_height=42,
                 desc_units=False,
                 outer_width=100,
+                outer_height=100,
                 outer_depth=100,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 weight=10,
@@ -854,6 +864,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 u_height=43,
                 desc_units=False,
                 outer_width=200,
+                outer_height=200,
                 outer_depth=200,
                 outer_unit=RackDimensionUnitChoices.UNIT_MILLIMETER,
                 weight=20,
@@ -877,6 +888,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 u_height=44,
                 desc_units=True,
                 outer_width=300,
+                outer_height=300,
                 outer_depth=300,
                 outer_unit=RackDimensionUnitChoices.UNIT_INCH,
                 weight=30,
@@ -955,6 +967,10 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_outer_width(self):
         params = {'outer_width': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_outer_height(self):
+        params = {'outer_height': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outer_depth(self):

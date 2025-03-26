@@ -73,6 +73,12 @@ class RackBase(WeightMixin, PrimaryModel):
         null=True,
         help_text=_('Outer dimension of rack (width)')
     )
+    outer_height = models.PositiveSmallIntegerField(
+        verbose_name=_('outer height'),
+        blank=True,
+        null=True,
+        help_text=_('Outer dimension of rack (height)')
+    )
     outer_depth = models.PositiveSmallIntegerField(
         verbose_name=_('outer depth'),
         blank=True,
@@ -140,7 +146,7 @@ class RackType(RackBase):
     )
 
     clone_fields = (
-        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
+        'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
         'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
@@ -173,8 +179,8 @@ class RackType(RackBase):
         super().clean()
 
         # Validate outer dimensions and unit
-        if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer width/depth"))
+        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
+            raise ValidationError(_("Must specify a unit when setting an outer dimension"))
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
@@ -188,7 +194,7 @@ class RackType(RackBase):
             self._abs_max_weight = None
 
         # Clear unit if outer width & depth are not set
-        if self.outer_width is None and self.outer_depth is None:
+        if not any([self.outer_width, self.outer_depth, self.outer_height]):
             self.outer_unit = None
 
         super().save(*args, **kwargs)
@@ -235,8 +241,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     """
     # Fields which cannot be set locally if a RackType is assigned
     RACKTYPE_FIELDS = (
-        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
-        'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
+        'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
     )
 
     form_factor = models.CharField(
@@ -329,7 +335,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'u_height', 'desc_units',
-        'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+        'weight_unit',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -364,8 +371,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit
-        if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer width/depth"))
+        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
+            raise ValidationError(_("Must specify a unit when setting an outer dimension"))
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
@@ -414,7 +421,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
             self._abs_max_weight = None
 
         # Clear unit if outer width & depth are not set
-        if self.outer_width is None and self.outer_depth is None:
+        if not any([self.outer_width, self.outer_depth, self.outer_height]):
             self.outer_unit = None
 
         super().save(*args, **kwargs)
