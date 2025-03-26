@@ -8,7 +8,9 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+from utilities.filters import (
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
+)
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .filters import TagFilter
@@ -583,14 +585,16 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=DeviceType.objects.all(),
         label=_('Device type'),
     )
-    device_role_id = django_filters.ModelMultipleChoiceFilter(
+    device_role_id = TreeNodeMultipleChoiceFilter(
         field_name='roles',
+        lookup_expr='in',
         queryset=DeviceRole.objects.all(),
         label=_('Role'),
     )
-    device_role = django_filters.ModelMultipleChoiceFilter(
-        field_name='roles__slug',
+    device_role = TreeNodeMultipleChoiceFilter(
+        field_name='roles',
         queryset=DeviceRole.objects.all(),
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Role (slug)'),
     )

@@ -59,7 +59,7 @@ MACADDRESS_COPY_BUTTON = """
 #
 
 class DeviceRoleTable(NetBoxTable):
-    name = tables.Column(
+    name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True
     )
