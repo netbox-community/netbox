@@ -82,10 +82,15 @@ class JSONSchemaProperty:
             'label': self.title or title(name),
             'help_text': self.description,
             'required': required,
+            'initial': self.default,
         }
 
+        # Choices
+        if self.enum:
+            field_kwargs['choices'] = [(v, v) for v in self.enum]
+
         # String validation
-        if self.type == PropertyTypeEnum.STRING:
+        elif self.type == PropertyTypeEnum.STRING:
             if self.minLength is not None:
                 field_kwargs['min_length'] = self.minLength
             if self.maxLength is not None:
@@ -113,6 +118,10 @@ class JSONSchemaProperty:
         """
         Resolve the property's type (and string format, if specified) to the appropriate field class.
         """
+        if self.enum:
+            if self.type == PropertyTypeEnum.ARRAY.value:
+                return forms.MultipleChoiceField
+            return forms.ChoiceField
         if self.type == PropertyTypeEnum.STRING.value and self.format is not None:
             try:
                 return STRING_FORM_FIELDS[self.format]
