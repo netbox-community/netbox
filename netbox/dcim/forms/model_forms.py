@@ -489,15 +489,16 @@ class ModuleTypeForm(NetBoxModelForm):
             prop = JSONSchemaProperty(**options)
             attr_fields[name] = prop.to_form_field(name, required=name in required_fields)
 
-        return attr_fields
+        return dict(sorted(attr_fields.items()))
 
     def _post_clean(self):
 
         # Compile attribute data from the individual form fields
-        self.instance.attribute_data = {
-            name[5:]: self.cleaned_data[name]  # Remove the attr_ prefix
-            for name in self.attr_fields if self.cleaned_data[name] is not None
-        }
+        if self.cleaned_data.get('profile'):
+            self.instance.attribute_data = {
+                name[5:]: self.cleaned_data[name]  # Remove the attr_ prefix
+                for name in self.attr_fields if self.cleaned_data[name] is not None
+            }
 
         return super()._post_clean()
 
