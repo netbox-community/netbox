@@ -260,6 +260,11 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         min_value=1
     )
+    outer_height = forms.IntegerField(
+        label=_('Outer height'),
+        required=False,
+        min_value=1
+    )
     outer_depth = forms.IntegerField(
         label=_('Outer depth'),
         required=False,
@@ -302,7 +307,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('manufacturer', 'description', 'form_factor', 'width', 'u_height', name=_('Rack Type')),
         FieldSet(
-            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('outer_width', 'outer_height', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth',
             name=_('Dimensions')
@@ -310,7 +315,7 @@ class RackTypeBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
     )
     nullable_fields = (
-        'outer_width', 'outer_depth', 'outer_unit', 'weight',
+        'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'weight',
         'max_weight', 'weight_unit', 'description', 'comments',
     )
 
@@ -404,6 +409,11 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         min_value=1
     )
+    outer_height = forms.IntegerField(
+        label=_('Outer height'),
+        required=False,
+        min_value=1
+    )
     outer_depth = forms.IntegerField(
         label=_('Outer depth'),
         required=False,
@@ -451,15 +461,13 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
-        FieldSet(
-            'form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'outer_width', 'outer_depth', 'outer_unit',
-            'mounting_depth', name=_('Hardware')
-        ),
+        FieldSet('outer_width', 'outer_height', 'outer_depth', 'outer_unit', name=_('Outer Dimensions')),
+        FieldSet('form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'mounting_depth', name=_('Hardware')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
-        'max_weight', 'weight_unit', 'description', 'comments',
+        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_height', 'outer_depth',
+        'outer_unit', 'weight', 'max_weight', 'weight_unit', 'description', 'comments',
     )
 
 
