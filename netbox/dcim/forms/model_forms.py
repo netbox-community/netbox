@@ -436,7 +436,7 @@ class ModuleTypeForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet('profile', 'manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-        FieldSet('attributes', name=_('Profile Attributes')),
+        FieldSet('attribute_data', name=_('Profile Attributes')),
         FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
     )
 
@@ -444,7 +444,7 @@ class ModuleTypeForm(NetBoxModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'attributes', 'comments', 'tags',
+            'attribute_data', 'comments', 'tags',
         ]
 
 

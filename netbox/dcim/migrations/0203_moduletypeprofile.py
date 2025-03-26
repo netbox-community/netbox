@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='moduletype',
-            name='attributes',
+            name='attribute_data',
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AddField(

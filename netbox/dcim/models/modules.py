@@ -93,7 +93,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
-    attributes = models.JSONField(
+    attribute_data = models.JSONField(
         blank=True,
         null=True,
         verbose_name=_('attributes')
@@ -122,19 +122,32 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
 
+    @property
+    def attributes(self):
+        """
+        Returns a human-friendly representation of the attributes defined for a ModuleType according to its profile.
+        """
+        if self.profile is None or not self.profile.schema:
+            return {}
+        attrs = {}
+        for name, options in self.profile.schema.get('properties', {}).items():
+            key = options.get('title', name)
+            attrs[key] = self.attribute_data.get(name)
+        return dict(sorted(attrs.items()))
+
     def clean(self):
         super().clean()
 
         # Validate any attributes against the assigned profile's schema
         if self.profile:
             try:
-                jsonschema.validate(self.attributes, schema=self.profile.schema)
+                jsonschema.validate(self.attribute_data, schema=self.profile.schema)
             except JSONValidationError as e:
                 raise ValidationError({
                     'attributes': _("Invalid schema: {error}").format(error=e)
                 })
         else:
-            self.attributes = None
+            self.attribute_data = None
 
     def to_yaml(self):
         data = {

@@ -35,6 +35,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DictColumn',
     'DistanceColumn',
     'DurationColumn',
     'LinkedCountColumn',
@@ -707,3 +708,14 @@ class DistanceColumn(TemplateColumn):
 
     def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
         super().__init__(template_code=template_code, order_by=order_by, **kwargs)
+
+
+class DictColumn(tables.Column):
+    """
+    Render a dictionary of data in a simple key: value format, one pair per line.
+    """
+    def render(self, value):
+        output = '<br />'.join([
+            f'{escape(k)}: {escape(v)}' for k, v in value.items()
+        ])
+        return mark_safe(output)

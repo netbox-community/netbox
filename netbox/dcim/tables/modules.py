@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
-from dcim.models import Module, ModuleType
+from dcim.models import Module, ModuleType, ModuleTypeProfile
 from netbox.tables import NetBoxTable, columns
 from .template_code import WEIGHT
 
@@ -13,15 +13,19 @@ __all__ = (
 
 
 class ModuleTypeProfileTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
-        url_name='dcim:moduletype_list'
+        url_name='dcim:moduletypeprofile_list'
     )
 
     class Meta(NetBoxTable.Meta):
-        model = ModuleType
+        model = ModuleTypeProfile
         fields = (
             'pk', 'id', 'name', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
@@ -43,6 +47,12 @@ class ModuleTypeTable(NetBoxTable):
         linkify=True,
         verbose_name=_('Module Type')
     )
+    weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
+        template_code=WEIGHT,
+        order_by=('_abs_weight', 'weight_unit')
+    )
+    attributes = columns.DictColumn()
     instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
@@ -54,17 +64,12 @@ class ModuleTypeTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
-    weight = columns.TemplateColumn(
-        verbose_name=_('Weight'),
-        template_code=WEIGHT,
-        order_by=('_abs_weight', 'weight_unit')
-    )
 
     class Meta(NetBoxTable.Meta):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
-            'comments', 'tags', 'created', 'last_updated',
+            'attributes', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'profile', 'manufacturer', 'part_number',

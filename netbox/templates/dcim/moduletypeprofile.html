@@ -28,8 +28,11 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h2 class="card-header">{% trans "Schema" %}</h2>
-        <pre>{{ object.schema|json }}</pre>
+        <h2 class="card-header d-flex justify-content-between">
+          {% trans "Schema" %}
+          {% copy_content 'profile_schema' %}
+        </h2>
+        <pre id="profile_schema">{{ object.schema|json }}</pre>
       </div>
       {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
