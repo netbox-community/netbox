@@ -491,6 +491,8 @@ class DeviceRole(NestedGroupModel):
         null=True
     )
 
+    clone_fields = ('parent', 'description')
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('device role')

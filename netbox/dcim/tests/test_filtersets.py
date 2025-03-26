@@ -2191,12 +2191,64 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
-        roles = (
+        parent_roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
             DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False)
         )
+        for role in parent_roles:
+            role.save()
+
+        roles = (
+            DeviceRole(
+                name='Device Role 1A',
+                slug='device-role-1a',
+                color='aa0000',
+                vm_role=True,
+                parent=parent_roles[0]
+            ),
+            DeviceRole(
+                name='Device Role 2A',
+                slug='device-role-2a',
+                color='00aa00',
+                vm_role=True,
+                parent=parent_roles[1]
+            ),
+            DeviceRole(
+                name='Device Role 3A',
+                slug='device-role-3a',
+                color='0000aa',
+                vm_role=False,
+                parent=parent_roles[2]
+            )
+        )
         for role in roles:
+            role.save()
+
+        child_roles = (
+            DeviceRole(
+                name='Device Role 1A1',
+                slug='device-role-1a1',
+                color='bb0000',
+                vm_role=True,
+                parent=roles[0]
+            ),
+            DeviceRole(
+                name='Device Role 2A1',
+                slug='device-role-2a1',
+                color='00bb00',
+                vm_role=True,
+                parent=roles[1]
+            ),
+            DeviceRole(
+                name='Device Role 3A1',
+                slug='device-role-3a1',
+                color='0000bb',
+                vm_role=False,
+                parent=roles[2]
+            )
+        )
+        for role in child_roles:
             role.save()
 
     def test_q(self):
@@ -2217,13 +2269,27 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_vm_role(self):
         params = {'vm_role': 'true'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'vm_role': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        roles = DeviceRole.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': [roles[0].slug, roles[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ancestor(self):
+        roles = DeviceRole.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'ancestor': [roles[0].slug, roles[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
