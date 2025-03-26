@@ -143,9 +143,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             try:
                 jsonschema.validate(self.attribute_data, schema=self.profile.schema)
             except JSONValidationError as e:
-                raise ValidationError({
-                    'attributes': _("Invalid schema: {error}").format(error=e)
-                })
+                raise ValidationError(_("Invalid schema: {error}").format(error=e))
         else:
             self.attribute_data = None
 

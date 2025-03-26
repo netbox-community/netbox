@@ -18,6 +18,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
+from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm, ModuleCommonForm
@@ -423,10 +424,11 @@ class ModuleTypeProfileForm(NetBoxModelForm):
 
 
 class ModuleTypeForm(NetBoxModelForm):
-    profile = DynamicModelChoiceField(
-        label=_('Profile'),
+    profile = forms.ModelChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
-        required=False
+        label=_('Profile'),
+        required=False,
+        widget=HTMXSelect()
     )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
@@ -434,18 +436,69 @@ class ModuleTypeForm(NetBoxModelForm):
     )
     comments = CommentField()
 
-    fieldsets = (
-        FieldSet('profile', 'manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-        FieldSet('attribute_data', name=_('Profile Attributes')),
-        FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
-    )
+    @property
+    def fieldsets(self):
+        return [
+            FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
+            FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'))
+        ]
 
     class Meta:
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'attribute_data', 'comments', 'tags',
+            'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Track profile-specific attribute fields
+        self.attr_fields = []
+
+        # Retrieve assigned ModuleTypeProfile, if any
+        if not (profile_id := get_field_value(self, 'profile')):
+            return
+        if not (profile := ModuleTypeProfile.objects.filter(pk=profile_id).first()):
+            return
+
+        # Extend form with fields for profile attributes
+        for attr, form_field in self._get_attr_form_fields(profile).items():
+            field_name = f'attr_{attr}'
+            self.attr_fields.append(field_name)
+            self.fields[field_name] = form_field
+            if self.instance.attribute_data:
+                self.fields[field_name].initial = self.instance.attribute_data.get(attr)
+
+    @staticmethod
+    def _get_attr_form_fields(profile):
+        """
+        Return a dictionary mapping of attribute names to form fields, suitable for extending
+        the form per the selected ModuleTypeProfile.
+        """
+        if not profile.schema:
+            return {}
+
+        properties = profile.schema.get('properties', {})
+        required_fields = profile.schema.get('required', [])
+
+        attr_fields = {}
+        for name, options in properties.items():
+            prop = JSONSchemaProperty(**options)
+            attr_fields[name] = prop.to_form_field(name, required=name in required_fields)
+
+        return attr_fields
+
+    def _post_clean(self):
+
+        # Compile attribute data from the individual form fields
+        self.instance.attribute_data = {
+            name[5:]: self.cleaned_data[name]  # Remove the attr_ prefix
+            for name in self.attr_fields if self.cleaned_data[name] is not None
+        }
+
+        return super()._post_clean()
 
 
 class DeviceRoleForm(NetBoxModelForm):
