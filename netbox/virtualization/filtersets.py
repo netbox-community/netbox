@@ -171,13 +171,15 @@ class VirtualMachineFilterSet(
     name = MultiValueCharFilter(
         lookup_expr='iexact'
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
+    role_id = TreeNodeMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
+        lookup_expr='in',
         label=_('Role (ID)'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
-        field_name='role__slug',
+    role = TreeNodeMultipleChoiceFilter(
+        field_name='role',
         queryset=DeviceRole.objects.all(),
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Role (slug)'),
     )
