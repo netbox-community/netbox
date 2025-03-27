@@ -2,6 +2,8 @@ from copy import deepcopy
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
+from django.db.models import Subquery, OuterRef
+from django.db.models.functions import JSONObject
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django_pglocks import advisory_lock
@@ -21,6 +23,7 @@ from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
+from utilities.fields import JSONModelField
 from . import serializers
 
 
@@ -89,6 +92,32 @@ class PrefixViewSet(NetBoxModelViewSet):
         if self.action == "available_prefixes" and self.request.method == "POST":
             return serializers.PrefixLengthSerializer
         return super().get_serializer_class()
+
+    def get_queryset(self):
+        """
+        Return the query set with additional annotations for Aggregate and RIR
+        """
+        qs = super().get_queryset()
+
+        # Determine the fields to return
+        aggregate_fields = JSONObject(**{f.name: f.name for f in Aggregate._meta.get_fields()})
+        rir_fields = JSONObject(**{f.name: f.name for f in RIR._meta.get_fields()})
+
+        # Get the outer reference
+        prefix_field = OuterRef("prefix")
+        aggregate_field = OuterRef("aggregate_id")
+
+        aggregates = Aggregate.objects.filter(prefix__net_contains_or_equals=prefix_field)
+        rirs = RIR.objects.filter(aggregates=aggregate_field)
+
+        # The sub queries for the annotation, returning a json object of the related model
+        agg_sq = Subquery(
+            aggregates.values_list(aggregate_fields)[:1], output_field=JSONModelField(related_model=Aggregate)
+        )
+        agg_id_sq = Subquery(aggregates.values_list('pk', flat=True)[:1])
+        rir_sq = Subquery(rirs.values_list(rir_fields)[:1], output_field=JSONModelField(related_model=RIR))
+
+        return qs.annotate(aggregate=agg_sq, aggregate_id=agg_id_sq).annotate(rir=rir_sq)
 
 
 class IPRangeViewSet(NetBoxModelViewSet):
