@@ -12,17 +12,93 @@ from core.tables import JobTable, ObjectChangeTable
 from extras.forms import JournalEntryForm
 from extras.models import JournalEntry
 from extras.tables import JournalEntryTable
+from tenancy.models import ContactAssignment
+from tenancy.tables import ContactAssignmentTable
+from tenancy.filtersets import ContactAssignmentFilterSet
+from tenancy.forms import ContactAssignmentFilterForm
 from utilities.permissions import get_permission_for_model
 from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab
+from utilities.htmx import htmx_partial
 from .base import BaseMultiObjectView
+from .mixins import ActionsMixin, TableMixin
 
 __all__ = (
     'BulkSyncDataView',
+    'ObjectContactsView',
     'ObjectChangeLogView',
     'ObjectJobsView',
     'ObjectJournalView',
     'ObjectSyncDataView',
 )
+
+
+class ObjectContactsView(ConditionalLoginRequiredMixin, ActionsMixin, TableMixin, View):
+    """
+    Show all Contacts associated with an object. The model class must be passed as a keyword argument when referencing
+    this view in a URL path. For example:
+        path('sites/<int:pk>/contacts/', ObjectContactsView.as_view(), name='site_contacts', kwargs={'model': Site}),
+    Attributes:
+        base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
+    """
+    base_template = None
+    tab = ViewTab(
+        label=_('Contacts'),
+        badge=lambda obj: obj.contacts.count(),
+        permission='tenancy.view_contactassignment',
+        weight=9000
+    )
+    table = ContactAssignmentTable
+    filterset = ContactAssignmentFilterSet
+    filterset_form = ContactAssignmentFilterForm
+
+    def get(self, request, model, **kwargs):
+        # Handle QuerySet restriction of parent object if needed
+        if hasattr(model.objects, 'restrict'):
+            obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
+        else:
+            obj = get_object_or_404(model, **kwargs)
+
+        # Gather all Contact Assignments for this object
+        content_type = ContentType.objects.get_for_model(model)
+        contactassignments = ContactAssignment.objects.restrict(request.user, 'view').prefetch_related(
+            'contact',
+        ).filter(
+            object_type=content_type,
+            object_id=obj.pk
+        ).order_by('priority', 'contact', 'role')
+        contactassignments = self.filterset(request.GET, contactassignments, request=request).qs
+
+        # Determine the available actions
+        actions = self.get_permitted_actions(request.user, model=ContactAssignment)
+        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+
+        table = self.get_table(contactassignments, request, has_bulk_actions)
+        table.columns.hide('object_type')
+        table.columns.hide('object')
+
+        if htmx_partial(request):
+            return render(request, 'htmx/table.html', {
+                'object': obj,
+                'table': table,
+                'model': ContactAssignment,
+            })
+
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+
+        return render(request, 'tenancy/object_contacts.html', {
+            'object': obj,
+            'model': ContactAssignment,
+            'base_template': self.base_template,
+            'table': table,
+            'table_config': f'{table.name}_config',
+            'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
+            'actions': actions,
+            'tab': self.tab,
+            'return_url': request.get_full_path(),
+        })
 
 
 class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
