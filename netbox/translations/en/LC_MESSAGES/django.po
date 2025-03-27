@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-26 05:03+0000\n"
+"POT-Creation-Date: 2025-03-27 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8734,102 +8734,102 @@ msgstr ""
 msgid "False"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:575
+#: netbox/extras/models/customfields.py:577
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:669
+#: netbox/extras/models/customfields.py:671
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:671
+#: netbox/extras/models/customfields.py:673
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:676
+#: netbox/extras/models/customfields.py:678
 msgid "Value must be an integer."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:679
-#: netbox/extras/models/customfields.py:694
+#: netbox/extras/models/customfields.py:681
+#: netbox/extras/models/customfields.py:696
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:683
-#: netbox/extras/models/customfields.py:698
+#: netbox/extras/models/customfields.py:685
+#: netbox/extras/models/customfields.py:700
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:691
+#: netbox/extras/models/customfields.py:693
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:703
+#: netbox/extras/models/customfields.py:705
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:711
+#: netbox/extras/models/customfields.py:713
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:720
+#: netbox/extras/models/customfields.py:722
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:727
+#: netbox/extras/models/customfields.py:729
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:737
+#: netbox/extras/models/customfields.py:739
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:746
+#: netbox/extras/models/customfields.py:748
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:752
+#: netbox/extras/models/customfields.py:754
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:756
+#: netbox/extras/models/customfields.py:758
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:759
+#: netbox/extras/models/customfields.py:761
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:779
+#: netbox/extras/models/customfields.py:781
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:791
+#: netbox/extras/models/customfields.py:793
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:798
+#: netbox/extras/models/customfields.py:800
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:799
+#: netbox/extras/models/customfields.py:801
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:841
+#: netbox/extras/models/customfields.py:843
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:865
+#: netbox/extras/models/customfields.py:867
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
