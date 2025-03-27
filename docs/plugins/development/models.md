@@ -136,6 +136,8 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.TagsMixin
 
+::: netbox.models.features.ContactsMixin
+
 ## Choice Sets
 
 For model fields which support the selection of one or more values from a predefined list of choices, NetBox provides the `ChoiceSet` utility class. This can be used in place of a regular choices tuple to provide enhanced functionality, namely dynamic configuration and colorization. (See [Django's documentation](https://docs.djangoproject.com/en/stable/ref/models/fields/#choices) on the `choices` parameter for supported model fields.)
