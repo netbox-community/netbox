@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Prefetch, Sum
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,7 +11,7 @@ from dcim.forms import DeviceFilterForm
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
@@ -103,7 +104,17 @@ class ClusterGroupView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (
+                    VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(ClusterGroup),
+                        scope_id=instance.pk
+                    ), 'cluster_group'),
+                ),
+            ),
         }
 
 
