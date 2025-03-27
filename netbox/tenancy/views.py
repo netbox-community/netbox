@@ -1,29 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _
 
 from netbox.views import generic
 from utilities.query import count_related
-from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
-
-
-class ObjectContactsView(generic.ObjectChildrenView):
-    child_model = ContactAssignment
-    table = tables.ContactAssignmentTable
-    filterset = filtersets.ContactAssignmentFilterSet
-    filterset_form = forms.ContactAssignmentFilterForm
-    template_name = 'tenancy/object_contacts.html'
-    tab = ViewTab(
-        label=_('Contacts'),
-        badge=lambda obj: obj.get_contacts().count(),
-        permission='tenancy.view_contactassignment',
-        weight=5000
-    )
-
-    def get_children(self, request, parent):
-        return parent.get_contacts().restrict(request.user, 'view').order_by('priority', 'contact', 'role')
 
 
 #
@@ -154,11 +136,6 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
-
-
-@register_model_view(Tenant, 'contacts')
-class TenantContactsView(ObjectContactsView):
-    queryset = Tenant.objects.all()
 
 
 #
