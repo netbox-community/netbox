@@ -97,10 +97,11 @@ class JSONField(_JSONField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.widget.attrs['placeholder'] = ''
+        self.widget.attrs['class'] = 'font-monospace'
         if not self.help_text:
             self.help_text = _('Enter context data in <a href="https://json.org/">JSON</a> format.')
-            self.widget.attrs['placeholder'] = ''
-            self.widget.attrs['class'] = 'font-monospace'
 
     def prepare_value(self, value):
         if isinstance(value, InvalidJSONInput):
