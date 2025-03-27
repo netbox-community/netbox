@@ -840,7 +840,18 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
         ])
 
         return {
-            'related_models': self.get_related_models(request, instance, [CableTermination]),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(CableTermination,),
+                extra=(
+                    (
+                    VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(Rack),
+                        scope_id=instance.pk
+                    ), 'rack'),
+                ),
+            ),
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
