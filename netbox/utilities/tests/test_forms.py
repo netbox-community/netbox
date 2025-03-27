@@ -1,10 +1,11 @@
 from django import forms
 from django.test import TestCase
 
+from dcim.models import Site
 from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.forms import BulkRenameForm
-from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
+from utilities.forms.utils import get_field_value, expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 
 class ExpandIPAddress(TestCase):
@@ -387,3 +388,63 @@ class BulkRenameFormTest(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["find"], " hello ")
         self.assertEqual(form.cleaned_data["replace"], " world ")
+
+
+class GetFieldValueTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        class TestForm(forms.Form):
+            site = forms.ModelChoiceField(
+                queryset=Site.objects.all(),
+                required=False
+            )
+        cls.form_class = TestForm
+
+        cls.sites = (
+            Site(name='Test Site 1', slug='test-site-1'),
+            Site(name='Test Site 2', slug='test-site-2'),
+        )
+        Site.objects.bulk_create(cls.sites)
+
+    def test_unbound_without_initial(self):
+        form = self.form_class()
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            None
+        )
+
+    def test_unbound_with_initial(self):
+        form = self.form_class(initial={'site': self.sites[0].pk})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            self.sites[0].pk
+        )
+
+    def test_bound_value_without_initial(self):
+        form = self.form_class({'site': self.sites[0].pk})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            self.sites[0].pk
+        )
+
+    def test_bound_value_with_initial(self):
+        form = self.form_class({'site': self.sites[0].pk}, initial={'site': self.sites[1].pk})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            self.sites[0].pk
+        )
+
+    def test_bound_null_without_initial(self):
+        form = self.form_class({'site': None})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            None
+        )
+
+    def test_bound_null_with_initial(self):
+        form = self.form_class({'site': None}, initial={'site': self.sites[1].pk})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            None
+        )
