@@ -247,6 +247,13 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                         ).distinct(),
                         'region_id'
                     ),
+                    (
+                        VLANGroup.objects.restrict(request.user, 'view').filter(
+                            scope_type=ContentType.objects.get_for_model(Region),
+                            scope_id__in=regions
+                        ).distinct(),
+                        'region'
+                    ),
 
                     # Handle these relations manually to avoid erroneous filter name resolution
                     (Cluster.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
