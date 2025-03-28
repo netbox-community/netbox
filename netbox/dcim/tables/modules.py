@@ -3,7 +3,7 @@ import django_tables2 as tables
 
 from dcim.models import Module, ModuleType, ModuleTypeProfile
 from netbox.tables import NetBoxTable, columns
-from .template_code import WEIGHT
+from .template_code import MODULETYPEPROFILE_ATTRIBUTES, WEIGHT
 
 __all__ = (
     'ModuleTable',
@@ -16,6 +16,12 @@ class ModuleTypeProfileTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
+    )
+    attributes = columns.TemplateColumn(
+        template_code=MODULETYPEPROFILE_ATTRIBUTES,
+        accessor=tables.A('schema__properties'),
+        orderable=False,
+        verbose_name=_('Attributes')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
@@ -30,7 +36,7 @@ class ModuleTypeProfileTable(NetBoxTable):
             'pk', 'id', 'name', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'description',
+            'pk', 'name', 'description', 'attributes',
         )
 
 

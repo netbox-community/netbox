@@ -568,3 +568,7 @@ MODULEBAY_BUTTONS = """
     {% endif %}
 {% endif %}
 """
+
+MODULETYPEPROFILE_ATTRIBUTES = """
+{% if value %}{% for attr in value %}{{ attr }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+"""
