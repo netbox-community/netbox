@@ -37,7 +37,7 @@
           {% endif %}
         </div>
       </h2>
-      {% with scripts=module.scripts.all %}
+      {% with scripts=module.ordered_scripts %}
         {% if scripts %}
           <table class="table table-hover scripts">
             <thead>
