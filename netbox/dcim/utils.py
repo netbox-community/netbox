@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 
@@ -56,3 +57,22 @@ def rebuild_paths(terminations):
             for cp in cable_paths:
                 cp.delete()
                 create_cablepath(cp.origins)
+
+
+def update_interface_bridges(device, interface_templates, module=None):
+    """
+    Used for device and module instantiation. Iterates all InterfaceTemplates with a bridge assigned
+    and applies it to the actual interfaces.
+    """
+    Interface = apps.get_model('dcim', 'Interface')
+
+    for interface_template in interface_templates.exclude(bridge=None):
+        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+
+        if interface_template.bridge:
+            interface.bridge = Interface.objects.get(
+                device=device,
+                name=interface_template.bridge.resolve_name(module=module)
+            )
+            interface.full_clean()
+            interface.save()

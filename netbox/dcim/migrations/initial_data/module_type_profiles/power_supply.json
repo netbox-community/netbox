@@ -1,0 +1,34 @@
+{
+    "name": "Power supply",
+    "schema": {
+        "properties": {
+            "input_current": {
+                "type": "string",
+                "title": "Current type",
+                "enum": [
+                    "AC",
+                    "DC"
+                ],
+                "default": "AC"
+            },
+            "input_voltage": {
+                "type": "integer",
+                "title": "Voltage",
+                "default": 120
+            },
+            "wattage": {
+                "type": "integer",
+                "description": "Available output power (watts)"
+            },
+            "hot_swappable": {
+                "type": "boolean",
+                "title": "Hot-swappable",
+                "default": false
+            }
+        },
+        "required": [
+            "input_current",
+            "input_voltage"
+        ]
+    }
+}

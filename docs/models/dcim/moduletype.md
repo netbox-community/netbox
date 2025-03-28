@@ -43,3 +43,11 @@ The numeric weight of the module, including a unit designation (e.g. 3 kilograms
 ### Airflow
 
 The direction in which air circulates through the device chassis for cooling.
+
+### Profile
+
+The assigned [profile](./moduletypeprofile.md) for the type of module. Profiles can be used to classify module types by function (e.g. power supply, hard disk, etc.), and they support the addition of user-configurable attributes on module types. The assignment of a module type to a profile is optional.
+
+### Attributes
+
+Depending on the module type's assigned [profile](./moduletypeprofile.md) (if any), one or more user-defined attributes may be available to configure.

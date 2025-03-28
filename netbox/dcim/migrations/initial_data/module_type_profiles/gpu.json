@@ -1,0 +1,28 @@
+{
+    "name": "GPU",
+    "schema": {
+        "properties": {
+            "interface": {
+                "type": "string",
+                "enum": [
+                    "PCIe 4.0",
+                    "PCIe 4.0 x8",
+                    "PCIe 4.0 x16",
+                    "PCIe 5.0 x16"
+                ]
+            },
+            "gpu" : {
+                "type": "string",
+                "title": "GPU"
+            },
+            "memory": {
+                "type": "integer",
+                "title": "Memory (GB)",
+                "description": "Total memory capacity (in GB)"
+            }
+        },
+        "required": [
+            "memory"
+        ]
+    }
+}

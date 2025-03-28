@@ -1,0 +1,29 @@
+{
+    "name": "Hard disk",
+    "schema": {
+        "properties": {
+            "type": {
+                "type": "string",
+                "title": "Disk type",
+                "enum": [
+                    "HD",
+                    "SSD",
+                    "NVME"
+                ],
+                "default": "SSD"
+            },
+            "size": {
+                "type": "integer",
+                "title": "Size (GB)",
+                "description": "Raw disk capacity"
+            },
+            "speed": {
+                "type": "integer",
+                "title": "Speed (RPM)"
+            }
+        },
+        "required": [
+            "size"
+        ]
+    }
+}

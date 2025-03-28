@@ -1,8 +1,8 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
-{% load tz %}
 {% load i18n %}
+{% load mptt %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -62,8 +62,8 @@
           <td>{{ object.device.device_type|linkify }}</td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Module Type" %}</th>
-          <td>{{ object.module_type|linkify:"full_name" }}</td>
+          <th scope="row">{% trans "Module Bay" %}</th>
+          <td>{% nested_tree object.module_bay %}</td>
         </tr>
         <tr>
           <th scope="row">{% trans "Status" %}</th>
@@ -88,6 +88,25 @@
     {% plugin_left_page object %}
   </div>
   <div class="col col-md-6">
+    <div class="card">
+      <h2 class="card-header">{% trans "Module Type" %}</h2>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Manufacturer" %}</th>
+          <td>{{ object.module_type.manufacturer|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Model" %}</th>
+          <td>{{ object.module_type|linkify }}</td>
+        </tr>
+        {% for k, v in object.module_type.attributes.items %}
+          <tr>
+            <th scope="row">{{ k }}</th>
+            <td>{{ v|placeholder }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
     {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}

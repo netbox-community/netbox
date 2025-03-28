@@ -82,6 +82,10 @@ gunicorn
 # https://jinja.palletsprojects.com/changes/
 Jinja2
 
+# JSON schema validation
+# https://github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst
+jsonschema
+
 # Simple markup language for rendering HTML
 # https://python-markdown.github.io/changelog/
 Markdown

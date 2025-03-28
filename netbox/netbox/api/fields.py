@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
 __all__ = (
+    'AttributesField',
     'ChoiceField',
     'ContentTypeField',
     'IPNetworkSerializer',
@@ -172,3 +173,19 @@ class IntegerRangeSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         return instance.lower, instance.upper - 1
+
+
+class AttributesField(serializers.JSONField):
+    """
+    Custom attributes stored as JSON data.
+    """
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+
+        # If updating an object, start with the initial attribute data. This enables the client to modify
+        # individual attributes without having to rewrite the entire field.
+        if data and self.parent.instance:
+            initial_data = getattr(self.parent.instance, self.source, None) or {}
+            return {**initial_data, **data}
+
+        return data

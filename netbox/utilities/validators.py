@@ -1,3 +1,4 @@
+import decimal
 import re
 
 from django.core.exceptions import ValidationError
@@ -10,6 +11,7 @@ __all__ = (
     'ColorValidator',
     'EnhancedURLValidator',
     'ExclusionValidator',
+    'MultipleOfValidator',
     'validate_regex',
 )
 
@@ -52,6 +54,22 @@ class ExclusionValidator(BaseValidator):
 
     def compare(self, a, b):
         return a in b
+
+
+class MultipleOfValidator(BaseValidator):
+    """
+    Checks that a field's value is a numeric multiple of the given value. Both values are
+    cast as Decimals for comparison.
+    """
+    def __init__(self, multiple):
+        self.multiple = decimal.Decimal(str(multiple))
+        super().__init__(limit_value=None)
+
+    def __call__(self, value):
+        if decimal.Decimal(str(value)) % self.multiple != 0:
+            raise ValidationError(
+                _("{value} must be a multiple of {multiple}.").format(value=value, multiple=self.multiple)
+            )
 
 
 def validate_regex(value):

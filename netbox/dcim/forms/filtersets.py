@@ -39,6 +39,7 @@ __all__ = (
     'ModuleFilterForm',
     'ModuleBayFilterForm',
     'ModuleTypeFilterForm',
+    'ModuleTypeProfileFilterForm',
     'PlatformFilterForm',
     'PowerConnectionFilterForm',
     'PowerFeedFilterForm',
@@ -602,11 +603,19 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     )
 
 
+class ModuleTypeProfileFilterForm(NetBoxModelFilterSetForm):
+    model = ModuleTypeProfile
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+    )
+    selector_fields = ('filter_id', 'q')
+
+
 class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
+        FieldSet('profile_id', 'manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -614,6 +623,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         FieldSet('weight', 'weight_unit', name=_('Weight')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    profile_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleTypeProfile.objects.all(),
+        required=False,
+        label=_('Profile')
+    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,

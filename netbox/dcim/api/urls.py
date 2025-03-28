@@ -21,6 +21,7 @@ router.register('rack-reservations', views.RackReservationViewSet)
 router.register('manufacturers', views.ManufacturerViewSet)
 router.register('device-types', views.DeviceTypeViewSet)
 router.register('module-types', views.ModuleTypeViewSet)
+router.register('module-type-profiles', views.ModuleTypeProfileViewSet)
 
 # Device type components
 router.register('console-port-templates', views.ConsolePortTemplateViewSet)
