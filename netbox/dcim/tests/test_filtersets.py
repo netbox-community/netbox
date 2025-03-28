@@ -1688,7 +1688,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_profile(self):
-        profiles = ModuleTypeProfile.objects.all()[:2]
+        profiles = ModuleTypeProfile.objects.filter(name__startswith="Module Type Profile")[:2]
         params = {'profile_id': [profiles[0].pk, profiles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'profile': [profiles[0].name, profiles[1].name]}
