@@ -1,7 +1,9 @@
 from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
+from django.db.models import ForeignKey, ManyToOneRel
+from django.forms import JSONField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +15,7 @@ __all__ = (
     'CounterCacheField',
     'NaturalOrderingField',
     'RestrictedGenericForeignKey',
+    'JSONModelField',
 )
 
 
@@ -186,3 +189,33 @@ class CounterCacheField(models.BigIntegerField):
         kwargs["to_model"] = self.to_model_name
         kwargs["to_field"] = self.to_field_name
         return name, path, args, kwargs
+
+
+class JSONModelField(JSONField):
+    def __init__(self, related_model=None, *args, **kwargs):
+        """
+        Extract the related model from the kwargs and set after instantiation
+        """
+        super().__init__(*args, **kwargs)
+        self.related_model = related_model
+
+    def from_db_value(self, value, expression, connection):
+        """
+        Return the actual instantiated model from the fields, minus the models that cannot be worked with
+        """
+        data = super().from_db_value(value, expression, connection)
+        # Return nothing if there is nothing
+        if data is None:
+            return None
+
+        # Extract the fields from the meta for processing
+        fields = {f.name: f for f in self.related_model._meta.get_fields()}
+
+        keys = data.copy().keys()
+        for key in keys:
+            if key not in fields or isinstance(fields.get(key), (GenericRelation, ForeignKey, ManyToOneRel, )):
+                # Delete un-parsable fields
+                del data[key]
+
+        # Return the full model minus deleted fields
+        return self.related_model(**data)
