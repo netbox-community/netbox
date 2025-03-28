@@ -601,7 +601,7 @@ class ModuleBayTemplateType(ModularComponentTemplateType):
     pagination=True
 )
 class ModuleTypeProfileType(NetBoxObjectType):
-    moduletypes: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+    module_types: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

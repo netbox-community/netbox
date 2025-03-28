@@ -629,6 +629,70 @@ class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
+    model = ModuleTypeProfile
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    SCHEMAS = [
+        {
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "integer"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "boolean"
+                }
+            }
+        },
+    ]
+    create_data = [
+        {
+            'name': 'Module Type Profile 4',
+            'schema': SCHEMAS[0],
+        },
+        {
+            'name': 'Module Type Profile 5',
+            'schema': SCHEMAS[1],
+        },
+        {
+            'name': 'Module Type Profile 6',
+            'schema': SCHEMAS[2],
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+        'comments': 'New comments',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        module_type_profiles = (
+            ModuleTypeProfile(
+                name='Module Type Profile 1',
+                schema=cls.SCHEMAS[0]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 2',
+                schema=cls.SCHEMAS[1]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 3',
+                schema=cls.SCHEMAS[2]
+            ),
+        )
+        ModuleTypeProfile.objects.bulk_create(module_type_profiles)
+
+
 class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']

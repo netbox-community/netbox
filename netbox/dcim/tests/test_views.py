@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
@@ -1303,6 +1304,79 @@ front-ports:
         response = self.client.get(f'{url}?export=table')
         self.assertHttpStatus(response, 200)
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
+
+class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = ModuleTypeProfile
+
+    SCHEMAS = [
+        {
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "integer"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "boolean"
+                }
+            }
+        },
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        module_type_profiles = (
+            ModuleTypeProfile(
+                name='Module Type Profile 1',
+                schema=cls.SCHEMAS[0]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 2',
+                schema=cls.SCHEMAS[1]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 3',
+                schema=cls.SCHEMAS[2]
+            ),
+        )
+        ModuleTypeProfile.objects.bulk_create(module_type_profiles)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Module Type Profile X',
+            'description': 'A new profile',
+            'schema': json.dumps(cls.SCHEMAS[0]),
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,schema",
+            f"Module Type Profile 4,{json.dumps(cls.SCHEMAS[0])}",
+            f"Module Type Profile 5,{json.dumps(cls.SCHEMAS[1])}",
+            f"Module Type Profile 6,{json.dumps(cls.SCHEMAS[2])}",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{module_type_profiles[0].pk},New description",
+            f"{module_type_profiles[1].pk},New description",
+            f"{module_type_profiles[2].pk},New description",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 #
