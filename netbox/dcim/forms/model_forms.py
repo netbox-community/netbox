@@ -409,6 +409,7 @@ class DeviceTypeForm(NetBoxModelForm):
 class ModuleTypeProfileForm(NetBoxModelForm):
     schema = JSONField(
         label=_('Schema'),
+        required=False,
         help_text=_("Enter a valid JSON schema to define supported attributes.")
     )
     comments = CommentField()

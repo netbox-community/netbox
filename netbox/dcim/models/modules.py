@@ -33,6 +33,8 @@ class ModuleTypeProfile(PrimaryModel):
         unique=True
     )
     schema = models.JSONField(
+        blank=True,
+        null=True,
         verbose_name=_('schema')
     )
 
@@ -50,12 +52,13 @@ class ModuleTypeProfile(PrimaryModel):
         super().clean()
 
         # Validate the schema definition
-        try:
-            JSONSchemaValidator.check_schema(self.schema)
-        except SchemaError as e:
-            raise ValidationError({
-                'schema': _("Invalid schema: {error}").format(error=e)
-            })
+        if self.schema:
+            try:
+                JSONSchemaValidator.check_schema(self.schema)
+            except SchemaError as e:
+                raise ValidationError({
+                    'schema': _("Invalid schema: {error}").format(error=e)
+                })
 
 
 class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
