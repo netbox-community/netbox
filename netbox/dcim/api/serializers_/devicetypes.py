@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
-from netbox.api.fields import ChoiceField, RelatedObjectCountField
+from netbox.api.fields import AttributesField, ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.choices import *
 from .manufacturers import ManufacturerSerializer
@@ -95,12 +95,17 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
+    attributes = AttributesField(
+        source='attribute_data',
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
-            'weight', 'weight_unit', 'description', 'attribute_data', 'comments', 'tags', 'custom_fields', 'created',
+            'weight', 'weight_unit', 'description', 'attributes', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')
