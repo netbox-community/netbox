@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 05:02+0000\n"
+"POT-Creation-Date: 2025-03-28 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13751,7 +13751,7 @@ msgstr ""
 
 #: netbox/templates/extras/script.html:41
 #: netbox/templates/extras/script.html:45
-#: netbox/templates/extras/script_list.html:87
+#: netbox/templates/extras/script_list.html:90
 msgid "Run Script"
 msgstr ""
 
@@ -13776,20 +13776,20 @@ msgstr ""
 msgid "Never"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:85
+#: netbox/templates/extras/script_list.html:88
 msgid "Run Again"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:133
+#: netbox/templates/extras/script_list.html:136
 #, python-format
 msgid "Could not load scripts from module %(module)s"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:141
+#: netbox/templates/extras/script_list.html:144
 msgid "No Scripts Found"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:144
+#: netbox/templates/extras/script_list.html:147
 #, python-format
 msgid ""
 "Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
@@ -15310,11 +15310,11 @@ msgstr ""
 msgid "URL-friendly unique shorthand"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:101
+#: netbox/utilities/forms/fields/fields.py:104
 msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:124
+#: netbox/utilities/forms/fields/fields.py:125
 msgid "MAC address must be in EUI-48 format"
 msgstr ""
 
