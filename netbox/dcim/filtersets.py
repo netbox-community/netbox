@@ -11,7 +11,7 @@ from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
+    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
     OrganizationalModelFilterSet,
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
@@ -691,7 +691,7 @@ class ModuleTypeProfileFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ModuleTypeFilterSet(NetBoxModelFilterSet):
+class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
     profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile (ID)'),

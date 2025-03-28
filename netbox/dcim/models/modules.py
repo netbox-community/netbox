@@ -128,7 +128,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         """
         Returns a human-friendly representation of the attributes defined for a ModuleType according to its profile.
         """
-        if self.profile is None or not self.profile.schema:
+        if not self.attribute_data or self.profile is None or not self.profile.schema:
             return {}
         attrs = {}
         for name, options in self.profile.schema.get('properties', {}).items():
