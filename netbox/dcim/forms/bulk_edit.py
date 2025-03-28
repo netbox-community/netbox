@@ -641,7 +641,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
             name=_('Chassis')
         ),
     )
-    nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
+    nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'description', 'comments')
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
