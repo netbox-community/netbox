@@ -7,7 +7,7 @@ import utilities.json
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0203_add_rack_outer_height'),
+        ('dcim', '0204_device_role_rebuild'),
         ('extras', '0125_exporttemplate_file_name'),
     ]
 

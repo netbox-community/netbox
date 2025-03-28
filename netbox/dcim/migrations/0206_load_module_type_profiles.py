@@ -34,7 +34,7 @@ def load_initial_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0204_moduletypeprofile'),
+        ('dcim', '0205_moduletypeprofile'),
     ]
 
     operations = [
