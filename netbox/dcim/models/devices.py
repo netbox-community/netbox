@@ -23,7 +23,7 @@ from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
@@ -468,7 +468,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 # Devices
 #
 
-class DeviceRole(OrganizationalModel):
+class DeviceRole(NestedGroupModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -490,6 +490,8 @@ class DeviceRole(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ('parent', 'description')
 
     class Meta:
         ordering = ('name',)

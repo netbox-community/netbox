@@ -431,17 +431,24 @@ class DeviceRoleForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRole.objects.all(),
+        required=False,
+    )
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description',
+            'tags', name=_('Device Role')
         ),
     )
 
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags',
         ]
 
 

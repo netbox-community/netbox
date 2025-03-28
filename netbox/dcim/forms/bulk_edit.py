@@ -620,6 +620,11 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRole.objects.all(),
+        required=False,
+    )
     color = ColorField(
         label=_('Color'),
         required=False
@@ -639,12 +644,13 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = DeviceRole
     fieldsets = (
-        FieldSet('color', 'vm_role', 'config_template', 'description'),
+        FieldSet('parent', 'color', 'vm_role', 'config_template', 'description'),
     )
-    nullable_fields = ('color', 'config_template', 'description')
+    nullable_fields = ('parent', 'color', 'config_template', 'description', 'comments')
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):

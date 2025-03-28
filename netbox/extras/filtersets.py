@@ -8,7 +8,9 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+from utilities.filters import (
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+)
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .filters import TagFilter

@@ -460,6 +460,16 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent Device Role'),
+        error_messages={
+            'invalid_choice': _('Device role not found.'),
+        }
+    )
     config_template = CSVModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
@@ -471,7 +481,9 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags'
+        )
 
 
 class PlatformImportForm(NetBoxModelImportForm):

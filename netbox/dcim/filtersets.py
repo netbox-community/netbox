@@ -922,6 +922,29 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DeviceRole.objects.all(),
+        label=_('Parent device role (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label=_('Parent device role (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRole.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Parent device role (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=DeviceRole.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Parent device role (slug)'),
+    )
 
     class Meta:
         model = DeviceRole
@@ -990,14 +1013,16 @@ class DeviceFilterSet(
         queryset=DeviceType.objects.all(),
         label=_('Device type (ID)'),
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='role_id',
+    role_id = TreeNodeMultipleChoiceFilter(
+        field_name='role',
         queryset=DeviceRole.objects.all(),
+        lookup_expr='in',
         label=_('Role (ID)'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
-        field_name='role__slug',
+    role = TreeNodeMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
+        field_name='role',
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Role (slug)'),
     )

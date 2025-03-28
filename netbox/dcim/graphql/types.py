@@ -338,6 +338,8 @@ class InventoryItemTemplateType(ComponentTemplateType):
     pagination=True
 )
 class DeviceRoleType(OrganizationalObjectType):
+    parent: Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')] | None
+    children: List[Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')]]
     color: str
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 

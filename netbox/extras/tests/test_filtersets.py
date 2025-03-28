@@ -904,7 +904,8 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        for device_role in device_roles:
+            device_role.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),

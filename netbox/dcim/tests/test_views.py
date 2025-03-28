@@ -1694,13 +1694,16 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        roles = (
+        roles = [
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
-        )
-        DeviceRole.objects.bulk_create(roles)
+            DeviceRole(name='Device Role 4', slug='device-role-4'),
+        ]
+        for role in roles:
+            role.save()
 
+        roles.append(DeviceRole.objects.create(name='Device Role 5', slug='device-role-5', parent=roles[3]))
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -1724,6 +1727,7 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             f"{roles[0].pk},Device Role 7,New description7",
             f"{roles[1].pk},Device Role 8,New description8",
             f"{roles[2].pk},Device Role 9,New description9",
+            f"{roles[4].pk},Device Role 10,New description10",
         )
 
         cls.bulk_edit_data = {
@@ -1809,7 +1813,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),

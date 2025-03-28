@@ -1149,7 +1149,9 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
-    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = [
+        '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count'
+    ]
     create_data = [
         {
             'name': 'Device Role 4',
@@ -1174,12 +1176,9 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff'),
-        )
-        DeviceRole.objects.bulk_create(roles)
+        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        DeviceRole.objects.create(name='Device Role 2', slug='device-role-2', color='00ff00')
+        DeviceRole.objects.create(name='Device Role 3', slug='device-role-3', color='0000ff')
 
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
@@ -1252,7 +1251,8 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
