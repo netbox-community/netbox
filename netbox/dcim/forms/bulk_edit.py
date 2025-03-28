@@ -650,7 +650,7 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
     fieldsets = (
         FieldSet('parent', 'color', 'vm_role', 'config_template', 'description'),
     )
-    nullable_fields = ('color', 'config_template', 'description', 'comments')
+    nullable_fields = ('parent', 'color', 'config_template', 'description', 'comments')
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):

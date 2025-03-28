@@ -9,7 +9,7 @@ from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxM
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
@@ -585,16 +585,14 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=DeviceType.objects.all(),
         label=_('Device type'),
     )
-    device_role_id = TreeNodeMultipleChoiceFilter(
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',
-        lookup_expr='in',
         queryset=DeviceRole.objects.all(),
         label=_('Role'),
     )
-    device_role = TreeNodeMultipleChoiceFilter(
-        field_name='roles',
+    device_role = django_filters.ModelMultipleChoiceFilter(
+        field_name='roles__slug',
         queryset=DeviceRole.objects.all(),
-        lookup_expr='in',
         to_field_name='slug',
         label=_('Role (slug)'),
     )

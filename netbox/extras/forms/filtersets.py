@@ -322,7 +322,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('q', 'filter_id', 'tag_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
-        FieldSet('device_type_id', 'platform_id', 'role_id', name=_('Device')),
+        FieldSet('device_type_id', 'platform_id', 'device_role_id', name=_('Device')),
         FieldSet('cluster_type_id', 'cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant'))
     )
@@ -364,7 +364,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Device types')
     )
-    role_id = DynamicModelMultipleChoiceField(
+    device_role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
         label=_('Roles')
