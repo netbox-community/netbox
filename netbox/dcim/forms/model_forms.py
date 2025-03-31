@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import EMPTY_VALUES
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -498,7 +499,8 @@ class ModuleTypeForm(NetBoxModelForm):
         if self.cleaned_data.get('profile'):
             self.instance.attribute_data = {
                 name[5:]: self.cleaned_data[name]  # Remove the attr_ prefix
-                for name in self.attr_fields if self.cleaned_data[name] is not None
+                for name in self.attr_fields
+                if self.cleaned_data.get(name) not in EMPTY_VALUES
             }
 
         return super()._post_clean()

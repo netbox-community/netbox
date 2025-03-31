@@ -87,10 +87,13 @@ class JSONSchemaProperty:
 
         # Choices
         if self.enum:
-            field_kwargs['choices'] = [(v, v) for v in self.enum]
+            choices = [(v, v) for v in self.enum]
+            if not required:
+                choices = [(None, ''), *choices]
+            field_kwargs['choices'] = choices
 
         # String validation
-        elif self.type == PropertyTypeEnum.STRING:
+        if self.type == PropertyTypeEnum.STRING.value:
             if self.minLength is not None:
                 field_kwargs['min_length'] = self.minLength
             if self.maxLength is not None:
@@ -101,16 +104,16 @@ class JSONSchemaProperty:
                 ]
 
         # Integer/number validation
-        elif self.type in (PropertyTypeEnum.INTEGER, PropertyTypeEnum.NUMBER):
+        elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value):
+            field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
             if self.minimum:
                 field_kwargs['min_value'] = self.minimum
             if self.maximum:
-                field_kwargs['min_value'] = self.maximum
+                field_kwargs['max_value'] = self.maximum
             if self.multipleOf:
                 field_kwargs['validators'] = [
                     MultipleOfValidator(multiple=self.multipleOf)
                 ]
-
         return self.field_class(**field_kwargs)
 
     @property

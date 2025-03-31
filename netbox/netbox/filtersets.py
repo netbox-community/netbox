@@ -361,7 +361,7 @@ class AttributeFiltersMixin:
         if data is not None:
             for key, value in data.items():
                 if key.startswith(self.attribute_filter_prefix):
-                    # Attempt to case the value to a native JSON type
+                    # Attempt to cast the value to a native JSON type
                     try:
                         value = json.loads(value)
                     except (ValueError, json.JSONDecodeError):
