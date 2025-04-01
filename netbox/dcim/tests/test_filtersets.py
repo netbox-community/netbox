@@ -1486,6 +1486,16 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ModuleType.objects.all()
     filterset = ModuleTypeFilterSet
+    ignore_fields = ['attribute_data']
+
+    PROFILE_SCHEMA = {
+        "properties": {
+            "string": {"type": "string"},
+            "integer": {"type": "integer"},
+            "number": {"type": "number"},
+            "boolean": {"type": "boolean"},
+        }
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1496,6 +1506,21 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
+        module_type_profiles = (
+            ModuleTypeProfile(
+                name='Module Type Profile 1',
+                schema=cls.PROFILE_SCHEMA
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 2',
+                schema=cls.PROFILE_SCHEMA
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 3',
+                schema=cls.PROFILE_SCHEMA
+            ),
+        )
+        ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
         module_types = (
             ModuleType(
@@ -1505,7 +1530,14 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=10,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar1',
-                airflow=ModuleAirflowChoices.FRONT_TO_REAR
+                airflow=ModuleAirflowChoices.FRONT_TO_REAR,
+                profile=module_type_profiles[0],
+                attribute_data={
+                    'string': 'string1',
+                    'integer': 1,
+                    'number': 1.0,
+                    'boolean': True,
+                }
             ),
             ModuleType(
                 manufacturer=manufacturers[1],
@@ -1514,7 +1546,14 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight=20,
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar2',
-                airflow=ModuleAirflowChoices.REAR_TO_FRONT
+                airflow=ModuleAirflowChoices.REAR_TO_FRONT,
+                profile=module_type_profiles[1],
+                attribute_data={
+                    'string': 'string2',
+                    'integer': 2,
+                    'number': 2.0,
+                    'boolean_': False,
+                }
             ),
             ModuleType(
                 manufacturer=manufacturers[2],
@@ -1522,7 +1561,14 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 part_number='Part Number 3',
                 weight=30,
                 weight_unit=WeightUnitChoices.UNIT_KILOGRAM,
-                description='foobar3'
+                description='foobar3',
+                profile=module_type_profiles[2],
+                attribute_data={
+                    'string': 'string3',
+                    'integer': 3,
+                    'number': 3.0,
+                    'boolean': None,
+                }
             ),
         )
         ModuleType.objects.bulk_create(module_types)
@@ -1640,6 +1686,82 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_airflow(self):
         params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_profile(self):
+        profiles = ModuleTypeProfile.objects.filter(name__startswith="Module Type Profile")[:2]
+        params = {'profile_id': [profiles[0].pk, profiles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'profile': [profiles[0].name, profiles[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_profile_attributes(self):
+        params = {'attr_string': 'string1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'attr_integer': '1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'attr_number': '2.0'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'attr_boolean': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class ModuleTypeProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ModuleTypeProfile.objects.all()
+    filterset = ModuleTypeProfileFilterSet
+    ignore_fields = ['schema']
+
+    SCHEMAS = [
+        {
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "integer"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "boolean"
+                }
+            }
+        },
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        module_type_profiles = (
+            ModuleTypeProfile(
+                name='Module Type Profile 1',
+                description='foobar1',
+                schema=cls.SCHEMAS[0]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 2',
+                description='foobar2 2',
+                schema=cls.SCHEMAS[1]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 3',
+                description='foobar3',
+                schema=cls.SCHEMAS[2]
+            ),
+        )
+        ModuleTypeProfile.objects.bulk_create(module_type_profiles)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Module Type Profile 1', 'Module Type Profile 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):

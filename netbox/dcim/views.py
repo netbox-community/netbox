@@ -1248,6 +1248,62 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Module type profiles
+#
+
+@register_model_view(ModuleTypeProfile, 'list', path='', detail=False)
+class ModuleTypeProfileListView(generic.ObjectListView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(ModuleType, 'profile')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    filterset_form = forms.ModuleTypeProfileFilterForm
+    table = tables.ModuleTypeProfileTable
+
+
+@register_model_view(ModuleTypeProfile)
+class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = ModuleTypeProfile.objects.all()
+
+
+@register_model_view(ModuleTypeProfile, 'add', detail=False)
+@register_model_view(ModuleTypeProfile, 'edit')
+class ModuleTypeProfileEditView(generic.ObjectEditView):
+    queryset = ModuleTypeProfile.objects.all()
+    form = forms.ModuleTypeProfileForm
+
+
+@register_model_view(ModuleTypeProfile, 'delete')
+class ModuleTypeProfileDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleTypeProfile.objects.all()
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_import', detail=False)
+class ModuleTypeProfileBulkImportView(generic.BulkImportView):
+    queryset = ModuleTypeProfile.objects.all()
+    model_form = forms.ModuleTypeProfileImportForm
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_edit', path='edit', detail=False)
+class ModuleTypeProfileBulkEditView(generic.BulkEditView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    table = tables.ModuleTypeProfileTable
+    form = forms.ModuleTypeProfileBulkEditForm
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_delete', path='delete', detail=False)
+class ModuleTypeProfileBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    table = tables.ModuleTypeProfileTable
+
+
+#
 # Module types
 #
 

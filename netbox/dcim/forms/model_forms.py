@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import EMPTY_VALUES
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -18,6 +19,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
+from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm, ModuleCommonForm
@@ -48,6 +50,7 @@ __all__ = (
     'ModuleBayForm',
     'ModuleBayTemplateForm',
     'ModuleTypeForm',
+    'ModuleTypeProfileForm',
     'PlatformForm',
     'PopulateDeviceBayForm',
     'PowerFeedForm',
@@ -404,24 +407,103 @@ class DeviceTypeForm(NetBoxModelForm):
         }
 
 
+class ModuleTypeProfileForm(NetBoxModelForm):
+    schema = JSONField(
+        label=_('Schema'),
+        required=False,
+        help_text=_("Enter a valid JSON schema to define supported attributes.")
+    )
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet('name', 'description', 'schema', 'tags', name=_('Profile')),
+    )
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeForm(NetBoxModelForm):
+    profile = forms.ModelChoiceField(
+        queryset=ModuleTypeProfile.objects.all(),
+        label=_('Profile'),
+        required=False,
+        widget=HTMXSelect()
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
     )
     comments = CommentField()
 
-    fieldsets = (
-        FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-        FieldSet('airflow', 'weight', 'weight_unit', name=_('Chassis'))
-    )
+    @property
+    def fieldsets(self):
+        return [
+            FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
+            FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'))
+        ]
 
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
+            'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
             'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Track profile-specific attribute fields
+        self.attr_fields = []
+
+        # Retrieve assigned ModuleTypeProfile, if any
+        if not (profile_id := get_field_value(self, 'profile')):
+            return
+        if not (profile := ModuleTypeProfile.objects.filter(pk=profile_id).first()):
+            return
+
+        # Extend form with fields for profile attributes
+        for attr, form_field in self._get_attr_form_fields(profile).items():
+            field_name = f'attr_{attr}'
+            self.attr_fields.append(field_name)
+            self.fields[field_name] = form_field
+            if self.instance.attribute_data:
+                self.fields[field_name].initial = self.instance.attribute_data.get(attr)
+
+    @staticmethod
+    def _get_attr_form_fields(profile):
+        """
+        Return a dictionary mapping of attribute names to form fields, suitable for extending
+        the form per the selected ModuleTypeProfile.
+        """
+        if not profile.schema:
+            return {}
+
+        properties = profile.schema.get('properties', {})
+        required_fields = profile.schema.get('required', [])
+
+        attr_fields = {}
+        for name, options in properties.items():
+            prop = JSONSchemaProperty(**options)
+            attr_fields[name] = prop.to_form_field(name, required=name in required_fields)
+
+        return dict(sorted(attr_fields.items()))
+
+    def _post_clean(self):
+
+        # Compile attribute data from the individual form fields
+        if self.cleaned_data.get('profile'):
+            self.instance.attribute_data = {
+                name[5:]: self.cleaned_data[name]  # Remove the attr_ prefix
+                for name in self.attr_fields
+                if self.cleaned_data.get(name) not in EMPTY_VALUES
+            }
+
+        return super()._post_clean()
 
 
 class DeviceRoleForm(NetBoxModelForm):

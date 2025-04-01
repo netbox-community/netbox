@@ -184,6 +184,17 @@ class ModuleBayIndex(SearchIndex):
 
 
 @register_search
+class ModuleTypeProfileIndex(SearchIndex):
+    model = models.ModuleTypeProfile
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('name', 'description')
+
+
+@register_search
 class ModuleTypeIndex(SearchIndex):
     model = models.ModuleType
     fields = (

@@ -11,7 +11,7 @@ from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
+    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
     OrganizationalModelFilterSet,
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
@@ -59,6 +59,7 @@ __all__ = (
     'ModuleBayTemplateFilterSet',
     'ModuleFilterSet',
     'ModuleTypeFilterSet',
+    'ModuleTypeProfileFilterSet',
     'PathEndpointFilterSet',
     'PlatformFilterSet',
     'PowerConnectionFilterSet',
@@ -674,7 +675,33 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
-class ModuleTypeFilterSet(NetBoxModelFilterSet):
+class ModuleTypeProfileFilterSet(NetBoxModelFilterSet):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
+class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
+    profile_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ModuleTypeProfile.objects.all(),
+        label=_('Profile (ID)'),
+    )
+    profile = django_filters.ModelMultipleChoiceFilter(
+        field_name='profile__name',
+        queryset=ModuleTypeProfile.objects.all(),
+        to_field_name='name',
+        label=_('Profile (name)'),
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label=_('Manufacturer (ID)'),

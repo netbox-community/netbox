@@ -1,0 +1,36 @@
+{
+    "name": "Memory",
+    "schema": {
+        "properties": {
+            "class": {
+                "type": "string",
+                "title": "Memory class",
+                "enum": [
+                    "DDR3",
+                    "DDR4",
+                    "DDR5"
+                ],
+                "default": "DDR5"
+            },
+            "size": {
+                "type": "integer",
+                "title": "Size (GB)",
+                "description": "Raw capacity of the module"
+            },
+            "data_rate": {
+                "type": "integer",
+                "title": "Data rate",
+                "description": "Speed in MT/s"
+            },
+            "ecc": {
+                "type": "boolean",
+                "title": "ECC",
+                "description": "Error-correcting code is enabled"
+            }
+        },
+        "required": [
+            "class",
+            "size"
+        ]
+    }
+}

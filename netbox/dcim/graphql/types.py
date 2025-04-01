@@ -61,6 +61,7 @@ __all__ = (
     'ModuleType',
     'ModuleBayType',
     'ModuleBayTemplateType',
+    'ModuleTypeProfileType',
     'ModuleTypeType',
     'PlatformType',
     'PowerFeedType',
@@ -594,12 +595,23 @@ class ModuleBayTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.ModuleTypeProfile,
+    fields='__all__',
+    filters=ModuleTypeProfileFilter,
+    pagination=True
+)
+class ModuleTypeProfileType(NetBoxObjectType):
+    module_types: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.ModuleType,
     fields='__all__',
     filters=ModuleTypeFilter,
     pagination=True
 )
 class ModuleTypeType(NetBoxObjectType):
+    profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
     frontporttemplates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]

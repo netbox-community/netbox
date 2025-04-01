@@ -14,7 +14,9 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import (
+    ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
+)
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from virtualization.models import Cluster
@@ -46,6 +48,7 @@ __all__ = (
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
     'ModuleTypeBulkEditForm',
+    'ModuleTypeProfileBulkEditForm',
     'PlatformBulkEditForm',
     'PowerFeedBulkEditForm',
     'PowerOutletBulkEditForm',
@@ -574,7 +577,31 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')
 
 
+class ModuleTypeProfileBulkEditForm(NetBoxModelBulkEditForm):
+    schema = JSONField(
+        label=_('Schema'),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = ModuleTypeProfile
+    fieldsets = (
+        FieldSet('name', 'description', 'schema', name=_('Profile')),
+    )
+    nullable_fields = ('description', 'comments')
+
+
 class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
+    profile = DynamicModelChoiceField(
+        label=_('Profile'),
+        queryset=ModuleTypeProfile.objects.all(),
+        required=False
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -609,14 +636,14 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ModuleType
     fieldsets = (
-        FieldSet('manufacturer', 'part_number', 'description', name=_('Module Type')),
+        FieldSet('profile', 'manufacturer', 'part_number', 'description', name=_('Module Type')),
         FieldSet(
             'airflow',
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             name=_('Chassis')
         ),
     )
-    nullable_fields = ('part_number', 'weight', 'weight_unit', 'description', 'comments')
+    nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'description', 'comments')
 
 
 class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
