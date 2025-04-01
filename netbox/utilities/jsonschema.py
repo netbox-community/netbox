@@ -4,7 +4,11 @@ from typing import Any
 
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import SchemaError
+from jsonschema.validators import validator_for
 
 from utilities.string import title
 from utilities.validators import MultipleOfValidator
@@ -13,6 +17,7 @@ __all__ = (
     'JSONSchemaProperty',
     'PropertyTypeEnum',
     'StringFormatEnum',
+    'validate_schema',
 )
 
 
@@ -143,3 +148,19 @@ class JSONSchemaProperty:
             return FORM_FIELDS[self.type]
         except KeyError:
             raise ValueError(f"Unknown property type: {self.type}")
+
+
+def validate_schema(schema):
+    """
+    Check that a minimum JSON schema definition is defined.
+    """
+    # Provide some basic sanity checking (not provided by jsonschema)
+    if not schema or type(schema) is not dict:
+        raise ValidationError(_("Invalid JSON schema definition"))
+    if not schema.get('properties'):
+        raise ValidationError(_("JSON schema must define properties"))
+    try:
+        ValidatorClass = validator_for(schema)
+        ValidatorClass.check_schema(schema)
+    except SchemaError as e:
+        raise ValidationError(_("Invalid JSON schema definition: {error}").format(error=e))

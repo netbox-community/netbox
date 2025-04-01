@@ -4,8 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
-from jsonschema.exceptions import SchemaError, ValidationError as JSONValidationError
-from jsonschema.validators import Draft202012Validator as JSONSchemaValidator
+from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
 from dcim.utils import update_interface_bridges
@@ -13,6 +12,7 @@ from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.jsonschema import validate_schema
 from utilities.string import title
 from .device_components import *
 
@@ -52,12 +52,12 @@ class ModuleTypeProfile(PrimaryModel):
         super().clean()
 
         # Validate the schema definition
-        if self.schema:
+        if self.schema is not None:
             try:
-                JSONSchemaValidator.check_schema(self.schema)
-            except SchemaError as e:
+                validate_schema(self.schema)
+            except ValidationError as e:
                 raise ValidationError({
-                    'schema': _("Invalid schema: {error}").format(error=e)
+                    'schema': e.message,
                 })
 
 
