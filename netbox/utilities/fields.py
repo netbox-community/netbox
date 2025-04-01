@@ -1,9 +1,9 @@
 from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.core import exceptions
 from django.db import models
-from django.db.models import ForeignKey, ManyToOneRel
-from django.forms import JSONField
+from django.db.models import ForeignKey, ManyToOneRel, JSONField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -192,11 +192,13 @@ class CounterCacheField(models.BigIntegerField):
 
 
 class JSONModelField(JSONField):
-    def __init__(self, related_model=None, *args, **kwargs):
+    def __init__(self, related_model, *args, **kwargs):
         """
         Extract the related model from the kwargs and set after instantiation
         """
         super().__init__(*args, **kwargs)
+        if related_model is None or isinstance(related_model, models.Model):
+            raise exceptions.FieldError('related_model must be set or be an instance of Model')
         self.related_model = related_model
 
     def from_db_value(self, value, expression, connection):
