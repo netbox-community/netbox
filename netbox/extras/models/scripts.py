@@ -118,6 +118,15 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         return self.python_name
 
     @property
+    def ordered_scripts(self):
+        script_objects = {s.name: s for s in self.scripts.all()}
+        ordered = [
+            script_objects.pop(sc) for sc in self.module_scripts.keys() if sc in script_objects
+        ]
+        ordered.extend(script_objects.items())
+        return ordered
+
+    @property
     def module_scripts(self):
 
         def _get_name(cls):
