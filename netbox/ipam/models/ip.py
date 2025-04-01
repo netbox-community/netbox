@@ -519,6 +519,11 @@ class IPRange(ContactsMixin, PrimaryModel):
         null=True,
         help_text=_('The primary function of this range')
     )
+    mark_reserved = models.BooleanField(
+        verbose_name=_('mark reserved'),
+        default=False,
+        help_text=_("Prevent the creation of IP addresses within this range")
+    )
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
@@ -526,7 +531,7 @@ class IPRange(ContactsMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'vrf', 'tenant', 'status', 'role', 'description',
+        'vrf', 'tenant', 'status', 'role', 'description', 'mark_reserved', 'mark_utilized',
     )
 
     class Meta:

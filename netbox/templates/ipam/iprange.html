@@ -26,6 +26,10 @@
             <td>{{ object.size }}</td>
         </tr>
         <tr>
+            <th scope="row">{% trans "Reserved" %}</th>
+            <td>{% checkmark object.mark_reserved %}</td>
+        </tr>
+        <tr>
             <th scope="row">{% trans "Utilization" %}</th>
             <td>
               {% if object.mark_utilized %}

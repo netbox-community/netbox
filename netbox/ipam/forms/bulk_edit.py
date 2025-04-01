@@ -296,6 +296,11 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
+    mark_reserved = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Treat as reserved')
+    )
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),

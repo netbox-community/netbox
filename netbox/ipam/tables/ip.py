@@ -268,6 +268,10 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
+    mark_reserved = columns.BooleanColumn(
+        verbose_name=_('Marked Reserved'),
+        false_mark=None
+    )
     mark_utilized = columns.BooleanColumn(
         verbose_name=_('Marked Utilized'),
         false_mark=None
@@ -288,7 +292,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'mark_reserved', 'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
