@@ -360,16 +360,20 @@ class AttributeFiltersMixin:
         # Extract JSONField-based filters from the incoming data
         if data is not None:
             for key, value in data.items():
-                if key.startswith(self.attribute_filter_prefix):
+                if field := self._get_field_lookup(key):
                     # Attempt to cast the value to a native JSON type
                     try:
-                        value = json.loads(value)
+                        self.attr_filters[field] = json.loads(value)
                     except (ValueError, json.JSONDecodeError):
                         pass
-                    field = f'{self.attributes_field_name}__{key.split(self.attribute_filter_prefix, 1)[1]}'
-                    self.attr_filters[field] = value
 
         super().__init__(data=data, queryset=queryset, request=request, prefix=prefix)
+
+    def _get_field_lookup(self, key):
+        if not key.startswith(self.attribute_filter_prefix):
+            return
+        lookup = key.split(self.attribute_filter_prefix, 1)[1]  # Strip prefix
+        return f'{self.attributes_field_name}__{lookup}'
 
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset).filter(**self.attr_filters)
