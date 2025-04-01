@@ -136,7 +136,7 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.TagsMixin
 
-::: netbox.models.features.ContactsMixin
+::: tenancy.views.ObjectContactsView
 
 ## Choice Sets
 
