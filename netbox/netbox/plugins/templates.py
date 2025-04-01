@@ -47,6 +47,13 @@ class PluginTemplateExtension:
     # Global methods
     #
 
+    def head(self):
+        """
+        HTML returned by this method will be inserted in the page's `<head>` block. This may be useful e.g. for
+        including additional Javascript or CSS resources.
+        """
+        raise NotImplementedError
+
     def navbar(self):
         """
         Content that will be rendered inside the top navigation menu. Content should be returned as an HTML
