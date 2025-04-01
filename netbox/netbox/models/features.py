@@ -353,7 +353,7 @@ class ImageAttachmentsMixin(models.Model):
 
 class ContactsMixin(models.Model):
     """
-    Enables the assignments of Contacts (via ContactAssignment).
+    Enables the assignment of Contacts to a model (via ContactAssignment).
     """
     contacts = GenericRelation(
         to='tenancy.ContactAssignment',
@@ -368,7 +368,8 @@ class ContactsMixin(models.Model):
         """
         Return a `QuerySet` matching all contacts assigned to this object.
 
-        :param inherited: If `True`, inherited contacts from parent objects are included.
+        Args:
+            inherited: If `True`, inherited contacts from parent objects are included.
         """
         from tenancy.models import ContactAssignment
         from . import NestedGroupModel
