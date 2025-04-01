@@ -14,7 +14,9 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import (
+    ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
+)
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from virtualization.models import Cluster
@@ -576,7 +578,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ModuleTypeProfileBulkEditForm(NetBoxModelBulkEditForm):
-    schema = forms.JSONField(
+    schema = JSONField(
         label=_('Schema'),
         required=False
     )
