@@ -365,7 +365,7 @@ class AttributeFiltersMixin:
                     try:
                         self.attr_filters[field] = json.loads(value)
                     except (ValueError, json.JSONDecodeError):
-                        pass
+                        self.attr_filters[field] = value
 
         super().__init__(data=data, queryset=queryset, request=request, prefix=prefix)
 
