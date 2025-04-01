@@ -661,7 +661,7 @@ def register_models(*models):
         # Register applicable feature views for the model
         if issubclass(model, ContactsMixin):
             register_model_view(model, 'contacts', kwargs={'model': model})(
-                'tenancy.views.ObjectContactsView'
+                'netbox.views.generic.ObjectContactsView'
             )
         if issubclass(model, JournalingMixin):
             register_model_view(model, 'journal', kwargs={'model': model})(
