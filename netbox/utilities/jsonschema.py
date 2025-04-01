@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -74,6 +74,9 @@ class JSONSchemaProperty:
     maximum: int | float | None = None
     multipleOf: int | float | None = None
 
+    # Arrays
+    items: dict | None = field(default_factory=dict)
+
     def to_form_field(self, name, required=False):
         """
         Instantiate and return a Django form field suitable for editing the property's value.
@@ -91,6 +94,11 @@ class JSONSchemaProperty:
             if not required:
                 choices = [(None, ''), *choices]
             field_kwargs['choices'] = choices
+
+        # Arrays
+        if self.type == PropertyTypeEnum.ARRAY.value:
+            items_type = self.items.get('type', PropertyTypeEnum.STRING.value)
+            field_kwargs['base_field'] = FORM_FIELDS[items_type]()
 
         # String validation
         if self.type == PropertyTypeEnum.STRING.value:
@@ -114,6 +122,7 @@ class JSONSchemaProperty:
                 field_kwargs['validators'] = [
                     MultipleOfValidator(multiple=self.multipleOf)
                 ]
+
         return self.field_class(**field_kwargs)
 
     @property
