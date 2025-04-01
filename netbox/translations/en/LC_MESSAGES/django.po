@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 05:01+0000\n"
+"POT-Creation-Date: 2025-04-01 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11779,19 +11779,19 @@ msgstr ""
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:708
-#: netbox/netbox/views/generic/bulk_views.py:909
-#: netbox/netbox/views/generic/bulk_views.py:957
+#: netbox/netbox/views/generic/bulk_views.py:712
+#: netbox/netbox/views/generic/bulk_views.py:913
+#: netbox/netbox/views/generic/bulk_views.py:961
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:787
+#: netbox/netbox/views/generic/bulk_views.py:791
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:887
+#: netbox/netbox/views/generic/bulk_views.py:891
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
@@ -15359,37 +15359,37 @@ msgid ""
 "({begin})."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:232
+#: netbox/utilities/forms/utils.py:234
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{field}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:238
+#: netbox/utilities/forms/utils.py:240
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{header}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:247
+#: netbox/utilities/forms/utils.py:249
 #, python-brace-format
 msgid "Row {row}: Expected {count_expected} columns but found {count_found}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:270
+#: netbox/utilities/forms/utils.py:272
 #, python-brace-format
 msgid "Unexpected column header \"{field}\" found."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:272
+#: netbox/utilities/forms/utils.py:274
 #, python-brace-format
 msgid "Column \"{field}\" is not a related object; cannot use dots"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:276
+#: netbox/utilities/forms/utils.py:278
 #, python-brace-format
 msgid "Invalid related object attribute for column \"{field}\": {to_field}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:284
+#: netbox/utilities/forms/utils.py:286
 #, python-brace-format
 msgid "Required column header \"{header}\" not found."
 msgstr ""
