@@ -117,6 +117,8 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.CloningMixin
 
+::: netbox.models.features.ContactsMixin
+
 ::: netbox.models.features.CustomLinksMixin
 
 ::: netbox.models.features.CustomFieldsMixin

@@ -16,7 +16,6 @@ from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -146,11 +145,6 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
-
-
-@register_model_view(ClusterGroup, 'contacts')
-class ClusterGroupContactsView(ObjectContactsView):
-    queryset = ClusterGroup.objects.all()
 
 
 #
@@ -344,11 +338,6 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
         })
 
 
-@register_model_view(Cluster, 'contacts')
-class ClusterContactsView(ObjectContactsView):
-    queryset = Cluster.objects.all()
-
-
 #
 # Virtual machines
 #
@@ -507,11 +496,6 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
-
-
-@register_model_view(VirtualMachine, 'contacts')
-class VirtualMachineContactsView(ObjectContactsView):
-    queryset = VirtualMachine.objects.all()
 
 
 #
