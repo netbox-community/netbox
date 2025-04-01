@@ -128,14 +128,15 @@ class RackElevationDetailRenderChoices(ChoiceSet):
 
 
 class RackAirflowChoices(ChoiceSet):
+    key = 'Rack.airflow'
 
     FRONT_TO_REAR = 'front-to-rear'
     REAR_TO_FRONT = 'rear-to-front'
 
-    CHOICES = (
+    CHOICES = [
         (FRONT_TO_REAR, _('Front to rear')),
         (REAR_TO_FRONT, _('Rear to front')),
-    )
+    ]
 
 
 #
@@ -191,6 +192,7 @@ class DeviceStatusChoices(ChoiceSet):
 
 
 class DeviceAirflowChoices(ChoiceSet):
+    key = 'Device.airflow'
 
     AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
     AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
@@ -203,7 +205,7 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_PASSIVE = 'passive'
     AIRFLOW_MIXED = 'mixed'
 
-    CHOICES = (
+    CHOICES = [
         (AIRFLOW_FRONT_TO_REAR, _('Front to rear')),
         (AIRFLOW_REAR_TO_FRONT, _('Rear to front')),
         (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
@@ -214,7 +216,7 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_TOP_TO_BOTTOM, _('Top to bottom')),
         (AIRFLOW_PASSIVE, _('Passive')),
         (AIRFLOW_MIXED, _('Mixed')),
-    )
+    ]
 
 
 #
@@ -242,6 +244,7 @@ class ModuleStatusChoices(ChoiceSet):
 
 
 class ModuleAirflowChoices(ChoiceSet):
+    key = 'Module.airflow'
 
     FRONT_TO_REAR = 'front-to-rear'
     REAR_TO_FRONT = 'rear-to-front'
@@ -250,14 +253,14 @@ class ModuleAirflowChoices(ChoiceSet):
     SIDE_TO_REAR = 'side-to-rear'
     PASSIVE = 'passive'
 
-    CHOICES = (
+    CHOICES = [
         (FRONT_TO_REAR, _('Front to rear')),
         (REAR_TO_FRONT, _('Rear to front')),
         (LEFT_TO_RIGHT, _('Left to right')),
         (RIGHT_TO_LEFT, _('Right to left')),
         (SIDE_TO_REAR, _('Side to rear')),
         (PASSIVE, _('Passive')),
-    )
+    ]
 
 
 #
