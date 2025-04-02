@@ -266,7 +266,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_reserved', 'mark_utilized', name=_('Attributes')),
+        FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     family = forms.ChoiceField(
@@ -291,9 +291,9 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         null_option='None',
         label=_('Role')
     )
-    mark_reserved = forms.NullBooleanField(
+    mark_populated = forms.NullBooleanField(
         required=False,
-        label=_('Treat as reserved'),
+        label=_('Treat as populated'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

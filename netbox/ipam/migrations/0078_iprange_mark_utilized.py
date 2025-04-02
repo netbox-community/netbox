@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='iprange',
-            name='mark_reserved',
+            name='mark_populated',
             field=models.BooleanField(default=False),
         ),
     ]

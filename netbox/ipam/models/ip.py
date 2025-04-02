@@ -407,14 +407,14 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         Return all available IPs within this prefix as an IPSet.
         """
-        # TODO: Add mark_reserved
+        # TODO: Add mark_populated
 
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([
             ip.address.ip for ip in self.get_child_ips()
         ])
         child_ranges = netaddr.IPSet([
-            iprange.range for iprange in self.get_child_ranges().filter(mark_reserved=True)
+            iprange.range for iprange in self.get_child_ranges().filter(mark_populated=True)
         ])
         available_ips = prefix - child_ips - child_ranges
 
@@ -523,19 +523,19 @@ class IPRange(ContactsMixin, PrimaryModel):
         null=True,
         help_text=_('The primary function of this range')
     )
-    mark_reserved = models.BooleanField(
-        verbose_name=_('mark reserved'),
+    mark_populated = models.BooleanField(
+        verbose_name=_('mark populated'),
         default=False,
         help_text=_("Prevent the creation of IP addresses within this range")
     )
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as fully utilized")
+        help_text=_("Report space as 100% utilized")
     )
 
     clone_fields = (
-        'vrf', 'tenant', 'status', 'role', 'description', 'mark_reserved', 'mark_utilized',
+        'vrf', 'tenant', 'status', 'role', 'description', 'mark_populated', 'mark_utilized',
     )
 
     class Meta:
@@ -672,7 +672,7 @@ class IPRange(ContactsMixin, PrimaryModel):
         """
         Return all available IPs within this range as an IPSet.
         """
-        if self.mark_reserved:
+        if self.mark_populated:
             return netaddr.IPSet()
 
         range = netaddr.IPRange(self.start_address.ip, self.end_address.ip)

@@ -257,7 +257,7 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_reserved', 'mark_utilized', 'description',
+            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized', 'description',
             'tags', name=_('IP Range')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
@@ -266,7 +266,7 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_reserved',
+            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
             'mark_utilized', 'description', 'comments', 'tags',
         ]
 
