@@ -88,15 +88,11 @@ def annotate_ip_space(prefix):
             first_ip=f'{first_ip_in_prefix}/{prefix.mask_length}'
         ))
 
-    # Iterate through existing IPs and annotate free ranges
+    # Add IP ranges & addresses, annotating available space in between records
     for record in records:
         if prev_ip:
-            # We've already listed a range which covers this IP
-            if record[0] < prev_ip:
-                continue
-
             # Annotate available space
-            if (diff := int(record[0] - prev_ip)) > 1:
+            if (diff := int(record[0]) - int(prev_ip)) > 1:
                 first_skipped = f'{prev_ip + 1}/{prefix.mask_length}'
                 output.append(AvailableIPSpace(
                     size=diff - 1,
@@ -110,7 +106,6 @@ def annotate_ip_space(prefix):
             prev_ip = record[1].end_address.ip
         else:
             prev_ip = record[0]
-        print(f'prev_ip: {prev_ip}')
 
     # Include any remaining available IPs
     if prev_ip < last_ip_in_prefix:
