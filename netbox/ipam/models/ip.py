@@ -383,14 +383,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
-    def get_child_ranges(self):
+    def get_child_ranges(self, **kwargs):
         """
         Return all IPRanges within this Prefix and VRF.
         """
         return IPRange.objects.filter(
             vrf=self.vrf,
             start_address__net_host_contained=str(self.prefix),
-            end_address__net_host_contained=str(self.prefix)
+            end_address__net_host_contained=str(self.prefix),
+            **kwargs
         )
 
     def get_child_ips(self):
