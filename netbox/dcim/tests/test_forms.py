@@ -148,7 +148,6 @@ class FrontPortTestCase(TestCase):
             'type': PortTypeChoices.TYPE_8P8C,
             'rear_port': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
         }
-        print(front_port_data)
         form = FrontPortCreateForm(front_port_data)
 
         self.assertTrue(form.is_valid())
