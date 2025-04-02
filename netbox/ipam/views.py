@@ -619,7 +619,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
-    table = tables.IPAddressTable
+    table = tables.AnnotatedIPAddressTable
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     template_name = 'ipam/prefix/ip_addresses.html'

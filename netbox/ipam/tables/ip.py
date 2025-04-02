@@ -10,6 +10,7 @@ from .template_code import *
 
 __all__ = (
     'AggregateTable',
+    'AnnotatedIPAddressTable',
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
@@ -308,8 +309,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
-    address = tables.TemplateColumn(
-        template_code=IPADDRESS_LINK,
+    address = tables.Column(
+        linkify=True,
         verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
@@ -372,6 +373,16 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }
+
+
+class AnnotatedIPAddressTable(IPAddressTable):
+    address = tables.TemplateColumn(
+        template_code=IPADDRESS_LINK,
+        verbose_name=_('IP Address')
+    )
+
+    class Meta(IPAddressTable.Meta):
+        pass
 
 
 class IPAddressAssignTable(NetBoxTable):
