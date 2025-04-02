@@ -408,8 +408,6 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         Return all available IPs within this prefix as an IPSet.
         """
-        # TODO: Add mark_populated
-
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([
             ip.address.ip for ip in self.get_child_ips()
@@ -888,6 +886,20 @@ class IPAddress(ContactsMixin, PrimaryModel):
                             ipaddress=duplicate_ips.first(),
                         )
                     })
+
+            # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
+            parent_range = IPRange.objects.filter(
+                start_address__lte=self.address,
+                end_address__gte=self.address,
+                vrf=self.vrf,
+                mark_populated=True
+            ).first()
+            if parent_range:
+                raise ValidationError({
+                    'address': _(
+                        "Cannot create IP address {ip} inside range {range}."
+                    ).format(ip=self.address, range=parent_range)
+                })
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)

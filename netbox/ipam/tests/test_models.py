@@ -582,6 +582,27 @@ class TestIPAddress(TestCase):
         IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
         IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
 
+    #
+    # Range validation
+    #
+
+    def test_create_ip_in_unpopulated_range(self):
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.100/24')
+        )
+        ip = IPAddress(address=IPNetwork('192.0.2.10/24'))
+        ip.full_clean()
+
+    def test_create_ip_in_populated_range(self):
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.100/24'),
+            mark_populated=True
+        )
+        ip = IPAddress(address=IPNetwork('192.0.2.10/24'))
+        self.assertRaises(ValidationError, ip.full_clean)
+
 
 class TestVLANGroup(TestCase):
 
