@@ -58,9 +58,6 @@ class ManagedFile(SyncedDataMixin, models.Model):
                 name='%(app_label)s_%(class)s_unique_root_path'
             ),
         )
-        indexes = [
-            models.Index(fields=('file_root', 'file_path'), name='core_managedfile_root_path'),
-        ]
         verbose_name = _('managed file')
         verbose_name_plural = _('managed files')
 

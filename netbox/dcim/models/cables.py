@@ -299,9 +299,6 @@ class CableTermination(ChangeLoggedModel):
 
     class Meta:
         ordering = ('cable', 'cable_end', 'pk')
-        indexes = (
-            models.Index(fields=('termination_type', 'termination_id')),
-        )
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
