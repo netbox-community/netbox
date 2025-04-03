@@ -310,9 +310,6 @@ class DataFile(models.Model):
                 name='%(app_label)s_%(class)s_unique_source_path'
             ),
         )
-        indexes = [
-            models.Index(fields=('source', 'path'), name='core_datafile_source_path'),
-        ]
         verbose_name = _('data file')
         verbose_name_plural = _('data files')
 
@@ -386,9 +383,6 @@ class AutoSyncRecord(models.Model):
                 fields=('object_type', 'object_id'),
                 name='%(app_label)s_%(class)s_object'
             ),
-        )
-        indexes = (
-            models.Index(fields=('object_type', 'object_id')),
         )
         verbose_name = _('auto sync record')
         verbose_name_plural = _('auto sync records')
