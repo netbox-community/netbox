@@ -45,7 +45,6 @@ class VLANGroup(OrganizationalModel):
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.CASCADE,
-        limit_choices_to=Q(model__in=VLANGROUP_SCOPE_TYPES),
         blank=True,
         null=True
     )

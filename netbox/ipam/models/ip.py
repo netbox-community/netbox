@@ -742,7 +742,6 @@ class IPAddress(ContactsMixin, PrimaryModel):
     )
     assigned_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,
