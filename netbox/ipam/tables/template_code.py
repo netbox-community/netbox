@@ -26,14 +26,12 @@ PREFIX_LINK_WITH_DEPTH = """
 """ + PREFIX_LINK
 
 IPADDRESS_LINK = """
-{% if record.address %}
-    <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk }}">{{ record.address }}</a>
-{% elif record.start_address %}
-    <a href="{{ record.get_absolute_url }}" id="range_{{ record.pk }}">{{ record }}</a>
+{% if record.address or record.start_address %}
+    <a href="{{ record.get_absolute_url }}">{{ record }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{% if record.size <= 65536 %}{{ record.size }}{% else %}Many{% endif %} IP{{ record.size|pluralize }} available</a>
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{{ record.title }}</a>
 {% else %}
-    {% if record.size <= 65536 %}{{ record.size }}{% else %}Many{% endif %} IP{{ record.size|pluralize }} available
+    {{ record.title }}
 {% endif %}
 """
 

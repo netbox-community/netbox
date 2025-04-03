@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import netaddr
 
+from django.utils.translation import gettext_lazy as _
+
 from .constants import *
 from .models import Prefix, VLAN
 
@@ -16,8 +18,19 @@ __all__ = (
 
 @dataclass
 class AvailableIPSpace:
+    """
+    A representation of available IP space between two IP addresses/ranges.
+    """
     size: int
     first_ip: str
+
+    @property
+    def title(self):
+        if self.size == 1:
+            return _('1 IP available')
+        if self.size <= 65536:
+            return _('{count} IPs available').format(count=self.size)
+        return _('Many IPs available')
 
 
 def add_requested_prefixes(parent, prefix_list, show_available=True, show_assigned=True):
