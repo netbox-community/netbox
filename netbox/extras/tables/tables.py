@@ -287,7 +287,7 @@ class TableConfigTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    object_type = columns.ContentTypesColumn(
+    object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
     table = tables.Column(

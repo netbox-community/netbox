@@ -310,7 +310,11 @@ class TableConfigForm(forms.ModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'slug', 'object_type', 'description', 'weight', 'enabled', 'shared', name=_('Table Config')),
+        FieldSet(
+            'name', 'slug', 'object_type', 'table', 'description', 'weight', 'enabled', 'shared',
+            name=_('Table Config')
+        ),
+        FieldSet('columns', 'ordering', name=_('Configuration')),
     )
 
     class Meta:

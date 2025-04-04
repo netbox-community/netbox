@@ -571,12 +571,12 @@ class TableConfig(ChangeLoggedModel):
         default=True
     )
     columns = ArrayField(
-        ArrayField(base_field=models.CharField(max_length=100)),
+        base_field=models.CharField(max_length=100),
     )
     ordering = ArrayField(
-        ArrayField(base_field=models.CharField(max_length=100)),
+        base_field=models.CharField(max_length=100),
         blank=True,
-        null=True
+        null=True,
     )
 
     class Meta:
