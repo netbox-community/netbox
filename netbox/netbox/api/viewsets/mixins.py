@@ -45,7 +45,7 @@ class ExportTemplatesMixin:
             if et is None:
                 raise Http404
             queryset = self.filter_queryset(self.get_queryset())
-            return et.render_to_response(queryset)
+            return et.render_to_response(queryset=queryset)
 
         return super().list(request, *args, **kwargs)
 

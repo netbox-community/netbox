@@ -616,7 +616,7 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
 class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
-    ignore_fields = ('template_code', 'data_path')
+    ignore_fields = ('template_code', 'environment_params', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
