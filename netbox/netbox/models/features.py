@@ -20,7 +20,6 @@ from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
-from utilities.views import register_model_view
 
 __all__ = (
     'BookmarksMixin',
@@ -640,6 +639,8 @@ def register_models(*models):
 
     register_model() should be called for each relevant model under the ready() of an app's AppConfig class.
     """
+    from utilities.views import register_model_view
+
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
