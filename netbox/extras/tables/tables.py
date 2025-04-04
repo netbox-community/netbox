@@ -550,12 +550,17 @@ class ConfigTemplateTable(NetBoxTable):
         url_params={'config_template_id': 'pk'},
         verbose_name=_('Virtual Machines')
     )
+    as_attachment = columns.BooleanColumn(
+        verbose_name=_('As Attachment'),
+        false_mark=None
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
             'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'role_count',
-            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags',
+            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags', 'as_attachment',
+            'mime_type', 'file_name', 'file_extension',
         )
         default_columns = (
             'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',

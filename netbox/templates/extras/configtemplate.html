@@ -18,6 +18,22 @@
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "MIME Type" %}</th>
+            <td>{{ object.mime_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Name" %}</th>
+            <td>{{ object.file_name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Extension" %}</th>
+            <td>{{ object.file_extension|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Attachment" %}</th>
+            <td>{% checkmark object.as_attachment %}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Data Source" %}</th>
             <td>
               {% if object.data_source %}

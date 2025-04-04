@@ -48,10 +48,10 @@ class DataFileLoader(BaseLoader):
 # Utility functions
 #
 
-def render_jinja2(template_code, context):
+def render_jinja2(template_code, context, environment_params={}):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
     """
-    environment = SandboxedEnvironment()
+    environment = SandboxedEnvironment(**environment_params)
     environment.filters.update(get_config().JINJA2_FILTERS)
     return environment.from_string(source=template_code).render(**context)

@@ -22,6 +22,17 @@ def filename_from_model(model: models.Model) -> str:
     return f'netbox_{base}'
 
 
+def filename_from_object(context: dict) -> str:
+    """Standardises how we generate filenames from model class for exports"""
+    if 'device' in context:
+        base = f"{context['device'].name or 'config'}"
+    elif 'virtualmachine' in context:
+        base = f"{context['virtualmachine'].name or 'config'}"
+    else:
+        base = 'config'
+    return base
+
+
 def is_taggable(obj):
     """
     Return True if the instance can have Tags assigned to it; False otherwise.
