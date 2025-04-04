@@ -478,7 +478,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = IPRange
-        fields = ('id', 'mark_utilized', 'size', 'description')
+        fields = ('id', 'mark_populated', 'mark_utilized', 'size', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

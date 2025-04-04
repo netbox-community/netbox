@@ -26,11 +26,18 @@
             <td>{{ object.size }}</td>
         </tr>
         <tr>
+            <th scope="row">{% trans "Marked Populated" %}</th>
+            <td>{% checkmark object.mark_populated %}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Marked Utilized" %}</th>
+            <td>{% checkmark object.mark_utilized %}</td>
+        </tr>
+        <tr>
             <th scope="row">{% trans "Utilization" %}</th>
             <td>
               {% if object.mark_utilized %}
                 {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                <small>({% trans "Marked fully utilized" %})</small>
               {% else %}
                 {% utilization_graph object.utilization %}
               {% endif %}

@@ -21,7 +21,7 @@ from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
-from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
+from .utils import add_requested_prefixes, add_available_vlans, annotate_ip_space
 
 
 #
@@ -619,7 +619,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
-    table = tables.IPAddressTable
+    table = tables.AnnotatedIPAddressTable
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     template_name = 'ipam/prefix/ip_addresses.html'
@@ -635,7 +635,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         if not request.GET.get('q') and not get_table_ordering(request, self.table):
-            return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
+            return annotate_ip_space(parent)
         return queryset
 
     def get_extra_context(self, request, instance):

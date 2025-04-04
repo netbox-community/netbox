@@ -296,6 +296,11 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
+    mark_populated = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Treat as populated')
+    )
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),

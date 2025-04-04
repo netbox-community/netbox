@@ -211,16 +211,25 @@ class TestPrefix(TestCase):
             IPAddress(address=IPNetwork('10.0.0.5/26')),
             IPAddress(address=IPNetwork('10.0.0.7/26')),
         ))
+        # Range is not marked as populated, so it doesn't count against available IP space
         IPRange.objects.create(
             start_address=IPNetwork('10.0.0.9/26'),
-            end_address=IPNetwork('10.0.0.12/26')
+            end_address=IPNetwork('10.0.0.10/26')
+        )
+        # Populated range reduces available IP space
+        IPRange.objects.create(
+            start_address=IPNetwork('10.0.0.12/26'),
+            end_address=IPNetwork('10.0.0.13/26'),
+            mark_populated=True
         )
         missing_ips = IPSet([
             '10.0.0.2/32',
             '10.0.0.4/32',
             '10.0.0.6/32',
             '10.0.0.8/32',
-            '10.0.0.13/32',
+            '10.0.0.9/32',
+            '10.0.0.10/32',
+            '10.0.0.11/32',
             '10.0.0.14/32',
         ])
         available_ips = parent_prefix.get_available_ips()
@@ -286,8 +295,12 @@ class TestPrefix(TestCase):
         ])
         self.assertEqual(prefix.get_utilization(), 32 / 254 * 100)  # ~12.5% utilization
 
-        # Create a child range with 32 additional IPs
-        IPRange.objects.create(start_address=IPNetwork('10.0.0.33/24'), end_address=IPNetwork('10.0.0.64/24'))
+        # Create a utilized child range with 32 additional IPs
+        IPRange.objects.create(
+            start_address=IPNetwork('10.0.0.33/24'),
+            end_address=IPNetwork('10.0.0.64/24'),
+            mark_utilized=True
+        )
         self.assertEqual(prefix.get_utilization(), 64 / 254 * 100)  # ~25% utilization
 
     #
@@ -568,6 +581,27 @@ class TestIPAddress(TestCase):
     def test_duplicate_nonunique_role(self):
         IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
         IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), role=IPAddressRoleChoices.ROLE_VIP)
+
+    #
+    # Range validation
+    #
+
+    def test_create_ip_in_unpopulated_range(self):
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.100/24')
+        )
+        ip = IPAddress(address=IPNetwork('192.0.2.10/24'))
+        ip.full_clean()
+
+    def test_create_ip_in_populated_range(self):
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.1/24'),
+            end_address=IPNetwork('192.0.2.100/24'),
+            mark_populated=True
+        )
+        ip = IPAddress(address=IPNetwork('192.0.2.10/24'))
+        self.assertRaises(ValidationError, ip.full_clean)
 
 
 class TestVLANGroup(TestCase):
