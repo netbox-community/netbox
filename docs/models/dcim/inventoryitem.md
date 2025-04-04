@@ -1,5 +1,8 @@
 # Inventory Items
 
+!!! warning "Deprecation Warning"
+    Beginning in NetBox v4.3, the use of inventory items has been deprecated. They are planned for removal in a future NetBox release. Users are strongly encouraged to begin using [modules](./module.md) and [module types](./moduletype.md) in place of inventory items. Modules provide enhanced functionality and can be configured with user-defined attributes.
+
 Inventory items represent hardware components installed within a device, such as a power supply or CPU or line card. They are intended to be used primarily for inventory purposes.
 
 Inventory items are hierarchical in nature, such that any individual item may be designated as the parent for other items. For example, an inventory item might be created to represent a line card which houses several SFP optics, each of which exists as a child item within the device. An inventory item may also be associated with a specific component within the same device. For example, you may wish to associate a transceiver with an interface.
