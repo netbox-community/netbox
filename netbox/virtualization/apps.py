@@ -1,7 +1,5 @@
 from django.apps import AppConfig
 
-from netbox import denormalized
-
 
 class VirtualizationConfig(AppConfig):
     name = 'virtualization'
@@ -14,11 +12,6 @@ class VirtualizationConfig(AppConfig):
 
         # Register models
         register_models(*self.get_models())
-
-        # Register denormalized fields
-        denormalized.register(VirtualMachine, 'cluster', {
-            'site': '_site',
-        })
 
         # Register counters
         connect_counters(VirtualMachine)
