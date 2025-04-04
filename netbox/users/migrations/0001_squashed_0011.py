@@ -132,20 +132,6 @@ class Migration(migrations.Migration):
                 (
                     'object_types',
                     models.ManyToManyField(
-                        limit_choices_to=models.Q(
-                            models.Q(
-                                models.Q(
-                                    (
-                                        'app_label__in',
-                                        ['account', 'admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users'],
-                                    ),
-                                    _negated=True,
-                                ),
-                                models.Q(('app_label', 'auth'), ('model__in', ['group', 'user'])),
-                                models.Q(('app_label', 'users'), ('model__in', ['objectpermission', 'token'])),
-                                _connector='OR',
-                            )
-                        ),
                         related_name='object_permissions',
                         to='contenttypes.ContentType',
                     ),

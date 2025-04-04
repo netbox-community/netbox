@@ -259,7 +259,6 @@ class CableTermination(ChangeLoggedModel):
     )
     termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=CABLE_TERMINATION_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )

@@ -3,7 +3,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from dcim.constants import LOCATION_SCOPE_TYPES
 
 __all__ = (
     'CachedScopeMixin',
@@ -44,7 +43,6 @@ class CachedScopeMixin(models.Model):
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        limit_choices_to=models.Q(model__in=LOCATION_SCOPE_TYPES),
         related_name='+',
         blank=True,
         null=True

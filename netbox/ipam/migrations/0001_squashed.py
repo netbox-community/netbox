@@ -195,12 +195,6 @@ class Migration(migrations.Migration):
                     'scope_type',
                     models.ForeignKey(
                         blank=True,
-                        limit_choices_to=models.Q(
-                            (
-                                'model__in',
-                                ('region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster'),
-                            )
-                        ),
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         to='contenttypes.contenttype',

@@ -8,7 +8,6 @@ from core.models import ObjectType
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
-from vpn.constants import L2VPN_ASSIGNMENT_MODELS
 
 __all__ = (
     'L2VPN',
@@ -93,7 +92,6 @@ class L2VPNTermination(NetBoxModel):
     )
     assigned_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=L2VPN_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )

@@ -123,26 +123,18 @@ class WirelessLAN(WirelessAuthenticationBase, CachedScopeMixin, PrimaryModel):
         return WirelessLANStatusChoices.colors.get(self.status)
 
 
-def get_wireless_interface_types():
-    # Wrap choices in a callable to avoid generating dummy migrations
-    # when the choices are updated.
-    return {'type__in': WIRELESS_IFACE_TYPES}
-
-
 class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
     """
     A point-to-point connection between two wireless Interfaces.
     """
     interface_a = models.ForeignKey(
         to='dcim.Interface',
-        limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
         verbose_name=_('interface A'),
     )
     interface_b = models.ForeignKey(
         to='dcim.Interface',
-        limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
         verbose_name=_('interface B'),
