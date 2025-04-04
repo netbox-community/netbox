@@ -109,6 +109,16 @@ def get_local_plugins(plugins=None):
         else:
             plugins[k] = v
 
+    # Update plugin table config for hidden and disabled plugins
+    for k, v in plugins.items():
+        v.hidden = False
+        v.disabled = False
+        if k in settings.PLUGINS_TABLE_CONFIG:
+            if 'hidden' in settings.PLUGINS_TABLE_CONFIG[k]:
+                v.hidden = settings.PLUGINS_TABLE_CONFIG[k]['hidden']
+            if 'disabled' in settings.PLUGINS_TABLE_CONFIG[k]:
+                v.disabled = settings.PLUGINS_TABLE_CONFIG[k]['disabled']
+
     return plugins
 
 

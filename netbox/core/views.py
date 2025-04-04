@@ -613,6 +613,8 @@ class PluginListView(BasePluginView):
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
 
+        plugins = [plugin for plugin in plugins if not plugin.hidden]
+
         table = CatalogPluginTable(plugins, user=request.user)
         table.configure(request)
 
