@@ -19,6 +19,9 @@ urlpatterns = [
     path('export-templates/', include(get_model_urls('extras', 'exporttemplate', detail=False))),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
+    path('table-configs/', include(get_model_urls('extras', 'tableconfig', detail=False))),
+    path('table-configs/<int:pk>/', include(get_model_urls('extras', 'tableconfig'))),
+
     path('saved-filters/', include(get_model_urls('extras', 'savedfilter', detail=False))),
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
 

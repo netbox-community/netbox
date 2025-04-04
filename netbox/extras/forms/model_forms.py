@@ -37,6 +37,7 @@ __all__ = (
     'NotificationGroupForm',
     'SavedFilterForm',
     'SubscriptionForm',
+    'TableConfigForm',
     'TagForm',
     'WebhookForm',
 )
@@ -299,6 +300,22 @@ class SavedFilterForm(forms.ModelForm):
                 initial['parameters'] = json.loads(initial['parameters'])
 
         super().__init__(*args, initial=initial, **kwargs)
+
+
+class TableConfigForm(forms.ModelForm):
+    slug = SlugField()
+    object_type = ContentTypeChoiceField(
+        label=_('Object type'),
+        queryset=ObjectType.objects.all()
+    )
+
+    fieldsets = (
+        FieldSet('name', 'slug', 'object_type', 'description', 'weight', 'enabled', 'shared', name=_('Table Config')),
+    )
+
+    class Meta:
+        model = TableConfig
+        exclude = ('user',)
 
 
 class BookmarkForm(forms.ModelForm):

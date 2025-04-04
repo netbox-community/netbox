@@ -38,6 +38,7 @@ __all__ = (
     'NotificationType',
     'SavedFilterType',
     'SubscriptionType',
+    'TableConfigType',
     'TagType',
     'WebhookType',
 )
@@ -183,6 +184,15 @@ class SavedFilterType(ObjectType):
     pagination=True
 )
 class SubscriptionType(ObjectType):
+    user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
+
+
+@strawberry_django.type(
+    models.TableConfig,
+    filters=TableConfigFilter,
+    pagination=True
+)
+class TableConfigType(ObjectType):
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 

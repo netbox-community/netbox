@@ -36,6 +36,7 @@ __all__ = (
     'ImageAttachment',
     'JournalEntry',
     'SavedFilter',
+    'TableConfig',
     'Webhook',
 )
 
@@ -522,6 +523,76 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     def url_params(self):
         qd = dict_to_querydict(self.parameters)
         return qd.urlencode()
+
+
+class TableConfig(ChangeLoggedModel):
+    """
+    A saved configuration of columns and ordering which applies to a specific table.
+    """
+    object_type = models.ForeignKey(
+        to='core.ObjectType',
+        on_delete=models.CASCADE,
+        related_name='table_configs',
+        help_text=_("The table's object type"),
+    )
+    table = models.CharField(
+        verbose_name=_('table'),
+        max_length=100,
+    )
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
+        default=100
+    )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True
+    )
+    shared = models.BooleanField(
+        verbose_name=_('shared'),
+        default=True
+    )
+    columns = ArrayField(
+        ArrayField(base_field=models.CharField(max_length=100)),
+    )
+    ordering = ArrayField(
+        ArrayField(base_field=models.CharField(max_length=100)),
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        ordering = ('weight', 'name')
+        verbose_name = _('table config')
+        verbose_name_plural = _('table configs')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:tableconfig', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/tableconfig/'
 
 
 class ImageAttachment(ChangeLoggedModel):
