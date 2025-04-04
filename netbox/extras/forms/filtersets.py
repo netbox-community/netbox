@@ -31,6 +31,7 @@ __all__ = (
     'LocalConfigContextFilterForm',
     'NotificationGroupFilterForm',
     'SavedFilterFilterForm',
+    'TableConfigFilterForm',
     'TagFilterForm',
     'WebhookFilterForm',
 )
@@ -220,6 +221,36 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        FieldSet('q', 'filter_id'),
+        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
+    )
+    object_type = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
+        queryset=ObjectType.objects.public(),
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    shared = forms.NullBooleanField(
+        label=_('Shared'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
+
+
+class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),

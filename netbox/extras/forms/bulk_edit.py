@@ -21,6 +21,7 @@ __all__ = (
     'JournalEntryBulkEditForm',
     'NotificationGroupBulkEditForm',
     'SavedFilterBulkEditForm',
+    'TableConfigBulkEditForm',
     'TagBulkEditForm',
     'WebhookBulkEditForm',
 )
@@ -176,6 +177,34 @@ class ExportTemplateBulkEditForm(BulkEditForm):
 class SavedFilterBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    shared = forms.NullBooleanField(
+        label=_('Shared'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    nullable_fields = ('description',)
+
+
+class TableConfigBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=TableConfig.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(

@@ -32,6 +32,9 @@ class ExtrasQuery:
     saved_filter: SavedFilterType = strawberry_django.field()
     saved_filter_list: List[SavedFilterType] = strawberry_django.field()
 
+    table_config: TableConfigType = strawberry_django.field()
+    table_config_list: List[TableConfigType] = strawberry_django.field()
+
     journal_entry: JournalEntryType = strawberry_django.field()
     journal_entry_list: List[JournalEntryType] = strawberry_django.field()
 
