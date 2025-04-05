@@ -502,6 +502,10 @@ class Platform(OrganizationalModel):
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
     """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100
+    )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
         on_delete=models.PROTECT,
@@ -522,7 +526,12 @@ class Platform(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
-
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'manufacturer'],
+                name='unique_platform_per_manufacturer'
+            )
+        ]
 
 def update_interface_bridges(device, interface_templates, module=None):
     """
