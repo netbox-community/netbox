@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLANGroup
+from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
@@ -247,6 +247,13 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                         ).distinct(),
                         'region_id'
                     ),
+                    (
+                        VLANGroup.objects.restrict(request.user, 'view').filter(
+                            scope_type=ContentType.objects.get_for_model(Region),
+                            scope_id__in=regions
+                        ).distinct(),
+                        'region'
+                    ),
 
                     # Handle these relations manually to avoid erroneous filter name resolution
                     (Cluster.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
@@ -340,6 +347,25 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (Device.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (VLAN.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (
+                        ASN.objects.restrict(request.user, 'view').filter(
+                            sites__group__in=groups
+                        ).distinct(),
+                        'site_group_id'),
+                    (
+                        VirtualMachine.objects.restrict(request.user, 'view').filter(
+                            site__group__in=groups),
+                        'site_group_id'
+                    ),
+                    (
+                        VLANGroup.objects.restrict(request.user, 'view').filter(
+                            scope_type=ContentType.objects.get_for_model(SiteGroup),
+                            scope_id__in=groups
+                        ).distinct(),
+                        'site_group'
+                    ),
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(
                             terminations___site_group=instance
@@ -814,7 +840,18 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
         ])
 
         return {
-            'related_models': self.get_related_models(request, instance, [CableTermination]),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(CableTermination,),
+                extra=(
+                    (
+                    VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(Rack),
+                        scope_id=instance.pk
+                    ), 'rack'),
+                ),
+            ),
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
