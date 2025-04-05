@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-03 05:01+0000\n"
+"POT-Creation-Date: 2025-04-05 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1995,6 +1995,34 @@ msgstr ""
 msgid "This user does not have permission to synchronize this data source."
 msgstr ""
 
+#: netbox/core/apps.py:33
+msgid "Object created"
+msgstr ""
+
+#: netbox/core/apps.py:34
+msgid "Object updated"
+msgstr ""
+
+#: netbox/core/apps.py:35
+msgid "Object deleted"
+msgstr ""
+
+#: netbox/core/apps.py:36
+msgid "Job started"
+msgstr ""
+
+#: netbox/core/apps.py:37
+msgid "Job completed"
+msgstr ""
+
+#: netbox/core/apps.py:38
+msgid "Job failed"
+msgstr ""
+
+#: netbox/core/apps.py:39
+msgid "Job errored"
+msgstr ""
+
 #: netbox/core/choices.py:18
 msgid "New"
 msgstr ""
@@ -2144,34 +2172,6 @@ msgstr ""
 
 #: netbox/core/data_backends.py:137
 msgid "AWS secret access key"
-msgstr ""
-
-#: netbox/core/events.py:27
-msgid "Object created"
-msgstr ""
-
-#: netbox/core/events.py:28
-msgid "Object updated"
-msgstr ""
-
-#: netbox/core/events.py:29
-msgid "Object deleted"
-msgstr ""
-
-#: netbox/core/events.py:30
-msgid "Job started"
-msgstr ""
-
-#: netbox/core/events.py:31
-msgid "Job completed"
-msgstr ""
-
-#: netbox/core/events.py:32
-msgid "Job failed"
-msgstr ""
-
-#: netbox/core/events.py:33
-msgid "Job errored"
 msgstr ""
 
 #: netbox/core/filtersets.py:53 netbox/extras/filtersets.py:250
