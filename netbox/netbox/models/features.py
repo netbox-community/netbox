@@ -14,7 +14,7 @@ from taggit.managers import TaggableManager
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
-from extras.constants import CUSTOMFIELD_EMPTY_VALUES
+from extras.constants import CUSTOMFIELD_EMPTY_VALUES, DEFAULT_MIME_TYPE
 from extras.utils import is_taggable, filename_from_model, filename_from_object
 from netbox.config import get_config
 from netbox.registry import registry
@@ -362,7 +362,9 @@ class RenderMixin(models.Model):
         max_length=50,
         blank=True,
         verbose_name=_('MIME type'),
-        help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
+        help_text=_('Defaults to <code>{default_mime_type}<code>').format(
+            default_mime_type=DEFAULT_MIME_TYPE
+        ),
     )
     file_name = models.CharField(
         max_length=200,
@@ -404,7 +406,7 @@ class RenderMixin(models.Model):
 
     def render_to_response(self, context=None, queryset=None):
         output = self.render(context=context, queryset=queryset)
-        mime_type = self.mime_type or 'text/plain; charset=utf-8'
+        mime_type = self.mime_type or DEFAULT_MIME_TYPE
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
