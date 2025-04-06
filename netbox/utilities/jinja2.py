@@ -7,6 +7,7 @@ from netbox.config import get_config
 
 __all__ = (
     'DataFileLoader',
+    'render_jinja2',
 )
 
 
