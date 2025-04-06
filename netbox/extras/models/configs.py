@@ -208,7 +208,8 @@ class ConfigContextModel(models.Model):
 #
 
 class ConfigTemplate(
-    SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel, RenderTemplateMixin):
+    SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel, RenderTemplateMixin
+):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
