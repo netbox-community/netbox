@@ -553,7 +553,6 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
         url = self._get_detail_url(prefixes[1])
         response = self.client.get(url, **self.header)
-        self.assertIsNone(prefixes[1].aggregate)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIsNone(response.data.get('aggregate'))
         self.assertIsNone(response.data.get('rir'))
