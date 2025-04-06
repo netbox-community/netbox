@@ -410,7 +410,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
-        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Attributes'))
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
