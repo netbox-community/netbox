@@ -6,9 +6,9 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from extras.querysets import ConfigContextQuerySet
+from extras.models.mixins import RenderTemplateMixin
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import (
-    CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, RenderMixin)
+from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from netbox.registry import registry
 from utilities.data import deepmerge
 
@@ -208,7 +208,7 @@ class ConfigContextModel(models.Model):
 #
 
 class ConfigTemplate(
-    SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel, RenderMixin):
+    SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel, RenderTemplateMixin):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100

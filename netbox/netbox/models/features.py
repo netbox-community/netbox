@@ -6,7 +6,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -14,12 +13,11 @@ from taggit.managers import TaggableManager
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
-from extras.constants import CUSTOMFIELD_EMPTY_VALUES, DEFAULT_MIME_TYPE
-from extras.utils import is_taggable, filename_from_model, filename_from_object
+from extras.constants import CUSTOMFIELD_EMPTY_VALUES
+from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.registry import registry
 from netbox.signals import post_clean
-from utilities.jinja2 import render_jinja2
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
 from utilities.views import register_model_view
@@ -39,7 +37,6 @@ __all__ = (
     'JournalingMixin',
     'NotificationsMixin',
     'SyncedDataMixin',
-    'RenderMixin',
     'TagsMixin',
     'register_models',
 )
@@ -338,89 +335,6 @@ class ExportTemplatesMixin(models.Model):
     """
     class Meta:
         abstract = True
-
-
-class RenderMixin(models.Model):
-    """
-    Enables support for rendering templates.
-    """
-    template_code = models.TextField(
-        verbose_name=_('template code'),
-        help_text=_('Jinja2 template code.')
-    )
-    environment_params = models.JSONField(
-        verbose_name=_('environment parameters'),
-        blank=True,
-        null=True,
-        default=dict,
-        help_text=_(
-            'Any <a href="https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment">additional parameters</a>'
-            ' to pass when constructing the Jinja2 environment.'
-        )
-    )
-    mime_type = models.CharField(
-        max_length=50,
-        blank=True,
-        verbose_name=_('MIME type'),
-        help_text=_('Defaults to <code>{default_mime_type}<code>').format(
-            default_mime_type=DEFAULT_MIME_TYPE
-        ),
-    )
-    file_name = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text=_('Filename to give to the rendered export file')
-    )
-    file_extension = models.CharField(
-        verbose_name=_('file extension'),
-        max_length=15,
-        blank=True,
-        help_text=_('Extension to append to the rendered filename')
-    )
-    as_attachment = models.BooleanField(
-        verbose_name=_('as attachment'),
-        default=True,
-        help_text=_("Download file as attachment")
-    )
-
-    class Meta:
-        abstract = True
-
-    def get_context(self, context=None, queryset=None):
-        raise NotImplementedError(_("{class_name} must implement a get_context() method.").format(
-            class_name=self.__class__
-        ))
-
-    def render(self, context=None, queryset=None):
-        """
-        Render the template with the provided context. The context is passed to the Jinja2 environment as a dictionary.
-        """
-        context = self.get_context(context=context, queryset=queryset)
-        env_params = self.environment_params or {}
-        output = render_jinja2(self.template_code, context, env_params)
-
-        # Replace CRLF-style line terminators
-        output = output.replace('\r\n', '\n')
-
-        return output
-
-    def render_to_response(self, context=None, queryset=None):
-        output = self.render(context=context, queryset=queryset)
-        mime_type = self.mime_type or DEFAULT_MIME_TYPE
-
-        # Build the response
-        response = HttpResponse(output, content_type=mime_type)
-
-        if self.as_attachment:
-            extension = f'.{self.file_extension}' if self.file_extension else ''
-            if queryset:
-                filename = self.file_name or filename_from_model(queryset.model)
-            elif context:
-                filename = self.file_name or filename_from_object(context)
-            full_filename = f'{filename}{extension}'
-            response['Content-Disposition'] = f'attachment; filename="{full_filename}"'
-
-        return response
 
 
 class ImageAttachmentsMixin(models.Model):

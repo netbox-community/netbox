@@ -16,11 +16,12 @@ from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
 from extras.utils import image_upload
+from extras.models.mixins import RenderTemplateMixin
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, RenderMixin
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 )
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
@@ -381,7 +382,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         }
 
 
-class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderMixin):
+class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderTemplateMixin):
     object_types = models.ManyToManyField(
         to='core.ObjectType',
         related_name='export_templates',
