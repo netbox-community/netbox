@@ -37,16 +37,12 @@ Note that a plugin must be listed in `PLUGINS` for its configuration to take eff
 
 Default: Empty
 
-This parameter holds configuration settings for how the individual plugins are displayed in the plugins table under Admin->System->Plugins.  Declaring `hidden` as True will make it so the plugin is not shown in the table.  Declaring `disabled` will make it show the plugin in the table, but it won't be linked to the details and installation page for the plugin. An example configuration is shown below:
+This parameter holds configuration settings for how the individual plugins are displayed in the plugins table under Admin->System->Plugins.  Adding a plugin to `hidden` will make it so the plugin is not shown in the table.  Adding a plugin to `unlinked` will make it show the plugin in the table, but it won't be linked to the details and installation page for the plugin. An example configuration is shown below:
 
 ```python
-PLUGINS_TABLE_CONFIG = {
-    'plugin1': {
-        'hidden': True,
-    },
-    'plugin2': {
-        'disabled': True,
-    },
+PLUGINS_CATALOG_CONFIG = {
+    'hidden': ['plugin1'],
+    'unlinked': ['plugin2'],
 }
 ```
 

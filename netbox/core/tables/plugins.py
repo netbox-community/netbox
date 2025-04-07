@@ -43,7 +43,7 @@ class PluginVersionTable(BaseTable):
 
 class CatalogPluginTable(BaseTable):
     title_long = tables.Column(
-        verbose_name=_('Name')
+        verbose_name=_('Name'),
     )
     author = tables.Column(
         accessor=tables.A('author__name'),
