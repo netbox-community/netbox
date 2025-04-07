@@ -22,8 +22,7 @@ class SharedObjectViewMixin:
 
     def get_queryset(self, request):
         """
-        Return only shared SavedFilters, or those owned by the current user, unless
-        this is a superuser.
+        Return only shared objects, or those owned by the current user, unless this is a superuser.
         """
         queryset = super().get_queryset(request)
         user = request.user
