@@ -1,13 +1,13 @@
+from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.models import Device
 from ipam.choices import *
-from ipam.models import IPAddress, FHRPGroup, Service, ServiceTemplate
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from ipam.constants import SERVICE_ASSIGNMENT_MODELS
+from ipam.models import IPAddress, Service, ServiceTemplate
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from utilities.api import get_serializer_for_model
-from virtualization.models import VirtualMachine
 from .ip import IPAddressSerializer
 
 __all__ = (
@@ -29,9 +29,6 @@ class ServiceTemplateSerializer(NetBoxModelSerializer):
 
 
 class ServiceSerializer(NetBoxModelSerializer):
-    device = serializers.SerializerMethodField(read_only=True)
-    virtual_machine = serializers.SerializerMethodField(read_only=True)
-    fhrp_group = serializers.SerializerMethodField(read_only=True)
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
@@ -40,11 +37,15 @@ class ServiceSerializer(NetBoxModelSerializer):
         required=False,
         many=True
     )
+    parent_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS)
+    )
+    parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'virtual_machine', 'fhrp_group', 'name',
+            'id', 'url', 'display_url', 'display', 'parent_object_type', 'parent_object_id', 'parent', 'name',
             'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
@@ -57,21 +58,3 @@ class ServiceSerializer(NetBoxModelSerializer):
         serializer = get_serializer_for_model(obj.parent)
         context = {'request': self.context['request']}
         return serializer(obj.parent, nested=True, context=context).data
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_device(self, obj):
-        if isinstance(obj.parent, Device):
-            return self.get_parent(obj)
-        return None
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_virtual_machine(self, obj):
-        if isinstance(obj.parent, VirtualMachine):
-            return self.get_parent(obj)
-        return None
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_fhrp_group(self, obj):
-        if isinstance(obj.parent, FHRPGroup):
-            return self.get_parent(obj)
-        return None

@@ -2332,34 +2332,39 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         services = (
             Service(
-                device=devices[0],
+                parent=devices[0],
                 name='Service 1',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1001],
                 description='foobar1',
             ),
             Service(
-                device=devices[1],
+                parent=devices[1],
                 name='Service 2',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1002],
                 description='foobar2',
             ),
-            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
             Service(
-                virtual_machine=virtual_machines[0],
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[1003]
+            ),
+            Service(
+                parent=virtual_machines[0],
                 name='Service 4',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2001],
             ),
             Service(
-                virtual_machine=virtual_machines[1],
+                parent=virtual_machines[1],
                 name='Service 5',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2002],
             ),
             Service(
-                virtual_machine=virtual_machines[2],
+                parent=virtual_machines[2],
                 name='Service 6',
                 protocol=ServiceProtocolChoices.PROTOCOL_UDP,
                 ports=[2003],

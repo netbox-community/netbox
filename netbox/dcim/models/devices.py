@@ -613,7 +613,7 @@ class Device(
         to='ipam.Service',
         content_type_field='parent_object_type',
         object_id_field='parent_object_id',
-        related_query_name='devices',
+        related_query_name='device',
     )
 
     # Counter fields

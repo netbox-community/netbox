@@ -130,7 +130,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         to='ipam.Service',
         content_type_field='parent_object_type',
         object_id_field='parent_object_id',
-        related_query_name='virtualmachines',
+        related_query_name='virtual_machine',
     )
 
     # Counter fields

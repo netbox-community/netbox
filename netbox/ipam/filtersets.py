@@ -1171,12 +1171,12 @@ class ServiceFilterSet(NetBoxModelFilterSet):
         field_name='pk',
         label=_('Virtual machine (ID)'),
     )
-    fhrp_group = MultiValueCharFilter(
+    fhrpgroup = MultiValueCharFilter(
         method='filter_fhrp_group',
         field_name='name',
         label=_('FHRP Group (name)'),
     )
-    fhrp_group_id = MultiValueNumberFilter(
+    fhrpgroup_id = MultiValueNumberFilter(
         method='filter_fhrp_group',
         field_name='pk',
         label=_('FHRP Group (ID)'),
@@ -1199,7 +1199,7 @@ class ServiceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Service
-        fields = ('id', 'name', 'protocol', 'description')
+        fields = ('id', 'name', 'protocol', 'description', 'parent_object_type', 'parent_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

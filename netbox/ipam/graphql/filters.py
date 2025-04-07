@@ -19,8 +19,7 @@ from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import IntegerArrayLookup, IntegerLookup
     from core.graphql.filters import ContentTypeFilter
-    from dcim.graphql.filters import DeviceFilter, SiteFilter
-    from virtualization.graphql.filters import VirtualMachineFilter
+    from dcim.graphql.filters import SiteFilter
     from vpn.graphql.filters import L2VPNFilter
     from .enums import *
 
@@ -216,16 +215,14 @@ class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
 
 @strawberry_django.filter(models.Service, lookups=True)
 class ServiceFilter(ContactFilterMixin, ServiceBaseFilterMixin, PrimaryModelFilterMixin):
-    device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
-    device_id: ID | None = strawberry_django.filter_field()
-    virtual_machine: Annotated['VirtualMachineFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    virtual_machine_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     ipaddresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+    parent_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    parent_object_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.ServiceTemplate, lookups=True)
