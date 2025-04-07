@@ -17,11 +17,52 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 NetBox requires the following dependencies:
 
-| Dependency | Supported Versions |
-|------------|--------------------|
-| Python     | 3.10, 3.11, 3.12   |
-| PostgreSQL | 13+                |
-| Redis      | 4.0+               |
+=== "Current Version"
+
+    | Dependency | Supported Versions |
+    |------------|--------------------|
+    | Python     | 3.10, 3.11, 3.12   |
+    | PostgreSQL | 13+                |
+    | Redis      | 4.0+               |
+
+=== "All Versions"
+
+    | NetBox Version | Python min | Python max | PostgreSQL min | Redis min | Documentation                                                                                     |
+    |:--------------:|:----------:|:----------:|:--------------:|:---------:|:-------------------------------------------------------------------------------------------------:|
+    |      4.2       |    3.10    |    3.12    |     **13**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md)         |
+    |      4.1       |    3.10    |    3.12    |       12       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.1.0/docs/installation/index.md)         |
+    |      4.0       |  **3.10**  |  **3.12**  |       12       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.0.0/docs/installation/index.md)         |
+    |      3.7       |    3.8     |    3.11    |       12       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.7.0/docs/installation/index.md)         |
+    |      3.6       |    3.8     |  **3.11**  |     **12**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.6.0/docs/installation/index.md)         |
+    |      3.5       |    3.8     |    3.10    |       11       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.5.0/docs/installation/index.md)         |
+    |      3.4       |    3.8     |    3.10    |     **11**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.4.0/docs/installation/index.md)         |
+    |      3.3       |    3.8     |    3.10    |       10       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.3.0/docs/installation/index.md)         |
+    |      3.2       |  **3.8**   |  **3.10**  |       10       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.2.0/docs/installation/index.md)         |
+    |      3.1       |    3.7     |    3.9     |     **10**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.1.0/docs/installation/index.md)         |
+    |      3.0       |  **3.7**   |    3.9     |      9.6       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.0.0/docs/installation/index.md)         |
+    |      2.11      |    3.6     |  **3.9**   |      9.6       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v2.11.0/docs/installation/index.md)        |
+    |      2.10      |    3.6     |    3.8     |    **9.6**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v2.10.0/docs/installation/index.md)        |
+    |      2.9       |    3.6     |    3.8     |      9.5       |  **4.0**  | [Link](https://github.com/netbox-community/netbox/blob/v2.9.0/docs/installation/index.md)         |
+    |      2.8       |  **3.6**   |  **3.8**   |    **9.5**     |  **3.4**  | [Link](https://github.com/netbox-community/netbox/blob/v2.8.0/docs/installation/index.md)         |
+    |      2.7       |    3.5     |    3.7     |      9.4       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.7.0/docs/installation/index.md)         |
+    |      2.6       |    3.5     |    3.7     |      9.4       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.6.0/docs/installation/index.md)         |
+    |      2.5       |  **3.5**   |    3.7     |      9.4       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.5.0/docs/installation/index.md)         |
+    |      2.4       |  **3.4**   |  **3.7**   |      9.4       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.4.0/docs/installation/index.md)         |
+    |      2.3       |    2.7     |    3.6     |      9.4       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.3.0/docs/installation/postgresql.md)    |
+    |      2.2       |    2.7     |    3.6     |    **9.4**     |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.2.0/docs/installation/postgresql.md)    |
+    |      2.1       |    2.7     |    3.6     |      9.3       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.1.0/docs/installation/postgresql.md)    |
+    |      2.0       |    2.7     |  **3.6**   |    **9.3**     |     -     | [Link](https://github.com/netbox-community/netbox/blob/v2.0.0/docs/installation/postgresql.md)    |
+    |      1.9       |    2.7     |    3.5     |      9.2       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.9.0-r1/docs/installation/postgresql.md) |
+    |      1.8       |    2.7     |    3.5     |      9.2       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.8.0/docs/installation/postgresql.md)    |
+    |      1.7       |    2.7     |    3.5     |      9.2       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.7.0/docs/installation/postgresql.md)    |
+    |      1.6       |    2.7     |    3.5     |      9.2       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.6.0/docs/installation/postgresql.md)    |
+    |      1.5       |    2.7     |    3.5     |    **9.2**     |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.5.0/docs/installation/postgresql.md)    |
+    |      1.4       |    2.7     |    3.5     |      9.1       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.4.0/docs/installation/postgresql.md)    |
+    |      1.3       |    2.7     |    3.5     |      9.1       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.3.0/docs/installation/postgresql.md)    |
+    |      1.2       |    2.7     |    3.5     |      9.1       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.2.0/docs/installation/postgresql.md)    |
+    |      1.1       |    2.7     |    3.5     |      9.1       |     -     | [Link](https://github.com/netbox-community/netbox/blob/v1.1.0/docs/getting-started.md)            |
+    |      1.0       |    2.7     |    3.5     |      9.1       |     -     | [Link](https://github.com/netbox-community/netbox/blob/1.0.0/docs/getting-started.md)             |
+
 
 ## 3. Install the Latest Release
 
