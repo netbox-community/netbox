@@ -21,7 +21,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, T
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import VMInterface
 
 __all__ = (
     'AggregateForm',
@@ -759,23 +759,18 @@ class ServiceTemplateForm(NetBoxModelForm):
 
 
 class ServiceForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        label=_('Device'),
-        queryset=Device.objects.all(),
-        required=False,
-        selector=True,
+    parent_object_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
+        widget=HTMXSelect(),
+        required=True,
+        label=_('Parent type')
     )
-    virtual_machine = DynamicModelChoiceField(
-        label=_('Virtual machine'),
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        selector=True,
-    )
-    fhrp_group = DynamicModelChoiceField(
-        label=_('FHRP Group'),
-        queryset=FHRPGroup.objects.all(),
-        required=False,
-        selector=True,
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Device.objects.none(),  # Initial queryset
+        required=True,
+        disabled=True,
+        selector=True
     )
     ports = NumericArrayField(
         label=_('Ports'),
@@ -798,12 +793,7 @@ class ServiceForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            TabbedGroups(
-                FieldSet('device', name=_('Device')),
-                FieldSet('virtual_machine', name=_('Virtual Machine')),
-                FieldSet('fhrp_group', name=_('FHRP Group')),
-            ),
-            'name',
+            'parent_object_type', 'parent', 'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
             'ipaddresses', 'description', 'tags', name=_('Service')
         ),
@@ -813,40 +803,36 @@ class ServiceForm(NetBoxModelForm):
         model = Service
         fields = [
             'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'parent_object_type',
         ]
 
     def __init__(self, *args, **kwargs):
-
-        # Initialize helper selectors
-        instance = kwargs.get('instance')
         initial = kwargs.get('initial', {}).copy()
-        if instance:
-            parent_type = type(instance.parent)
-            if parent_type is Device:
-                initial['device'] = instance.parent
-            elif parent_type is VirtualMachine:
-                initial['virtual_machine'] = instance.parent
-            elif parent_type is FHRPGroup:
-                initial['fhrp_group'] = instance.parent
+
+        if (instance := kwargs.get('instance', None)) and instance.parent:
+            initial['parent'] = instance.parent
+
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
 
+        if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
+            try:
+                parent_type = ContentType.objects.get(pk=parent_object_type_id)
+                model = parent_type.model_class()
+                self.fields['parent'].queryset = model.objects.all()
+                self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['parent'].disabled = False
+                self.fields['parent'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and parent_object_type_id != self.instance.parent_object_type_id:
+                self.initial['parent'] = None
+
     def clean(self):
         super().clean()
-
-        selected_objects = [f for f in ('device', 'virtual_machine', 'fhrp_group') if self.cleaned_data[f]]
-        if len(selected_objects) > 1:
-            raise forms.ValidationError({
-                field: _("A Service must be associated with exactly one device, virtual machine, or FHRP group.")
-                for field in selected_objects
-            })
-        elif selected_objects:
-            self.instance.parent = self.cleaned_data[selected_objects[0]]
-        else:
-            raise forms.ValidationError({
-                'device': _("A service must be associated with a device, a virtual machine, or an FHRP group.")
-            })
+        self.instance.parent = self.cleaned_data.get('parent')
 
 
 class ServiceCreateForm(ServiceForm):
@@ -858,11 +844,7 @@ class ServiceCreateForm(ServiceForm):
 
     fieldsets = (
         FieldSet(
-            TabbedGroups(
-                FieldSet('device', name=_('Device')),
-                FieldSet('virtual_machine', name=_('Virtual Machine')),
-                FieldSet('fhrp_group', name=_('FHRP Group')),
-            ),
+            'parent_object_type', 'parent',
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
                 FieldSet('name', 'protocol', 'ports', name=_('Custom')),
@@ -874,7 +856,7 @@ class ServiceCreateForm(ServiceForm):
     class Meta(ServiceForm.Meta):
         fields = [
             'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
-            'comments', 'tags',
+            'comments', 'tags', 'parent_object_type',
         ]
 
     def __init__(self, *args, **kwargs):
