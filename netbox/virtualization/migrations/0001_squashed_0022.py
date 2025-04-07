@@ -154,7 +154,6 @@ class Migration(migrations.Migration):
                     'role',
                     models.ForeignKey(
                         blank=True,
-                        limit_choices_to={'vm_role': True},
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='virtual_machines',

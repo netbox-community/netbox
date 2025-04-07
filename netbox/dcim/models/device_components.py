@@ -1274,7 +1274,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     )
     component_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=MODULAR_COMPONENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,

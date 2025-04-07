@@ -505,28 +505,6 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='termination_a_type',
             field=models.ForeignKey(
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))),
-                        models.Q(
-                            ('app_label', 'dcim'),
-                            (
-                                'model__in',
-                                (
-                                    'consoleport',
-                                    'consoleserverport',
-                                    'frontport',
-                                    'interface',
-                                    'powerfeed',
-                                    'poweroutlet',
-                                    'powerport',
-                                    'rearport',
-                                ),
-                            ),
-                        ),
-                        _connector='OR',
-                    )
-                ),
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
                 to='contenttypes.contenttype',
@@ -536,28 +514,6 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='termination_b_type',
             field=models.ForeignKey(
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))),
-                        models.Q(
-                            ('app_label', 'dcim'),
-                            (
-                                'model__in',
-                                (
-                                    'consoleport',
-                                    'consoleserverport',
-                                    'frontport',
-                                    'interface',
-                                    'powerfeed',
-                                    'poweroutlet',
-                                    'powerport',
-                                    'rearport',
-                                ),
-                            ),
-                        ),
-                        _connector='OR',
-                    )
-                ),
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
                 to='contenttypes.contenttype',
