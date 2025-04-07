@@ -117,9 +117,6 @@ class BaseTable(tables.Table):
         """
         Update the table sequence to display only the named columns and any exempt columns.
         """
-        if not selected_columns:
-            raise Exception('wtf?')
-
         # Hide non-selected columns which are not exempt
         for column in self.columns:
             if column.name not in [*selected_columns, *self.exempt_columns]:
@@ -187,10 +184,12 @@ class BaseTable(tables.Table):
 
     @property
     def configuration(self):
-        return {
+        config = {
             'columns': ','.join([c[0] for c in self.selected_columns]),
-            'ordering': self.order_by,
         }
+        if self.order_by:
+            config['ordering'] = self.order_by
+        return config
 
     @property
     def config_params(self):
