@@ -2329,6 +2329,11 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
             VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
+        fhrp_group = FHRPGroup.objects.create(
+            name='telnet',
+            protocol=FHRPGroupProtocolChoices.PROTOCOL_CARP,
+            group_id=101,
+        )
 
         services = (
             Service(
@@ -2369,6 +2374,12 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 protocol=ServiceProtocolChoices.PROTOCOL_UDP,
                 ports=[2003],
             ),
+            Service(
+                parent=fhrp_group,
+                name='Service 7',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[2004],
+            ),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ip_addresses[0])
@@ -2408,6 +2419,13 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_fhrp_group(self):
+        fhrp_group = FHRPGroup.objects.get()
+        params = {'fhrpgroup_id': [fhrp_group.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'fhrpgroup': [fhrp_group.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_ip_address(self):
         ips = IPAddress.objects.all()[:2]
