@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
-from dcim.models import Interface, Site
+from dcim.models import Device, Interface, Site
 from ipam.tables import VLANTranslationRuleTable
 from netbox.views import generic
 from utilities.query import count_related
@@ -16,7 +16,7 @@ from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.forms import VMInterfaceFilterForm
-from virtualization.models import VMInterface
+from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
@@ -1430,6 +1430,17 @@ class ServiceListView(generic.ObjectListView):
 @register_model_view(Service)
 class ServiceView(generic.ObjectView):
     queryset = Service.objects.all()
+
+    def get_extra_context(self, request, instance):
+        context = {}
+        if isinstance(instance.parent, Device):
+            context['breadcrumb_queryparam'] = 'device_id'
+        elif isinstance(instance.parent, VirtualMachine):
+            context['breadcrumb_queryparam'] = 'virtual_machine_id'
+        elif isinstance(instance.parent, FHRPGroup):
+            context['breadcrumb_queryparam'] = 'fhrpgroup_id'
+
+        return context
 
 
 @register_model_view(Service, 'add', detail=False)
