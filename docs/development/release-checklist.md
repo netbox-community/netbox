@@ -31,7 +31,7 @@ Close the [release milestone](https://github.com/netbox-community/netbox/milesto
 
 Check that a link to the release notes for the new version is present in the navigation menu (defined in `mkdocs.yml`), and that a summary of all major new features has been added to `docs/index.md`.
 
-### Adopt the Dependency Requirements Matrix
+### Update the Dependency Requirements Matrix
 
 For every minor release, update the dependency requirements matrix in `docs/installation/upgrading.md` ("All versions") to reflect the supported versions of Python, PostgreSQL, and Redis:
 
