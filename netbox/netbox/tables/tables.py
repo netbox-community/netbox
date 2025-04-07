@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import cached_property
+from urllib.parse import urlencode
 
 import django_tables2 as tables
 from django.conf import settings
@@ -190,6 +191,14 @@ class BaseTable(tables.Table):
             'columns': ','.join([c[0] for c in self.selected_columns]),
             'ordering': self.order_by,
         }
+
+    @property
+    def config_params(self):
+        return urlencode({
+            'object_type': ObjectType.objects.get_for_model(self.Meta.model).pk,
+            'table': self.name,
+            **self.configuration,
+        })
 
 
 class NetBoxTable(BaseTable):
