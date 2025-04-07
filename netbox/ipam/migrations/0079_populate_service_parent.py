@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0202_location_comments_region_comments_sitegroup_comments'),
-        ('ipam', '0078_service_parent_object_id_service_parent_object_type'),
+        ('ipam', '0078_add_service_fhrp_group_parent_gfk'),
         ('virtualization', '0048_populate_mac_addresses'),
     ]
 
