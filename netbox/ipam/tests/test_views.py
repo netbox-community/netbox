@@ -1082,7 +1082,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'device': device.pk,
+            'parent_object_type': ContentType.objects.get_for_model(Device).pk,
+            'parent': device.pk,
             'name': 'Service X',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'ports': '104,105',
@@ -1126,10 +1127,12 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request = {
             'path': self._get_url('add'),
             'data': {
-                'device': device.pk,
+                'parent_object_type': ContentType.objects.get_for_model(Device).pk,
+                'parent': device.pk,
                 'service_template': service_template.pk,
             },
         }
+
         self.assertHttpStatus(self.client.post(**request), 302)
         instance = self._get_queryset().order_by('pk').last()
         self.assertEqual(instance.parent, device)
