@@ -66,7 +66,6 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
     """
     parent_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=SERVICE_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,

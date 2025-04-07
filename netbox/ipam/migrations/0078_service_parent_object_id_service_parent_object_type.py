@@ -20,14 +20,6 @@ class Migration(migrations.Migration):
             name='parent_object_type',
             field=models.ForeignKey(
                 blank=True,
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'dcim'), ('model', 'device')),
-                        models.Q(('app_label', 'ipam'), ('model', 'fhrpgroup')),
-                        models.Q(('app_label', 'virtualization'), ('model', 'virtualmachine')),
-                        _connector='OR'
-                    )
-                ),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
