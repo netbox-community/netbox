@@ -1161,7 +1161,7 @@ class FHRPGroupListView(generic.ObjectListView):
 
 
 @register_model_view(FHRPGroup)
-class FHRPGroupView(generic.ObjectView):
+class FHRPGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
@@ -1173,6 +1173,18 @@ class FHRPGroupView(generic.ObjectView):
         members_table.columns.hide('group')
 
         return {
+            'related_models': self.get_related_models(
+                request, instance,
+                extra=(
+                    (
+                        Service.objects.restrict(request.user, 'view').filter(
+                            parent_object_type=ContentType.objects.get_for_model(FHRPGroup),
+                            parent_object_id=instance.id,
+                        ),
+                        'fhrpgroup_id'
+                    ),
+                ),
+            ),
             'members_table': members_table,
             'member_count': FHRPGroupAssignment.objects.filter(group=instance).count(),
         }
