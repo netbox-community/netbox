@@ -666,7 +666,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         elif 'virtual_machine' in request.GET:
             initial_data['virtual_machine'] = request.GET.get('virtual_machine')
 
-        form = self.form(request.POST, initial=initial_data)
+        post_data = request.POST.copy()
+        post_data.setlist('pk', pk_list)
+        form = self.form(post_data, initial=initial_data)
         restrict_form_fields(form, request.user)
 
         if '_apply' in request.POST:
@@ -699,10 +701,6 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             else:
                 logger.debug("Form validation failed")
-
-        else:
-            form = self.form(initial=initial_data)
-            restrict_form_fields(form, request.user)
 
         # Retrieve objects being edited
         table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
