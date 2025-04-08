@@ -918,7 +918,9 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=None,
                 role=None,
                 status=IPRangeStatusChoices.STATUS_ACTIVE,
-                description='foobar1'
+                description='foobar1',
+                mark_populated=True,
+                mark_utilized=True,
             ),
             IPRange(
                 start_address='10.0.2.100/24',
@@ -955,7 +957,9 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vrf=None,
                 tenant=None,
                 role=None,
-                status=IPRangeStatusChoices.STATUS_ACTIVE
+                status=IPRangeStatusChoices.STATUS_ACTIVE,
+                mark_populated=True,
+                mark_utilized=True,
             ),
             IPRange(
                 start_address='2001:db8:0:2::1/64',
@@ -1050,6 +1054,18 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': ['10.0.1.0/25']}  # Range 10.0.1.100-199 is not fully contained by 10.0.1.0/25
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_mark_utilized(self):
+        params = {'mark_utilized': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'mark_utilized': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_mark_populated(self):
+        params = {'mark_populated': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'mark_populated': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
