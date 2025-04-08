@@ -193,8 +193,10 @@ class BaseTable(tables.Table):
 
     @property
     def config_params(self):
+        if not (model := getattr(self.Meta, 'model', None)):
+            return None
         return urlencode({
-            'object_type': ObjectType.objects.get_for_model(self.Meta.model).pk,
+            'object_type': ObjectType.objects.get_for_model(model).pk,
             'table': self.name,
             **self.configuration,
         })

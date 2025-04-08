@@ -34,7 +34,9 @@
           <span class="visually-hidden">Toggle Dropdown</span>
         </button>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">Save</a>
+          {% if table.config_params %}
+            <a class="dropdown-item" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">Save</a>
+          {% endif %}
           {% if table_configs %}
             <hr class="dropdown-divider">
             {% for config in table_configs %}
