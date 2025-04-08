@@ -612,12 +612,18 @@ class ServiceImportForm(NetBoxModelImportForm):
     def clean(self):
         super().clean()
 
-        if (parent := self.cleaned_data.get('parent')):
-            self.cleaned_data['parent_object_id'] = parent.pk
-        elif not parent and (parent_id := self.cleaned_data.get('parent_object_id')):
-            ct = self.cleaned_data.get('parent_object_type')
-            parent = ct.model_class().objects.filter(id=parent_id).first()
-            self.cleaned_data['parent'] = parent
+        if (parent_ct := self.cleaned_data.get('parent_object_type')):
+            if (parent := self.cleaned_data.get('parent')):
+                self.cleaned_data['parent_object_id'] = parent.pk
+            elif (parent_id := self.cleaned_data.get('parent_object_id')):
+                parent = parent_ct.model_class().objects.filter(id=parent_id).first()
+                self.cleaned_data['parent'] = parent
+            else:
+                # If a parent object type is passed and we've made it to here, then raise a validation
+                # error since an associated parent object or parent object id has nto be passed
+                raise forms.ValidationError(
+                    _("One of parent or parent_object_id needs to be included with parent_object_type")
+                )
 
         for ip_address in self.cleaned_data.get('ipaddresses', []):
             if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
