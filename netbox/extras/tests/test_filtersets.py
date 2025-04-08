@@ -1089,8 +1089,11 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
         config_templates = (
             ConfigTemplate(name='Config Template 1', template_code='TESTING', description='foobar1'),
-            ConfigTemplate(name='Config Template 2', template_code='TESTING', description='foobar2'),
-            ConfigTemplate(name='Config Template 3', template_code='TESTING'),
+            ConfigTemplate(
+                name='Config Template 2', template_code='TESTING', description='foobar2',
+                file_name='config_template_2', file_extension='nagios',
+            ),
+            ConfigTemplate(name='Config Template 3', template_code='TESTING', file_name='export_filename'),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
@@ -1105,6 +1108,16 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_extension(self):
+        params = {'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'file_name': ['config_template_2'], 'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'file_name': 'export_filename', 'file_extension': ['nagios']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 
 class TagTestCase(TestCase, ChangeLoggedFilterSetTests):

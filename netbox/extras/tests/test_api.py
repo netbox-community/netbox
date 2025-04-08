@@ -763,6 +763,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Config Template 6',
             'template_code': 'Baz: {{ baz }}',
+            'file_name': 'test_config_template_6',
         },
     ]
     bulk_update_data = {
@@ -778,7 +779,9 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
             ConfigTemplate(
                 name='Config Template 2',
-                template_code='Bar: {{ bar }}'
+                template_code='Bar: {{ bar }}',
+                file_name='config_template_2',
+                file_extension='test',
             ),
             ConfigTemplate(
                 name='Config Template 3',
