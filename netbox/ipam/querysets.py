@@ -160,6 +160,11 @@ class VLANQuerySet(RestrictedQuerySet):
                     scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
                     scope_id=vm.cluster.group_id
                 )
+            if vm.cluster._site_group:
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+                    scope_id__in=vm.cluster._site_group.get_ancestors(include_self=True)
+                )+            if vm.cluster._site_group:
         if site:
             # Add VLANGroups scoped to the assigned site (or its group or region)
             q |= Q(
