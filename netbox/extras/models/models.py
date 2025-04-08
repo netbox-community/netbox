@@ -27,6 +27,7 @@ from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
+from utilities.tables import get_table_for_model
 
 __all__ = (
     'Bookmark',
@@ -593,6 +594,10 @@ class TableConfig(ChangeLoggedModel):
     @property
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/extras/tableconfig/'
+
+    @property
+    def table_class(self):
+        return get_table_for_model(self.object_type.model_class(), name=self.table)
 
 
 class ImageAttachment(ChangeLoggedModel):

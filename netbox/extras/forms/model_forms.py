@@ -2,6 +2,7 @@ import json
 import re
 
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -21,6 +22,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
+from utilities.tables import get_table_for_model
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
@@ -308,6 +310,22 @@ class TableConfigForm(forms.ModelForm):
         label=_('Object type'),
         queryset=ObjectType.objects.all()
     )
+    available_columns = SimpleArrayField(
+        base_field=forms.CharField(),
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={'size': 10, 'class': 'form-select'}
+        ),
+        label=_('Available Columns')
+    )
+    columns = SimpleArrayField(
+        base_field=forms.CharField(),
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={'size': 10, 'class': 'form-select'}
+        ),
+        label=_('Selected Columns')
+    )
 
     fieldsets = (
         FieldSet(
@@ -320,6 +338,31 @@ class TableConfigForm(forms.ModelForm):
     class Meta:
         model = TableConfig
         exclude = ('user',)
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        object_type = ObjectType.objects.get(pk=get_field_value(self, 'object_type'))
+        model = object_type.model_class()
+        table_name = get_field_value(self, 'table')
+        table_class = get_table_for_model(model, table_name)
+        table = table_class(model.objects.all())
+
+        if columns := self._get_columns():
+            table._set_columns(columns)
+
+        # Initialize columns field based on table attributes
+        self.fields['available_columns'].widget.choices = table.available_columns
+        self.fields['columns'].widget.choices = table.selected_columns
+
+    def _get_columns(self):
+        if self.is_bound and (columns := self.data.get('columns')):
+            return columns
+        if 'columns' in self.initial:
+            columns = self.get_initial_for_field(self.fields['columns'], 'columns')
+            return columns.split(',') if type(columns) is str else columns
+        if self.instance is not None:
+            return self.instance.columns
 
 
 class BookmarkForm(forms.ModelForm):

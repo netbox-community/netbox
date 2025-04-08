@@ -359,6 +359,7 @@ class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
 class TableConfigEditView(SharedObjectViewMixin, generic.ObjectEditView):
     queryset = TableConfig.objects.all()
     form = forms.TableConfigForm
+    template_name = 'extras/tableconfig_edit.html'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
         if not obj.pk:
