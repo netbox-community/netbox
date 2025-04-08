@@ -79,6 +79,7 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_LOOPBACK = 'loopback'
     ROLE_SECONDARY = 'secondary'
     ROLE_ANYCAST = 'anycast'
+    ROLE_VARP = 'varp'
     ROLE_VIP = 'vip'
     ROLE_VRRP = 'vrrp'
     ROLE_HSRP = 'hsrp'
@@ -89,6 +90,7 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_LOOPBACK, _('Loopback'), 'gray'),
         (ROLE_SECONDARY, _('Secondary'), 'blue'),
         (ROLE_ANYCAST, _('Anycast'), 'yellow'),
+        (ROLE_VARP, 'VARP', 'lime'),
         (ROLE_VIP, 'VIP', 'purple'),
         (ROLE_VRRP, 'VRRP', 'green'),
         (ROLE_HSRP, 'HSRP', 'green'),
