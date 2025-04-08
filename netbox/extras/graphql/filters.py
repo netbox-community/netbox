@@ -105,6 +105,7 @@ class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
         strawberry_django.filter_field()
     )
     mime_type: FilterLookup[str] | None = strawberry_django.filter_field()
+    file_name: FilterLookup[str] | None = strawberry_django.filter_field()
     file_extension: FilterLookup[str] | None = strawberry_django.filter_field()
     as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()
 
@@ -200,6 +201,7 @@ class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
         strawberry_django.filter_field()
     )
     mime_type: FilterLookup[str] | None = strawberry_django.filter_field()
+    file_name: FilterLookup[str] | None = strawberry_django.filter_field()
     file_extension: FilterLookup[str] | None = strawberry_django.filter_field()
     as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()
 

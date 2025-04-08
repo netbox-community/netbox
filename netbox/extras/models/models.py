@@ -433,9 +433,15 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
     sync_data.alters_data = True
 
     def get_context(self, context=None, queryset=None):
-        return {
-            'queryset': queryset
+        _context = {
+            'queryset': queryset,
         }
+
+        # Apply the provided context data, if any
+        if context is not None:
+            _context.update(context)
+
+        return _context
 
 
 class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):

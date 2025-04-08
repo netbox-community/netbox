@@ -26,18 +26,24 @@ A dictionary of any additional parameters to pass when instantiating the [Jinja2
 
 ### MIME Type
 
+!!! info "This field was introduced in NetBox v4.3."
+
 The MIME type to indicate in the response when rendering the configuration template (optional). Defaults to `text/plain`.
 
 ### File Name
 
-The file name to give to the rendered export file (optional).
-
 !!! info "This field was introduced in NetBox v4.3."
 
+The file name to give to the rendered export file (optional).
+
 ### File Extension
+
+!!! info "This field was introduced in NetBox v4.3."
 
 The file extension to append to the file name in the response (optional).
 
 ### As Attachment
+
+!!! info "This field was introduced in NetBox v4.3."
 
 If selected, the rendered content will be returned as a file attachment, rather than displayed directly in-browser (where supported).

@@ -544,11 +544,20 @@ class ConfigTemplateTestCase(
         ENVIRONMENT_PARAMS = """{"trim_blocks": true}"""
 
         config_templates = (
-            ConfigTemplate(name='Config Template 1', template_code=TEMPLATE_CODE),
             ConfigTemplate(
-                name='Config Template 2', template_code=TEMPLATE_CODE, environment_params={"trim_blocks": True}
+                name='Config Template 1',
+                template_code=TEMPLATE_CODE)
+            ,
+            ConfigTemplate(
+                name='Config Template 2',
+                template_code=TEMPLATE_CODE,
+                environment_params={"trim_blocks": True},
             ),
-            ConfigTemplate(name='Config Template 3', template_code=TEMPLATE_CODE, file_name='config_template_3'),
+            ConfigTemplate(
+                name='Config Template 3',
+                template_code=TEMPLATE_CODE,
+                file_name='config_template_3',
+            ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
@@ -561,15 +570,16 @@ class ConfigTemplateTestCase(
         }
 
         cls.csv_update_data = (
-            "id,name,template_code,file_name",
-            f"{config_templates[0].pk},Config Template 7,{TEMPLATE_CODE},",
-            f"{config_templates[1].pk},Config Template 8,{TEMPLATE_CODE},config_8",
-            f"{config_templates[2].pk},Config Template 9,{TEMPLATE_CODE},",
+            "id,name",
+            f"{config_templates[0].pk},Config Template 7",
+            f"{config_templates[1].pk},Config Template 8",
+            f"{config_templates[2].pk},Config Template 9",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
             'mime_type': 'text/html',
+            'file_name': 'output',
             'file_extension': 'html',
             'as_attachment': True,
         }

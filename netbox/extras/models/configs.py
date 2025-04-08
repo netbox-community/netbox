@@ -5,8 +5,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from extras.querysets import ConfigContextQuerySet
 from extras.models.mixins import RenderTemplateMixin
+from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from netbox.registry import registry
@@ -208,7 +208,7 @@ class ConfigContextModel(models.Model):
 #
 
 class ConfigTemplate(
-    SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel, RenderTemplateMixin
+    RenderTemplateMixin, SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel
 ):
     name = models.CharField(
         verbose_name=_('name'),
@@ -249,7 +249,7 @@ class ConfigTemplate(
                 except LookupError:
                     pass
 
-        # Add the provided context data, if any
+        # Apply the provided context data, if any
         if context is not None:
             _context.update(context)
 

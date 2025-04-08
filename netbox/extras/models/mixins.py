@@ -91,16 +91,14 @@ class RenderTemplateMixin(models.Model):
         null=True,
         default=dict,
         help_text=_(
-                'Any <a href="{url}">additional parameters</a> to pass when constructing the Jinja2 environment.'
-            ).format(url='https://jinja.palletsprojects.com/en/stable/api/#jinja2.Environment')
+            'Any <a href="{url}">additional parameters</a> to pass when constructing the Jinja environment'
+        ).format(url='https://jinja.palletsprojects.com/en/stable/api/#jinja2.Environment')
     )
     mime_type = models.CharField(
         max_length=50,
         blank=True,
         verbose_name=_('MIME type'),
-        help_text=_('Defaults to <code>{default}</code>').format(
-            default=DEFAULT_MIME_TYPE
-        ),
+        help_text=_('Defaults to <code>{default}</code>').format(default=DEFAULT_MIME_TYPE),
     )
     file_name = models.CharField(
         max_length=200,
@@ -149,13 +147,14 @@ class RenderTemplateMixin(models.Model):
 
         if self.as_attachment:
             extension = f'.{self.file_extension}' if self.file_extension else ''
-            if queryset:
-                filename = self.file_name or filename_from_model(queryset.model)
+            if self.file_name:
+                filename = self.file_name
+            elif queryset:
+                filename = filename_from_model(queryset.model)
             elif context:
-                filename = self.file_name or filename_from_object(context)
+                filename = filename_from_object(context)
             else:
-                filename = self.file_name or "template"
-            full_filename = f'{filename}{extension}'
-            response['Content-Disposition'] = f'attachment; filename="{full_filename}"'
+                filename = "output"
+            response['Content-Disposition'] = f'attachment; filename="{filename}{extension}"'
 
         return response

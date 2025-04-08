@@ -184,13 +184,13 @@ class ExportTemplateTable(NetBoxTable):
         verbose_name=_('Object Types'),
     )
     mime_type = tables.Column(
-        verbose_name=_('MIME type')
+        verbose_name=_('MIME Type')
     )
     file_name = tables.Column(
-        verbose_name=_('File name'),
+        verbose_name=_('File Name'),
     )
     file_extension = tables.Column(
-        verbose_name=_('File extension'),
+        verbose_name=_('File Extension'),
     )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
@@ -537,13 +537,13 @@ class ConfigTemplateTable(NetBoxTable):
         verbose_name=_('Synced')
     )
     mime_type = tables.Column(
-        verbose_name=_('MIME type')
+        verbose_name=_('MIME Type')
     )
     file_name = tables.Column(
-        verbose_name=_('File name'),
+        verbose_name=_('File Name'),
     )
     file_extension = tables.Column(
-        verbose_name=_('File extension'),
+        verbose_name=_('File Extension'),
     )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
