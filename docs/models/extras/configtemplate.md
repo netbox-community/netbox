@@ -26,7 +26,7 @@ A dictionary of any additional parameters to pass when instantiating the [Jinja2
 
 ### MIME Type
 
-The MIME type to indicate in the response when rendering the export template (optional). Defaults to `text/plain`.
+The MIME type to indicate in the response when rendering the configuration template (optional). Defaults to `text/plain`.
 
 ### File Name
 
