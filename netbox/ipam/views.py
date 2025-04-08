@@ -1433,12 +1433,13 @@ class ServiceView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         context = {}
-        if isinstance(instance.parent, Device):
-            context['breadcrumb_queryparam'] = 'device_id'
-        elif isinstance(instance.parent, VirtualMachine):
-            context['breadcrumb_queryparam'] = 'virtual_machine_id'
-        elif isinstance(instance.parent, FHRPGroup):
-            context['breadcrumb_queryparam'] = 'fhrpgroup_id'
+        match instance.parent:
+            case Device():
+                context['breadcrumb_queryparam'] = 'device_id'
+            case VirtualMachine():
+                context['breadcrumb_queryparam'] = 'virtual_machine_id'
+            case FHRPGroup():
+                context['breadcrumb_queryparam'] = 'fhrpgroup_id'
 
         return context
 
