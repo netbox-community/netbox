@@ -246,7 +246,9 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     fieldsets = (
         FieldSet('name', 'object_types', 'description', 'template_code', name=_('Export Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
-        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
+        FieldSet(
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+        ),
     )
 
     class Meta:
@@ -631,9 +633,11 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'description', 'environment_params', 'tags', name=_('Config Template')),
-        FieldSet('template_code', name=_('Content')),
+        FieldSet('name', 'description', 'tags', 'template_code', name=_('Config Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+        FieldSet(
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+        ),
     )
 
     class Meta:

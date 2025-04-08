@@ -183,6 +183,15 @@ class ExportTemplateTable(NetBoxTable):
     object_types = columns.ContentTypesColumn(
         verbose_name=_('Object Types'),
     )
+    mime_type = tables.Column(
+        verbose_name=_('MIME Type')
+    )
+    file_name = tables.Column(
+        verbose_name=_('File Name'),
+    )
+    file_extension = tables.Column(
+        verbose_name=_('File Extension'),
+    )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
         false_mark=None
@@ -527,6 +536,19 @@ class ConfigTemplateTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Synced')
     )
+    mime_type = tables.Column(
+        verbose_name=_('MIME Type')
+    )
+    file_name = tables.Column(
+        verbose_name=_('File Name'),
+    )
+    file_extension = tables.Column(
+        verbose_name=_('File Extension'),
+    )
+    as_attachment = columns.BooleanColumn(
+        verbose_name=_('As Attachment'),
+        false_mark=None
+    )
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
     )
@@ -554,8 +576,9 @@ class ConfigTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
-            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'role_count',
-            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags',
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'as_attachment',
+            'mime_type', 'file_name', 'file_extension', 'role_count', 'platform_count', 'device_count',
+            'vm_count', 'created', 'last_updated', 'tags',
         )
         default_columns = (
             'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',

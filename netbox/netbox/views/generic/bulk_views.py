@@ -107,7 +107,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             request: The current request
         """
         try:
-            return template.render_to_response(self.queryset)
+            return template.render_to_response(queryset=self.queryset)
         except Exception as e:
             messages.error(
                 request,

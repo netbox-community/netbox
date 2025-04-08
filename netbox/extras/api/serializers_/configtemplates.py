@@ -22,6 +22,7 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
         model = ConfigTemplate
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'environment_params', 'template_code',
-            'data_source', 'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
+            'mime_type', 'file_name', 'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file',
+            'data_synced', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

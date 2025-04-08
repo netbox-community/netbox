@@ -707,7 +707,10 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ConfigTemplate
-        fields = ('id', 'name', 'description', 'auto_sync_enabled', 'data_synced')
+        fields = (
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'auto_sync_enabled', 'data_synced'
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

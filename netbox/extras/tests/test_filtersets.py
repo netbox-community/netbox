@@ -616,19 +616,39 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
 class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
-    ignore_fields = ('template_code', 'data_path')
+    ignore_fields = ('template_code', 'environment_params', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
         object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
         export_templates = (
-            ExportTemplate(name='Export Template 1', template_code='TESTING', description='foobar1'),
             ExportTemplate(
-                name='Export Template 2', template_code='TESTING', description='foobar2',
-                file_name='export_template_2', file_extension='nagios',
+                name='Export Template 1',
+                template_code='TESTING',
+                description='foobar1',
+                mime_type='text/foo',
+                file_name='foo',
+                file_extension='foo',
+                as_attachment=True,
             ),
-            ExportTemplate(name='Export Template 3', template_code='TESTING', file_name='export_filename'),
+            ExportTemplate(
+                name='Export Template 2',
+                template_code='TESTING',
+                description='foobar2',
+                mime_type='text/bar',
+                file_name='bar',
+                file_extension='bar',
+                as_attachment=True,
+            ),
+            ExportTemplate(
+                name='Export Template 3',
+                template_code='TESTING',
+                mime_type='text/baz',
+                file_name='baz',
+                file_extension='baz',
+                as_attachment=False,
+            ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for i, et in enumerate(export_templates):
@@ -636,9 +656,6 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_q(self):
         params = {'q': 'foobar1'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-        params = {'q': 'export_filename'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
@@ -655,19 +672,21 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_mime_type(self):
+        params = {'mime_type': ['text/foo', 'text/bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_file_name(self):
-        params = {'file_name': ['export_filename']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'file_name': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_file_extension(self):
-        params = {'file_extension': ['nagios']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'file_extension': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-        params = {'file_name': ['export_template_2'], 'file_extension': ['nagios']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-        params = {'file_name': 'export_filename', 'file_extension': ['nagios']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+    def test_as_attachment(self):
+        params = {'as_attachment': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1088,9 +1107,32 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         config_templates = (
-            ConfigTemplate(name='Config Template 1', template_code='TESTING', description='foobar1'),
-            ConfigTemplate(name='Config Template 2', template_code='TESTING', description='foobar2'),
-            ConfigTemplate(name='Config Template 3', template_code='TESTING'),
+            ConfigTemplate(
+                name='Config Template 1',
+                template_code='TESTING',
+                description='foobar1',
+                mime_type='text/foo',
+                file_name='foo',
+                file_extension='foo',
+                as_attachment=True,
+            ),
+            ConfigTemplate(
+                name='Config Template 2',
+                template_code='TESTING',
+                description='foobar2',
+                mime_type='text/bar',
+                file_name='bar',
+                file_extension='bar',
+                as_attachment=True,
+            ),
+            ConfigTemplate(
+                name='Config Template 3',
+                template_code='TESTING',
+                mime_type='text/baz',
+                file_name='baz',
+                file_extension='baz',
+                as_attachment=False,
+            ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
@@ -1104,6 +1146,22 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mime_type(self):
+        params = {'mime_type': ['text/foo', 'text/bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_name(self):
+        params = {'file_name': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_extension(self):
+        params = {'file_extension': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_as_attachment(self):
+        params = {'as_attachment': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

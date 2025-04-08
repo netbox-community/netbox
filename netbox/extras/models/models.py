@@ -6,7 +6,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -16,12 +15,13 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
-from extras.utils import filename_from_model, image_upload
+from extras.utils import image_upload
+from extras.models.mixins import RenderTemplateMixin
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 )
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
@@ -382,7 +382,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         }
 
 
-class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderTemplateMixin):
     object_types = models.ManyToManyField(
         to='core.ObjectType',
         related_name='export_templates',
@@ -396,34 +396,6 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         verbose_name=_('description'),
         max_length=200,
         blank=True
-    )
-    template_code = models.TextField(
-        help_text=_(
-            "Jinja2 template code. The list of objects being exported is passed as a context variable named "
-            "<code>queryset</code>."
-        )
-    )
-    mime_type = models.CharField(
-        max_length=50,
-        blank=True,
-        verbose_name=_('MIME type'),
-        help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
-    )
-    file_name = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text=_('Filename to give to the rendered export file')
-    )
-    file_extension = models.CharField(
-        verbose_name=_('file extension'),
-        max_length=15,
-        blank=True,
-        help_text=_('Extension to append to the rendered filename')
-    )
-    as_attachment = models.BooleanField(
-        verbose_name=_('as attachment'),
-        default=True,
-        help_text=_("Download file as attachment")
     )
 
     clone_fields = (
@@ -460,37 +432,16 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         self.template_code = self.data_file.data_as_string
     sync_data.alters_data = True
 
-    def render(self, queryset):
-        """
-        Render the contents of the template.
-        """
-        context = {
-            'queryset': queryset
+    def get_context(self, context=None, queryset=None):
+        _context = {
+            'queryset': queryset,
         }
-        output = render_jinja2(self.template_code, context)
 
-        # Replace CRLF-style line terminators
-        output = output.replace('\r\n', '\n')
+        # Apply the provided context data, if any
+        if context is not None:
+            _context.update(context)
 
-        return output
-
-    def render_to_response(self, queryset):
-        """
-        Render the template to an HTTP response, delivered as a named file attachment
-        """
-        output = self.render(queryset)
-        mime_type = 'text/plain; charset=utf-8' if not self.mime_type else self.mime_type
-
-        # Build the response
-        response = HttpResponse(output, content_type=mime_type)
-
-        if self.as_attachment:
-            extension = f'.{self.file_extension}' if self.file_extension else ''
-            filename = self.file_name or filename_from_model(queryset.model)
-            full_filename = f'{filename}{extension}'
-            response['Content-Disposition'] = f'attachment; filename="{full_filename}"'
-
-        return response
+        return _context
 
 
 class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
