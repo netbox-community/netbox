@@ -89,8 +89,7 @@ class CatalogPluginTable(BaseTable):
         order_by = ('-is_installed', '-is_certified', 'name')
 
     def render_title_long(self, value, record):
-        if record.disabled:
-            return f"{value}"
-
+        if record.static:
+            return value
         url = reverse('core:plugin', args=[record.config_name])
         return mark_safe(f"<a href='{url}'>{value}</a>")

@@ -109,12 +109,12 @@ def get_local_plugins(plugins=None):
         else:
             plugins[k] = v
 
-    # Update plugin table config for hidden and disabled plugins
+    # Update plugin table config for hidden and static plugins
     hidden = settings.PLUGINS_CATALOG_CONFIG.get('hidden', [])
-    unlinked = settings.PLUGINS_CATALOG_CONFIG.get('unlinked', [])
+    static = settings.PLUGINS_CATALOG_CONFIG.get('static', [])
     for k, v in plugins.items():
         v.hidden = k in hidden
-        v.disabled = k in unlinked
+        v.static = k in static
 
     return plugins
 

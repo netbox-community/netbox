@@ -33,17 +33,21 @@ Note that a plugin must be listed in `PLUGINS` for its configuration to take eff
 
 ---
 
-## PLUGINS_CONFIG
+## PLUGINS_CATALOG_CONFIG
 
 Default: Empty
 
-This parameter holds configuration settings for how the individual plugins are displayed in the plugins table under Admin->System->Plugins.  Adding a plugin to `hidden` will make it so the plugin is not shown in the table.  Adding a plugin to `unlinked` will make it show the plugin in the table, but it won't be linked to the details and installation page for the plugin. An example configuration is shown below:
+This parameter controls how individual plugins are displayed in the plugins catalog under Admin > System > Plugins. Adding a plugin to the `hidden` list will omit that plugin from the catalog. Adding a plugin to the `static` list will display the plugin, but not link to the plugin details or upgrade instructions.
+
+An example configuration is shown below:
 
 ```python
 PLUGINS_CATALOG_CONFIG = {
-    'hidden': ['plugin1'],
-    'unlinked': ['plugin2'],
+    'hidden': [
+        'plugin1',
+    ],
+    'static': [
+        'plugin2',
+    ],
 }
 ```
-
----
