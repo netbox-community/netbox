@@ -320,9 +320,8 @@ class TableConfigForm(forms.ModelForm):
     )
     columns = SimpleArrayField(
         base_field=forms.CharField(),
-        required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10, 'class': 'form-select'}
+            attrs={'size': 10, 'class': 'form-select select-all'}
         ),
         label=_('Selected Columns')
     )
