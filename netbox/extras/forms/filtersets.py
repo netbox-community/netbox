@@ -160,9 +160,9 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        FieldSet('q', 'filter_id'),
+        FieldSet('q', 'filter_id', 'object_type_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
-        FieldSet('object_type_id', 'mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Attributes')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),

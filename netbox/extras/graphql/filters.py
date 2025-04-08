@@ -104,6 +104,9 @@ class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
     environment_params: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    mime_type: FilterLookup[str] | None = strawberry_django.filter_field()
+    file_extension: FilterLookup[str] | None = strawberry_django.filter_field()
+    as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.CustomField, lookups=True)
@@ -193,6 +196,9 @@ class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     template_code: FilterLookup[str] | None = strawberry_django.filter_field()
+    environment_params: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
     mime_type: FilterLookup[str] | None = strawberry_django.filter_field()
     file_extension: FilterLookup[str] | None = strawberry_django.filter_field()
     as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()

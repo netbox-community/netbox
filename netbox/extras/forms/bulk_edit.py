@@ -321,8 +321,27 @@ class ConfigTemplateBulkEditForm(BulkEditForm):
         max_length=200,
         required=False
     )
+    mime_type = forms.CharField(
+        label=_('MIME type'),
+        max_length=50,
+        required=False
+    )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
+    )
+    file_extension = forms.CharField(
+        label=_('File extension'),
+        max_length=15,
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        label=_('As attachment'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
 
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
 class JournalEntryBulkEditForm(BulkEditForm):
