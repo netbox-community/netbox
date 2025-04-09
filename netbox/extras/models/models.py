@@ -526,7 +526,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         return qd.urlencode()
 
 
-class TableConfig(ChangeLoggedModel):
+class TableConfig(CloningMixin, ChangeLoggedModel):
     """
     A saved configuration of columns and ordering which applies to a specific table.
     """
@@ -579,6 +579,8 @@ class TableConfig(ChangeLoggedModel):
         blank=True,
         null=True,
     )
+
+    clone_fields = ('object_type', 'table', 'enabled', 'shared', 'columns', 'ordering')
 
     class Meta:
         ordering = ('weight', 'name')
