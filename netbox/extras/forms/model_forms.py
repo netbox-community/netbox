@@ -312,6 +312,7 @@ class TableConfigForm(forms.ModelForm):
     )
     ordering = SimpleArrayField(
         base_field=forms.CharField(),
+        required=False,
         label=_('Ordering'),
         help_text=_(
             "Enter a comma-separated list of column names. Prepend a name with a hyphen to reverse the order."
