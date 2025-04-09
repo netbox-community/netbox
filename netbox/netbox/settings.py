@@ -141,6 +141,7 @@ MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media'
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
+PLUGINS_CATALOG_CONFIG = getattr(configuration, 'PLUGINS_CATALOG_CONFIG', {})
 PROXY_ROUTERS = getattr(configuration, 'PROXY_ROUTERS', ['utilities.proxy.DefaultProxyRouter'])
 QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
 REDIS = getattr(configuration, 'REDIS')  # Required

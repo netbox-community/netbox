@@ -1,4 +1,6 @@
 import django_tables2 as tables
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import BaseTable, columns
@@ -41,8 +43,7 @@ class PluginVersionTable(BaseTable):
 
 class CatalogPluginTable(BaseTable):
     title_long = tables.Column(
-        linkify=('core:plugin', [tables.A('config_name')]),
-        verbose_name=_('Name')
+        verbose_name=_('Name'),
     )
     author = tables.Column(
         accessor=tables.A('author__name'),
@@ -86,3 +87,9 @@ class CatalogPluginTable(BaseTable):
         # List installed plugins first, then certified plugins, then
         # everything else (with each tranche ordered alphabetically)
         order_by = ('-is_installed', '-is_certified', 'name')
+
+    def render_title_long(self, value, record):
+        if record.static:
+            return value
+        url = reverse('core:plugin', args=[record.config_name])
+        return mark_safe(f"<a href='{url}'>{value}</a>")
