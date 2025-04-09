@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   lock:
+    if: github.repository == 'netbox-community/netbox'
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@v5
