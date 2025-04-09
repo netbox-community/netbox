@@ -138,6 +138,17 @@ class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
         Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
     ], strawberry.union("IPAddressAssignmentType")] | None:
         return self.assigned_object
+        
+    @strawberry_django.field
+    def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        """
+        Return all prefixes containing this IP address.
+        """
+        from ipam.models import Prefix
+        return Prefix.objects.filter(
+            vrf=self.vrf,
+            prefix__net_contains_or_equals=str(self.address.ip)
+        )
 
 
 @strawberry_django.type(
