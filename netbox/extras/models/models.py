@@ -601,6 +601,10 @@ class TableConfig(ChangeLoggedModel):
 
     @property
     def ordering_items(self):
+        """
+        Return a list of two-tuples indicating the column(s) by which the table is to be ordered and a boolean for each
+        column indicating whether its ordering is ascending.
+        """
         items = []
         for col in self.ordering or []:
             if col.startswith('-'):

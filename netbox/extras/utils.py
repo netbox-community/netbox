@@ -25,13 +25,12 @@ class SharedObjectViewMixin:
         Return only shared objects, or those owned by the current user, unless this is a superuser.
         """
         queryset = super().get_queryset(request)
-        user = request.user
-        if user.is_superuser:
+        if request.user.is_superuser:
             return queryset
-        if user.is_anonymous:
+        if request.user.is_anonymous:
             return queryset.filter(shared=True)
         return queryset.filter(
-            Q(shared=True) | Q(user=user)
+            Q(shared=True) | Q(user=request.user)
         )
 
 

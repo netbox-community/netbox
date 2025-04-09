@@ -140,7 +140,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             tableconfig = get_object_or_404(TableConfig, pk=tableconfig_id)
             if request.user.is_authenticated:
                 table = self.table.__name__
-                request.user.config.set(f'tables.{table}.columns', tableconfig.columns, commit=True)
+                request.user.config.set(f'tables.{table}.columns', tableconfig.columns)
                 request.user.config.set(f'tables.{table}.ordering', tableconfig.ordering, commit=True)
             return redirect(request.path)
 
@@ -181,7 +181,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Retrieve available configurations for the table
         table_configs = TableConfig.objects.filter(
-            Q(shared=True) | Q(user=request.user),
+            Q(shared=True) | Q(user=request.user if request.user.is_authenticated else None),
             object_type=object_type,
             table=table.name,
             enabled=True,
