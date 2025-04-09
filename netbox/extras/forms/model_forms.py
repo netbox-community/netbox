@@ -344,7 +344,7 @@ class TableConfigForm(forms.ModelForm):
         model = object_type.model_class()
         table_name = get_field_value(self, 'table')
         table_class = get_table_for_model(model, table_name)
-        table = table_class(model.objects.all())
+        table = table_class([])
 
         if columns := self._get_columns():
             table._set_columns(columns)
@@ -354,7 +354,7 @@ class TableConfigForm(forms.ModelForm):
         self.fields['columns'].widget.choices = table.selected_columns
 
     def _get_columns(self):
-        if self.is_bound and (columns := self.data.get('columns')):
+        if self.is_bound and (columns := self.data.getlist('columns')):
             return columns
         if 'columns' in self.initial:
             columns = self.get_initial_for_field(self.fields['columns'], 'columns')
