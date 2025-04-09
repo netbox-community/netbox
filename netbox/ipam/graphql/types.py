@@ -142,13 +142,14 @@ class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     @strawberry_django.field
     def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
-        Return all prefixes containing this IP address.
+        Return all prefixes containing this IP address, sorted by depth in descending order.
+        The closest containing parent prefix will be first.
         """
         from ipam.models import Prefix
         return Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contains_or_equals=str(self.address.ip)
-        )
+        ).order_by('-_depth')
 
 
 @strawberry_django.type(
@@ -188,24 +189,27 @@ class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     @strawberry_django.field
     def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
-        Return all parent prefixes containing this prefix.
+        Return all parent prefixes containing this prefix, sorted by depth in descending order.
+        The closest containing parent prefix will be first.
         """
         from ipam.models import Prefix
         return Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contains=str(self.prefix)
-        )
+        ).order_by('-_depth')
 
     @strawberry_django.field
     def child_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
-        Return all child prefixes contained within this prefix.
+        Return all child prefixes contained within this prefix, sorted by depth and then by network.
         """
         from ipam.models import Prefix
+
+        # Get child prefixes sorted by depth first and then by prefix naturally
         return Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contained=str(self.prefix)
-        )
+        ).order_by('_depth', 'prefix')
 
     @strawberry_django.field
     def child_ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
