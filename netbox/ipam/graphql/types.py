@@ -140,16 +140,24 @@ class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
         return self.assigned_object
 
     @strawberry_django.field
-    def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+    def parent_prefixes(self, limit: int = 0) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
-        Return all prefixes containing this IP address, sorted by depth in descending order.
+        Return prefixes containing this IP address, sorted by depth in descending order.
         The closest containing parent prefix will be first.
+
+        Args:
+            limit: Maximum number of parent prefixes to return (0 for all)
         """
         from ipam.models import Prefix
-        return Prefix.objects.filter(
+        queryset = Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contains_or_equals=str(self.address.ip)
         ).order_by('-_depth')
+
+        if limit > 0:
+            return queryset[:limit]
+
+        return queryset
 
 
 @strawberry_django.type(
@@ -187,44 +195,79 @@ class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
         return self.scope
 
     @strawberry_django.field
-    def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+    def parent_prefixes(self, limit: int = 0) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
-        Return all parent prefixes containing this prefix, sorted by depth in descending order.
+        Return parent prefixes containing this prefix, sorted by depth in descending order.
         The closest containing parent prefix will be first.
+
+        Args:
+            limit: Maximum number of parent prefixes to return (0 for all)
         """
         from ipam.models import Prefix
-        return Prefix.objects.filter(
+        queryset = Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contains=str(self.prefix)
         ).order_by('-_depth')
 
+        if limit > 0:
+            return queryset[:limit]
+
+        return queryset
+
     @strawberry_django.field
-    def child_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+    def child_prefixes(self, max_depth: int = 0) -> List[Annotated[
+        "PrefixType", strawberry.lazy('ipam.graphql.types')
+    ]]:
         """
-        Return all child prefixes contained within this prefix, sorted by depth and then by network.
+        Return child prefixes contained within this prefix, sorted by depth and then by network.
+
+        Args:
+            max_depth: Maximum depth to traverse (0 for all depths)
+                       For example, 1 returns only immediate children, 2 returns children and grandchildren, etc.
         """
         from ipam.models import Prefix
 
-        # Get child prefixes sorted by depth first and then by prefix naturally
-        return Prefix.objects.filter(
+        # Base query for child prefixes
+        queryset = Prefix.objects.filter(
             vrf=self.vrf,
             prefix__net_contained=str(self.prefix)
-        ).order_by('_depth', 'prefix')
+        )
+
+        # If max_depth is specified, limit the depth of traversal
+        if max_depth > 0:
+            # Only include prefixes with depth <= current_prefix_depth + max_depth
+            # This limits traversal to max_depth levels below the current prefix
+            queryset = queryset.filter(_depth__lte=self._depth + max_depth)
+
+        # Sort by depth first and then by prefix naturally
+        return queryset.order_by('_depth', 'prefix')
 
     @strawberry_django.field
-    def child_ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+    def child_ip_addresses(self, direct_children_only: bool = False) -> List[Annotated[
+        "IPAddressType", strawberry.lazy('ipam.graphql.types')
+    ]]:
         """
-        Return all IP addresses within this prefix.
+        Return IP addresses within this prefix.
+
+        Args:
+            direct_children_only: If True, only return IP addresses with the same mask length as this prefix
         """
+        # Base query for IP addresses within this prefix
         if self.vrf is None and self.status == 'container':
-            return models.IPAddress.objects.filter(
+            queryset = models.IPAddress.objects.filter(
                 address__net_host_contained=str(self.prefix)
             )
         else:
-            return models.IPAddress.objects.filter(
+            queryset = models.IPAddress.objects.filter(
                 address__net_host_contained=str(self.prefix),
                 vrf=self.vrf
             )
+
+        # If direct_children_only is True, only include IPs with the same mask length as this prefix
+        if direct_children_only:
+            queryset = queryset.filter(address__net_mask_length=self.prefix.prefixlen)
+
+        return queryset
 
     @strawberry_django.field
     def first_available_ip_address(self) -> str:
