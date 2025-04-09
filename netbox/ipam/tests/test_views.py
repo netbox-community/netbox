@@ -666,6 +666,24 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
+        fhrp_groups = (
+            FHRPGroup(
+                name='FHRP Group 1',
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP,
+                group_id=10
+            ),
+            FHRPGroup(
+                name='FHRP Group 2',
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP,
+                group_id=20
+            ),
+            FHRPGroup(
+                name='FHRP Group 3',
+                protocol=FHRPGroupProtocolChoices.PROTOCOL_HSRP,
+                group_id=30
+            ),
+        )
+        FHRPGroup.objects.bulk_create(fhrp_groups)
         cls.form_data = {
             'vrf': vrfs[1].pk,
             'address': IPNetwork('192.0.2.99/24'),
@@ -679,10 +697,10 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "vrf,address,status",
-            "VRF 1,192.0.2.4/24,active",
-            "VRF 1,192.0.2.5/24,active",
-            "VRF 1,192.0.2.6/24,active",
+            "vrf,address,status,fhrp_group",
+            "VRF 1,192.0.2.4/24,active,FHRP Group 1",
+            "VRF 1,192.0.2.5/24,active,FHRP Group 2",
+            "VRF 1,192.0.2.6/24,active,FHRP Group 3",
         )
 
         cls.csv_update_data = (

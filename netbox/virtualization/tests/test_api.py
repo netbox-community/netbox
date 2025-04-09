@@ -1,11 +1,15 @@
+from django.test import tag
 from django.urls import reverse
+from netaddr import IPNetwork
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
-from extras.models import ConfigTemplate
+from extras.choices import CustomFieldTypeChoices
+from extras.models import ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import VLAN, VRF
+from ipam.models import Prefix, VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
 from virtualization.models import *
@@ -349,6 +353,39 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
                 'qinq_svlan': vlans[3].pk,
             },
         ]
+
+    @tag('regression')
+    def test_set_vminterface_as_object_in_custom_field(self):
+        cf = CustomField.objects.create(
+            name='associated_interface',
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            related_object_type=ObjectType.objects.get_for_model(VMInterface),
+            required=False
+        )
+        cf.object_types.set([ObjectType.objects.get_for_model(Prefix)])
+        cf.save()
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.0.0/12'))
+        vmi = VMInterface.objects.first()
+
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': prefix.pk})
+        data = {
+            'custom_fields': {
+                'associated_interface': vmi.id,
+            },
+        }
+
+        self.add_permissions('ipam.change_prefix')
+
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 200)
+
+        prefix_data = response.json()
+        self.assertEqual(prefix_data['custom_fields']['associated_interface']['id'], vmi.id)
+
+        reloaded_prefix = Prefix.objects.get(pk=prefix.pk)
+        self.assertEqual(prefix.pk, reloaded_prefix.pk)
+        self.assertNotEqual(reloaded_prefix.cf['associated_interface'], None)
 
     def test_bulk_delete_child_interfaces(self):
         interface1 = VMInterface.objects.get(name='Interface 1')

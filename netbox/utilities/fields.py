@@ -198,9 +198,9 @@ class GenericArrayForeignKey(FieldCacheMixin, models.Field):
     Provide a generic many-to-many relation through an 2d array field
     """
 
-    many_to_many = True
+    many_to_many = False
     many_to_one = False
-    one_to_many = False
+    one_to_many = True
     one_to_one = False
 
     def __init__(self, field, for_concrete_model=True):
