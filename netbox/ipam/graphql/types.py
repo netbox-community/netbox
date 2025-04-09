@@ -222,6 +222,22 @@ class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
                 vrf=self.vrf
             )
 
+    @strawberry_django.field
+    def first_available_ip_address(self) -> str:
+        """
+        Return the first available IP address within this prefix as a string, or an empty string if none is available.
+        """
+        first_ip = self.get_first_available_ip()
+        return first_ip if first_ip else ""
+
+    @strawberry_django.field
+    def first_available_child_prefix(self) -> str:
+        """
+        Return the first available child prefix within this prefix as a string, or an empty string if none is available.
+        """
+        first_prefix = self.get_first_available_prefix()
+        return str(first_prefix) if first_prefix else ""
+
 
 @strawberry_django.type(
     models.RIR,
