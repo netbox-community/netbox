@@ -4,30 +4,30 @@
 <html lang="en">
 
 <head>
-    <title>{% trans "Server Error" %}</title>
-    <link rel="stylesheet" href="{% static 'netbox-light.css'%}" />
-    <meta charset="UTF-8">
+  <title>{% trans "Server Error" %}</title>
+  <link rel="stylesheet" href="{% static 'netbox.css'%}" />
+  <meta charset="UTF-8">
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col col-md-6 offset-md-3">
-                <div class="card border-danger mt-5">
-                    <h2 class="card-header">
-                        <i class="mdi mdi-alert"></i> {% trans "Server Error" %}
-                    </h2>
-                    <div class="card-body">
-                        {% block message %}
-                            <p>
-                                {% trans "There was a problem with your request. Please contact an administrator" %}.
-                            </p>
-                        {% endblock %}
-                        <hr />
-                        <p>
-                            {% trans "The complete exception is provided below" %}:
-                        </p>
-<pre class="block"><strong>{{ exception }}</strong><br />
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col col-md-6 offset-md-3">
+        <div class="card border-danger mt-5">
+          <h2 class="card-header text-bg-danger">
+            <i class="mdi mdi-alert"></i> {% trans "Server Error" %}
+          </h2>
+          <div class="card-body">
+            {% block message %}
+              <p>
+                {% trans "There was a problem with your request. Please contact an administrator" %}.
+              </p>
+            {% endblock %}
+            <hr />
+            <p>
+              {% trans "The complete exception is provided below" %}:
+            </p>
+            <pre class="block"><strong>{{ exception }}</strong><br />
 {{ error }}
 
 {% trans "Python version" %}: {{ python_version }}
@@ -35,17 +35,17 @@
 {% trans "Plugins" %}: {% for plugin, version in plugins.items %}
   {{ plugin }}: {{ version }}{% empty %}{% trans "None installed" %}{% endfor %}
 </pre>
-                        <p>
-                            {% trans "If further assistance is required, please post to the" %} <a href="https://github.com/netbox-community/netbox/discussions">{% trans "NetBox discussion forum" %}</a> {% trans "on GitHub" %}.
-                        </p>
-                        <div class="text-end">
-                            <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Home Page" %}</a>
-                        </div>
-                    </div>
-                </div>
+            <p>
+              {% trans "If further assistance is required, please post to the" %} <a href="https://github.com/netbox-community/netbox/discussions">{% trans "NetBox discussion forum" %}</a> {% trans "on GitHub" %}.
+            </p>
+            <div class="text-end">
+              <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Home Page" %}</a>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>
