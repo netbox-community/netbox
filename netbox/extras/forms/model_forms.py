@@ -310,6 +310,13 @@ class TableConfigForm(forms.ModelForm):
         label=_('Object type'),
         queryset=ObjectType.objects.all()
     )
+    ordering = SimpleArrayField(
+        base_field=forms.CharField(),
+        label=_('Ordering'),
+        help_text=_(
+            "Enter a comma-separated list of column names. Prepend a name with a hyphen to reverse the order."
+        )
+    )
     available_columns = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
@@ -324,14 +331,6 @@ class TableConfigForm(forms.ModelForm):
             attrs={'size': 10, 'class': 'form-select select-all'}
         ),
         label=_('Selected Columns')
-    )
-
-    fieldsets = (
-        FieldSet(
-            'name', 'slug', 'object_type', 'table', 'description', 'weight', 'enabled', 'shared',
-            name=_('Table Config')
-        ),
-        FieldSet('columns', 'ordering', name=_('Configuration')),
     )
 
     class Meta:

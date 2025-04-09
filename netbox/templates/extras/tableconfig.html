@@ -47,24 +47,35 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h2 class="card-header">{% trans "Columns" %}</h2>
-        <div class="card-body">
-          <ul>
-            {% for column in object.columns %}
-              <li>{{ column }}</li>
-            {% endfor %}
-          </ul>
-        </div>
+        <h2 class="card-header">{% trans "Columns Displayed" %}</h2>
+        <ul class="list-group list-group-flush" role="presentation">
+          {% for name in object.columns %}
+            <li class="list-group-item list-group-item-action">
+              {% with column=columns|get_key:name %}
+                {{ column.verbose_name }}
+              {% endwith %}
+            </li>
+          {% endfor %}
+        </ul>
       </div>
       <div class="card">
         <h2 class="card-header">{% trans "Ordering" %}</h2>
-        <div class="card-body">
-          <ul>
-            {% for column in object.ordering %}
-              <li>{{ column }}</li>
-            {% endfor %}
-          </ul>
-        </div>
+        <ul class="list-group list-group-flush" role="presentation">
+          {% for column, ascending in object.ordering_items %}
+            <li class="list-group-item">
+              {% with column=columns|get_key:column %}
+                {% if ascending %}
+                  <i class="mdi mdi-arrow-down-thick"></i>
+                {% else %}
+                  <i class="mdi mdi-arrow-up-thick"></i>
+                {% endif %}
+                {{ column.verbose_name }}
+              {% endwith %}
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">{% trans "Default" %}</li>
+          {% endfor %}
+        </ul>
       </div>
       {% plugin_right_page object %}
     </div>

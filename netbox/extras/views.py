@@ -353,6 +353,12 @@ class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
 class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
     queryset = TableConfig.objects.all()
 
+    def get_extra_context(self, request, instance):
+        table = instance.table_class([])
+        return {
+            'columns': dict(table.columns.items()),
+        }
+
 
 @register_model_view(TableConfig, 'add', detail=False)
 @register_model_view(TableConfig, 'edit')

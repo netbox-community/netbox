@@ -599,6 +599,18 @@ class TableConfig(ChangeLoggedModel):
     def table_class(self):
         return get_table_for_model(self.object_type.model_class(), name=self.table)
 
+    @property
+    def ordering_items(self):
+        items = []
+        for col in self.ordering or []:
+            if col.startswith('-'):
+                ascending = False
+                col = col[1:]
+            else:
+                ascending = True
+            items.append((col, ascending))
+        return items
+
 
 class ImageAttachment(ChangeLoggedModel):
     """
