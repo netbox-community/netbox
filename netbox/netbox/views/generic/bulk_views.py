@@ -7,7 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError, RestrictedError
+from django.db.models import ManyToManyField, ProtectedError, Q, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
@@ -181,9 +181,10 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Retrieve available configurations for the table
         table_configs = TableConfig.objects.filter(
+            Q(shared=True) | Q(user=request.user),
             object_type=object_type,
             table=table.name,
-            shared=True
+            enabled=True,
         )
 
         # If this is an HTMX request, return only the rendered table HTML
