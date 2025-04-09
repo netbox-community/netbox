@@ -138,7 +138,7 @@ class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
         Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
     ], strawberry.union("IPAddressAssignmentType")] | None:
         return self.assigned_object
-        
+
     @strawberry_django.field
     def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
         """
@@ -184,6 +184,43 @@ class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
         Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
     ], strawberry.union("PrefixScopeType")] | None:
         return self.scope
+
+    @strawberry_django.field
+    def parent_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        """
+        Return all parent prefixes containing this prefix.
+        """
+        from ipam.models import Prefix
+        return Prefix.objects.filter(
+            vrf=self.vrf,
+            prefix__net_contains=str(self.prefix)
+        )
+
+    @strawberry_django.field
+    def child_prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        """
+        Return all child prefixes contained within this prefix.
+        """
+        from ipam.models import Prefix
+        return Prefix.objects.filter(
+            vrf=self.vrf,
+            prefix__net_contained=str(self.prefix)
+        )
+
+    @strawberry_django.field
+    def child_ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+        """
+        Return all IP addresses within this prefix.
+        """
+        if self.vrf is None and self.status == 'container':
+            return models.IPAddress.objects.filter(
+                address__net_host_contained=str(self.prefix)
+            )
+        else:
+            return models.IPAddress.objects.filter(
+                address__net_host_contained=str(self.prefix),
+                vrf=self.vrf
+            )
 
 
 @strawberry_django.type(
