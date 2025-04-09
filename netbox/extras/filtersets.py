@@ -355,14 +355,15 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = TableConfig
-        fields = ('id', 'name', 'slug', 'description', 'enabled', 'shared', 'weight')
+        fields = ('id', 'name', 'slug', 'description', 'table', 'enabled', 'shared', 'weight')
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(table__icontains=value)
         )
 
     def _usable(self, queryset, name, value):
