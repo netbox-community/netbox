@@ -10,6 +10,7 @@ from .template_code import *
 
 __all__ = (
     'AggregateTable',
+    'AnnotatedIPAddressTable',
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
@@ -268,6 +269,10 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
+    mark_populated = columns.BooleanColumn(
+        verbose_name=_('Marked Populated'),
+        false_mark=None
+    )
     mark_utilized = columns.BooleanColumn(
         verbose_name=_('Marked Utilized'),
         false_mark=None
@@ -288,7 +293,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'mark_populated', 'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -303,8 +309,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
-    address = tables.TemplateColumn(
-        template_code=IPADDRESS_LINK,
+    address = tables.Column(
+        linkify=True,
         verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
@@ -367,6 +373,16 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }
+
+
+class AnnotatedIPAddressTable(IPAddressTable):
+    address = tables.TemplateColumn(
+        template_code=IPADDRESS_LINK,
+        verbose_name=_('IP Address')
+    )
+
+    class Meta(IPAddressTable.Meta):
+        pass
 
 
 class IPAddressAssignTable(NetBoxTable):

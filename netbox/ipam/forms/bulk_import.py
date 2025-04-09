@@ -268,8 +268,8 @@ class IPRangeImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPRange
         fields = (
-            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'mark_utilized', 'description',
-            'comments', 'tags',
+            'start_address', 'end_address', 'vrf', 'tenant', 'status', 'role', 'mark_populated', 'mark_utilized',
+            'description', 'comments', 'tags',
         )
 
 
