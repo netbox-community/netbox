@@ -13,10 +13,10 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dcim', '0002_auto_20160622_1821'),
-        ('ipam', '0001_initial'),
-        ('extras', '0001_initial'),
-        ('tenancy', '0001_initial'),
+        ('dcim', '0002_squashed'),
+        ('ipam', '0001_squashed'),
+        ('extras', '0001_squashed'),
+        ('tenancy', '0001_squashed_0012'),
     ]
 
     replaces = [
@@ -154,7 +154,6 @@ class Migration(migrations.Migration):
                     'role',
                     models.ForeignKey(
                         blank=True,
-                        limit_choices_to={'vm_role': True},
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='virtual_machines',

@@ -8,8 +8,8 @@
 
   // Adjust hover color & style for menu items
   .navbar-collapse {
-    .nav-link-icon {
-      color: var(--tblr-nav-link-color) !important;
+    .nav-link-icon, .nav-link-title {
+      color: $rich-black;
     }
     .text-secondary {
       color: $dark-teal !important;
@@ -26,22 +26,11 @@
           visibility: hidden;
         }
 
-        // Style menu item hover state
-        &:hover {
+        // Style menu item hover/active state
+        &:hover, &.active {
           background-color: var(--tblr-navbar-active-bg);
           a {
             text-decoration: none;
-          }
-          .btn-group {
-            visibility: visible;
-          }
-        }
-
-        // Style active menu item
-        &.active {
-          background-color: var(--tblr-navbar-active-bg);
-          a {
-            color: $rich-black;
           }
           .btn-group {
             visibility: visible;
@@ -109,22 +98,17 @@ body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
     border-color: $bright-teal !important;
   }
 
+  .nav-link-title, .nav-link-icon {
+    color: white !important;
+  }
+
   // Adjust hover color & style for menu items
   .dropdown-item {
     a {
       color: white !important;
     }
-    &.active {
+    &.active, &:hover {
       background-color: $navbar-dark-active-bg !important;
-      a {
-        color: white !important;
-      }
-    }
-    &:hover {
-      background-color: $navbar-dark-active-bg !important;
-    }
-    .nav-link-title {
-      color: white !important;
     }
   }
   .text-secondary {

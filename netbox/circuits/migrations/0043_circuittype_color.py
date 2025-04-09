@@ -6,7 +6,7 @@ import utilities.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('circuits', '0042_provideraccount'),
+        ('circuits', '0038_squashed_0042'),
     ]
 
     operations = [

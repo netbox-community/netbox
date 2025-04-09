@@ -39,6 +39,7 @@ __all__ = (
     'ModuleImportForm',
     'ModuleBayImportForm',
     'ModuleTypeImportForm',
+    'ModuleTypeProfileImportForm',
     'PlatformImportForm',
     'PowerFeedImportForm',
     'PowerOutletImportForm',
@@ -68,7 +69,7 @@ class RegionImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Region
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class SiteGroupImportForm(NetBoxModelImportForm):
@@ -82,7 +83,7 @@ class SiteGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = SiteGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'comments', 'tags')
 
 
 class SiteImportForm(NetBoxModelImportForm):
@@ -160,7 +161,10 @@ class LocationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description', 'tags')
+        fields = (
+            'site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description',
+            'tags', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -219,7 +223,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
         model = RackType
         fields = (
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+            'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
             'weight_unit', 'description', 'comments', 'tags',
         )
 
@@ -304,7 +308,7 @@ class RackImportForm(NetBoxModelImportForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor', 'serial',
-            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
             'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
 
@@ -424,7 +428,22 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         ]
 
 
+class ModuleTypeProfileImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeImportForm(NetBoxModelImportForm):
+    profile = forms.ModelChoiceField(
+        label=_('Profile'),
+        queryset=ModuleTypeProfile.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     manufacturer = forms.ModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -457,6 +476,16 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent Device Role'),
+        error_messages={
+            'invalid_choice': _('Device role not found.'),
+        }
+    )
     config_template = CSVModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
@@ -468,7 +497,9 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags'
+        )
 
 
 class PlatformImportForm(NetBoxModelImportForm):

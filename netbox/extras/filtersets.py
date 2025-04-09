@@ -8,7 +8,9 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+from utilities.filters import (
+    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+)
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .filters import TagFilter
@@ -31,6 +33,7 @@ __all__ = (
     'SavedFilterFilterSet',
     'ScriptFilterSet',
     'TagFilterSet',
+    'TaggedItemFilterSet',
     'WebhookFilterSet',
 )
 
@@ -257,8 +260,8 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
     class Meta:
         model = ExportTemplate
         fields = (
-            'id', 'name', 'description', 'mime_type', 'file_extension', 'as_attachment', 'auto_sync_enabled',
-            'data_synced',
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'auto_sync_enabled', 'data_synced',
         )
 
     def search(self, queryset, name, value):
@@ -266,7 +269,8 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(file_name__icontains=value)
         )
 
 
@@ -449,7 +453,7 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'slug', 'color', 'description', 'object_types')
+        fields = ('id', 'name', 'slug', 'color', 'weight', 'description', 'object_types')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -489,6 +493,41 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     def _for_object_type(self, queryset, name, values):
         return queryset.filter(
             Q(object_types__id__in=values) | Q(object_types__isnull=True)
+        )
+
+
+class TaggedItemFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    object_type = ContentTypeFilter(
+        field_name='content_type'
+    )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ContentType.objects.all(),
+        field_name='content_type_id'
+    )
+    tag_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all()
+    )
+    tag = django_filters.ModelMultipleChoiceFilter(
+        field_name='tag__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+    )
+
+    class Meta:
+        model = TaggedItem
+        fields = ('id', 'object_id')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(tag__name__icontains=value) |
+            Q(tag__slug__icontains=value) |
+            Q(tag__description__icontains=value)
         )
 
 
@@ -668,7 +707,10 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ConfigTemplate
-        fields = ('id', 'name', 'description', 'auto_sync_enabled', 'data_synced')
+        fields = (
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'auto_sync_enabled', 'data_synced'
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

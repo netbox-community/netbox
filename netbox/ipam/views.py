@@ -11,7 +11,6 @@ from dcim.forms import InterfaceFilterForm
 from dcim.models import Interface, Site
 from ipam.tables import VLANTranslationRuleTable
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -22,7 +21,7 @@ from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
-from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
+from .utils import add_requested_prefixes, add_available_vlans, annotate_ip_space
 
 
 #
@@ -434,11 +433,6 @@ class AggregateBulkDeleteView(generic.BulkDeleteView):
     table = tables.AggregateTable
 
 
-@register_model_view(Aggregate, 'contacts')
-class AggregateContactsView(ObjectContactsView):
-    queryset = Aggregate.objects.all()
-
-
 #
 # Prefix/VLAN roles
 #
@@ -625,7 +619,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
-    table = tables.IPAddressTable
+    table = tables.AnnotatedIPAddressTable
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     template_name = 'ipam/prefix/ip_addresses.html'
@@ -641,7 +635,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         if not request.GET.get('q') and not get_table_ordering(request, self.table):
-            return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
+            return annotate_ip_space(parent)
         return queryset
 
     def get_extra_context(self, request, instance):
@@ -682,11 +676,6 @@ class PrefixBulkDeleteView(generic.BulkDeleteView):
     queryset = Prefix.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.PrefixFilterSet
     table = tables.PrefixTable
-
-
-@register_model_view(Prefix, 'contacts')
-class PrefixContactsView(ObjectContactsView):
-    queryset = Prefix.objects.all()
 
 
 #
@@ -776,11 +765,6 @@ class IPRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = IPRange.objects.all()
     filterset = filtersets.IPRangeFilterSet
     table = tables.IPRangeTable
-
-
-@register_model_view(IPRange, 'contacts')
-class IPRangeContactsView(ObjectContactsView):
-    queryset = IPRange.objects.all()
 
 
 #
@@ -962,11 +946,6 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_related_ips().restrict(request.user, 'view')
-
-
-@register_model_view(IPAddress, 'contacts')
-class IPAddressContactsView(ObjectContactsView):
-    queryset = IPAddress.objects.all()
 
 
 #
@@ -1476,8 +1455,3 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
-
-
-@register_model_view(Service, 'contacts')
-class ServiceContactsView(ObjectContactsView):
-    queryset = Service.objects.all()

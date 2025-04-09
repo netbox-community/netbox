@@ -4,6 +4,10 @@ Devices can be organized by functional roles, which are fully customizable by th
 
 ## Fields
 
+### Parent
+
+The parent role of which this role is a child (optional).
+
 ### Name
 
 A unique human-friendly name.

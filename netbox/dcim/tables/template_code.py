@@ -109,6 +109,11 @@ LOCATION_BUTTONS = """
 </a>
 """
 
+OUTER_UNIT = """
+{% load helpers %}
+{% if value %}{{ value }} {{ record.outer_unit }}{% endif %}
+"""
+
 #
 # Device component templatebuttons
 #
@@ -562,4 +567,8 @@ MODULEBAY_BUTTONS = """
         </a>
     {% endif %}
 {% endif %}
+"""
+
+MODULETYPEPROFILE_ATTRIBUTES = """
+{% if value %}{% for attr in value %}{{ attr }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
 """

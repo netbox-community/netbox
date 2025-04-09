@@ -198,6 +198,7 @@ Plugins can inject custom content into certain areas of core NetBox views. This 
 
 | Method              | View        | Description                                         |
 |---------------------|-------------|-----------------------------------------------------|
+| `head()`            | All         | Custom HTML `<head>` block includes                 |
 | `navbar()`          | All         | Inject content inside the top navigation bar        |
 | `list_buttons()`    | List view   | Add buttons to the top of the page                  |
 | `buttons()`         | Object view | Add buttons to the top of the page                  |

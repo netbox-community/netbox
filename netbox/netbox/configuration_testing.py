@@ -5,13 +5,15 @@
 
 ALLOWED_HOSTS = ['*']
 
-DATABASE = {
-    'NAME': 'netbox',
-    'USER': 'netbox',
-    'PASSWORD': 'netbox',
-    'HOST': 'localhost',
-    'PORT': '',
-    'CONN_MAX_AGE': 300,
+DATABASES = {
+    'default': {
+        'NAME': 'netbox',
+        'USER': 'netbox',
+        'PASSWORD': 'netbox',
+        'HOST': 'localhost',
+        'PORT': '',
+        'CONN_MAX_AGE': 300,
+    }
 }
 
 PLUGINS = [
@@ -40,6 +42,8 @@ REDIS = {
 SECRET_KEY = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 DEFAULT_PERMISSIONS = {}
+
+ALLOW_TOKEN_RETRIEVAL = True
 
 LOGGING = {
     'version': 1,

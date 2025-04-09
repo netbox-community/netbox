@@ -11,6 +11,7 @@ from django.core.cache import cache
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.datetime import datetime_from_timestamp
+from utilities.proxy import resolve_proxies
 
 USER_AGENT_STRING = f'NetBox/{settings.RELEASE.version} {settings.RELEASE.edition}'
 CACHE_KEY_CATALOG_FEED = 'plugins-catalog-feed'
@@ -64,9 +65,11 @@ class Plugin:
     is_certified: bool = False
     release_latest: PluginVersion = field(default_factory=PluginVersion)
     release_recent_history: list[PluginVersion] = field(default_factory=list)
-    is_local: bool = False  # extra field for locally installed plugins
-    is_installed: bool = False
+    is_local: bool = False  # Indicates that the plugin is listed in settings.PLUGINS (i.e. installed)
+    is_loaded: bool = False  # Indicates whether the plugin successfully loaded at launch
     installed_version: str = ''
+    netbox_min_version: str = ''
+    netbox_max_version: str = ''
 
 
 def get_local_plugins(plugins=None):
@@ -77,7 +80,7 @@ def get_local_plugins(plugins=None):
     local_plugins = {}
 
     # Gather all locally-installed plugins
-    for plugin_name in registry['plugins']['installed']:
+    for plugin_name in settings.PLUGINS:
         plugin = importlib.import_module(plugin_name)
         plugin_config: PluginConfig = plugin.config
         installed_version = plugin_config.version
@@ -91,18 +94,27 @@ def get_local_plugins(plugins=None):
             tag_line=plugin_config.description,
             description_short=plugin_config.description,
             is_local=True,
-            is_installed=True,
+            is_loaded=plugin_name in registry['plugins']['installed'],
             installed_version=installed_version,
+            netbox_min_version=plugin_config.min_version,
+            netbox_max_version=plugin_config.max_version,
         )
 
     # Update catalog entries for local plugins, or add them to the list if not listed
     for k, v in local_plugins.items():
         if k in plugins:
-            plugins[k].is_local = True
-            plugins[k].is_installed = True
+            plugins[k].is_local = v.is_local
+            plugins[k].is_loaded = v.is_loaded
             plugins[k].installed_version = v.installed_version
         else:
             plugins[k] = v
+
+    # Update plugin table config for hidden and static plugins
+    hidden = settings.PLUGINS_CATALOG_CONFIG.get('hidden', [])
+    static = settings.PLUGINS_CATALOG_CONFIG.get('static', [])
+    for k, v in plugins.items():
+        v.hidden = k in hidden
+        v.static = k in static
 
     return plugins
 
@@ -120,10 +132,11 @@ def get_catalog_plugins():
     def get_pages():
         # TODO: pagination is currently broken in API
         payload = {'page': '1', 'per_page': '50'}
+        proxies = resolve_proxies(url=settings.PLUGIN_CATALOG_URL)
         first_page = session.get(
             settings.PLUGIN_CATALOG_URL,
             headers={'User-Agent': USER_AGENT_STRING},
-            proxies=settings.HTTP_PROXIES,
+            proxies=proxies,
             timeout=3,
             params=payload
         ).json()
@@ -135,7 +148,7 @@ def get_catalog_plugins():
             next_page = session.get(
                 settings.PLUGIN_CATALOG_URL,
                 headers={'User-Agent': USER_AGENT_STRING},
-                proxies=settings.HTTP_PROXIES,
+                proxies=proxies,
                 timeout=3,
                 params=payload
             ).json()

@@ -30,7 +30,7 @@ class WirelessLANGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = WirelessLANGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class WirelessLANImportForm(ScopedImportForm, NetBoxModelImportForm):

@@ -46,6 +46,15 @@
           <th scope="row">Utilization</th>
           <td>{% utilization_graph object.utilization %}</td>
         </tr>
+        <tr>
+          <th scope="row">{% trans "Tenant" %}</th>
+          <td>
+            {% if object.tenant.group %}
+              {{ object.tenant.group|linkify }} /
+            {% endif %}
+            {{ object.tenant|linkify|placeholder }}
+          </td>
+        </tr>
       </table>
     </div>
     {% include 'inc/panels/tags.html' %}

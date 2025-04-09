@@ -28,11 +28,11 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('tenancy', '0007_contact_link'),
+        ('tenancy', '0002_squashed_0011'),
         ('contenttypes', '0002_remove_content_type_name'),
         ('extras', '0060_squashed_0086'),
-        ('ipam', '0053_asn_model'),
-        ('tenancy', '0009_standardize_description_comments'),
+        ('ipam', '0047_squashed_0053'),
+        ('tenancy', '0002_squashed_0011'),
     ]
 
     operations = [
@@ -304,14 +304,6 @@ class Migration(migrations.Migration):
                 (
                     'assigned_object_type',
                     models.ForeignKey(
-                        limit_choices_to=models.Q(
-                            models.Q(
-                                models.Q(('app_label', 'dcim'), ('model', 'interface')),
-                                models.Q(('app_label', 'ipam'), ('model', 'vlan')),
-                                models.Q(('app_label', 'virtualization'), ('model', 'vminterface')),
-                                _connector='OR',
-                            )
-                        ),
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='+',
                         to='contenttypes.contenttype',

@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -6,6 +6,11 @@ import strawberry_django
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
 from wireless import models
 from .filters import *
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import DeviceType, InterfaceType, LocationType, RegionType, SiteGroupType, SiteType
+    from ipam.graphql.types import VLANType
+    from tenancy.graphql.types import TenantType
 
 __all__ = (
     'WirelessLANType',
@@ -17,7 +22,8 @@ __all__ = (
 @strawberry_django.type(
     models.WirelessLANGroup,
     fields='__all__',
-    filters=WirelessLANGroupFilter
+    filters=WirelessLANGroupFilter,
+    pagination=True
 )
 class WirelessLANGroupType(OrganizationalObjectType):
     parent: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
@@ -28,8 +34,9 @@ class WirelessLANGroupType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.WirelessLAN,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
-    filters=WirelessLANFilter
+    exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
+    filters=WirelessLANFilter,
+    pagination=True
 )
 class WirelessLANType(NetBoxObjectType):
     group: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
@@ -51,7 +58,8 @@ class WirelessLANType(NetBoxObjectType):
 @strawberry_django.type(
     models.WirelessLink,
     fields='__all__',
-    filters=WirelessLinkFilter
+    filters=WirelessLinkFilter,
+    pagination=True
 )
 class WirelessLinkType(NetBoxObjectType):
     interface_a: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]

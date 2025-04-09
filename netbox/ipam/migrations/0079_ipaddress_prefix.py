@@ -48,7 +48,7 @@ def unset_prefix(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0076_natural_ordering'),
+        ('ipam', '0078_iprange_mark_utilized'),
     ]
 
     operations = [

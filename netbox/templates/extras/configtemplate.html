@@ -4,8 +4,8 @@
 {% load i18n %}
 
 {% block content %}
-  <div class="row mb-3">
-    <div class="col col-md-5">
+  <div class="row">
+    <div class="col col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Config Template" %}</h2>
         <table class="table table-hover attr-table">
@@ -16,6 +16,22 @@
           <tr>
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "MIME Type" %}</th>
+            <td>{{ object.mime_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Name" %}</th>
+            <td>{{ object.file_name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Extension" %}</th>
+            <td>{{ object.file_extension|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Attachment" %}</th>
+            <td>{% checkmark object.as_attachment %}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Data Source" %}</th>
@@ -51,7 +67,7 @@
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
     </div>
-    <div class="col col-md-7">
+    <div class="col col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Environment Parameters" %}</h2>
         <div class="card-body">

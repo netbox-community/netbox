@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -6,13 +6,34 @@ import strawberry_django
 from core.graphql.mixins import ChangelogMixin
 from dcim import models
 from extras.graphql.mixins import (
-    ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
+    ConfigContextMixin,
+    ContactsMixin,
+    CustomFieldsMixin,
+    ImageAttachmentsMixin,
+    TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
+
+if TYPE_CHECKING:
+    from circuits.graphql.types import CircuitTerminationType
+    from extras.graphql.types import ConfigTemplateType
+    from ipam.graphql.types import (
+        ASNType,
+        IPAddressType,
+        PrefixType,
+        ServiceType,
+        VLANTranslationPolicyType,
+        VLANType,
+        VRFType,
+    )
+    from tenancy.graphql.types import TenantType
+    from users.graphql.types import UserType
+    from virtualization.graphql.types import ClusterType, VMInterfaceType, VirtualMachineType
+    from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
     'CableType',
@@ -40,6 +61,7 @@ __all__ = (
     'ModuleType',
     'ModuleBayType',
     'ModuleBayTemplateType',
+    'ModuleTypeProfileType',
     'ModuleTypeType',
     'PlatformType',
     'PowerFeedType',
@@ -111,8 +133,9 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.CableTermination,
-    exclude=('termination_type', 'termination_id', '_device', '_rack', '_location', '_site'),
-    filters=CableTerminationFilter
+    exclude=['termination_type', 'termination_id', '_device', '_rack', '_location', '_site'],
+    filters=CableTerminationFilter,
+    pagination=True
 )
 class CableTerminationType(NetBoxObjectType):
     cable: Annotated["CableType", strawberry.lazy('dcim.graphql.types')] | None
@@ -132,7 +155,8 @@ class CableTerminationType(NetBoxObjectType):
 @strawberry_django.type(
     models.Cable,
     fields='__all__',
-    filters=CableFilter
+    filters=CableFilter,
+    pagination=True
 )
 class CableType(NetBoxObjectType):
     color: str
@@ -167,8 +191,9 @@ class CableType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ConsolePort,
-    exclude=('_path',),
-    filters=ConsolePortFilter
+    exclude=['_path'],
+    filters=ConsolePortFilter,
+    pagination=True
 )
 class ConsolePortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     pass
@@ -177,7 +202,8 @@ class ConsolePortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
 @strawberry_django.type(
     models.ConsolePortTemplate,
     fields='__all__',
-    filters=ConsolePortTemplateFilter
+    filters=ConsolePortTemplateFilter,
+    pagination=True
 )
 class ConsolePortTemplateType(ModularComponentTemplateType):
     pass
@@ -185,8 +211,9 @@ class ConsolePortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.ConsoleServerPort,
-    exclude=('_path',),
-    filters=ConsoleServerPortFilter
+    exclude=['_path'],
+    filters=ConsoleServerPortFilter,
+    pagination=True
 )
 class ConsoleServerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     pass
@@ -195,7 +222,8 @@ class ConsoleServerPortType(ModularComponentType, CabledObjectMixin, PathEndpoin
 @strawberry_django.type(
     models.ConsoleServerPortTemplate,
     fields='__all__',
-    filters=ConsoleServerPortTemplateFilter
+    filters=ConsoleServerPortTemplateFilter,
+    pagination=True
 )
 class ConsoleServerPortTemplateType(ModularComponentTemplateType):
     pass
@@ -204,7 +232,8 @@ class ConsoleServerPortTemplateType(ModularComponentTemplateType):
 @strawberry_django.type(
     models.Device,
     fields='__all__',
-    filters=DeviceFilter
+    filters=DeviceFilter,
+    pagination=True
 )
 class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     console_port_count: BigInt
@@ -259,7 +288,8 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBo
 @strawberry_django.type(
     models.DeviceBay,
     fields='__all__',
-    filters=DeviceBayFilter
+    filters=DeviceBayFilter,
+    pagination=True
 )
 class DeviceBayType(ComponentType):
     installed_device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
@@ -268,7 +298,8 @@ class DeviceBayType(ComponentType):
 @strawberry_django.type(
     models.DeviceBayTemplate,
     fields='__all__',
-    filters=DeviceBayTemplateFilter
+    filters=DeviceBayTemplateFilter,
+    pagination=True
 )
 class DeviceBayTemplateType(ComponentTemplateType):
     pass
@@ -276,8 +307,9 @@ class DeviceBayTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItemTemplate,
-    exclude=('component_type', 'component_id', 'parent'),
-    filters=InventoryItemTemplateFilter
+    exclude=['component_type', 'component_id', 'parent'],
+    filters=InventoryItemTemplateFilter,
+    pagination=True
 )
 class InventoryItemTemplateType(ComponentTemplateType):
     role: Annotated["InventoryItemRoleType", strawberry.lazy('dcim.graphql.types')] | None
@@ -303,9 +335,12 @@ class InventoryItemTemplateType(ComponentTemplateType):
 @strawberry_django.type(
     models.DeviceRole,
     fields='__all__',
-    filters=DeviceRoleFilter
+    filters=DeviceRoleFilter,
+    pagination=True
 )
 class DeviceRoleType(OrganizationalObjectType):
+    parent: Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')] | None
+    children: List[Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')]]
     color: str
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
@@ -316,7 +351,8 @@ class DeviceRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.DeviceType,
     fields='__all__',
-    filters=DeviceTypeFilter
+    filters=DeviceTypeFilter,
+    pagination=True
 )
 class DeviceTypeType(NetBoxObjectType):
     console_port_template_count: BigInt
@@ -350,7 +386,8 @@ class DeviceTypeType(NetBoxObjectType):
 @strawberry_django.type(
     models.FrontPort,
     fields='__all__',
-    filters=FrontPortFilter
+    filters=FrontPortFilter,
+    pagination=True
 )
 class FrontPortType(ModularComponentType, CabledObjectMixin):
     color: str
@@ -360,7 +397,8 @@ class FrontPortType(ModularComponentType, CabledObjectMixin):
 @strawberry_django.type(
     models.FrontPortTemplate,
     fields='__all__',
-    filters=FrontPortTemplateFilter
+    filters=FrontPortTemplateFilter,
+    pagination=True
 )
 class FrontPortTemplateType(ModularComponentTemplateType):
     color: str
@@ -369,8 +407,9 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.MACAddress,
-    exclude=('assigned_object_type', 'assigned_object_id'),
-    filters=MACAddressFilter
+    exclude=['assigned_object_type', 'assigned_object_id'],
+    filters=MACAddressFilter,
+    pagination=True
 )
 class MACAddressType(NetBoxObjectType):
     mac_address: str
@@ -385,8 +424,9 @@ class MACAddressType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Interface,
-    exclude=('_path',),
-    filters=InterfaceFilter
+    exclude=['_path'],
+    filters=InterfaceFilter,
+    pagination=True
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     _name: str
@@ -413,7 +453,8 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
 @strawberry_django.type(
     models.InterfaceTemplate,
     fields='__all__',
-    filters=InterfaceTemplateFilter
+    filters=InterfaceTemplateFilter,
+    pagination=True
 )
 class InterfaceTemplateType(ModularComponentTemplateType):
     _name: str
@@ -424,8 +465,9 @@ class InterfaceTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItem,
-    exclude=('component_type', 'component_id', 'parent'),
-    filters=InventoryItemFilter
+    exclude=['component_type', 'component_id', 'parent'],
+    filters=InventoryItemFilter,
+    pagination=True
 )
 class InventoryItemType(ComponentType):
     role: Annotated["InventoryItemRoleType", strawberry.lazy('dcim.graphql.types')] | None
@@ -451,7 +493,8 @@ class InventoryItemType(ComponentType):
 @strawberry_django.type(
     models.InventoryItemRole,
     fields='__all__',
-    filters=InventoryItemRoleFilter
+    filters=InventoryItemRoleFilter,
+    pagination=True
 )
 class InventoryItemRoleType(OrganizationalObjectType):
     color: str
@@ -463,8 +506,9 @@ class InventoryItemRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Location,
     # fields='__all__',
-    exclude=('parent',),  # bug - temp
-    filters=LocationFilter
+    exclude=['parent'],  # bug - temp
+    filters=LocationFilter,
+    pagination=True
 )
 class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, OrganizationalObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
@@ -491,7 +535,8 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
 @strawberry_django.type(
     models.Manufacturer,
     fields='__all__',
-    filters=ManufacturerFilter
+    filters=ManufacturerFilter,
+    pagination=True
 )
 class ManufacturerType(OrganizationalObjectType, ContactsMixin):
 
@@ -505,7 +550,8 @@ class ManufacturerType(OrganizationalObjectType, ContactsMixin):
 @strawberry_django.type(
     models.Module,
     fields='__all__',
-    filters=ModuleFilter
+    filters=ModuleFilter,
+    pagination=True
 )
 class ModuleType(NetBoxObjectType):
     device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]
@@ -524,8 +570,9 @@ class ModuleType(NetBoxObjectType):
 @strawberry_django.type(
     models.ModuleBay,
     # fields='__all__',
-    exclude=('parent',),
-    filters=ModuleBayFilter
+    exclude=['parent'],
+    filters=ModuleBayFilter,
+    pagination=True
 )
 class ModuleBayType(ModularComponentType):
 
@@ -540,18 +587,31 @@ class ModuleBayType(ModularComponentType):
 @strawberry_django.type(
     models.ModuleBayTemplate,
     fields='__all__',
-    filters=ModuleBayTemplateFilter
+    filters=ModuleBayTemplateFilter,
+    pagination=True
 )
 class ModuleBayTemplateType(ModularComponentTemplateType):
     pass
 
 
 @strawberry_django.type(
+    models.ModuleTypeProfile,
+    fields='__all__',
+    filters=ModuleTypeProfileFilter,
+    pagination=True
+)
+class ModuleTypeProfileType(NetBoxObjectType):
+    module_types: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.ModuleType,
     fields='__all__',
-    filters=ModuleTypeFilter
+    filters=ModuleTypeFilter,
+    pagination=True
 )
 class ModuleTypeType(NetBoxObjectType):
+    profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
     frontporttemplates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
@@ -567,7 +627,8 @@ class ModuleTypeType(NetBoxObjectType):
 @strawberry_django.type(
     models.Platform,
     fields='__all__',
-    filters=PlatformFilter
+    filters=PlatformFilter,
+    pagination=True
 )
 class PlatformType(OrganizationalObjectType):
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
@@ -579,8 +640,9 @@ class PlatformType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.PowerFeed,
-    exclude=('_path',),
-    filters=PowerFeedFilter
+    exclude=['_path'],
+    filters=PowerFeedFilter,
+    pagination=True
 )
 class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
     power_panel: Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]
@@ -590,8 +652,9 @@ class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
 
 @strawberry_django.type(
     models.PowerOutlet,
-    exclude=('_path',),
-    filters=PowerOutletFilter
+    exclude=['_path'],
+    filters=PowerOutletFilter,
+    pagination=True
 )
 class PowerOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     power_port: Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')] | None
@@ -601,7 +664,8 @@ class PowerOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
 @strawberry_django.type(
     models.PowerOutletTemplate,
     fields='__all__',
-    filters=PowerOutletTemplateFilter
+    filters=PowerOutletTemplateFilter,
+    pagination=True
 )
 class PowerOutletTemplateType(ModularComponentTemplateType):
     power_port: Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')] | None
@@ -610,7 +674,8 @@ class PowerOutletTemplateType(ModularComponentTemplateType):
 @strawberry_django.type(
     models.PowerPanel,
     fields='__all__',
-    filters=PowerPanelFilter
+    filters=PowerPanelFilter,
+    pagination=True
 )
 class PowerPanelType(NetBoxObjectType, ContactsMixin):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
@@ -621,8 +686,9 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
 
 @strawberry_django.type(
     models.PowerPort,
-    exclude=('_path',),
-    filters=PowerPortFilter
+    exclude=['_path'],
+    filters=PowerPortFilter,
+    pagination=True
 )
 class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
 
@@ -632,7 +698,8 @@ class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
 @strawberry_django.type(
     models.PowerPortTemplate,
     fields='__all__',
-    filters=PowerPortTemplateFilter
+    filters=PowerPortTemplateFilter,
+    pagination=True
 )
 class PowerPortTemplateType(ModularComponentTemplateType):
     poweroutlet_templates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
@@ -641,7 +708,8 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 @strawberry_django.type(
     models.RackType,
     fields='__all__',
-    filters=RackTypeFilter
+    filters=RackTypeFilter,
+    pagination=True
 )
 class RackTypeType(NetBoxObjectType):
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
@@ -650,7 +718,8 @@ class RackTypeType(NetBoxObjectType):
 @strawberry_django.type(
     models.Rack,
     fields='__all__',
-    filters=RackFilter
+    filters=RackFilter,
+    pagination=True
 )
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
@@ -668,7 +737,8 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 @strawberry_django.type(
     models.RackReservation,
     fields='__all__',
-    filters=RackReservationFilter
+    filters=RackReservationFilter,
+    pagination=True
 )
 class RackReservationType(NetBoxObjectType):
     units: List[int]
@@ -680,7 +750,8 @@ class RackReservationType(NetBoxObjectType):
 @strawberry_django.type(
     models.RackRole,
     fields='__all__',
-    filters=RackRoleFilter
+    filters=RackRoleFilter,
+    pagination=True
 )
 class RackRoleType(OrganizationalObjectType):
     color: str
@@ -691,7 +762,8 @@ class RackRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.RearPort,
     fields='__all__',
-    filters=RearPortFilter
+    filters=RearPortFilter,
+    pagination=True
 )
 class RearPortType(ModularComponentType, CabledObjectMixin):
     color: str
@@ -702,7 +774,8 @@ class RearPortType(ModularComponentType, CabledObjectMixin):
 @strawberry_django.type(
     models.RearPortTemplate,
     fields='__all__',
-    filters=RearPortTemplateFilter
+    filters=RearPortTemplateFilter,
+    pagination=True
 )
 class RearPortTemplateType(ModularComponentTemplateType):
     color: str
@@ -712,9 +785,9 @@ class RearPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Region,
-    exclude=('parent',),
-    # fields='__all__',
-    filters=RegionFilter
+    exclude=['parent'],
+    filters=RegionFilter,
+    pagination=True
 )
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
@@ -739,7 +812,8 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 @strawberry_django.type(
     models.Site,
     fields='__all__',
-    filters=SiteFilter
+    filters=SiteFilter,
+    pagination=True
 )
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     time_zone: str | None
@@ -772,9 +846,9 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 
 @strawberry_django.type(
     models.SiteGroup,
-    # fields='__all__',
-    exclude=('parent',),  # bug - temp
-    filters=SiteGroupFilter
+    exclude=['parent'],  # bug - temp
+    filters=SiteGroupFilter,
+    pagination=True
 )
 class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
@@ -799,7 +873,8 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 @strawberry_django.type(
     models.VirtualChassis,
     fields='__all__',
-    filters=VirtualChassisFilter
+    filters=VirtualChassisFilter,
+    pagination=True
 )
 class VirtualChassisType(NetBoxObjectType):
     member_count: BigInt
@@ -811,7 +886,8 @@ class VirtualChassisType(NetBoxObjectType):
 @strawberry_django.type(
     models.VirtualDeviceContext,
     fields='__all__',
-    filters=VirtualDeviceContextFilter
+    filters=VirtualDeviceContextFilter,
+    pagination=True
 )
 class VirtualDeviceContextType(NetBoxObjectType):
     device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None

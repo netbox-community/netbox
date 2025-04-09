@@ -160,9 +160,9 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        FieldSet('q', 'filter_id'),
+        FieldSet('q', 'filter_id', 'object_type_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
-        FieldSet('object_type_id', 'mime_type', 'file_extension', 'as_attachment', name=_('Attributes')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -185,6 +185,10 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     mime_type = forms.CharField(
         required=False,
         label=_('MIME type')
+    )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
     )
     file_extension = forms.CharField(
         label=_('File extension'),
@@ -318,7 +322,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('q', 'filter_id', 'tag_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
-        FieldSet('device_type_id', 'platform_id', 'role_id', name=_('Device')),
+        FieldSet('device_type_id', 'platform_id', 'device_role_id', name=_('Device')),
         FieldSet('cluster_type_id', 'cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant'))
     )
@@ -360,7 +364,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Device types')
     )
-    role_id = DynamicModelMultipleChoiceField(
+    device_role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
         label=_('Roles')
@@ -406,6 +410,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -421,6 +426,25 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         }
     )
     tag = TagFilterField(ConfigTemplate)
+    mime_type = forms.CharField(
+        required=False,
+        label=_('MIME type')
+    )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
+    )
+    file_extension = forms.CharField(
+        label=_('File extension'),
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        label=_('As attachment'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
 
 
 class LocalConfigContextFilterForm(forms.Form):

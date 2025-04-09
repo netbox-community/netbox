@@ -19,6 +19,7 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from core.api import schema  # noqa: F401
+        from core.checks import check_duplicate_indexes  # noqa: F401
         from netbox.models.features import register_models
         from . import data_backends, events, search  # noqa: F401
         from netbox import context_managers  # noqa: F401

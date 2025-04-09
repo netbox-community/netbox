@@ -1,0 +1,20 @@
+{
+    "name": "CPU",
+    "schema": {
+        "properties": {
+            "architecture": {
+                "type": "string",
+                "title": "Architecture"
+            },
+            "speed": {
+                "type": "number",
+                "title": "Speed",
+                "description": "Clock speed in GHz"
+            },
+            "cores": {
+                "type": "integer",
+                "description": "Number of cores present"
+            }
+        }
+    }
+}

@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 
 __all__ = (
@@ -27,6 +27,7 @@ class TenantGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Tenant Group')),
@@ -35,7 +36,7 @@ class TenantGroupForm(NetBoxModelForm):
     class Meta:
         model = TenantGroup
         fields = [
-            'parent', 'name', 'slug', 'description', 'tags',
+            'parent', 'name', 'slug', 'description', 'tags', 'comments'
         ]
 
 
@@ -70,6 +71,7 @@ class ContactGroupForm(NetBoxModelForm):
         required=False
     )
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Contact Group')),
@@ -77,7 +79,7 @@ class ContactGroupForm(NetBoxModelForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('parent', 'name', 'slug', 'description', 'tags')
+        fields = ('parent', 'name', 'slug', 'description', 'tags', 'comments')
 
 
 class ContactRoleForm(NetBoxModelForm):
@@ -93,8 +95,8 @@ class ContactRoleForm(NetBoxModelForm):
 
 
 class ContactForm(NetBoxModelForm):
-    group = DynamicModelChoiceField(
-        label=_('Group'),
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
@@ -102,7 +104,7 @@ class ContactForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags',
+            'groups', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags',
             name=_('Contact')
         ),
     )
@@ -110,7 +112,7 @@ class ContactForm(NetBoxModelForm):
     class Meta:
         model = Contact
         fields = (
-            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags',
+            'groups', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags',
         )
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
@@ -123,7 +125,7 @@ class ContactAssignmentForm(NetBoxModelForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         initial_params={
-            'contacts': '$contact'
+            'contact': '$contact'
         }
     )
     contact = DynamicModelChoiceField(

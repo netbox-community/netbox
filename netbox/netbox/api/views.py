@@ -4,15 +4,15 @@ from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
 from django_rq.queues import get_connection
-from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rq.worker import Worker
 
-from netbox.plugins.utils import get_installed_plugins
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.plugins.utils import get_installed_plugins
 
 
 class APIRootView(APIView):
@@ -66,7 +66,8 @@ class StatusView(APIView):
         return Response({
             'django-version': DJANGO_VERSION,
             'installed-apps': installed_apps,
-            'netbox-version': settings.RELEASE.full_version,
+            'netbox-version': settings.RELEASE.version,
+            'netbox-full-version': settings.RELEASE.full_version,
             'plugins': get_installed_plugins(),
             'python-version': platform.python_version(),
             'rq-workers-running': Worker.count(get_connection('default')),

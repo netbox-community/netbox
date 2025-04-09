@@ -479,6 +479,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             'object_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            'file_name': 'test_export_template_6',
         },
     ]
     bulk_update_data = {
@@ -494,7 +495,9 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
             ExportTemplate(
                 name='Export Template 2',
-                template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
+                template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+                file_name='export_template_2',
+                file_extension='test',
             ),
             ExportTemplate(
                 name='Export Template 3',
@@ -502,8 +505,10 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
+
+        device_object_type = ObjectType.objects.get_for_model(Device)
         for et in export_templates:
-            et.object_types.set([ObjectType.objects.get_for_model(Device)])
+            et.object_types.set([device_object_type])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):
@@ -513,6 +518,7 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Tag 4',
             'slug': 'tag-4',
+            'weight': 1000,
         },
         {
             'name': 'Tag 5',
@@ -533,9 +539,37 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
+            Tag(name='Tag 3', slug='tag-3', weight=26),
+        )
+        Tag.objects.bulk_create(tags)
+
+
+class TaggedItemTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase
+):
+    model = TaggedItem
+    brief_fields = ['display', 'id', 'object', 'object_id', 'object_type', 'tag', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tags = (
+            Tag(name='Tag 1', slug='tag-1'),
+            Tag(name='Tag 2', slug='tag-2'),
             Tag(name='Tag 3', slug='tag-3'),
         )
         Tag.objects.bulk_create(tags)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        sites[0].tags.set([tags[0], tags[1]])
+        sites[1].tags.set([tags[1], tags[2]])
+        sites[2].tags.set([tags[2], tags[0]])
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)
@@ -721,6 +755,10 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Config Template 4',
             'template_code': 'Foo: {{ foo }}',
+            'mime_type': 'text/plain',
+            'file_name': 'output4',
+            'file_extension': 'txt',
+            'as_attachment': True,
         },
         {
             'name': 'Config Template 5',
@@ -744,7 +782,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
             ConfigTemplate(
                 name='Config Template 2',
-                template_code='Bar: {{ bar }}'
+                template_code='Bar: {{ bar }}',
             ),
             ConfigTemplate(
                 name='Config Template 3',

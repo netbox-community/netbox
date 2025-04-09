@@ -478,7 +478,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = IPRange
-        fields = ('id', 'mark_utilized', 'size', 'description')
+        fields = ('id', 'mark_populated', 'mark_utilized', 'size', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -867,7 +867,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class VLANGroupFilterSet(OrganizationalModelFilterSet):
+class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'

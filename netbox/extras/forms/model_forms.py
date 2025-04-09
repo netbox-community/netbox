@@ -246,7 +246,9 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     fieldsets = (
         FieldSet('name', 'object_types', 'description', 'template_code', name=_('Export Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
-        FieldSet('mime_type', 'file_extension', 'as_attachment', name=_('Rendering')),
+        FieldSet(
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+        ),
     )
 
     class Meta:
@@ -490,15 +492,19 @@ class TagForm(forms.ModelForm):
         queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
 
     fieldsets = (
-        FieldSet('name', 'slug', 'color', 'description', 'object_types', name=_('Tag')),
+        FieldSet('name', 'slug', 'color', 'weight', 'description', 'object_types', name=_('Tag')),
     )
 
     class Meta:
         model = Tag
         fields = [
-            'name', 'slug', 'color', 'description', 'object_types',
+            'name', 'slug', 'color', 'weight', 'description', 'object_types',
         ]
 
 
@@ -627,9 +633,11 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'description', 'environment_params', 'tags', name=_('Config Template')),
-        FieldSet('template_code', name=_('Content')),
+        FieldSet('name', 'description', 'tags', 'template_code', name=_('Config Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+        FieldSet(
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+        ),
     )
 
     class Meta:

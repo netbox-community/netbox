@@ -769,6 +769,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='L2VPN 1',
                 slug='l2vpn-1',
                 type=L2VPNTypeChoices.TYPE_VXLAN,
+                status=L2VPNStatusChoices.STATUS_ACTIVE,
                 identifier=65001,
                 description='foobar1'
             ),
@@ -776,6 +777,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='L2VPN 2',
                 slug='l2vpn-2',
                 type=L2VPNTypeChoices.TYPE_VPWS,
+                status=L2VPNStatusChoices.STATUS_PLANNED,
                 identifier=65002,
                 description='foobar2'
             ),
@@ -783,6 +785,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='L2VPN 3',
                 slug='l2vpn-3',
                 type=L2VPNTypeChoices.TYPE_VPLS,
+                status=L2VPNStatusChoices.STATUS_DECOMMISSIONING,
                 description='foobar3'
             ),
         )
@@ -813,6 +816,15 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_type(self):
         params = {'type': [L2VPNTypeChoices.TYPE_VXLAN, L2VPNTypeChoices.TYPE_VPWS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        self.assertEqual(self.filterset({}, self.queryset).qs.count(), 3)
+
+        params = {'status': [L2VPNStatusChoices.STATUS_ACTIVE, L2VPNStatusChoices.STATUS_PLANNED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'status': [L2VPNStatusChoices.STATUS_DECOMMISSIONING]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}

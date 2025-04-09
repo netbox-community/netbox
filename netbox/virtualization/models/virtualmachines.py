@@ -82,7 +82,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         to='dcim.DeviceRole',
         on_delete=models.PROTECT,
         related_name='virtual_machines',
-        limit_choices_to={'vm_role': True},
         blank=True,
         null=True
     )

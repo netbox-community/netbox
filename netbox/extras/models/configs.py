@@ -4,16 +4,13 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from jinja2.loaders import BaseLoader
-from jinja2.sandbox import SandboxedEnvironment
 
+from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import ConfigContextQuerySet
-from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from netbox.registry import registry
 from utilities.data import deepmerge
-from utilities.jinja2 import DataFileLoader
 
 __all__ = (
     'ConfigContext',
@@ -210,7 +207,9 @@ class ConfigContextModel(models.Model):
 # Config templates
 #
 
-class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class ConfigTemplate(
+    RenderTemplateMixin, SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel
+):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -219,20 +218,6 @@ class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, Ta
         verbose_name=_('description'),
         max_length=200,
         blank=True
-    )
-    template_code = models.TextField(
-        verbose_name=_('template code'),
-        help_text=_('Jinja2 template code.')
-    )
-    environment_params = models.JSONField(
-        verbose_name=_('environment parameters'),
-        blank=True,
-        null=True,
-        default=dict,
-        help_text=_(
-            'Any <a href="https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment">additional parameters</a>'
-            ' to pass when constructing the Jinja2 environment.'
-        )
     )
 
     class Meta:
@@ -253,13 +238,8 @@ class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, Ta
         self.template_code = self.data_file.data_as_string
     sync_data.alters_data = True
 
-    def render(self, context=None):
-        """
-        Render the contents of the template.
-        """
+    def get_context(self, context=None, queryset=None):
         _context = dict()
-
-        # Populate the default template context with NetBox model classes, namespaced by app
         for app, model_names in registry['models'].items():
             _context.setdefault(app, {})
             for model_name in model_names:
@@ -269,37 +249,8 @@ class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, Ta
                 except LookupError:
                     pass
 
-        # Add the provided context data, if any
+        # Apply the provided context data, if any
         if context is not None:
             _context.update(context)
 
-        # Initialize the Jinja2 environment and instantiate the Template
-        environment = self._get_environment()
-        if self.data_file:
-            template = environment.get_template(self.data_file.path)
-        else:
-            template = environment.from_string(self.template_code)
-        output = template.render(**_context)
-
-        # Replace CRLF-style line terminators
-        return output.replace('\r\n', '\n')
-
-    def _get_environment(self):
-        """
-        Instantiate and return a Jinja2 environment suitable for rendering the ConfigTemplate.
-        """
-        # Initialize the template loader & cache the base template code (if applicable)
-        if self.data_file:
-            loader = DataFileLoader(data_source=self.data_source)
-            loader.cache_templates({
-                self.data_file.path: self.template_code
-            })
-        else:
-            loader = BaseLoader()
-
-        # Initialize the environment
-        env_params = self.environment_params or {}
-        environment = SandboxedEnvironment(loader=loader, **env_params)
-        environment.filters.update(get_config().JINJA2_FILTERS)
-
-        return environment
+        return _context

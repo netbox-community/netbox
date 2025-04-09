@@ -4,7 +4,6 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -19,7 +18,6 @@ from ipam.models import ASN, IPAddress, Prefix, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
@@ -304,11 +302,6 @@ class RegionBulkDeleteView(generic.BulkDeleteView):
     table = tables.RegionTable
 
 
-@register_model_view(Region, 'contacts')
-class RegionContactsView(ObjectContactsView):
-    queryset = Region.objects.all()
-
-
 #
 # Site groups
 #
@@ -412,11 +405,6 @@ class SiteGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.SiteGroupTable
 
 
-@register_model_view(SiteGroup, 'contacts')
-class SiteGroupContactsView(ObjectContactsView):
-    queryset = SiteGroup.objects.all()
-
-
 #
 # Sites
 #
@@ -492,11 +480,6 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
     queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
-
-
-@register_model_view(Site, 'contacts')
-class SiteContactsView(ObjectContactsView):
-    queryset = Site.objects.all()
 
 
 #
@@ -594,11 +577,6 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
     ).prefetch_related('site')
     filterset = filtersets.LocationFilterSet
     table = tables.LocationTable
-
-
-@register_model_view(Location, 'contacts')
-class LocationContactsView(ObjectContactsView):
-    queryset = Location.objects.all()
 
 
 #
@@ -887,11 +865,6 @@ class RackBulkDeleteView(generic.BulkDeleteView):
     table = tables.RackTable
 
 
-@register_model_view(Rack, 'contacts')
-class RackContactsView(ObjectContactsView):
-    queryset = Rack.objects.all()
-
-
 #
 # Rack reservations
 #
@@ -1027,11 +1000,6 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ManufacturerFilterSet
     table = tables.ManufacturerTable
-
-
-@register_model_view(Manufacturer, 'contacts')
-class ManufacturerContactsView(ObjectContactsView):
-    queryset = Manufacturer.objects.all()
 
 
 #
@@ -1276,6 +1244,62 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
+
+
+#
+# Module type profiles
+#
+
+@register_model_view(ModuleTypeProfile, 'list', path='', detail=False)
+class ModuleTypeProfileListView(generic.ObjectListView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(ModuleType, 'profile')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    filterset_form = forms.ModuleTypeProfileFilterForm
+    table = tables.ModuleTypeProfileTable
+
+
+@register_model_view(ModuleTypeProfile)
+class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = ModuleTypeProfile.objects.all()
+
+
+@register_model_view(ModuleTypeProfile, 'add', detail=False)
+@register_model_view(ModuleTypeProfile, 'edit')
+class ModuleTypeProfileEditView(generic.ObjectEditView):
+    queryset = ModuleTypeProfile.objects.all()
+    form = forms.ModuleTypeProfileForm
+
+
+@register_model_view(ModuleTypeProfile, 'delete')
+class ModuleTypeProfileDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleTypeProfile.objects.all()
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_import', detail=False)
+class ModuleTypeProfileBulkImportView(generic.BulkImportView):
+    queryset = ModuleTypeProfile.objects.all()
+    model_form = forms.ModuleTypeProfileImportForm
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_edit', path='edit', detail=False)
+class ModuleTypeProfileBulkEditView(generic.BulkEditView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    table = tables.ModuleTypeProfileTable
+    form = forms.ModuleTypeProfileBulkEditForm
+
+
+@register_model_view(ModuleTypeProfile, 'bulk_delete', path='delete', detail=False)
+class ModuleTypeProfileBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleTypeProfile.objects.annotate(
+        instance_count=count_related(Module, 'module_type')
+    )
+    filterset = filtersets.ModuleTypeProfileFilterSet
+    table = tables.ModuleTypeProfileTable
 
 
 #
@@ -2268,10 +2292,7 @@ class DeviceRenderConfigView(generic.ObjectView):
         # If a direct export has been requested, return the rendered template content as a
         # downloadable file.
         if request.GET.get('export'):
-            content = context['rendered_config'] or context['error_message']
-            response = HttpResponse(content, content_type='text')
-            filename = f"{instance.name or 'config'}.txt"
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response = context['config_template'].render_to_response(context=context['context_data'])
             return response
 
         return render(request, self.get_template_name(), {
@@ -2358,11 +2379,6 @@ class DeviceBulkRenameView(generic.BulkRenameView):
     queryset = Device.objects.all()
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
-
-
-@register_model_view(Device, 'contacts')
-class DeviceContactsView(ObjectContactsView):
-    queryset = Device.objects.all()
 
 
 #
@@ -3922,11 +3938,6 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.PowerPanelFilterSet
     table = tables.PowerPanelTable
-
-
-@register_model_view(PowerPanel, 'contacts')
-class PowerPanelContactsView(ObjectContactsView):
-    queryset = PowerPanel.objects.all()
 
 
 #
