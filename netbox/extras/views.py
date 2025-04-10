@@ -347,6 +347,9 @@ class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
     filterset = filtersets.TableConfigFilterSet
     filterset_form = forms.TableConfigFilterForm
     table = tables.TableConfigTable
+    actions = {
+        'export': {'view'},
+    }
 
 
 @register_model_view(TableConfig)
