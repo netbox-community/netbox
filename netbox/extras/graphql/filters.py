@@ -266,7 +266,6 @@ class SavedFilterFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 @strawberry_django.filter(models.TableConfig, lookups=True)
 class TableConfigFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
-    slug: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
     user_id: ID | None = strawberry_django.filter_field()

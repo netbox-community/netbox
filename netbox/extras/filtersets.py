@@ -355,7 +355,7 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = TableConfig
-        fields = ('id', 'name', 'slug', 'description', 'table', 'enabled', 'shared', 'weight')
+        fields = ('id', 'name', 'description', 'table', 'enabled', 'shared', 'weight')
 
     def search(self, queryset, name, value):
         if not value.strip():

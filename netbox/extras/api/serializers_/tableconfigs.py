@@ -16,7 +16,7 @@ class TableConfigSerializer(ValidatedModelSerializer):
     class Meta:
         model = TableConfig
         fields = [
-            'id', 'url', 'display_url', 'display', 'object_type', 'table', 'name', 'slug', 'description', 'user',
-            'weight', 'enabled', 'shared', 'columns', 'ordering', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'object_type', 'table', 'name', 'description', 'user', 'weight',
+            'enabled', 'shared', 'columns', 'ordering', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'object_type', 'table')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'object_type', 'table')

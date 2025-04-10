@@ -304,8 +304,8 @@ class TableConfigTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = TableConfig
         fields = (
-            'pk', 'id', 'name', 'slug', 'object_type', 'table', 'description', 'user', 'weight', 'enabled', 'shared',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'object_type', 'table', 'description', 'user', 'weight', 'enabled', 'shared', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'object_type', 'table', 'user', 'description', 'enabled', 'shared',

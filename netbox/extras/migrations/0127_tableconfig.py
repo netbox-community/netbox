@@ -20,7 +20,6 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('table', models.CharField(max_length=100)),
                 ('name', models.CharField(max_length=100)),
-                ('slug', models.SlugField(max_length=100)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('weight', models.PositiveSmallIntegerField(default=100)),
                 ('enabled', models.BooleanField(default=True)),

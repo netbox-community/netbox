@@ -305,7 +305,6 @@ class SavedFilterForm(forms.ModelForm):
 
 
 class TableConfigForm(forms.ModelForm):
-    slug = SlugField()
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
         queryset=ObjectType.objects.all()

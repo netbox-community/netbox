@@ -544,10 +544,6 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
         verbose_name=_('name'),
         max_length=100,
     )
-    slug = models.SlugField(
-        verbose_name=_('slug'),
-        max_length=100,
-    )
     description = models.CharField(
         verbose_name=_('description'),
         max_length=200,
