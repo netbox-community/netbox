@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('ipam', '0077_vlangroup_tenant'),
+        ('ipam', '0078_iprange_mark_utilized'),
     ]
 
     operations = [
