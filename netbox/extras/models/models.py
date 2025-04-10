@@ -626,6 +626,8 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
 
         # Validate ordering columns
         for name in self.ordering:
+            if name.startswith('-'):
+                name = name[1:]  # Strip leading hyphen
             if name not in table.columns:
                 raise ValidationError({
                     'ordering': _('Unknown column: {name}').format(name=name)
