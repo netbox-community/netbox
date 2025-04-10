@@ -237,7 +237,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 regions,
-                omit=(Cluster, Prefix, WirelessLAN),
+                omit=(Cluster, CircuitTermination, Prefix, WirelessLAN),
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
@@ -256,6 +256,10 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                     ),
 
                     # Handle these relations manually to avoid erroneous filter name resolution
+                    (
+                        CircuitTermination.objects.restrict(request.user, 'view').filter(_region__in=regions),
+                        'region_id'
+                    ),
                     (Cluster.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
                     (Prefix.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
                     (WirelessLAN.objects.restrict(request.user, 'view').filter(_region__in=regions), 'region_id'),
@@ -343,7 +347,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 groups,
-                omit=(Cluster, Prefix, WirelessLAN),
+                omit=(Cluster, CircuitTermination, Prefix, WirelessLAN),
                 extra=(
                     (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
                     (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
@@ -374,6 +378,10 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                     ),
 
                     # Handle these relations manually to avoid erroneous filter name resolution
+                    (
+                        CircuitTermination.objects.restrict(request.user, 'view').filter(_site_group__in=groups),
+                        'site_group_id'
+                    ),
                     (
                         Cluster.objects.restrict(request.user, 'view').filter(_site_group__in=groups),
                         'site_group_id'
@@ -481,6 +489,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                     (Cluster.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
                     (Prefix.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
                     (WirelessLAN.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
+                    (CircuitTermination.objects.restrict(request.user, 'view').filter(_site=instance), 'site_id'),
                 ),
             ),
         }
@@ -565,7 +574,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 locations,
-                omit=[CableTermination, Cluster, Prefix, WirelessLAN],
+                omit=[CableTermination, CircuitTermination, Cluster, Prefix, WirelessLAN],
                 extra=(
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(
@@ -575,6 +584,10 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                     ),
 
                     # Handle these relations manually to avoid erroneous filter name resolution
+                    (
+                        CircuitTermination.objects.restrict(request.user, 'view').filter(_location=instance),
+                        'location_id'
+                    ),
                     (Cluster.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (Prefix.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (WirelessLAN.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
