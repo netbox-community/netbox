@@ -19,4 +19,4 @@ class TableConfigSerializer(ValidatedModelSerializer):
             'id', 'url', 'display_url', 'display', 'object_type', 'table', 'name', 'slug', 'description', 'user',
             'weight', 'enabled', 'shared', 'columns', 'ordering', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'object_type', 'table')

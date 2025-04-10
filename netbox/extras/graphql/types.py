@@ -189,6 +189,7 @@ class SubscriptionType(ObjectType):
 
 @strawberry_django.type(
     models.TableConfig,
+    fields='__all__',
     filters=TableConfigFilter,
     pagination=True
 )

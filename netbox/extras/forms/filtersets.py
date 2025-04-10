@@ -253,9 +253,9 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.public(),
         required=False
