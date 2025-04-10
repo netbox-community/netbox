@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0123_remove_staging'),
+        ('extras', '0124_remove_staging'),
     ]
 
     operations = [

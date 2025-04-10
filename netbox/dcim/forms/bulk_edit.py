@@ -1458,7 +1458,7 @@ class InterfaceBulkEditForm(
     form_from_model(Interface, [
         'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
         'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'wireless_lans'
+        'wireless_lans', 'vlan_translation_policy'
     ])
 ):
     enabled = forms.NullBooleanField(
@@ -1611,7 +1611,9 @@ class InterfaceBulkEditForm(
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
-        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', name=_('802.1Q Switching')),
+        FieldSet(
+            'mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', 'vlan_translation_policy', name=_('802.1Q Switching')
+        ),
         FieldSet(
             TabbedGroups(
                 FieldSet('tagged_vlans', name=_('Assignment')),
@@ -1626,7 +1628,7 @@ class InterfaceBulkEditForm(
     nullable_fields = (
         'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu', 'description',
         'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans'
+        'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans', 'vlan_translation_policy',
     )
 
     def __init__(self, *args, **kwargs):

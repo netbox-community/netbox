@@ -8,7 +8,7 @@ import utilities.json
 class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0204_device_role_rebuild'),
-        ('extras', '0125_exporttemplate_file_name'),
+        ('extras', '0126_exporttemplate_file_name'),
     ]
 
     operations = [

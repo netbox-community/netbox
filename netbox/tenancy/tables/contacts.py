@@ -130,7 +130,8 @@ class ContactAssignmentTable(NetBoxTable):
     )
     contact_link = tables.Column(
         accessor=Accessor('contact__link'),
-        verbose_name=_('Contact Link')
+        verbose_name=_('Contact Link'),
+        linkify=lambda value: value,
     )
     contact_description = tables.Column(
         accessor=Accessor('contact__description'),

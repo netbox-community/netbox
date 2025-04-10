@@ -12,7 +12,8 @@ from netaddr.core import AddrFormatError
 from circuits.models import Provider
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
-from tenancy.filtersets import TenancyFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
+
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
@@ -148,7 +149,7 @@ class RIRFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'is_private', 'description')
 
 
-class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -231,6 +232,19 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('RIR (slug)'),
     )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='sites__group',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='sites__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
         queryset=Site.objects.all(),
@@ -276,7 +290,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
-class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet):
+class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -430,7 +444,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet):
         ).distinct()
 
 
-class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
+class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -522,7 +536,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         return queryset.filter(q)
 
 
-class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'
@@ -1136,7 +1150,7 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(NetBoxModelFilterSet):
+class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label=_('Device (ID)'),

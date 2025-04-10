@@ -2,6 +2,7 @@ exclude = [
     "netbox/project-static/**"
 ]
 line-length = 120
+target-version = "py310"
 
 [lint]
 extend-select = ["E1", "E2", "E3", "E501", "W"]

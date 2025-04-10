@@ -38,6 +38,7 @@ __all__ = (
 
 
 class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
+    model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet(
@@ -116,6 +117,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
+    model = CustomFieldChoiceSet
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('base_choices', 'choice', name=_('Choices')),
@@ -130,6 +132,7 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
+    model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
@@ -160,6 +163,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
+    model = ExportTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'object_type_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
@@ -205,6 +209,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
+    model = ImageAttachment
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'name', name=_('Attributes')),
@@ -221,6 +226,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
+    model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
@@ -349,6 +355,7 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
+    model = ConfigContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag_id'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
@@ -438,6 +445,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
+    model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
@@ -524,6 +532,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
 
 
 class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
+    model = NotificationGroup
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,

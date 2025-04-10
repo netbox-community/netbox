@@ -8,7 +8,10 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-django-debug-toolbar
+# See: https://django-debug-toolbar.readthedocs.io/en/latest/changes.html#id1
+# "Wrap SHOW_TOOLBAR_CALLBACK function with sync_to_async or async_to_sync to allow sync/async
+# compatibility." breaks stawberry-graphql-django at version 0.52.0 (current)
+django-debug-toolbar==5.0.1
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
@@ -96,8 +99,7 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-# See #18568
-mkdocstrings[python-legacy]==0.27.0
+mkdocstrings[python]
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst

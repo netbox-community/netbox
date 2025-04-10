@@ -213,10 +213,12 @@ class ObjectVar(ScriptVariable):
     :param context: A custom dictionary mapping template context variables to fields, used when rendering <option>
         elements within the dropdown menu (optional)
     :param null_option: The label to use as a "null" selection option (optional)
+    :param selector: Include an advanced object selection widget to assist the user in identifying the desired
+        object (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model, query_params=None, context=None, null_option=None, *args, **kwargs):
+    def __init__(self, model, query_params=None, context=None, null_option=None, selector=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
@@ -224,6 +226,7 @@ class ObjectVar(ScriptVariable):
             'query_params': query_params,
             'context': context,
             'null_option': null_option,
+            'selector': selector,
         })
 
 
@@ -499,7 +502,7 @@ class BaseScript:
     # Logging
     #
 
-    def _log(self, message, obj=None, level=LogLevelChoices.LOG_DEFAULT):
+    def _log(self, message, obj=None, level=LogLevelChoices.LOG_INFO):
         """
         Log a message. Do not call this method directly; use one of the log_* wrappers below.
         """

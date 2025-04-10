@@ -205,6 +205,7 @@ To ease development, it is recommended to go ahead and install the plugin at thi
 ```no-highlight
 $ pip install -e .
 ```
+
 More information on editable builds can be found at [Editable installs for pyproject.toml ](https://peps.python.org/pep-0660/).
 
 ## Configure NetBox

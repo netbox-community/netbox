@@ -690,14 +690,10 @@ class Device(
         verbose_name_plural = _('devices')
 
     def __str__(self):
-        if self.name and self.asset_tag:
-            return f'{self.name} ({self.asset_tag})'
-        elif self.name:
-            return self.name
-        elif self.virtual_chassis and self.asset_tag:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.asset_tag})'
-        elif self.virtual_chassis:
-            return f'{self.virtual_chassis.name}:{self.vc_position} ({self.pk})'
+        if self.label and self.asset_tag:
+            return f'{self.label} ({self.asset_tag})'
+        elif self.label:
+            return self.label
         elif self.device_type and self.asset_tag:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.asset_tag})'
         elif self.device_type:
@@ -962,13 +958,21 @@ class Device(
             device.save()
 
     @property
+    def label(self):
+        """
+        Return the device name if set; otherwise return a generated name if available.
+        """
+        if self.name:
+            return self.name
+        if self.virtual_chassis:
+            return f'{self.virtual_chassis.name}:{self.vc_position}'
+
+    @property
     def identifier(self):
         """
         Return the device name if set; otherwise return the Device's primary key as {pk}
         """
-        if self.name is not None:
-            return self.name
-        return '{{{}}}'.format(self.pk)
+        return self.label or '{{{}}}'.format(self.pk)
 
     @property
     def primary_ip(self):
@@ -1268,7 +1272,10 @@ class MACAddress(PrimaryModel):
             ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
 
-            if original_assigned_object.primary_mac_address:
+            if (
+                original_assigned_object.primary_mac_address
+                and original_assigned_object.primary_mac_address.pk == self.pk
+            ):
                 if not assigned_object:
                     raise ValidationError(
                         _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")

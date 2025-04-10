@@ -212,7 +212,7 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'available_at_site': '$site',
+            'available_at_site': '$scope',
         },
         label=_('VLAN'),
     )
@@ -239,6 +239,14 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
             'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
             'tenant', 'description', 'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # #18605: only filter VLAN select list if scope field is a Site
+        if scope_field := self.fields.get('scope', None):
+            if scope_field.queryset.model is not Site:
+                self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):

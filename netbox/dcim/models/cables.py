@@ -1,5 +1,4 @@
 import itertools
-from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -15,7 +14,8 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
-from utilities.fields import ColorField
+from utilities.exceptions import AbortRequest
+from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort, PathEndpoint
@@ -26,6 +26,7 @@ __all__ = (
     'CableTermination',
 )
 
+from ..exceptions import UnsupportedCablePath
 
 trace_paths = Signal()
 
@@ -236,8 +237,10 @@ class Cable(PrimaryModel):
             for termination in self.b_terminations:
                 if not termination.pk or termination not in b_terminations:
                     CableTermination(cable=self, cable_end='B', termination=termination).save()
-
-        trace_paths.send(Cable, instance=self, created=_created)
+        try:
+            trace_paths.send(Cable, instance=self, created=_created)
+        except UnsupportedCablePath as e:
+            raise AbortRequest(e)
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
@@ -486,13 +489,16 @@ class CablePath(models.Model):
             return ObjectType.objects.get_for_id(ct_id)
 
     @property
-    def path_objects(self):
-        """
-        Cache and return the complete path as lists of objects, derived from their annotation within the path.
-        """
-        if not hasattr(self, '_path_objects'):
-            self._path_objects = self._get_path()
-        return self._path_objects
+    def _path_decompiled(self):
+        res = []
+        for step in self.path:
+            nodes = []
+            for node in step:
+                nodes.append(decompile_path_node(node))
+            res.append(nodes)
+        return res
+
+    path_objects = GenericArrayForeignKey("_path_decompiled")
 
     @property
     def origins(self):
@@ -527,8 +533,8 @@ class CablePath(models.Model):
             return None
 
         # Ensure all originating terminations are attached to the same link
-        if len(terminations) > 1:
-            assert all(t.link == terminations[0].link for t in terminations[1:])
+        if len(terminations) > 1 and not all(t.link == terminations[0].link for t in terminations[1:]):
+            raise UnsupportedCablePath(_("All originating terminations must be attached to the same link"))
 
         path = []
         position_stack = []
@@ -539,12 +545,13 @@ class CablePath(models.Model):
         while terminations:
 
             # Terminations must all be of the same type
-            assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
+            if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
+                raise UnsupportedCablePath(_("All mid-span terminations must have the same termination type"))
 
             # All mid-span terminations must all be attached to the same device
-            if not isinstance(terminations[0], PathEndpoint):
-                assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
-                assert all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
+            if (not isinstance(terminations[0], PathEndpoint) and not
+                    all(t.parent_object == terminations[0].parent_object for t in terminations[1:])):
+                raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
@@ -567,8 +574,10 @@ class CablePath(models.Model):
                     return None
                 # Otherwise, halt the trace if no link exists
                 break
-            assert all(type(link) in (Cable, WirelessLink) for link in links)
-            assert all(isinstance(link, type(links[0])) for link in links)
+            if not all(type(link) in (Cable, WirelessLink) for link in links):
+                raise UnsupportedCablePath(_("All links must be cable or wireless"))
+            if not all(isinstance(link, type(links[0])) for link in links):
+                raise UnsupportedCablePath(_("All links must match first link type"))
 
             # Step 3: Record asymmetric paths as split
             not_connected_terminations = [termination.link for termination in terminations if termination.link is None]
@@ -649,14 +658,18 @@ class CablePath(models.Model):
                     positions = position_stack.pop()
 
                     # Ensure we have a number of positions equal to the amount of remote terminations
-                    assert len(remote_terminations) == len(positions)
+                    if len(remote_terminations) != len(positions):
+                        raise UnsupportedCablePath(
+                            _("All positions counts within the path on opposite ends of links must match")
+                        )
 
                     # Get our front ports
                     q_filter = Q()
                     for rt in remote_terminations:
                         position = positions.pop()
                         q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
-                    assert q_filter is not Q()
+                    if q_filter is Q():
+                        raise UnsupportedCablePath(_("Remote termination position filter is missing"))
                     front_ports = FrontPort.objects.filter(q_filter)
                 # Obtain the individual front ports based on the termination and position
                 elif position_stack:
@@ -741,42 +754,6 @@ class CablePath(models.Model):
         else:
             self.delete()
     retrace.alters_data = True
-
-    def _get_path(self):
-        """
-        Return the path as a list of prefetched objects.
-        """
-        # Compile a list of IDs to prefetch for each type of model in the path
-        to_prefetch = defaultdict(list)
-        for node in self._nodes:
-            ct_id, object_id = decompile_path_node(node)
-            to_prefetch[ct_id].append(object_id)
-
-        # Prefetch path objects using one query per model type. Prefetch related devices where appropriate.
-        prefetched = {}
-        for ct_id, object_ids in to_prefetch.items():
-            model_class = ObjectType.objects.get_for_id(ct_id).model_class()
-            queryset = model_class.objects.filter(pk__in=object_ids)
-            if hasattr(model_class, 'device'):
-                queryset = queryset.prefetch_related('device')
-            prefetched[ct_id] = {
-                obj.id: obj for obj in queryset
-            }
-
-        # Replicate the path using the prefetched objects.
-        path = []
-        for step in self.path:
-            nodes = []
-            for node in step:
-                ct_id, object_id = decompile_path_node(node)
-                try:
-                    nodes.append(prefetched[ct_id][object_id])
-                except KeyError:
-                    # Ignore stale (deleted) object IDs
-                    pass
-            path.append(nodes)
-
-        return path
 
     def get_cable_ids(self):
         """

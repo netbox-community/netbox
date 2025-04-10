@@ -67,6 +67,7 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
 
 
 class JobFilterForm(SavedFiltersMixin, FilterForm):
+    model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type', 'status', name=_('Attributes')),
@@ -167,6 +168,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    model = ConfigRevision
     fieldsets = (
         FieldSet('q', 'filter_id'),
     )

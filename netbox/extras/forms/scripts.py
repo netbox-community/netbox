@@ -5,11 +5,11 @@ from django.conf import settings
 from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
+from core.choices import JobIntervalChoices
 from core.forms import ManagedFileForm
-from extras.choices import DurationChoices
 from extras.storage import ScriptFileSystemStorage
-from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
+from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 
 __all__ = (
     'ScriptFileForm',
@@ -35,7 +35,7 @@ class ScriptForm(forms.Form):
         min_value=1,
         label=_("Recurs every"),
         widget=NumberWithOptions(
-            options=DurationChoices
+            options=JobIntervalChoices
         ),
         help_text=_("Interval at which this script is re-run (in minutes)")
     )
