@@ -24,6 +24,8 @@ def set_prefix(apps, schema_editor):
     addresses = IPAddress.objects.all()
     i = 0
     total = addresses.count()
+    if total > 0:
+        print('\r\n')
     draw_progress(i, total, 50)
     for ip in addresses:
         i += 1
