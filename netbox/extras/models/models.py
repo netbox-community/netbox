@@ -613,6 +613,31 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
             items.append((col, ascending))
         return items
 
+    def clean(self):
+        super().clean()
+
+        # Validate table
+        if self.table_class is None:
+            raise ValidationError({
+                'table': _("Unknown table: {name}").format(name=self.table)
+            })
+
+        table = self.table_class([])
+
+        # Validate ordering columns
+        for name in self.ordering:
+            if name not in table.columns:
+                raise ValidationError({
+                    'ordering': _('Unknown column: {name}').format(name=name)
+                })
+
+        # Validate selected columns
+        for name in self.columns:
+            if name not in table.columns:
+                raise ValidationError({
+                    'columns': _('Unknown column: {name}').format(name=name)
+                })
+
 
 class ImageAttachment(ChangeLoggedModel):
     """

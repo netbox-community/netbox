@@ -13,7 +13,10 @@ __all__ = (
 
 def get_table_for_model(model, name=None):
     name = name or f'{model.__name__}Table'
-    return import_string(f'{model._meta.app_label}.tables.{name}')
+    try:
+        return import_string(f'{model._meta.app_label}.tables.{name}')
+    except ImportError:
+        return
 
 
 def get_table_ordering(request, table):
