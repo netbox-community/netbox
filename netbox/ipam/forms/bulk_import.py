@@ -571,6 +571,10 @@ class ServiceImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent object name')
     )
+    parent_object_id = forms.IntegerField(
+        required=False,
+        help_text=_('Parent object ID'),
+    )
     protocol = CSVChoiceField(
         label=_('Protocol'),
         choices=ServiceProtocolChoices,
@@ -586,8 +590,7 @@ class ServiceImportForm(NetBoxModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'parent_object_type', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments',
-            'tags', 'parent_object_id',
+            'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -619,16 +622,20 @@ class ServiceImportForm(NetBoxModelImportForm):
                 parent = parent_ct.model_class().objects.filter(id=parent_id).first()
                 self.cleaned_data['parent'] = parent
             else:
-                # If a parent object type is passed and we've made it to here, then raise a validation
-                # error since an associated parent object or parent object id has nto be passed
+                # If a parent object type is passed and we've made it here, then raise a validation
+                # error since an associated parent object or parent object id has not been passed
                 raise forms.ValidationError(
-                    _("One of parent or parent_object_id needs to be included with parent_object_type")
+                    _("One of parent or parent_object_id must be included with parent_object_type")
                 )
 
+        # making sure parent is defined. In cases where an import is resulting in an update, the
+        # import data might not include the parent object and so the above logic might not be
+        # triggered
+        parent = self.cleaned_data.get('parent')
         for ip_address in self.cleaned_data.get('ipaddresses', []):
             if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
                 raise forms.ValidationError(
-                    _("{ip} is not assigned to this device/VM.").format(ip=ip_address)
+                    _("{ip} is not assigned to this parent.").format(ip=ip_address)
                 )
 
         return self.cleaned_data

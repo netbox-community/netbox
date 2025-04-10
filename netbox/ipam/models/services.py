@@ -68,13 +68,8 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+',
-        blank=True,
-        null=True
     )
-    parent_object_id = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
-    )
+    parent_object_id = models.PositiveBigIntegerField()
     parent = GenericForeignKey(
         ct_field='parent_object_type',
         fk_field='parent_object_id'

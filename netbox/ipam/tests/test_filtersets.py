@@ -1258,9 +1258,24 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         IPAddress.objects.bulk_create(ipaddresses)
 
         services = (
-            Service(name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(
+                parent=devices[0],
+                name='Service 1',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[1],
+                name='Service 2',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])

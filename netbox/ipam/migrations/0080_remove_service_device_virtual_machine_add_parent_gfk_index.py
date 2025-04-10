@@ -18,6 +18,18 @@ class Migration(migrations.Migration):
             model_name='service',
             name='virtual_machine',
         ),
+        migrations.AlterField(
+            model_name='service',
+            name='parent_object_id',
+            field=models.PositiveBigIntegerField(),
+        ),
+        migrations.AlterField(
+            model_name='service',
+            name='parent_object_type',
+            field=models.ForeignKey(
+                on_delete=models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype'
+            ),
+        ),
         migrations.AddIndex(
             model_name='service',
             index=models.Index(
