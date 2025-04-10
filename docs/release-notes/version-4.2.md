@@ -1,5 +1,34 @@
 # NetBox v4.2
 
+## v4.2.7 (2025-04-10)
+
+### Enhancements
+
+* [#16144](https://github.com/netbox-community/netbox/issues/16144) - Add support for plugin models to GetReturnURLMixin
+* [#18138](https://github.com/netbox-community/netbox/issues/18138) - Enable filtering of ObjectVar and MultiObjectVar input selections for custom fields
+* [#18656](https://github.com/netbox-community/netbox/issues/18656) - Enable FHRP group assignment when bulk importing IP addresses
+* [#18980](https://github.com/netbox-community/netbox/issues/18980) - Optimize bulk updates of custom field values when custom fields are added/removed
+* [#19018](https://github.com/netbox-community/netbox/issues/19018) - Add MoCA interface type
+
+### Bug Fixes
+
+* [#18553](https://github.com/netbox-community/netbox/issues/18553) - Avoid clearing site of assigned virtual machines when editing a cluster
+* [#18738](https://github.com/netbox-community/netbox/issues/18738) - Respect declared ordering of custom scripts within a module
+* [#18895](https://github.com/netbox-community/netbox/issues/18895) - Fix GraphQL support for interfaces which terminate virtual circuits
+* [#18904](https://github.com/netbox-community/netbox/issues/18904) - Add missing tags column to config contexts table
+* [#18964](https://github.com/netbox-community/netbox/issues/18964) - Fix "select all" behavior on object lists
+* [#18965](https://github.com/netbox-community/netbox/issues/18965) - "Run script" button should respect default commit toggle for custom scripts
+* [#18991](https://github.com/netbox-community/netbox/issues/18991) - Fix cable path tracing for pass-through ports in REST API
+* [#18999](https://github.com/netbox-community/netbox/issues/18999) - Fix filtering of inventory items with no manufacturer in GraphQL API
+* [#19021](https://github.com/netbox-community/netbox/issues/19021) - Preserve JSONField stylign when `help_text` is passed
+* [#19023](https://github.com/netbox-community/netbox/issues/19023) - `get_field_value()` should honor null values on bound form fields
+* [#19030](https://github.com/netbox-community/netbox/issues/19030) - Prevent pagination buttons from overlapping bulk action buttons on object lists
+* [#19041](https://github.com/netbox-community/netbox/issues/19041) - Fix `IndexError` exception when creating multiple front ports with a label
+* [#19092](https://github.com/netbox-community/netbox/issues/19092) - Fix clearing of scope field when bulk editing prefixes
+* [#19122](https://github.com/netbox-community/netbox/issues/19122) - Fix styling of server error page
+
+---
+
 ## v4.2.6 (2025-03-21)
 
 ### Enhancements
