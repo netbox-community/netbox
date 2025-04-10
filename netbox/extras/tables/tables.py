@@ -27,6 +27,7 @@ __all__ = (
     'ReportResultsTable',
     'ScriptResultsTable',
     'SubscriptionTable',
+    'TableConfigTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -278,6 +279,36 @@ class SavedFilterTable(NetBoxTable):
         )
         default_columns = (
             'pk', 'name', 'object_types', 'user', 'description', 'enabled', 'shared',
+        )
+
+
+class TableConfigTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    table = tables.Column(
+        verbose_name=_('Table Name')
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    shared = columns.BooleanColumn(
+        verbose_name=_('Shared'),
+        false_mark=None
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = TableConfig
+        fields = (
+            'pk', 'id', 'name', 'object_type', 'table', 'description', 'user', 'weight', 'enabled', 'shared', 'created',
+            'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'object_type', 'table', 'user', 'description', 'enabled', 'shared',
         )
 
 

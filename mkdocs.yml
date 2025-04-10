@@ -233,6 +233,7 @@ nav:
             - NotificationGroup: 'models/extras/notificationgroup.md'
             - SavedFilter: 'models/extras/savedfilter.md'
             - Subscription: 'models/extras/subscription.md'
+            - TableConfig: 'models/extras/tableconfig.md'
             - Tag: 'models/extras/tag.md'
             - Webhook: 'models/extras/webhook.md'
         - IPAM:

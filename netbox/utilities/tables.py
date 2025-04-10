@@ -1,11 +1,22 @@
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+
 from netbox.registry import registry
 
 __all__ = (
+    'get_table_for_model',
     'get_table_ordering',
     'linkify_phone',
     'register_table_column'
 )
+
+
+def get_table_for_model(model, name=None):
+    name = name or f'{model.__name__}Table'
+    try:
+        return import_string(f'{model._meta.app_label}.tables.{name}')
+    except ImportError:
+        return
 
 
 def get_table_ordering(request, table):

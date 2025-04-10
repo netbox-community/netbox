@@ -2,16 +2,6 @@ import { createToast } from './bs';
 import { getElements, apiPatch, hasError, getSelectedOptions } from './util';
 
 /**
- * Mark each option element in the selected columns element as 'selected' so they are submitted to
- * the API.
- */
-function saveTableConfig(): void {
-  for (const element of getElements<HTMLOptionElement>('select[name="columns"] option')) {
-    element.selected = true;
-  }
-}
-
-/**
  * Add columns to the table config select element.
  */
 function addColumns(event: Event): void {
@@ -124,9 +114,6 @@ function handleSubmit(event: Event): void {
  * Initialize table configuration elements.
  */
 export function initTableConfig(): void {
-  for (const element of getElements<HTMLButtonElement>('#save_tableconfig')) {
-    element.addEventListener('click', saveTableConfig);
-  }
   for (const element of getElements<HTMLButtonElement>('#add_columns')) {
     element.addEventListener('click', addColumns);
   }

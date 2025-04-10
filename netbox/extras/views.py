@@ -18,6 +18,7 @@ from dcim.models import Device, DeviceRole, Platform
 from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
+from extras.utils import SharedObjectViewMixin
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
@@ -285,39 +286,22 @@ class ExportTemplateBulkSyncDataView(generic.BulkSyncDataView):
 # Saved filters
 #
 
-class SavedFilterMixin:
-
-    def get_queryset(self, request):
-        """
-        Return only shared SavedFilters, or those owned by the current user, unless
-        this is a superuser.
-        """
-        queryset = SavedFilter.objects.all()
-        user = request.user
-        if user.is_superuser:
-            return queryset
-        if user.is_anonymous:
-            return queryset.filter(shared=True)
-        return queryset.filter(
-            Q(shared=True) | Q(user=user)
-        )
-
-
 @register_model_view(SavedFilter, 'list', path='', detail=False)
-class SavedFilterListView(SavedFilterMixin, generic.ObjectListView):
+class SavedFilterListView(SharedObjectViewMixin, generic.ObjectListView):
+    queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     filterset_form = forms.SavedFilterFilterForm
     table = tables.SavedFilterTable
 
 
 @register_model_view(SavedFilter)
-class SavedFilterView(SavedFilterMixin, generic.ObjectView):
+class SavedFilterView(SharedObjectViewMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
 
 
 @register_model_view(SavedFilter, 'add', detail=False)
 @register_model_view(SavedFilter, 'edit')
-class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
+class SavedFilterEditView(SharedObjectViewMixin, generic.ObjectEditView):
     queryset = SavedFilter.objects.all()
     form = forms.SavedFilterForm
 
@@ -328,18 +312,18 @@ class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
 
 
 @register_model_view(SavedFilter, 'delete')
-class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
+class SavedFilterDeleteView(SharedObjectViewMixin, generic.ObjectDeleteView):
     queryset = SavedFilter.objects.all()
 
 
 @register_model_view(SavedFilter, 'bulk_import', detail=False)
-class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
+class SavedFilterBulkImportView(SharedObjectViewMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
     model_form = forms.SavedFilterImportForm
 
 
 @register_model_view(SavedFilter, 'bulk_edit', path='edit', detail=False)
-class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
+class SavedFilterBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
@@ -347,10 +331,69 @@ class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
 
 
 @register_model_view(SavedFilter, 'bulk_delete', path='delete', detail=False)
-class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
+class SavedFilterBulkDeleteView(SharedObjectViewMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
+
+
+#
+# Table configs
+#
+
+@register_model_view(TableConfig, 'list', path='', detail=False)
+class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    filterset_form = forms.TableConfigFilterForm
+    table = tables.TableConfigTable
+    actions = {
+        'export': {'view'},
+    }
+
+
+@register_model_view(TableConfig)
+class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
+    queryset = TableConfig.objects.all()
+
+    def get_extra_context(self, request, instance):
+        table = instance.table_class([])
+        return {
+            'columns': dict(table.columns.items()),
+        }
+
+
+@register_model_view(TableConfig, 'add', detail=False)
+@register_model_view(TableConfig, 'edit')
+class TableConfigEditView(SharedObjectViewMixin, generic.ObjectEditView):
+    queryset = TableConfig.objects.all()
+    form = forms.TableConfigForm
+    template_name = 'extras/tableconfig_edit.html'
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        if not obj.pk:
+            obj.user = request.user
+        return obj
+
+
+@register_model_view(TableConfig, 'delete')
+class TableConfigDeleteView(SharedObjectViewMixin, generic.ObjectDeleteView):
+    queryset = TableConfig.objects.all()
+
+
+@register_model_view(TableConfig, 'bulk_edit', path='edit', detail=False)
+class TableConfigBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    table = tables.TableConfigTable
+    form = forms.TableConfigBulkEditForm
+
+
+@register_model_view(TableConfig, 'bulk_delete', path='delete', detail=False)
+class TableConfigBulkDeleteView(SharedObjectViewMixin, generic.BulkDeleteView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    table = tables.TableConfigTable
 
 
 #
