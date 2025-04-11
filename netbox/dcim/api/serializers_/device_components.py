@@ -152,6 +152,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
         required=False,
         allow_null=True
     )
+    status = ChoiceField(choices=PowerOutletStatusChoices, required=False)
 
     class Meta:
         model = PowerOutlet
