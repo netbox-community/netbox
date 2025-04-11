@@ -1275,9 +1275,9 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         }
 
         tags = (
-            Tag(name='Tag 1', slug='tag-1', color='ff0000', description='foobar1'),
-            Tag(name='Tag 2', slug='tag-2', color='00ff00', description='foobar2'),
-            Tag(name='Tag 3', slug='tag-3', color='0000ff', weight=1000),
+            Tag(name='Tag 1', slug='tag-1', color='ff0000', weight=1000, description='foobar1'),
+            Tag(name='Tag 2', slug='tag-2', color='00ff00', weight=2000, description='foobar2'),
+            Tag(name='Tag 3', slug='tag-3', color='0000ff', weight=3000),
         )
         Tag.objects.bulk_create(tags)
         tags[0].object_types.add(object_types['site'])
@@ -1331,11 +1331,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
     def test_weight(self):
-        params = {'weight': [1000]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-        params = {'weight': [0]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'weight': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class TaggedItemFilterSetTestCase(TestCase):
