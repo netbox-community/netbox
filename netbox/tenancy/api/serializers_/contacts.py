@@ -47,7 +47,8 @@ class ContactSerializer(NetBoxModelSerializer):
         queryset=ContactGroup.objects.all(),
         serializer=ContactGroupSerializer,
         required=False,
-        many=True
+        many=True,
+        nested=True
     )
 
     class Meta:

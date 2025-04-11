@@ -164,7 +164,13 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
         groups = instance.get_descendants(include_self=True)
 
         return {
-            'related_models': self.get_related_models(request, groups),
+            'related_models': self.get_related_models(
+                request,
+                groups,
+                extra=(
+                    (Contact.objects.restrict(request.user, 'view').filter(groups__in=groups), 'group_id'),
+                ),
+            ),
         }
 
 
