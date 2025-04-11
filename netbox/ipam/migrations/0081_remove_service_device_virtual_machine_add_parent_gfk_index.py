@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0125_exporttemplate_file_name'),
+        ('extras', '0126_exporttemplate_file_name'),
         ('ipam', '0080_populate_service_parent'),
     ]
 
