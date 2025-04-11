@@ -34,6 +34,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
         many=True
     )
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    status = ChoiceField(choices=L2VPNStatusChoices, required=False)
 
     class Meta:
         model = L2VPN
