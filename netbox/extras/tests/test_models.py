@@ -12,10 +12,10 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 class TagTest(TestCase):
 
     def test_default_ordering_weight_then_name_is_set(self):
-        Tag.objects.create(name='Tag 1', slug='tag-1', weight=100)
-        Tag.objects.create(name='Tag 2', slug='tag-2')
-        Tag.objects.create(name='Tag 3', slug='tag-3', weight=10)
-        Tag.objects.create(name='Tag 4', slug='tag-4', weight=10)
+        Tag.objects.create(name='Tag 1', slug='tag-1', weight=3000)
+        Tag.objects.create(name='Tag 2', slug='tag-2')  # Default: 1000
+        Tag.objects.create(name='Tag 3', slug='tag-3', weight=2000)
+        Tag.objects.create(name='Tag 4', slug='tag-4', weight=2000)
 
         tags = Tag.objects.all()
 
@@ -26,10 +26,10 @@ class TagTest(TestCase):
 
     def test_tag_related_manager_ordering_weight_then_name(self):
         tags = [
-            Tag.objects.create(name='Tag 1', slug='tag-1', weight=100),
-            Tag.objects.create(name='Tag 2', slug='tag-2'),
-            Tag.objects.create(name='Tag 3', slug='tag-3', weight=10),
-            Tag.objects.create(name='Tag 4', slug='tag-4', weight=10),
+            Tag.objects.create(name='Tag 1', slug='tag-1', weight=3000),
+            Tag.objects.create(name='Tag 2', slug='tag-2'),  # Default: 1000
+            Tag.objects.create(name='Tag 3', slug='tag-3', weight=2000),
+            Tag.objects.create(name='Tag 4', slug='tag-4', weight=2000),
         ]
 
         site = Site.objects.create(name='Site 1')

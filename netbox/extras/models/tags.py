@@ -42,7 +42,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
     )
     weight = models.PositiveSmallIntegerField(
         verbose_name=_('weight'),
-        default=0,
+        default=1000,
     )
 
     clone_fields = (

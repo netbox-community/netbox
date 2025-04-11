@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('table', models.CharField(max_length=100)),
                 ('name', models.CharField(max_length=100)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('weight', models.PositiveSmallIntegerField(default=100)),
+                ('weight', models.PositiveSmallIntegerField(default=1000)),
                 ('enabled', models.BooleanField(default=True)),
                 ('shared', models.BooleanField(default=True)),
                 (
