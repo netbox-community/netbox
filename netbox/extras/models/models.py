@@ -557,7 +557,7 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
     )
     weight = models.PositiveSmallIntegerField(
         verbose_name=_('weight'),
-        default=100
+        default=1000,
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),

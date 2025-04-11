@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tag',
             name='weight',
-            field=models.PositiveSmallIntegerField(default=0),
+            field=models.PositiveSmallIntegerField(default=1000),
         ),
     ]
