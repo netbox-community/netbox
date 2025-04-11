@@ -15,8 +15,8 @@
 
 {% block subtitle %}
   <span class="text-secondary fs-5">
-    {% checkmark plugin.is_installed %}
-    {% if plugin.is_installed %}
+    {% checkmark plugin.is_local %}
+    {% if plugin.is_local %}
       v{{ plugin.installed_version }} {% trans "installed" %}
     {% else %}
       {% trans "Not installed" %}
