@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.utils.translation import gettext as _
 
@@ -37,28 +37,29 @@ def to_grams(weight, unit) -> int:
     )
 
 
-def to_meters(length, unit):
+def to_meters(length, unit) -> Decimal:
     """
-    Convert the given length to meters.
+    Convert the given length to meters, returning a Decimal value.
     """
     try:
-        if length < 0:
-            raise ValueError(_("Length must be a positive number"))
-    except TypeError:
+        length = Decimal(length)
+    except InvalidOperation:
         raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
+    if length < 0:
+        raise ValueError(_("Length must be a positive number"))
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
-        return length * 1000
+        return round(Decimal(length * 1000), 4)
     if unit == CableLengthUnitChoices.UNIT_METER:
-        return length
+        return round(Decimal(length), 4)
     if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
-        return length / 100
+        return round(Decimal(length / 100), 4)
     if unit == CableLengthUnitChoices.UNIT_MILE:
-        return length * Decimal(1609.344)
+        return round(length * Decimal(1609.344), 4)
     if unit == CableLengthUnitChoices.UNIT_FOOT:
-        return length * Decimal(0.3048)
+        return round(length * Decimal(0.3048), 4)
     if unit == CableLengthUnitChoices.UNIT_INCH:
-        return length * Decimal(0.0254)
+        return round(length * Decimal(0.0254), 4)
     raise ValueError(
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,

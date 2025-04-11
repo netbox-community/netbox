@@ -1,6 +1,6 @@
 import json
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -1979,6 +1979,27 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    @tag('regression')  # Issue #18991
+    def test_front_port_paths(self):
+        device = Device.objects.first()
+        rear_port = RearPort.objects.create(
+            device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C
+        )
+        interface1 = Interface.objects.create(device=device, name='Interface 1')
+        front_port = FrontPort.objects.create(
+            device=device,
+            name='Rear Port 10',
+            type=PortTypeChoices.TYPE_8P8C,
+            rear_port=rear_port,
+        )
+        Cable.objects.create(a_terminations=[interface1], b_terminations=[front_port])
+
+        self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+        url = reverse(f'dcim-api:{self.model._meta.model_name}-paths', kwargs={'pk': front_port.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
 
 class RearPortTest(APIViewTestCases.APIViewTestCase):
     model = RearPort
@@ -2021,6 +2042,23 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'type': PortTypeChoices.TYPE_8P8C,
             },
         ]
+
+    @tag('regression')  # Issue #18991
+    def test_rear_port_paths(self):
+        device = Device.objects.first()
+        interface1 = Interface.objects.create(device=device, name='Interface 1')
+        rear_port = RearPort.objects.create(
+            device=device,
+            name='Rear Port 10',
+            type=PortTypeChoices.TYPE_8P8C,
+        )
+        Cable.objects.create(a_terminations=[interface1], b_terminations=[rear_port])
+
+        self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+        url = reverse(f'dcim-api:{self.model._meta.model_name}-paths', kwargs={'pk': rear_port.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
 class ModuleBayTest(APIViewTestCases.APIViewTestCase):

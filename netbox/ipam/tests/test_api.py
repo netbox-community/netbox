@@ -1198,27 +1198,30 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
         Device.objects.bulk_create(devices)
 
         services = (
-            Service(device=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(device=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
-            Service(device=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
+            Service(parent=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(parent=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
+            Service(parent=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
         )
         Service.objects.bulk_create(services)
 
         cls.create_data = [
             {
-                'device': devices[1].pk,
+                'parent_object_id': devices[1].pk,
+                'parent_object_type': 'dcim.device',
                 'name': 'Service 4',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'ports': [4],
             },
             {
-                'device': devices[1].pk,
+                'parent_object_id': devices[1].pk,
+                'parent_object_type': 'dcim.device',
                 'name': 'Service 5',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'ports': [5],
             },
             {
-                'device': devices[1].pk,
+                'parent_object_id': devices[1].pk,
+                'parent_object_type': 'dcim.device',
                 'name': 'Service 6',
                 'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
                 'ports': [6],

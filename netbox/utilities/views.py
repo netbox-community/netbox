@@ -149,9 +149,8 @@ class GetReturnURLMixin:
 
         # Attempt to dynamically resolve the list view for the object
         if hasattr(self, 'queryset'):
-            model_opts = self.queryset.model._meta
             try:
-                return reverse(f'{model_opts.app_label}:{model_opts.model_name}_list')
+                return reverse(get_viewname(self.queryset.model, 'list'))
             except NoReverseMatch:
                 pass
 
@@ -196,7 +195,10 @@ class GetRelatedModelsMixin:
         ]
         related_models.extend(extra)
 
-        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
+        return sorted(
+            filter(lambda qs: qs[0].exists(), related_models),
+            key=lambda qs: qs[0].model._meta.verbose_name.lower(),
+        )
 
 
 class ViewTab:

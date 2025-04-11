@@ -12,6 +12,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
+from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
@@ -120,6 +121,10 @@ class NetBoxModelViewSet(
         if hasattr(obj, 'snapshot'):
             obj.snapshot()
         return obj
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return reapply_model_ordering(qs)
 
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True

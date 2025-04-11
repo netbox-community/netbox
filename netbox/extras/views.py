@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django.views.generic import View
+from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import Job
@@ -18,6 +19,7 @@ from dcim.models import Device, DeviceRole, Platform
 from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
+from extras.utils import SharedObjectViewMixin
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
@@ -285,39 +287,22 @@ class ExportTemplateBulkSyncDataView(generic.BulkSyncDataView):
 # Saved filters
 #
 
-class SavedFilterMixin:
-
-    def get_queryset(self, request):
-        """
-        Return only shared SavedFilters, or those owned by the current user, unless
-        this is a superuser.
-        """
-        queryset = SavedFilter.objects.all()
-        user = request.user
-        if user.is_superuser:
-            return queryset
-        if user.is_anonymous:
-            return queryset.filter(shared=True)
-        return queryset.filter(
-            Q(shared=True) | Q(user=user)
-        )
-
-
 @register_model_view(SavedFilter, 'list', path='', detail=False)
-class SavedFilterListView(SavedFilterMixin, generic.ObjectListView):
+class SavedFilterListView(SharedObjectViewMixin, generic.ObjectListView):
+    queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     filterset_form = forms.SavedFilterFilterForm
     table = tables.SavedFilterTable
 
 
 @register_model_view(SavedFilter)
-class SavedFilterView(SavedFilterMixin, generic.ObjectView):
+class SavedFilterView(SharedObjectViewMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
 
 
 @register_model_view(SavedFilter, 'add', detail=False)
 @register_model_view(SavedFilter, 'edit')
-class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
+class SavedFilterEditView(SharedObjectViewMixin, generic.ObjectEditView):
     queryset = SavedFilter.objects.all()
     form = forms.SavedFilterForm
 
@@ -328,18 +313,18 @@ class SavedFilterEditView(SavedFilterMixin, generic.ObjectEditView):
 
 
 @register_model_view(SavedFilter, 'delete')
-class SavedFilterDeleteView(SavedFilterMixin, generic.ObjectDeleteView):
+class SavedFilterDeleteView(SharedObjectViewMixin, generic.ObjectDeleteView):
     queryset = SavedFilter.objects.all()
 
 
 @register_model_view(SavedFilter, 'bulk_import', detail=False)
-class SavedFilterBulkImportView(SavedFilterMixin, generic.BulkImportView):
+class SavedFilterBulkImportView(SharedObjectViewMixin, generic.BulkImportView):
     queryset = SavedFilter.objects.all()
     model_form = forms.SavedFilterImportForm
 
 
 @register_model_view(SavedFilter, 'bulk_edit', path='edit', detail=False)
-class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
+class SavedFilterBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
@@ -347,10 +332,69 @@ class SavedFilterBulkEditView(SavedFilterMixin, generic.BulkEditView):
 
 
 @register_model_view(SavedFilter, 'bulk_delete', path='delete', detail=False)
-class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
+class SavedFilterBulkDeleteView(SharedObjectViewMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
+
+
+#
+# Table configs
+#
+
+@register_model_view(TableConfig, 'list', path='', detail=False)
+class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    filterset_form = forms.TableConfigFilterForm
+    table = tables.TableConfigTable
+    actions = {
+        'export': {'view'},
+    }
+
+
+@register_model_view(TableConfig)
+class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
+    queryset = TableConfig.objects.all()
+
+    def get_extra_context(self, request, instance):
+        table = instance.table_class([])
+        return {
+            'columns': dict(table.columns.items()),
+        }
+
+
+@register_model_view(TableConfig, 'add', detail=False)
+@register_model_view(TableConfig, 'edit')
+class TableConfigEditView(SharedObjectViewMixin, generic.ObjectEditView):
+    queryset = TableConfig.objects.all()
+    form = forms.TableConfigForm
+    template_name = 'extras/tableconfig_edit.html'
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        if not obj.pk:
+            obj.user = request.user
+        return obj
+
+
+@register_model_view(TableConfig, 'delete')
+class TableConfigDeleteView(SharedObjectViewMixin, generic.ObjectDeleteView):
+    queryset = TableConfig.objects.all()
+
+
+@register_model_view(TableConfig, 'bulk_edit', path='edit', detail=False)
+class TableConfigBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    table = tables.TableConfigTable
+    form = forms.TableConfigBulkEditForm
+
+
+@register_model_view(TableConfig, 'bulk_delete', path='delete', detail=False)
+class TableConfigBulkDeleteView(SharedObjectViewMixin, generic.BulkDeleteView):
+    queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
+    table = tables.TableConfigTable
 
 
 #
@@ -884,6 +928,61 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
 
 
+class ObjectRenderConfigView(generic.ObjectView):
+    base_template = None
+    template_name = 'extras/object_render_config.html'
+
+    def get(self, request, **kwargs):
+        instance = self.get_object(**kwargs)
+        context = self.get_extra_context(request, instance)
+
+        # If a direct export has been requested, return the rendered template content as a
+        # downloadable file.
+        if request.GET.get('export'):
+            content = context['rendered_config'] or context['error_message']
+            response = HttpResponse(content, content_type='text')
+            filename = f"{instance.name or 'config'}.txt"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        return render(
+            request,
+            self.get_template_name(),
+            {
+                'object': instance,
+                'tab': self.tab,
+                **context,
+            },
+        )
+
+    def get_extra_context_data(self, request, instance):
+        return {
+            f'{instance._meta.model_name}': instance,
+        }
+
+    def get_extra_context(self, request, instance):
+        # Compile context data
+        context_data = instance.get_config_context()
+        context_data.update(self.get_extra_context_data(request, instance))
+
+        # Render the config template
+        rendered_config = None
+        error_message = None
+        if config_template := instance.get_config_template():
+            try:
+                rendered_config = config_template.render(context=context_data)
+            except TemplateError as e:
+                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
+
+        return {
+            'base_template': self.base_template,
+            'config_template': config_template,
+            'context_data': context_data,
+            'rendered_config': rendered_config,
+            'error_message': error_message,
+        }
+
+
 #
 # Image attachments
 #
@@ -1041,8 +1140,8 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
         if not request.htmx:
             return redirect('home')
 
-        initial = request.GET or {
-            'widget_class': 'extras.NoteWidget',
+        initial = {
+            'widget_class': request.GET.get('widget_class') or 'extras.NoteWidget',
         }
         widget_form = DashboardWidgetAddForm(initial=initial)
         widget_name = get_field_value(widget_form, 'widget_class')
@@ -1194,6 +1293,14 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
 
+    def get_object(self, **kwargs):
+        if pk := kwargs.get('pk', False):
+            return get_object_or_404(self.queryset, pk=pk)
+        elif (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
+            return get_object_or_404(self.queryset, module__file_path=f'{module}.py', name=name)
+        else:
+            raise Http404
+
     def _get_script_class(self, script):
         """
         Return an instance of the Script's Python class
@@ -1314,9 +1421,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         index = 0
 
         try:
-            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)]
+            log_threshold = LOG_LEVEL_RANK[request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)]
         except KeyError:
-            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_DEBUG]
+            log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_INFO]
         if job.data:
 
             if 'log' in job.data:
@@ -1324,7 +1431,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     tests = job.data['tests']
 
                 for log in job.data['log']:
-                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_DEFAULT)
+                    log_level = LOG_LEVEL_RANK.get(log.get('status'), LogLevelChoices.LOG_INFO)
                     if log_level >= log_threshold:
                         index += 1
                         result = {
@@ -1347,7 +1454,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
-                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_DEFAULT)
+                        log_level = LOG_LEVEL_RANK.get(status, LogLevelChoices.LOG_INFO)
                         if log_level >= log_threshold:
                             index += 1
                             result = {
@@ -1373,9 +1480,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_DEBUG)
+        log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)
         if log_threshold not in LOG_LEVEL_RANK:
-            log_threshold = LogLevelChoices.LOG_DEBUG
+            log_threshold = LogLevelChoices.LOG_INFO
 
         context = {
             'script': job.object,

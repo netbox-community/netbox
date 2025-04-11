@@ -1,12 +1,14 @@
 # Release Checklist
 
-This documentation describes the process of packaging and publishing a new NetBox release. There are three types of release:
+This documentation describes the process of packaging and publishing a new NetBox release. There are three types of releases:
 
 * Major release (e.g. v3.7.8 to v4.0.0)
 * Minor release (e.g. v4.0.10 to v4.1.0)
 * Patch release (e.g. v4.1.0 to v4.1.1)
 
-While major releases generally introduce some very substantial change to the application, they are typically treated the same as minor version increments for the purpose of release packaging.
+While major releases generally introduce some very substantial changes to the application, they are typically treated the same as minor version increments for the purpose of release packaging.
+
+For patch releases (e.g. upgrading from v4.2.2 to v4.2.3), begin at the [patch releases](#patch-releases) heading below. For minor or major releases, complete the entire checklist.
 
 ## Minor Version Releases
 
@@ -29,6 +31,29 @@ Close the [release milestone](https://github.com/netbox-community/netbox/milesto
 
 Check that a link to the release notes for the new version is present in the navigation menu (defined in `mkdocs.yml`), and that a summary of all major new features has been added to `docs/index.md`.
 
+### Update the Dependency Requirements Matrix
+
+For every minor release, update the dependency requirements matrix in `docs/installation/upgrading.md` ("All versions") to reflect the supported versions of Python, PostgreSQL, and Redis:
+
+1. Add a new row with the supported dependency versions.
+2. Include a documentation link using the release tag format: `https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md`
+3. Bold any version changes for clarity.
+
+**Example Update:**  
+
+```markdown
+| NetBox Version | Python min | Python max | PostgreSQL min | Redis min | Documentation                                                                                     |
+|:--------------:|:----------:|:----------:|:--------------:|:---------:|:-------------------------------------------------------------------------------------------------:|
+|      4.2       |    3.10    |    3.12    |     **13**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md)         |
+```
+
+### Update System Requirements
+
+If a new Django release is adopted or other major dependencies (Python, PostgreSQL, Redis) change:
+
+* Update the installation guide (`docs/installation/index.md`) with the new minimum versions.
+* Update the upgrade guide (`docs/installation/upgrading.md`) for the current version accordingly.
+
 ### Manually Perform a New Install
 
 Start the documentation server and navigate to the current version of the installation docs:
@@ -37,15 +62,25 @@ Start the documentation server and navigate to the current version of the instal
 mkdocs serve
 ```
 
-Follow these instructions to perform a new installation of NetBox in a temporary environment. This process must not be automated: The goal of this step is to catch any errors or omissions in the documentation, and ensure that it is kept up-to-date for each release. Make any necessary changes to the documentation before proceeding with the release.
+Follow these instructions to perform a new installation of NetBox in a temporary environment. This process must not be automated: The goal of this step is to catch any errors or omissions in the documentation and ensure that it is kept up to date for each release. Make any necessary changes to the documentation before proceeding with the release.
 
 ### Test Upgrade Paths
 
-Upgrading from a previous version typically involves database migrations, which must work without errors. Supported upgrade paths include from one minor version to another within the same major version (i.e. 4.0 to 4.1), as well as from the latest patch version of the previous minor version (i.e. 3.7 to 4.0 or to 4.1). Prior to release, test all these supported paths by loading demo data from the source version and performing a `./manage.py migrate`.
+Upgrading from a previous version typically involves database migrations, which must work without errors.
+Test the following supported upgrade paths:
+
+- From one minor version to another within the same major version (e.g. 4.0 to 4.1).
+- From the latest patch version of the previous minor version (e.g. 3.7 to 4.0 or 4.1).
+
+Prior to release, test all these supported paths by loading demo data from the source version and performing:
+
+```no-highlight
+./manage.py migrate
+```
 
 ### Merge the `feature` Branch
 
-Submit a pull request to merge the `feature` branch into the `main` branch in preparation for its release. Once it has been merged, continue with the section for patch releases below.
+Submit a pull request to merge the `feature` branch into the `main` branch in preparation for its release. Once it has been merged, continue with the section for the patch releases below.
 
 ### Rebuild Demo Data (After Release)
 
@@ -57,7 +92,7 @@ After the release of a new minor version, generate a new demo data snapshot comp
 
 ### Create a Release Branch
 
-Begin by creating a new branch (based off of `main`) to effect the release. This will comprise the changes listed below.
+Begin by creating a new branch (based on `main`) to effect the release. This will comprise the changes listed below.
 
 ```
 git checkout main
@@ -85,7 +120,20 @@ In cases where upgrading a dependency to its most recent release is breaking, it
 
 ### Update UI Dependencies
 
-Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
+Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution:
+
+```
+$ yarn bundle
+yarn run v1.22.19
+$ node bundle.js
+✅ Bundled source file 'styles/external.scss' to 'netbox-external.css'
+✅ Bundled source file 'styles/netbox.scss' to 'netbox.css'
+✅ Bundled source file 'styles/svg/rack_elevation.scss' to 'rack_elevation.css'
+✅ Bundled source file 'styles/svg/cable_trace.scss' to 'cable_trace.css'
+✅ Bundled source file 'index.ts' to 'netbox.js'
+✅ Copied graphiql files
+Done in 1.00s.
+```
 
 ### Rebuild the Device Type Definition Schema
 
@@ -116,15 +164,21 @@ Then, compile these portable (`.po`) files for use in the application:
 
 ### Update Version and Changelog
 
-* Update the version and published date in `release.yaml` with the current version & date. Add a designation (e.g.g `beta1`) if applicable.
+* Update the version number and date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
-* Replace the "FUTURE" placeholder in the release notes with the current date.
+* Add a section for this release at the top of the changelog page for the minor version (e.g. `docs/release-notes/version-4.2.md`) listing all relevant changes made in this release.
+
+!!! tip
+    Put yourself in the shoes of the user when recording change notes. Focus on the effect that each change has for the end user, rather than the specific bits of code that were modified in a PR. Ensure that each message conveys meaning absent context of the initial feature request or bug report. Remember to include keywords or phrases (such as exception names) that can be easily searched.
 
 ### Submit a Pull Request
 
 Commit the above changes and submit a pull request titled **"Release vX.Y.Z"** to merge the current release branch (e.g. `release-vX.Y.Z`) into `main`. Copy the documented release notes into the pull request's body.
 
 Once CI has completed and a colleague has reviewed the PR, merge it. This effects a new release in the `main` branch.
+
+!!! warning
+    To ensure a streamlined review process, the pull request for a release **must** be limited to the changes outlined in this document. A release PR must never include functional changes to the application: Any unrelated "cleanup" needs to be captured in a separate PR prior to the release being shipped.
 
 ### Create a New Release
 

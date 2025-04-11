@@ -27,6 +27,7 @@ __all__ = (
     'ReportResultsTable',
     'ScriptResultsTable',
     'SubscriptionTable',
+    'TableConfigTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -281,6 +282,36 @@ class SavedFilterTable(NetBoxTable):
         )
 
 
+class TableConfigTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    table = tables.Column(
+        verbose_name=_('Table Name')
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    shared = columns.BooleanColumn(
+        verbose_name=_('Shared'),
+        false_mark=None
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = TableConfig
+        fields = (
+            'pk', 'id', 'name', 'object_type', 'table', 'description', 'user', 'weight', 'enabled', 'shared', 'created',
+            'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'object_type', 'table', 'user', 'description', 'enabled', 'shared',
+        )
+
+
 class BookmarkTable(NetBoxTable):
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Types'),
@@ -508,13 +539,16 @@ class ConfigContextTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Synced')
     )
+    tags = columns.TagColumn(
+        url_name='extras:configcontext_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
             'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
             'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
-            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'data_source', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
 

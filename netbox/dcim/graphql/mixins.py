@@ -30,6 +30,7 @@ class PathEndpointMixin:
 
     connected_endpoints: List[Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],  # noqa: F821
+        Annotated["VirtualCircuitTerminationType", strawberry.lazy('circuits.graphql.types')],  # noqa: F821
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],  # noqa: F821
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],  # noqa: F821
         Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],  # noqa: F821

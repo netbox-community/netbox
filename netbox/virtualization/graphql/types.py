@@ -49,7 +49,7 @@ class ComponentType(NetBoxObjectType):
     filters=ClusterFilter,
     pagination=True
 )
-class ClusterType(VLANGroupsMixin, NetBoxObjectType):
+class ClusterType(ContactsMixin, VLANGroupsMixin, NetBoxObjectType):
     type: Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')] | None
     group: Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -72,7 +72,7 @@ class ClusterType(VLANGroupsMixin, NetBoxObjectType):
     filters=ClusterGroupFilter,
     pagination=True
 )
-class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
+class ClusterGroupType(ContactsMixin, VLANGroupsMixin, OrganizationalObjectType):
 
     clusters: List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
 

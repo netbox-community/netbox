@@ -27,6 +27,7 @@ from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
+from utilities.tables import get_table_for_model
 
 __all__ = (
     'Bookmark',
@@ -36,6 +37,7 @@ __all__ = (
     'ImageAttachment',
     'JournalEntry',
     'SavedFilter',
+    'TableConfig',
     'Webhook',
 )
 
@@ -522,6 +524,121 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     def url_params(self):
         qd = dict_to_querydict(self.parameters)
         return qd.urlencode()
+
+
+class TableConfig(CloningMixin, ChangeLoggedModel):
+    """
+    A saved configuration of columns and ordering which applies to a specific table.
+    """
+    object_type = models.ForeignKey(
+        to='core.ObjectType',
+        on_delete=models.CASCADE,
+        related_name='table_configs',
+        help_text=_("The table's object type"),
+    )
+    table = models.CharField(
+        verbose_name=_('table'),
+        max_length=100,
+    )
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
+        default=100
+    )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True
+    )
+    shared = models.BooleanField(
+        verbose_name=_('shared'),
+        default=True
+    )
+    columns = ArrayField(
+        base_field=models.CharField(max_length=100),
+    )
+    ordering = ArrayField(
+        base_field=models.CharField(max_length=100),
+        blank=True,
+        null=True,
+    )
+
+    clone_fields = ('object_type', 'table', 'enabled', 'shared', 'columns', 'ordering')
+
+    class Meta:
+        ordering = ('weight', 'name')
+        verbose_name = _('table config')
+        verbose_name_plural = _('table configs')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:tableconfig', args=[self.pk])
+
+    @property
+    def docs_url(self):
+        return f'{settings.STATIC_URL}docs/models/extras/tableconfig/'
+
+    @property
+    def table_class(self):
+        return get_table_for_model(self.object_type.model_class(), name=self.table)
+
+    @property
+    def ordering_items(self):
+        """
+        Return a list of two-tuples indicating the column(s) by which the table is to be ordered and a boolean for each
+        column indicating whether its ordering is ascending.
+        """
+        items = []
+        for col in self.ordering or []:
+            if col.startswith('-'):
+                ascending = False
+                col = col[1:]
+            else:
+                ascending = True
+            items.append((col, ascending))
+        return items
+
+    def clean(self):
+        super().clean()
+
+        # Validate table
+        if self.table_class is None:
+            raise ValidationError({
+                'table': _("Unknown table: {name}").format(name=self.table)
+            })
+
+        table = self.table_class([])
+
+        # Validate ordering columns
+        for name in self.ordering:
+            if name.startswith('-'):
+                name = name[1:]  # Strip leading hyphen
+            if name not in table.columns:
+                raise ValidationError({
+                    'ordering': _('Unknown column: {name}').format(name=name)
+                })
+
+        # Validate selected columns
+        for name in self.columns:
+            if name not in table.columns:
+                raise ValidationError({
+                    'columns': _('Unknown column: {name}').format(name=name)
+                })
 
 
 class ImageAttachment(ChangeLoggedModel):

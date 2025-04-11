@@ -133,10 +133,18 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ASN.objects.bulk_create(asns)
 
+        site_groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for site_group in site_groups:
+            site_group.save()
+
         sites = [
-            Site(name='Site 1', slug='site-1'),
-            Site(name='Site 2', slug='site-2'),
-            Site(name='Site 3', slug='site-3')
+            Site(name='Site 1', slug='site-1', group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', group=site_groups[2]),
         ]
         Site.objects.bulk_create(sites)
         asns[0].sites.set([sites[0]])
@@ -176,6 +184,13 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
@@ -1243,9 +1258,24 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         IPAddress.objects.bulk_create(ipaddresses)
 
         services = (
-            Service(name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(
+                parent=devices[0],
+                name='Service 1',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[1],
+                name='Service 2',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])
@@ -2314,40 +2344,56 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
             VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
+        fhrp_group = FHRPGroup.objects.create(
+            name='telnet',
+            protocol=FHRPGroupProtocolChoices.PROTOCOL_CARP,
+            group_id=101,
+        )
 
         services = (
             Service(
-                device=devices[0],
+                parent=devices[0],
                 name='Service 1',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1001],
                 description='foobar1',
             ),
             Service(
-                device=devices[1],
+                parent=devices[1],
                 name='Service 2',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1002],
                 description='foobar2',
             ),
-            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
             Service(
-                virtual_machine=virtual_machines[0],
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[1003]
+            ),
+            Service(
+                parent=virtual_machines[0],
                 name='Service 4',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2001],
             ),
             Service(
-                virtual_machine=virtual_machines[1],
+                parent=virtual_machines[1],
                 name='Service 5',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2002],
             ),
             Service(
-                virtual_machine=virtual_machines[2],
+                parent=virtual_machines[2],
                 name='Service 6',
                 protocol=ServiceProtocolChoices.PROTOCOL_UDP,
                 ports=[2003],
+            ),
+            Service(
+                parent=fhrp_group,
+                name='Service 7',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[2004],
             ),
         )
         Service.objects.bulk_create(services)
@@ -2388,6 +2434,13 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_fhrp_group(self):
+        fhrp_group = FHRPGroup.objects.get()
+        params = {'fhrpgroup_id': [fhrp_group.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'fhrpgroup': [fhrp_group.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_ip_address(self):
         ips = IPAddress.objects.all()[:2]

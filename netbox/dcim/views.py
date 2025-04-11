@@ -10,10 +10,9 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
-from jinja2.exceptions import TemplateError
 
 from circuits.models import Circuit, CircuitTermination
-from extras.views import ObjectConfigContextView
+from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -412,7 +411,8 @@ class SiteGroupBulkDeleteView(generic.BulkDeleteView):
 @register_model_view(Site, 'list', path='', detail=False)
 class SiteListView(generic.ObjectListView):
     queryset = Site.objects.annotate(
-        device_count=count_related(Device, 'site')
+        device_count=count_related(Device, 'site'),
+        asn_count=count_related(ASN, 'sites')
     )
     filterset = filtersets.SiteFilterSet
     filterset_form = forms.SiteFilterForm
@@ -489,18 +489,24 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
 @register_model_view(Location, 'list', path='', detail=False)
 class LocationListView(generic.ObjectListView):
     queryset = Location.objects.add_related_count(
-        Location.objects.add_related_count(
-            Location.objects.all(),
-            Device,
-            'location',
-            'device_count',
-            cumulative=True
-        ),
-        Rack,
-        'location',
-        'rack_count',
-        cumulative=True
-    )
+                Location.objects.add_related_count(
+                        Location.objects.add_related_count(
+                            Location.objects.all(),
+                            Device,
+                            'location',
+                            'device_count',
+                            cumulative=True
+                        ),
+                        Rack,
+                        'location',
+                        'rack_count',
+                        cumulative=True
+                    ),
+                VLANGroup,
+                'location',
+                'vlangroup_count',
+                cumulative=True
+            )
     filterset = filtersets.LocationFilterSet
     filterset_form = forms.LocationFilterForm
     table = tables.LocationTable
@@ -512,6 +518,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
+        location_content_type = ContentType.objects.get_for_model(instance)
         return {
             'related_models': self.get_related_models(
                 request,
@@ -529,6 +536,8 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                     (Cluster.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (Prefix.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
                     (WirelessLAN.objects.restrict(request.user, 'view').filter(_location=instance), 'location_id'),
+                    (VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type_id=location_content_type.id, scope_id=instance.id), 'location'),
                 ),
             ),
         }
@@ -939,6 +948,7 @@ class RackReservationBulkDeleteView(generic.BulkDeleteView):
 @register_model_view(Manufacturer, 'list', path='', detail=False)
 class ManufacturerListView(generic.ObjectListView):
     queryset = Manufacturer.objects.annotate(
+        racktype_count=count_related(RackType, 'manufacturer'),
         devicetype_count=count_related(DeviceType, 'manufacturer'),
         moduletype_count=count_related(ModuleType, 'manufacturer'),
         inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
@@ -2049,7 +2059,7 @@ class PlatformBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Device, 'list', path='', detail=False)
 class DeviceListView(generic.ObjectListView):
-    queryset = Device.objects.all()
+    queryset = Device.objects.select_related('virtual_chassis')
     filterset = filtersets.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
@@ -2277,50 +2287,13 @@ class DeviceConfigContextView(ObjectConfigContextView):
 
 
 @register_model_view(Device, 'render-config')
-class DeviceRenderConfigView(generic.ObjectView):
+class DeviceRenderConfigView(ObjectRenderConfigView):
     queryset = Device.objects.all()
-    template_name = 'dcim/device/render_config.html'
+    base_template = 'dcim/device/base.html'
     tab = ViewTab(
         label=_('Render Config'),
-        weight=2100
+        weight=2100,
     )
-
-    def get(self, request, **kwargs):
-        instance = self.get_object(**kwargs)
-        context = self.get_extra_context(request, instance)
-
-        # If a direct export has been requested, return the rendered template content as a
-        # downloadable file.
-        if request.GET.get('export'):
-            response = context['config_template'].render_to_response(context=context['context_data'])
-            return response
-
-        return render(request, self.get_template_name(), {
-            'object': instance,
-            'tab': self.tab,
-            **context,
-        })
-
-    def get_extra_context(self, request, instance):
-        # Compile context data
-        context_data = instance.get_config_context()
-        context_data.update({'device': instance})
-
-        # Render the config template
-        rendered_config = None
-        error_message = None
-        if config_template := instance.get_config_template():
-            try:
-                rendered_config = config_template.render(context=context_data)
-            except TemplateError as e:
-                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
-
-        return {
-            'config_template': config_template,
-            'context_data': context_data,
-            'rendered_config': rendered_config,
-            'error_message': error_message,
-        }
 
 
 @register_model_view(Device, 'virtual-machines')

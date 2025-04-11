@@ -9,6 +9,7 @@ import requests
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Model
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
@@ -41,6 +42,27 @@ def get_object_type_choices():
         (object_type_identifier(ot), object_type_name(ot))
         for ot in ObjectType.objects.public().order_by('app_label', 'model')
     ]
+
+
+def object_list_widget_supports_model(model: Model) -> bool:
+    """Test whether a model is supported by the ObjectListWidget
+
+    In theory there could be more than one reason why a model isn't supported by the
+    ObjectListWidget, although we've only identified one so far--there's no resolve-able 'list' URL
+    for the model. Add more tests if more conditions arise.
+    """
+    def can_resolve_model_list_view(model: Model) -> bool:
+        try:
+            reverse(get_viewname(model, action='list'))
+            return True
+        except Exception:
+            return False
+
+    tests = [
+        can_resolve_model_list_view,
+    ]
+
+    return all(test(model) for test in tests)
 
 
 def get_bookmarks_object_type_choices():
@@ -235,6 +257,17 @@ class ObjectListWidget(DashboardWidget):
                     raise forms.ValidationError(_("Invalid format. URL parameters must be passed as a dictionary."))
             return data
 
+        def clean_model(self):
+            if model_info := self.cleaned_data['model']:
+                app_label, model_name = model_info.split('.')
+                model = ObjectType.objects.get_by_natural_key(app_label, model_name).model_class()
+                if not object_list_widget_supports_model(model):
+                    raise forms.ValidationError(
+                        _(f"Invalid model selection: {self['model'].data} is not supported.")
+                    )
+
+            return model_info
+
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
         model = ObjectType.objects.get_by_natural_key(app_label, model_name).model_class()
@@ -258,7 +291,7 @@ class ObjectListWidget(DashboardWidget):
             parameters['per_page'] = page_size
         parameters['embedded'] = True
 
-        if parameters:
+        if parameters and htmx_url is not None:
             try:
                 htmx_url = f'{htmx_url}?{urlencode(parameters, doseq=True)}'
             except ValueError:
@@ -285,7 +318,8 @@ class RSSFeedWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         feed_url = forms.URLField(
-            label=_('Feed URL')
+            label=_('Feed URL'),
+            assume_scheme='https'
         )
         requires_internet = forms.BooleanField(
             label=_('Requires external connection'),

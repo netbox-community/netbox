@@ -21,7 +21,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, T
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import VMInterface
 
 __all__ = (
     'AggregateForm',
@@ -212,7 +212,7 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'available_at_site': '$site',
+            'available_at_site': '$scope',
         },
         label=_('VLAN'),
     )
@@ -239,6 +239,14 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
             'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
             'tenant', 'description', 'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # #18605: only filter VLAN select list if scope field is a Site
+        if scope_field := self.fields.get('scope', None):
+            if scope_field.queryset.model is not Site:
+                self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):
@@ -751,16 +759,17 @@ class ServiceTemplateForm(NetBoxModelForm):
 
 
 class ServiceForm(NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        label=_('Device'),
-        queryset=Device.objects.all(),
-        required=False,
-        selector=True
+    parent_object_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
+        widget=HTMXSelect(),
+        required=True,
+        label=_('Parent type')
     )
-    virtual_machine = DynamicModelChoiceField(
-        label=_('Virtual machine'),
-        queryset=VirtualMachine.objects.all(),
-        required=False,
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Device.objects.none(),  # Initial queryset
+        required=True,
+        disabled=True,
         selector=True
     )
     ports = NumericArrayField(
@@ -784,11 +793,7 @@ class ServiceForm(NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            TabbedGroups(
-                FieldSet('device', name=_('Device')),
-                FieldSet('virtual_machine', name=_('Virtual Machine')),
-            ),
-            'name',
+            'parent_object_type', 'parent', 'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
             'ipaddresses', 'description', 'tags', name=_('Service')
         ),
@@ -797,8 +802,37 @@ class ServiceForm(NetBoxModelForm):
     class Meta:
         model = Service
         fields = [
-            'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'parent_object_type',
         ]
+
+    def __init__(self, *args, **kwargs):
+        initial = kwargs.get('initial', {}).copy()
+
+        if (instance := kwargs.get('instance', None)) and instance.parent:
+            initial['parent'] = instance.parent
+
+        kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+        if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
+            try:
+                parent_type = ContentType.objects.get(pk=parent_object_type_id)
+                model = parent_type.model_class()
+                self.fields['parent'].queryset = model.objects.all()
+                self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
+                self.fields['parent'].disabled = False
+                self.fields['parent'].label = _(bettertitle(model._meta.verbose_name))
+            except ObjectDoesNotExist:
+                pass
+
+            if self.instance and parent_object_type_id != self.instance.parent_object_type_id:
+                self.initial['parent'] = None
+
+    def clean(self):
+        super().clean()
+        self.instance.parent = self.cleaned_data.get('parent')
 
 
 class ServiceCreateForm(ServiceForm):
@@ -810,10 +844,7 @@ class ServiceCreateForm(ServiceForm):
 
     fieldsets = (
         FieldSet(
-            TabbedGroups(
-                FieldSet('device', name=_('Device')),
-                FieldSet('virtual_machine', name=_('Virtual Machine')),
-            ),
+            'parent_object_type', 'parent',
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
                 FieldSet('name', 'protocol', 'ports', name=_('Custom')),
@@ -824,8 +855,8 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
-            'comments', 'tags',
+            'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'comments', 'tags', 'parent_object_type',
         ]
 
     def __init__(self, *args, **kwargs):

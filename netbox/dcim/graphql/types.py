@@ -471,7 +471,7 @@ class InterfaceTemplateType(ModularComponentTemplateType):
 )
 class InventoryItemType(ComponentType):
     role: Annotated["InventoryItemRoleType", strawberry.lazy('dcim.graphql.types')] | None
-    manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
+    manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
 
     child_items: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
 

@@ -100,7 +100,6 @@ class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('ASNs')
     )
     asn_count = columns.LinkedCountColumn(
-        accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
         verbose_name=_('ASN Count')
@@ -153,6 +152,11 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         url_params={'location_id': 'pk'},
         verbose_name=_('Devices')
     )
+    vlangroup_count = columns.LinkedCountColumn(
+        viewname='ipam:vlangroup_list',
+        url_params={'location': 'pk'},
+        verbose_name=_('VLAN Groups')
+    )
     tags = columns.TagColumn(
         url_name='dcim:location_list'
     )
@@ -168,7 +172,9 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'site', 'status', 'facility', 'tenant', 'tenant_group', 'rack_count', 'device_count',
             'description', 'slug', 'comments', 'contacts', 'tags', 'actions', 'created', 'last_updated',
+            'vlangroup_count',
         )
         default_columns = (
-            'pk', 'name', 'site', 'status', 'facility', 'tenant', 'rack_count', 'device_count', 'description'
+            'pk', 'name', 'site', 'status', 'facility', 'tenant', 'rack_count', 'device_count', 'vlangroup_count',
+            'description'
         )

@@ -19,6 +19,11 @@
   {# Include the updated object count for display elsewhere on the page #}
   <div hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
 
+  {# Include the updated "save" link for the table configuration #}
+  {% if table.config_params %}
+    <a class="dropdown-item" hx-swap-oob="outerHTML:#table_save_link" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">Save</a>
+  {% endif %}
+
   {# Update the bulk action buttons with new query parameters #}
   {% if actions %}
     <div class="bulk-action-buttons" hx-swap-oob="outerHTML:.bulk-action-buttons">

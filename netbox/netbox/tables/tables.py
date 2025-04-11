@@ -1,9 +1,9 @@
 from copy import deepcopy
 from functools import cached_property
+from urllib.parse import urlencode
 
 import django_tables2 as tables
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
@@ -20,8 +20,8 @@ from extras.models import CustomField, CustomLink
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.registry import registry
 from netbox.tables import columns
-from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.html import highlight
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.string import title
 from utilities.views import get_viewname
 from .template_code import *
@@ -57,40 +57,6 @@ class BaseTable(tables.Table):
         # Set default empty_text if none was provided
         if self.empty_text is None:
             self.empty_text = _("No {model_name} found").format(model_name=self._meta.model._meta.verbose_name_plural)
-
-        # Determine the table columns to display by checking the following:
-        #   1. User's configuration for the table
-        #   2. Meta.default_columns
-        #   3. Meta.fields
-        selected_columns = None
-        if user is not None and not isinstance(user, AnonymousUser):
-            selected_columns = user.config.get(f"tables.{self.name}.columns")
-        elif isinstance(user, AnonymousUser) and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
-            selected_columns = settings.DEFAULT_USER_PREFERENCES.get('tables', {}).get(self.name, {}).get('columns')
-        if not selected_columns:
-            selected_columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
-
-        # Hide non-selected columns which are not exempt
-        for column in self.columns:
-            if column.name not in [*selected_columns, *self.exempt_columns]:
-                self.columns.hide(column.name)
-
-        # Rearrange the sequence to list selected columns first, followed by all remaining columns
-        # TODO: There's probably a more clever way to accomplish this
-        self.sequence = [
-            *[c for c in selected_columns if c in self.columns.names()],
-            *[c for c in self.columns.names() if c not in selected_columns]
-        ]
-
-        # PK column should always come first
-        if 'pk' in self.sequence:
-            self.sequence.remove('pk')
-            self.sequence.insert(0, 'pk')
-
-        # Actions column should always come last
-        if 'actions' in self.sequence:
-            self.sequence.remove('actions')
-            self.sequence.append('actions')
 
         # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
         if isinstance(self.data, TableQuerysetData):
@@ -147,25 +113,67 @@ class BaseTable(tables.Table):
             self._objects_count = sum(1 for obj in self.data if hasattr(obj, 'pk'))
         return self._objects_count
 
+    def _set_columns(self, selected_columns):
+        """
+        Update the table sequence to display only the named columns and any exempt columns.
+        """
+        # Hide non-selected columns which are not exempt
+        for column in self.columns:
+            if column.name not in [*selected_columns, *self.exempt_columns]:
+                self.columns.hide(column.name)
+
+        # Rearrange the sequence to list selected columns first, followed by all remaining columns
+        # TODO: There's probably a more clever way to accomplish this
+        self.sequence = [
+            *[c for c in selected_columns if c in self.columns.names()],
+            *[c for c in self.columns.names() if c not in selected_columns]
+        ]
+
+        # PK column should always come first
+        if 'pk' in self.sequence:
+            self.sequence.remove('pk')
+            self.sequence.insert(0, 'pk')
+
+        # Actions column should always come last
+        if 'actions' in self.sequence:
+            self.sequence.remove('actions')
+            self.sequence.append('actions')
+
     def configure(self, request):
         """
         Configure the table for a specific request context. This performs pagination and records
-        the user's preferred ordering logic.
+        the user's preferred columns & ordering logic.
         """
-        # Save ordering preference
-        if request.user.is_authenticated:
-            if self.prefixed_order_by_field in request.GET:
-                if request.GET[self.prefixed_order_by_field]:
-                    # If an ordering has been specified as a query parameter, save it as the
-                    # user's preferred ordering for this table.
-                    ordering = request.GET.getlist(self.prefixed_order_by_field)
-                    request.user.config.set(f'tables.{self.name}.ordering', ordering, commit=True)
-                else:
-                    # If the ordering has been set to none (empty), clear any existing preference.
-                    request.user.config.clear(f'tables.{self.name}.ordering', commit=True)
-            elif ordering := request.user.config.get(f'tables.{self.name}.ordering'):
-                # If no ordering has been specified, set the preferred ordering (if any).
-                self.order_by = ordering
+        columns = None
+        ordering = None
+
+        if self.prefixed_order_by_field in request.GET:
+            if request.GET[self.prefixed_order_by_field]:
+                # If an ordering has been specified as a query parameter, save it as the
+                # user's preferred ordering for this table.
+                ordering = request.GET.getlist(self.prefixed_order_by_field)
+                request.user.config.set(f'tables.{self.name}.ordering', ordering, commit=True)
+            else:
+                # If the ordering has been set to none (empty), clear any existing preference.
+                request.user.config.clear(f'tables.{self.name}.ordering', commit=True)
+
+        # If the user has a saved preference, apply it
+        if request.user.is_authenticated and (userconfig := request.user.config):
+            if columns is None:
+                columns = userconfig.get(f"tables.{self.name}.columns")
+            if ordering is None:
+                ordering = userconfig.get(f"tables.{self.name}.ordering")
+
+        # Fall back to the default columns & ordering
+        if columns is None:
+            if hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
+                columns = settings.DEFAULT_USER_PREFERENCES.get('tables', {}).get(self.name, {}).get('columns')
+            else:
+                columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
+
+        self._set_columns(columns)
+        if ordering is not None:
+            self.order_by = ordering
 
         # Paginate the table results
         paginate = {
@@ -173,6 +181,25 @@ class BaseTable(tables.Table):
             'per_page': get_paginate_count(request)
         }
         tables.RequestConfig(request, paginate).configure(self)
+
+    @property
+    def configuration(self):
+        config = {
+            'columns': ','.join([c[0] for c in self.selected_columns]),
+        }
+        if self.order_by:
+            config['ordering'] = self.order_by
+        return config
+
+    @property
+    def config_params(self):
+        if not (model := getattr(self.Meta, 'model', None)):
+            return None
+        return urlencode({
+            'object_type': ObjectType.objects.get_for_model(model).pk,
+            'table': self.name,
+            **self.configuration,
+        })
 
 
 class NetBoxTable(BaseTable):

@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from utilities.templatetags.helpers import humanize_megabytes
+from utilities.templatetags.helpers import humanize_disk_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from .template_code import *
 
@@ -93,7 +93,7 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         )
 
     def render_disk(self, value):
-        return humanize_megabytes(value)
+        return humanize_disk_megabytes(value)
 
 
 #
@@ -122,7 +122,7 @@ class VMInterfaceTable(BaseInterfaceTable):
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mtu', 'mode', 'description', 'tags', 'vrf',
             'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'created', 'last_updated',
+            'qinq_svlan', 'created', 'last_updated', 'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -183,7 +183,7 @@ class VirtualDiskTable(NetBoxTable):
         }
 
     def render_size(self, value):
-        return humanize_megabytes(value)
+        return humanize_disk_megabytes(value)
 
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):
