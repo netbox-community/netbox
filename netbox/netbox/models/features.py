@@ -301,6 +301,14 @@ class CustomFieldsMixin(models.Model):
             if cf.required and cf.name not in self.custom_field_data:
                 raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
+    def save(self, *args, **kwargs):
+        # Populate default values if omitted
+        for cf in self.custom_fields.filter(default__isnull=False):
+            if cf.name not in self.custom_field_data:
+                self.custom_field_data[cf.name] = cf.default
+
+        super().save(*args, **kwargs)
+
 
 class CustomLinksMixin(models.Model):
     """
