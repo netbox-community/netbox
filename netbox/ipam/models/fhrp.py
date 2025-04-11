@@ -48,6 +48,12 @@ class FHRPGroup(PrimaryModel):
         object_id_field='assigned_object_id',
         related_query_name='fhrpgroup'
     )
+    services = GenericRelation(
+        to='ipam.Service',
+        content_type_field='parent_object_type',
+        object_id_field='parent_object_id',
+        related_query_name='fhrpgroup',
+    )
 
     clone_fields = ('protocol', 'auth_type', 'auth_key', 'description')
 

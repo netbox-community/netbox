@@ -126,6 +126,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         blank=True,
         max_length=50
     )
+    services = GenericRelation(
+        to='ipam.Service',
+        content_type_field='parent_object_type',
+        object_id_field='parent_object_id',
+        related_query_name='virtual_machine',
+    )
 
     # Counter fields
     interface_count = CounterCacheField(

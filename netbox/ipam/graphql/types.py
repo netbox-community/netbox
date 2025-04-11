@@ -241,16 +241,21 @@ class RouteTargetType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Service,
-    fields='__all__',
+    exclude=('parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
 class ServiceType(NetBoxObjectType, ContactsMixin):
     ports: List[int]
-    device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
-    virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')] | None
-
     ipaddresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
+
+    @strawberry_django.field
+    def parent(self) -> Annotated[Union[
+        Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')],
+        Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')],
+    ], strawberry.union("ServiceParentType")] | None:
+        return self.parent
 
 
 @strawberry_django.type(

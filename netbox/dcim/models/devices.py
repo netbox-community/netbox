@@ -3,7 +3,7 @@ import yaml
 
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -608,6 +608,12 @@ class Device(
         blank=True,
         null=True,
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+    services = GenericRelation(
+        to='ipam.Service',
+        content_type_field='parent_object_type',
+        object_id_field='parent_object_id',
+        related_query_name='device',
     )
 
     # Counter fields

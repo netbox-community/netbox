@@ -559,19 +559,21 @@ class ServiceTemplateImportForm(NetBoxModelImportForm):
 
 
 class ServiceImportForm(NetBoxModelImportForm):
-    device = CSVModelChoiceField(
-        label=_('Device'),
+    parent_object_type = CSVContentTypeField(
+        queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
+        required=True,
+        label=_('Parent type (app & model)')
+    )
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Required if not assigned to a VM')
+        help_text=_('Parent object name')
     )
-    virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
-        queryset=VirtualMachine.objects.all(),
+    parent_object_id = forms.IntegerField(
         required=False,
-        to_field_name='name',
-        help_text=_('Required if not assigned to a device')
+        help_text=_('Parent object ID'),
     )
     protocol = CSVChoiceField(
         label=_('Protocol'),
@@ -588,15 +590,52 @@ class ServiceImportForm(NetBoxModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
+            'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
         )
 
-    def clean_ipaddresses(self):
-        parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
-        for ip_address in self.cleaned_data['ipaddresses']:
-            if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        # Limit parent queryset by assigned parent object type
+        if data:
+            match data.get('parent_object_type'):
+                case 'dcim.device':
+                    self.fields['parent'].queryset = Device.objects.all()
+                case 'ipam.fhrpgroup':
+                    self.fields['parent'].queryset = FHRPGroup.objects.all()
+                case 'virtualization.virtualmachine':
+                    self.fields['parent'].queryset = VirtualMachine.objects.all()
+
+    def save(self, *args, **kwargs):
+        if (parent := self.cleaned_data.get('parent')):
+            self.instance.parent = parent
+
+        return super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        if (parent_ct := self.cleaned_data.get('parent_object_type')):
+            if (parent := self.cleaned_data.get('parent')):
+                self.cleaned_data['parent_object_id'] = parent.pk
+            elif (parent_id := self.cleaned_data.get('parent_object_id')):
+                parent = parent_ct.model_class().objects.filter(id=parent_id).first()
+                self.cleaned_data['parent'] = parent
+            else:
+                # If a parent object type is passed and we've made it here, then raise a validation
+                # error since an associated parent object or parent object id has not been passed
                 raise forms.ValidationError(
-                    _("{ip} is not assigned to this device/VM.").format(ip=ip_address)
+                    _("One of parent or parent_object_id must be included with parent_object_type")
                 )
 
-        return self.cleaned_data['ipaddresses']
+        # making sure parent is defined. In cases where an import is resulting in an update, the
+        # import data might not include the parent object and so the above logic might not be
+        # triggered
+        parent = self.cleaned_data.get('parent')
+        for ip_address in self.cleaned_data.get('ipaddresses', []):
+            if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
+                raise forms.ValidationError(
+                    _("{ip} is not assigned to this parent.").format(ip=ip_address)
+                )
+
+        return self.cleaned_data
