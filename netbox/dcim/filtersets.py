@@ -1689,6 +1689,10 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
+    mode = django_filters.MultipleChoiceFilter(
+        choices=InterfaceModeChoices,
+        label=_('802.1Q Mode')
+    )
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label=_('Assigned VLAN')
