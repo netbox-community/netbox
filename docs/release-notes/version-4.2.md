@@ -72,7 +72,6 @@
 * [#17542](https://github.com/netbox-community/netbox/issues/17542) - Add contact assignments to VPN tunnels
 * [#17944](https://github.com/netbox-community/netbox/issues/17944) - Allow script inputs to be filtered on ObjectVar and MultiObjectVar selections
 * [#18024](https://github.com/netbox-community/netbox/issues/18024) - Add permalink URL pattern to match a custom script by module and class name
-* [#18095](https://github.com/netbox-community/netbox/issues/18095) - Ensure contacts are shown on children of objects with contacts
 * [#18141](https://github.com/netbox-community/netbox/issues/18141) - Support "Quick Add" for plugins
 * [#18403](https://github.com/netbox-community/netbox/issues/18403) - Improve performance of job list views
 * [#18693](https://github.com/netbox-community/netbox/issues/18693) - Support setting VLAN translation on bulk edit of interfaces
