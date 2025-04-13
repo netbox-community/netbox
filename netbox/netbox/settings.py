@@ -237,11 +237,10 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+STORAGES.update(getattr(configuration, 'STORAGES', {}))
 
 if STORAGE_BACKEND is not None:
     STORAGES['default']['BACKEND'] = STORAGE_BACKEND
-    if STORAGE_CONFIG:
-        STORAGES['default']['OPTIONS'] = STORAGE_CONFIG
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
