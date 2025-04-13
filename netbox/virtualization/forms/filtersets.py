@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import *
 from dcim.models import Device, DeviceRole, Location, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
@@ -201,6 +202,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
         FieldSet('enabled', 'mac_address', 'vrf_id', 'l2vpn_id', name=_('Attributes')),
+        FieldSet('mode', name=_('802.1Q Switching')),
     )
     selector_fields = ('filter_id', 'q', 'virtual_machine_id')
     cluster_id = DynamicModelMultipleChoiceField(
@@ -236,6 +238,11 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         queryset=L2VPN.objects.all(),
         required=False,
         label=_('L2VPN')
+    )
+    mode = forms.MultipleChoiceField(
+        choices=InterfaceModeChoices,
+        required=False,
+        label=_('802.1Q mode')
     )
     tag = TagFilterField(model)
 
