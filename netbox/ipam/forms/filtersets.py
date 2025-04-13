@@ -176,7 +176,7 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
             'within_include', 'family', 'status', 'role_id', 'mask_length', 'is_pool', 'mark_utilized',
             name=_('Addressing')
         ),
-        FieldSet('vlan_id', name=_('VLAN Assignment')),
+        FieldSet('vlan_group_id', 'vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -259,6 +259,11 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    vlan_group_id = DynamicModelMultipleChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label=_('VLAN Group'),
     )
     vlan_id = DynamicModelMultipleChoiceField(
         queryset=VLAN.objects.all(),
