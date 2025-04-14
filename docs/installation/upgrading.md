@@ -29,7 +29,7 @@ NetBox requires the following dependencies:
 
     | NetBox Version | Python min | Python max | PostgreSQL min | Redis min | Documentation                                                                                     |
     |:--------------:|:----------:|:----------:|:--------------:|:---------:|:-------------------------------------------------------------------------------------------------:|
-    |      4.3       |    3.10    |    3.12    |       13       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.3.0/docs/installation/index.md)         |
+    |      4.3       |    3.10    |    3.12    |     **14**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.3.0/docs/installation/index.md)         |
     |      4.2       |    3.10    |    3.12    |     **13**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md)         |
     |      4.1       |    3.10    |    3.12    |       12       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.1.0/docs/installation/index.md)         |
     |      4.0       |  **3.10**  |  **3.12**  |       12       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.0.0/docs/installation/index.md)         |
