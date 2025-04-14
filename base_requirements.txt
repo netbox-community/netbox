@@ -8,10 +8,7 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-# See: https://django-debug-toolbar.readthedocs.io/en/latest/changes.html#id1
-# "Wrap SHOW_TOOLBAR_CALLBACK function with sync_to_async or async_to_sync to allow sync/async
-# compatibility." breaks stawberry-graphql-django at version 0.52.0 (current)
-django-debug-toolbar==5.0.1
+django-debug-toolbar
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
@@ -143,8 +140,7 @@ strawberry-graphql
 
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/releases
-# Pinned to v0.52.0 for suspected upstream bug; see #18329
-strawberry-graphql-django==0.52.0
+strawberry-graphql-django
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst
