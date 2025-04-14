@@ -16,8 +16,8 @@ This page contains a history of all major and minor releases since NetBox v2.0. 
 * Reusable Table Configurations ([#14591](https://github.com/netbox-community/netbox/issues/14591))
 * Option to Treat IP Ranges as Fully Populated ([#9763](https://github.com/netbox-community/netbox/issues/9763))
 * Hierarchical Device Roles ([#18245](https://github.com/netbox-community/netbox/issues/18245))
-* Periodic Synchronization of Data Sources ([#18747](https://github.com/netbox-community/netbox/issues/18747))
-* Proxy Routing ([#18681](https://github.com/netbox-community/netbox/issues/18681))
+* Periodic Synchronization of Data Sources ([#18287](https://github.com/netbox-community/netbox/issues/18287))
+* Proxy Routing ([#18627](https://github.com/netbox-community/netbox/issues/18627))
 
 #### [Version 4.2](./version-4.2.md) (January 2025)
 

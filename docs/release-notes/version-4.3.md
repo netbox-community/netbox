@@ -30,11 +30,11 @@ A new `mark_populated` boolean field has been added to the IPRange model. If set
 
 Device roles can now be arranged hierarchically, with one role optionally serving as a parent to one or more child roles. For example, you might wish to create a generic "Server" role for devices with "Application Server" and "Database Server" roles beneath it. A device could then be assigned to any of these three roles.
 
-#### Periodic Synchronization of Data Sources ([#18747](https://github.com/netbox-community/netbox/issues/18747))
+#### Periodic Synchronization of Data Sources ([#18287](https://github.com/netbox-community/netbox/issues/18287))
 
 Data sources can now be configured to synchronize automatically at a specified interval, as indicated by the new `sync_interval` field. No additional system configuration is necessary to support this functionality; background jobs will be scheduled automatically by the RQ worker process.
 
-#### Proxy Routing ([#18681](https://github.com/netbox-community/netbox/issues/18681))
+#### Proxy Routing ([#18627](https://github.com/netbox-community/netbox/issues/18627))
 
 User can now declare one or more proxy routers via the `PROXY_ROUTERS` configuration parameter to control the use of specific proxy servers for various outbound connections. For example, it is now possible to configure NetBox to use different proxies based on the type of outbound traffic or its destination.
 
