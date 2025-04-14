@@ -5,7 +5,7 @@
 {% block form %}
   <div class="field-group my-5">
     <div class="row">
-      <h2 class="col-9 offset-3">{% trans "Device" %}</h2>
+      <h2 class="col-9 offset-3">{% trans "Table Configuration" %}</h2>
     </div>
     {% render_field form.name %}
     {% render_field form.object_type %}
@@ -20,7 +20,7 @@
   <div class="field-group my-5">
     <div class="row">
       <div class="col-5 text-center">
-        {{ form.available_columns.label }}
+        <label class="form-label">{{ form.available_columns.label }}</label>
         {{ form.available_columns }}
       </div>
       <div class="col-2 d-flex align-items-center">
@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="col-5 text-center">
-        {{ form.columns.label }}
+        <label class="form-label">{{ form.columns.label }}</label>
         {{ form.columns }}
         <a tabindex="0" class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
           <i class="mdi mdi-arrow-up-bold"></i> {% trans "Move Up" %}
