@@ -14,10 +14,10 @@ __all__ = (
 class DataSourceTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
-        linkify=True
+        linkify=True,
     )
     type = BackendTypeColumn(
-        verbose_name=_('Type')
+        verbose_name=_('Type'),
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
@@ -28,18 +28,21 @@ class DataSourceTable(NetBoxTable):
     sync_interval = columns.ChoiceFieldColumn(
         verbose_name=_('Sync interval'),
     )
-    tags = columns.TagColumn(
-        url_name='core:datasource_list'
+    last_synced = tables.DateTimeColumn(
+        verbose_name=_('Last Synced'),
     )
     file_count = tables.Column(
-        verbose_name='Files'
+        verbose_name=_('Files'),
+    )
+    tags = columns.TagColumn(
+        url_name='core:datasource_list',
     )
 
     class Meta(NetBoxTable.Meta):
         model = DataSource
         fields = (
             'pk', 'id', 'name', 'type', 'status', 'enabled', 'source_url', 'description', 'sync_interval', 'comments',
-            'parameters', 'created', 'last_updated', 'file_count',
+            'parameters', 'last_synced', 'created', 'last_updated', 'file_count',
         )
         default_columns = ('pk', 'name', 'type', 'status', 'enabled', 'description', 'sync_interval', 'file_count')
 
