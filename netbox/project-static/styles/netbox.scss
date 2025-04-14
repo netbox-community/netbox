@@ -1,8 +1,8 @@
 @import 'variables';
 
 // Tabler & vendors
-@import '../node_modules/@tabler/core/src/scss/_core.scss';
-@import '../node_modules/@tabler/core/src/scss/vendor/tom-select';
+@import '../node_modules/@tabler/core/scss/_core.scss';
+@import '../node_modules/@tabler/core/scss/vendor/tom-select';
 
 // Overrides of external libraries
 @import 'overrides/bootstrap';
