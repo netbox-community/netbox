@@ -1,4 +1,4 @@
-## v4.3.0 (FUTURE)
+## v4.3.0-beta1 (2025-04-14)
 
 ### Breaking Changes
 
