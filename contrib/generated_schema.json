@@ -16,8 +16,7 @@
                 "bottom-to-top",
                 "top-to-bottom",
                 "passive",
-                "mixed",
-                "outside-inside"
+                "mixed"
             ]
         },
         "weight-unit": {
