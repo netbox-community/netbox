@@ -6,6 +6,8 @@ Devices can be organized by functional roles, which are fully customizable by th
 
 ### Parent
 
+!!! info "This field was introduced in NetBox v4.3."
+
 The parent role of which this role is a child (optional).
 
 ### Name

@@ -42,6 +42,8 @@ The number of the numerically lowest unit in the rack. This value defaults to on
 
 The external width, height and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.
 
+!!! info "The `outer_height` field was introduced in NetBox v4.3."
+
 ### Mounting Depth
 
 The maximum depth of a mounted device that the rack can accommodate, in millimeters. For four-post frames or cabinets, this is the horizontal distance between the front and rear vertical rails. (Note that this measurement does _not_ include space between the rails and the cabinet doors.)

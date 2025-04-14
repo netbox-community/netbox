@@ -759,19 +759,13 @@
   resolved "https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz#927dd2fae9bc3361403ac2c7a00c32ddce9ad7e8"
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
-"@tabler/core@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.0.0.tgz#08736378108663b5893a31ad462be7d12e64be67"
-  integrity sha512-uFmv6f8TAaW2JaGwzjT1LfK+TjmBQSTCoznCMdV5uur4cv4TtJlV8Hh1Beu55YX0svMtOQ0Xts7tYv/+qBEcfA==
+"@tabler/core@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.1.1.tgz#6b7044c4b427f14c1d78e4532106821466d619a6"
+  integrity sha512-VVxsx6+XtCtSjKqS0m5z8W2OcNAYHRiygl3ov+RrQDDB4UK5jfSa26dY+2sMcohocV6GsBpuozPyEk8p3/8sdQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
-    "@tabler/icons" "^3.29.0"
     bootstrap "5.3.3"
-
-"@tabler/icons@^3.29.0":
-  version "3.30.0"
-  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-3.30.0.tgz#4f80f52cc6355b440a4ee0dadd4c3e3775e50663"
-  integrity sha512-c8OKLM48l00u9TFbh2qhSODMONIzML8ajtCyq95rW8vzkWcBrKRPM61tdkThz2j4kd5u17srPGIjqdeRUZdfdw==
 
 "@tanstack/react-virtual@^3.0.0-beta.60":
   version "3.5.0"
@@ -1065,6 +1059,11 @@ bootstrap@5.3.3:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.3.tgz#de35e1a765c897ac940021900fcbb831602bac38"
   integrity sha512-8HLCdWgyoMguSO9o+aH+iuZ+aht+mzW0u3HIMzVu7Srrpv7EBBxTnrFlSCskwdY1+EOFQSm7uMJhNQHkdPcmjg==
+
+bootstrap@5.3.5:
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.5.tgz#be42cfe0d580e97ee1abb7d38ce94f5c393c9bb6"
+  integrity sha512-ct1CHKtiobRimyGzmsSldEtM03E8fcEX4Tb3dGXz1V8faRwM50+vfHwTzOxB3IlKO7m+9vTH3s/3C6T2EAPeTA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -1911,10 +1910,10 @@ graphql@16.10.0:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.10.0.tgz#24c01ae0af6b11ea87bf55694429198aaa8e220c"
   integrity sha512-AjqGKbDGUFRKIRCP9tCKiIGHyriz2oHEbPIbEtcSLSs4YjReZOIPQQWek4+6hjw62H9QShXHyaGivGiYVLeYFQ==
 
-gridstack@11.5.0:
-  version "11.5.0"
-  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-11.5.0.tgz#ecd507776db857f3308d37a8fd67d6a24c7fdd74"
-  integrity sha512-SE1a/aC2K8VKQr5cqV7gSJ+r/xIYghijIjHzkZ3Xo3aS1/4dvwIgPYT7QqgV1z+d7XjKYUPEizcgVQ5HhdFTng==
+gridstack@12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-12.0.0.tgz#cb824410436573f480fc9e62c2e3fdf2fa536a9e"
+  integrity sha512-Wjfu7BtTb4NZqLpSEAJx+b9lBnfnXNgG2jUTVSD2g8NrHITrWgfk9eeHBqtDLVl2vtKQTzsSyy5lSyHAMcW2tA==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
@@ -2673,10 +2672,10 @@ safe-regex-test@^1.0.3:
     es-errors "^1.3.0"
     is-regex "^1.1.4"
 
-sass@1.86.0:
-  version "1.86.0"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.86.0.tgz#f49464fb6237a903a93f4e8760ef6e37a5030114"
-  integrity sha512-zV8vGUld/+mP4KbMLJMX7TyGCuUp7hnkOScgCMsWuHtns8CWBoz+vmEhoGMXsaJrbUP8gj+F1dLvVe79sK8UdA==
+sass@1.86.3:
+  version "1.86.3"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.86.3.tgz#0a0d9ea97cb6665e73f409639f8533ce057464c9"
+  integrity sha512-iGtg8kus4GrsGLRDLRBRHY9dNVA78ZaS7xr01cWnS7PEMQyFtTqBiyCrfpTYTZXRWM94akzckYjh8oADfFNTzw==
   dependencies:
     chokidar "^4.0.0"
     immutable "^5.0.2"

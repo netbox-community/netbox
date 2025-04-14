@@ -14,6 +14,8 @@ BASE_PATH = 'netbox/'
 
 ## DATABASE_ROUTERS
 
+!!! info "This parameter was introduced in NetBox v4.3."
+
 Default: `[]` (empty list)
 
 An iterable of [database routers](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) to use for automatically selecting the appropriate database(s) for a query. This is useful only when [multiple databases](./required-parameters.md#databases) have been configured.
@@ -171,6 +173,8 @@ The file path to the location where media files (such as image attachments) are 
 ---
 
 ## PROXY_ROUTERS
+
+!!! info "This parameter was introduced in NetBox v4.3."
 
 Default: `["utilities.proxy.DefaultProxyRouter"]`
 
