@@ -119,6 +119,8 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.ContactsMixin
 
+!!! info "Plugin support for ContactsMixin was introduced in NetBox v4.3."
+
 ::: netbox.models.features.CustomLinksMixin
 
 ::: netbox.models.features.CustomFieldsMixin
@@ -126,9 +128,6 @@ For more information about database migrations, see the [Django documentation](h
 ::: netbox.models.features.CustomValidationMixin
 
 ::: netbox.models.features.EventRulesMixin
-
-!!! note
-    `EventRulesMixin` was renamed from `WebhooksMixin` in NetBox v3.7.
 
 ::: netbox.models.features.ExportTemplatesMixin
 

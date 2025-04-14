@@ -6,7 +6,7 @@
 * PostgreSQL 13 is no longer supported. NetBox v4.3 requires PostgreSQL 14.0 or later.
 * The `ALLOW_TOKEN_RETRIEVAL` configuration parameter now defaults to False.
 * The `device` and `virtual_machine` foreign keys on the Service model have been replaced with a generic `parent` relationship to support the assignment of services to FHRP groups as well.
-* The `group` foreign key on the Contact model has been replaced with a many-to-many `groups` field. 
+* The `group` foreign key on the Contact model has been replaced with a many-to-many `groups` field.
 * PluginTemplateExtension no longer supports registration via the singular `model` attribute (use `models` instead).
 * The legacy staged changes functionality has been removed.
 
