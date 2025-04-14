@@ -71,7 +71,11 @@
       <div class="card">
         <h2 class="card-header">{% trans "Environment Parameters" %}</h2>
         <div class="card-body">
-          <pre>{{ object.environment_params }}</pre>
+          {% if object.environment_params %}
+            <pre>{{ object.environment_params|json }}</pre>
+          {% else %}
+            <span class="text-muted">{% trans "None" %}</span>
+          {% endif %}
         </div>
       </div>
       {% plugin_right_page object %}
