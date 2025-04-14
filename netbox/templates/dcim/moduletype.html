@@ -75,7 +75,13 @@
             {% for k, v in object.attributes.items %}
               <tr>
                 <th scope="row">{{ k }}</th>
-                <td>{{ v|placeholder }}</td>
+                <td>
+                  {% if v is True or v is False %}
+                    {% checkmark v %}
+                  {% else %}
+                    {{ v|placeholder }}
+                  {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </table>
