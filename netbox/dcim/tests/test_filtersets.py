@@ -2561,6 +2561,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         locations = Location.objects.all()[:2]
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack(self):
         racks = Rack.objects.all()[:2]
