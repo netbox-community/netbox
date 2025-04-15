@@ -5,7 +5,7 @@ from dcim.choices import *
 from dcim.models import Device, DeviceRole, Location, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
-from ipam.models import VRF
+from ipam.models import VRF, VLANTranslationPolicy
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
@@ -203,7 +203,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
         FieldSet('enabled', name=_('Attributes')),
         FieldSet('vrf_id', 'l2vpn_id', 'mac_address', name=_('Addressing')),
-        FieldSet('mode', name=_('802.1Q Switching')),
+        FieldSet('mode', 'vlan_translation_policy_id', name=_('802.1Q Switching')),
     )
     selector_fields = ('filter_id', 'q', 'virtual_machine_id')
     cluster_id = DynamicModelMultipleChoiceField(
@@ -244,6 +244,11 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         choices=InterfaceModeChoices,
         required=False,
         label=_('802.1Q mode')
+    )
+    vlan_translation_policy_id = DynamicModelMultipleChoiceField(
+        queryset=VLANTranslationPolicy.objects.all(),
+        required=False,
+        label=_('VLAN Translation Policy')
     )
     tag = TagFilterField(model)
 
