@@ -80,6 +80,10 @@ class ScriptVariable:
 
         return form_field
 
+    def strip(self):
+        # Necessary for template tags/filters such as markdown
+        ...
+
 
 class StringVar(ScriptVariable):
     """
