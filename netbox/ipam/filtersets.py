@@ -351,6 +351,18 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
+    vlan_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan__group',
+        queryset=VLANGroup.objects.all(),
+        to_field_name="id",
+        label=_('VLAN Group (ID)'),
+    )
+    vlan_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan__group__slug',
+        queryset=VLANGroup.objects.all(),
+        to_field_name="slug",
+        label=_('VLAN Group (slug)'),
+    )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
         label=_('VLAN (ID)'),
