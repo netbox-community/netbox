@@ -123,7 +123,12 @@ class LoginView(View):
 
             # Set the user's preferred language (if any)
             if language := request.user.config.get('locale.language'):
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+                response.set_cookie(
+                    key=settings.LANGUAGE_COOKIE_NAME,
+                    value=language,
+                    max_age=request.session.get_expiry_age(),
+                    secure=settings.SESSION_COOKIE_SECURE,
+                )
 
             return response
 
@@ -218,7 +223,12 @@ class UserConfigView(LoginRequiredMixin, View):
 
             # Set/clear language cookie
             if language := form.cleaned_data['locale.language']:
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+                response.set_cookie(
+                    key=settings.LANGUAGE_COOKIE_NAME,
+                    value=language,
+                    max_age=request.session.get_expiry_age(),
+                    secure=settings.SESSION_COOKIE_SECURE,
+                )
             else:
                 response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 
