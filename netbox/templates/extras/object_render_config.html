@@ -54,11 +54,14 @@
           <div class="card">
             <h2 class="card-header d-flex justify-content-between">
               {% trans "Rendered Config" %}
-              <a href="?export=True" class="btn btn-primary lh-1" role="button">
-                <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
-              </a>
+              <div>
+                {% copy_content "rendered_config" %}
+                <a href="?export=True" class="btn btn-primary lh-1" role="button">
+                  <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+                </a>
+              </div>
             </h2>
-            <pre class="card-body">{{ rendered_config }}</pre>
+            <pre class="card-body" id="rendered_config">{{ rendered_config }}</pre>
           </div>
         {% else %}
           <div class="alert alert-warning">
