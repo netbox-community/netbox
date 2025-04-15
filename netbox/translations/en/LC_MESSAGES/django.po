@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-11 05:01+0000\n"
+"POT-Creation-Date: 2025-04-15 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7053,7 +7053,7 @@ msgstr ""
 #: netbox/netbox/navigation/menu.py:75
 #: netbox/virtualization/forms/model_forms.py:122
 #: netbox/virtualization/tables/clusters.py:87
-#: netbox/virtualization/views.py:216
+#: netbox/virtualization/views.py:230
 msgid "Devices"
 msgstr ""
 
@@ -7140,7 +7140,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:27
 #: netbox/templates/virtualization/virtualmachine_list.html:14
 #: netbox/virtualization/tables/virtualmachines.py:71
-#: netbox/virtualization/views.py:381 netbox/wireless/tables/wirelesslan.py:63
+#: netbox/virtualization/views.py:395 netbox/wireless/tables/wirelesslan.py:63
 msgid "Interfaces"
 msgstr ""
 
@@ -7461,17 +7461,17 @@ msgstr ""
 #: netbox/dcim/views.py:2259 netbox/extras/forms/model_forms.py:591
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:232
-#: netbox/virtualization/views.py:422
+#: netbox/virtualization/views.py:436
 msgid "Config Context"
 msgstr ""
 
-#: netbox/dcim/views.py:2269 netbox/virtualization/views.py:432
+#: netbox/dcim/views.py:2269 netbox/virtualization/views.py:446
 msgid "Render Config"
 msgstr ""
 
 #: netbox/dcim/views.py:2282 netbox/extras/tables/tables.py:553
 #: netbox/netbox/navigation/menu.py:255 netbox/netbox/navigation/menu.py:257
-#: netbox/virtualization/views.py:190
+#: netbox/virtualization/views.py:204
 msgid "Virtual Machines"
 msgstr ""
 
@@ -11364,7 +11364,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:32
 #: netbox/templates/virtualization/virtualmachine_list.html:21
 #: netbox/virtualization/tables/virtualmachines.py:74
-#: netbox/virtualization/views.py:403
+#: netbox/virtualization/views.py:417
 msgid "Virtual Disks"
 msgstr ""
 
@@ -15769,12 +15769,12 @@ msgstr ""
 msgid "virtual disks"
 msgstr ""
 
-#: netbox/virtualization/views.py:289
+#: netbox/virtualization/views.py:303
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
 msgstr ""
 
-#: netbox/virtualization/views.py:324
+#: netbox/virtualization/views.py:338
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
 msgstr ""
