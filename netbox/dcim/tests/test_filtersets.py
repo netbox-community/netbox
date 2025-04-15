@@ -4153,7 +4153,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_mode(self):
-        params = {'mode': InterfaceModeChoices.MODE_ACCESS}
+        params = {'mode': [InterfaceModeChoices.MODE_ACCESS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

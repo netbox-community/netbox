@@ -1332,6 +1332,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only', name=_('Attributes')),
         FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('mode', name=_('802.1Q Switching')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
@@ -1402,6 +1403,11 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         choices=InterfacePoETypeChoices,
         required=False,
         label=_('PoE type')
+    )
+    mode = forms.MultipleChoiceField(
+        choices=InterfaceModeChoices,
+        required=False,
+        label=_('802.1Q mode')
     )
     rf_role = forms.MultipleChoiceField(
         choices=WirelessRoleChoices,
