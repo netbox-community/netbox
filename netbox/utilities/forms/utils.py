@@ -1,7 +1,8 @@
 import re
 
 from django import forms
-from django.forms.models import fields_for_model
+from django.forms import MultipleChoiceField
+from django.forms.models import fields_for_model, ModelMultipleChoiceField
 from django.utils.translation import gettext as _
 
 from utilities.choices import unpack_grouped_choices
@@ -139,7 +140,16 @@ def get_field_value(form, field_name):
     if form.is_bound and field_name in form.data:
         if (value := form.data[field_name]) is None:
             return
-        if hasattr(field, 'valid_value') and field.valid_value(value):
+        if isinstance(field, (MultipleChoiceField, ModelMultipleChoiceField)) and isinstance(value, (list, tuple)):
+            values = []
+            for v in value:
+                if hasattr(field, 'valid_value') and field.valid_value(v):
+                    values.append(v)
+
+            if values:
+                return values
+
+        elif hasattr(field, 'valid_value') and field.valid_value(value):
             return value
 
     return form.get_initial_for_field(field, field_name)

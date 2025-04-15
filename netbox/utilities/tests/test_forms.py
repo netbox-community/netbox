@@ -448,3 +448,30 @@ class GetFieldValueTest(TestCase):
             get_field_value(form, 'site'),
             None
         )
+
+
+class MultipleGetFieldValueTest(GetFieldValueTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        class TestForm(forms.Form):
+            site = forms.ModelMultipleChoiceField(
+                queryset=Site.objects.all(),
+                required=False
+            )
+        cls.form_class = TestForm
+
+    def test_bound_with_list_without_initial(self):
+        form = self.form_class({'site': (self.sites[0].pk, self.sites[1].pk)}, initial={'site': None})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            [self.sites[0].pk, self.sites[1].pk]
+        )
+
+    def test_bound_with_list_with_initial(self):
+        form = self.form_class({'site': (self.sites[0].pk, self.sites[1].pk)}, initial={'site': self.sites[0]})
+        self.assertEqual(
+            get_field_value(form, 'site'),
+            [self.sites[0].pk, self.sites[1].pk]
+        )
