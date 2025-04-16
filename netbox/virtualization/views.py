@@ -104,7 +104,17 @@ class ClusterGroupView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (
+                    VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(ClusterGroup),
+                        scope_id=instance.pk
+                    ), 'cluster_group'),
+                ),
+            ),
         }
 
 
