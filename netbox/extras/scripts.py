@@ -528,14 +528,9 @@ class BaseScript:
         """
         Return data from a YAML file
         """
-        try:
-            from yaml import CLoader as Loader
-        except ImportError:
-            from yaml import Loader
-
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
         with open(file_path, 'r') as datafile:
-            data = yaml.load(datafile, Loader=Loader)
+            data = yaml.load(datafile, Loader=yaml.SafeLoader)
 
         return data
 

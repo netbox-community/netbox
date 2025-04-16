@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   stale:
+    if: github.repository == 'netbox-community/netbox'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/stale@v9

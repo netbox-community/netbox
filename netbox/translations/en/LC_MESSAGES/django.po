@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-21 05:01+0000\n"
+"POT-Creation-Date: 2025-04-16 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr ""
 
 #: netbox/account/tables.py:35 netbox/core/choices.py:102
 #: netbox/core/tables/jobs.py:29 netbox/core/tables/tasks.py:79
-#: netbox/extras/tables/tables.py:335 netbox/extras/tables/tables.py:566
+#: netbox/extras/tables/tables.py:335 netbox/extras/tables/tables.py:569
 #: netbox/templates/account/token.html:43
 #: netbox/templates/core/configrevision.html:26
 #: netbox/templates/core/configrevision_restore.html:12
@@ -66,27 +66,27 @@ msgstr ""
 msgid "Logged in as {user}."
 msgstr ""
 
-#: netbox/account/views.py:164
+#: netbox/account/views.py:169
 msgid "You have logged out."
 msgstr ""
 
-#: netbox/account/views.py:216
+#: netbox/account/views.py:221
 msgid "Your preferences have been updated."
 msgstr ""
 
-#: netbox/account/views.py:239
+#: netbox/account/views.py:249
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
 
-#: netbox/account/views.py:254
+#: netbox/account/views.py:264
 msgid "Your password has been changed successfully."
 msgstr ""
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:185
-#: netbox/dcim/choices.py:237 netbox/dcim/choices.py:1540
-#: netbox/dcim/choices.py:1598 netbox/dcim/choices.py:1648
-#: netbox/dcim/choices.py:1670 netbox/virtualization/choices.py:20
+#: netbox/dcim/choices.py:237 netbox/dcim/choices.py:1542
+#: netbox/dcim/choices.py:1600 netbox/dcim/choices.py:1650
+#: netbox/dcim/choices.py:1672 netbox/virtualization/choices.py:20
 #: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 msgid "Planned"
 msgstr ""
@@ -98,8 +98,8 @@ msgstr ""
 #: netbox/circuits/choices.py:23 netbox/core/tables/tasks.py:22
 #: netbox/dcim/choices.py:22 netbox/dcim/choices.py:103
 #: netbox/dcim/choices.py:184 netbox/dcim/choices.py:236
-#: netbox/dcim/choices.py:1597 netbox/dcim/choices.py:1647
-#: netbox/dcim/choices.py:1669 netbox/extras/tables/tables.py:495
+#: netbox/dcim/choices.py:1599 netbox/dcim/choices.py:1649
+#: netbox/dcim/choices.py:1671 netbox/extras/tables/tables.py:495
 #: netbox/ipam/choices.py:31 netbox/ipam/choices.py:49
 #: netbox/ipam/choices.py:69 netbox/ipam/choices.py:154
 #: netbox/templates/extras/configcontext.html:25
@@ -110,8 +110,8 @@ msgid "Active"
 msgstr ""
 
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:183
-#: netbox/dcim/choices.py:235 netbox/dcim/choices.py:1596
-#: netbox/dcim/choices.py:1649 netbox/dcim/choices.py:1668
+#: netbox/dcim/choices.py:235 netbox/dcim/choices.py:1598
+#: netbox/dcim/choices.py:1651 netbox/dcim/choices.py:1670
 #: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr ""
@@ -124,7 +124,7 @@ msgstr ""
 msgid "Decommissioned"
 msgstr ""
 
-#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1609
+#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1611
 #: netbox/templates/dcim/interface.html:135
 #: netbox/templates/virtualization/vminterface.html:77
 #: netbox/tenancy/choices.py:17
@@ -162,9 +162,9 @@ msgstr ""
 #: netbox/dcim/filtersets.py:99 netbox/dcim/filtersets.py:153
 #: netbox/dcim/filtersets.py:213 netbox/dcim/filtersets.py:334
 #: netbox/dcim/filtersets.py:465 netbox/dcim/filtersets.py:1022
-#: netbox/dcim/filtersets.py:1370 netbox/dcim/filtersets.py:2027
-#: netbox/dcim/filtersets.py:2270 netbox/dcim/filtersets.py:2328
-#: netbox/ipam/filtersets.py:942 netbox/virtualization/filtersets.py:139
+#: netbox/dcim/filtersets.py:1377 netbox/dcim/filtersets.py:2038
+#: netbox/dcim/filtersets.py:2281 netbox/dcim/filtersets.py:2339
+#: netbox/ipam/filtersets.py:954 netbox/virtualization/filtersets.py:139
 #: netbox/vpn/filtersets.py:358
 msgid "Region (ID)"
 msgstr ""
@@ -174,9 +174,9 @@ msgstr ""
 #: netbox/dcim/filtersets.py:106 netbox/dcim/filtersets.py:159
 #: netbox/dcim/filtersets.py:220 netbox/dcim/filtersets.py:341
 #: netbox/dcim/filtersets.py:472 netbox/dcim/filtersets.py:1029
-#: netbox/dcim/filtersets.py:1377 netbox/dcim/filtersets.py:2034
-#: netbox/dcim/filtersets.py:2277 netbox/dcim/filtersets.py:2335
-#: netbox/extras/filtersets.py:509 netbox/ipam/filtersets.py:949
+#: netbox/dcim/filtersets.py:1384 netbox/dcim/filtersets.py:2045
+#: netbox/dcim/filtersets.py:2288 netbox/dcim/filtersets.py:2346
+#: netbox/extras/filtersets.py:509 netbox/ipam/filtersets.py:961
 #: netbox/virtualization/filtersets.py:146 netbox/vpn/filtersets.py:353
 msgid "Region (slug)"
 msgstr ""
@@ -185,10 +185,10 @@ msgstr ""
 #: netbox/circuits/filtersets.py:297 netbox/dcim/base_filtersets.py:35
 #: netbox/dcim/filtersets.py:129 netbox/dcim/filtersets.py:226
 #: netbox/dcim/filtersets.py:347 netbox/dcim/filtersets.py:478
-#: netbox/dcim/filtersets.py:1035 netbox/dcim/filtersets.py:1383
-#: netbox/dcim/filtersets.py:2040 netbox/dcim/filtersets.py:2283
-#: netbox/dcim/filtersets.py:2341 netbox/ipam/filtersets.py:239
-#: netbox/ipam/filtersets.py:955 netbox/virtualization/filtersets.py:152
+#: netbox/dcim/filtersets.py:1035 netbox/dcim/filtersets.py:1390
+#: netbox/dcim/filtersets.py:2051 netbox/dcim/filtersets.py:2294
+#: netbox/dcim/filtersets.py:2352 netbox/ipam/filtersets.py:239
+#: netbox/ipam/filtersets.py:967 netbox/virtualization/filtersets.py:152
 msgid "Site group (ID)"
 msgstr ""
 
@@ -196,10 +196,10 @@ msgstr ""
 #: netbox/circuits/filtersets.py:304 netbox/dcim/base_filtersets.py:42
 #: netbox/dcim/filtersets.py:136 netbox/dcim/filtersets.py:233
 #: netbox/dcim/filtersets.py:354 netbox/dcim/filtersets.py:485
-#: netbox/dcim/filtersets.py:1042 netbox/dcim/filtersets.py:1390
-#: netbox/dcim/filtersets.py:2047 netbox/dcim/filtersets.py:2290
-#: netbox/dcim/filtersets.py:2348 netbox/extras/filtersets.py:515
-#: netbox/ipam/filtersets.py:246 netbox/ipam/filtersets.py:962
+#: netbox/dcim/filtersets.py:1042 netbox/dcim/filtersets.py:1397
+#: netbox/dcim/filtersets.py:2058 netbox/dcim/filtersets.py:2301
+#: netbox/dcim/filtersets.py:2359 netbox/extras/filtersets.py:515
+#: netbox/ipam/filtersets.py:246 netbox/ipam/filtersets.py:974
 #: netbox/virtualization/filtersets.py:159
 msgid "Site group (slug)"
 msgstr ""
@@ -217,21 +217,21 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:440 netbox/dcim/forms/filtersets.py:754
 #: netbox/dcim/forms/filtersets.py:998 netbox/dcim/forms/filtersets.py:1022
 #: netbox/dcim/forms/filtersets.py:1112 netbox/dcim/forms/filtersets.py:1150
-#: netbox/dcim/forms/filtersets.py:1622 netbox/dcim/forms/filtersets.py:1646
-#: netbox/dcim/forms/filtersets.py:1670 netbox/dcim/forms/model_forms.py:141
+#: netbox/dcim/forms/filtersets.py:1633 netbox/dcim/forms/filtersets.py:1657
+#: netbox/dcim/forms/filtersets.py:1681 netbox/dcim/forms/model_forms.py:141
 #: netbox/dcim/forms/model_forms.py:169 netbox/dcim/forms/model_forms.py:243
 #: netbox/dcim/forms/model_forms.py:473 netbox/dcim/forms/model_forms.py:734
-#: netbox/dcim/forms/object_create.py:383 netbox/dcim/tables/devices.py:163
+#: netbox/dcim/forms/object_create.py:385 netbox/dcim/tables/devices.py:163
 #: netbox/dcim/tables/power.py:26 netbox/dcim/tables/power.py:93
 #: netbox/dcim/tables/racks.py:121 netbox/dcim/tables/racks.py:206
 #: netbox/dcim/tables/sites.py:133 netbox/extras/filtersets.py:525
-#: netbox/ipam/forms/bulk_edit.py:468 netbox/ipam/forms/bulk_import.py:459
+#: netbox/ipam/forms/bulk_edit.py:468 netbox/ipam/forms/bulk_import.py:468
 #: netbox/ipam/forms/filtersets.py:161 netbox/ipam/forms/filtersets.py:236
-#: netbox/ipam/forms/filtersets.py:444 netbox/ipam/forms/filtersets.py:539
-#: netbox/ipam/forms/model_forms.py:679 netbox/ipam/tables/vlans.py:87
+#: netbox/ipam/forms/filtersets.py:449 netbox/ipam/forms/filtersets.py:544
+#: netbox/ipam/forms/model_forms.py:678 netbox/ipam/tables/vlans.py:87
 #: netbox/ipam/tables/vlans.py:197 netbox/templates/dcim/device.html:22
 #: netbox/templates/dcim/inc/cable_termination.html:8
-#: netbox/templates/dcim/inc/cable_termination.html:33
+#: netbox/templates/dcim/inc/cable_termination.html:38
 #: netbox/templates/dcim/location.html:37
 #: netbox/templates/dcim/powerpanel.html:22 netbox/templates/dcim/rack.html:20
 #: netbox/templates/dcim/rackreservation.html:28
@@ -241,8 +241,8 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_edit.py:106
 #: netbox/virtualization/forms/bulk_import.py:60
 #: netbox/virtualization/forms/bulk_import.py:91
-#: netbox/virtualization/forms/filtersets.py:74
-#: netbox/virtualization/forms/filtersets.py:153
+#: netbox/virtualization/forms/filtersets.py:75
+#: netbox/virtualization/forms/filtersets.py:154
 #: netbox/virtualization/forms/model_forms.py:104
 #: netbox/virtualization/forms/model_forms.py:178
 #: netbox/virtualization/tables/virtualmachines.py:33
@@ -256,7 +256,7 @@ msgstr ""
 #: netbox/circuits/filtersets.py:315 netbox/dcim/base_filtersets.py:53
 #: netbox/dcim/filtersets.py:243 netbox/dcim/filtersets.py:364
 #: netbox/dcim/filtersets.py:459 netbox/extras/filtersets.py:531
-#: netbox/ipam/filtersets.py:257 netbox/ipam/filtersets.py:972
+#: netbox/ipam/filtersets.py:257 netbox/ipam/filtersets.py:984
 #: netbox/virtualization/filtersets.py:169 netbox/vpn/filtersets.py:363
 msgid "Site (slug)"
 msgstr ""
@@ -312,10 +312,10 @@ msgstr ""
 #: netbox/circuits/filtersets.py:229 netbox/circuits/filtersets.py:309
 #: netbox/dcim/base_filtersets.py:47 netbox/dcim/filtersets.py:237
 #: netbox/dcim/filtersets.py:358 netbox/dcim/filtersets.py:453
-#: netbox/dcim/filtersets.py:1046 netbox/dcim/filtersets.py:1395
-#: netbox/dcim/filtersets.py:2052 netbox/dcim/filtersets.py:2294
-#: netbox/dcim/filtersets.py:2353 netbox/ipam/filtersets.py:251
-#: netbox/ipam/filtersets.py:966 netbox/virtualization/filtersets.py:163
+#: netbox/dcim/filtersets.py:1046 netbox/dcim/filtersets.py:1402
+#: netbox/dcim/filtersets.py:2063 netbox/dcim/filtersets.py:2305
+#: netbox/dcim/filtersets.py:2364 netbox/ipam/filtersets.py:251
+#: netbox/ipam/filtersets.py:978 netbox/virtualization/filtersets.py:163
 #: netbox/vpn/filtersets.py:368
 msgid "Site (ID)"
 msgstr ""
@@ -323,8 +323,8 @@ msgstr ""
 #: netbox/circuits/filtersets.py:239 netbox/circuits/filtersets.py:321
 #: netbox/dcim/base_filtersets.py:59 netbox/dcim/filtersets.py:259
 #: netbox/dcim/filtersets.py:370 netbox/dcim/filtersets.py:491
-#: netbox/dcim/filtersets.py:1058 netbox/dcim/filtersets.py:1406
-#: netbox/dcim/filtersets.py:2306
+#: netbox/dcim/filtersets.py:1058 netbox/dcim/filtersets.py:1413
+#: netbox/dcim/filtersets.py:2317
 msgid "Location (ID)"
 msgstr ""
 
@@ -335,8 +335,8 @@ msgstr ""
 #: netbox/circuits/filtersets.py:273 netbox/circuits/filtersets.py:375
 #: netbox/circuits/filtersets.py:537 netbox/core/filtersets.py:77
 #: netbox/core/filtersets.py:136 netbox/core/filtersets.py:173
-#: netbox/dcim/filtersets.py:752 netbox/dcim/filtersets.py:1364
-#: netbox/dcim/filtersets.py:2401 netbox/extras/filtersets.py:41
+#: netbox/dcim/filtersets.py:752 netbox/dcim/filtersets.py:1371
+#: netbox/dcim/filtersets.py:2412 netbox/extras/filtersets.py:41
 #: netbox/extras/filtersets.py:63 netbox/extras/filtersets.py:92
 #: netbox/extras/filtersets.py:132 netbox/extras/filtersets.py:181
 #: netbox/extras/filtersets.py:209 netbox/extras/filtersets.py:239
@@ -371,15 +371,15 @@ msgstr ""
 #: netbox/templates/circuits/circuit.html:15
 #: netbox/templates/circuits/circuitgroupassignment.html:30
 #: netbox/templates/circuits/circuittermination.html:19
-#: netbox/templates/dcim/inc/cable_termination.html:55
+#: netbox/templates/dcim/inc/cable_termination.html:66
 #: netbox/templates/dcim/trace/circuit.html:4
 msgid "Circuit"
 msgstr ""
 
 #: netbox/circuits/filtersets.py:328 netbox/dcim/base_filtersets.py:66
 #: netbox/dcim/filtersets.py:266 netbox/dcim/filtersets.py:377
-#: netbox/dcim/filtersets.py:498 netbox/dcim/filtersets.py:1412
-#: netbox/extras/filtersets.py:542
+#: netbox/dcim/filtersets.py:498 netbox/dcim/filtersets.py:1065
+#: netbox/dcim/filtersets.py:1419 netbox/extras/filtersets.py:542
 msgid "Location (slug)"
 msgstr ""
 
@@ -399,7 +399,7 @@ msgstr ""
 msgid "Virtual circuit (CID)"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:396 netbox/dcim/filtersets.py:1849
+#: netbox/circuits/filtersets.py:396 netbox/dcim/filtersets.py:1860
 msgid "Virtual circuit (ID)"
 msgstr ""
 
@@ -435,8 +435,8 @@ msgstr ""
 msgid "Virtual circuit"
 msgstr ""
 
-#: netbox/circuits/filtersets.py:577 netbox/dcim/filtersets.py:1269
-#: netbox/dcim/filtersets.py:1634 netbox/ipam/filtersets.py:615
+#: netbox/circuits/filtersets.py:577 netbox/dcim/filtersets.py:1276
+#: netbox/dcim/filtersets.py:1641 netbox/ipam/filtersets.py:627
 #: netbox/vpn/filtersets.py:102 netbox/vpn/filtersets.py:401
 msgid "Interface (ID)"
 msgstr ""
@@ -626,7 +626,7 @@ msgstr ""
 #: netbox/templates/circuits/providernetwork.html:20
 #: netbox/templates/circuits/virtualcircuit.html:23
 #: netbox/templates/circuits/virtualcircuittermination.html:26
-#: netbox/templates/dcim/inc/cable_termination.html:51
+#: netbox/templates/dcim/inc/cable_termination.html:62
 #: netbox/templates/dcim/interface.html:166
 msgid "Provider"
 msgstr ""
@@ -644,8 +644,8 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:613 netbox/dcim/forms/bulk_edit.py:822
 #: netbox/dcim/forms/bulk_edit.py:1191 netbox/dcim/forms/bulk_edit.py:1218
 #: netbox/dcim/forms/bulk_edit.py:1742 netbox/dcim/forms/filtersets.py:1065
-#: netbox/dcim/forms/filtersets.py:1323 netbox/dcim/forms/filtersets.py:1460
-#: netbox/dcim/forms/filtersets.py:1484 netbox/dcim/tables/devices.py:737
+#: netbox/dcim/forms/filtersets.py:1323 netbox/dcim/forms/filtersets.py:1471
+#: netbox/dcim/forms/filtersets.py:1495 netbox/dcim/tables/devices.py:737
 #: netbox/dcim/tables/devices.py:793 netbox/dcim/tables/devices.py:1034
 #: netbox/dcim/tables/devicetypes.py:256 netbox/dcim/tables/devicetypes.py:271
 #: netbox/dcim/tables/racks.py:33 netbox/extras/forms/bulk_edit.py:270
@@ -685,8 +685,8 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1055 netbox/dcim/forms/filtersets.py:1176
 #: netbox/dcim/forms/filtersets.py:1248 netbox/dcim/forms/filtersets.py:1273
 #: netbox/dcim/forms/filtersets.py:1297 netbox/dcim/forms/filtersets.py:1317
-#: netbox/dcim/forms/filtersets.py:1358 netbox/dcim/forms/filtersets.py:1455
-#: netbox/dcim/forms/filtersets.py:1479 netbox/dcim/forms/model_forms.py:714
+#: netbox/dcim/forms/filtersets.py:1359 netbox/dcim/forms/filtersets.py:1466
+#: netbox/dcim/forms/filtersets.py:1490 netbox/dcim/forms/model_forms.py:714
 #: netbox/dcim/forms/model_forms.py:720 netbox/dcim/forms/object_import.py:84
 #: netbox/dcim/forms/object_import.py:113
 #: netbox/dcim/forms/object_import.py:146 netbox/dcim/tables/devices.py:188
@@ -714,7 +714,7 @@ msgstr ""
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:14
 #: netbox/virtualization/forms/bulk_edit.py:61
 #: netbox/virtualization/forms/bulk_import.py:42
-#: netbox/virtualization/forms/filtersets.py:54
+#: netbox/virtualization/forms/filtersets.py:55
 #: netbox/virtualization/forms/model_forms.py:65
 #: netbox/virtualization/tables/clusters.py:66
 #: netbox/vpn/forms/bulk_edit.py:264 netbox/vpn/forms/bulk_import.py:264
@@ -757,7 +757,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:360 netbox/dcim/forms/filtersets.py:800
 #: netbox/dcim/forms/filtersets.py:925 netbox/dcim/forms/filtersets.py:959
 #: netbox/dcim/forms/filtersets.py:1060 netbox/dcim/forms/filtersets.py:1171
-#: netbox/dcim/forms/filtersets.py:1562 netbox/dcim/tables/devices.py:150
+#: netbox/dcim/forms/filtersets.py:1573 netbox/dcim/tables/devices.py:150
 #: netbox/dcim/tables/devices.py:848 netbox/dcim/tables/devices.py:982
 #: netbox/dcim/tables/devices.py:1094 netbox/dcim/tables/modules.py:70
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:125
@@ -765,9 +765,9 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:240 netbox/ipam/forms/bulk_edit.py:290
 #: netbox/ipam/forms/bulk_edit.py:338 netbox/ipam/forms/bulk_edit.py:490
 #: netbox/ipam/forms/bulk_import.py:195 netbox/ipam/forms/bulk_import.py:263
-#: netbox/ipam/forms/bulk_import.py:299 netbox/ipam/forms/bulk_import.py:480
-#: netbox/ipam/forms/filtersets.py:219 netbox/ipam/forms/filtersets.py:292
-#: netbox/ipam/forms/filtersets.py:367 netbox/ipam/forms/filtersets.py:551
+#: netbox/ipam/forms/bulk_import.py:299 netbox/ipam/forms/bulk_import.py:489
+#: netbox/ipam/forms/filtersets.py:219 netbox/ipam/forms/filtersets.py:297
+#: netbox/ipam/forms/filtersets.py:372 netbox/ipam/forms/filtersets.py:556
 #: netbox/ipam/forms/model_forms.py:511 netbox/ipam/tables/ip.py:183
 #: netbox/ipam/tables/ip.py:264 netbox/ipam/tables/ip.py:315
 #: netbox/ipam/tables/ip.py:378 netbox/ipam/tables/ip.py:405
@@ -795,8 +795,8 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_edit.py:100
 #: netbox/virtualization/forms/bulk_import.py:55
 #: netbox/virtualization/forms/bulk_import.py:86
-#: netbox/virtualization/forms/filtersets.py:82
-#: netbox/virtualization/forms/filtersets.py:165
+#: netbox/virtualization/forms/filtersets.py:83
+#: netbox/virtualization/forms/filtersets.py:166
 #: netbox/virtualization/tables/clusters.py:74
 #: netbox/virtualization/tables/virtualmachines.py:30
 #: netbox/vpn/forms/bulk_edit.py:39 netbox/vpn/forms/bulk_import.py:37
@@ -842,11 +842,11 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:98 netbox/ipam/forms/bulk_import.py:118
 #: netbox/ipam/forms/bulk_import.py:138 netbox/ipam/forms/bulk_import.py:167
 #: netbox/ipam/forms/bulk_import.py:256 netbox/ipam/forms/bulk_import.py:292
-#: netbox/ipam/forms/bulk_import.py:473 netbox/ipam/forms/filtersets.py:50
+#: netbox/ipam/forms/bulk_import.py:482 netbox/ipam/forms/filtersets.py:50
 #: netbox/ipam/forms/filtersets.py:70 netbox/ipam/forms/filtersets.py:102
 #: netbox/ipam/forms/filtersets.py:123 netbox/ipam/forms/filtersets.py:146
-#: netbox/ipam/forms/filtersets.py:182 netbox/ipam/forms/filtersets.py:277
-#: netbox/ipam/forms/filtersets.py:321 netbox/ipam/forms/filtersets.py:519
+#: netbox/ipam/forms/filtersets.py:182 netbox/ipam/forms/filtersets.py:282
+#: netbox/ipam/forms/filtersets.py:326 netbox/ipam/forms/filtersets.py:524
 #: netbox/ipam/tables/ip.py:408 netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuit.html:48
 #: netbox/templates/circuits/circuitgroup.html:36
@@ -874,8 +874,8 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_edit.py:137
 #: netbox/virtualization/forms/bulk_import.py:67
 #: netbox/virtualization/forms/bulk_import.py:121
-#: netbox/virtualization/forms/filtersets.py:47
-#: netbox/virtualization/forms/filtersets.py:110
+#: netbox/virtualization/forms/filtersets.py:48
+#: netbox/virtualization/forms/filtersets.py:111
 #: netbox/vpn/forms/bulk_edit.py:59 netbox/vpn/forms/bulk_edit.py:269
 #: netbox/vpn/forms/bulk_import.py:59 netbox/vpn/forms/bulk_import.py:258
 #: netbox/vpn/forms/filtersets.py:219 netbox/wireless/forms/bulk_edit.py:65
@@ -942,22 +942,22 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1132 netbox/dcim/forms/filtersets.py:1240
 #: netbox/dcim/forms/filtersets.py:1264 netbox/dcim/forms/filtersets.py:1289
 #: netbox/dcim/forms/filtersets.py:1308 netbox/dcim/forms/filtersets.py:1332
-#: netbox/dcim/forms/filtersets.py:1446 netbox/dcim/forms/filtersets.py:1470
-#: netbox/dcim/forms/filtersets.py:1494 netbox/dcim/forms/filtersets.py:1512
-#: netbox/dcim/forms/filtersets.py:1528 netbox/extras/forms/bulk_edit.py:90
+#: netbox/dcim/forms/filtersets.py:1457 netbox/dcim/forms/filtersets.py:1481
+#: netbox/dcim/forms/filtersets.py:1505 netbox/dcim/forms/filtersets.py:1523
+#: netbox/dcim/forms/filtersets.py:1539 netbox/extras/forms/bulk_edit.py:90
 #: netbox/extras/forms/filtersets.py:45 netbox/extras/forms/filtersets.py:137
 #: netbox/extras/forms/filtersets.py:169 netbox/extras/forms/filtersets.py:210
 #: netbox/extras/forms/filtersets.py:227 netbox/extras/forms/filtersets.py:258
 #: netbox/extras/forms/filtersets.py:282 netbox/extras/forms/filtersets.py:449
-#: netbox/ipam/forms/filtersets.py:101 netbox/ipam/forms/filtersets.py:276
-#: netbox/ipam/forms/filtersets.py:318 netbox/ipam/forms/filtersets.py:394
-#: netbox/ipam/forms/filtersets.py:479 netbox/ipam/forms/filtersets.py:492
-#: netbox/ipam/forms/filtersets.py:517 netbox/ipam/forms/filtersets.py:588
-#: netbox/ipam/forms/filtersets.py:606 netbox/netbox/tables/tables.py:259
-#: netbox/virtualization/forms/filtersets.py:45
-#: netbox/virtualization/forms/filtersets.py:108
-#: netbox/virtualization/forms/filtersets.py:203
-#: netbox/virtualization/forms/filtersets.py:248
+#: netbox/ipam/forms/filtersets.py:101 netbox/ipam/forms/filtersets.py:281
+#: netbox/ipam/forms/filtersets.py:323 netbox/ipam/forms/filtersets.py:399
+#: netbox/ipam/forms/filtersets.py:484 netbox/ipam/forms/filtersets.py:497
+#: netbox/ipam/forms/filtersets.py:522 netbox/ipam/forms/filtersets.py:593
+#: netbox/ipam/forms/filtersets.py:611 netbox/netbox/tables/tables.py:259
+#: netbox/virtualization/forms/filtersets.py:46
+#: netbox/virtualization/forms/filtersets.py:109
+#: netbox/virtualization/forms/filtersets.py:204
+#: netbox/virtualization/forms/filtersets.py:261
 #: netbox/vpn/forms/filtersets.py:218 netbox/wireless/forms/bulk_edit.py:153
 #: netbox/wireless/forms/filtersets.py:36
 #: netbox/wireless/forms/filtersets.py:102
@@ -1068,7 +1068,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:1280 netbox/dcim/forms/bulk_edit.py:1713
 #: netbox/dcim/forms/bulk_import.py:255 netbox/dcim/forms/bulk_import.py:1106
 #: netbox/dcim/forms/filtersets.py:368 netbox/dcim/forms/filtersets.py:778
-#: netbox/dcim/forms/filtersets.py:1539 netbox/dcim/forms/model_forms.py:256
+#: netbox/dcim/forms/filtersets.py:1550 netbox/dcim/forms/model_forms.py:256
 #: netbox/dcim/forms/model_forms.py:1090 netbox/dcim/forms/model_forms.py:1559
 #: netbox/dcim/forms/object_import.py:182 netbox/dcim/tables/devices.py:179
 #: netbox/dcim/tables/devices.py:840 netbox/dcim/tables/devices.py:966
@@ -1077,11 +1077,11 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:295 netbox/ipam/forms/bulk_edit.py:343
 #: netbox/ipam/forms/bulk_edit.py:495 netbox/ipam/forms/bulk_import.py:200
 #: netbox/ipam/forms/bulk_import.py:268 netbox/ipam/forms/bulk_import.py:304
-#: netbox/ipam/forms/bulk_import.py:485 netbox/ipam/forms/filtersets.py:247
-#: netbox/ipam/forms/filtersets.py:300 netbox/ipam/forms/filtersets.py:372
-#: netbox/ipam/forms/filtersets.py:559 netbox/ipam/forms/model_forms.py:194
+#: netbox/ipam/forms/bulk_import.py:494 netbox/ipam/forms/filtersets.py:247
+#: netbox/ipam/forms/filtersets.py:305 netbox/ipam/forms/filtersets.py:377
+#: netbox/ipam/forms/filtersets.py:564 netbox/ipam/forms/model_forms.py:194
 #: netbox/ipam/forms/model_forms.py:220 netbox/ipam/forms/model_forms.py:259
-#: netbox/ipam/forms/model_forms.py:686 netbox/ipam/tables/ip.py:209
+#: netbox/ipam/forms/model_forms.py:685 netbox/ipam/tables/ip.py:209
 #: netbox/ipam/tables/ip.py:268 netbox/ipam/tables/ip.py:319
 #: netbox/ipam/tables/vlans.py:99 netbox/ipam/tables/vlans.py:211
 #: netbox/templates/circuits/virtualcircuittermination.html:42
@@ -1101,7 +1101,7 @@ msgstr ""
 #: netbox/tenancy/tables/contacts.py:102
 #: netbox/virtualization/forms/bulk_edit.py:127
 #: netbox/virtualization/forms/bulk_import.py:112
-#: netbox/virtualization/forms/filtersets.py:162
+#: netbox/virtualization/forms/filtersets.py:163
 #: netbox/virtualization/forms/model_forms.py:202
 #: netbox/virtualization/tables/virtualmachines.py:45
 #: netbox/vpn/forms/bulk_edit.py:87 netbox/vpn/forms/bulk_import.py:81
@@ -1130,8 +1130,8 @@ msgstr ""
 #: netbox/dcim/forms/bulk_import.py:534 netbox/dcim/forms/bulk_import.py:688
 #: netbox/dcim/forms/bulk_import.py:1139 netbox/dcim/forms/bulk_import.py:1510
 #: netbox/ipam/forms/bulk_import.py:197 netbox/ipam/forms/bulk_import.py:265
-#: netbox/ipam/forms/bulk_import.py:301 netbox/ipam/forms/bulk_import.py:482
-#: netbox/ipam/forms/bulk_import.py:495
+#: netbox/ipam/forms/bulk_import.py:301 netbox/ipam/forms/bulk_import.py:491
+#: netbox/ipam/forms/bulk_import.py:504
 #: netbox/virtualization/forms/bulk_import.py:57
 #: netbox/virtualization/forms/bulk_import.py:88
 #: netbox/vpn/forms/bulk_import.py:39 netbox/wireless/forms/bulk_import.py:47
@@ -1148,7 +1148,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:74 netbox/ipam/forms/bulk_import.py:102
 #: netbox/ipam/forms/bulk_import.py:122 netbox/ipam/forms/bulk_import.py:142
 #: netbox/ipam/forms/bulk_import.py:171 netbox/ipam/forms/bulk_import.py:260
-#: netbox/ipam/forms/bulk_import.py:296 netbox/ipam/forms/bulk_import.py:477
+#: netbox/ipam/forms/bulk_import.py:296 netbox/ipam/forms/bulk_import.py:486
 #: netbox/virtualization/forms/bulk_import.py:71
 #: netbox/virtualization/forms/bulk_import.py:125
 #: netbox/vpn/forms/bulk_import.py:63 netbox/wireless/forms/bulk_import.py:61
@@ -1233,24 +1233,24 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1121 netbox/dcim/forms/filtersets.py:1130
 #: netbox/dcim/forms/filtersets.py:1241 netbox/dcim/forms/filtersets.py:1265
 #: netbox/dcim/forms/filtersets.py:1290 netbox/dcim/forms/filtersets.py:1309
-#: netbox/dcim/forms/filtersets.py:1336 netbox/dcim/forms/filtersets.py:1447
-#: netbox/dcim/forms/filtersets.py:1471 netbox/dcim/forms/filtersets.py:1495
-#: netbox/dcim/forms/filtersets.py:1513 netbox/dcim/forms/filtersets.py:1530
+#: netbox/dcim/forms/filtersets.py:1337 netbox/dcim/forms/filtersets.py:1458
+#: netbox/dcim/forms/filtersets.py:1482 netbox/dcim/forms/filtersets.py:1506
+#: netbox/dcim/forms/filtersets.py:1524 netbox/dcim/forms/filtersets.py:1541
 #: netbox/dcim/forms/model_forms.py:184 netbox/dcim/forms/model_forms.py:248
 #: netbox/dcim/forms/model_forms.py:478 netbox/dcim/forms/model_forms.py:739
 #: netbox/dcim/tables/devices.py:167 netbox/dcim/tables/power.py:30
 #: netbox/dcim/tables/racks.py:117 netbox/dcim/tables/racks.py:211
 #: netbox/extras/filtersets.py:536 netbox/extras/forms/filtersets.py:327
-#: netbox/ipam/forms/filtersets.py:241 netbox/ipam/forms/filtersets.py:426
-#: netbox/ipam/forms/filtersets.py:449 netbox/ipam/forms/filtersets.py:516
+#: netbox/ipam/forms/filtersets.py:241 netbox/ipam/forms/filtersets.py:431
+#: netbox/ipam/forms/filtersets.py:454 netbox/ipam/forms/filtersets.py:521
 #: netbox/templates/dcim/device.html:26
 #: netbox/templates/dcim/device_edit.html:30
 #: netbox/templates/dcim/inc/cable_termination.html:12
 #: netbox/templates/dcim/location.html:26
 #: netbox/templates/dcim/powerpanel.html:26 netbox/templates/dcim/rack.html:24
 #: netbox/templates/dcim/rackreservation.html:32
-#: netbox/virtualization/forms/filtersets.py:79
-#: netbox/virtualization/forms/filtersets.py:105
+#: netbox/virtualization/forms/filtersets.py:80
+#: netbox/virtualization/forms/filtersets.py:106
 #: netbox/wireless/forms/filtersets.py:93
 #: netbox/wireless/forms/model_forms.py:90
 #: netbox/wireless/forms/model_forms.py:132
@@ -1265,13 +1265,13 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:401 netbox/dcim/forms/filtersets.py:472
 #: netbox/dcim/forms/filtersets.py:724 netbox/dcim/forms/filtersets.py:1092
 #: netbox/ipam/forms/filtersets.py:103 netbox/ipam/forms/filtersets.py:183
-#: netbox/ipam/forms/filtersets.py:278 netbox/ipam/forms/filtersets.py:323
-#: netbox/ipam/forms/filtersets.py:608 netbox/netbox/navigation/menu.py:31
+#: netbox/ipam/forms/filtersets.py:283 netbox/ipam/forms/filtersets.py:328
+#: netbox/ipam/forms/filtersets.py:613 netbox/netbox/navigation/menu.py:31
 #: netbox/netbox/navigation/menu.py:33 netbox/tenancy/forms/filtersets.py:42
 #: netbox/tenancy/tables/columns.py:55 netbox/tenancy/tables/contacts.py:25
-#: netbox/tenancy/views.py:19 netbox/virtualization/forms/filtersets.py:37
-#: netbox/virtualization/forms/filtersets.py:48
-#: netbox/virtualization/forms/filtersets.py:111
+#: netbox/tenancy/views.py:19 netbox/virtualization/forms/filtersets.py:38
+#: netbox/virtualization/forms/filtersets.py:49
+#: netbox/virtualization/forms/filtersets.py:112
 #: netbox/vpn/forms/filtersets.py:37 netbox/vpn/forms/filtersets.py:49
 #: netbox/vpn/forms/filtersets.py:220
 msgid "Contacts"
@@ -1287,19 +1287,19 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:335 netbox/dcim/forms/filtersets.py:426
 #: netbox/dcim/forms/filtersets.py:740 netbox/dcim/forms/filtersets.py:984
 #: netbox/dcim/forms/filtersets.py:1014 netbox/dcim/forms/filtersets.py:1098
-#: netbox/dcim/forms/filtersets.py:1137 netbox/dcim/forms/filtersets.py:1614
-#: netbox/dcim/forms/filtersets.py:1638 netbox/dcim/forms/filtersets.py:1662
-#: netbox/dcim/forms/model_forms.py:114 netbox/dcim/forms/object_create.py:367
+#: netbox/dcim/forms/filtersets.py:1137 netbox/dcim/forms/filtersets.py:1625
+#: netbox/dcim/forms/filtersets.py:1649 netbox/dcim/forms/filtersets.py:1673
+#: netbox/dcim/forms/model_forms.py:114 netbox/dcim/forms/object_create.py:369
 #: netbox/dcim/tables/devices.py:153 netbox/dcim/tables/sites.py:85
 #: netbox/extras/filtersets.py:503 netbox/ipam/forms/bulk_edit.py:458
-#: netbox/ipam/forms/filtersets.py:226 netbox/ipam/forms/filtersets.py:434
-#: netbox/ipam/forms/filtersets.py:525 netbox/templates/dcim/device.html:18
+#: netbox/ipam/forms/filtersets.py:226 netbox/ipam/forms/filtersets.py:439
+#: netbox/ipam/forms/filtersets.py:530 netbox/templates/dcim/device.html:18
 #: netbox/templates/dcim/rack.html:16
 #: netbox/templates/dcim/rackreservation.html:22
 #: netbox/templates/dcim/region.html:26 netbox/templates/dcim/site.html:31
 #: netbox/templates/ipam/vlan.html:16
-#: netbox/virtualization/forms/filtersets.py:59
-#: netbox/virtualization/forms/filtersets.py:138
+#: netbox/virtualization/forms/filtersets.py:60
+#: netbox/virtualization/forms/filtersets.py:139
 #: netbox/virtualization/forms/model_forms.py:92
 #: netbox/vpn/forms/filtersets.py:263 netbox/wireless/forms/filtersets.py:73
 msgid "Region"
@@ -1313,12 +1313,12 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:348 netbox/dcim/forms/filtersets.py:431
 #: netbox/dcim/forms/filtersets.py:745 netbox/dcim/forms/filtersets.py:989
 #: netbox/dcim/forms/filtersets.py:1103 netbox/dcim/forms/filtersets.py:1142
-#: netbox/dcim/forms/object_create.py:375 netbox/extras/filtersets.py:520
+#: netbox/dcim/forms/object_create.py:377 netbox/extras/filtersets.py:520
 #: netbox/ipam/forms/bulk_edit.py:463 netbox/ipam/forms/filtersets.py:156
-#: netbox/ipam/forms/filtersets.py:231 netbox/ipam/forms/filtersets.py:439
-#: netbox/ipam/forms/filtersets.py:530
-#: netbox/virtualization/forms/filtersets.py:64
-#: netbox/virtualization/forms/filtersets.py:143
+#: netbox/ipam/forms/filtersets.py:231 netbox/ipam/forms/filtersets.py:444
+#: netbox/ipam/forms/filtersets.py:535
+#: netbox/virtualization/forms/filtersets.py:65
+#: netbox/virtualization/forms/filtersets.py:144
 #: netbox/virtualization/forms/model_forms.py:98
 #: netbox/wireless/forms/filtersets.py:78
 msgid "Site group"
@@ -1339,7 +1339,7 @@ msgstr ""
 
 #: netbox/circuits/forms/filtersets.py:287 netbox/dcim/forms/bulk_edit.py:1572
 #: netbox/extras/forms/model_forms.py:596 netbox/ipam/forms/filtersets.py:145
-#: netbox/ipam/forms/filtersets.py:607 netbox/ipam/forms/model_forms.py:337
+#: netbox/ipam/forms/filtersets.py:612 netbox/ipam/forms/model_forms.py:337
 #: netbox/templates/dcim/macaddress.html:25
 #: netbox/templates/extras/configcontext.html:60
 #: netbox/templates/ipam/ipaddress.html:59
@@ -1353,8 +1353,8 @@ msgstr ""
 #: netbox/circuits/tables/circuits.py:191 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_import.py:102 netbox/dcim/forms/model_forms.py:120
 #: netbox/dcim/tables/sites.py:89 netbox/extras/forms/filtersets.py:489
-#: netbox/ipam/filtersets.py:982 netbox/ipam/forms/bulk_edit.py:477
-#: netbox/ipam/forms/bulk_import.py:466 netbox/ipam/forms/model_forms.py:571
+#: netbox/ipam/filtersets.py:994 netbox/ipam/forms/bulk_edit.py:477
+#: netbox/ipam/forms/bulk_import.py:475 netbox/ipam/forms/model_forms.py:570
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:91
 #: netbox/ipam/tables/vlans.py:202
 #: netbox/templates/circuits/circuitgroupassignment.html:22
@@ -1379,7 +1379,7 @@ msgstr ""
 #: netbox/users/forms/filtersets.py:79
 #: netbox/virtualization/forms/bulk_edit.py:66
 #: netbox/virtualization/forms/bulk_import.py:48
-#: netbox/virtualization/forms/filtersets.py:90
+#: netbox/virtualization/forms/filtersets.py:91
 #: netbox/virtualization/forms/model_forms.py:70
 #: netbox/virtualization/tables/clusters.py:70
 #: netbox/vpn/forms/bulk_edit.py:112 netbox/vpn/forms/bulk_import.py:158
@@ -1541,7 +1541,7 @@ msgstr ""
 #: netbox/dcim/models/device_component_templates.py:57
 #: netbox/dcim/models/device_components.py:63 netbox/dcim/models/racks.py:681
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:219
-#: netbox/extras/models/customfields.py:125 netbox/extras/models/models.py:61
+#: netbox/extras/models/customfields.py:127 netbox/extras/models/models.py:61
 #: netbox/extras/models/models.py:158 netbox/extras/models/models.py:396
 #: netbox/extras/models/models.py:511 netbox/extras/models/notifications.py:131
 #: netbox/extras/models/staging.py:32 netbox/extras/models/tags.py:32
@@ -1575,7 +1575,7 @@ msgstr ""
 #: netbox/dcim/models/power.py:38 netbox/dcim/models/power.py:89
 #: netbox/dcim/models/racks.py:257 netbox/dcim/models/sites.py:142
 #: netbox/extras/models/configs.py:36 netbox/extras/models/configs.py:215
-#: netbox/extras/models/customfields.py:92 netbox/extras/models/models.py:56
+#: netbox/extras/models/customfields.py:94 netbox/extras/models/models.py:56
 #: netbox/extras/models/models.py:153 netbox/extras/models/models.py:296
 #: netbox/extras/models/models.py:392 netbox/extras/models/models.py:501
 #: netbox/extras/models/models.py:596 netbox/extras/models/notifications.py:126
@@ -1701,9 +1701,9 @@ msgstr ""
 #: netbox/extras/tables/tables.py:180 netbox/extras/tables/tables.py:246
 #: netbox/extras/tables/tables.py:361 netbox/extras/tables/tables.py:378
 #: netbox/extras/tables/tables.py:401 netbox/extras/tables/tables.py:439
-#: netbox/extras/tables/tables.py:491 netbox/extras/tables/tables.py:514
-#: netbox/ipam/forms/bulk_edit.py:391 netbox/ipam/forms/filtersets.py:398
-#: netbox/ipam/forms/filtersets.py:483 netbox/ipam/tables/asn.py:16
+#: netbox/extras/tables/tables.py:491 netbox/extras/tables/tables.py:517
+#: netbox/ipam/forms/bulk_edit.py:391 netbox/ipam/forms/filtersets.py:403
+#: netbox/ipam/forms/filtersets.py:488 netbox/ipam/tables/asn.py:16
 #: netbox/ipam/tables/ip.py:31 netbox/ipam/tables/ip.py:106
 #: netbox/ipam/tables/services.py:15 netbox/ipam/tables/services.py:40
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:83
@@ -1839,7 +1839,7 @@ msgstr ""
 #: netbox/dcim/tables/power.py:39 netbox/dcim/tables/power.py:96
 #: netbox/dcim/tables/racks.py:84 netbox/dcim/tables/racks.py:144
 #: netbox/dcim/tables/racks.py:224 netbox/dcim/tables/sites.py:107
-#: netbox/extras/tables/tables.py:582 netbox/ipam/tables/asn.py:69
+#: netbox/extras/tables/tables.py:585 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:82
 #: netbox/ipam/tables/ip.py:226 netbox/ipam/tables/ip.py:281
 #: netbox/ipam/tables/ip.py:349 netbox/ipam/tables/services.py:24
@@ -1924,14 +1924,14 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:132 netbox/dcim/forms/filtersets.py:922
 #: netbox/dcim/forms/filtersets.py:1052 netbox/dcim/forms/filtersets.py:1243
 #: netbox/dcim/forms/filtersets.py:1268 netbox/dcim/forms/filtersets.py:1292
-#: netbox/dcim/forms/filtersets.py:1312 netbox/dcim/forms/filtersets.py:1339
-#: netbox/dcim/forms/filtersets.py:1449 netbox/dcim/forms/filtersets.py:1474
-#: netbox/dcim/forms/filtersets.py:1498 netbox/dcim/forms/filtersets.py:1516
-#: netbox/dcim/forms/filtersets.py:1533 netbox/dcim/forms/filtersets.py:1630
-#: netbox/dcim/forms/filtersets.py:1654 netbox/dcim/forms/filtersets.py:1678
+#: netbox/dcim/forms/filtersets.py:1312 netbox/dcim/forms/filtersets.py:1340
+#: netbox/dcim/forms/filtersets.py:1460 netbox/dcim/forms/filtersets.py:1485
+#: netbox/dcim/forms/filtersets.py:1509 netbox/dcim/forms/filtersets.py:1527
+#: netbox/dcim/forms/filtersets.py:1544 netbox/dcim/forms/filtersets.py:1641
+#: netbox/dcim/forms/filtersets.py:1665 netbox/dcim/forms/filtersets.py:1689
 #: netbox/dcim/forms/model_forms.py:644 netbox/dcim/forms/model_forms.py:861
 #: netbox/dcim/forms/model_forms.py:1231 netbox/dcim/forms/model_forms.py:1716
-#: netbox/dcim/forms/model_forms.py:1787 netbox/dcim/forms/object_create.py:249
+#: netbox/dcim/forms/model_forms.py:1787 netbox/dcim/forms/object_create.py:250
 #: netbox/dcim/tables/connections.py:22 netbox/dcim/tables/connections.py:41
 #: netbox/dcim/tables/connections.py:60 netbox/dcim/tables/devices.py:295
 #: netbox/dcim/tables/devices.py:380 netbox/dcim/tables/devices.py:421
@@ -1941,9 +1941,9 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:891 netbox/dcim/tables/devices.py:959
 #: netbox/dcim/tables/devices.py:1088 netbox/dcim/tables/modules.py:53
 #: netbox/extras/forms/filtersets.py:328 netbox/ipam/forms/bulk_import.py:310
-#: netbox/ipam/forms/bulk_import.py:547 netbox/ipam/forms/filtersets.py:613
-#: netbox/ipam/forms/model_forms.py:333 netbox/ipam/forms/model_forms.py:762
-#: netbox/ipam/forms/model_forms.py:795 netbox/ipam/forms/model_forms.py:821
+#: netbox/ipam/forms/bulk_import.py:556 netbox/ipam/forms/filtersets.py:618
+#: netbox/ipam/forms/model_forms.py:333 netbox/ipam/forms/model_forms.py:761
+#: netbox/ipam/forms/model_forms.py:794 netbox/ipam/forms/model_forms.py:820
 #: netbox/ipam/tables/vlans.py:156
 #: netbox/templates/circuits/virtualcircuittermination.html:56
 #: netbox/templates/dcim/consoleport.html:20
@@ -1969,7 +1969,7 @@ msgstr ""
 #: netbox/virtualization/filtersets.py:133
 #: netbox/virtualization/forms/bulk_edit.py:119
 #: netbox/virtualization/forms/bulk_import.py:105
-#: netbox/virtualization/forms/filtersets.py:133
+#: netbox/virtualization/forms/filtersets.py:134
 #: netbox/virtualization/forms/model_forms.py:192
 #: netbox/virtualization/tables/virtualmachines.py:41 netbox/vpn/choices.py:52
 #: netbox/vpn/forms/bulk_import.py:86 netbox/vpn/forms/bulk_import.py:283
@@ -1995,6 +1995,34 @@ msgstr ""
 msgid "This user does not have permission to synchronize this data source."
 msgstr ""
 
+#: netbox/core/apps.py:33
+msgid "Object created"
+msgstr ""
+
+#: netbox/core/apps.py:34
+msgid "Object updated"
+msgstr ""
+
+#: netbox/core/apps.py:35
+msgid "Object deleted"
+msgstr ""
+
+#: netbox/core/apps.py:36
+msgid "Job started"
+msgstr ""
+
+#: netbox/core/apps.py:37
+msgid "Job completed"
+msgstr ""
+
+#: netbox/core/apps.py:38
+msgid "Job failed"
+msgstr ""
+
+#: netbox/core/apps.py:39
+msgid "Job errored"
+msgstr ""
+
 #: netbox/core/choices.py:18
 msgid "New"
 msgstr ""
@@ -2016,7 +2044,7 @@ msgstr ""
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:20 netbox/core/tables/tasks.py:34
 #: netbox/dcim/choices.py:187 netbox/dcim/choices.py:239
-#: netbox/dcim/choices.py:1599 netbox/dcim/choices.py:1672
+#: netbox/dcim/choices.py:1601 netbox/dcim/choices.py:1674
 #: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr ""
@@ -2146,34 +2174,6 @@ msgstr ""
 msgid "AWS secret access key"
 msgstr ""
 
-#: netbox/core/events.py:27
-msgid "Object created"
-msgstr ""
-
-#: netbox/core/events.py:28
-msgid "Object updated"
-msgstr ""
-
-#: netbox/core/events.py:29
-msgid "Object deleted"
-msgstr ""
-
-#: netbox/core/events.py:30
-msgid "Job started"
-msgstr ""
-
-#: netbox/core/events.py:31
-msgid "Job completed"
-msgstr ""
-
-#: netbox/core/events.py:32
-msgid "Job failed"
-msgstr ""
-
-#: netbox/core/events.py:33
-msgid "Job errored"
-msgstr ""
-
 #: netbox/core/filtersets.py:53 netbox/extras/filtersets.py:250
 #: netbox/extras/filtersets.py:633 netbox/extras/filtersets.py:661
 msgid "Data source (ID)"
@@ -2196,7 +2196,7 @@ msgstr ""
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:43
 #: netbox/core/tables/data.py:26 netbox/dcim/forms/bulk_edit.py:1140
-#: netbox/dcim/forms/bulk_edit.py:1418 netbox/dcim/forms/filtersets.py:1375
+#: netbox/dcim/forms/bulk_edit.py:1418 netbox/dcim/forms/filtersets.py:1376
 #: netbox/dcim/tables/devices.py:566 netbox/dcim/tables/devicetypes.py:231
 #: netbox/extras/forms/bulk_edit.py:123 netbox/extras/forms/bulk_edit.py:187
 #: netbox/extras/forms/bulk_edit.py:246 netbox/extras/forms/filtersets.py:145
@@ -2212,7 +2212,7 @@ msgstr ""
 #: netbox/templates/virtualization/vminterface.html:29
 #: netbox/users/forms/bulk_edit.py:89 netbox/users/forms/filtersets.py:70
 #: netbox/users/tables.py:83 netbox/virtualization/forms/bulk_edit.py:199
-#: netbox/virtualization/forms/filtersets.py:220
+#: netbox/virtualization/forms/filtersets.py:223
 msgid "Enabled"
 msgstr ""
 
@@ -2234,7 +2234,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:262
 #: netbox/extras/forms/model_forms.py:592
 #: netbox/extras/forms/model_forms.py:646 netbox/extras/tables/tables.py:191
-#: netbox/extras/tables/tables.py:483 netbox/extras/tables/tables.py:518
+#: netbox/extras/tables/tables.py:483 netbox/extras/tables/tables.py:521
 #: netbox/templates/core/datasource.html:31
 #: netbox/templates/extras/configcontext.html:29
 #: netbox/templates/extras/configtemplate.html:21
@@ -2260,7 +2260,7 @@ msgstr ""
 #: netbox/core/forms/filtersets.py:75 netbox/core/forms/filtersets.py:161
 #: netbox/extras/forms/filtersets.py:469 netbox/extras/tables/tables.py:220
 #: netbox/extras/tables/tables.py:294 netbox/extras/tables/tables.py:326
-#: netbox/extras/tables/tables.py:571 netbox/templates/core/job.html:38
+#: netbox/extras/tables/tables.py:574 netbox/templates/core/job.html:38
 #: netbox/templates/core/objectchange.html:52
 #: netbox/tenancy/tables/contacts.py:90 netbox/vpn/tables/l2vpn.py:59
 msgid "Object Type"
@@ -2316,7 +2316,7 @@ msgid "User"
 msgstr ""
 
 #: netbox/core/forms/filtersets.py:135 netbox/core/tables/change_logging.py:15
-#: netbox/extras/tables/tables.py:609 netbox/extras/tables/tables.py:646
+#: netbox/extras/tables/tables.py:612 netbox/extras/tables/tables.py:649
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr ""
@@ -2364,7 +2364,7 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr ""
 
-#: netbox/core/forms/model_forms.py:157 netbox/dcim/choices.py:1528
+#: netbox/core/forms/model_forms.py:157 netbox/dcim/choices.py:1530
 #: netbox/dcim/forms/bulk_edit.py:987 netbox/dcim/forms/bulk_edit.py:1375
 #: netbox/dcim/forms/bulk_edit.py:1393 netbox/dcim/tables/racks.py:157
 #: netbox/netbox/navigation/menu.py:312 netbox/netbox/navigation/menu.py:316
@@ -2517,13 +2517,13 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:656
 #: netbox/dcim/models/device_components.py:1024
 #: netbox/dcim/models/device_components.py:1095 netbox/dcim/models/power.py:100
-#: netbox/extras/models/customfields.py:78 netbox/extras/models/search.py:41
+#: netbox/extras/models/customfields.py:80 netbox/extras/models/search.py:41
 #: netbox/virtualization/models/clusters.py:57 netbox/vpn/models/l2vpn.py:32
 msgid "type"
 msgstr ""
 
 #: netbox/core/models/data.py:49 netbox/extras/choices.py:37
-#: netbox/extras/models/models.py:164 netbox/extras/tables/tables.py:656
+#: netbox/extras/models/models.py:164 netbox/extras/tables/tables.py:659
 #: netbox/templates/core/datasource.html:58
 #: netbox/templates/core/plugin.html:66
 msgid "URL"
@@ -2716,8 +2716,8 @@ msgstr ""
 #: netbox/extras/choices.py:41 netbox/extras/tables/tables.py:279
 #: netbox/extras/tables/tables.py:297 netbox/extras/tables/tables.py:329
 #: netbox/extras/tables/tables.py:409 netbox/extras/tables/tables.py:470
-#: netbox/extras/tables/tables.py:576 netbox/extras/tables/tables.py:616
-#: netbox/extras/tables/tables.py:653 netbox/netbox/tables/tables.py:247
+#: netbox/extras/tables/tables.py:579 netbox/extras/tables/tables.py:619
+#: netbox/extras/tables/tables.py:656 netbox/netbox/tables/tables.py:247
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2814,7 +2814,7 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
-#: netbox/core/tables/tasks.py:50 netbox/ipam/forms/filtersets.py:596
+#: netbox/core/tables/tasks.py:50 netbox/ipam/forms/filtersets.py:601
 msgid "Port"
 msgstr ""
 
@@ -2948,8 +2948,8 @@ msgid "Staging"
 msgstr ""
 
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:189
-#: netbox/dcim/choices.py:240 netbox/dcim/choices.py:1541
-#: netbox/dcim/choices.py:1673 netbox/virtualization/choices.py:23
+#: netbox/dcim/choices.py:240 netbox/dcim/choices.py:1543
+#: netbox/dcim/choices.py:1675 netbox/virtualization/choices.py:23
 #: netbox/virtualization/choices.py:49
 msgid "Decommissioning"
 msgstr ""
@@ -3013,7 +3013,7 @@ msgstr ""
 msgid "Millimeters"
 msgstr ""
 
-#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1563
+#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1565
 msgid "Inches"
 msgstr ""
 
@@ -3082,7 +3082,7 @@ msgid "Rear"
 msgstr ""
 
 #: netbox/dcim/choices.py:186 netbox/dcim/choices.py:238
-#: netbox/dcim/choices.py:1671 netbox/virtualization/choices.py:47
+#: netbox/dcim/choices.py:1673 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr ""
 
@@ -3115,7 +3115,7 @@ msgid "Top to bottom"
 msgstr ""
 
 #: netbox/dcim/choices.py:215 netbox/dcim/choices.py:259
-#: netbox/dcim/choices.py:1307
+#: netbox/dcim/choices.py:1309
 msgid "Passive"
 msgstr ""
 
@@ -3144,8 +3144,8 @@ msgid "Proprietary"
 msgstr ""
 
 #: netbox/dcim/choices.py:581 netbox/dcim/choices.py:824
-#: netbox/dcim/choices.py:1221 netbox/dcim/choices.py:1223
-#: netbox/dcim/choices.py:1457 netbox/dcim/choices.py:1459
+#: netbox/dcim/choices.py:1223 netbox/dcim/choices.py:1225
+#: netbox/dcim/choices.py:1459 netbox/dcim/choices.py:1461
 #: netbox/netbox/navigation/menu.py:208
 msgid "Other"
 msgstr ""
@@ -3158,23 +3158,23 @@ msgstr ""
 msgid "Physical"
 msgstr ""
 
-#: netbox/dcim/choices.py:855 netbox/dcim/choices.py:1024
+#: netbox/dcim/choices.py:855 netbox/dcim/choices.py:1025
 msgid "Virtual"
 msgstr ""
 
-#: netbox/dcim/choices.py:856 netbox/dcim/choices.py:1099
-#: netbox/dcim/forms/bulk_edit.py:1578 netbox/dcim/forms/filtersets.py:1335
+#: netbox/dcim/choices.py:856 netbox/dcim/choices.py:1100
+#: netbox/dcim/forms/bulk_edit.py:1578 netbox/dcim/forms/filtersets.py:1336
 #: netbox/dcim/forms/model_forms.py:1007 netbox/dcim/forms/model_forms.py:1445
 #: netbox/netbox/navigation/menu.py:146 netbox/netbox/navigation/menu.py:150
 #: netbox/templates/dcim/interface.html:267
 msgid "Wireless"
 msgstr ""
 
-#: netbox/dcim/choices.py:1022
+#: netbox/dcim/choices.py:1023
 msgid "Virtual interfaces"
 msgstr ""
 
-#: netbox/dcim/choices.py:1025 netbox/dcim/forms/bulk_edit.py:1431
+#: netbox/dcim/choices.py:1026 netbox/dcim/forms/bulk_edit.py:1431
 #: netbox/dcim/forms/bulk_import.py:870 netbox/dcim/forms/model_forms.py:993
 #: netbox/dcim/tables/devices.py:693 netbox/templates/dcim/interface.html:112
 #: netbox/templates/virtualization/vminterface.html:43
@@ -3184,144 +3184,144 @@ msgstr ""
 msgid "Bridge"
 msgstr ""
 
-#: netbox/dcim/choices.py:1026
+#: netbox/dcim/choices.py:1027
 msgid "Link Aggregation Group (LAG)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1030
+#: netbox/dcim/choices.py:1031
 msgid "Ethernet (fixed)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1046
+#: netbox/dcim/choices.py:1047
 msgid "Ethernet (modular)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1083
+#: netbox/dcim/choices.py:1084
 msgid "Ethernet (backplane)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1115
+#: netbox/dcim/choices.py:1116
 msgid "Cellular"
 msgstr ""
 
-#: netbox/dcim/choices.py:1167 netbox/dcim/forms/filtersets.py:384
+#: netbox/dcim/choices.py:1168 netbox/dcim/forms/filtersets.py:384
 #: netbox/dcim/forms/filtersets.py:810 netbox/dcim/forms/filtersets.py:964
-#: netbox/dcim/forms/filtersets.py:1547
+#: netbox/dcim/forms/filtersets.py:1558
 #: netbox/templates/dcim/inventoryitem.html:56
 #: netbox/templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
 msgstr ""
 
-#: netbox/dcim/choices.py:1182
+#: netbox/dcim/choices.py:1183
 msgid "Coaxial"
 msgstr ""
 
-#: netbox/dcim/choices.py:1202
+#: netbox/dcim/choices.py:1204
 msgid "Stacking"
 msgstr ""
 
-#: netbox/dcim/choices.py:1252
+#: netbox/dcim/choices.py:1254
 msgid "Half"
 msgstr ""
 
-#: netbox/dcim/choices.py:1253
+#: netbox/dcim/choices.py:1255
 msgid "Full"
 msgstr ""
 
-#: netbox/dcim/choices.py:1254 netbox/netbox/preferences.py:31
+#: netbox/dcim/choices.py:1256 netbox/netbox/preferences.py:31
 #: netbox/wireless/choices.py:480
 msgid "Auto"
 msgstr ""
 
-#: netbox/dcim/choices.py:1266
+#: netbox/dcim/choices.py:1268
 msgid "Access"
 msgstr ""
 
-#: netbox/dcim/choices.py:1267 netbox/ipam/tables/vlans.py:148
+#: netbox/dcim/choices.py:1269 netbox/ipam/tables/vlans.py:148
 #: netbox/ipam/tables/vlans.py:193
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr ""
 
-#: netbox/dcim/choices.py:1268
+#: netbox/dcim/choices.py:1270
 msgid "Tagged (All)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1269 netbox/templates/ipam/vlan_edit.html:22
+#: netbox/dcim/choices.py:1271 netbox/templates/ipam/vlan_edit.html:22
 msgid "Q-in-Q (802.1ad)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1298
+#: netbox/dcim/choices.py:1300
 msgid "IEEE Standard"
 msgstr ""
 
-#: netbox/dcim/choices.py:1309
+#: netbox/dcim/choices.py:1311
 msgid "Passive 24V (2-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1310
+#: netbox/dcim/choices.py:1312
 msgid "Passive 24V (4-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1311
+#: netbox/dcim/choices.py:1313
 msgid "Passive 48V (2-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1312
+#: netbox/dcim/choices.py:1314
 msgid "Passive 48V (4-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1385 netbox/dcim/choices.py:1498
+#: netbox/dcim/choices.py:1387 netbox/dcim/choices.py:1500
 msgid "Copper"
 msgstr ""
 
-#: netbox/dcim/choices.py:1408
+#: netbox/dcim/choices.py:1410
 msgid "Fiber Optic"
 msgstr ""
 
-#: netbox/dcim/choices.py:1444 netbox/dcim/choices.py:1527
+#: netbox/dcim/choices.py:1446 netbox/dcim/choices.py:1529
 msgid "USB"
 msgstr ""
 
-#: netbox/dcim/choices.py:1514
+#: netbox/dcim/choices.py:1516
 msgid "Fiber"
 msgstr ""
 
-#: netbox/dcim/choices.py:1539 netbox/dcim/forms/filtersets.py:1228
+#: netbox/dcim/choices.py:1541 netbox/dcim/forms/filtersets.py:1228
 msgid "Connected"
 msgstr ""
 
-#: netbox/dcim/choices.py:1558 netbox/netbox/choices.py:175
+#: netbox/dcim/choices.py:1560 netbox/netbox/choices.py:175
 msgid "Kilometers"
 msgstr ""
 
-#: netbox/dcim/choices.py:1559 netbox/netbox/choices.py:176
+#: netbox/dcim/choices.py:1561 netbox/netbox/choices.py:176
 #: netbox/templates/dcim/cable_trace.html:65
 msgid "Meters"
 msgstr ""
 
-#: netbox/dcim/choices.py:1560
+#: netbox/dcim/choices.py:1562
 msgid "Centimeters"
 msgstr ""
 
-#: netbox/dcim/choices.py:1561 netbox/netbox/choices.py:177
+#: netbox/dcim/choices.py:1563 netbox/netbox/choices.py:177
 msgid "Miles"
 msgstr ""
 
-#: netbox/dcim/choices.py:1562 netbox/netbox/choices.py:178
+#: netbox/dcim/choices.py:1564 netbox/netbox/choices.py:178
 #: netbox/templates/dcim/cable_trace.html:66
 msgid "Feet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1610
+#: netbox/dcim/choices.py:1612
 msgid "Redundant"
 msgstr ""
 
-#: netbox/dcim/choices.py:1631
+#: netbox/dcim/choices.py:1633
 msgid "Single phase"
 msgstr ""
 
-#: netbox/dcim/choices.py:1632
+#: netbox/dcim/choices.py:1634
 msgid "Three-phase"
 msgstr ""
 
@@ -3352,7 +3352,7 @@ msgid "Parent site group (slug)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:165 netbox/extras/filtersets.py:364
-#: netbox/ipam/filtersets.py:824 netbox/ipam/filtersets.py:976
+#: netbox/ipam/filtersets.py:836 netbox/ipam/filtersets.py:988
 msgid "Group (ID)"
 msgstr ""
 
@@ -3375,16 +3375,16 @@ msgstr ""
 #: netbox/dcim/filtersets.py:297 netbox/dcim/filtersets.py:382
 #: netbox/dcim/filtersets.py:540 netbox/dcim/filtersets.py:679
 #: netbox/dcim/filtersets.py:883 netbox/dcim/filtersets.py:934
-#: netbox/dcim/filtersets.py:974 netbox/dcim/filtersets.py:1308
-#: netbox/dcim/filtersets.py:1960
+#: netbox/dcim/filtersets.py:974 netbox/dcim/filtersets.py:1315
+#: netbox/dcim/filtersets.py:1971
 msgid "Manufacturer (ID)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:303 netbox/dcim/filtersets.py:388
 #: netbox/dcim/filtersets.py:546 netbox/dcim/filtersets.py:685
 #: netbox/dcim/filtersets.py:889 netbox/dcim/filtersets.py:940
-#: netbox/dcim/filtersets.py:980 netbox/dcim/filtersets.py:1314
-#: netbox/dcim/filtersets.py:1966
+#: netbox/dcim/filtersets.py:980 netbox/dcim/filtersets.py:1321
+#: netbox/dcim/filtersets.py:1977
 msgid "Manufacturer (slug)"
 msgstr ""
 
@@ -3397,22 +3397,22 @@ msgid "Rack type (ID)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:412 netbox/dcim/filtersets.py:893
-#: netbox/dcim/filtersets.py:995 netbox/dcim/filtersets.py:1970
-#: netbox/ipam/filtersets.py:364 netbox/ipam/filtersets.py:476
-#: netbox/ipam/filtersets.py:986 netbox/virtualization/filtersets.py:176
+#: netbox/dcim/filtersets.py:995 netbox/dcim/filtersets.py:1981
+#: netbox/ipam/filtersets.py:376 netbox/ipam/filtersets.py:488
+#: netbox/ipam/filtersets.py:998 netbox/virtualization/filtersets.py:176
 msgid "Role (ID)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:418 netbox/dcim/filtersets.py:899
-#: netbox/dcim/filtersets.py:1001 netbox/dcim/filtersets.py:1976
-#: netbox/extras/filtersets.py:558 netbox/ipam/filtersets.py:370
-#: netbox/ipam/filtersets.py:482 netbox/ipam/filtersets.py:992
+#: netbox/dcim/filtersets.py:1001 netbox/dcim/filtersets.py:1987
+#: netbox/extras/filtersets.py:558 netbox/ipam/filtersets.py:382
+#: netbox/ipam/filtersets.py:494 netbox/ipam/filtersets.py:1004
 #: netbox/virtualization/filtersets.py:182
 msgid "Role (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:448 netbox/dcim/filtersets.py:1063
-#: netbox/dcim/filtersets.py:1417 netbox/dcim/filtersets.py:2368
+#: netbox/dcim/filtersets.py:448 netbox/dcim/filtersets.py:1070
+#: netbox/dcim/filtersets.py:1424 netbox/dcim/filtersets.py:2379
 msgid "Rack (ID)"
 msgstr ""
 
@@ -3440,47 +3440,47 @@ msgid "Has a rear image"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:568 netbox/dcim/filtersets.py:689
-#: netbox/dcim/filtersets.py:1132 netbox/dcim/forms/filtersets.py:532
+#: netbox/dcim/filtersets.py:1139 netbox/dcim/forms/filtersets.py:532
 #: netbox/dcim/forms/filtersets.py:628 netbox/dcim/forms/filtersets.py:849
 msgid "Has console ports"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:572 netbox/dcim/filtersets.py:693
-#: netbox/dcim/filtersets.py:1136 netbox/dcim/forms/filtersets.py:539
+#: netbox/dcim/filtersets.py:1143 netbox/dcim/forms/filtersets.py:539
 #: netbox/dcim/forms/filtersets.py:635 netbox/dcim/forms/filtersets.py:856
 msgid "Has console server ports"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:576 netbox/dcim/filtersets.py:697
-#: netbox/dcim/filtersets.py:1140 netbox/dcim/forms/filtersets.py:546
+#: netbox/dcim/filtersets.py:1147 netbox/dcim/forms/filtersets.py:546
 #: netbox/dcim/forms/filtersets.py:642 netbox/dcim/forms/filtersets.py:863
 msgid "Has power ports"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:580 netbox/dcim/filtersets.py:701
-#: netbox/dcim/filtersets.py:1144 netbox/dcim/forms/filtersets.py:553
+#: netbox/dcim/filtersets.py:1151 netbox/dcim/forms/filtersets.py:553
 #: netbox/dcim/forms/filtersets.py:649 netbox/dcim/forms/filtersets.py:870
 msgid "Has power outlets"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:584 netbox/dcim/filtersets.py:705
-#: netbox/dcim/filtersets.py:1148 netbox/dcim/forms/filtersets.py:560
+#: netbox/dcim/filtersets.py:1155 netbox/dcim/forms/filtersets.py:560
 #: netbox/dcim/forms/filtersets.py:656 netbox/dcim/forms/filtersets.py:877
 msgid "Has interfaces"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:588 netbox/dcim/filtersets.py:709
-#: netbox/dcim/filtersets.py:1152 netbox/dcim/forms/filtersets.py:567
+#: netbox/dcim/filtersets.py:1159 netbox/dcim/forms/filtersets.py:567
 #: netbox/dcim/forms/filtersets.py:663 netbox/dcim/forms/filtersets.py:884
 msgid "Has pass-through ports"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:592 netbox/dcim/filtersets.py:1156
+#: netbox/dcim/filtersets.py:592 netbox/dcim/filtersets.py:1163
 #: netbox/dcim/forms/filtersets.py:581
 msgid "Has module bays"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:596 netbox/dcim/filtersets.py:1160
+#: netbox/dcim/filtersets.py:596 netbox/dcim/filtersets.py:1167
 #: netbox/dcim/forms/filtersets.py:574
 msgid "Has device bays"
 msgstr ""
@@ -3490,24 +3490,24 @@ msgid "Has inventory items"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:757 netbox/dcim/filtersets.py:990
-#: netbox/dcim/filtersets.py:1438
+#: netbox/dcim/filtersets.py:1445
 msgid "Device type (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:773 netbox/dcim/filtersets.py:1319
+#: netbox/dcim/filtersets.py:773 netbox/dcim/filtersets.py:1326
 msgid "Module type (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:805 netbox/dcim/filtersets.py:1593
+#: netbox/dcim/filtersets.py:805 netbox/dcim/filtersets.py:1600
 msgid "Power port (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:879 netbox/dcim/filtersets.py:1956
+#: netbox/dcim/filtersets.py:879 netbox/dcim/filtersets.py:1967
 msgid "Parent inventory item (ID)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:922 netbox/dcim/filtersets.py:948
-#: netbox/dcim/filtersets.py:1128 netbox/virtualization/filtersets.py:204
+#: netbox/dcim/filtersets.py:1135 netbox/virtualization/filtersets.py:204
 msgid "Config template (ID)"
 msgstr ""
 
@@ -3528,125 +3528,125 @@ msgstr ""
 msgid "Platform (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1052 netbox/dcim/filtersets.py:1401
-#: netbox/dcim/filtersets.py:2058 netbox/dcim/filtersets.py:2300
-#: netbox/dcim/filtersets.py:2359
+#: netbox/dcim/filtersets.py:1052 netbox/dcim/filtersets.py:1408
+#: netbox/dcim/filtersets.py:2069 netbox/dcim/filtersets.py:2311
+#: netbox/dcim/filtersets.py:2370
 msgid "Site name (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1068
+#: netbox/dcim/filtersets.py:1075
 msgid "Parent bay (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1072
+#: netbox/dcim/filtersets.py:1079
 msgid "VM cluster (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1078 netbox/extras/filtersets.py:591
+#: netbox/dcim/filtersets.py:1085 netbox/extras/filtersets.py:591
 #: netbox/virtualization/filtersets.py:102
 msgid "Cluster group (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1083 netbox/virtualization/filtersets.py:96
+#: netbox/dcim/filtersets.py:1090 netbox/virtualization/filtersets.py:96
 msgid "Cluster group (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1089
+#: netbox/dcim/filtersets.py:1096
 msgid "Device model (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1100 netbox/dcim/forms/bulk_edit.py:525
+#: netbox/dcim/filtersets.py:1107 netbox/dcim/forms/bulk_edit.py:525
 msgid "Is full depth"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1104 netbox/dcim/forms/filtersets.py:819
-#: netbox/dcim/forms/filtersets.py:1390 netbox/dcim/forms/filtersets.py:1586
-#: netbox/dcim/forms/filtersets.py:1591 netbox/dcim/forms/model_forms.py:1762
+#: netbox/dcim/filtersets.py:1111 netbox/dcim/forms/filtersets.py:819
+#: netbox/dcim/forms/filtersets.py:1391 netbox/dcim/forms/filtersets.py:1597
+#: netbox/dcim/forms/filtersets.py:1602 netbox/dcim/forms/model_forms.py:1762
 #: netbox/dcim/models/devices.py:1505 netbox/dcim/models/devices.py:1526
 #: netbox/virtualization/filtersets.py:196
 #: netbox/virtualization/filtersets.py:268
-#: netbox/virtualization/forms/filtersets.py:177
-#: netbox/virtualization/forms/filtersets.py:228
+#: netbox/virtualization/forms/filtersets.py:178
+#: netbox/virtualization/forms/filtersets.py:231
 msgid "MAC address"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1111 netbox/dcim/filtersets.py:1276
+#: netbox/dcim/filtersets.py:1118 netbox/dcim/filtersets.py:1283
 #: netbox/dcim/forms/filtersets.py:828 netbox/dcim/forms/filtersets.py:931
 #: netbox/virtualization/filtersets.py:200
-#: netbox/virtualization/forms/filtersets.py:181
+#: netbox/virtualization/forms/filtersets.py:182
 msgid "Has a primary IP"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1115
+#: netbox/dcim/filtersets.py:1122
 msgid "Has an out-of-band IP"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1120
+#: netbox/dcim/filtersets.py:1127
 msgid "Virtual chassis (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1124
+#: netbox/dcim/filtersets.py:1131
 msgid "Is a virtual chassis member"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1165
+#: netbox/dcim/filtersets.py:1172
 msgid "OOB IP (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1169
+#: netbox/dcim/filtersets.py:1176
 msgid "Has virtual device context"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1259
+#: netbox/dcim/filtersets.py:1266
 msgid "VDC (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1264
+#: netbox/dcim/filtersets.py:1271
 msgid "Device model"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1325
+#: netbox/dcim/filtersets.py:1332
 msgid "Module type (model)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1331
+#: netbox/dcim/filtersets.py:1338
 msgid "Module bay (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1335 netbox/dcim/filtersets.py:1427
-#: netbox/dcim/filtersets.py:1613 netbox/ipam/filtersets.py:594
-#: netbox/ipam/filtersets.py:834 netbox/ipam/filtersets.py:1156
+#: netbox/dcim/filtersets.py:1342 netbox/dcim/filtersets.py:1434
+#: netbox/dcim/filtersets.py:1620 netbox/ipam/filtersets.py:606
+#: netbox/ipam/filtersets.py:846 netbox/ipam/filtersets.py:1168
 #: netbox/virtualization/filtersets.py:127 netbox/vpn/filtersets.py:379
 msgid "Device (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1423
+#: netbox/dcim/filtersets.py:1430
 msgid "Rack (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1433 netbox/dcim/filtersets.py:1608
-#: netbox/ipam/filtersets.py:589 netbox/ipam/filtersets.py:829
-#: netbox/ipam/filtersets.py:1162 netbox/vpn/filtersets.py:374
+#: netbox/dcim/filtersets.py:1440 netbox/dcim/filtersets.py:1615
+#: netbox/ipam/filtersets.py:601 netbox/ipam/filtersets.py:841
+#: netbox/ipam/filtersets.py:1174 netbox/vpn/filtersets.py:374
 msgid "Device (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1444
+#: netbox/dcim/filtersets.py:1451
 msgid "Device type (model)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1449
+#: netbox/dcim/filtersets.py:1456
 msgid "Device role (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1455
+#: netbox/dcim/filtersets.py:1462
 msgid "Device role (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1460
+#: netbox/dcim/filtersets.py:1467
 msgid "Virtual Chassis (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1466 netbox/dcim/forms/filtersets.py:110
+#: netbox/dcim/filtersets.py:1473 netbox/dcim/forms/filtersets.py:110
 #: netbox/dcim/tables/devices.py:216 netbox/netbox/navigation/menu.py:79
 #: netbox/templates/dcim/device.html:120
 #: netbox/templates/dcim/device_edit.html:93
@@ -3656,63 +3656,69 @@ msgstr ""
 msgid "Virtual Chassis"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1490
+#: netbox/dcim/filtersets.py:1497
 msgid "Module (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1497
+#: netbox/dcim/filtersets.py:1504
 msgid "Cable (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1618 netbox/ipam/filtersets.py:599
-#: netbox/ipam/filtersets.py:839 netbox/ipam/filtersets.py:1172
+#: netbox/dcim/filtersets.py:1625 netbox/ipam/filtersets.py:611
+#: netbox/ipam/filtersets.py:851 netbox/ipam/filtersets.py:1184
 #: netbox/vpn/filtersets.py:385
 msgid "Virtual machine (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1623 netbox/ipam/filtersets.py:604
-#: netbox/ipam/filtersets.py:844 netbox/ipam/filtersets.py:1166
+#: netbox/dcim/filtersets.py:1630 netbox/ipam/filtersets.py:616
+#: netbox/ipam/filtersets.py:856 netbox/ipam/filtersets.py:1178
 #: netbox/virtualization/filtersets.py:248
 #: netbox/virtualization/filtersets.py:299 netbox/vpn/filtersets.py:390
 msgid "Virtual machine (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1629 netbox/ipam/filtersets.py:610
+#: netbox/dcim/filtersets.py:1636 netbox/ipam/filtersets.py:622
 #: netbox/vpn/filtersets.py:97 netbox/vpn/filtersets.py:396
 msgid "Interface (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1640 netbox/ipam/filtersets.py:621
+#: netbox/dcim/filtersets.py:1647 netbox/ipam/filtersets.py:633
 #: netbox/vpn/filtersets.py:108 netbox/vpn/filtersets.py:407
 msgid "VM interface (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1645 netbox/ipam/filtersets.py:626
+#: netbox/dcim/filtersets.py:1652 netbox/ipam/filtersets.py:638
 #: netbox/vpn/filtersets.py:113
 msgid "VM interface (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1687 netbox/ipam/forms/bulk_import.py:192
+#: netbox/dcim/filtersets.py:1694 netbox/templates/dcim/interface.html:81
+#: netbox/templates/virtualization/vminterface.html:55
+#: netbox/virtualization/forms/model_forms.py:395
+msgid "802.1Q Mode"
+msgstr ""
+
+#: netbox/dcim/filtersets.py:1698 netbox/ipam/forms/bulk_import.py:192
 #: netbox/vpn/forms/bulk_import.py:308
 msgid "Assigned VLAN"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1691
+#: netbox/dcim/filtersets.py:1702
 msgid "Assigned VID"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1696 netbox/dcim/forms/bulk_edit.py:1544
-#: netbox/dcim/forms/bulk_import.py:921 netbox/dcim/forms/filtersets.py:1433
+#: netbox/dcim/filtersets.py:1707 netbox/dcim/forms/bulk_edit.py:1544
+#: netbox/dcim/forms/bulk_import.py:921 netbox/dcim/forms/filtersets.py:1444
 #: netbox/dcim/forms/model_forms.py:1411
 #: netbox/dcim/models/device_components.py:752
 #: netbox/dcim/tables/devices.py:647 netbox/ipam/filtersets.py:335
-#: netbox/ipam/filtersets.py:346 netbox/ipam/filtersets.py:466
-#: netbox/ipam/filtersets.py:567 netbox/ipam/filtersets.py:578
+#: netbox/ipam/filtersets.py:346 netbox/ipam/filtersets.py:478
+#: netbox/ipam/filtersets.py:579 netbox/ipam/filtersets.py:590
 #: netbox/ipam/forms/bulk_edit.py:226 netbox/ipam/forms/bulk_edit.py:282
 #: netbox/ipam/forms/bulk_edit.py:324 netbox/ipam/forms/bulk_import.py:160
 #: netbox/ipam/forms/bulk_import.py:249 netbox/ipam/forms/bulk_import.py:285
 #: netbox/ipam/forms/filtersets.py:69 netbox/ipam/forms/filtersets.py:180
-#: netbox/ipam/forms/filtersets.py:320 netbox/ipam/forms/model_forms.py:65
+#: netbox/ipam/forms/filtersets.py:325 netbox/ipam/forms/model_forms.py:65
 #: netbox/ipam/forms/model_forms.py:208 netbox/ipam/forms/model_forms.py:256
 #: netbox/ipam/forms/model_forms.py:310 netbox/ipam/forms/model_forms.py:474
 #: netbox/ipam/forms/model_forms.py:488 netbox/ipam/forms/model_forms.py:502
@@ -3727,74 +3733,76 @@ msgstr ""
 #: netbox/templates/virtualization/vminterface.html:84
 #: netbox/virtualization/forms/bulk_edit.py:243
 #: netbox/virtualization/forms/bulk_import.py:177
-#: netbox/virtualization/forms/filtersets.py:233
+#: netbox/virtualization/forms/filtersets.py:236
 #: netbox/virtualization/forms/model_forms.py:368
 #: netbox/virtualization/models/virtualmachines.py:331
 #: netbox/virtualization/tables/virtualmachines.py:113
 msgid "VRF"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1702 netbox/ipam/filtersets.py:341
-#: netbox/ipam/filtersets.py:352 netbox/ipam/filtersets.py:472
-#: netbox/ipam/filtersets.py:573 netbox/ipam/filtersets.py:584
+#: netbox/dcim/filtersets.py:1713 netbox/ipam/filtersets.py:341
+#: netbox/ipam/filtersets.py:352 netbox/ipam/filtersets.py:484
+#: netbox/ipam/filtersets.py:585 netbox/ipam/filtersets.py:596
 msgid "VRF (RD)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1707 netbox/ipam/filtersets.py:1024
+#: netbox/dcim/filtersets.py:1718 netbox/ipam/filtersets.py:1036
 #: netbox/vpn/filtersets.py:342
 msgid "L2VPN (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1713 netbox/dcim/forms/filtersets.py:1438
-#: netbox/dcim/tables/devices.py:583 netbox/ipam/filtersets.py:1030
-#: netbox/ipam/forms/filtersets.py:579 netbox/ipam/tables/vlans.py:113
+#: netbox/dcim/filtersets.py:1724 netbox/dcim/forms/filtersets.py:1449
+#: netbox/dcim/tables/devices.py:583 netbox/ipam/filtersets.py:1042
+#: netbox/ipam/forms/filtersets.py:584 netbox/ipam/tables/vlans.py:113
 #: netbox/templates/dcim/interface.html:99 netbox/templates/ipam/vlan.html:82
 #: netbox/templates/vpn/l2vpntermination.html:12
-#: netbox/virtualization/forms/filtersets.py:238
+#: netbox/virtualization/forms/filtersets.py:241
 #: netbox/vpn/forms/bulk_import.py:280 netbox/vpn/forms/filtersets.py:252
 #: netbox/vpn/forms/model_forms.py:412 netbox/vpn/forms/model_forms.py:430
 #: netbox/vpn/models/l2vpn.py:63 netbox/vpn/tables/l2vpn.py:55
 msgid "L2VPN"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1718 netbox/ipam/filtersets.py:1105
+#: netbox/dcim/filtersets.py:1729 netbox/ipam/filtersets.py:1117
 msgid "VLAN Translation Policy (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1724 netbox/dcim/forms/model_forms.py:1428
+#: netbox/dcim/filtersets.py:1735 netbox/dcim/forms/filtersets.py:1415
+#: netbox/dcim/forms/model_forms.py:1428
 #: netbox/dcim/models/device_components.py:571
-#: netbox/ipam/forms/filtersets.py:498 netbox/ipam/forms/model_forms.py:712
+#: netbox/ipam/forms/filtersets.py:503 netbox/ipam/forms/model_forms.py:711
 #: netbox/templates/ipam/vlantranslationpolicy.html:11
 #: netbox/virtualization/forms/bulk_edit.py:248
+#: netbox/virtualization/forms/filtersets.py:251
 #: netbox/virtualization/forms/model_forms.py:373
 msgid "VLAN Translation Policy"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1758
+#: netbox/dcim/filtersets.py:1769
 msgid "Virtual Chassis Interfaces for Device"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1763
+#: netbox/dcim/filtersets.py:1774
 msgid "Virtual Chassis Interfaces for Device (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1767
+#: netbox/dcim/filtersets.py:1778
 msgid "Kind of interface"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1772 netbox/virtualization/filtersets.py:259
+#: netbox/dcim/filtersets.py:1783 netbox/virtualization/filtersets.py:259
 msgid "Parent interface (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1777 netbox/virtualization/filtersets.py:264
+#: netbox/dcim/filtersets.py:1788 netbox/virtualization/filtersets.py:264
 msgid "Bridged interface (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1782
+#: netbox/dcim/filtersets.py:1793
 msgid "LAG interface (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1790 netbox/dcim/tables/devices.py:605
+#: netbox/dcim/filtersets.py:1801 netbox/dcim/tables/devices.py:605
 #: netbox/dcim/tables/devices.py:1135 netbox/templates/dcim/interface.html:131
 #: netbox/templates/dcim/macaddress.html:11
 #: netbox/templates/dcim/macaddress.html:14
@@ -3802,77 +3810,77 @@ msgstr ""
 msgid "MAC Address"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1795 netbox/virtualization/filtersets.py:273
+#: netbox/dcim/filtersets.py:1806 netbox/virtualization/filtersets.py:273
 msgid "Primary MAC address (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1801 netbox/dcim/forms/model_forms.py:1415
+#: netbox/dcim/filtersets.py:1812 netbox/dcim/forms/model_forms.py:1415
 #: netbox/virtualization/filtersets.py:279
 #: netbox/virtualization/forms/model_forms.py:311
 msgid "Primary MAC address"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1823 netbox/dcim/filtersets.py:1835
-#: netbox/dcim/forms/filtersets.py:1350 netbox/dcim/forms/model_forms.py:1742
+#: netbox/dcim/filtersets.py:1834 netbox/dcim/filtersets.py:1846
+#: netbox/dcim/forms/filtersets.py:1351 netbox/dcim/forms/model_forms.py:1742
 #: netbox/templates/dcim/virtualdevicecontext.html:15
 msgid "Virtual Device Context"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1829
+#: netbox/dcim/filtersets.py:1840
 msgid "Virtual Device Context (Identifier)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1840 netbox/templates/wireless/wirelesslan.html:11
+#: netbox/dcim/filtersets.py:1851 netbox/templates/wireless/wirelesslan.html:11
 #: netbox/wireless/forms/model_forms.py:55
 msgid "Wireless LAN"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1844 netbox/dcim/tables/devices.py:634
+#: netbox/dcim/filtersets.py:1855 netbox/dcim/tables/devices.py:634
 msgid "Wireless link"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1854
+#: netbox/dcim/filtersets.py:1865
 msgid "Virtual circuit termination (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1923
+#: netbox/dcim/filtersets.py:1934
 msgid "Parent module bay (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1928
+#: netbox/dcim/filtersets.py:1939
 msgid "Installed module (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1939
+#: netbox/dcim/filtersets.py:1950
 msgid "Installed device (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:1945
+#: netbox/dcim/filtersets.py:1956
 msgid "Installed device (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2015
+#: netbox/dcim/filtersets.py:2026
 msgid "Master (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2021
+#: netbox/dcim/filtersets.py:2032
 msgid "Master (name)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2063 netbox/tenancy/filtersets.py:245
+#: netbox/dcim/filtersets.py:2074 netbox/tenancy/filtersets.py:245
 msgid "Tenant (ID)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2069 netbox/extras/filtersets.py:618
+#: netbox/dcim/filtersets.py:2080 netbox/extras/filtersets.py:618
 #: netbox/tenancy/filtersets.py:251
 msgid "Tenant (slug)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2105 netbox/dcim/forms/filtersets.py:1078
+#: netbox/dcim/filtersets.py:2116 netbox/dcim/forms/filtersets.py:1078
 msgid "Unterminated"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2363
+#: netbox/dcim/filtersets.py:2374
 msgid "Power panel (ID)"
 msgstr ""
 
@@ -3887,10 +3895,10 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1503
+#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1514
 #: netbox/dcim/forms/model_forms.py:498 netbox/dcim/forms/model_forms.py:557
-#: netbox/dcim/forms/object_create.py:197
-#: netbox/dcim/forms/object_create.py:345 netbox/dcim/tables/devices.py:175
+#: netbox/dcim/forms/object_create.py:198
+#: netbox/dcim/forms/object_create.py:347 netbox/dcim/tables/devices.py:175
 #: netbox/dcim/tables/devices.py:740 netbox/dcim/tables/devicetypes.py:253
 #: netbox/templates/dcim/device.html:43 netbox/templates/dcim/device.html:131
 #: netbox/templates/dcim/modulebay.html:38
@@ -3932,7 +3940,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:314 netbox/dcim/forms/filtersets.py:373
 #: netbox/dcim/forms/filtersets.py:495 netbox/dcim/forms/filtersets.py:620
 #: netbox/dcim/forms/filtersets.py:701 netbox/dcim/forms/filtersets.py:783
-#: netbox/dcim/forms/filtersets.py:948 netbox/dcim/forms/filtersets.py:1544
+#: netbox/dcim/forms/filtersets.py:948 netbox/dcim/forms/filtersets.py:1555
 #: netbox/dcim/forms/model_forms.py:211 netbox/dcim/forms/model_forms.py:345
 #: netbox/dcim/forms/model_forms.py:357 netbox/dcim/forms/model_forms.py:404
 #: netbox/dcim/forms/model_forms.py:445 netbox/dcim/forms/model_forms.py:1095
@@ -4072,7 +4080,7 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:376 netbox/dcim/forms/filtersets.py:388
 #: netbox/dcim/forms/filtersets.py:814 netbox/dcim/forms/filtersets.py:968
-#: netbox/dcim/forms/filtersets.py:1551
+#: netbox/dcim/forms/filtersets.py:1562
 msgid "Asset tag"
 msgstr ""
 
@@ -4097,9 +4105,9 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:773 netbox/dcim/forms/filtersets.py:1036
 #: netbox/dcim/forms/filtersets.py:1168 netbox/dcim/forms/model_forms.py:271
 #: netbox/dcim/forms/model_forms.py:314 netbox/dcim/forms/model_forms.py:489
-#: netbox/dcim/forms/model_forms.py:767 netbox/dcim/forms/object_create.py:392
+#: netbox/dcim/forms/model_forms.py:767 netbox/dcim/forms/object_create.py:394
 #: netbox/dcim/tables/devices.py:171 netbox/dcim/tables/power.py:70
-#: netbox/dcim/tables/racks.py:216 netbox/ipam/forms/filtersets.py:454
+#: netbox/dcim/tables/racks.py:216 netbox/ipam/forms/filtersets.py:459
 #: netbox/templates/dcim/device.html:30
 #: netbox/templates/dcim/inc/cable_termination.html:16
 #: netbox/templates/dcim/powerfeed.html:28 netbox/templates/dcim/rack.html:13
@@ -4171,7 +4179,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:566
 #: netbox/virtualization/forms/bulk_import.py:138
 #: netbox/virtualization/forms/bulk_import.py:139
-#: netbox/virtualization/forms/filtersets.py:193
+#: netbox/virtualization/forms/filtersets.py:194
 #: netbox/virtualization/forms/model_forms.py:222
 msgid "Config template"
 msgstr ""
@@ -4196,7 +4204,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine.html:27
 #: netbox/virtualization/forms/bulk_edit.py:142
 #: netbox/virtualization/forms/bulk_import.py:128
-#: netbox/virtualization/forms/filtersets.py:173
+#: netbox/virtualization/forms/filtersets.py:174
 #: netbox/virtualization/forms/model_forms.py:210
 #: netbox/virtualization/tables/virtualmachines.py:49
 msgid "Platform"
@@ -4206,7 +4214,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:729 netbox/dcim/forms/filtersets.py:899
 #: netbox/dcim/forms/model_forms.py:533 netbox/dcim/tables/devices.py:212
 #: netbox/extras/filtersets.py:596 netbox/extras/forms/filtersets.py:329
-#: netbox/ipam/forms/filtersets.py:427 netbox/ipam/forms/filtersets.py:459
+#: netbox/ipam/forms/filtersets.py:432 netbox/ipam/forms/filtersets.py:464
 #: netbox/templates/dcim/device.html:239
 #: netbox/templates/virtualization/cluster.html:10
 #: netbox/templates/virtualization/virtualmachine.html:92
@@ -4215,9 +4223,9 @@ msgstr ""
 #: netbox/virtualization/filtersets.py:243
 #: netbox/virtualization/forms/bulk_edit.py:111
 #: netbox/virtualization/forms/bulk_import.py:98
-#: netbox/virtualization/forms/filtersets.py:104
-#: netbox/virtualization/forms/filtersets.py:128
-#: netbox/virtualization/forms/filtersets.py:209
+#: netbox/virtualization/forms/filtersets.py:105
+#: netbox/virtualization/forms/filtersets.py:129
+#: netbox/virtualization/forms/filtersets.py:212
 #: netbox/virtualization/forms/model_forms.py:78
 #: netbox/virtualization/forms/model_forms.py:183
 #: netbox/virtualization/tables/virtualmachines.py:37
@@ -4342,7 +4350,7 @@ msgid "Management only"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1157 netbox/dcim/forms/bulk_edit.py:1471
-#: netbox/dcim/forms/bulk_import.py:906 netbox/dcim/forms/filtersets.py:1399
+#: netbox/dcim/forms/bulk_import.py:906 netbox/dcim/forms/filtersets.py:1400
 #: netbox/dcim/forms/object_import.py:90
 #: netbox/dcim/models/device_component_templates.py:445
 #: netbox/dcim/models/device_components.py:724
@@ -4350,14 +4358,14 @@ msgid "PoE mode"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1163 netbox/dcim/forms/bulk_edit.py:1477
-#: netbox/dcim/forms/bulk_import.py:912 netbox/dcim/forms/filtersets.py:1404
+#: netbox/dcim/forms/bulk_import.py:912 netbox/dcim/forms/filtersets.py:1405
 #: netbox/dcim/forms/object_import.py:95
 #: netbox/dcim/models/device_component_templates.py:452
 #: netbox/dcim/models/device_components.py:731
 msgid "PoE type"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_edit.py:1169 netbox/dcim/forms/filtersets.py:1409
+#: netbox/dcim/forms/bulk_edit.py:1169 netbox/dcim/forms/filtersets.py:1420
 #: netbox/dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr ""
@@ -4387,7 +4395,7 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1456 netbox/dcim/forms/bulk_import.py:741
 #: netbox/dcim/forms/bulk_import.py:767 netbox/dcim/forms/filtersets.py:1253
-#: netbox/dcim/forms/filtersets.py:1278 netbox/dcim/forms/filtersets.py:1363
+#: netbox/dcim/forms/filtersets.py:1278 netbox/dcim/forms/filtersets.py:1364
 #: netbox/dcim/tables/devices.py:631
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:62
 #: netbox/templates/dcim/consoleport.html:40
@@ -4410,7 +4418,7 @@ msgid "Mode"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1493 netbox/dcim/forms/model_forms.py:1377
-#: netbox/ipam/forms/bulk_import.py:174 netbox/ipam/forms/filtersets.py:548
+#: netbox/ipam/forms/bulk_import.py:174 netbox/ipam/forms/filtersets.py:553
 #: netbox/ipam/models/vlans.py:86 netbox/virtualization/forms/bulk_edit.py:222
 #: netbox/virtualization/forms/model_forms.py:335
 msgid "VLAN group"
@@ -4461,6 +4469,7 @@ msgstr ""
 #: netbox/templates/dcim/interface.html:128
 #: netbox/templates/ipam/prefix.html:91
 #: netbox/templates/virtualization/vminterface.html:70
+#: netbox/virtualization/forms/filtersets.py:205
 #: netbox/virtualization/forms/model_forms.py:378
 msgid "Addressing"
 msgstr ""
@@ -4483,8 +4492,10 @@ msgstr ""
 msgid "Related Interfaces"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_edit.py:1568 netbox/dcim/forms/model_forms.py:1441
+#: netbox/dcim/forms/bulk_edit.py:1568 netbox/dcim/forms/filtersets.py:1335
+#: netbox/dcim/forms/model_forms.py:1441
 #: netbox/virtualization/forms/bulk_edit.py:257
+#: netbox/virtualization/forms/filtersets.py:206
 #: netbox/virtualization/forms/model_forms.py:383
 msgid "802.1Q Switching"
 msgstr ""
@@ -4524,7 +4535,7 @@ msgid "available options"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:136 netbox/dcim/forms/bulk_import.py:570
-#: netbox/dcim/forms/bulk_import.py:1479 netbox/ipam/forms/bulk_import.py:463
+#: netbox/dcim/forms/bulk_import.py:1479 netbox/ipam/forms/bulk_import.py:472
 #: netbox/virtualization/forms/bulk_import.py:64
 #: netbox/virtualization/forms/bulk_import.py:95
 msgid "Assigned site"
@@ -4772,7 +4783,7 @@ msgstr ""
 msgid "Physical medium"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_import.py:898 netbox/dcim/forms/filtersets.py:1370
+#: netbox/dcim/forms/bulk_import.py:898 netbox/dcim/forms/filtersets.py:1371
 msgid "Duplex"
 msgstr ""
 
@@ -4791,8 +4802,8 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:925 netbox/ipam/forms/bulk_import.py:164
 #: netbox/ipam/forms/bulk_import.py:253 netbox/ipam/forms/bulk_import.py:289
-#: netbox/ipam/forms/filtersets.py:210 netbox/ipam/forms/filtersets.py:288
-#: netbox/ipam/forms/filtersets.py:348
+#: netbox/ipam/forms/filtersets.py:210 netbox/ipam/forms/filtersets.py:293
+#: netbox/ipam/forms/filtersets.py:353
 #: netbox/virtualization/forms/bulk_import.py:181
 msgid "Assigned VRF"
 msgstr ""
@@ -4874,15 +4885,15 @@ msgid "Parent device of assigned interface (if any)"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:1230 netbox/ipam/forms/bulk_import.py:317
-#: netbox/ipam/forms/bulk_import.py:554 netbox/ipam/forms/model_forms.py:768
+#: netbox/ipam/forms/bulk_import.py:563 netbox/ipam/forms/model_forms.py:767
 #: netbox/virtualization/filtersets.py:254
 #: netbox/virtualization/filtersets.py:305
 #: netbox/virtualization/forms/bulk_edit.py:182
 #: netbox/virtualization/forms/bulk_edit.py:316
 #: netbox/virtualization/forms/bulk_import.py:152
 #: netbox/virtualization/forms/bulk_import.py:213
-#: netbox/virtualization/forms/filtersets.py:217
-#: netbox/virtualization/forms/filtersets.py:253
+#: netbox/virtualization/forms/filtersets.py:220
+#: netbox/virtualization/forms/filtersets.py:266
 #: netbox/virtualization/forms/model_forms.py:295
 #: netbox/vpn/forms/bulk_import.py:93 netbox/vpn/forms/bulk_import.py:290
 msgid "Virtual machine"
@@ -4892,12 +4903,12 @@ msgstr ""
 msgid "Parent VM of assigned interface (if any)"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_import.py:1241 netbox/ipam/filtersets.py:1035
+#: netbox/dcim/forms/bulk_import.py:1241 netbox/ipam/filtersets.py:1047
 #: netbox/ipam/forms/bulk_import.py:328
 msgid "Assigned interface"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_import.py:1244 netbox/ipam/forms/bulk_import.py:331
+#: netbox/dcim/forms/bulk_import.py:1244 netbox/ipam/forms/bulk_import.py:338
 msgid "Is primary"
 msgstr ""
 
@@ -5048,7 +5059,7 @@ msgstr ""
 
 #: netbox/dcim/forms/connections.py:49 netbox/dcim/forms/model_forms.py:749
 #: netbox/dcim/tables/power.py:66
-#: netbox/templates/dcim/inc/cable_termination.html:37
+#: netbox/templates/dcim/inc/cable_termination.html:42
 #: netbox/templates/dcim/powerfeed.html:24
 #: netbox/templates/dcim/powerpanel.html:19
 #: netbox/templates/dcim/trace/powerpanel.html:4
@@ -5118,8 +5129,8 @@ msgid "Has virtual device contexts"
 msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:904 netbox/extras/filtersets.py:585
-#: netbox/ipam/forms/filtersets.py:464
-#: netbox/virtualization/forms/filtersets.py:117
+#: netbox/ipam/forms/filtersets.py:469
+#: netbox/virtualization/forms/filtersets.py:118
 msgid "Cluster group"
 msgstr ""
 
@@ -5133,7 +5144,7 @@ msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1245 netbox/dcim/forms/filtersets.py:1270
 #: netbox/dcim/forms/filtersets.py:1294 netbox/dcim/forms/filtersets.py:1314
-#: netbox/dcim/forms/filtersets.py:1341 netbox/dcim/tables/devices.py:373
+#: netbox/dcim/forms/filtersets.py:1342 netbox/dcim/tables/devices.py:373
 #: netbox/dcim/tables/devices.py:662
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:16
 #: netbox/templates/dcim/consoleport.html:55
@@ -5147,40 +5158,45 @@ msgstr ""
 msgid "Connection"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1353 netbox/extras/forms/bulk_edit.py:326
+#: netbox/dcim/forms/filtersets.py:1354 netbox/extras/forms/bulk_edit.py:326
 #: netbox/extras/forms/bulk_import.py:247 netbox/extras/forms/filtersets.py:472
-#: netbox/extras/forms/model_forms.py:689 netbox/extras/tables/tables.py:579
+#: netbox/extras/forms/model_forms.py:689 netbox/extras/tables/tables.py:582
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1382
+#: netbox/dcim/forms/filtersets.py:1383
 msgid "Mgmt only"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1394 netbox/dcim/forms/model_forms.py:1423
+#: netbox/dcim/forms/filtersets.py:1395 netbox/dcim/forms/model_forms.py:1423
 #: netbox/dcim/models/device_components.py:680
 #: netbox/templates/dcim/interface.html:142
 msgid "WWN"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1414
+#: netbox/dcim/forms/filtersets.py:1410
+#: netbox/virtualization/forms/filtersets.py:246
+msgid "802.1Q mode"
+msgstr ""
+
+#: netbox/dcim/forms/filtersets.py:1425
 msgid "Wireless channel"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1418
+#: netbox/dcim/forms/filtersets.py:1429
 msgid "Channel frequency (MHz)"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1422
+#: netbox/dcim/forms/filtersets.py:1433
 msgid "Channel width (MHz)"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1426 netbox/templates/dcim/interface.html:91
+#: netbox/dcim/forms/filtersets.py:1437 netbox/templates/dcim/interface.html:91
 msgid "Transmit power (dBm)"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1451 netbox/dcim/forms/filtersets.py:1476
+#: netbox/dcim/forms/filtersets.py:1462 netbox/dcim/forms/filtersets.py:1487
 #: netbox/dcim/tables/devices.py:336 netbox/templates/dcim/cable.html:12
 #: netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/frontport.html:77
@@ -5191,15 +5207,15 @@ msgstr ""
 msgid "Cable"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1555 netbox/dcim/tables/devices.py:978
+#: netbox/dcim/forms/filtersets.py:1566 netbox/dcim/tables/devices.py:978
 msgid "Discovered"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1596 netbox/ipam/forms/filtersets.py:359
+#: netbox/dcim/forms/filtersets.py:1607 netbox/ipam/forms/filtersets.py:364
 msgid "Assigned Device"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:1601 netbox/ipam/forms/filtersets.py:364
+#: netbox/dcim/forms/filtersets.py:1612 netbox/ipam/forms/filtersets.py:369
 msgid "Assigned VM"
 msgstr ""
 
@@ -5209,21 +5225,21 @@ msgid "A virtual chassis member already exists in position {vc_position}."
 msgstr ""
 
 #: netbox/dcim/forms/mixins.py:27 netbox/dcim/forms/mixins.py:75
-#: netbox/ipam/forms/bulk_edit.py:420 netbox/ipam/forms/model_forms.py:618
+#: netbox/ipam/forms/bulk_edit.py:420 netbox/ipam/forms/model_forms.py:617
 msgid "Scope type"
 msgstr ""
 
 #: netbox/dcim/forms/mixins.py:30 netbox/dcim/forms/mixins.py:78
 #: netbox/ipam/forms/bulk_edit.py:270 netbox/ipam/forms/bulk_edit.py:423
 #: netbox/ipam/forms/bulk_edit.py:437 netbox/ipam/forms/filtersets.py:181
-#: netbox/ipam/forms/model_forms.py:231 netbox/ipam/forms/model_forms.py:621
-#: netbox/ipam/forms/model_forms.py:631 netbox/ipam/tables/ip.py:194
+#: netbox/ipam/forms/model_forms.py:231 netbox/ipam/forms/model_forms.py:620
+#: netbox/ipam/forms/model_forms.py:630 netbox/ipam/tables/ip.py:194
 #: netbox/ipam/tables/vlans.py:40 netbox/templates/ipam/prefix.html:48
 #: netbox/templates/ipam/vlangroup.html:38
 #: netbox/templates/virtualization/cluster.html:42
 #: netbox/templates/wireless/wirelesslan.html:26
 #: netbox/virtualization/forms/bulk_edit.py:91
-#: netbox/virtualization/forms/filtersets.py:46
+#: netbox/virtualization/forms/filtersets.py:47
 #: netbox/virtualization/forms/model_forms.py:79
 #: netbox/virtualization/tables/clusters.py:80
 #: netbox/wireless/forms/bulk_edit.py:93 netbox/wireless/forms/filtersets.py:37
@@ -5232,7 +5248,7 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:104 netbox/ipam/forms/bulk_import.py:443
+#: netbox/dcim/forms/mixins.py:104 netbox/ipam/forms/bulk_import.py:452
 msgid "Scope type (app & model)"
 msgstr ""
 
@@ -5438,15 +5454,15 @@ msgstr ""
 msgid "VM Interface"
 msgstr ""
 
-#: netbox/dcim/forms/model_forms.py:1788 netbox/ipam/forms/filtersets.py:618
-#: netbox/ipam/forms/model_forms.py:334 netbox/ipam/forms/model_forms.py:796
-#: netbox/ipam/forms/model_forms.py:822 netbox/ipam/tables/vlans.py:171
+#: netbox/dcim/forms/model_forms.py:1788 netbox/ipam/forms/filtersets.py:623
+#: netbox/ipam/forms/model_forms.py:334 netbox/ipam/forms/model_forms.py:795
+#: netbox/ipam/forms/model_forms.py:821 netbox/ipam/tables/vlans.py:171
 #: netbox/templates/virtualization/virtualdisk.html:21
 #: netbox/templates/virtualization/virtualmachine.html:12
 #: netbox/templates/virtualization/vminterface.html:21
 #: netbox/templates/vpn/tunneltermination.html:25
-#: netbox/virtualization/forms/filtersets.py:202
-#: netbox/virtualization/forms/filtersets.py:247
+#: netbox/virtualization/forms/filtersets.py:203
+#: netbox/virtualization/forms/filtersets.py:260
 #: netbox/virtualization/forms/model_forms.py:227
 #: netbox/virtualization/tables/virtualmachines.py:105
 #: netbox/virtualization/tables/virtualmachines.py:161 netbox/vpn/choices.py:53
@@ -5460,8 +5476,8 @@ msgstr ""
 msgid "A MAC address can only be assigned to a single object."
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:48 netbox/dcim/forms/object_create.py:199
-#: netbox/dcim/forms/object_create.py:347
+#: netbox/dcim/forms/object_create.py:48 netbox/dcim/forms/object_create.py:200
+#: netbox/dcim/forms/object_create.py:349
 msgid ""
 "Alphanumeric ranges are supported. (Must match the number of objects being "
 "created.)"
@@ -5475,54 +5491,54 @@ msgid ""
 msgstr ""
 
 #: netbox/dcim/forms/object_create.py:110
-#: netbox/dcim/forms/object_create.py:263 netbox/dcim/tables/devices.py:262
+#: netbox/dcim/forms/object_create.py:264 netbox/dcim/tables/devices.py:262
 msgid "Rear ports"
 msgstr ""
 
 #: netbox/dcim/forms/object_create.py:111
-#: netbox/dcim/forms/object_create.py:264
+#: netbox/dcim/forms/object_create.py:265
 msgid "Select one rear port assignment for each front port being created."
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:164
+#: netbox/dcim/forms/object_create.py:165
 #, python-brace-format
 msgid ""
 "The number of front port templates to be created ({frontport_count}) must "
 "match the selected number of rear port positions ({rearport_count})."
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:312
+#: netbox/dcim/forms/object_create.py:314
 #, python-brace-format
 msgid ""
 "The number of front ports to be created ({frontport_count}) must match the "
 "selected number of rear port positions ({rearport_count})."
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:401 netbox/dcim/tables/devices.py:1064
+#: netbox/dcim/forms/object_create.py:403 netbox/dcim/tables/devices.py:1064
 #: netbox/ipam/tables/fhrp.py:31 netbox/templates/dcim/virtualchassis.html:53
 #: netbox/templates/dcim/virtualchassis_edit.html:47
 #: netbox/templates/ipam/fhrpgroup.html:38
 msgid "Members"
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:410
+#: netbox/dcim/forms/object_create.py:412
 msgid "Initial position"
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:413
+#: netbox/dcim/forms/object_create.py:415
 msgid ""
 "Position of the first member device. Increases by one for each additional "
 "member."
 msgstr ""
 
-#: netbox/dcim/forms/object_create.py:428
+#: netbox/dcim/forms/object_create.py:430
 msgid "A position must be specified for the first VC member."
 msgstr ""
 
 #: netbox/dcim/models/cables.py:63
 #: netbox/dcim/models/device_component_templates.py:51
 #: netbox/dcim/models/device_components.py:57
-#: netbox/extras/models/customfields.py:111
+#: netbox/extras/models/customfields.py:113
 msgid "label"
 msgstr ""
 
@@ -5974,8 +5990,8 @@ msgstr ""
 
 #: netbox/dcim/models/device_components.py:564
 #: netbox/dcim/tables/devices.py:601 netbox/ipam/forms/bulk_edit.py:510
-#: netbox/ipam/forms/bulk_import.py:498 netbox/ipam/forms/filtersets.py:574
-#: netbox/ipam/forms/model_forms.py:692 netbox/ipam/tables/vlans.py:106
+#: netbox/ipam/forms/bulk_import.py:507 netbox/ipam/forms/filtersets.py:579
+#: netbox/ipam/forms/model_forms.py:691 netbox/ipam/tables/vlans.py:106
 #: netbox/templates/dcim/interface.html:86 netbox/templates/ipam/vlan.html:77
 msgid "Q-in-Q SVLAN"
 msgstr ""
@@ -6639,7 +6655,7 @@ msgstr ""
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1443 netbox/extras/models/customfields.py:225
+#: netbox/dcim/models/devices.py:1443 netbox/extras/models/customfields.py:227
 #: netbox/extras/models/models.py:107 netbox/extras/models/models.py:694
 #: netbox/netbox/models/__init__.py:120
 msgid "comments"
@@ -6848,7 +6864,7 @@ msgstr ""
 
 #: netbox/dcim/models/racks.py:299 netbox/ipam/forms/bulk_import.py:204
 #: netbox/ipam/forms/bulk_import.py:272 netbox/ipam/forms/bulk_import.py:307
-#: netbox/ipam/forms/bulk_import.py:489
+#: netbox/ipam/forms/bulk_import.py:498
 #: netbox/virtualization/forms/bulk_import.py:118
 msgid "Functional role"
 msgstr ""
@@ -7048,12 +7064,12 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:69 netbox/dcim/tables/devices.py:117
 #: netbox/dcim/tables/racks.py:149 netbox/dcim/tables/sites.py:104
-#: netbox/dcim/tables/sites.py:147 netbox/extras/tables/tables.py:545
+#: netbox/dcim/tables/sites.py:147 netbox/extras/tables/tables.py:548
 #: netbox/netbox/navigation/menu.py:69 netbox/netbox/navigation/menu.py:73
 #: netbox/netbox/navigation/menu.py:75
 #: netbox/virtualization/forms/model_forms.py:122
 #: netbox/virtualization/tables/clusters.py:87
-#: netbox/virtualization/views.py:216
+#: netbox/virtualization/views.py:230
 msgid "Devices"
 msgstr ""
 
@@ -7075,7 +7091,7 @@ msgid "Config Template"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:197 netbox/dcim/tables/devices.py:1099
-#: netbox/ipam/forms/bulk_import.py:569 netbox/ipam/forms/model_forms.py:316
+#: netbox/ipam/forms/bulk_import.py:578 netbox/ipam/forms/model_forms.py:316
 #: netbox/ipam/forms/model_forms.py:329 netbox/ipam/tables/ip.py:308
 #: netbox/ipam/tables/ip.py:375 netbox/ipam/tables/ip.py:398
 #: netbox/templates/ipam/ipaddress.html:11
@@ -7140,7 +7156,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:27
 #: netbox/templates/virtualization/virtualmachine_list.html:14
 #: netbox/virtualization/tables/virtualmachines.py:71
-#: netbox/virtualization/views.py:381 netbox/wireless/tables/wirelesslan.py:63
+#: netbox/virtualization/views.py:395 netbox/wireless/tables/wirelesslan.py:63
 msgid "Interfaces"
 msgstr ""
 
@@ -7196,7 +7212,7 @@ msgstr ""
 msgid "Allocated draw (W)"
 msgstr ""
 
-#: netbox/dcim/tables/devices.py:571 netbox/ipam/forms/model_forms.py:784
+#: netbox/dcim/tables/devices.py:571 netbox/ipam/forms/model_forms.py:783
 #: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:633
 #: netbox/ipam/views.py:738 netbox/netbox/navigation/menu.py:164
 #: netbox/netbox/navigation/menu.py:166
@@ -7277,7 +7293,7 @@ msgid "Module Types"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:57 netbox/extras/forms/filtersets.py:378
-#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:540
+#: netbox/extras/forms/model_forms.py:551 netbox/extras/tables/tables.py:543
 #: netbox/netbox/navigation/menu.py:78
 msgid "Platforms"
 msgstr ""
@@ -7461,17 +7477,17 @@ msgstr ""
 #: netbox/dcim/views.py:2259 netbox/extras/forms/model_forms.py:591
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:232
-#: netbox/virtualization/views.py:422
+#: netbox/virtualization/views.py:436
 msgid "Config Context"
 msgstr ""
 
-#: netbox/dcim/views.py:2269 netbox/virtualization/views.py:432
+#: netbox/dcim/views.py:2269 netbox/virtualization/views.py:446
 msgid "Render Config"
 msgstr ""
 
-#: netbox/dcim/views.py:2282 netbox/extras/tables/tables.py:550
+#: netbox/dcim/views.py:2282 netbox/extras/tables/tables.py:553
 #: netbox/netbox/navigation/menu.py:255 netbox/netbox/navigation/menu.py:257
-#: netbox/virtualization/views.py:190
+#: netbox/virtualization/views.py:204
 msgid "Virtual Machines"
 msgstr ""
 
@@ -7897,7 +7913,7 @@ msgid "Group (name)"
 msgstr ""
 
 #: netbox/extras/filtersets.py:574
-#: netbox/virtualization/forms/filtersets.py:123
+#: netbox/virtualization/forms/filtersets.py:124
 msgid "Cluster type"
 msgstr ""
 
@@ -7946,13 +7962,13 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:61 netbox/extras/forms/bulk_import.py:60
 #: netbox/extras/forms/filtersets.py:90
-#: netbox/extras/models/customfields.py:209
+#: netbox/extras/models/customfields.py:211
 msgid "UI visible"
 msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:66 netbox/extras/forms/bulk_import.py:66
 #: netbox/extras/forms/filtersets.py:95
-#: netbox/extras/models/customfields.py:216
+#: netbox/extras/models/customfields.py:218
 msgid "UI editable"
 msgstr ""
 
@@ -8525,126 +8541,126 @@ msgstr ""
 msgid "config templates"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:75
+#: netbox/extras/models/customfields.py:77
 msgid "The object(s) to which this field applies."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:82
+#: netbox/extras/models/customfields.py:84
 msgid "The type of data this custom field holds"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:89
+#: netbox/extras/models/customfields.py:91
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:95
+#: netbox/extras/models/customfields.py:97
 msgid "Internal field name"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:99
+#: netbox/extras/models/customfields.py:101
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:104
+#: netbox/extras/models/customfields.py:106
 msgid "Double underscores are not permitted in custom field names."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:115
+#: netbox/extras/models/customfields.py:117
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:119 netbox/extras/models/models.py:317
+#: netbox/extras/models/customfields.py:121 netbox/extras/models/models.py:317
 msgid "group name"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:122
+#: netbox/extras/models/customfields.py:124
 msgid "Custom fields within the same group will be displayed together"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:130
+#: netbox/extras/models/customfields.py:132
 msgid "required"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:132
+#: netbox/extras/models/customfields.py:134
 msgid ""
 "This field is required when creating new objects or editing an existing "
 "object."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:135
+#: netbox/extras/models/customfields.py:137
 msgid "must be unique"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:137
+#: netbox/extras/models/customfields.py:139
 msgid "The value of this field must be unique for the assigned object"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:140
+#: netbox/extras/models/customfields.py:142
 msgid "search weight"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:143
+#: netbox/extras/models/customfields.py:145
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:148
+#: netbox/extras/models/customfields.py:150
 msgid "filter logic"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:152
+#: netbox/extras/models/customfields.py:154
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire field."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:155
+#: netbox/extras/models/customfields.py:157
 msgid "default"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:159
+#: netbox/extras/models/customfields.py:161
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with "
 "double quotes (e.g. \"Foo\")."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:166
+#: netbox/extras/models/customfields.py:168
 msgid ""
 "Filter the object selection choices using a query_params dict (must be a "
 "JSON value).Encapsulate strings with double quotes (e.g. \"Foo\")."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:172
+#: netbox/extras/models/customfields.py:174
 msgid "display weight"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:173
+#: netbox/extras/models/customfields.py:175
 msgid "Fields with higher weights appear lower in a form."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:178
+#: netbox/extras/models/customfields.py:180
 msgid "minimum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:179
+#: netbox/extras/models/customfields.py:181
 msgid "Minimum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:184
+#: netbox/extras/models/customfields.py:186
 msgid "maximum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:185
+#: netbox/extras/models/customfields.py:187
 msgid "Maximum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:191
+#: netbox/extras/models/customfields.py:193
 msgid "validation regex"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:193
+#: netbox/extras/models/customfields.py:195
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -8652,184 +8668,184 @@ msgid ""
 "values to exactly three uppercase letters."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:201
+#: netbox/extras/models/customfields.py:203
 msgid "choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:210
+#: netbox/extras/models/customfields.py:212
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:217
+#: netbox/extras/models/customfields.py:219
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:221
+#: netbox/extras/models/customfields.py:223
 msgid "is cloneable"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:222
+#: netbox/extras/models/customfields.py:224
 msgid "Replicate this value when cloning objects"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:239
+#: netbox/extras/models/customfields.py:241
 msgid "custom field"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:240
+#: netbox/extras/models/customfields.py:242
 msgid "custom fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:329
+#: netbox/extras/models/customfields.py:344
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:336
+#: netbox/extras/models/customfields.py:351
 msgid "A minimum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:338
+#: netbox/extras/models/customfields.py:353
 msgid "A maximum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:348
+#: netbox/extras/models/customfields.py:363
 msgid "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:354
+#: netbox/extras/models/customfields.py:369
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:364
+#: netbox/extras/models/customfields.py:379
 msgid "Selection fields must specify a set of choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:368
+#: netbox/extras/models/customfields.py:383
 msgid "Choices may be set only on selection fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:375
+#: netbox/extras/models/customfields.py:390
 msgid "Object fields must define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:379
+#: netbox/extras/models/customfields.py:394
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:386
+#: netbox/extras/models/customfields.py:401
 msgid "A related object filter can be defined only for object fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:390
+#: netbox/extras/models/customfields.py:405
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:469
+#: netbox/extras/models/customfields.py:484
 msgid "True"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:470
+#: netbox/extras/models/customfields.py:485
 msgid "False"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:560
+#: netbox/extras/models/customfields.py:577
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:654
+#: netbox/extras/models/customfields.py:671
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:656
+#: netbox/extras/models/customfields.py:673
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:661
+#: netbox/extras/models/customfields.py:678
 msgid "Value must be an integer."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:664
-#: netbox/extras/models/customfields.py:679
+#: netbox/extras/models/customfields.py:681
+#: netbox/extras/models/customfields.py:696
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:668
-#: netbox/extras/models/customfields.py:683
+#: netbox/extras/models/customfields.py:685
+#: netbox/extras/models/customfields.py:700
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:676
+#: netbox/extras/models/customfields.py:693
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:688
+#: netbox/extras/models/customfields.py:705
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:696
+#: netbox/extras/models/customfields.py:713
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:705
+#: netbox/extras/models/customfields.py:722
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:712
+#: netbox/extras/models/customfields.py:729
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:722
+#: netbox/extras/models/customfields.py:739
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:731
+#: netbox/extras/models/customfields.py:748
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:737
+#: netbox/extras/models/customfields.py:754
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:741
+#: netbox/extras/models/customfields.py:758
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:744
+#: netbox/extras/models/customfields.py:761
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:764
+#: netbox/extras/models/customfields.py:781
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:776
+#: netbox/extras/models/customfields.py:793
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:783
+#: netbox/extras/models/customfields.py:800
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:784
+#: netbox/extras/models/customfields.py:801
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:826
+#: netbox/extras/models/customfields.py:843
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:850
+#: netbox/extras/models/customfields.py:867
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -9320,7 +9336,7 @@ msgid "As Attachment"
 msgstr ""
 
 #: netbox/extras/tables/tables.py:195 netbox/extras/tables/tables.py:487
-#: netbox/extras/tables/tables.py:522 netbox/templates/core/datafile.html:24
+#: netbox/extras/tables/tables.py:525 netbox/templates/core/datafile.html:24
 #: netbox/templates/extras/configcontext.html:39
 #: netbox/templates/extras/configtemplate.html:31
 #: netbox/templates/extras/exporttemplate.html:45
@@ -9330,7 +9346,7 @@ msgid "Data File"
 msgstr ""
 
 #: netbox/extras/tables/tables.py:200 netbox/extras/tables/tables.py:499
-#: netbox/extras/tables/tables.py:527
+#: netbox/extras/tables/tables.py:530
 msgid "Synced"
 msgstr ""
 
@@ -9354,28 +9370,28 @@ msgstr ""
 msgid "Event Types"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:535 netbox/netbox/navigation/menu.py:77
+#: netbox/extras/tables/tables.py:538 netbox/netbox/navigation/menu.py:77
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:587
+#: netbox/extras/tables/tables.py:590
 msgid "Comments (Short)"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:606 netbox/extras/tables/tables.py:640
+#: netbox/extras/tables/tables.py:609 netbox/extras/tables/tables.py:643
 msgid "Line"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:613 netbox/extras/tables/tables.py:650
+#: netbox/extras/tables/tables.py:616 netbox/extras/tables/tables.py:653
 msgid "Level"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:619 netbox/extras/tables/tables.py:659
+#: netbox/extras/tables/tables.py:622 netbox/extras/tables/tables.py:662
 msgid "Message"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:643
+#: netbox/extras/tables/tables.py:646
 msgid "Method"
 msgstr ""
 
@@ -9504,8 +9520,8 @@ msgstr ""
 msgid "Plaintext"
 msgstr ""
 
-#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:800
-#: netbox/ipam/forms/model_forms.py:828 netbox/templates/ipam/service.html:21
+#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:799
+#: netbox/ipam/forms/model_forms.py:827 netbox/templates/ipam/service.html:21
 msgid "Service"
 msgstr ""
 
@@ -9594,84 +9610,92 @@ msgstr ""
 msgid "Prefixes which contain this prefix or IP"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:323 netbox/ipam/filtersets.py:555
+#: netbox/ipam/filtersets.py:323 netbox/ipam/filtersets.py:567
 #: netbox/ipam/forms/bulk_edit.py:327 netbox/ipam/forms/filtersets.py:205
-#: netbox/ipam/forms/filtersets.py:343
+#: netbox/ipam/forms/filtersets.py:348
 msgid "Mask length"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:356 netbox/vpn/filtersets.py:427
+#: netbox/ipam/filtersets.py:358
+msgid "VLAN Group (ID)"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:364
+msgid "VLAN Group (slug)"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:368 netbox/vpn/filtersets.py:427
 msgid "VLAN (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:360 netbox/vpn/filtersets.py:422
+#: netbox/ipam/filtersets.py:372 netbox/vpn/filtersets.py:422
 msgid "VLAN number (1-4094)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:454 netbox/ipam/filtersets.py:458
-#: netbox/ipam/filtersets.py:550 netbox/ipam/forms/model_forms.py:506
+#: netbox/ipam/filtersets.py:466 netbox/ipam/filtersets.py:470
+#: netbox/ipam/filtersets.py:562 netbox/ipam/forms/model_forms.py:506
 #: netbox/templates/tenancy/contact.html:53
 #: netbox/tenancy/forms/bulk_edit.py:113
 msgid "Address"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:462
+#: netbox/ipam/filtersets.py:474
 msgid "Ranges which contain this prefix or IP"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:490 netbox/ipam/filtersets.py:546
+#: netbox/ipam/filtersets.py:502 netbox/ipam/filtersets.py:558
 msgid "Parent prefix"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:631
+#: netbox/ipam/filtersets.py:643
 msgid "FHRP group (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:635
+#: netbox/ipam/filtersets.py:647
 msgid "Is assigned to an interface"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:639
+#: netbox/ipam/filtersets.py:651
 msgid "Is assigned"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:651
+#: netbox/ipam/filtersets.py:663
 msgid "Service (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:656
+#: netbox/ipam/filtersets.py:668
 msgid "NAT inside IP address (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1015
+#: netbox/ipam/filtersets.py:1027
 msgid "Q-in-Q SVLAN (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1019
+#: netbox/ipam/filtersets.py:1031
 msgid "Q-in-Q SVLAN number (1-4094)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1040
+#: netbox/ipam/filtersets.py:1052
 msgid "Assigned VM interface"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1111
+#: netbox/ipam/filtersets.py:1123
 msgid "VLAN Translation Policy (name)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1177
+#: netbox/ipam/filtersets.py:1189
 msgid "IP address (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1183 netbox/ipam/models/ip.py:788
+#: netbox/ipam/filtersets.py:1195 netbox/ipam/models/ip.py:788
 msgid "IP address"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1208
+#: netbox/ipam/filtersets.py:1220
 msgid "Primary IPv4 (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1213
+#: netbox/ipam/filtersets.py:1225
 msgid "Primary IPv6 (ID)"
 msgstr ""
 
@@ -9731,15 +9755,15 @@ msgstr ""
 msgid "Date added"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:213 netbox/ipam/forms/model_forms.py:629
-#: netbox/ipam/forms/model_forms.py:676 netbox/ipam/tables/ip.py:201
-#: netbox/templates/ipam/vlan_edit.html:45
+#: netbox/ipam/forms/bulk_edit.py:213 netbox/ipam/forms/filtersets.py:266
+#: netbox/ipam/forms/model_forms.py:628 netbox/ipam/forms/model_forms.py:675
+#: netbox/ipam/tables/ip.py:201 netbox/templates/ipam/vlan_edit.html:45
 #: netbox/templates/ipam/vlangroup.html:27
 msgid "VLAN Group"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:218 netbox/ipam/forms/bulk_import.py:188
-#: netbox/ipam/forms/filtersets.py:266 netbox/ipam/forms/model_forms.py:217
+#: netbox/ipam/forms/filtersets.py:271 netbox/ipam/forms/model_forms.py:217
 #: netbox/ipam/models/vlans.py:272 netbox/ipam/tables/ip.py:206
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
@@ -9763,7 +9787,7 @@ msgid "Is a pool"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:257 netbox/ipam/forms/bulk_edit.py:302
-#: netbox/ipam/forms/filtersets.py:258 netbox/ipam/forms/filtersets.py:304
+#: netbox/ipam/forms/filtersets.py:258 netbox/ipam/forms/filtersets.py:309
 #: netbox/ipam/models/ip.py:256 netbox/ipam/models/ip.py:525
 msgid "Treat as fully utilized"
 msgstr ""
@@ -9778,21 +9802,21 @@ msgid "DNS name"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:371 netbox/ipam/forms/bulk_edit.py:562
-#: netbox/ipam/forms/bulk_import.py:424 netbox/ipam/forms/bulk_import.py:535
-#: netbox/ipam/forms/bulk_import.py:561 netbox/ipam/forms/filtersets.py:402
-#: netbox/ipam/forms/filtersets.py:591 netbox/templates/ipam/fhrpgroup.html:22
+#: netbox/ipam/forms/bulk_import.py:433 netbox/ipam/forms/bulk_import.py:544
+#: netbox/ipam/forms/bulk_import.py:570 netbox/ipam/forms/filtersets.py:407
+#: netbox/ipam/forms/filtersets.py:596 netbox/templates/ipam/fhrpgroup.html:22
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:24
 #: netbox/templates/ipam/service.html:32
 #: netbox/templates/ipam/servicetemplate.html:19
 msgid "Protocol"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:378 netbox/ipam/forms/filtersets.py:409
+#: netbox/ipam/forms/bulk_edit.py:378 netbox/ipam/forms/filtersets.py:414
 #: netbox/ipam/tables/fhrp.py:22 netbox/templates/ipam/fhrpgroup.html:26
 msgid "Group ID"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:383 netbox/ipam/forms/filtersets.py:414
+#: netbox/ipam/forms/bulk_edit.py:383 netbox/ipam/forms/filtersets.py:419
 #: netbox/wireless/forms/bulk_edit.py:70 netbox/wireless/forms/bulk_edit.py:118
 #: netbox/wireless/forms/bulk_import.py:64
 #: netbox/wireless/forms/bulk_import.py:67
@@ -9803,11 +9827,11 @@ msgstr ""
 msgid "Authentication type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:388 netbox/ipam/forms/filtersets.py:418
+#: netbox/ipam/forms/bulk_edit.py:388 netbox/ipam/forms/filtersets.py:423
 msgid "Authentication key"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:405 netbox/ipam/forms/filtersets.py:395
+#: netbox/ipam/forms/bulk_edit.py:405 netbox/ipam/forms/filtersets.py:400
 #: netbox/ipam/forms/model_forms.py:517 netbox/netbox/navigation/menu.py:407
 #: netbox/templates/ipam/fhrpgroup.html:49
 #: netbox/templates/wireless/inc/authentication_attrs.html:5
@@ -9823,8 +9847,8 @@ msgstr ""
 msgid "VLAN ID ranges"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:505 netbox/ipam/forms/bulk_import.py:492
-#: netbox/ipam/forms/filtersets.py:566 netbox/ipam/models/vlans.py:232
+#: netbox/ipam/forms/bulk_edit.py:505 netbox/ipam/forms/bulk_import.py:501
+#: netbox/ipam/forms/filtersets.py:571 netbox/ipam/models/vlans.py:232
 #: netbox/ipam/tables/vlans.py:103
 msgid "Q-in-Q role"
 msgstr ""
@@ -9837,15 +9861,15 @@ msgstr ""
 msgid "Site & Group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:546 netbox/ipam/forms/bulk_import.py:522
-#: netbox/ipam/forms/model_forms.py:724 netbox/ipam/tables/vlans.py:256
+#: netbox/ipam/forms/bulk_edit.py:546 netbox/ipam/forms/bulk_import.py:531
+#: netbox/ipam/forms/model_forms.py:723 netbox/ipam/tables/vlans.py:256
 #: netbox/templates/ipam/vlantranslationrule.html:14
 #: netbox/vpn/forms/model_forms.py:322 netbox/vpn/forms/model_forms.py:359
 msgid "Policy"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:567 netbox/ipam/forms/model_forms.py:742
-#: netbox/ipam/forms/model_forms.py:774 netbox/ipam/tables/services.py:19
+#: netbox/ipam/forms/bulk_edit.py:567 netbox/ipam/forms/model_forms.py:741
+#: netbox/ipam/forms/model_forms.py:773 netbox/ipam/tables/services.py:19
 #: netbox/ipam/tables/services.py:49 netbox/templates/ipam/service.html:36
 #: netbox/templates/ipam/servicetemplate.html:23
 msgid "Ports"
@@ -9882,67 +9906,77 @@ msgstr ""
 msgid "Scope ID"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:332
+#: netbox/ipam/forms/bulk_import.py:331 netbox/ipam/forms/model_forms.py:305
+#: netbox/ipam/forms/model_forms.py:335 netbox/ipam/forms/model_forms.py:516
+#: netbox/templates/ipam/fhrpgroup.html:19
+msgid "FHRP Group"
+msgstr ""
+
+#: netbox/ipam/forms/bulk_import.py:335
+msgid "Assigned FHRP Group name"
+msgstr ""
+
+#: netbox/ipam/forms/bulk_import.py:339
 msgid "Make this the primary IP for the assigned device"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:336
+#: netbox/ipam/forms/bulk_import.py:343
 msgid "Is out-of-band"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:337
+#: netbox/ipam/forms/bulk_import.py:344
 msgid "Designate this as the out-of-band IP address for the assigned device"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:377
+#: netbox/ipam/forms/bulk_import.py:384
 msgid "No device or virtual machine specified; cannot set as primary IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:381
+#: netbox/ipam/forms/bulk_import.py:388
 msgid "No device specified; cannot set as out-of-band IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:385
+#: netbox/ipam/forms/bulk_import.py:392
 msgid "Cannot set out-of-band IP for virtual machines"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:389
+#: netbox/ipam/forms/bulk_import.py:396
 msgid "No interface specified; cannot set as primary IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:393
+#: netbox/ipam/forms/bulk_import.py:400
 msgid "No interface specified; cannot set as out-of-band IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:428
+#: netbox/ipam/forms/bulk_import.py:437
 msgid "Auth type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:470
+#: netbox/ipam/forms/bulk_import.py:479
 msgid "Assigned VLAN group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:502
+#: netbox/ipam/forms/bulk_import.py:511
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:525 netbox/ipam/models/vlans.py:343
+#: netbox/ipam/forms/bulk_import.py:534 netbox/ipam/models/vlans.py:343
 msgid "VLAN translation policy"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:537 netbox/ipam/forms/bulk_import.py:563
+#: netbox/ipam/forms/bulk_import.py:546 netbox/ipam/forms/bulk_import.py:572
 msgid "IP protocol"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:551
+#: netbox/ipam/forms/bulk_import.py:560
 msgid "Required if not assigned to a VM"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:558
+#: netbox/ipam/forms/bulk_import.py:567
 msgid "Required if not assigned to a device"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:583
+#: netbox/ipam/forms/bulk_import.py:592
 #, python-brace-format
 msgid "{ip} is not assigned to this device/VM."
 msgstr ""
@@ -9976,7 +10010,7 @@ msgid "Private"
 msgstr ""
 
 #: netbox/ipam/forms/filtersets.py:108 netbox/ipam/forms/filtersets.py:200
-#: netbox/ipam/forms/filtersets.py:283 netbox/ipam/forms/filtersets.py:338
+#: netbox/ipam/forms/filtersets.py:288 netbox/ipam/forms/filtersets.py:343
 msgid "Address family"
 msgstr ""
 
@@ -9996,50 +10030,50 @@ msgstr ""
 msgid "Search within"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:216 netbox/ipam/forms/filtersets.py:354
+#: netbox/ipam/forms/filtersets.py:216 netbox/ipam/forms/filtersets.py:359
 msgid "Present in VRF"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:322
+#: netbox/ipam/forms/filtersets.py:327
 msgid "Device/VM"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:333
+#: netbox/ipam/forms/filtersets.py:338
 msgid "Parent Prefix"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:378
+#: netbox/ipam/forms/filtersets.py:383
 msgid "Assigned to an interface"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:385 netbox/templates/ipam/ipaddress.html:51
+#: netbox/ipam/forms/filtersets.py:390 netbox/templates/ipam/ipaddress.html:51
 msgid "DNS Name"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:428 netbox/ipam/models/vlans.py:273
+#: netbox/ipam/forms/filtersets.py:433 netbox/ipam/models/vlans.py:273
 #: netbox/ipam/tables/ip.py:122 netbox/ipam/tables/vlans.py:51
 #: netbox/ipam/views.py:1036 netbox/netbox/navigation/menu.py:199
 #: netbox/netbox/navigation/menu.py:201
 msgid "VLANs"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:469
+#: netbox/ipam/forms/filtersets.py:474
 msgid "Contains VLAN ID"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:503 netbox/ipam/models/vlans.py:363
+#: netbox/ipam/forms/filtersets.py:508 netbox/ipam/models/vlans.py:363
 msgid "Local VLAN ID"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:508 netbox/ipam/models/vlans.py:371
+#: netbox/ipam/forms/filtersets.py:513 netbox/ipam/models/vlans.py:371
 msgid "Remote VLAN ID"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:518
+#: netbox/ipam/forms/filtersets.py:523
 msgid "Q-in-Q/802.1ad"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:563 netbox/ipam/models/vlans.py:191
+#: netbox/ipam/forms/filtersets.py:568 netbox/ipam/models/vlans.py:191
 #: netbox/templates/ipam/vlan.html:31
 msgid "VLAN ID"
 msgstr ""
@@ -10060,11 +10094,6 @@ msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:269 netbox/templates/ipam/iprange.html:10
 msgid "IP Range"
-msgstr ""
-
-#: netbox/ipam/forms/model_forms.py:305 netbox/ipam/forms/model_forms.py:335
-#: netbox/ipam/forms/model_forms.py:516 netbox/templates/ipam/fhrpgroup.html:19
-msgid "FHRP Group"
 msgstr ""
 
 #: netbox/ipam/forms/model_forms.py:320
@@ -10106,51 +10135,51 @@ msgstr ""
 msgid "Virtual IP Address"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:603
+#: netbox/ipam/forms/model_forms.py:602
 msgid "Assignment already exists"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:612 netbox/templates/ipam/vlangroup.html:42
+#: netbox/ipam/forms/model_forms.py:611 netbox/templates/ipam/vlangroup.html:42
 msgid "VLAN IDs"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:630
+#: netbox/ipam/forms/model_forms.py:629
 msgid "Child VLANs"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:730
+#: netbox/ipam/forms/model_forms.py:729
 #: netbox/templates/ipam/vlantranslationrule.html:11
 msgid "VLAN Translation Rule"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:747 netbox/ipam/forms/model_forms.py:779
+#: netbox/ipam/forms/model_forms.py:746 netbox/ipam/forms/model_forms.py:778
 msgid ""
 "Comma-separated list of one or more port numbers. A range may be specified "
 "using a hyphen."
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:752
+#: netbox/ipam/forms/model_forms.py:751
 #: netbox/templates/ipam/servicetemplate.html:12
 msgid "Service Template"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:799
+#: netbox/ipam/forms/model_forms.py:798
 msgid "Port(s)"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:813
+#: netbox/ipam/forms/model_forms.py:812
 msgid "Service template"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:825
+#: netbox/ipam/forms/model_forms.py:824
 msgid "From Template"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:826
+#: netbox/ipam/forms/model_forms.py:825
 msgid "Custom"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:856
+#: netbox/ipam/forms/model_forms.py:855
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
@@ -11143,31 +11172,31 @@ msgstr ""
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/netbox/models/features.py:462
+#: netbox/netbox/models/features.py:470
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/netbox/models/features.py:472
+#: netbox/netbox/models/features.py:480
 msgid "data path"
 msgstr ""
 
-#: netbox/netbox/models/features.py:476
+#: netbox/netbox/models/features.py:484
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/netbox/models/features.py:479
+#: netbox/netbox/models/features.py:487
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/netbox/models/features.py:481
+#: netbox/netbox/models/features.py:489
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/netbox/models/features.py:484
+#: netbox/netbox/models/features.py:492
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:578
+#: netbox/netbox/models/features.py:586
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -11359,7 +11388,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:32
 #: netbox/templates/virtualization/virtualmachine_list.html:21
 #: netbox/virtualization/tables/virtualmachines.py:74
-#: netbox/virtualization/views.py:403
+#: netbox/virtualization/views.py:417
 msgid "Virtual Disks"
 msgstr ""
 
@@ -11774,19 +11803,19 @@ msgstr ""
 msgid "Row {i}: Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:708
-#: netbox/netbox/views/generic/bulk_views.py:909
-#: netbox/netbox/views/generic/bulk_views.py:957
+#: netbox/netbox/views/generic/bulk_views.py:710
+#: netbox/netbox/views/generic/bulk_views.py:911
+#: netbox/netbox/views/generic/bulk_views.py:959
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:787
+#: netbox/netbox/views/generic/bulk_views.py:789
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:887
+#: netbox/netbox/views/generic/bulk_views.py:889
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
@@ -12200,6 +12229,9 @@ msgstr ""
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:32
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:33
 #: netbox/templates/dcim/frontport.html:80
+#: netbox/templates/dcim/inc/cable_termination.html:27
+#: netbox/templates/dcim/inc/cable_termination.html:51
+#: netbox/templates/dcim/inc/cable_termination.html:71
 #: netbox/templates/dcim/inc/connection_endpoints.html:7
 #: netbox/templates/dcim/interface.html:211
 #: netbox/templates/dcim/rearport.html:76
@@ -13027,7 +13059,7 @@ msgstr ""
 msgid "B Side"
 msgstr ""
 
-#: netbox/templates/dcim/inc/cable_termination.html:65
+#: netbox/templates/dcim/inc/cable_termination.html:82
 msgid "No termination"
 msgstr ""
 
@@ -13105,12 +13137,6 @@ msgstr ""
 
 #: netbox/templates/dcim/interface.html:77
 msgid "PoE Type"
-msgstr ""
-
-#: netbox/templates/dcim/interface.html:81
-#: netbox/templates/virtualization/vminterface.html:55
-#: netbox/virtualization/forms/model_forms.py:395
-msgid "802.1Q Mode"
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:156
@@ -13724,15 +13750,15 @@ msgstr ""
 msgid "Rendered Config"
 msgstr ""
 
-#: netbox/templates/extras/object_render_config.html:58
+#: netbox/templates/extras/object_render_config.html:60
 msgid "Download"
 msgstr ""
 
-#: netbox/templates/extras/object_render_config.html:65
+#: netbox/templates/extras/object_render_config.html:68
 msgid "Error rendering template"
 msgstr ""
 
-#: netbox/templates/extras/object_render_config.html:71
+#: netbox/templates/extras/object_render_config.html:74
 msgid "No configuration template has been assigned."
 msgstr ""
 
@@ -13746,7 +13772,7 @@ msgstr ""
 
 #: netbox/templates/extras/script.html:41
 #: netbox/templates/extras/script.html:45
-#: netbox/templates/extras/script_list.html:87
+#: netbox/templates/extras/script_list.html:90
 msgid "Run Script"
 msgstr ""
 
@@ -13771,20 +13797,20 @@ msgstr ""
 msgid "Never"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:85
+#: netbox/templates/extras/script_list.html:88
 msgid "Run Again"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:133
+#: netbox/templates/extras/script_list.html:136
 #, python-format
 msgid "Could not load scripts from module %(module)s"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:141
+#: netbox/templates/extras/script_list.html:144
 msgid "No Scripts Found"
 msgstr ""
 
-#: netbox/templates/extras/script_list.html:144
+#: netbox/templates/extras/script_list.html:147
 #, python-format
 msgid ""
 "Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
@@ -15305,11 +15331,11 @@ msgstr ""
 msgid "URL-friendly unique shorthand"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:101
+#: netbox/utilities/forms/fields/fields.py:104
 msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:124
+#: netbox/utilities/forms/fields/fields.py:125
 msgid "MAC address must be in EUI-48 format"
 msgstr ""
 
@@ -15354,37 +15380,37 @@ msgid ""
 "({begin})."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:232
+#: netbox/utilities/forms/utils.py:234
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{field}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:238
+#: netbox/utilities/forms/utils.py:240
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{header}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:247
+#: netbox/utilities/forms/utils.py:249
 #, python-brace-format
 msgid "Row {row}: Expected {count_expected} columns but found {count_found}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:270
+#: netbox/utilities/forms/utils.py:272
 #, python-brace-format
 msgid "Unexpected column header \"{field}\" found."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:272
+#: netbox/utilities/forms/utils.py:274
 #, python-brace-format
 msgid "Column \"{field}\" is not a related object; cannot use dots"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:276
+#: netbox/utilities/forms/utils.py:278
 #, python-brace-format
 msgid "Invalid related object attribute for column \"{field}\": {to_field}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:284
+#: netbox/utilities/forms/utils.py:286
 #, python-brace-format
 msgid "Required column header \"{header}\" not found."
 msgstr ""
@@ -15589,7 +15615,7 @@ msgid "Disk (MB)"
 msgstr ""
 
 #: netbox/virtualization/forms/bulk_edit.py:324
-#: netbox/virtualization/forms/filtersets.py:256
+#: netbox/virtualization/forms/filtersets.py:269
 msgid "Size (MB)"
 msgstr ""
 
@@ -15609,7 +15635,7 @@ msgstr ""
 msgid "Assigned device within cluster"
 msgstr ""
 
-#: netbox/virtualization/forms/filtersets.py:188
+#: netbox/virtualization/forms/filtersets.py:189
 msgid "Serial number"
 msgstr ""
 
@@ -15764,12 +15790,12 @@ msgstr ""
 msgid "virtual disks"
 msgstr ""
 
-#: netbox/virtualization/views.py:289
+#: netbox/virtualization/views.py:303
 #, python-brace-format
 msgid "Added {count} devices to cluster {cluster}"
 msgstr ""
 
-#: netbox/virtualization/views.py:324
+#: netbox/virtualization/views.py:338
 #, python-brace-format
 msgid "Removed {count} devices from cluster {cluster}"
 msgstr ""

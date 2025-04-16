@@ -179,15 +179,28 @@ class ClusterListView(generic.ObjectListView):
 
 
 @register_model_view(Cluster)
-class ClusterView(generic.ObjectView):
+class ClusterView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Cluster.objects.all()
 
     def get_extra_context(self, request, instance):
-        return instance.virtual_machines.aggregate(
-            vcpus_sum=Sum('vcpus'),
-            memory_sum=Sum('memory'),
-            disk_sum=Sum('disk')
-        )
+        return {
+            **instance.virtual_machines.aggregate(
+                vcpus_sum=Sum('vcpus'),
+                memory_sum=Sum('memory'),
+                disk_sum=Sum('disk')
+            ),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(),
+                extra=(
+                    (VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(Cluster),
+                        scope_id=instance.pk
+                    ), 'cluster'),
+                )
+                ),
+        }
 
 
 @register_model_view(Cluster, 'virtualmachines', path='virtual-machines')

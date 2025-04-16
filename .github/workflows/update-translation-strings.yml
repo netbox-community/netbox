@@ -13,6 +13,7 @@ env:
 
 jobs:
   makemessages:
+    if: github.repository == 'netbox-community/netbox'
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing

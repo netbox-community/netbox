@@ -33,10 +33,10 @@ To download translated strings automatically, you'll need to:
 Once you have the client set up, run the following command from the project root (e.g. `/opt/netbox/`):
 
 ```no-highlight
-TX_TOKEN=$TOKEN tx pull
+TX_TOKEN=$TOKEN tx pull --force
 ```
 
-This will download all portable (`.po`) translation files from Transifex, updating them locally as needed.
+This will download all portable (`.po`) translation files from Transifex, updating them locally as needed. (The `--force` argument instructs the client to disregard the timestamps of local translation files.)
 
 Once retrieved, the updated strings need to be compiled into new `.mo` files so they can be used by the application. Run Django's [`compilemessages`](https://docs.djangoproject.com/en/stable/ref/django-admin/#django-admin-compilemessages) management command to compile them:
 

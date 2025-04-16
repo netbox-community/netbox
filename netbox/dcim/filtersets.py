@@ -1057,6 +1057,13 @@ class DeviceFilterSet(
         lookup_expr='in',
         label=_('Location (ID)'),
     )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
@@ -1682,6 +1689,10 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
+    mode = django_filters.MultipleChoiceFilter(
+        choices=InterfaceModeChoices,
+        label=_('802.1Q Mode')
+    )
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label=_('Assigned VLAN')

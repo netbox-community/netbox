@@ -20,10 +20,15 @@
         <th scope="row">{{ terminations.0|meta:"verbose_name"|capfirst }}</th>
         <td>
           {% for term in terminations %}
-	    {{term.device|linkify}}
-	    <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
-	    {{ term|linkify }}
-	    {% if not forloop.last %}<br/>{% endif %}
+            {{ term.device|linkify }}
+            <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+            {{ term|linkify }}
+            {% with trace_url=term|viewname:"trace" %}
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+              </a>
+            {% endwith %}
+            {% if not forloop.last %}<br/>{% endif %}
           {% endfor %}
         </td>
       </tr>
@@ -41,7 +46,13 @@
         <th scope="row">{{ terminations.0|meta:"verbose_name"|capfirst }}</th>
         <td>
           {% for term in terminations %}
-            {{ term|linkify }}{% if not forloop.last %},{% endif %}
+            {{ term|linkify }}
+            {% with trace_url=term|viewname:"trace" %}
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+              </a>
+            {% endwith %}
+            {% if not forloop.last %}<br/>{% endif %}
           {% endfor %}
         </td>
       </tr>
@@ -55,7 +66,13 @@
         <th scope="row">{% trans "Circuit" %}</th>
         <td>
           {% for term in terminations %}
-            {{ term.circuit|linkify }} ({{ term }}){% if not forloop.last %},{% endif %}
+            {{ term.circuit|linkify }} ({{ term }})
+            {% with trace_url=term|viewname:"trace" %}
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+              </a>
+            {% endwith %}
+            {% if not forloop.last %}<br/>{% endif %}
           {% endfor %}
         </td>
       </tr>
