@@ -6,4 +6,4 @@ __all__ = (
     'ContactPriorityEnum',
 )
 
-ContactPriorityEnum = strawberry.enum(ContactPriorityChoices.as_enum())
+ContactPriorityEnum = strawberry.enum(ContactPriorityChoices.as_enum(prefix='priority'))

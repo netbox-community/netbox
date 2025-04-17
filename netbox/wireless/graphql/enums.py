@@ -10,8 +10,8 @@ __all__ = (
     'WirelessRoleEnum',
 )
 
-WirelessAuthCipherEnum = strawberry.enum(WirelessAuthCipherChoices.as_enum())
-WirelessAuthTypeEnum = strawberry.enum(WirelessAuthTypeChoices.as_enum())
-WirelessChannelEnum = strawberry.enum(WirelessChannelChoices.as_enum())
-WirelessLANStatusEnum = strawberry.enum(WirelessLANStatusChoices.as_enum())
-WirelessRoleEnum = strawberry.enum(WirelessRoleChoices.as_enum())
+WirelessAuthCipherEnum = strawberry.enum(WirelessAuthCipherChoices.as_enum(prefix='cipher'))
+WirelessAuthTypeEnum = strawberry.enum(WirelessAuthTypeChoices.as_enum(prefix='type'))
+WirelessChannelEnum = strawberry.enum(WirelessChannelChoices.as_enum(prefix='channel'))
+WirelessLANStatusEnum = strawberry.enum(WirelessLANStatusChoices.as_enum(prefix='status'))
+WirelessRoleEnum = strawberry.enum(WirelessRoleChoices.as_enum(prefix='role'))

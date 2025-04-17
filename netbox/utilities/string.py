@@ -1,7 +1,18 @@
+import re
+
 __all__ = (
+    'enum_key',
     'title',
     'trailing_slash',
 )
+
+
+def enum_key(value):
+    """
+    Convert the given value to a string suitable for use as an Enum key.
+    """
+    value = str(value).upper()
+    return re.sub(r'[^_A-Z0-9]', '_', value)
 
 
 def title(value):

@@ -7,5 +7,5 @@ __all__ = (
     'VirtualMachineStatusEnum',
 )
 
-ClusterStatusEnum = strawberry.enum(ClusterStatusChoices.as_enum())
-VirtualMachineStatusEnum = strawberry.enum(VirtualMachineStatusChoices.as_enum())
+ClusterStatusEnum = strawberry.enum(ClusterStatusChoices.as_enum(prefix='status'))
+VirtualMachineStatusEnum = strawberry.enum(VirtualMachineStatusChoices.as_enum(prefix='status'))
