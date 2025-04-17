@@ -759,13 +759,19 @@
   resolved "https://registry.yarnpkg.com/@rtsao/scc/-/scc-1.1.0.tgz#927dd2fae9bc3361403ac2c7a00c32ddce9ad7e8"
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
-"@tabler/core@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.1.1.tgz#6b7044c4b427f14c1d78e4532106821466d619a6"
-  integrity sha512-VVxsx6+XtCtSjKqS0m5z8W2OcNAYHRiygl3ov+RrQDDB4UK5jfSa26dY+2sMcohocV6GsBpuozPyEk8p3/8sdQ==
+"@tabler/core@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@tabler/core/-/core-1.0.0.tgz#08736378108663b5893a31ad462be7d12e64be67"
+  integrity sha512-uFmv6f8TAaW2JaGwzjT1LfK+TjmBQSTCoznCMdV5uur4cv4TtJlV8Hh1Beu55YX0svMtOQ0Xts7tYv/+qBEcfA==
   dependencies:
     "@popperjs/core" "^2.11.8"
+    "@tabler/icons" "^3.29.0"
     bootstrap "5.3.3"
+
+"@tabler/icons@^3.29.0":
+  version "3.31.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons/-/icons-3.31.0.tgz#92d39dc336f2e3e312170420b00ffe9ca474925e"
+  integrity sha512-dblAdeKY3+GA1U+Q9eziZ0ooVlZMHsE8dqP0RkwvRtEsAULoKOYaCUOcJ4oW1DjWegdxk++UAt2SlQVnmeHv+g==
 
 "@tanstack/react-virtual@^3.0.0-beta.60":
   version "3.5.0"
