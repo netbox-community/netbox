@@ -4072,7 +4072,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=InterfaceTypeChoices.TYPE_OTHER,
                 enabled=False,
                 mgmt_only=False,
-                tx_power=40,
+                tx_power=-40,
                 mode=InterfaceModeChoices.MODE_Q_IN_Q,
                 qinq_svlan=vlans[2]
             ),
@@ -4340,7 +4340,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_tx_power(self):
         params = {'tx_power': [40]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'tx_power': [-40]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_vrf(self):
         vrfs = VRF.objects.all()[:2]

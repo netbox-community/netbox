@@ -2660,7 +2660,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'poe_mode': InterfacePoEModeChoices.MODE_PD,
             'poe_type': InterfacePoETypeChoices.TYPE_2_8023AT,
             'mode': InterfaceModeChoices.MODE_TAGGED,
-            'tx_power': 10,
+            'tx_power': -10,
             'untagged_vlan': vlans[0].pk,
             'tagged_vlans': [v.pk for v in vlans[1:4]],
             'vrf': vrfs[1].pk,

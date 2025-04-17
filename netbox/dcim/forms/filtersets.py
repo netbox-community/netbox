@@ -1435,7 +1435,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tx_power = forms.IntegerField(
         required=False,
         label=_('Transmit power (dBm)'),
-        min_value=0,
+        min_value=-127,
         max_value=127
     )
     vrf_id = DynamicModelMultipleChoiceField(

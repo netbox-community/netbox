@@ -1743,7 +1743,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'name': 'Interface 8',
                 'type': InterfaceTypeChoices.TYPE_80211A,
                 'mode': InterfaceModeChoices.MODE_Q_IN_Q,
-                'tx_power': 10,
+                'tx_power': -10,
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
                 'rf_channel': "",
                 'qinq_svlan': vlans[3].pk,
