@@ -49,7 +49,7 @@ Appending a plus sign to the field identifier would instead _add_ these choices 
 FIELD_CHOICES = {
     'dcim.Site.status+': (
         ...
-    )
+    ),
 }
 ```
 
