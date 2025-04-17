@@ -21,7 +21,7 @@ from .filter_mixins import BaseCircuitTypeFilterMixin
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
-    from dcim.graphql.filters import InterfaceFilter
+    from dcim.graphql.filters import InterfaceFilter, LocationFilter, RegionFilter, SiteFilter, SiteGroupFilter
     from ipam.graphql.filters import ASNFilter
     from netbox.graphql.filter_lookups import IntegerLookup
     from .enums import *
@@ -69,6 +69,23 @@ class CircuitTerminationFilter(
     pp_info: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
 
+    # Cached relations
+    _provider_network: Annotated['ProviderNetworkFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='provider_network')
+    )
+    _location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='location')
+    )
+    _region: Annotated['RegionFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='region')
+    )
+    _site_group: Annotated['SiteGroupFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site_group')
+    )
+    _site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site')
+    )
+
 
 @strawberry_django.filter(models.Circuit, lookups=True)
 class CircuitFilter(
@@ -97,6 +114,9 @@ class CircuitFilter(
     install_date: DateFilterLookup[date] | None = strawberry_django.filter_field()
     termination_date: DateFilterLookup[date] | None = strawberry_django.filter_field()
     commit_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    terminations: Annotated['CircuitTerminationFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
