@@ -18,7 +18,7 @@ __all__ = (
 
 @dataclass
 class VMComponentFilterMixin(NetBoxModelFilterMixin):
-    virtual_manchine: Annotated['VirtualMachineFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
+    virtual_machine: Annotated['VirtualMachineFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
     virtual_machine_id: ID | None = strawberry_django.filter_field()

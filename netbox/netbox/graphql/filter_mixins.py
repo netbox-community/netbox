@@ -9,7 +9,6 @@ from strawberry_django import FilterLookup, DatetimeFilterLookup
 
 from core.graphql.filter_mixins import BaseFilterMixin, BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, JournalEntriesFilterMixin, TagsFilterMixin
-from netbox.graphql.filter_lookups import IntegerLookup
 
 __all__ = (
     'DistanceFilterMixin',
@@ -46,10 +45,6 @@ class NestedGroupModelFilterMixin(NetBoxModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
-    lft: IntegerLookup | None = strawberry_django.filter_field()
-    rght: IntegerLookup | None = strawberry_django.filter_field()
-    tree_id: IntegerLookup | None = strawberry_django.filter_field()
-    level: IntegerLookup | None = strawberry_django.filter_field()
     parent_id: ID | None = strawberry_django.filter_field()
 
 

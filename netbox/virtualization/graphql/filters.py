@@ -137,6 +137,10 @@ class VMInterfaceFilter(VMComponentFilterMixin, InterfaceBaseFilterMixin):
     )
     vrf: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     vrf_id: ID | None = strawberry_django.filter_field()
+    parent: Annotated['VMInterfaceFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    parent_id: ID | None = strawberry_django.filter_field()
     fhrp_group_assignments: Annotated['FHRPGroupAssignmentFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

@@ -75,6 +75,9 @@ class TunnelFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     tunnel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    terminations: Annotated['TunnelTerminationFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter(models.IKEProposal, lookups=True)
@@ -91,6 +94,9 @@ class IKEProposalFilter(PrimaryModelFilterMixin):
     )
     group: Annotated['DHGroupEnum', strawberry.lazy('vpn.graphql.enums')] | None = strawberry_django.filter_field()
     sa_lifetime: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    ike_policies: Annotated['IKEPolicyFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -119,6 +125,9 @@ class IPSecProposalFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     sa_lifetime_data: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    ipsec_policies: Annotated['IPSecPolicyFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
@@ -158,6 +167,9 @@ class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixi
         strawberry_django.filter_field()
     )
     export_targets: Annotated['RouteTargetFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    terminations: Annotated['L2VPNTerminationFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
