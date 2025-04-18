@@ -153,6 +153,9 @@ class ProviderFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     asns: Annotated['ASNFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
+    circuits: Annotated['CircuitFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter(models.ProviderAccount, lookups=True)
