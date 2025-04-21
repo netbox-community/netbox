@@ -5,7 +5,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col col-md-5">
+    <div class="col col-12 col-md-5">
       <div class="card">
         <h2 class="card-header">{% trans "Config Context" %}</h2>
         <table class="table table-hover attr-table">
@@ -76,7 +76,7 @@
         </table>
       </div>
     </div>
-    <div class="col col-md-7">
+    <div class="col col-12 col-md-7">
       {% include 'inc/sync_warning.html' %}
       <div class="card">
         {% include 'extras/inc/configcontext_data.html' with title="Data" data=object.data format=format copyid="data" %}
