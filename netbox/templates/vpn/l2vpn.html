@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     <div class="card">
       <h2 class="card-header">{% trans "L2VPN Attributes" %}</h2>
       <table class="table table-hover attr-table">
@@ -35,17 +35,17 @@
     {% include 'inc/panels/tags.html' with tags=object.tags.all url='vpn:l2vpn_list' %}
     {% plugin_left_page object %}
 	</div>
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
     </div>
 </div>
 <div class="row mb-3">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     {% include 'inc/panel_table.html' with table=import_targets_table heading="Import Route Targets" %}
   </div>
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     {% include 'inc/panel_table.html' with table=export_targets_table heading="Export Route Targets" %}
   </div>
 </div>

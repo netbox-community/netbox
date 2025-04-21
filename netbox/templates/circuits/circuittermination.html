@@ -10,7 +10,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col col-md-6">
+    <div class="col col-12 col-md-6">
 
       <div class="card">
             {% if object %}
@@ -37,7 +37,7 @@
       </div>
       {% plugin_left_page object %}
     </div>
-    <div class="col col-md-6">
+    <div class="col col-12 col-md-6">
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
       {% plugin_right_page object %}
