@@ -419,8 +419,6 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
-if not DEBUG:
-    INSTALLED_APPS.remove('debug_toolbar')
 
 # Middleware
 MIDDLEWARE = [

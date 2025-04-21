@@ -11,7 +11,7 @@ django-cors-headers
 # See: https://django-debug-toolbar.readthedocs.io/en/latest/changes.html#id1
 # "Wrap SHOW_TOOLBAR_CALLBACK function with sync_to_async or async_to_sync to allow sync/async
 # compatibility." breaks stawberry-graphql-django at version 0.52.0 (current)
-django-debug-toolbar==5.0.1
+django-debug-toolbar
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst

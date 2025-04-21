@@ -1,6 +1,6 @@
 Django==5.1.8
 django-cors-headers==4.7.0
-django-debug-toolbar==5.0.1
+django-debug-toolbar==5.1.0
 django-filter==25.1
 django-htmx==1.23.0
 django-graphiql-debug-toolbar==0.2.0
