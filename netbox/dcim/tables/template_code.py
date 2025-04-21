@@ -64,7 +64,7 @@ INTERFACE_IPADDRESSES = """
 
 INTERFACE_FHRPGROUPS = """
   {% for assignment in value.all %}
-    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
+    <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group }}</a>
   {% endfor %}
 """
 
