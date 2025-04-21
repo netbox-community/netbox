@@ -246,7 +246,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 
 * Create a Python virtual environment
 * Installs all required Python packages
-* Run database schema migrations
+* Run database schema migrations (skip with `--readonly`)
 * Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
@@ -265,6 +265,9 @@ sudo PYTHON=/usr/bin/python3.10 /opt/netbox/upgrade.sh
 
 !!! note
     Upon completion, the upgrade script may warn that no existing virtual environment was detected. As this is a new installation, this warning can be safely ignored.
+
+!!! note
+    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
 
 ## Create a Super User
 
