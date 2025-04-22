@@ -55,19 +55,23 @@ class ComponentCreateForm(forms.Form):
     def clean(self):
         super().clean()
 
-        # Validate that all replication fields generate an equal number of values
+        # Validate that all replication fields generate an equal number of values (or a single value)
         if not (patterns := self.cleaned_data.get(self.replication_fields[0])):
             return
-
         pattern_count = len(patterns)
         for field_name in self.replication_fields:
             value_count = len(self.cleaned_data[field_name])
-            if self.cleaned_data[field_name] and value_count != pattern_count:
-                raise forms.ValidationError({
-                    field_name: _(
-                        "The provided pattern specifies {value_count} values, but {pattern_count} are expected."
-                    ).format(value_count=value_count, pattern_count=pattern_count)
-                }, code='label_pattern_mismatch')
+            if self.cleaned_data[field_name]:
+                if value_count == 1:
+                    # If the field resolves to a single value (because no pattern was used), multiply it by the number
+                    # of expected values. This allows us to reuse the same label when creating multiple components.
+                    self.cleaned_data[field_name] = self.cleaned_data[field_name] * pattern_count
+                elif value_count != pattern_count:
+                    raise forms.ValidationError({
+                        field_name: _(
+                            "The provided pattern specifies {value_count} values, but {pattern_count} are expected."
+                        ).format(value_count=value_count, pattern_count=pattern_count)
+                    }, code='label_pattern_mismatch')
 
 
 #
@@ -404,6 +408,7 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
         query_params={
+            'virtual_chassis_id': 'null',
             'site_id': '$site',
             'rack_id': '$rack',
         }

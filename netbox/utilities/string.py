@@ -1,7 +1,15 @@
 __all__ = (
+    'remove_linebreaks',
     'title',
     'trailing_slash',
 )
+
+
+def remove_linebreaks(value):
+    """
+    Remove all line breaks from a string and return the result. Useful for log sanitization purposes.
+    """
+    return value.replace('\n', '').replace('\r', '')
 
 
 def title(value):

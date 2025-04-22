@@ -3,6 +3,9 @@
 {% load form_helpers %}
 {% load i18n %}
 
+{% for field in form.hidden_fields %}
+  {{ field }}
+{% endfor %}
 
 {# A side termination #}
 <div class="field-group mb-5">

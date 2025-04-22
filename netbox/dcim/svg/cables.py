@@ -225,8 +225,7 @@ class CableTraceSVG:
         """
         nodes_height = 0
         nodes = []
-        # Sort them by name to make renders more readable
-        for i, term in enumerate(sorted(terminations, key=lambda x: str(x))):
+        for i, term in enumerate(terminations):
             node = Node(
                 position=(offset_x + i * width, self.cursor),
                 width=width,
