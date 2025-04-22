@@ -1,5 +1,35 @@
 # NetBox v4.2
 
+## v4.2.8 (2025-04-22)
+
+### Enhancements
+
+* [#17136](https://github.com/netbox-community/netbox/issues/17136) - Introduce the `--readonly` flag on upgrade script
+* [#17908](https://github.com/netbox-community/netbox/issues/17908) - Add trace buttons to terminations under cable view
+* [#18879](https://github.com/netbox-community/netbox/issues/18879) - Enable filtering prefixes by group of assigned VLAN
+* [#18976](https://github.com/netbox-community/netbox/issues/18976) - Include FHRP group name on interface lists
+* [#18978](https://github.com/netbox-community/netbox/issues/18978) - Add 802.1Q mode to interface filter form
+* [#19038](https://github.com/netbox-community/netbox/issues/19038) - Show count of related VLAN groups under cluster view
+* [#19040](https://github.com/netbox-community/netbox/issues/19040) - Add "copy to clipboard" button for rendered config
+* [#19056](https://github.com/netbox-community/netbox/issues/19056) - Enable filtering devices by location slug
+* [#19196](https://github.com/netbox-community/netbox/issues/19196) - Add filtering by VLAN translation policy to interface filter forms
+
+### Bug Fixes
+
+* [#18500](https://github.com/netbox-community/netbox/issues/18500) - `prepare_cloned_fields()` should validate cloning support on model
+* [#18669](https://github.com/netbox-community/netbox/issues/18669) - Ensure default custom field values are respected when creating objects via the REST API
+* [#18881](https://github.com/netbox-community/netbox/issues/18881) - Include missing related object counts under certain views
+* [#18955](https://github.com/netbox-community/netbox/issues/18955) - Omit "clear" button on required choice fields
+* [#18959](https://github.com/netbox-community/netbox/issues/18959) - Preserve ordering of terminations in cable traces
+* [#18961](https://github.com/netbox-community/netbox/issues/18961) - Virtual chassis form should exclude members of other VCs when adding members
+* [#19166](https://github.com/netbox-community/netbox/issues/19166) - Fix custom field choices bulk import support for `base_choices`
+* [#19189](https://github.com/netbox-community/netbox/issues/19189) - The `load_yaml()` convenience method on BaseScript should use SafeLoader
+* [#19195](https://github.com/netbox-community/netbox/issues/19195) - Language cookie should respect `SESSION_COOKIE_SECURE` value
+* [#19230](https://github.com/netbox-community/netbox/issues/19230) - Allow label reuse when creating multiple components from a pattern
+* [#19268](https://github.com/netbox-community/netbox/issues/19268) - Restore editing conflict protection for several object forms
+
+---
+
 ## v4.2.7 (2025-04-10)
 
 ### Enhancements

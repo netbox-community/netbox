@@ -47,7 +47,12 @@ class CoreMiddleware:
         # Check if language cookie should be renewed
         if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
             if language := request.user.config.get('locale.language'):
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+                response.set_cookie(
+                    key=settings.LANGUAGE_COOKIE_NAME,
+                    value=language,
+                    max_age=request.session.get_expiry_age(),
+                    secure=settings.SESSION_COOKIE_SECURE,
+                )
 
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id

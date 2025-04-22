@@ -9,8 +9,7 @@ const options = {
   outdir: './dist',
   bundle: true,
   minify: true,
-  sourcemap: 'external',
-  sourcesContent: false,
+  sourcemap: 'linked',
   logLevel: 'error',
 };
 

@@ -606,6 +606,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=100,
                 vrf=vrfs[0],
                 description='foobar1',
+                mode=InterfaceModeChoices.MODE_ACCESS,
                 vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
@@ -615,6 +616,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=200,
                 vrf=vrfs[1],
                 description='foobar2',
+                mode=InterfaceModeChoices.MODE_TAGGED,
                 vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
@@ -699,6 +701,10 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mode(self):
+        params = {'mode': [InterfaceModeChoices.MODE_ACCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_vlan(self):
         vlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()

@@ -150,7 +150,7 @@ This will automatically update the schema file at `contrib/generated_schema.json
 Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. First, retrieve any updated translation files using the Transifex CLI client:
 
 ```no-highlight
-tx pull
+tx pull --force
 ```
 
 Then, compile these portable (`.po`) files for use in the application:

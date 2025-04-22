@@ -645,9 +645,16 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         vrfs[1].export_targets.add(route_targets[1])
         vrfs[2].export_targets.add(route_targets[2])
 
+        vlan_groups = (
+            VLANGroup(name='VLAN Group 1', slug='vlan-group-1'),
+            VLANGroup(name='VLAN Group 2', slug='vlan-group-2'),
+        )
+        for vlan_group in vlan_groups:
+            vlan_group.save()
+
         vlans = (
-            VLAN(vid=1, name='VLAN 1'),
-            VLAN(vid=2, name='VLAN 2'),
+            VLAN(vid=1, name='VLAN 1', group=vlan_groups[0]),
+            VLAN(vid=2, name='VLAN 2', group=vlan_groups[1]),
             VLAN(vid=3, name='VLAN 3'),
         )
         VLAN.objects.bulk_create(vlans)
@@ -848,6 +855,13 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_vlan_group(self):
+        vlan_groups = VLANGroup.objects.all()[:2]
+        params = {'vlan_group_id': [vlan_groups[0].pk, vlan_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'vlan_group': [vlan_groups[0].slug, vlan_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_vlan(self):

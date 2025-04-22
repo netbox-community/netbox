@@ -96,7 +96,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
     class Meta:
         model = CustomFieldChoiceSet
         fields = (
-            'name', 'description', 'extra_choices', 'order_alphabetically',
+            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
         )
 
     def clean_extra_choices(self):
