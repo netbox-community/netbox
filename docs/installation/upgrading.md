@@ -154,6 +154,9 @@ sudo ./upgrade.sh
     sudo PYTHON=/usr/bin/python3.10 ./upgrade.sh
     ```
 
+!!! note
+    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
+
 This script performs the following actions:
 
 * Destroys and rebuilds the Python virtual environment
