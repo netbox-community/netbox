@@ -18,6 +18,7 @@ from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import IntegerArrayLookup, IntegerLookup
+    from circuits.graphql.filters import ProviderFilter
     from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import SiteFilter
     from vpn.graphql.filters import L2VPNFilter
@@ -52,6 +53,12 @@ class ASNFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     asn: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    sites: (
+        Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None
+    ) = strawberry_django.filter_field()
+    providers: (
+        Annotated['ProviderFilter', strawberry.lazy('circuits.graphql.filters')] | None
+    ) = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.ASNRange, lookups=True)
@@ -211,12 +218,24 @@ class RoleFilter(OrganizationalModelFilterMixin):
 @strawberry_django.filter(models.RouteTarget, lookups=True)
 class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
+    importing_vrfs: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    exporting_vrfs: Annotated['VRFFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    importing_l2vpns: Annotated['L2VPNFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    exporting_l2vpns: Annotated['L2VPNFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter(models.Service, lookups=True)
 class ServiceFilter(ContactFilterMixin, ServiceBaseFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
-    ipaddresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
+    ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
     parent_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
@@ -249,10 +268,9 @@ class VLANFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     qinq_svlan_id: ID | None = strawberry_django.filter_field()
-    qinq_cvlan: Annotated['VLANFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
+    qinq_cvlans: Annotated['VLANFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    qinq_cvlan_id: ID | None = strawberry_django.filter_field()
     qinq_role: Annotated['VLANQinQRoleEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )

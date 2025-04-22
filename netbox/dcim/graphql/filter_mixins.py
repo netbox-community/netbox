@@ -97,10 +97,6 @@ class InterfaceBaseFilterMixin(BaseFilterMixin):
         strawberry_django.filter_field()
     )
     mode: InterfaceModeEnum | None = strawberry_django.filter_field()
-    parent: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    parent_id: ID | None = strawberry_django.filter_field()
     bridge: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -133,6 +129,9 @@ class RackBaseFilterMixin(WeightFilterMixin, PrimaryModelFilterMixin):
     )
     desc_units: FilterLookup[bool] | None = strawberry_django.filter_field()
     outer_width: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    outer_height: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     outer_depth: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
