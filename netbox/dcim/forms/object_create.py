@@ -408,6 +408,7 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
         query_params={
+            'virtual_chassis_id': 'null',
             'site_id': '$site',
             'rack_id': '$rack',
         }
