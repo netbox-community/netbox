@@ -309,8 +309,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
-    address = tables.Column(
-        linkify=True,
+    address = tables.TemplateColumn(
+        template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
