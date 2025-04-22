@@ -1,6 +1,6 @@
 {
   "name": "netbox",
-  "version": "4.1.0",
+  "version": "4.2.8",
   "main": "dist/netbox.js",
   "license": "Apache-2.0",
   "private": true,
@@ -24,13 +24,13 @@
   "dependencies": {
     "@mdi/font": "7.4.47",
     "@tabler/core": "1.0.0-beta21",
-    "bootstrap": "5.3.3",
+    "bootstrap": "5.3.5",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
     "gridstack": "11.5.0",
     "htmx.org": "1.9.12",
     "query-string": "9.1.1",
-    "sass": "1.86.0",
+    "sass": "1.87.0",
     "tom-select": "2.4.3",
     "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"
