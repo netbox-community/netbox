@@ -28,6 +28,7 @@ from netbox.config import get_config
 from netbox.views import generic
 from users import forms, tables
 from users.models import UserConfig
+from utilities.string import remove_linebreaks
 from utilities.views import register_model_view
 
 
@@ -133,7 +134,8 @@ class LoginView(View):
             return response
 
         else:
-            logger.debug(f"Login form validation failed for username: {form['username'].value()}")
+            username = form['username'].value()
+            logger.debug(f"Login form validation failed for username: {remove_linebreaks(username)}")
 
         return render(request, self.template_name, {
             'form': form,
@@ -145,10 +147,10 @@ class LoginView(View):
         redirect_url = data.get('next', settings.LOGIN_REDIRECT_URL)
 
         if redirect_url and url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
-            logger.debug(f"Redirecting user to {redirect_url}")
+            logger.debug(f"Redirecting user to {remove_linebreaks(redirect_url)}")
         else:
             if redirect_url:
-                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {redirect_url}")
+                logger.warning(f"Ignoring unsafe 'next' URL passed to login form: {remove_linebreaks(redirect_url)}")
             redirect_url = reverse('home')
 
         return HttpResponseRedirect(redirect_url)
