@@ -1,14 +1,31 @@
+from django.apps import apps
+from django.db.models import Q
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from netbox.registry import registry
 
 __all__ = (
+    'get_table_configs',
     'get_table_for_model',
     'get_table_ordering',
     'linkify_phone',
     'register_table_column'
 )
+
+
+def get_table_configs(table, user):
+    """
+    Return any available TableConfigs applicable to the given table & user.
+    """
+    TableConfig = apps.get_model('extras', 'TableConfig')
+    return TableConfig.objects.filter(
+        Q(shared=True) | Q(user=user if user.is_authenticated else None),
+        object_type=ObjectType.objects.get_for_model(table.Meta.model),
+        table=table.name,
+        enabled=True,
+    )
 
 
 def get_table_for_model(model, name=None):
