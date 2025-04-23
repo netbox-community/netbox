@@ -72,10 +72,6 @@ span.color-label {
   @extend .btn-dark;
 }
 
-.btn-grey {
-  @extend .btn-secondary;
-}
-
-.btn-gray {
+.btn-grey, .btn-gray {
   @extend .btn-secondary;
 }
