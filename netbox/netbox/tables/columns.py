@@ -260,11 +260,15 @@ class ActionsColumn(tables.Column):
         return ''
 
     def render(self, record, table, **kwargs):
-        # Skip dummy records (e.g. available VLANs) or those with no actions
-        if not getattr(record, 'pk', None) or not (self.actions or self.extra_buttons):
+        model = table.Meta.model
+
+        # Skip if no actions or extra buttons are defined
+        if not (self.actions or self.extra_buttons):
+            return ''
+        # Skip dummy records (e.g. available VLANs or IP ranges replacing individual IPs)
+        if type(record) is not model or not getattr(record, 'pk', None):
             return ''
 
-        model = table.Meta.model
         if request := getattr(table, 'context', {}).get('request'):
             return_url = request.GET.get('return_url', request.get_full_path())
             url_appendix = f'?return_url={quote(return_url)}'
