@@ -3,6 +3,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
+from extras.choices import CustomLinkButtonClassChoices
 from extras.models import CustomLink
 from netbox.choices import ButtonColorChoices
 
@@ -27,6 +28,22 @@ GROUP_BUTTON = """
 """
 
 GROUP_LINK = '<li><a class="dropdown-item" href="{}"{}>{}</a></li>\n'
+
+
+def map_button_class(button_color):
+    if button_color == ButtonColorChoices.DEFAULT:
+        return 'outline-secondary'
+    elif button_color == ButtonColorChoices.WHITE:
+        return 'light'
+    elif button_color == ButtonColorChoices.BLACK:
+        return 'dark'
+    elif button_color == ButtonColorChoices.GRAY or button_color == ButtonColorChoices.GREY:
+        return 'secondary'
+    elif button_color == CustomLinkButtonClassChoices.LINK:
+        # note: using ghost-secondary as ghost-dark doesn't display in dark mode
+        # with current tabler version.
+        return 'ghost-secondary'
+    return button_color
 
 
 @register.simple_tag(takes_context=True)
@@ -64,7 +81,7 @@ def custom_links(context, obj):
             try:
                 if rendered := cl.render(link_context):
                     template_code += LINK_BUTTON.format(
-                        rendered['link'], rendered['link_target'], button_class, rendered['text']
+                        rendered['link'], rendered['link_target'], map_button_class(button_class), rendered['text']
                     )
             except Exception as e:
                 template_code += f'<a class="btn btn-sm btn-outline-secondary" disabled="disabled" title="{e}">' \
@@ -89,7 +106,7 @@ def custom_links(context, obj):
 
         if links_rendered:
             template_code += GROUP_BUTTON.format(
-                links[0].button_class, escape(group), ''.join(links_rendered)
+                map_button_class(links[0].button_class), escape(group), ''.join(links_rendered)
             )
 
     return mark_safe(template_code)
