@@ -25,18 +25,23 @@ PREFIX_LINK_WITH_DEPTH = """
 {% endif %}
 """ + PREFIX_LINK
 
+# Annotate the ID of each IP address for copy-to-clipboard functionality
 IPADDRESS_LINK = """
-{% if record.address or record.start_address %}
-    <a href="{{ record.get_absolute_url }}">{{ record }}</a>
+{% if record.address %}
+  <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk}}">{{ record }}</a>
+{% elif record.start_address %}
+  <a href="{{ record.get_absolute_url }}">{{ record }}</a>
 {% elif perms.ipam.add_ipaddress %}
-    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{{ record.title }}</a>
+  <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{{ record.title }}</a>
 {% else %}
-    {{ record.title }}
+  {{ record.title }}
 {% endif %}
 """
 
 IPADDRESS_COPY_BUTTON = """
-{% copy_content record.pk prefix="ipaddress_" %}
+{% if record.address %}
+  {% copy_content record.pk prefix="ipaddress_" %}
+{% endif %}
 """
 
 IPADDRESS_ASSIGN_LINK = """
