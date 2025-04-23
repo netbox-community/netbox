@@ -123,7 +123,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         ordered = [
             script_objects.pop(sc) for sc in self.module_scripts.keys() if sc in script_objects
         ]
-        ordered.extend(script_objects.items())
+        ordered.extend(script_objects.values())
         return ordered
 
     @property
