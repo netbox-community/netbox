@@ -5,6 +5,7 @@ import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.urls import reverse
@@ -90,8 +91,9 @@ class Job(models.Model):
     )
     data = models.JSONField(
         verbose_name=_('data'),
+        encoder=DjangoJSONEncoder,
         null=True,
-        blank=True
+        blank=True,
     )
     error = models.TextField(
         verbose_name=_('error'),
