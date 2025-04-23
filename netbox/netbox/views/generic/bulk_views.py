@@ -7,7 +7,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError, Q, RestrictedError
+from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
@@ -21,7 +21,7 @@ from mptt.models import MPTTModel
 from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
-from extras.models import CustomField, ExportTemplate, TableConfig
+from extras.models import CustomField, ExportTemplate
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -29,6 +29,7 @@ from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
+from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -140,15 +141,6 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         model = self.queryset.model
         object_type = ObjectType.objects.get_for_model(model)
 
-        # If a TableConfig has been specified, apply it & update the user's saved preference
-        if tableconfig_id := request.GET.get('tableconfig_id'):
-            tableconfig = get_object_or_404(TableConfig, pk=tableconfig_id)
-            if request.user.is_authenticated:
-                table = self.table.__name__
-                request.user.config.set(f'tables.{table}.columns', tableconfig.columns)
-                request.user.config.set(f'tables.{table}.ordering', tableconfig.ordering, commit=True)
-            return redirect(request.path)
-
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset, request=request).qs
 
@@ -184,14 +176,6 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # Render the objects table
         table = self.get_table(self.queryset, request, has_bulk_actions)
 
-        # Retrieve available configurations for the table
-        table_configs = TableConfig.objects.filter(
-            Q(shared=True) | Q(user=request.user if request.user.is_authenticated else None),
-            object_type=object_type,
-            table=table.name,
-            enabled=True,
-        )
-
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
             if request.GET.get('embedded', False):
@@ -208,7 +192,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         context = {
             'model': model,
             'table': table,
-            'table_configs': table_configs,
+            'table_configs': get_table_configs(table, request.user),
             'actions': actions,
             'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
             'prerequisite_model': get_prerequisite_model(self.queryset),

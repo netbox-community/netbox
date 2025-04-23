@@ -1,3 +1,6 @@
+from django.shortcuts import get_object_or_404
+
+from extras.models import TableConfig
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from utilities.permissions import get_permission_for_model
 
@@ -47,6 +50,15 @@ class TableMixin:
             request: The current request
             bulk_actions: Render checkboxes for object selection
         """
+
+        # If a TableConfig has been specified, apply it & update the user's saved preference
+        if tableconfig_id := request.GET.get('tableconfig_id'):
+            tableconfig = get_object_or_404(TableConfig, pk=tableconfig_id)
+            if request.user.is_authenticated:
+                table = self.table.__name__
+                request.user.config.set(f'tables.{table}.columns', tableconfig.columns)
+                request.user.config.set(f'tables.{table}.ordering', tableconfig.ordering, commit=True)
+
         table = self.table(data, user=request.user)
         if 'pk' in table.base_columns and bulk_actions:
             table.columns.show('pk')
