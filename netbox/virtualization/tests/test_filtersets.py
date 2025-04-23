@@ -525,14 +525,22 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = IPAddress.objects.filter(address__family=4)
         params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip4': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_primary_ip6(self):
         addresses = IPAddress.objects.filter(address__family=6)
         params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip6': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_serial_number(self):
