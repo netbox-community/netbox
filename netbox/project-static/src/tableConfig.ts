@@ -80,7 +80,8 @@ function handleSubmit(event: Event): void {
         const toast = createToast('danger', 'Error Resetting Table Configuration', res.error);
         toast.show();
       } else {
-        location.reload();
+        // Strip any URL query parameters & reload the page
+        window.location.href = window.location.origin + window.location.pathname;
       }
     });
     return;
