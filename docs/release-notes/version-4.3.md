@@ -1,4 +1,4 @@
-## v4.3.0-beta1 (2025-04-14)
+## v4.3.0-beta2 (2025-04-23)
 
 ### Breaking Changes
 
@@ -66,6 +66,15 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#17857](https://github.com/netbox-community/netbox/issues/17857) - Added a `release_track` attribute to PluginConfig
 * [#18305](https://github.com/netbox-community/netbox/issues/18305) - Introduce plugin support for ContactsMixin
 * [#19073](https://github.com/netbox-community/netbox/issues/19073) - Allow installed plugins to be omitted from the plugins list
+
+### Bug Fixes (From beta1)
+
+* [#19213](https://github.com/netbox-community/netbox/issues/19213) - Fix rendering of dropdown selection form fields
+* [#19224](https://github.com/netbox-community/netbox/issues/19224) - Fix GraphQL API support for custom field choices
+* [#19225](https://github.com/netbox-community/netbox/issues/19225) - Restore missing GraphQL API filters
+* [#19263](https://github.com/netbox-community/netbox/issues/19263) - Render action buttons only if the record model matches the table model
+* [#19264](https://github.com/netbox-community/netbox/issues/19264) - Support table configs on child object list views
+* [#19266](https://github.com/netbox-community/netbox/issues/19266) - Fix copy-to-clipboard button for IP addresses
 
 ### Other Changes
 

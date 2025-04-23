@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 05:01+0000\n"
+"POT-Creation-Date: 2025-04-23 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Polish (https://app.transifex.com/netbox-community/teams/178115/pl/)\n"
@@ -67,26 +67,26 @@ msgstr "Ostatnio używane"
 msgid "Allowed IPs"
 msgstr "Dozwolone adresy IP"
 
-#: netbox/account/views.py:114
+#: netbox/account/views.py:115
 #, python-brace-format
 msgid "Logged in as {user}."
 msgstr "Zaloguj się jako {user}."
 
-#: netbox/account/views.py:169
+#: netbox/account/views.py:171
 msgid "You have logged out."
 msgstr "Wylogowałeś się."
 
-#: netbox/account/views.py:221
+#: netbox/account/views.py:223
 msgid "Your preferences have been updated."
 msgstr "Twoje preferencje zostały zaktualizowane."
 
-#: netbox/account/views.py:249
+#: netbox/account/views.py:251
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
 "Poświadczenia użytkownika uwierzytelnionego LDAP nie mogą być zmieniane w "
 "NetBox."
 
-#: netbox/account/views.py:264
+#: netbox/account/views.py:266
 msgid "Your password has been changed successfully."
 msgstr "Twoje hasło zostało pomyślnie zmienione."
 
@@ -229,7 +229,7 @@ msgstr "Grupa terenów (identyfikator)"
 #: netbox/dcim/forms/filtersets.py:1681 netbox/dcim/forms/model_forms.py:141
 #: netbox/dcim/forms/model_forms.py:169 netbox/dcim/forms/model_forms.py:243
 #: netbox/dcim/forms/model_forms.py:473 netbox/dcim/forms/model_forms.py:734
-#: netbox/dcim/forms/object_create.py:385 netbox/dcim/tables/devices.py:163
+#: netbox/dcim/forms/object_create.py:389 netbox/dcim/tables/devices.py:163
 #: netbox/dcim/tables/power.py:26 netbox/dcim/tables/power.py:93
 #: netbox/dcim/tables/racks.py:121 netbox/dcim/tables/racks.py:206
 #: netbox/dcim/tables/sites.py:133 netbox/extras/filtersets.py:525
@@ -244,7 +244,7 @@ msgstr "Grupa terenów (identyfikator)"
 #: netbox/templates/dcim/powerpanel.html:22 netbox/templates/dcim/rack.html:20
 #: netbox/templates/dcim/rackreservation.html:28
 #: netbox/templates/dcim/site.html:28 netbox/templates/ipam/vlan.html:23
-#: netbox/templates/ipam/vlan_edit.html:48
+#: netbox/templates/ipam/vlan_edit.html:52
 #: netbox/templates/virtualization/virtualmachine.html:95
 #: netbox/virtualization/forms/bulk_edit.py:106
 #: netbox/virtualization/forms/bulk_import.py:60
@@ -996,10 +996,10 @@ msgstr "Atrybuty"
 #: netbox/ipam/forms/model_forms.py:166 netbox/ipam/forms/model_forms.py:233
 #: netbox/ipam/forms/model_forms.py:271 netbox/ipam/forms/model_forms.py:330
 #: netbox/netbox/navigation/menu.py:24
-#: netbox/templates/dcim/device_edit.html:85
-#: netbox/templates/dcim/htmx/cable_edit.html:72
+#: netbox/templates/dcim/device_edit.html:87
+#: netbox/templates/dcim/htmx/cable_edit.html:75
 #: netbox/templates/ipam/ipaddress_bulk_add.html:27
-#: netbox/templates/ipam/vlan_edit.html:30
+#: netbox/templates/ipam/vlan_edit.html:34
 #: netbox/virtualization/forms/model_forms.py:80
 #: netbox/virtualization/forms/model_forms.py:229
 #: netbox/vpn/forms/bulk_edit.py:78 netbox/vpn/forms/filtersets.py:48
@@ -1062,7 +1062,7 @@ msgstr "Szczegóły wypowiedzenia"
 #: netbox/templates/circuits/circuitgroupassignment.html:34
 #: netbox/templates/dcim/device.html:133
 #: netbox/templates/dcim/virtualchassis.html:68
-#: netbox/templates/dcim/virtualchassis_edit.html:56
+#: netbox/templates/dcim/virtualchassis_edit.html:60
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:26
 #: netbox/tenancy/forms/bulk_edit.py:148
 #: netbox/tenancy/forms/filtersets.py:110
@@ -1266,7 +1266,7 @@ msgstr "Interfejs"
 #: netbox/ipam/forms/filtersets.py:241 netbox/ipam/forms/filtersets.py:431
 #: netbox/ipam/forms/filtersets.py:454 netbox/ipam/forms/filtersets.py:521
 #: netbox/templates/dcim/device.html:26
-#: netbox/templates/dcim/device_edit.html:30
+#: netbox/templates/dcim/device_edit.html:32
 #: netbox/templates/dcim/inc/cable_termination.html:12
 #: netbox/templates/dcim/location.html:26
 #: netbox/templates/dcim/powerpanel.html:26 netbox/templates/dcim/rack.html:24
@@ -1311,7 +1311,7 @@ msgstr "Łączność"
 #: netbox/dcim/forms/filtersets.py:1014 netbox/dcim/forms/filtersets.py:1098
 #: netbox/dcim/forms/filtersets.py:1137 netbox/dcim/forms/filtersets.py:1625
 #: netbox/dcim/forms/filtersets.py:1649 netbox/dcim/forms/filtersets.py:1673
-#: netbox/dcim/forms/model_forms.py:114 netbox/dcim/forms/object_create.py:369
+#: netbox/dcim/forms/model_forms.py:114 netbox/dcim/forms/object_create.py:373
 #: netbox/dcim/tables/devices.py:153 netbox/dcim/tables/sites.py:85
 #: netbox/extras/filtersets.py:503 netbox/ipam/forms/bulk_edit.py:458
 #: netbox/ipam/forms/filtersets.py:226 netbox/ipam/forms/filtersets.py:439
@@ -1335,7 +1335,7 @@ msgstr "Region"
 #: netbox/dcim/forms/filtersets.py:348 netbox/dcim/forms/filtersets.py:431
 #: netbox/dcim/forms/filtersets.py:745 netbox/dcim/forms/filtersets.py:989
 #: netbox/dcim/forms/filtersets.py:1103 netbox/dcim/forms/filtersets.py:1142
-#: netbox/dcim/forms/object_create.py:377 netbox/extras/filtersets.py:520
+#: netbox/dcim/forms/object_create.py:381 netbox/extras/filtersets.py:520
 #: netbox/ipam/forms/bulk_edit.py:463 netbox/ipam/forms/filtersets.py:156
 #: netbox/ipam/forms/filtersets.py:231 netbox/ipam/forms/filtersets.py:444
 #: netbox/ipam/forms/filtersets.py:535
@@ -1366,7 +1366,7 @@ msgstr "Strona terminowa"
 #: netbox/templates/dcim/macaddress.html:25
 #: netbox/templates/extras/configcontext.html:60
 #: netbox/templates/ipam/ipaddress.html:59
-#: netbox/templates/ipam/vlan_edit.html:38
+#: netbox/templates/ipam/vlan_edit.html:42
 #: netbox/tenancy/forms/filtersets.py:87 netbox/users/forms/model_forms.py:314
 msgid "Assignment"
 msgstr "Zlecenie"
@@ -1877,7 +1877,7 @@ msgstr "Współczynnik zatwierdzania"
 #: netbox/ipam/tables/ip.py:349 netbox/ipam/tables/services.py:24
 #: netbox/ipam/tables/services.py:54 netbox/ipam/tables/vlans.py:121
 #: netbox/ipam/tables/vrfs.py:47 netbox/ipam/tables/vrfs.py:72
-#: netbox/templates/dcim/htmx/cable_edit.html:89
+#: netbox/templates/dcim/htmx/cable_edit.html:92
 #: netbox/templates/generic/bulk_edit.html:86
 #: netbox/templates/inc/panels/comments.html:5
 #: netbox/tenancy/tables/contacts.py:68 netbox/tenancy/tables/tenants.py:46
@@ -1964,7 +1964,7 @@ msgstr "Zakończenia"
 #: netbox/dcim/forms/model_forms.py:644 netbox/dcim/forms/model_forms.py:861
 #: netbox/dcim/forms/model_forms.py:1231 netbox/dcim/forms/model_forms.py:1716
 #: netbox/dcim/forms/model_forms.py:1787
-#: netbox/dcim/forms/object_create.py:250 netbox/dcim/tables/connections.py:22
+#: netbox/dcim/forms/object_create.py:254 netbox/dcim/tables/connections.py:22
 #: netbox/dcim/tables/connections.py:41 netbox/dcim/tables/connections.py:60
 #: netbox/dcim/tables/devices.py:295 netbox/dcim/tables/devices.py:380
 #: netbox/dcim/tables/devices.py:421 netbox/dcim/tables/devices.py:463
@@ -1981,7 +1981,7 @@ msgstr "Zakończenia"
 #: netbox/templates/dcim/consoleport.html:20
 #: netbox/templates/dcim/consoleserverport.html:20
 #: netbox/templates/dcim/device.html:15 netbox/templates/dcim/device.html:130
-#: netbox/templates/dcim/device_edit.html:10
+#: netbox/templates/dcim/device_edit.html:12
 #: netbox/templates/dcim/devicebay.html:20
 #: netbox/templates/dcim/devicebay.html:48
 #: netbox/templates/dcim/frontport.html:20
@@ -1994,7 +1994,7 @@ msgstr "Zakończenia"
 #: netbox/templates/dcim/powerport.html:20
 #: netbox/templates/dcim/rearport.html:20
 #: netbox/templates/dcim/virtualchassis.html:65
-#: netbox/templates/dcim/virtualchassis_edit.html:51
+#: netbox/templates/dcim/virtualchassis_edit.html:55
 #: netbox/templates/dcim/virtualdevicecontext.html:22
 #: netbox/templates/virtualization/virtualmachine.html:114
 #: netbox/templates/vpn/tunneltermination.html:23
@@ -2790,7 +2790,7 @@ msgstr "Ostatnia aktualizacja"
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:216
 #: netbox/extras/tables/tables.py:460 netbox/netbox/tables/tables.py:192
-#: netbox/templates/dcim/virtualchassis_edit.html:52
+#: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:73
 #: netbox/wireless/tables/wirelesslink.py:16
 msgid "ID"
@@ -3253,7 +3253,7 @@ msgstr "Komórkowy"
 #: netbox/dcim/forms/filtersets.py:810 netbox/dcim/forms/filtersets.py:964
 #: netbox/dcim/forms/filtersets.py:1558
 #: netbox/templates/dcim/inventoryitem.html:56
-#: netbox/templates/dcim/virtualchassis_edit.html:54
+#: netbox/templates/dcim/virtualchassis_edit.html:58
 msgid "Serial"
 msgstr "Seryjny"
 
@@ -3292,7 +3292,7 @@ msgstr "Oznaczone"
 msgid "Tagged (All)"
 msgstr "Oznaczone (Wszystkie)"
 
-#: netbox/dcim/choices.py:1271 netbox/templates/ipam/vlan_edit.html:22
+#: netbox/dcim/choices.py:1271 netbox/templates/ipam/vlan_edit.html:26
 msgid "Q-in-Q (802.1ad)"
 msgstr "Q w Q (802.1ad)"
 
@@ -3694,10 +3694,10 @@ msgstr "Wirtualne podwozie (ID)"
 #: netbox/dcim/filtersets.py:1473 netbox/dcim/forms/filtersets.py:110
 #: netbox/dcim/tables/devices.py:216 netbox/netbox/navigation/menu.py:79
 #: netbox/templates/dcim/device.html:120
-#: netbox/templates/dcim/device_edit.html:93
+#: netbox/templates/dcim/device_edit.html:95
 #: netbox/templates/dcim/virtualchassis.html:20
-#: netbox/templates/dcim/virtualchassis_add.html:8
-#: netbox/templates/dcim/virtualchassis_edit.html:24
+#: netbox/templates/dcim/virtualchassis_add.html:12
+#: netbox/templates/dcim/virtualchassis_edit.html:28
 msgid "Virtual Chassis"
 msgstr "Wirtualne podwozie"
 
@@ -3943,13 +3943,13 @@ msgstr "Tagi"
 
 #: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1514
 #: netbox/dcim/forms/model_forms.py:498 netbox/dcim/forms/model_forms.py:557
-#: netbox/dcim/forms/object_create.py:198
-#: netbox/dcim/forms/object_create.py:347 netbox/dcim/tables/devices.py:175
+#: netbox/dcim/forms/object_create.py:202
+#: netbox/dcim/forms/object_create.py:351 netbox/dcim/tables/devices.py:175
 #: netbox/dcim/tables/devices.py:740 netbox/dcim/tables/devicetypes.py:253
 #: netbox/templates/dcim/device.html:43 netbox/templates/dcim/device.html:131
 #: netbox/templates/dcim/modulebay.html:38
 #: netbox/templates/dcim/virtualchassis.html:66
-#: netbox/templates/dcim/virtualchassis_edit.html:55
+#: netbox/templates/dcim/virtualchassis_edit.html:59
 msgid "Position"
 msgstr "Pozycja"
 
@@ -4154,7 +4154,7 @@ msgstr "Przepływ powietrza"
 #: netbox/dcim/forms/filtersets.py:773 netbox/dcim/forms/filtersets.py:1036
 #: netbox/dcim/forms/filtersets.py:1168 netbox/dcim/forms/model_forms.py:271
 #: netbox/dcim/forms/model_forms.py:314 netbox/dcim/forms/model_forms.py:489
-#: netbox/dcim/forms/model_forms.py:767 netbox/dcim/forms/object_create.py:394
+#: netbox/dcim/forms/model_forms.py:767 netbox/dcim/forms/object_create.py:398
 #: netbox/dcim/tables/devices.py:171 netbox/dcim/tables/power.py:70
 #: netbox/dcim/tables/racks.py:216 netbox/ipam/forms/filtersets.py:459
 #: netbox/templates/dcim/device.html:30
@@ -4172,7 +4172,7 @@ msgstr "Szafa"
 #: netbox/dcim/forms/filtersets.py:482 netbox/dcim/forms/filtersets.py:609
 #: netbox/dcim/forms/filtersets.py:722 netbox/dcim/forms/filtersets.py:943
 #: netbox/dcim/forms/model_forms.py:681 netbox/dcim/forms/model_forms.py:1632
-#: netbox/templates/dcim/device_edit.html:20
+#: netbox/templates/dcim/device_edit.html:22
 msgid "Hardware"
 msgstr "Sprzęt"
 
@@ -4290,7 +4290,7 @@ msgid "Configuration"
 msgstr "Konfiguracja"
 
 #: netbox/dcim/forms/bulk_edit.py:749 netbox/netbox/navigation/menu.py:251
-#: netbox/templates/dcim/device_edit.html:78
+#: netbox/templates/dcim/device_edit.html:80
 msgid "Virtualization"
 msgstr "Wirtualizacja"
 
@@ -5273,7 +5273,7 @@ msgstr "Moc transmisji (dBm)"
 #: netbox/dcim/tables/devices.py:336 netbox/templates/dcim/cable.html:12
 #: netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/frontport.html:77
-#: netbox/templates/dcim/htmx/cable_edit.html:50
+#: netbox/templates/dcim/htmx/cable_edit.html:53
 #: netbox/templates/dcim/inc/connection_endpoints.html:4
 #: netbox/templates/dcim/rearport.html:73
 #: netbox/templates/dcim/trace/cable.html:7
@@ -5563,8 +5563,8 @@ msgid "A MAC address can only be assigned to a single object."
 msgstr "Adres MAC można przypisać tylko do jednego obiektu."
 
 #: netbox/dcim/forms/object_create.py:48
-#: netbox/dcim/forms/object_create.py:200
-#: netbox/dcim/forms/object_create.py:349
+#: netbox/dcim/forms/object_create.py:204
+#: netbox/dcim/forms/object_create.py:353
 msgid ""
 "Alphanumeric ranges are supported. (Must match the number of objects being "
 "created.)"
@@ -5572,7 +5572,7 @@ msgstr ""
 "Obsługiwane są zakresy alfanumeryczne. (Muszą odpowiadać liczbie tworzonych "
 "obiektów.)"
 
-#: netbox/dcim/forms/object_create.py:68
+#: netbox/dcim/forms/object_create.py:72
 #, python-brace-format
 msgid ""
 "The provided pattern specifies {value_count} values, but {pattern_count} are"
@@ -5581,19 +5581,19 @@ msgstr ""
 "Podany wzór określa {value_count} wartości, ale {pattern_count} są "
 "oczekiwane."
 
-#: netbox/dcim/forms/object_create.py:110
-#: netbox/dcim/forms/object_create.py:264 netbox/dcim/tables/devices.py:262
+#: netbox/dcim/forms/object_create.py:114
+#: netbox/dcim/forms/object_create.py:268 netbox/dcim/tables/devices.py:262
 msgid "Rear ports"
 msgstr "Tylne porty"
 
-#: netbox/dcim/forms/object_create.py:111
-#: netbox/dcim/forms/object_create.py:265
+#: netbox/dcim/forms/object_create.py:115
+#: netbox/dcim/forms/object_create.py:269
 msgid "Select one rear port assignment for each front port being created."
 msgstr ""
 "Wybierz jedno przypisanie portu tylnego dla każdego tworzonego portu "
 "przedniego."
 
-#: netbox/dcim/forms/object_create.py:165
+#: netbox/dcim/forms/object_create.py:169
 #, python-brace-format
 msgid ""
 "The number of front port templates to be created ({frontport_count}) must "
@@ -5602,7 +5602,7 @@ msgstr ""
 "Liczba szablonów portów przednich do utworzenia ({frontport_count}) musi "
 "odpowiadać wybranej liczbie pozycji tylnych portów ({rearport_count})."
 
-#: netbox/dcim/forms/object_create.py:314
+#: netbox/dcim/forms/object_create.py:318
 #, python-brace-format
 msgid ""
 "The number of front ports to be created ({frontport_count}) must match the "
@@ -5611,18 +5611,18 @@ msgstr ""
 "Liczba portów przednich do utworzenia ({frontport_count}) musi odpowiadać "
 "wybranej liczbie pozycji tylnych portów ({rearport_count})."
 
-#: netbox/dcim/forms/object_create.py:403 netbox/dcim/tables/devices.py:1064
+#: netbox/dcim/forms/object_create.py:407 netbox/dcim/tables/devices.py:1064
 #: netbox/ipam/tables/fhrp.py:31 netbox/templates/dcim/virtualchassis.html:53
-#: netbox/templates/dcim/virtualchassis_edit.html:47
+#: netbox/templates/dcim/virtualchassis_edit.html:51
 #: netbox/templates/ipam/fhrpgroup.html:38
 msgid "Members"
 msgstr "Członkowie"
 
-#: netbox/dcim/forms/object_create.py:412
+#: netbox/dcim/forms/object_create.py:417
 msgid "Initial position"
 msgstr "Pozycja początkowa"
 
-#: netbox/dcim/forms/object_create.py:415
+#: netbox/dcim/forms/object_create.py:420
 msgid ""
 "Position of the first member device. Increases by one for each additional "
 "member."
@@ -5630,7 +5630,7 @@ msgstr ""
 "Położenie pierwszego urządzenia członkowskiego. Zwiększa się o jeden dla "
 "każdego dodatkowego członka."
 
-#: netbox/dcim/forms/object_create.py:430
+#: netbox/dcim/forms/object_create.py:435
 msgid "A position must be specified for the first VC member."
 msgstr "Pozycja musi być określona dla pierwszego członka VC."
 
@@ -7324,7 +7324,7 @@ msgstr "Pozycja VC"
 msgid "VC Priority"
 msgstr "Priorytet VC"
 
-#: netbox/dcim/tables/devices.py:230 netbox/templates/dcim/device_edit.html:38
+#: netbox/dcim/tables/devices.py:230 netbox/templates/dcim/device_edit.html:40
 #: netbox/templates/dcim/devicebay_populate.html:16
 msgid "Parent Device"
 msgstr "Urządzenie nadrzędne"
@@ -7866,7 +7866,7 @@ msgid "Failure"
 msgstr "Niepowodzenie"
 
 #: netbox/extras/choices.py:213
-#: netbox/templates/dcim/virtualchassis_edit.html:107
+#: netbox/templates/dcim/virtualchassis_edit.html:111
 #: netbox/templates/generic/bulk_add_component.html:68
 #: netbox/templates/generic/object_edit.html:47
 #: netbox/templates/generic/object_edit.html:80
@@ -10071,7 +10071,7 @@ msgstr "Data dodania"
 
 #: netbox/ipam/forms/bulk_edit.py:213 netbox/ipam/forms/filtersets.py:266
 #: netbox/ipam/forms/model_forms.py:628 netbox/ipam/forms/model_forms.py:675
-#: netbox/ipam/tables/ip.py:201 netbox/templates/ipam/vlan_edit.html:45
+#: netbox/ipam/tables/ip.py:201 netbox/templates/ipam/vlan_edit.html:49
 #: netbox/templates/ipam/vlangroup.html:27
 msgid "VLAN Group"
 msgstr "Grupa VLAN"
@@ -10081,7 +10081,7 @@ msgstr "Grupa VLAN"
 #: netbox/ipam/models/vlans.py:272 netbox/ipam/tables/ip.py:206
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
-#: netbox/templates/ipam/vlan_edit.html:10
+#: netbox/templates/ipam/vlan_edit.html:14
 #: netbox/templates/wireless/wirelesslan.html:38
 #: netbox/vpn/forms/bulk_import.py:304 netbox/vpn/forms/filtersets.py:290
 #: netbox/vpn/forms/model_forms.py:436 netbox/vpn/forms/model_forms.py:455
@@ -11839,15 +11839,15 @@ msgid "Customization"
 msgstr "Dostosowywanie"
 
 #: netbox/netbox/navigation/menu.py:346
-#: netbox/templates/dcim/device_edit.html:103
-#: netbox/templates/dcim/htmx/cable_edit.html:81
-#: netbox/templates/dcim/virtualchassis_add.html:31
-#: netbox/templates/dcim/virtualchassis_edit.html:40
+#: netbox/templates/dcim/device_edit.html:105
+#: netbox/templates/dcim/htmx/cable_edit.html:84
+#: netbox/templates/dcim/virtualchassis_add.html:35
+#: netbox/templates/dcim/virtualchassis_edit.html:44
 #: netbox/templates/generic/bulk_edit.html:76
 #: netbox/templates/htmx/form.html:19 netbox/templates/inc/filter_list.html:30
 #: netbox/templates/inc/panels/custom_fields.html:7
 #: netbox/templates/ipam/ipaddress_bulk_add.html:35
-#: netbox/templates/ipam/vlan_edit.html:67
+#: netbox/templates/ipam/vlan_edit.html:71
 msgid "Custom Fields"
 msgstr "Pola niestandardowe"
 
@@ -12327,7 +12327,7 @@ msgstr "Zmień hasło"
 #: netbox/templates/core/configrevision_restore.html:63
 #: netbox/templates/dcim/devicebay_populate.html:34
 #: netbox/templates/dcim/virtualchassis_add_member.html:26
-#: netbox/templates/dcim/virtualchassis_edit.html:103
+#: netbox/templates/dcim/virtualchassis_edit.html:107
 #: netbox/templates/extras/object_journal.html:26
 #: netbox/templates/extras/script.html:38
 #: netbox/templates/generic/bulk_add_component.html:67
@@ -12352,7 +12352,7 @@ msgstr "Anuluj"
 #: netbox/templates/account/preferences.html:78
 #: netbox/templates/dcim/devicebay_populate.html:35
 #: netbox/templates/dcim/virtualchassis_add_member.html:28
-#: netbox/templates/dcim/virtualchassis_edit.html:105
+#: netbox/templates/dcim/virtualchassis_edit.html:109
 #: netbox/templates/extras/dashboard/widget_add.html:26
 #: netbox/templates/extras/dashboard/widget_config.html:19
 #: netbox/templates/extras/object_journal.html:27
@@ -13222,7 +13222,7 @@ msgid "Create VDC"
 msgstr "Utwórz VDC"
 
 #: netbox/templates/dcim/device.html:175
-#: netbox/templates/dcim/device_edit.html:64
+#: netbox/templates/dcim/device_edit.html:66
 #: netbox/virtualization/forms/model_forms.py:230
 msgid "Management"
 msgstr "Zarządzanie"
@@ -13340,22 +13340,22 @@ msgstr "Dodaj port zasilania"
 msgid "Add Rear Ports"
 msgstr "Dodaj tylne porty"
 
-#: netbox/templates/dcim/device_edit.html:44
+#: netbox/templates/dcim/device_edit.html:46
 msgid "Parent Bay"
 msgstr "Zatoka Parent"
 
-#: netbox/templates/dcim/device_edit.html:48
+#: netbox/templates/dcim/device_edit.html:50
 #: netbox/utilities/templates/form_helpers/render_field.html:22
 msgid "Regenerate Slug"
 msgstr "Regeneruj identyfikator"
 
-#: netbox/templates/dcim/device_edit.html:49
+#: netbox/templates/dcim/device_edit.html:51
 #: netbox/templates/generic/bulk_remove.html:21
 #: netbox/utilities/templates/helpers/table_config_form.html:23
 msgid "Remove"
 msgstr "Usuń"
 
-#: netbox/templates/dcim/device_edit.html:110
+#: netbox/templates/dcim/device_edit.html:112
 msgid "Local Config Context Data"
 msgstr "Dane kontekstowe konfiguracji lokalnej"
 
@@ -13448,11 +13448,11 @@ msgstr "Oznaczone jako połączone"
 msgid "Connection Status"
 msgstr "Status połączenia"
 
-#: netbox/templates/dcim/htmx/cable_edit.html:10
+#: netbox/templates/dcim/htmx/cable_edit.html:13
 msgid "A Side"
 msgstr "Strona"
 
-#: netbox/templates/dcim/htmx/cable_edit.html:30
+#: netbox/templates/dcim/htmx/cable_edit.html:33
 msgid "B Side"
 msgstr "Strona B"
 
@@ -13793,7 +13793,7 @@ msgstr "Załącznik"
 msgid "Add Member"
 msgstr "Dodaj członka"
 
-#: netbox/templates/dcim/virtualchassis_add.html:18
+#: netbox/templates/dcim/virtualchassis_add.html:22
 msgid "Member Devices"
 msgstr "Urządzenia członkowskie"
 
@@ -13822,7 +13822,7 @@ msgstr "Zapisz i dodaj kolejny"
 msgid "Editing Virtual Chassis %(name)s"
 msgstr "Edycja wirtualnej obudowy %(name)s"
 
-#: netbox/templates/dcim/virtualchassis_edit.html:53
+#: netbox/templates/dcim/virtualchassis_edit.html:57
 msgid "Rack/Unit"
 msgstr "Szafa/jednostka"
 
