@@ -63,3 +63,15 @@ span.color-label {
 .sso-icon {
   height: 24px;
 }
+
+.btn-white {
+  @extend .btn-light;
+}
+
+.btn-black {
+  @extend .btn-dark;
+}
+
+.btn-grey, .btn-gray {
+  @extend .btn-secondary;
+}
