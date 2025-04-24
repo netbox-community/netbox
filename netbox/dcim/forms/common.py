@@ -41,7 +41,6 @@ class InterfaceCommonForm(forms.Form):
 
     def clean(self):
         super().clean()
-
         parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
         if 'tagged_vlans' in self.fields.keys():
             tagged_vlans = self.cleaned_data.get('tagged_vlans') if self.is_bound else \
@@ -61,6 +60,12 @@ class InterfaceCommonForm(forms.Form):
                         "or they must be global"
                     ).format(vlans=', '.join(invalid_vlans))
                 })
+        # Validate mode change
+        if self.instance.pk and (self.instance.mode != self.cleaned_data['mode']):
+            if 'untagged_vlan' not in self.cleaned_data and self.instance.untagged_vlan is not None:
+                self.instance.untagged_vlan = None
+            if 'tagged_vlans' not in self.cleaned_data and self.instance.tagged_vlans is not None:
+                self.instance.tagged_vlans.clear()
 
 
 class ModuleCommonForm(forms.Form):
