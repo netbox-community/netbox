@@ -165,11 +165,10 @@ class BaseTable(tables.Table):
                 ordering = userconfig.get(f"tables.{self.name}.ordering")
 
         # Fall back to the default columns & ordering
+        if columns is None and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
+            columns = settings.DEFAULT_USER_PREFERENCES.get('tables', {}).get(self.name, {}).get('columns')
         if columns is None:
-            if hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
-                columns = settings.DEFAULT_USER_PREFERENCES.get('tables', {}).get(self.name, {}).get('columns')
-            else:
-                columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
+            columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
         self._set_columns(columns)
         if ordering is not None:
