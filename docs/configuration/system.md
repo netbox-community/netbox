@@ -2,7 +2,7 @@
 
 ## BASE_PATH
 
-Default: None
+Default: `None`
 
 The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at https://example.com/netbox/, set:
 
@@ -64,7 +64,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ## HTTP_PROXIES
 
-Default: None
+Default: `None`
 
 A dictionary of HTTP proxies to use for outbound requests originating from NetBox (e.g. when sending webhook requests). Proxies should be specified by schema (HTTP and HTTPS) as per the [Python requests library documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies). For example:
 
@@ -89,7 +89,7 @@ addresses (and [`DEBUG`](./development.md#debug) is true).
 
 ## ISOLATED_DEPLOYMENT
 
-Default: False
+Default: `False`
 
 Set this configuration parameter to True for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
 
@@ -206,7 +206,7 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
 ## TIME_ZONE
 
-Default: UTC
+Default: `"UTC"`
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
@@ -214,6 +214,6 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 ## TRANSLATION_ENABLED
 
-Default: True
+Default: `True`
 
 Enables language translation for the user interface. (This parameter maps to Django's [USE_I18N](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) setting.)
