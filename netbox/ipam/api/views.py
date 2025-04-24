@@ -81,9 +81,7 @@ class RoleViewSet(NetBoxModelViewSet):
 
 
 class PrefixViewSet(NetBoxModelViewSet):
-    queryset = Prefix.objects.prefetch_related(
-        "scope",
-    ).all()
+    queryset = Prefix.objects.prefetch_related("scope")
     serializer_class = serializers.PrefixSerializer
     filterset_class = filtersets.PrefixFilterSet
 
@@ -111,7 +109,7 @@ class IPAddressViewSet(NetBoxModelViewSet):
                 Interface.objects.select_related("device"),
             ],
         ),
-    ).all()
+    )
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filtersets.IPAddressFilterSet
 
