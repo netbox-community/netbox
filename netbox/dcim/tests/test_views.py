@@ -1205,6 +1205,13 @@ front-ports:
   - name: Front Port 3
     type: 8p8c
     rear_port: Rear Port 3
+module-bays:
+  - name: Module Bay 1
+    position: 1
+  - name: Module Bay 2
+    position: 2
+  - name: Module Bay 3
+    position: 3
 """
 
         # Create the manufacturer
@@ -1222,6 +1229,7 @@ front-ports:
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
         )
 
         form_data = {
@@ -1275,6 +1283,11 @@ front-ports:
         self.assertEqual(fp1.name, 'Front Port 1')
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(module_type.modulebaytemplates.count(), 3)
+        mb1 = ModuleBayTemplate.objects.first()
+        self.assertEqual(mb1.name, 'Module Bay 1')
+        self.assertEqual(mb1.position, '1')
 
     def test_export_objects(self):
         url = reverse('dcim:moduletype_list')

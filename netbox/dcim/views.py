@@ -1508,6 +1508,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'dcim.add_interfacetemplate',
         'dcim.add_frontporttemplate',
         'dcim.add_rearporttemplate',
+        'dcim.add_modulebaytemplate',
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
@@ -1519,6 +1520,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'module-bays': forms.ModuleBayTemplateImportForm,
     }
 
     def prep_related_object_data(self, parent, data):
