@@ -72,4 +72,4 @@ class Command(BaseCommand):
                     value = f"{key} ({value_str})"
                     locodes.append((key, value))
 
-        pprint.pprint(tuple(locodes))
+        pprint.pprint(tuple(locodes), width=120)
