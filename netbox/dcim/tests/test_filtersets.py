@@ -2744,6 +2744,27 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
             Site(name='Site X', slug='site-x'),
         ))
 
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        device_types = (
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturers[1], model='Device Type 2', slug='device-type-2'),
+            DeviceType(manufacturer=manufacturers[2], model='Device Type 3', slug='device-type-3'),
+        )
+        DeviceType.objects.bulk_create(device_types)
+
+        roles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+            DeviceRole(name='Device Role 3', slug='device-role-3'),
+        )
+        DeviceRole.objects.bulk_create(roles)
+
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
             Location(name='Location 2', slug='location-2', site=sites[1]),
@@ -2759,17 +2780,11 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Rack.objects.bulk_create(racks)
 
-        manufacturers = (
-            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
-            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
-            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
-        )
-        Manufacturer.objects.bulk_create(manufacturers)
-
         devices = (
             Device(
                 name='Test Device 1',
                 device_type=device_types[0],
+                role=roles[0],
                 site=sites[0],
                 location=locations[0],
                 rack=racks[0],
@@ -2778,6 +2793,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
             Device(
                 name='Test Device 2',
                 device_type=device_types[1],
+                role=roles[1],
                 site=sites[1],
                 location=locations[1],
                 rack=racks[1],
@@ -2786,6 +2802,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
             Device(
                 name='Test Device 3',
                 device_type=device_types[2],
+                role=roles[2],
                 site=sites[2],
                 location=locations[2],
                 rack=racks[2],
@@ -2943,30 +2960,30 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_region(self):
         regions = Region.objects.all()[:2]
         params = {'region_id': [regions[0].pk, regions[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'region': [regions[0].slug, regions[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_location(self):
         locations = Location.objects.all()[:2]
         params = {'location_id': [locations[0].pk, locations[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'location': [locations[0].slug, locations[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_rack(self):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'rack': [racks[0].name, racks[1].name]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
 class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
