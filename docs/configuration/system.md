@@ -2,7 +2,7 @@
 
 ## BASE_PATH
 
-Default: None
+Default: `None`
 
 The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at https://example.com/netbox/, set:
 
@@ -206,7 +206,7 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
 ## TIME_ZONE
 
-Default: `UTC`
+Default: `"UTC"`
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
