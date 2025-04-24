@@ -161,7 +161,7 @@ def handle_deleted_object(sender, instance, **kwargs):
             obj.snapshot()  # Ensure the change record includes the "before" state
             if type(relation) is ManyToManyRel:
                 getattr(obj, related_field_name).remove(instance)
-            elif type(relation) is ManyToOneRel:
+            elif type(relation) is ManyToOneRel and relation.field.null is True:
                 setattr(obj, related_field_name, None)
                 obj.save()
 
