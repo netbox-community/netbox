@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-23 05:01+0000\n"
+"POT-Creation-Date: 2025-04-24 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1437,7 +1437,7 @@ msgstr ""
 
 #: netbox/circuits/models/circuits.py:67
 #: netbox/circuits/models/virtual_circuits.py:59 netbox/core/models/data.py:52
-#: netbox/core/models/jobs.py:86 netbox/dcim/models/cables.py:50
+#: netbox/core/models/jobs.py:87 netbox/dcim/models/cables.py:50
 #: netbox/dcim/models/device_components.py:1286
 #: netbox/dcim/models/devices.py:645 netbox/dcim/models/devices.py:1181
 #: netbox/dcim/models/devices.py:1409 netbox/dcim/models/power.py:94
@@ -1568,7 +1568,7 @@ msgstr ""
 #: netbox/circuits/models/providers.py:21
 #: netbox/circuits/models/providers.py:63
 #: netbox/circuits/models/providers.py:98 netbox/core/models/data.py:39
-#: netbox/core/models/jobs.py:47
+#: netbox/core/models/jobs.py:48
 #: netbox/dcim/models/device_component_templates.py:43
 #: netbox/dcim/models/device_components.py:52 netbox/dcim/models/devices.py:589
 #: netbox/dcim/models/devices.py:1341 netbox/dcim/models/devices.py:1404
@@ -2466,7 +2466,7 @@ msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
 #: netbox/core/models/config.py:18 netbox/core/models/data.py:263
-#: netbox/core/models/files.py:27 netbox/core/models/jobs.py:51
+#: netbox/core/models/files.py:27 netbox/core/models/jobs.py:52
 #: netbox/extras/models/models.py:733 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:186
 #: netbox/netbox/models/features.py:53 netbox/users/models/tokens.py:32
@@ -2646,58 +2646,58 @@ msgstr ""
 msgid "A {model} with this file path already exists ({path})."
 msgstr ""
 
-#: netbox/core/models/jobs.py:55
+#: netbox/core/models/jobs.py:56
 msgid "scheduled"
 msgstr ""
 
-#: netbox/core/models/jobs.py:60
+#: netbox/core/models/jobs.py:61
 msgid "interval"
 msgstr ""
 
-#: netbox/core/models/jobs.py:66
+#: netbox/core/models/jobs.py:67
 msgid "Recurrence interval (in minutes)"
 msgstr ""
 
-#: netbox/core/models/jobs.py:69
+#: netbox/core/models/jobs.py:70
 msgid "started"
 msgstr ""
 
-#: netbox/core/models/jobs.py:74
+#: netbox/core/models/jobs.py:75
 msgid "completed"
 msgstr ""
 
-#: netbox/core/models/jobs.py:92 netbox/extras/models/models.py:101
+#: netbox/core/models/jobs.py:93 netbox/extras/models/models.py:101
 #: netbox/extras/models/staging.py:95
 msgid "data"
 msgstr ""
 
-#: netbox/core/models/jobs.py:97
+#: netbox/core/models/jobs.py:99
 msgid "error"
 msgstr ""
 
-#: netbox/core/models/jobs.py:102
+#: netbox/core/models/jobs.py:104
 msgid "job ID"
 msgstr ""
 
-#: netbox/core/models/jobs.py:113
+#: netbox/core/models/jobs.py:115
 msgid "job"
 msgstr ""
 
-#: netbox/core/models/jobs.py:114
+#: netbox/core/models/jobs.py:116
 msgid "jobs"
 msgstr ""
 
-#: netbox/core/models/jobs.py:137
+#: netbox/core/models/jobs.py:139
 #, python-brace-format
 msgid "Jobs cannot be assigned to this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/jobs.py:191
+#: netbox/core/models/jobs.py:193
 #, python-brace-format
 msgid "Invalid status for job termination. Choices are: {choices}"
 msgstr ""
 
-#: netbox/core/models/jobs.py:232
+#: netbox/core/models/jobs.py:234
 msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
 msgstr ""
@@ -9695,8 +9695,16 @@ msgstr ""
 msgid "Primary IPv4 (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1225
+#: netbox/ipam/filtersets.py:1226
+msgid "Primary IPv4 (address)"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:1231
 msgid "Primary IPv6 (ID)"
+msgstr ""
+
+#: netbox/ipam/filtersets.py:1237
+msgid "Primary IPv6 (address)"
 msgstr ""
 
 #: netbox/ipam/formfields.py:14
@@ -15380,37 +15388,37 @@ msgid ""
 "({begin})."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:234
+#: netbox/utilities/forms/utils.py:235
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{field}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:240
+#: netbox/utilities/forms/utils.py:241
 #, python-brace-format
 msgid "Duplicate or conflicting column header for \"{header}\""
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:249
+#: netbox/utilities/forms/utils.py:250
 #, python-brace-format
 msgid "Row {row}: Expected {count_expected} columns but found {count_found}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:272
+#: netbox/utilities/forms/utils.py:273
 #, python-brace-format
 msgid "Unexpected column header \"{field}\" found."
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:274
+#: netbox/utilities/forms/utils.py:275
 #, python-brace-format
 msgid "Column \"{field}\" is not a related object; cannot use dots"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:278
+#: netbox/utilities/forms/utils.py:279
 #, python-brace-format
 msgid "Invalid related object attribute for column \"{field}\": {to_field}"
 msgstr ""
 
-#: netbox/utilities/forms/utils.py:286
+#: netbox/utilities/forms/utils.py:287
 #, python-brace-format
 msgid "Required column header \"{header}\" not found."
 msgstr ""
