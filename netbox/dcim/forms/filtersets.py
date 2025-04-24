@@ -940,7 +940,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
     model = Module
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
+        FieldSet('region_id', 'site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
         FieldSet('manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag', name=_('Hardware')),
     )
     device_id = DynamicModelMultipleChoiceField(
