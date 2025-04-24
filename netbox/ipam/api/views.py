@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -13,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.views import APIView
 
+from dcim.models import Interface
 from ipam import filtersets
 from ipam.models import *
 from ipam.utils import get_next_available_prefix
@@ -79,7 +81,9 @@ class RoleViewSet(NetBoxModelViewSet):
 
 
 class PrefixViewSet(NetBoxModelViewSet):
-    queryset = Prefix.objects.all()
+    queryset = Prefix.objects.prefetch_related(
+        "scope",
+    ).all()
     serializer_class = serializers.PrefixSerializer
     filterset_class = filtersets.PrefixFilterSet
 
@@ -100,7 +104,14 @@ class IPRangeViewSet(NetBoxModelViewSet):
 
 
 class IPAddressViewSet(NetBoxModelViewSet):
-    queryset = IPAddress.objects.all()
+    queryset = IPAddress.objects.prefetch_related(
+        GenericPrefetch(
+            "assigned_object",
+            [
+                Interface.objects.select_related("device"),
+            ],
+        ),
+    ).all()
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filtersets.IPAddressFilterSet
 
