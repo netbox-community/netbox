@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load render_table from django_tables2 %}
 
-{% block title %}{{ plugin.title_long }}{% endblock %}
+{% block title %}<img class="plugin-icon" src="{{ plugin.icon_url }}">&nbsp;{{ plugin.title_long }}{% endblock %}
 
 {% block object_identifier %}
 {% endblock object_identifier %}
