@@ -43,7 +43,7 @@ class TunnelGroupDeleteView(generic.ObjectDeleteView):
     queryset = TunnelGroup.objects.all()
 
 
-@register_model_view(TunnelGroup, 'bulk_import', detail=False)
+@register_model_view(TunnelGroup, 'bulk_import', path='import', detail=False)
 class TunnelGroupBulkImportView(generic.BulkImportView):
     queryset = TunnelGroup.objects.all()
     model_form = forms.TunnelGroupImportForm
@@ -112,7 +112,7 @@ class TunnelDeleteView(generic.ObjectDeleteView):
     queryset = Tunnel.objects.all()
 
 
-@register_model_view(Tunnel, 'bulk_import', detail=False)
+@register_model_view(Tunnel, 'bulk_import', path='import', detail=False)
 class TunnelBulkImportView(generic.BulkImportView):
     queryset = Tunnel.objects.all()
     model_form = forms.TunnelImportForm
@@ -171,7 +171,7 @@ class TunnelTerminationDeleteView(generic.ObjectDeleteView):
     queryset = TunnelTermination.objects.all()
 
 
-@register_model_view(TunnelTermination, 'bulk_import', detail=False)
+@register_model_view(TunnelTermination, 'bulk_import', path='import', detail=False)
 class TunnelTerminationBulkImportView(generic.BulkImportView):
     queryset = TunnelTermination.objects.all()
     model_form = forms.TunnelTerminationImportForm
@@ -221,7 +221,7 @@ class IKEProposalDeleteView(generic.ObjectDeleteView):
     queryset = IKEProposal.objects.all()
 
 
-@register_model_view(IKEProposal, 'bulk_import', detail=False)
+@register_model_view(IKEProposal, 'bulk_import', path='import', detail=False)
 class IKEProposalBulkImportView(generic.BulkImportView):
     queryset = IKEProposal.objects.all()
     model_form = forms.IKEProposalImportForm
@@ -271,7 +271,7 @@ class IKEPolicyDeleteView(generic.ObjectDeleteView):
     queryset = IKEPolicy.objects.all()
 
 
-@register_model_view(IKEPolicy, 'bulk_import', detail=False)
+@register_model_view(IKEPolicy, 'bulk_import', path='import', detail=False)
 class IKEPolicyBulkImportView(generic.BulkImportView):
     queryset = IKEPolicy.objects.all()
     model_form = forms.IKEPolicyImportForm
@@ -321,7 +321,7 @@ class IPSecProposalDeleteView(generic.ObjectDeleteView):
     queryset = IPSecProposal.objects.all()
 
 
-@register_model_view(IPSecProposal, 'bulk_import', detail=False)
+@register_model_view(IPSecProposal, 'bulk_import', path='import', detail=False)
 class IPSecProposalBulkImportView(generic.BulkImportView):
     queryset = IPSecProposal.objects.all()
     model_form = forms.IPSecProposalImportForm
@@ -371,7 +371,7 @@ class IPSecPolicyDeleteView(generic.ObjectDeleteView):
     queryset = IPSecPolicy.objects.all()
 
 
-@register_model_view(IPSecPolicy, 'bulk_import', detail=False)
+@register_model_view(IPSecPolicy, 'bulk_import', path='import', detail=False)
 class IPSecPolicyBulkImportView(generic.BulkImportView):
     queryset = IPSecPolicy.objects.all()
     model_form = forms.IPSecPolicyImportForm
@@ -421,7 +421,7 @@ class IPSecProfileDeleteView(generic.ObjectDeleteView):
     queryset = IPSecProfile.objects.all()
 
 
-@register_model_view(IPSecProfile, 'bulk_import', detail=False)
+@register_model_view(IPSecProfile, 'bulk_import', path='import', detail=False)
 class IPSecProfileBulkImportView(generic.BulkImportView):
     queryset = IPSecProfile.objects.all()
     model_form = forms.IPSecProfileImportForm
@@ -486,7 +486,7 @@ class L2VPNDeleteView(generic.ObjectDeleteView):
     queryset = L2VPN.objects.all()
 
 
-@register_model_view(L2VPN, 'bulk_import', detail=False)
+@register_model_view(L2VPN, 'bulk_import', path='import', detail=False)
 class L2VPNBulkImportView(generic.BulkImportView):
     queryset = L2VPN.objects.all()
     model_form = forms.L2VPNImportForm
@@ -541,7 +541,7 @@ class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
     queryset = L2VPNTermination.objects.all()
 
 
-@register_model_view(L2VPNTermination, 'bulk_import', detail=False)
+@register_model_view(L2VPNTermination, 'bulk_import', path='import', detail=False)
 class L2VPNTerminationBulkImportView(generic.BulkImportView):
     queryset = L2VPNTermination.objects.all()
     model_form = forms.L2VPNTerminationImportForm
