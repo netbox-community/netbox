@@ -9,7 +9,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
-from ipam.models import VRF, IPAddress
+from ipam.choices import VLANQinQRoleChoices
+from ipam.models import VLAN, VRF, IPAddress, VLANGroup
 from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -17,7 +18,7 @@ from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVTypedChoiceField,
     SlugField,
 )
-from virtualization.models import Cluster, VMInterface, VirtualMachine
+from virtualization.models import Cluster, VirtualMachine, VMInterface
 from wireless.choices import WirelessRoleChoices
 from .common import ModuleCommonForm
 
@@ -938,7 +939,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text=mark_safe(
-            _('VDC names separated by commas, encased with double quotes. Example:') + ' <code>vdc1,vdc2,vdc3</code>'
+            _('VDC names separated by commas, encased with double quotes. Example:') + ' <code>"vdc1,vdc2,vdc3"</code>'
         )
     )
     type = CSVChoiceField(
@@ -967,7 +968,41 @@ class InterfaceImportForm(NetBoxModelImportForm):
         label=_('Mode'),
         choices=InterfaceModeChoices,
         required=False,
-        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)')
+        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)'),
+    )
+    vlan_group = CSVModelChoiceField(
+        label=_('VLAN group'),
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Filter VLANs available for assignment by group'),
+    )
+    untagged_vlan = CSVModelChoiceField(
+        label=_('Untagged VLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=_('Assigned untagged VLAN ID (filtered by VLAN group)'),
+    )
+    tagged_vlans = CSVModelMultipleChoiceField(
+        label=_('Tagged VLANs'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=mark_safe(
+            _(
+                'Assigned tagged VLAN IDs separated by commas, encased with double quotes '
+                '(filtered by VLAN group). Example:'
+            )
+            + ' <code>"100,200,300"</code>'
+        ),
+    )
+    qinq_svlan = CSVModelChoiceField(
+        label=_('Q-in-Q Service VLAN'),
+        queryset=VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        required=False,
+        to_field_name='vid',
+        help_text=_('Assigned Q-in-Q Service VLAN ID (filtered by VLAN group)'),
     )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
@@ -988,7 +1023,8 @@ class InterfaceImportForm(NetBoxModelImportForm):
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
             'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
-            'vrf', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
+            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -1004,6 +1040,13 @@ class InterfaceImportForm(NetBoxModelImportForm):
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
                 self.fields['lag'].queryset = self.fields['lag'].queryset.filter(**params)
                 self.fields['vdcs'].queryset = self.fields['vdcs'].queryset.filter(**params)
+
+            # Limit choices for VLANs to the assigned VLAN group
+            if vlan_group := data.get('vlan_group'):
+                params = {f"group__{self.fields['vlan_group'].to_field_name}": vlan_group}
+                self.fields['untagged_vlan'].queryset = self.fields['untagged_vlan'].queryset.filter(**params)
+                self.fields['tagged_vlans'].queryset = self.fields['tagged_vlans'].queryset.filter(**params)
+                self.fields['qinq_svlan'].queryset = self.fields['qinq_svlan'].queryset.filter(**params)
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
