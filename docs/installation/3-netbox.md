@@ -9,17 +9,11 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! warning "Python 3.10 or later required"
     NetBox supports Python 3.10, 3.11, and 3.12.
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
-    ```
+```no-highlight
+sudo apt install -y python3 python3-pip python3-venv python3-dev \
+build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev \
+libssl-dev zlib1g-dev
+```
 
 Before continuing, check that your installed Python version is at least 3.10:
 
@@ -55,17 +49,9 @@ cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y git
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y git
-    ```
+```no-highlight
+sudo apt install -y git
+```
 
 Next, clone the git repository:
 
@@ -97,24 +83,12 @@ Using this installation method enables easy upgrades in the future by simply che
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-=== "Ubuntu"
-
-    ```
-    sudo adduser --system --group netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
-
-=== "CentOS"
-
-    ```
-    sudo groupadd --system netbox
-    sudo adduser --system -g netbox netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
+```
+sudo adduser --system --group netbox
+sudo chown --recursive netbox /opt/netbox/netbox/media/
+sudo chown --recursive netbox /opt/netbox/netbox/reports/
+sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+```
 
 ## Configuration
 
