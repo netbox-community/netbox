@@ -36,7 +36,19 @@ class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(),
+                extra=(
+                    (
+                        VirtualCircuit.objects.restrict(request.user, 'view').filter(
+                            provider_network__provider=instance
+                        ),
+                        'provider_id',
+                    ),
+                ),
+                ),
         }
 
 
