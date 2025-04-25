@@ -1350,6 +1350,19 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Region (slug)'),
     )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='device__site__group',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='device__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
         queryset=Site.objects.all(),

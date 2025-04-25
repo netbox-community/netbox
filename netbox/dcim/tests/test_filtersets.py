@@ -2737,10 +2737,18 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         for region in regions:
             region.save()
 
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
         sites = Site.objects.bulk_create((
-            Site(name='Site 1', slug='site-1', region=regions[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
             Site(name='Site X', slug='site-x'),
         ))
 
@@ -2962,6 +2970,13 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'region_id': [regions[0].pk, regions[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_site(self):
