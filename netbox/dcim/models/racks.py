@@ -725,3 +725,8 @@ class RackReservation(PrimaryModel):
     @property
     def unit_list(self):
         return array_to_string(self.units)
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.rack
+        return objectchange
