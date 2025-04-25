@@ -568,6 +568,23 @@ http://netbox/api/dcim/sites/ \
 !!! note
     The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.
 
+## Uploading Files
+
+As JSON does not support the inclusion of binary data, files cannot be uploaded using JSON-formatted API requests. Instead, we can use form data encoding to attach a local file.
+
+For example, we can upload an image attachment using the `curl` command shown below. Note that the `@` signifies a local file on disk to be uploaded.
+
+```no-highlight
+curl -X POST \
+-H "Authorization: Token $TOKEN" \
+-H "Accept: application/json; indent=4" \
+-F "object_type=dcim.site" \
+-F "object_id=2" \
+-F "name=attachment1.png" \
+-F "image=@local_file.png" \
+http://netbox/api/extras/image-attachments/
+```
+
 ## Authentication
 
 The NetBox REST API primarily employs token-based authentication. For convenience, cookie-based authentication can also be used when navigating the browsable API.
