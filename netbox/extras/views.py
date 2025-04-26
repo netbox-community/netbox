@@ -15,7 +15,6 @@ from jinja2.exceptions import TemplateError
 from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
-from core.tables import JobTable
 from dcim.models import Device, DeviceRole, Platform
 from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
@@ -36,7 +35,7 @@ from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
 from .models import *
-from .tables import ReportResultsTable, ScriptResultsTable
+from .tables import ReportResultsTable, ScriptResultsTable, ScriptJobTable
 
 
 #
@@ -1351,7 +1350,7 @@ class ScriptJobsView(BaseScriptView):
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
 
-        jobs_table = JobTable(
+        jobs_table = ScriptJobTable(
             data=script.jobs.all(),
             orderable=False,
             user=request.user
