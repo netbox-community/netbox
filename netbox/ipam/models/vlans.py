@@ -291,7 +291,7 @@ class VLAN(PrimaryModel):
             if self.site not in self.group.scope.sites.all():
                 raise ValidationError(
                     _(
-                        "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
+                        "The assigned site {site} is not a member of the assigned group {group} (scope: {scope})."
                     ).format(group=self.group, scope=self.group.scope, site=self.site)
                 )
 

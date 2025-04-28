@@ -691,7 +691,7 @@ class TestVLAN(TestCase):
             site=sites[0],
         )
 
-        # VLAN Group 0 and 1 should be valid
+        # VLAN Group 1 and 2 should be valid
         vlan.full_clean()
         vlan.group = vlangroups[1]
         vlan.full_clean()
