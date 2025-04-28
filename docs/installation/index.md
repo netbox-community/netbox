@@ -1,7 +1,16 @@
 # Installation
 
-!!! info "NetBox Cloud"
-    The instructions below are for installing NetBox as a standalone, self-hosted application. For a Cloud-delivered solution, check out [NetBox Cloud](https://netboxlabs.com/netbox-cloud/) by NetBox Labs.
+<div class="grid cards" markdown>
+
+-   :material-clock-fast:{ .lg .middle } __Eager to Get Started?__
+
+    ---
+
+    Check out the [NetBox Cloud Free Plan](https://netboxlabs.com/free-netbox-cloud/)! Skip the installation process and grab your own NetBox Cloud instance, preconfigured and ready to go in minutes. Completely free!
+
+    [:octicons-arrow-right-24: Sign Up](https://signup.netboxlabs.com/)
+
+</div>
 
 The installation instructions provided here have been tested to work on Ubuntu 22.04. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
