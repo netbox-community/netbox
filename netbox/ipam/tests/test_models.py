@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
 from utilities.data import string_to_ranges
 
+from dcim.models import Site, SiteGroup
 from ipam.choices import *
 from ipam.models import *
 
@@ -643,5 +645,56 @@ class TestVLAN(TestCase):
             qinq_role=VLANQinQRoleChoices.ROLE_SERVICE,
             qinq_svlan=svlan
         )
+        with self.assertRaises(ValidationError):
+            vlan.full_clean()
+
+    def test_vlan_group_site_validation(self):
+        sitegroup = SiteGroup.objects.create(
+            name='Site Group 1',
+            slug='site-group-1',
+        )
+        sites = Site.objects.bulk_create((
+            Site(
+                name='Site 1',
+                slug='site-1',
+            ),
+            Site(
+                name='Site 2',
+                slug='site-2',
+            ),
+        ))
+        sitegroup.sites.add(sites[0])
+        vlangroups = VLANGroup.objects.bulk_create((
+            VLANGroup(
+                name='VLAN Group 1',
+                slug='vlan-group-1',
+                scope=sitegroup,
+                scope_type=ContentType.objects.get_for_model(SiteGroup),
+            ),
+            VLANGroup(
+                name='VLAN Group 2',
+                slug='vlan-group-2',
+                scope=sites[0],
+                scope_type=ContentType.objects.get_for_model(Site),
+            ),
+            VLANGroup(
+                name='VLAN Group 2',
+                slug='vlan-group-2',
+                scope=sites[1],
+                scope_type=ContentType.objects.get_for_model(Site),
+            ),
+        ))
+        vlan = VLAN(
+            name='VLAN 1',
+            vid=1,
+            group=vlangroups[0],
+            site=sites[0],
+        )
+
+        # VLAN Group 1 and 2 should be valid
+        vlan.full_clean()
+        vlan.group = vlangroups[1]
+        vlan.full_clean()
+        vlan.group = vlangroups[2]
         with self.assertRaises(ValidationError):
             vlan.full_clean()
