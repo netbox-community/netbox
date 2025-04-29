@@ -194,7 +194,7 @@ def get_catalog_plugins():
                 # Populate plugin data
                 plugins[data['config_name']] = Plugin(
                     id=data['id'],
-                    icon_url=data['icon_url'],
+                    icon_url=data['icon'],
                     status=data['status'],
                     title_short=data['title_short'],
                     title_long=data['title_long'],
