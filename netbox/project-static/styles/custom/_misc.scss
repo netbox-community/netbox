@@ -84,6 +84,6 @@ img.plugin-icon {
 body[data-bs-theme=dark] {
   // Assuming icon is black/white line art, invert it and tone down brightness
   img.plugin-icon {
-    filter: invert(100%) brightness(80%);
+    filter: grayscale(100%) invert(100%) brightness(80%);
   }
 }
