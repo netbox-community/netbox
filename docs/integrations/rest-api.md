@@ -217,26 +217,34 @@ If we wanted to assign this IP address to a virtual machine interface instead, w
 
 ### Brief Format
 
-Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. As an example, the default (complete) format of an IP address looks like this:
+Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. As an example, the default (complete) format of a prefix looks like this:
 
-```
+```no-highlight
 GET /api/ipam/prefixes/13980/
+```
 
+```json
 {
     "id": 13980,
     "url": "http://netbox/api/ipam/prefixes/13980/",
+    "display_url": "http://netbox/api/ipam/prefixes/13980/",
+    "display": "192.0.2.0/24",
     "family": {
         "value": 4,
         "label": "IPv4"
     },
     "prefix": "192.0.2.0/24",
-    "site": {
-        "id": 3,
-        "url": "http://netbox/api/dcim/sites/17/",
-        "name": "Site 23A",
-        "slug": "site-23a"
-    },
     "vrf": null,
+    "scope_type": "dcim.site",
+    "scope_id": 3,
+    "scope": {
+        "id": 3,
+        "url": "http://netbox/api/dcim/sites/3/",
+        "display": "Site 23A",
+        "name": "Site 23A",
+        "slug": "site-23a",
+        "description": ""
+    },
     "tenant": null,
     "vlan": null,
     "status": {
@@ -250,24 +258,36 @@ GET /api/ipam/prefixes/13980/
         "slug": "staging"
     },
     "is_pool": false,
+    "mark_utilized": false,
     "description": "Example prefix",
+    "comments": "",
     "tags": [],
     "custom_fields": {},
-    "created": "2018-12-10",
-    "last_updated": "2019-03-01T20:02:46.173540Z"
+    "created": "2025-03-01T20:01:23.458302Z",
+    "last_updated": "2025-03-01T20:02:46.173540Z",
+    "children": 0,
+    "_depth": 0
 }
 ```
 
 The brief format is much more terse:
 
-```
+```no-highlight
 GET /api/ipam/prefixes/13980/?brief=1
+```
 
+```json
 {
     "id": 13980,
     "url": "http://netbox/api/ipam/prefixes/13980/",
-    "family": 4,
-    "prefix": "10.40.3.0/24"
+    "display": "192.0.2.0/24",
+    "family": {
+        "value": 4,
+        "label": "IPv4"
+    },
+    "prefix": "192.0.2.0/24",
+    "description": "Example prefix",
+    "_depth": 0
 }
 ```
 
@@ -400,25 +420,31 @@ curl -s -X POST \
 -H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/ipam/prefixes/ \
---data '{"prefix": "192.0.2.0/24", "site": 6}' | jq '.'
+--data '{"prefix": "192.0.2.0/24", "scope_type": "dcim.site", "scope_id": 6}' | jq '.'
 ```
 
 ```json
 {
   "id": 18691,
   "url": "http://netbox/api/ipam/prefixes/18691/",
+  "display_url": "http://netbox/api/ipam/prefixes/18691/",
+  "display": "192.0.2.0/24",
   "family": {
     "value": 4,
     "label": "IPv4"
   },
   "prefix": "192.0.2.0/24",
-  "site": {
+  "vrf": null,
+  "scope_type": "dcim.site",
+  "scope_id": 6,
+  "scope": {
     "id": 6,
     "url": "http://netbox/api/dcim/sites/6/",
+    "display": "US-East 4",
     "name": "US-East 4",
-    "slug": "us-east-4"
+    "slug": "us-east-4",
+    "description": ""
   },
-  "vrf": null,
   "tenant": null,
   "vlan": null,
   "status": {
@@ -427,11 +453,15 @@ http://netbox/api/ipam/prefixes/ \
   },
   "role": null,
   "is_pool": false,
+  "mark_utilized": false,
   "description": "",
+  "comments": "",
   "tags": [],
   "custom_fields": {},
-  "created": "2020-08-04",
-  "last_updated": "2020-08-04T20:08:39.007125Z"
+  "created": "2025-04-29T15:44:47.597092Z",
+  "last_updated": "2025-04-29T15:44:47.597092Z",
+  "children": 0,
+  "_depth": 0
 }
 ```
 
@@ -490,18 +520,24 @@ http://netbox/api/ipam/prefixes/18691/ \
 {
   "id": 18691,
   "url": "http://netbox/api/ipam/prefixes/18691/",
+  "display_url": "http://netbox/api/ipam/prefixes/18691/",
+  "display": "192.0.2.0/24",
   "family": {
     "value": 4,
     "label": "IPv4"
   },
   "prefix": "192.0.2.0/24",
-  "site": {
+  "vrf": null,
+  "scope_type": "dcim.site",
+  "scope_id": 6,
+  "scope": {
     "id": 6,
     "url": "http://netbox/api/dcim/sites/6/",
+    "display": "US-East 4",
     "name": "US-East 4",
-    "slug": "us-east-4"
+    "slug": "us-east-4",
+    "description": ""
   },
-  "vrf": null,
   "tenant": null,
   "vlan": null,
   "status": {
@@ -510,11 +546,15 @@ http://netbox/api/ipam/prefixes/18691/ \
   },
   "role": null,
   "is_pool": false,
+  "mark_utilized": false,
   "description": "",
+  "comments": "",
   "tags": [],
   "custom_fields": {},
-  "created": "2020-08-04",
-  "last_updated": "2020-08-04T20:14:55.709430Z"
+  "created": "2025-04-29T15:44:47.597092Z",
+  "last_updated": "2025-04-29T15:49:40.689109Z",
+  "children": 0,
+  "_depth": 0
 }
 ```
 
@@ -670,6 +710,7 @@ Note that we are _not_ passing an existing REST API token with this request. If 
 {
     "id": 6,
     "url": "https://netbox/api/users/tokens/6/",
+    "display_url": "https://netbox/api/users/tokens/6/",
     "display": "**********************************3c9cb9",
     "user": {
         "id": 2,
