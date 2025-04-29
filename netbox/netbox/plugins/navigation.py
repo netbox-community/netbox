@@ -38,9 +38,12 @@ class PluginMenuItem:
     permissions = []
     buttons = []
 
-    def __init__(self, link, link_text, auth_required=False, staff_only=False, permissions=None, buttons=None):
+    def __init__(
+        self, link, link_text, url=None, auth_required=False, staff_only=False, permissions=None, buttons=None
+    ):
         self.link = link
         self.link_text = link_text
+        self.url = url
         self.auth_required = auth_required
         self.staff_only = staff_only
         if permissions is not None:
@@ -61,10 +64,11 @@ class PluginMenuButton:
     color = ButtonColorChoices.DEFAULT
     permissions = []
 
-    def __init__(self, link, title, icon_class, color=None, permissions=None):
+    def __init__(self, link, title, icon_class, url=None, color=None, permissions=None):
         self.link = link
         self.title = title
         self.icon_class = icon_class
+        self.url = url
         if permissions is not None:
             if type(permissions) not in (list, tuple):
                 raise TypeError(_("Permissions must be passed as a tuple or list."))

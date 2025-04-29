@@ -53,8 +53,11 @@ def register_template_extensions(class_list):
 
 
 def register_menu(menu):
-    if not isinstance(menu, PluginMenu):
-        raise TypeError(_("{item} must be an instance of netbox.plugins.PluginMenuItem").format(item=menu))
+    if not (isinstance(menu, PluginMenu) or callable(menu)):
+        raise TypeError(_(
+            "{item} must be an instance of netbox.plugins.PluginMenu "
+            "or a callable returning such an instance").format(item=menu)
+        )
     registry['plugins']['menus'].append(menu)
 
 
@@ -64,15 +67,17 @@ def register_menu_items(section_name, class_list):
     """
     # Validation
     for menu_link in class_list:
-        if not isinstance(menu_link, PluginMenuItem):
-            raise TypeError(_("{menu_link} must be an instance of netbox.plugins.PluginMenuItem").format(
-                menu_link=menu_link
-            ))
+        if not (isinstance(menu_link, PluginMenuItem) or callable(menu_link)):
+            raise TypeError(_(
+                "{menu_link} must be an instance of netbox.plugins.PluginMenuItem "
+                "or a callable returning such an instance").format(menu_link=menu_link)
+            )
         for button in menu_link.buttons:
-            if not isinstance(button, PluginMenuButton):
-                raise TypeError(_("{button} must be an instance of netbox.plugins.PluginMenuButton").format(
-                    button=button
-                ))
+            if not (isinstance(button, PluginMenuButton) or callable(button)):
+                raise TypeError(_(
+                    "{button} must be an instance of netbox.plugins.PluginMenuButton "
+                    "or a callable returning such an instance").format(button=button)
+                )
 
     registry['plugins']['menu_items'][section_name] = class_list
 
