@@ -286,7 +286,7 @@ GET /api/ipam/prefixes/13980/?brief=1
         "label": "IPv4"
     },
     "prefix": "192.0.2.0/24",
-    "description": "",
+    "description": "Example prefix",
     "_depth": 0
 }
 ```
