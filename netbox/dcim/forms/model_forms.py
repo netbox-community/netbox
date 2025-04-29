@@ -899,7 +899,7 @@ class ComponentTemplateForm(forms.ModelForm):
 class ModularComponentTemplateForm(ComponentTemplateForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
-        queryset=DeviceType.objects.all().all(),
+        queryset=DeviceType.objects.all(),
         required=False,
         context={
             'parent': 'manufacturer',
@@ -912,6 +912,16 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         context={
             'parent': 'manufacturer',
         }
+    )
+
+    fieldsets = (
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'description'
+        ),
     )
 
     def __init__(self, *args, **kwargs):
@@ -930,10 +940,6 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
-    fieldsets = (
-        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'description'),
-    )
-
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -942,10 +948,6 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
 
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
-    fieldsets = (
-        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'description'),
-    )
-
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -956,7 +958,11 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
 class PowerPortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
         FieldSet(
-            'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
         ),
     )
 
@@ -978,7 +984,13 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
     )
 
     fieldsets = (
-        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description'),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+        ),
     )
 
     class Meta:
@@ -1001,7 +1013,11 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
 
     fieldsets = (
         FieldSet(
-            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge',
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge',
         ),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('rf_role', name=_('Wireless')),
@@ -1028,8 +1044,11 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
 
     fieldsets = (
         FieldSet(
-            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description',
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
         ),
     )
 
@@ -1043,7 +1062,13 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description'),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type', 'color', 'positions', 'description',
+        ),
     )
 
     class Meta:
@@ -1055,7 +1080,13 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 class ModuleBayTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        FieldSet('device_type', 'module_type', 'name', 'label', 'position', 'description'),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'position', 'description',
+        ),
     )
 
     class Meta:
