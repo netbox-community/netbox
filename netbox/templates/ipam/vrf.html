@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
       <div class="card">
           <h2 class="card-header">{% trans "VRF" %}</h2>
           <table class="table table-hover attr-table">
@@ -38,7 +38,7 @@
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
   </div>
-  <div class="col col-md-6">
+  <div class="col col-12 col-md-6">
     {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/comments.html' %}
@@ -46,10 +46,10 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     {% include 'inc/panel_table.html' with table=import_targets_table heading="Import Route Targets" %}
   </div>
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     {% include 'inc/panel_table.html' with table=export_targets_table heading="Export Route Targets" %}
   </div>
 </div>

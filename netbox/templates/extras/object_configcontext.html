@@ -5,12 +5,12 @@
 
 {% block content %}
     <div class="row">
-        <div class="col col-md-6">
+        <div class="col col-12 col-md-6">
           <div class="card">
             {% include 'extras/inc/configcontext_data.html' with title="Rendered Context" data=rendered_context format=format copyid="rendered_context" %}
           </div>
         </div>
-        <div class="col col-md-6">
+        <div class="col col-12 col-md-6">
             <div class="card">
                 {% include 'extras/inc/configcontext_data.html' with title="Local Context" data=object.local_context_data format=format copyid="local_context" %}
                 <div class="card-footer">
