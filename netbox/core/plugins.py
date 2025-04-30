@@ -47,6 +47,7 @@ class Plugin:
     The representation of a NetBox plugin in the catalog API.
     """
     id: str = ''
+    icon_url: str = ''
     status: str = ''
     title_short: str = ''
     title_long: str = ''
@@ -193,6 +194,7 @@ def get_catalog_plugins():
                 # Populate plugin data
                 plugins[data['config_name']] = Plugin(
                     id=data['id'],
+                    icon_url=data['icon'],
                     status=data['status'],
                     title_short=data['title_short'],
                     title_long=data['title_long'],
