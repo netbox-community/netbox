@@ -57,9 +57,8 @@ Blocks:
             {{ settings.RELEASE.name }}
             {% if not settings.RELEASE.features.commercial %}
               <div>
-                {% trans "Get" %}
-                <a href="https://netboxlabs.com/netbox-cloud/" class="text-muted">Cloud</a> |
-                <a href="https://netboxlabs.com/netbox-enterprise/" class="text-muted">Enterprise</a>
+                <a href="https://netboxlabs.com/netbox-cloud/" class="text-muted">{% trans "Get" %} Cloud</a> |
+                <a href="https://netboxlabs.com/netbox-enterprise/" class="text-muted">{% trans "Get" %} Enterprise</a>
               </div>
             {% endif %}
           </div>
