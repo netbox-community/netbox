@@ -29,6 +29,7 @@ from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
+from utilities.request import safe_for_redirect
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -120,7 +121,10 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             # Strip the `export` param and redirect user to the filtered objects list
             query_params = request.GET.copy()
             query_params.pop('export')
-            return redirect(f'{request.path}?{query_params.urlencode()}')
+            redirect_url = f'{request.path}?{query_params.urlencode()}'
+            if safe_for_redirect(redirect_url):
+                return redirect(redirect_url)
+            return redirect(get_viewname(self.queryset.model, 'list'))
 
     #
     # Request handlers
@@ -284,7 +288,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.info(msg)
                 messages.success(request, msg)
 
-                if '_addanother' in request.POST:
+                if '_addanother' in request.POST and safe_for_redirect(request.path):
                     return redirect(request.path)
                 return redirect(self.get_return_url(request))
 

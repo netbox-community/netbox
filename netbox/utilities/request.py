@@ -1,6 +1,8 @@
+from urllib.parse import urlparse
+
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
-from urllib.parse import urlparse
 
 from .constants import HTTP_REQUEST_META_SAFE_COPY
 
@@ -8,6 +10,7 @@ __all__ = (
     'NetBoxFakeRequest',
     'copy_safe_request',
     'get_client_ip',
+    'safe_for_redirect',
 )
 
 
@@ -77,3 +80,10 @@ def get_client_ip(request, additional_headers=()):
 
     # Could not determine the client IP address from request headers
     return None
+
+
+def safe_for_redirect(url):
+    """
+    Returns True if the given URL is safe to use as an HTTP redirect; otherwise returns False.
+    """
+    return url_has_allowed_host_and_scheme(url, allowed_hosts=None)
