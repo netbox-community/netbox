@@ -7,6 +7,7 @@
 * The `ALLOW_TOKEN_RETRIEVAL` configuration parameter now defaults to False.
 * The `device` and `virtual_machine` foreign keys on the Service model have been replaced with a generic `parent` relationship to support the assignment of services to FHRP groups as well.
 * The `group` foreign key on the Contact model has been replaced with a many-to-many `groups` field.
+* `django-storages` is now a required dependency. (It will be installed automatically on upgrade.)
 * PluginTemplateExtension no longer supports registration via the singular `model` attribute (use `models` instead).
 * The legacy staged changes functionality has been removed.
 
@@ -58,6 +59,7 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#18780](https://github.com/netbox-community/netbox/issues/18780) - Introduce `DATABASES` and `DATABASE_ROUTERS` configuration parameters to enable defining connections to external databases (e.g. for plugins)
 * [#18783](https://github.com/netbox-community/netbox/issues/18783) - Enable filtering all applicable models by tag ID
 * [#18785](https://github.com/netbox-community/netbox/issues/18785) - Enable custom choices for rack, device, and module airflow
+* [#18896](https://github.com/netbox-community/netbox/issues/18896) - Enable the use of remote storage for custom scripts
 
 ### Plugins
 
@@ -74,7 +76,7 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#18191](https://github.com/netbox-community/netbox/issues/18191) - Remove redundant PostgreSQL indexes
 * [#18236](https://github.com/netbox-community/netbox/issues/18236) - Upgrade the HTMX library to v2.0
 * [#18540](https://github.com/netbox-community/netbox/issues/18540) - Operational plugins are now recorded in the application registry
-* [#18623](https://github.com/netbox-community/netbox/issues/18623) - Upgrade the Tabler CSS theme to v1.0
+* [#18623](https://github.com/netbox-community/netbox/issues/18623) - Upgrade the Tabler CSS theme to v1.2
 * [#18743](https://github.com/netbox-community/netbox/issues/18743) - Upgrade Django to v5.2
 * [#18751](https://github.com/netbox-community/netbox/issues/18751) - Change the default value for `ALLOW_TOKEN_RETRIEVAL` to False
 * [#18808](https://github.com/netbox-community/netbox/issues/18808) - Squashed migration dependencies have been altered to rectify an issue with Django's `sqlmigrate` management command
