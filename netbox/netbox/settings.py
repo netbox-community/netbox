@@ -442,7 +442,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
-if not DEBUG:
+if not DEBUG and 'collectstatic' not in sys.argv:
     INSTALLED_APPS.remove('debug_toolbar')
 
 # Middleware

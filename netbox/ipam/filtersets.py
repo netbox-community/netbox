@@ -1256,8 +1256,20 @@ class PrimaryIPFilterSet(django_filters.FilterSet):
         queryset=IPAddress.objects.all(),
         label=_('Primary IPv4 (ID)'),
     )
+    primary_ip4 = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip4__address',
+        queryset=IPAddress.objects.all(),
+        to_field_name='address',
+        label=_('Primary IPv4 (address)'),
+    )
     primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_ip6',
         queryset=IPAddress.objects.all(),
         label=_('Primary IPv6 (ID)'),
+    )
+    primary_ip6 = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip6__address',
+        queryset=IPAddress.objects.all(),
+        to_field_name='address',
+        label=_('Primary IPv6 (address)'),
     )

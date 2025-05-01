@@ -22,6 +22,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
+from utilities.request import safe_for_redirect
 from utilities.views import (
     GetRelatedModelsMixin, GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 )
@@ -279,7 +280,7 @@ class RegionDeleteView(generic.ObjectDeleteView):
     queryset = Region.objects.all()
 
 
-@register_model_view(Region, 'bulk_import', detail=False)
+@register_model_view(Region, 'bulk_import', path='import', detail=False)
 class RegionBulkImportView(generic.BulkImportView):
     queryset = Region.objects.all()
     model_form = forms.RegionImportForm
@@ -405,7 +406,7 @@ class SiteGroupDeleteView(generic.ObjectDeleteView):
     queryset = SiteGroup.objects.all()
 
 
-@register_model_view(SiteGroup, 'bulk_import', detail=False)
+@register_model_view(SiteGroup, 'bulk_import', path='import', detail=False)
 class SiteGroupBulkImportView(generic.BulkImportView):
     queryset = SiteGroup.objects.all()
     model_form = forms.SiteGroupImportForm
@@ -496,7 +497,7 @@ class SiteDeleteView(generic.ObjectDeleteView):
     queryset = Site.objects.all()
 
 
-@register_model_view(Site, 'bulk_import', detail=False)
+@register_model_view(Site, 'bulk_import', path='import', detail=False)
 class SiteBulkImportView(generic.BulkImportView):
     queryset = Site.objects.all()
     model_form = forms.SiteImportForm
@@ -594,7 +595,7 @@ class LocationDeleteView(generic.ObjectDeleteView):
     queryset = Location.objects.all()
 
 
-@register_model_view(Location, 'bulk_import', detail=False)
+@register_model_view(Location, 'bulk_import', path='import', detail=False)
 class LocationBulkImportView(generic.BulkImportView):
     queryset = Location.objects.all()
     model_form = forms.LocationImportForm
@@ -663,7 +664,7 @@ class RackRoleDeleteView(generic.ObjectDeleteView):
     queryset = RackRole.objects.all()
 
 
-@register_model_view(RackRole, 'bulk_import', detail=False)
+@register_model_view(RackRole, 'bulk_import', path='import', detail=False)
 class RackRoleBulkImportView(generic.BulkImportView):
     queryset = RackRole.objects.all()
     model_form = forms.RackRoleImportForm
@@ -724,7 +725,7 @@ class RackTypeDeleteView(generic.ObjectDeleteView):
     queryset = RackType.objects.all()
 
 
-@register_model_view(RackType, 'bulk_import', detail=False)
+@register_model_view(RackType, 'bulk_import', path='import', detail=False)
 class RackTypeBulkImportView(generic.BulkImportView):
     queryset = RackType.objects.all()
     model_form = forms.RackTypeImportForm
@@ -903,7 +904,7 @@ class RackDeleteView(generic.ObjectDeleteView):
     queryset = Rack.objects.all()
 
 
-@register_model_view(Rack, 'bulk_import', detail=False)
+@register_model_view(Rack, 'bulk_import', path='import', detail=False)
 class RackBulkImportView(generic.BulkImportView):
     queryset = Rack.objects.all()
     model_form = forms.RackImportForm
@@ -960,7 +961,7 @@ class RackReservationDeleteView(generic.ObjectDeleteView):
     queryset = RackReservation.objects.all()
 
 
-@register_model_view(RackReservation, 'bulk_import', detail=False)
+@register_model_view(RackReservation, 'bulk_import', path='import', detail=False)
 class RackReservationImportView(generic.BulkImportView):
     queryset = RackReservation.objects.all()
     model_form = forms.RackReservationImportForm
@@ -1031,7 +1032,7 @@ class ManufacturerDeleteView(generic.ObjectDeleteView):
     queryset = Manufacturer.objects.all()
 
 
-@register_model_view(Manufacturer, 'bulk_import', detail=False)
+@register_model_view(Manufacturer, 'bulk_import', path='import', detail=False)
 class ManufacturerBulkImportView(generic.BulkImportView):
     queryset = Manufacturer.objects.all()
     model_form = forms.ManufacturerImportForm
@@ -1252,7 +1253,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     )
 
 
-@register_model_view(DeviceType, 'bulk_import', detail=False)
+@register_model_view(DeviceType, 'bulk_import', path='import', detail=False)
 class DeviceTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_devicetype',
@@ -1522,7 +1523,7 @@ class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
     )
 
 
-@register_model_view(ModuleType, 'bulk_import', detail=False)
+@register_model_view(ModuleType, 'bulk_import', path='import', detail=False)
 class ModuleTypeImportView(generic.BulkImportView):
     additional_permissions = [
         'dcim.add_moduletype',
@@ -1533,6 +1534,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'dcim.add_interfacetemplate',
         'dcim.add_frontporttemplate',
         'dcim.add_rearporttemplate',
+        'dcim.add_modulebaytemplate',
     ]
     queryset = ModuleType.objects.all()
     model_form = forms.ModuleTypeImportForm
@@ -1544,6 +1546,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'module-bays': forms.ModuleBayTemplateImportForm,
     }
 
     def prep_related_object_data(self, parent, data):
@@ -2018,7 +2021,7 @@ class DeviceRoleDeleteView(generic.ObjectDeleteView):
     queryset = DeviceRole.objects.all()
 
 
-@register_model_view(DeviceRole, 'bulk_import', detail=False)
+@register_model_view(DeviceRole, 'bulk_import', path='import', detail=False)
 class DeviceRoleBulkImportView(generic.BulkImportView):
     queryset = DeviceRole.objects.all()
     model_form = forms.DeviceRoleImportForm
@@ -2082,7 +2085,7 @@ class PlatformDeleteView(generic.ObjectDeleteView):
     queryset = Platform.objects.all()
 
 
-@register_model_view(Platform, 'bulk_import', detail=False)
+@register_model_view(Platform, 'bulk_import', path='import', detail=False)
 class PlatformBulkImportView(generic.BulkImportView):
     queryset = Platform.objects.all()
     model_form = forms.PlatformImportForm
@@ -2365,7 +2368,7 @@ class DeviceVirtualMachinesView(generic.ObjectChildrenView):
         return self.child_model.objects.restrict(request.user, 'view').filter(cluster=parent.cluster, device=parent)
 
 
-@register_model_view(Device, 'bulk_import', detail=False)
+@register_model_view(Device, 'bulk_import', path='import', detail=False)
 class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
     model_form = forms.DeviceImportForm
@@ -2438,7 +2441,7 @@ class ModuleDeleteView(generic.ObjectDeleteView):
     queryset = Module.objects.all()
 
 
-@register_model_view(Module, 'bulk_import', detail=False)
+@register_model_view(Module, 'bulk_import', path='import', detail=False)
 class ModuleBulkImportView(generic.BulkImportView):
     queryset = Module.objects.all()
     model_form = forms.ModuleImportForm
@@ -2499,7 +2502,7 @@ class ConsolePortDeleteView(generic.ObjectDeleteView):
     queryset = ConsolePort.objects.all()
 
 
-@register_model_view(ConsolePort, 'bulk_import', detail=False)
+@register_model_view(ConsolePort, 'bulk_import', path='import', detail=False)
 class ConsolePortBulkImportView(generic.BulkImportView):
     queryset = ConsolePort.objects.all()
     model_form = forms.ConsolePortImportForm
@@ -2574,7 +2577,7 @@ class ConsoleServerPortDeleteView(generic.ObjectDeleteView):
     queryset = ConsoleServerPort.objects.all()
 
 
-@register_model_view(ConsoleServerPort, 'bulk_import', detail=False)
+@register_model_view(ConsoleServerPort, 'bulk_import', path='import', detail=False)
 class ConsoleServerPortBulkImportView(generic.BulkImportView):
     queryset = ConsoleServerPort.objects.all()
     model_form = forms.ConsoleServerPortImportForm
@@ -2649,7 +2652,7 @@ class PowerPortDeleteView(generic.ObjectDeleteView):
     queryset = PowerPort.objects.all()
 
 
-@register_model_view(PowerPort, 'bulk_import', detail=False)
+@register_model_view(PowerPort, 'bulk_import', path='import', detail=False)
 class PowerPortBulkImportView(generic.BulkImportView):
     queryset = PowerPort.objects.all()
     model_form = forms.PowerPortImportForm
@@ -2724,7 +2727,7 @@ class PowerOutletDeleteView(generic.ObjectDeleteView):
     queryset = PowerOutlet.objects.all()
 
 
-@register_model_view(PowerOutlet, 'bulk_import', detail=False)
+@register_model_view(PowerOutlet, 'bulk_import', path='import', detail=False)
 class PowerOutletBulkImportView(generic.BulkImportView):
     queryset = PowerOutlet.objects.all()
     model_form = forms.PowerOutletImportForm
@@ -2856,7 +2859,7 @@ class InterfaceDeleteView(generic.ObjectDeleteView):
     queryset = Interface.objects.all()
 
 
-@register_model_view(Interface, 'bulk_import', detail=False)
+@register_model_view(Interface, 'bulk_import', path='import', detail=False)
 class InterfaceBulkImportView(generic.BulkImportView):
     queryset = Interface.objects.all()
     model_form = forms.InterfaceImportForm
@@ -2942,7 +2945,7 @@ class FrontPortDeleteView(generic.ObjectDeleteView):
     queryset = FrontPort.objects.all()
 
 
-@register_model_view(FrontPort, 'bulk_import', detail=False)
+@register_model_view(FrontPort, 'bulk_import', path='import', detail=False)
 class FrontPortBulkImportView(generic.BulkImportView):
     queryset = FrontPort.objects.all()
     model_form = forms.FrontPortImportForm
@@ -3017,7 +3020,7 @@ class RearPortDeleteView(generic.ObjectDeleteView):
     queryset = RearPort.objects.all()
 
 
-@register_model_view(RearPort, 'bulk_import', detail=False)
+@register_model_view(RearPort, 'bulk_import', path='import', detail=False)
 class RearPortBulkImportView(generic.BulkImportView):
     queryset = RearPort.objects.all()
     model_form = forms.RearPortImportForm
@@ -3092,7 +3095,7 @@ class ModuleBayDeleteView(generic.ObjectDeleteView):
     queryset = ModuleBay.objects.all()
 
 
-@register_model_view(ModuleBay, 'bulk_import', detail=False)
+@register_model_view(ModuleBay, 'bulk_import', path='import', detail=False)
 class ModuleBayBulkImportView(generic.BulkImportView):
     queryset = ModuleBay.objects.all()
     model_form = forms.ModuleBayImportForm
@@ -3239,7 +3242,7 @@ class DeviceBayDepopulateView(generic.ObjectEditView):
         })
 
 
-@register_model_view(DeviceBay, 'bulk_import', detail=False)
+@register_model_view(DeviceBay, 'bulk_import', path='import', detail=False)
 class DeviceBayBulkImportView(generic.BulkImportView):
     queryset = DeviceBay.objects.all()
     model_form = forms.DeviceBayImportForm
@@ -3305,7 +3308,7 @@ class InventoryItemDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItem.objects.all()
 
 
-@register_model_view(InventoryItem, 'bulk_import', detail=False)
+@register_model_view(InventoryItem, 'bulk_import', path='import', detail=False)
 class InventoryItemBulkImportView(generic.BulkImportView):
     queryset = InventoryItem.objects.all()
     model_form = forms.InventoryItemImportForm
@@ -3386,7 +3389,7 @@ class InventoryItemRoleDeleteView(generic.ObjectDeleteView):
     queryset = InventoryItemRole.objects.all()
 
 
-@register_model_view(InventoryItemRole, 'bulk_import', detail=False)
+@register_model_view(InventoryItemRole, 'bulk_import', path='import', detail=False)
 class InventoryItemRoleBulkImportView(generic.BulkImportView):
     queryset = InventoryItemRole.objects.all()
     model_form = forms.InventoryItemRoleImportForm
@@ -3582,7 +3585,7 @@ class CableDeleteView(generic.ObjectDeleteView):
     queryset = Cable.objects.all()
 
 
-@register_model_view(Cable, 'bulk_import', detail=False)
+@register_model_view(Cable, 'bulk_import', path='import', detail=False)
 class CableBulkImportView(generic.BulkImportView):
     queryset = Cable.objects.all()
     model_form = forms.CableImportForm
@@ -3811,7 +3814,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
                     )
                 ))
 
-                if '_addanother' in request.POST:
+                if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
                     return redirect(request.get_full_path())
 
                 return redirect(self.get_return_url(request, device))
@@ -3883,7 +3886,7 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         })
 
 
-@register_model_view(VirtualChassis, 'bulk_import', detail=False)
+@register_model_view(VirtualChassis, 'bulk_import', path='import', detail=False)
 class VirtualChassisBulkImportView(generic.BulkImportView):
     queryset = VirtualChassis.objects.all()
     model_form = forms.VirtualChassisImportForm
@@ -3940,7 +3943,7 @@ class PowerPanelDeleteView(generic.ObjectDeleteView):
     queryset = PowerPanel.objects.all()
 
 
-@register_model_view(PowerPanel, 'bulk_import', detail=False)
+@register_model_view(PowerPanel, 'bulk_import', path='import', detail=False)
 class PowerPanelBulkImportView(generic.BulkImportView):
     queryset = PowerPanel.objects.all()
     model_form = forms.PowerPanelImportForm
@@ -3992,7 +3995,7 @@ class PowerFeedDeleteView(generic.ObjectDeleteView):
     queryset = PowerFeed.objects.all()
 
 
-@register_model_view(PowerFeed, 'bulk_import', detail=False)
+@register_model_view(PowerFeed, 'bulk_import', path='import', detail=False)
 class PowerFeedBulkImportView(generic.BulkImportView):
     queryset = PowerFeed.objects.all()
     model_form = forms.PowerFeedImportForm
@@ -4064,7 +4067,7 @@ class VirtualDeviceContextDeleteView(generic.ObjectDeleteView):
     queryset = VirtualDeviceContext.objects.all()
 
 
-@register_model_view(VirtualDeviceContext, 'bulk_import', detail=False)
+@register_model_view(VirtualDeviceContext, 'bulk_import', path='import', detail=False)
 class VirtualDeviceContextBulkImportView(generic.BulkImportView):
     queryset = VirtualDeviceContext.objects.all()
     model_form = forms.VirtualDeviceContextImportForm
@@ -4114,7 +4117,7 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
     queryset = MACAddress.objects.all()
 
 
-@register_model_view(MACAddress, 'bulk_import', detail=False)
+@register_model_view(MACAddress, 'bulk_import', path='import', detail=False)
 class MACAddressBulkImportView(generic.BulkImportView):
     queryset = MACAddress.objects.all()
     model_form = forms.MACAddressImportForm

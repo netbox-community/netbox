@@ -2859,14 +2859,22 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = IPAddress.objects.filter(address__family=4)
         params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip4': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_primary_ip6(self):
         addresses = IPAddress.objects.filter(address__family=6)
         params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip6': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_virtual_chassis_id(self):
@@ -2961,6 +2969,29 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
+        regions = (
+            Region(name='Region 1', slug='region-1'),
+            Region(name='Region 2', slug='region-2'),
+            Region(name='Region 3', slug='region-3'),
+        )
+        for region in regions:
+            region.save()
+
+        groups = (
+            SiteGroup(name='Site Group 1', slug='site-group-1'),
+            SiteGroup(name='Site Group 2', slug='site-group-2'),
+            SiteGroup(name='Site Group 3', slug='site-group-3'),
+        )
+        for group in groups:
+            group.save()
+
+        sites = Site.objects.bulk_create((
+            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site X', slug='site-x'),
+        ))
+
         manufacturers = (
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
@@ -2968,11 +2999,66 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        devices = (
-            create_test_device('Test Device 1'),
-            create_test_device('Test Device 2'),
-            create_test_device('Test Device 3'),
+        device_types = (
+            DeviceType(manufacturer=manufacturers[0], model='Device Type 1', slug='device-type-1'),
+            DeviceType(manufacturer=manufacturers[1], model='Device Type 2', slug='device-type-2'),
+            DeviceType(manufacturer=manufacturers[2], model='Device Type 3', slug='device-type-3'),
         )
+        DeviceType.objects.bulk_create(device_types)
+
+        roles = (
+            DeviceRole(name='Device Role 1', slug='device-role-1'),
+            DeviceRole(name='Device Role 2', slug='device-role-2'),
+            DeviceRole(name='Device Role 3', slug='device-role-3'),
+        )
+        for role in roles:
+            role.save()
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
+        racks = (
+            Rack(name='Rack 1', site=sites[0]),
+            Rack(name='Rack 2', site=sites[1]),
+            Rack(name='Rack 3', site=sites[2]),
+        )
+        Rack.objects.bulk_create(racks)
+
+        devices = (
+            Device(
+                name='Test Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                status='active',
+            ),
+            Device(
+                name='Test Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1],
+                status='planned',
+            ),
+            Device(
+                name='Test Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                status='offline',
+            ),
+        )
+        Device.objects.bulk_create(devices)
 
         module_types = (
             ModuleType(manufacturer=manufacturers[0], model='Module Type 1'),
@@ -3119,6 +3205,41 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_asset_tag(self):
         params = {'asset_tag': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_region(self):
+        regions = Region.objects.all()[:2]
+        params = {'region_id': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'region': [regions[0].slug, regions[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_site_group(self):
+        site_groups = SiteGroup.objects.all()[:2]
+        params = {'site_group_id': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'site_group': [site_groups[0].slug, site_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_site(self):
+        sites = Site.objects.all()[:2]
+        params = {'site_id': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_rack(self):
+        racks = Rack.objects.all()[:2]
+        params = {'rack_id': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'rack': [racks[0].name, racks[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
 class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
@@ -6722,14 +6843,22 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = IPAddress.objects.filter(address__family=4)
         params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip4': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_primary_ip6(self):
         addresses = IPAddress.objects.filter(address__family=6)
         params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip6': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 

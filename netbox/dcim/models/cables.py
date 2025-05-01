@@ -3,7 +3,6 @@ import itertools
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
 
@@ -774,9 +773,28 @@ class CablePath(models.Model):
         Return a tuple containing the sum of the length of each cable in the path
         and a flag indicating whether the length is definitive.
         """
+        cable_ct = ObjectType.objects.get_for_model(Cable).pk
+
+        # Pre-cache cable lengths by ID
         cable_ids = self.get_cable_ids()
-        cables = Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False)
-        total_length = cables.aggregate(total=Sum('_abs_length'))['total']
+        cables = {
+            cable['pk']: cable['_abs_length']
+            for cable in Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False).values('pk', '_abs_length')
+        }
+
+        # Iterate through each set of nodes in the path. For cables, add the length of the longest cable to the total
+        # length of the path.
+        total_length = 0
+        for node_set in self.path:
+            hop_length = 0
+            for node in node_set:
+                ct, pk = decompile_path_node(node)
+                if ct != cable_ct:
+                    break  # Not a cable
+                if pk in cables and cables[pk] > hop_length:
+                    hop_length = cables[pk]
+            total_length += hop_length
+
         is_definitive = len(cables) == len(cable_ids)
 
         return total_length, is_definitive

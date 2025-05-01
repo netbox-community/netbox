@@ -20,6 +20,7 @@ from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
+from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseObjectView
@@ -317,6 +318,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
                         if 'return_url' in request.GET:
                             params['return_url'] = request.GET.get('return_url')
                         redirect_url += f"?{params.urlencode()}"
+                        if not safe_for_redirect(redirect_url):
+                            redirect_url = reverse('home')
 
                     return redirect(redirect_url)
 
@@ -583,7 +586,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         ))
 
                         # Redirect user on success
-                        if '_addanother' in request.POST:
+                        if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
                             return redirect(request.get_full_path())
                         else:
                             return redirect(self.get_return_url(request))

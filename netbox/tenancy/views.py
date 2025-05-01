@@ -50,7 +50,7 @@ class TenantGroupDeleteView(generic.ObjectDeleteView):
     queryset = TenantGroup.objects.all()
 
 
-@register_model_view(TenantGroup, 'bulk_import', detail=False)
+@register_model_view(TenantGroup, 'bulk_import', path='import', detail=False)
 class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupImportForm
@@ -117,7 +117,7 @@ class TenantDeleteView(generic.ObjectDeleteView):
     queryset = Tenant.objects.all()
 
 
-@register_model_view(Tenant, 'bulk_import', detail=False)
+@register_model_view(Tenant, 'bulk_import', path='import', detail=False)
 class TenantBulkImportView(generic.BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantImportForm
@@ -186,7 +186,7 @@ class ContactGroupDeleteView(generic.ObjectDeleteView):
     queryset = ContactGroup.objects.all()
 
 
-@register_model_view(ContactGroup, 'bulk_import', detail=False)
+@register_model_view(ContactGroup, 'bulk_import', path='import', detail=False)
 class ContactGroupBulkImportView(generic.BulkImportView):
     queryset = ContactGroup.objects.all()
     model_form = forms.ContactGroupImportForm
@@ -253,7 +253,7 @@ class ContactRoleDeleteView(generic.ObjectDeleteView):
     queryset = ContactRole.objects.all()
 
 
-@register_model_view(ContactRole, 'bulk_import', detail=False)
+@register_model_view(ContactRole, 'bulk_import', path='import', detail=False)
 class ContactRoleBulkImportView(generic.BulkImportView):
     queryset = ContactRole.objects.all()
     model_form = forms.ContactRoleImportForm
@@ -305,7 +305,7 @@ class ContactDeleteView(generic.ObjectDeleteView):
     queryset = Contact.objects.all()
 
 
-@register_model_view(Contact, 'bulk_import', detail=False)
+@register_model_view(Contact, 'bulk_import', path='import', detail=False)
 class ContactBulkImportView(generic.BulkImportView):
     queryset = Contact.objects.all()
     model_form = forms.ContactImportForm
@@ -377,7 +377,7 @@ class ContactAssignmentEditView(generic.ObjectEditView):
         }
 
 
-@register_model_view(ContactAssignment, 'bulk_import', detail=False)
+@register_model_view(ContactAssignment, 'bulk_import', path='import', detail=False)
 class ContactAssignmentBulkImportView(generic.BulkImportView):
     queryset = ContactAssignment.objects.all()
     model_form = forms.ContactAssignmentImportForm

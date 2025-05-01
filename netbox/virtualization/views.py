@@ -58,7 +58,7 @@ class ClusterTypeDeleteView(generic.ObjectDeleteView):
     queryset = ClusterType.objects.all()
 
 
-@register_model_view(ClusterType, 'bulk_import', detail=False)
+@register_model_view(ClusterType, 'bulk_import', path='import', detail=False)
 class ClusterTypeBulkImportView(generic.BulkImportView):
     queryset = ClusterType.objects.all()
     model_form = forms.ClusterTypeImportForm
@@ -129,7 +129,7 @@ class ClusterGroupDeleteView(generic.ObjectDeleteView):
     queryset = ClusterGroup.objects.all()
 
 
-@register_model_view(ClusterGroup, 'bulk_import', detail=False)
+@register_model_view(ClusterGroup, 'bulk_import', path='import', detail=False)
 class ClusterGroupBulkImportView(generic.BulkImportView):
     queryset = ClusterGroup.objects.annotate(
         cluster_count=count_related(Cluster, 'group')
@@ -253,7 +253,7 @@ class ClusterDeleteView(generic.ObjectDeleteView):
     queryset = Cluster.objects.all()
 
 
-@register_model_view(Cluster, 'bulk_import', detail=False)
+@register_model_view(Cluster, 'bulk_import', path='import', detail=False)
 class ClusterBulkImportView(generic.BulkImportView):
     queryset = Cluster.objects.all()
     model_form = forms.ClusterImportForm
@@ -459,7 +459,7 @@ class VirtualMachineDeleteView(generic.ObjectDeleteView):
     queryset = VirtualMachine.objects.all()
 
 
-@register_model_view(VirtualMachine, 'bulk_import', detail=False)
+@register_model_view(VirtualMachine, 'bulk_import', path='import', detail=False)
 class VirtualMachineBulkImportView(generic.BulkImportView):
     queryset = VirtualMachine.objects.all()
     model_form = forms.VirtualMachineImportForm
@@ -553,7 +553,7 @@ class VMInterfaceDeleteView(generic.ObjectDeleteView):
     queryset = VMInterface.objects.all()
 
 
-@register_model_view(VMInterface, 'bulk_import', detail=False)
+@register_model_view(VMInterface, 'bulk_import', path='import', detail=False)
 class VMInterfaceBulkImportView(generic.BulkImportView):
     queryset = VMInterface.objects.all()
     model_form = forms.VMInterfaceImportForm
@@ -616,7 +616,7 @@ class VirtualDiskDeleteView(generic.ObjectDeleteView):
     queryset = VirtualDisk.objects.all()
 
 
-@register_model_view(VirtualDisk, 'bulk_import', detail=False)
+@register_model_view(VirtualDisk, 'bulk_import', path='import', detail=False)
 class VirtualDiskBulkImportView(generic.BulkImportView):
     queryset = VirtualDisk.objects.all()
     model_form = forms.VirtualDiskImportForm

@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models.fields.reverse_related import ManyToManyRel
+from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
@@ -145,8 +145,10 @@ def handle_deleted_object(sender, instance, **kwargs):
     # instance being deleted, and explicitly call .remove() on the remote M2M field to delete
     # the association. This triggers an m2m_changed signal with the `post_remove` action type
     # for the forward direction of the relationship, ensuring that the change is recorded.
+    # Similarly, for many-to-one relationships, we set the value on the related object to None
+    # and save it to trigger a change record on that object.
     for relation in instance._meta.related_objects:
-        if type(relation) is not ManyToManyRel:
+        if type(relation) not in [ManyToManyRel, ManyToOneRel]:
             continue
         related_model = relation.related_model
         related_field_name = relation.remote_field.name
@@ -156,7 +158,11 @@ def handle_deleted_object(sender, instance, **kwargs):
             continue
         for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
             obj.snapshot()  # Ensure the change record includes the "before" state
-            getattr(obj, related_field_name).remove(instance)
+            if type(relation) is ManyToManyRel:
+                getattr(obj, related_field_name).remove(instance)
+            elif type(relation) is ManyToOneRel and relation.field.null is True:
+                setattr(obj, related_field_name, None)
+                obj.save()
 
     # Enqueue the object for event processing
     queue = events_queue.get()

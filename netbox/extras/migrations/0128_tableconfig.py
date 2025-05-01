@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0014_remove_redundant_indexes'),
+        ('core', '0015_remove_redundant_indexes'),
         ('extras', '0127_configtemplate_as_attachment_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

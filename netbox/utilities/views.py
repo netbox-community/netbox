@@ -5,12 +5,12 @@ from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.relations import get_related_models
+from utilities.request import safe_for_redirect
 from .permissions import resolve_permission
 
 __all__ = (
@@ -136,7 +136,7 @@ class GetReturnURLMixin:
         # First, see if `return_url` was specified as a query parameter or form data. Use this URL only if it's
         # considered safe.
         return_url = request.GET.get('return_url') or request.POST.get('return_url')
-        if return_url and url_has_allowed_host_and_scheme(return_url, allowed_hosts=None):
+        if return_url and safe_for_redirect(return_url):
             return return_url
 
         # Next, check if the object being modified (if any) has an absolute URL.

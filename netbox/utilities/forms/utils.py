@@ -200,6 +200,7 @@ def form_from_model(model, fields):
     form_fields = fields_for_model(model, fields=fields)
     for field in form_fields.values():
         field.required = False
+        field.widget.is_required = False
 
     return type('FormFromModel', (forms.Form,), form_fields)
 

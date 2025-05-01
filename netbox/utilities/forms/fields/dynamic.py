@@ -133,6 +133,7 @@ class DynamicModelChoiceMixin:
 
     def get_bound_field(self, form, field_name):
         bound_field = BoundField(form, self, field_name)
+        widget = bound_field.field.widget
 
         # Set initial value based on prescribed child fields (if not already set)
         if not self.initial and self.initial_params:
@@ -163,8 +164,14 @@ class DynamicModelChoiceMixin:
         else:
             self.queryset = self.queryset.none()
 
+        # Normalize the widget choices to a list to accommodate the "null" option, if set
+        if self.null_option:
+            widget.choices = [
+                (settings.FILTERS_NULL_CHOICE_VALUE, self.null_option),
+                *[c for c in widget.choices]
+            ]
+
         # Set the data URL on the APISelect widget (if not already set)
-        widget = bound_field.field.widget
         if not widget.attrs.get('data-url'):
             viewname = get_viewname(self.queryset.model, action='list', rest_api=True)
             widget.attrs['data-url'] = reverse(viewname)

@@ -55,7 +55,7 @@ Sets content for the top banner in the user interface.
 
 ## CENSUS_REPORTING_ENABLED
 
-Default: True
+Default: `True`
 
 Enables anonymous census reporting. To opt out of census reporting, set this to False.
 
@@ -67,7 +67,7 @@ This data enables the project maintainers to estimate how many NetBox deployment
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: 90
+Default: `90`
 
 The number of days to retain logged changes (object creations, updates, and deletions). Set this to `0` to retain
 changes in the database indefinitely.
@@ -79,7 +79,7 @@ changes in the database indefinitely.
 
 ## CHANGELOG_SKIP_EMPTY_CHANGES
 
-Default: True
+Default: `True`
 
 If enabled, a change log record will not be created when an object is updated without any changes to its existing field values.
 
@@ -100,7 +100,7 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: True
+Default: `True`
 
 By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
 
@@ -128,7 +128,7 @@ The maximum amount (in bytes) of uploaded data that will be held in memory befor
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: 90
+Default: `90`
 
 The number of days to retain job results (scripts and reports). Set this to `0` to retain job results in the database indefinitely.
 
@@ -141,7 +141,7 @@ The number of days to retain job results (scripts and reports). Set this to `0` 
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: False
+Default: `False`
 
 Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
 
@@ -161,7 +161,7 @@ This specifies the URL to use when presenting a map of a physical location by st
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: 1000
+Default: `1000`
 
 A web user or API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This parameter defines the maximum acceptable limit. Setting this to `0` or `None` will allow a client to retrieve _all_ matching objects at once with no limit by specifying `?limit=0`.
 
@@ -169,7 +169,7 @@ A web user or API consumer can request an arbitrary number of objects by appendi
 
 ## METRICS_ENABLED
 
-Default: False
+Default: `False`
 
 Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Prometheus Metrics](../integrations/prometheus-metrics.md) documentation for more details.
 
@@ -179,7 +179,7 @@ Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Pr
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: False
+Default: `False`
 
 When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
 
@@ -203,7 +203,7 @@ If no queue is defined the queue named `default` will be used.
 
 ## RELEASE_CHECK_URL
 
-Default: None (disabled)
+Default: `None` (disabled)
 
 This parameter defines the URL of the repository that will be checked for new NetBox releases. When a new release is detected, a message will be displayed to administrative users on the home page. This can be set to the official repository (`'https://api.github.com/repos/netbox-community/netbox/releases'`) or a custom fork. Set this to `None` to disable automatic update checks.
 
