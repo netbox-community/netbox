@@ -1,18 +1,54 @@
 import importlib
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
+from django.db.models import Q
 from taggit.managers import _TaggableManager
 
 from netbox.context import current_request
 from .validators import CustomValidator
 
 __all__ = (
+    'SharedObjectViewMixin',
     'image_upload',
     'is_report',
     'is_script',
     'is_taggable',
     'run_validators',
 )
+
+
+class SharedObjectViewMixin:
+
+    def get_queryset(self, request):
+        """
+        Return only shared objects, or those owned by the current user, unless this is a superuser.
+        """
+        queryset = super().get_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        if request.user.is_anonymous:
+            return queryset.filter(shared=True)
+        return queryset.filter(
+            Q(shared=True) | Q(user=request.user)
+        )
+
+
+def filename_from_model(model: models.Model) -> str:
+    """Standardises how we generate filenames from model class for exports"""
+    base = model._meta.verbose_name_plural.lower().replace(' ', '_')
+    return f'netbox_{base}'
+
+
+def filename_from_object(context: dict) -> str:
+    """Standardises how we generate filenames from model class for exports"""
+    if 'device' in context:
+        base = f"{context['device'].name or 'config'}"
+    elif 'virtualmachine' in context:
+        base = f"{context['virtualmachine'].name or 'config'}"
+    else:
+        base = 'config'
+    return base
 
 
 def is_taggable(obj):

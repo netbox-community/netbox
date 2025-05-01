@@ -13,6 +13,7 @@ __all__ = (
     'ContactAssignment',
     'Contact',
     'ContactGroup',
+    'ContactGroupMembership',
     'ContactRole',
 )
 
@@ -47,12 +48,12 @@ class Contact(PrimaryModel):
     """
     Contact information for a particular object(s) in NetBox.
     """
-    group = models.ForeignKey(
+    groups = models.ManyToManyField(
         to='tenancy.ContactGroup',
-        on_delete=models.SET_NULL,
         related_name='contacts',
-        blank=True,
-        null=True
+        through='tenancy.ContactGroupMembership',
+        related_query_name='contact',
+        blank=True
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -84,22 +85,28 @@ class Contact(PrimaryModel):
     )
 
     clone_fields = (
-        'group', 'name', 'title', 'phone', 'email', 'address', 'link',
+        'groups', 'name', 'title', 'phone', 'email', 'address', 'link',
     )
 
     class Meta:
         ordering = ['name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('group', 'name'),
-                name='%(app_label)s_%(class)s_unique_group_name'
-            ),
-        )
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
 
     def __str__(self):
         return self.name
+
+
+class ContactGroupMembership(models.Model):
+    group = models.ForeignKey(ContactGroup, related_name="+", on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, related_name="+", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['group', 'contact'], name='unique_group_name')
+        ]
+        verbose_name = _('contact group membership')
+        verbose_name_plural = _('contact group memberships')
 
 
 class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

@@ -5,12 +5,12 @@ import taggit.managers
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0002_auto_20160622_1821'),
-        ('virtualization', '0001_virtualization'),
+        ('dcim', '0002_squashed'),
+        ('virtualization', '0001_squashed_0022'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('ipam', '0001_initial'),
-        ('tenancy', '0001_initial'),
-        ('extras', '0002_custom_fields'),
+        ('ipam', '0001_squashed'),
+        ('tenancy', '0001_squashed_0012'),
+        ('extras', '0002_squashed_0059'),
     ]
 
     replaces = [
@@ -505,28 +505,6 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='termination_a_type',
             field=models.ForeignKey(
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))),
-                        models.Q(
-                            ('app_label', 'dcim'),
-                            (
-                                'model__in',
-                                (
-                                    'consoleport',
-                                    'consoleserverport',
-                                    'frontport',
-                                    'interface',
-                                    'powerfeed',
-                                    'poweroutlet',
-                                    'powerport',
-                                    'rearport',
-                                ),
-                            ),
-                        ),
-                        _connector='OR',
-                    )
-                ),
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
                 to='contenttypes.contenttype',
@@ -536,28 +514,6 @@ class Migration(migrations.Migration):
             model_name='cable',
             name='termination_b_type',
             field=models.ForeignKey(
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))),
-                        models.Q(
-                            ('app_label', 'dcim'),
-                            (
-                                'model__in',
-                                (
-                                    'consoleport',
-                                    'consoleserverport',
-                                    'frontport',
-                                    'interface',
-                                    'powerfeed',
-                                    'poweroutlet',
-                                    'powerport',
-                                    'rearport',
-                                ),
-                            ),
-                        ),
-                        _connector='OR',
-                    )
-                ),
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
                 to='contenttypes.contenttype',

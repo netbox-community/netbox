@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load i18n %}
 {% load django_htmx %}
+{% load plugins %}
 <!DOCTYPE html>
 <html
   lang="en"
@@ -59,6 +60,7 @@
 
     {# Additional <head> content #}
     {% block head %}{% endblock %}
+    {% plugin_head %}
 
   </head>
   <body>

@@ -30,6 +30,7 @@ __all__ = (
     'ScriptResultsTable',
     'ScriptJobTable',
     'SubscriptionTable',
+    'TableConfigTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -186,6 +187,15 @@ class ExportTemplateTable(NetBoxTable):
     object_types = columns.ContentTypesColumn(
         verbose_name=_('Object Types'),
     )
+    mime_type = tables.Column(
+        verbose_name=_('MIME Type')
+    )
+    file_name = tables.Column(
+        verbose_name=_('File Name'),
+    )
+    file_extension = tables.Column(
+        verbose_name=_('File Extension'),
+    )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
         false_mark=None
@@ -206,11 +216,12 @@ class ExportTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'id', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
-            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'pk', 'id', 'name', 'object_types', 'description', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
+            'pk', 'name', 'object_types', 'description', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'is_synced',
         )
 
 
@@ -271,6 +282,36 @@ class SavedFilterTable(NetBoxTable):
         )
         default_columns = (
             'pk', 'name', 'object_types', 'user', 'description', 'enabled', 'shared',
+        )
+
+
+class TableConfigTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
+    )
+    table = tables.Column(
+        verbose_name=_('Table Name')
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    shared = columns.BooleanColumn(
+        verbose_name=_('Shared'),
+        false_mark=None
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = TableConfig
+        fields = (
+            'pk', 'id', 'name', 'object_type', 'table', 'description', 'user', 'weight', 'enabled', 'shared', 'created',
+            'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'object_type', 'table', 'user', 'description', 'enabled', 'shared',
         )
 
 
@@ -452,8 +493,8 @@ class TagTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Tag
         fields = (
-            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'weight', 'description', 'object_types',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
@@ -532,6 +573,19 @@ class ConfigTemplateTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Synced')
     )
+    mime_type = tables.Column(
+        verbose_name=_('MIME Type')
+    )
+    file_name = tables.Column(
+        verbose_name=_('File Name'),
+    )
+    file_extension = tables.Column(
+        verbose_name=_('File Extension'),
+    )
+    as_attachment = columns.BooleanColumn(
+        verbose_name=_('As Attachment'),
+        false_mark=None
+    )
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
     )
@@ -559,8 +613,9 @@ class ConfigTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
-            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'role_count',
-            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags',
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'as_attachment',
+            'mime_type', 'file_name', 'file_extension', 'role_count', 'platform_count', 'device_count',
+            'vm_count', 'created', 'last_updated', 'tags',
         )
         default_columns = (
             'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',

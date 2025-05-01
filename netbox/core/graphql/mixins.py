@@ -1,10 +1,13 @@
-from typing import Annotated, List
+from typing import Annotated, List, TYPE_CHECKING
 
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType
 
 from core.models import ObjectChange
+
+if TYPE_CHECKING:
+    from netbox.core.graphql.types import ObjectChangeType
 
 __all__ = (
     'ChangelogMixin',

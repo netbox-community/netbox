@@ -59,6 +59,12 @@ class DataSource(JobsMixin, PrimaryModel):
         verbose_name=_('enabled'),
         default=True
     )
+    sync_interval = models.PositiveSmallIntegerField(
+        verbose_name=_('sync interval'),
+        choices=JobIntervalChoices,
+        blank=True,
+        null=True
+    )
     ignore_rules = models.TextField(
         verbose_name=_('ignore rules'),
         blank=True,
@@ -304,9 +310,6 @@ class DataFile(models.Model):
                 name='%(app_label)s_%(class)s_unique_source_path'
             ),
         )
-        indexes = [
-            models.Index(fields=('source', 'path'), name='core_datafile_source_path'),
-        ]
         verbose_name = _('data file')
         verbose_name_plural = _('data files')
 
@@ -351,17 +354,6 @@ class DataFile(models.Model):
 
         return is_modified
 
-    def write_to_disk(self, path, overwrite=False):
-        """
-        Write the object's data to disk at the specified path
-        """
-        # Check whether file already exists
-        if os.path.isfile(path) and not overwrite:
-            raise FileExistsError()
-
-        with open(path, 'wb+') as new_file:
-            new_file.write(self.data)
-
 
 class AutoSyncRecord(models.Model):
     """
@@ -391,9 +383,6 @@ class AutoSyncRecord(models.Model):
                 fields=('object_type', 'object_id'),
                 name='%(app_label)s_%(class)s_object'
             ),
-        )
-        indexes = (
-            models.Index(fields=('object_type', 'object_id')),
         )
         verbose_name = _('auto sync record')
         verbose_name_plural = _('auto sync records')

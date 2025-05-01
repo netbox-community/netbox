@@ -24,6 +24,10 @@
         <h2 class="card-header">{% trans "Module Type" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
+            <th scope="row">{% trans "Profile" %}</th>
+            <td>{{ object.profile|linkify|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Manufacturer" %}</th>
             <td>{{ object.manufacturer|linkify }}</td>
           </tr>
@@ -60,6 +64,33 @@
       {% plugin_left_page object %}
     </div>
     <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Attributes" %}</h2>
+        {% if not object.profile %}
+          <div class="card-body text-muted">
+            {% trans "No profile assigned" %}
+          </div>
+        {% elif object.attributes %}
+          <table class="table table-hover attr-table">
+            {% for k, v in object.attributes.items %}
+              <tr>
+                <th scope="row">{{ k }}</th>
+                <td>
+                  {% if v is True or v is False %}
+                    {% checkmark v %}
+                  {% else %}
+                    {{ v|placeholder }}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <div class="card-body text-muted">
+            {% trans "None" %}
+          </div>
+        {% endif %}
+      </div>
       {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/image_attachments.html' %}

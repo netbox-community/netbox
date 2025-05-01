@@ -3,7 +3,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from users.constants import OBJECTPERMISSION_OBJECT_TYPES
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -31,7 +30,6 @@ class ObjectPermission(models.Model):
     )
     object_types = models.ManyToManyField(
         to='core.ObjectType',
-        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         related_name='object_permissions'
     )
     actions = ArrayField(

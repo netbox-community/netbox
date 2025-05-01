@@ -1,7 +1,10 @@
 import django_tables2 as tables
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import BaseTable, columns
+from .template_code import PLUGIN_IS_INSTALLED
 
 __all__ = (
     'CatalogPluginTable',
@@ -54,12 +57,15 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Author')
     )
     is_local = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Local')
     )
-    is_installed = columns.BooleanColumn(
-        verbose_name=_('Installed')
+    is_installed = columns.TemplateColumn(
+        verbose_name=_('Active'),
+        template_code=PLUGIN_IS_INSTALLED
     )
     is_certified = columns.BooleanColumn(
+        false_mark=None,
         verbose_name=_('Certified')
     )
     created_at = columns.DateTimeColumn(
@@ -88,3 +94,9 @@ class CatalogPluginTable(BaseTable):
         # List installed plugins first, then certified plugins, then
         # everything else (with each tranche ordered alphabetically)
         order_by = ('-is_installed', '-is_certified', 'name')
+
+    def render_title_long(self, value, record):
+        if record.static:
+            return value
+        url = reverse('core:plugin', args=[record.config_name])
+        return mark_safe(f"<a href='{url}'>{value}</a>")

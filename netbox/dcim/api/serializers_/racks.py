@@ -70,8 +70,8 @@ class RackTypeSerializer(RackBaseSerializer):
         model = RackType
         fields = [
             'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'slug', 'description', 'form_factor',
-            'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'weight',
-            'max_weight', 'weight_unit', 'mounting_depth', 'description', 'comments', 'tags',
+            'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
+            'outer_unit', 'weight', 'max_weight', 'weight_unit', 'mounting_depth', 'description', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description')
@@ -129,9 +129,9 @@ class RackSerializer(RackBaseSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status',
             'role', 'serial', 'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'weight',
-            'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
-            'airflow', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'powerfeed_count',
+            'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
+            'mounting_depth', 'airflow', 'description', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
 

@@ -91,10 +91,12 @@ class LoginView(View):
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
+        login_form_hidden = settings.LOGIN_FORM_HIDDEN
 
         return render(request, self.template_name, {
             'form': form,
             'auth_backends': self.get_auth_backends(request),
+            'login_form_hidden': login_form_hidden,
         })
 
     def post(self, request):

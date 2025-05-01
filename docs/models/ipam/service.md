@@ -6,6 +6,15 @@ To aid in the efficient creation of services, users may opt to first create a [s
 
 ## Fields
 
+### Parent
+
+The parent object to which the service is assigned. This must be one of [Device](../dcim/device.md),
+[VirtualMachine](../virtualization/virtualmachine.md), or [FHRP Group](./fhrpgroup.md).
+
+!!! note "Changed in NetBox v4.3"
+
+    Previously, `parent` was a property that pointed to either a Device or Virtual Machine. With the capability to assign services to FHRP groups, this is a unified in a concrete field.
+
 ### Name
 
 A service or protocol name.

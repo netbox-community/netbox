@@ -2,7 +2,6 @@
 
 // Set base fonts
 $font-family-sans-serif: 'Inter', system-ui, sans-serif;
-// See https://github.com/tabler/tabler/issues/1812
 $font-family-monospace: 'Roboto Mono';
 
 // Set the navigation sidebar width
@@ -15,9 +14,6 @@ $btn-padding-y: 0.25rem;
 // Reduce the default table cell padding
 $table-cell-padding-x: 0.5rem;
 $table-cell-padding-y: 0.5rem;
-
-// Fix Tabler bug #1694 in 1.0.0-beta20
-$hover-bg: rgba(var(--tblr-secondary-rgb), 0.08);
 
 // Ensure active nav-pill has a background color in dark mode
 $nav-pills-link-active-bg: rgba(var(--tblr-secondary-rgb), 0.15);

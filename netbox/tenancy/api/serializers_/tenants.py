@@ -19,7 +19,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
         model = TenantGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'tenant_count', '_depth',
+            'created', 'last_updated', 'tenant_count', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tenant_count', '_depth')
 

@@ -3,7 +3,7 @@ import yaml
 
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -19,17 +19,19 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
+from dcim.utils import update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
+from .modules import Module
 
 
 __all__ = (
@@ -38,8 +40,6 @@ __all__ = (
     'DeviceType',
     'MACAddress',
     'Manufacturer',
-    'Module',
-    'ModuleType',
     'Platform',
     'VirtualChassis',
     'VirtualDeviceContext',
@@ -367,108 +367,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
-    """
-    A ModuleType represents a hardware element that can be installed within a device and which houses additional
-    components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
-    DeviceType, each ModuleType can have console, power, interface, and pass-through port templates assigned to it. It
-    cannot, however house device bays or module bays.
-    """
-    manufacturer = models.ForeignKey(
-        to='dcim.Manufacturer',
-        on_delete=models.PROTECT,
-        related_name='module_types'
-    )
-    model = models.CharField(
-        verbose_name=_('model'),
-        max_length=100
-    )
-    part_number = models.CharField(
-        verbose_name=_('part number'),
-        max_length=50,
-        blank=True,
-        help_text=_('Discrete part number (optional)')
-    )
-    airflow = models.CharField(
-        verbose_name=_('airflow'),
-        max_length=50,
-        choices=ModuleAirflowChoices,
-        blank=True,
-        null=True
-    )
-
-    clone_fields = ('manufacturer', 'weight', 'weight_unit', 'airflow')
-    prerequisite_models = (
-        'dcim.Manufacturer',
-    )
-
-    class Meta:
-        ordering = ('manufacturer', 'model')
-        constraints = (
-            models.UniqueConstraint(
-                fields=('manufacturer', 'model'),
-                name='%(app_label)s_%(class)s_unique_manufacturer_model'
-            ),
-        )
-        verbose_name = _('module type')
-        verbose_name_plural = _('module types')
-
-    def __str__(self):
-        return self.model
-
-    @property
-    def full_name(self):
-        return f"{self.manufacturer} {self.model}"
-
-    def to_yaml(self):
-        data = {
-            'manufacturer': self.manufacturer.name,
-            'model': self.model,
-            'part_number': self.part_number,
-            'description': self.description,
-            'weight': float(self.weight) if self.weight is not None else None,
-            'weight_unit': self.weight_unit,
-            'comments': self.comments,
-        }
-
-        # Component templates
-        if self.consoleporttemplates.exists():
-            data['console-ports'] = [
-                c.to_yaml() for c in self.consoleporttemplates.all()
-            ]
-        if self.consoleserverporttemplates.exists():
-            data['console-server-ports'] = [
-                c.to_yaml() for c in self.consoleserverporttemplates.all()
-            ]
-        if self.powerporttemplates.exists():
-            data['power-ports'] = [
-                c.to_yaml() for c in self.powerporttemplates.all()
-            ]
-        if self.poweroutlettemplates.exists():
-            data['power-outlets'] = [
-                c.to_yaml() for c in self.poweroutlettemplates.all()
-            ]
-        if self.interfacetemplates.exists():
-            data['interfaces'] = [
-                c.to_yaml() for c in self.interfacetemplates.all()
-            ]
-        if self.frontporttemplates.exists():
-            data['front-ports'] = [
-                c.to_yaml() for c in self.frontporttemplates.all()
-            ]
-        if self.rearporttemplates.exists():
-            data['rear-ports'] = [
-                c.to_yaml() for c in self.rearporttemplates.all()
-            ]
-
-        return yaml.dump(dict(data), sort_keys=False)
-
-
 #
 # Devices
 #
 
-class DeviceRole(OrganizationalModel):
+class DeviceRole(NestedGroupModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -490,6 +393,8 @@ class DeviceRole(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ('parent', 'description')
 
     class Meta:
         ordering = ('name',)
@@ -522,23 +427,6 @@ class Platform(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
-
-
-def update_interface_bridges(device, interface_templates, module=None):
-    """
-    Used for device and module instantiation. Iterates all InterfaceTemplates with a bridge assigned
-    and applies it to the actual interfaces.
-    """
-    for interface_template in interface_templates.exclude(bridge=None):
-        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
-
-        if interface_template.bridge:
-            interface.bridge = Interface.objects.get(
-                device=device,
-                name=interface_template.bridge.resolve_name(module=module)
-            )
-            interface.full_clean()
-            interface.save()
 
 
 class Device(
@@ -720,6 +608,12 @@ class Device(
         blank=True,
         null=True,
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+    services = GenericRelation(
+        to='ipam.Service',
+        content_type_field='parent_object_type',
+        object_id_field='parent_object_id',
+        related_query_name='device',
     )
 
     # Counter fields
@@ -1157,171 +1051,6 @@ class Device(
         return round(total_weight / 1000, 2)
 
 
-class Module(PrimaryModel, ConfigContextModel):
-    """
-    A Module represents a field-installable component within a Device which may itself hold multiple device components
-    (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
-    """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='modules'
-    )
-    module_bay = models.OneToOneField(
-        to='dcim.ModuleBay',
-        on_delete=models.CASCADE,
-        related_name='installed_module'
-    )
-    module_type = models.ForeignKey(
-        to='dcim.ModuleType',
-        on_delete=models.PROTECT,
-        related_name='instances'
-    )
-    status = models.CharField(
-        verbose_name=_('status'),
-        max_length=50,
-        choices=ModuleStatusChoices,
-        default=ModuleStatusChoices.STATUS_ACTIVE
-    )
-    serial = models.CharField(
-        max_length=50,
-        blank=True,
-        verbose_name=_('serial number')
-    )
-    asset_tag = models.CharField(
-        max_length=50,
-        blank=True,
-        null=True,
-        unique=True,
-        verbose_name=_('asset tag'),
-        help_text=_('A unique tag used to identify this device')
-    )
-
-    clone_fields = ('device', 'module_type', 'status')
-
-    class Meta:
-        ordering = ('module_bay',)
-        verbose_name = _('module')
-        verbose_name_plural = _('modules')
-
-    def __str__(self):
-        return f'{self.module_bay.name}: {self.module_type} ({self.pk})'
-
-    def get_status_color(self):
-        return ModuleStatusChoices.colors.get(self.status)
-
-    def clean(self):
-        super().clean()
-
-        if hasattr(self, "module_bay") and (self.module_bay.device != self.device):
-            raise ValidationError(
-                _("Module must be installed within a module bay belonging to the assigned device ({device}).").format(
-                    device=self.device
-                )
-            )
-
-        # Check for recursion
-        module = self
-        module_bays = []
-        modules = []
-        while module:
-            if module.pk in modules or module.module_bay.pk in module_bays:
-                raise ValidationError(_("A module bay cannot belong to a module installed within it."))
-            modules.append(module.pk)
-            module_bays.append(module.module_bay.pk)
-            module = module.module_bay.module if module.module_bay else None
-
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-
-        super().save(*args, **kwargs)
-
-        adopt_components = getattr(self, '_adopt_components', False)
-        disable_replication = getattr(self, '_disable_replication', False)
-
-        # We skip adding components if the module is being edited or
-        # both replication and component adoption is disabled
-        if not is_new or (disable_replication and not adopt_components):
-            return
-
-        # Iterate all component types
-        for templates, component_attribute, component_model in [
-            ("consoleporttemplates", "consoleports", ConsolePort),
-            ("consoleserverporttemplates", "consoleserverports", ConsoleServerPort),
-            ("interfacetemplates", "interfaces", Interface),
-            ("powerporttemplates", "powerports", PowerPort),
-            ("poweroutlettemplates", "poweroutlets", PowerOutlet),
-            ("rearporttemplates", "rearports", RearPort),
-            ("frontporttemplates", "frontports", FrontPort),
-            ("modulebaytemplates", "modulebays", ModuleBay),
-        ]:
-            create_instances = []
-            update_instances = []
-
-            # Prefetch installed components
-            installed_components = {
-                component.name: component
-                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
-            }
-
-            # Get the template for the module type.
-            for template in getattr(self.module_type, templates).all():
-                template_instance = template.instantiate(device=self.device, module=self)
-
-                if adopt_components:
-                    existing_item = installed_components.get(template_instance.name)
-
-                    # Check if there's a component with the same name already
-                    if existing_item:
-                        # Assign it to the module
-                        existing_item.module = self
-                        update_instances.append(existing_item)
-                        continue
-
-                # Only create new components if replication is enabled
-                if not disable_replication:
-                    create_instances.append(template_instance)
-
-            # Set default values for any applicable custom fields
-            if cf_defaults := CustomField.objects.get_defaults_for_model(component_model):
-                for component in create_instances:
-                    component.custom_field_data = cf_defaults
-
-            if component_model is not ModuleBay:
-                component_model.objects.bulk_create(create_instances)
-                # Emit the post_save signal for each newly created object
-                for component in create_instances:
-                    post_save.send(
-                        sender=component_model,
-                        instance=component,
-                        created=True,
-                        raw=False,
-                        using='default',
-                        update_fields=None
-                    )
-            else:
-                # ModuleBays must be saved individually for MPTT
-                for instance in create_instances:
-                    instance.name = instance.name.replace(MODULE_TOKEN, str(self.module_bay.position))
-                    instance.save()
-
-            update_fields = ['module']
-            component_model.objects.bulk_update(update_instances, update_fields)
-            # Emit the post_save signal for each updated object
-            for component in update_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=False,
-                    raw=False,
-                    using='default',
-                    update_fields=update_fields
-                )
-
-        # Interface bridges have to be set after interface instantiation
-        update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
-
-
 #
 # Virtual chassis
 #
@@ -1506,7 +1235,6 @@ class MACAddress(PrimaryModel):
     )
     assigned_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=MACADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,

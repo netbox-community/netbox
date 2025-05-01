@@ -151,6 +151,10 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
         max_length=200,
         blank=True
     )
+    comments = models.TextField(
+        verbose_name=_('comments'),
+        blank=True
+    )
 
     objects = TreeManager()
 

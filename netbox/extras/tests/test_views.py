@@ -301,11 +301,14 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
         site_type = ObjectType.objects.get_for_model(Site)
         TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
+        ENVIRONMENT_PARAMS = """{"trim_blocks": true}"""
 
         export_templates = (
             ExportTemplate(name='Export Template 1', template_code=TEMPLATE_CODE),
-            ExportTemplate(name='Export Template 2', template_code=TEMPLATE_CODE),
-            ExportTemplate(name='Export Template 3', template_code=TEMPLATE_CODE),
+            ExportTemplate(
+                name='Export Template 2', template_code=TEMPLATE_CODE, environment_params={"trim_blocks": True}
+            ),
+            ExportTemplate(name='Export Template 3', template_code=TEMPLATE_CODE, file_name='export_template_3')
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for et in export_templates:
@@ -315,13 +318,15 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Export Template X',
             'object_types': [site_type.pk],
             'template_code': TEMPLATE_CODE,
+            'environment_params': ENVIRONMENT_PARAMS,
+            'file_name': 'template_x',
         }
 
         cls.csv_data = (
-            "name,object_types,template_code",
-            f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
-            f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
-            f"Export Template 6,dcim.site,{TEMPLATE_CODE}",
+            "name,object_types,template_code,file_name",
+            f"Export Template 4,dcim.site,{TEMPLATE_CODE},",
+            f"Export Template 5,dcim.site,{TEMPLATE_CODE},template_5",
+            f"Export Template 6,dcim.site,{TEMPLATE_CODE},",
         )
 
         cls.csv_update_data = (
@@ -441,8 +446,8 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         tags = (
             Tag(name='Tag 1', slug='tag-1'),
-            Tag(name='Tag 2', slug='tag-2'),
-            Tag(name='Tag 3', slug='tag-3'),
+            Tag(name='Tag 2', slug='tag-2', weight=1),
+            Tag(name='Tag 3', slug='tag-3', weight=32767),
         )
         Tag.objects.bulk_create(tags)
 
@@ -451,13 +456,14 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'tag-x',
             'color': 'c0c0c0',
             'comments': 'Some comments',
+            'weight': 11,
         }
 
         cls.csv_data = (
-            "name,slug,color,description",
-            "Tag 4,tag-4,ff0000,Fourth tag",
-            "Tag 5,tag-5,00ff00,Fifth tag",
-            "Tag 6,tag-6,0000ff,Sixth tag",
+            "name,slug,color,description,weight",
+            "Tag 4,tag-4,ff0000,Fourth tag,0",
+            "Tag 5,tag-5,00ff00,Fifth tag,1111",
+            "Tag 6,tag-6,0000ff,Sixth tag,0",
         )
 
         cls.csv_update_data = (
@@ -535,11 +541,23 @@ class ConfigTemplateTestCase(
     @classmethod
     def setUpTestData(cls):
         TEMPLATE_CODE = """Foo: {{ foo }}"""
+        ENVIRONMENT_PARAMS = """{"trim_blocks": true}"""
 
         config_templates = (
-            ConfigTemplate(name='Config Template 1', template_code=TEMPLATE_CODE),
-            ConfigTemplate(name='Config Template 2', template_code=TEMPLATE_CODE),
-            ConfigTemplate(name='Config Template 3', template_code=TEMPLATE_CODE),
+            ConfigTemplate(
+                name='Config Template 1',
+                template_code=TEMPLATE_CODE)
+            ,
+            ConfigTemplate(
+                name='Config Template 2',
+                template_code=TEMPLATE_CODE,
+                environment_params={"trim_blocks": True},
+            ),
+            ConfigTemplate(
+                name='Config Template 3',
+                template_code=TEMPLATE_CODE,
+                file_name='config_template_3',
+            ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
@@ -547,6 +565,8 @@ class ConfigTemplateTestCase(
             'name': 'Config Template X',
             'description': 'Config template',
             'template_code': TEMPLATE_CODE,
+            'environment_params': ENVIRONMENT_PARAMS,
+            'file_name': 'config_x',
         }
 
         cls.csv_update_data = (
@@ -558,6 +578,10 @@ class ConfigTemplateTestCase(
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'mime_type': 'text/html',
+            'file_name': 'output',
+            'file_extension': 'html',
+            'as_attachment': True,
         }
 
 

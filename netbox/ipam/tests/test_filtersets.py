@@ -947,7 +947,9 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=None,
                 role=None,
                 status=IPRangeStatusChoices.STATUS_ACTIVE,
-                description='foobar1'
+                description='foobar1',
+                mark_populated=True,
+                mark_utilized=True,
             ),
             IPRange(
                 start_address='10.0.2.100/24',
@@ -984,7 +986,9 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vrf=None,
                 tenant=None,
                 role=None,
-                status=IPRangeStatusChoices.STATUS_ACTIVE
+                status=IPRangeStatusChoices.STATUS_ACTIVE,
+                mark_populated=True,
+                mark_utilized=True,
             ),
             IPRange(
                 start_address='2001:db8:0:2::1/64',
@@ -1079,6 +1083,18 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': ['10.0.1.0/25']}  # Range 10.0.1.100-199 is not fully contained by 10.0.1.0/25
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_mark_utilized(self):
+        params = {'mark_utilized': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'mark_utilized': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_mark_populated(self):
+        params = {'mark_populated': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'mark_populated': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1256,9 +1272,24 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         IPAddress.objects.bulk_create(ipaddresses)
 
         services = (
-            Service(name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(
+                parent=devices[0],
+                name='Service 1',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[1],
+                name='Service 2',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
+            Service(
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+                ports=[1],
+            ),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])
@@ -1597,27 +1628,45 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         cluster = Cluster(name='Cluster 1', type=clustertype)
         cluster.save()
 
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         vlan_groups = (
             VLANGroup(
                 name='VLAN Group 1',
                 slug='vlan-group-1',
                 vid_ranges=[NumericRange(1, 11), NumericRange(100, 200)],
                 scope=region,
-                description='foobar1'
+                description='foobar1',
+                tenant=tenants[0]
             ),
             VLANGroup(
                 name='VLAN Group 2',
                 slug='vlan-group-2',
                 vid_ranges=[NumericRange(1, 11), NumericRange(200, 300)],
                 scope=sitegroup,
-                description='foobar2'
+                description='foobar2',
+                tenant=tenants[1]
             ),
             VLANGroup(
                 name='VLAN Group 3',
                 slug='vlan-group-3',
                 vid_ranges=[NumericRange(1, 11), NumericRange(300, 400)],
                 scope=site,
-                description='foobar3'
+                description='foobar3',
+                tenant=tenants[1]
             ),
             VLANGroup(
                 name='VLAN Group 4',
@@ -1699,6 +1748,20 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_cluster(self):
         params = {'cluster': Cluster.objects.first().pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
 class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -2295,40 +2358,56 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
             VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
+        fhrp_group = FHRPGroup.objects.create(
+            name='telnet',
+            protocol=FHRPGroupProtocolChoices.PROTOCOL_CARP,
+            group_id=101,
+        )
 
         services = (
             Service(
-                device=devices[0],
+                parent=devices[0],
                 name='Service 1',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1001],
                 description='foobar1',
             ),
             Service(
-                device=devices[1],
+                parent=devices[1],
                 name='Service 2',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[1002],
                 description='foobar2',
             ),
-            Service(device=devices[2], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
             Service(
-                virtual_machine=virtual_machines[0],
+                parent=devices[2],
+                name='Service 3',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[1003]
+            ),
+            Service(
+                parent=virtual_machines[0],
                 name='Service 4',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2001],
             ),
             Service(
-                virtual_machine=virtual_machines[1],
+                parent=virtual_machines[1],
                 name='Service 5',
                 protocol=ServiceProtocolChoices.PROTOCOL_TCP,
                 ports=[2002],
             ),
             Service(
-                virtual_machine=virtual_machines[2],
+                parent=virtual_machines[2],
                 name='Service 6',
                 protocol=ServiceProtocolChoices.PROTOCOL_UDP,
                 ports=[2003],
+            ),
+            Service(
+                parent=fhrp_group,
+                name='Service 7',
+                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+                ports=[2004],
             ),
         )
         Service.objects.bulk_create(services)
@@ -2369,6 +2448,13 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_fhrp_group(self):
+        fhrp_group = FHRPGroup.objects.get()
+        params = {'fhrpgroup_id': [fhrp_group.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'fhrpgroup': [fhrp_group.name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_ip_address(self):
         ips = IPAddress.objects.all()[:2]

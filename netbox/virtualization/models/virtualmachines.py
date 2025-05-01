@@ -82,7 +82,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         to='dcim.DeviceRole',
         on_delete=models.PROTECT,
         related_name='virtual_machines',
-        limit_choices_to={'vm_role': True},
         blank=True,
         null=True
     )
@@ -126,6 +125,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         verbose_name=_('serial number'),
         blank=True,
         max_length=50
+    )
+    services = GenericRelation(
+        to='ipam.Service',
+        content_type_field='parent_object_type',
+        object_id_field='parent_object_id',
+        related_query_name='virtual_machine',
     )
 
     # Counter fields

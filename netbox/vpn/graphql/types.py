@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -7,6 +7,13 @@ from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 from vpn import models
 from .filters import *
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import InterfaceType
+    from ipam.graphql.types import IPAddressType, RouteTargetType, VLANType
+    from netbox.graphql.types import ContentTypeType
+    from tenancy.graphql.types import TenantType
+    from virtualization.graphql.types import VMInterfaceType
 
 __all__ = (
     'IKEPolicyType',
@@ -25,7 +32,8 @@ __all__ = (
 @strawberry_django.type(
     models.TunnelGroup,
     fields='__all__',
-    filters=TunnelGroupFilter
+    filters=TunnelGroupFilter,
+    pagination=True
 )
 class TunnelGroupType(ContactsMixin, OrganizationalObjectType):
 
@@ -35,7 +43,8 @@ class TunnelGroupType(ContactsMixin, OrganizationalObjectType):
 @strawberry_django.type(
     models.TunnelTermination,
     fields='__all__',
-    filters=TunnelTerminationFilter
+    filters=TunnelTerminationFilter,
+    pagination=True
 )
 class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     tunnel: Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]
@@ -46,7 +55,8 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
 @strawberry_django.type(
     models.Tunnel,
     fields='__all__',
-    filters=TunnelFilter
+    filters=TunnelFilter,
+    pagination=True
 )
 class TunnelType(ContactsMixin, NetBoxObjectType):
     group: Annotated["TunnelGroupType", strawberry.lazy('vpn.graphql.types')] | None
@@ -59,7 +69,8 @@ class TunnelType(ContactsMixin, NetBoxObjectType):
 @strawberry_django.type(
     models.IKEProposal,
     fields='__all__',
-    filters=IKEProposalFilter
+    filters=IKEProposalFilter,
+    pagination=True
 )
 class IKEProposalType(OrganizationalObjectType):
 
@@ -69,7 +80,8 @@ class IKEProposalType(OrganizationalObjectType):
 @strawberry_django.type(
     models.IKEPolicy,
     fields='__all__',
-    filters=IKEPolicyFilter
+    filters=IKEPolicyFilter,
+    pagination=True
 )
 class IKEPolicyType(OrganizationalObjectType):
 
@@ -80,7 +92,8 @@ class IKEPolicyType(OrganizationalObjectType):
 @strawberry_django.type(
     models.IPSecProposal,
     fields='__all__',
-    filters=IPSecProposalFilter
+    filters=IPSecProposalFilter,
+    pagination=True
 )
 class IPSecProposalType(OrganizationalObjectType):
 
@@ -90,7 +103,8 @@ class IPSecProposalType(OrganizationalObjectType):
 @strawberry_django.type(
     models.IPSecPolicy,
     fields='__all__',
-    filters=IPSecPolicyFilter
+    filters=IPSecPolicyFilter,
+    pagination=True
 )
 class IPSecPolicyType(OrganizationalObjectType):
 
@@ -101,7 +115,8 @@ class IPSecPolicyType(OrganizationalObjectType):
 @strawberry_django.type(
     models.IPSecProfile,
     fields='__all__',
-    filters=IPSecProfileFilter
+    filters=IPSecProfileFilter,
+    pagination=True
 )
 class IPSecProfileType(OrganizationalObjectType):
     ike_policy: Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]
@@ -113,7 +128,8 @@ class IPSecProfileType(OrganizationalObjectType):
 @strawberry_django.type(
     models.L2VPN,
     fields='__all__',
-    filters=L2VPNFilter
+    filters=L2VPNFilter,
+    pagination=True
 )
 class L2VPNType(ContactsMixin, NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -125,8 +141,9 @@ class L2VPNType(ContactsMixin, NetBoxObjectType):
 
 @strawberry_django.type(
     models.L2VPNTermination,
-    exclude=('assigned_object_type', 'assigned_object_id'),
-    filters=L2VPNTerminationFilter
+    exclude=['assigned_object_type', 'assigned_object_id'],
+    filters=L2VPNTerminationFilter,
+    pagination=True
 )
 class L2VPNTerminationType(NetBoxObjectType):
     l2vpn: Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]

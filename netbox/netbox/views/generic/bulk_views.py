@@ -30,6 +30,7 @@ from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
+from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -109,7 +110,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             request: The current request
         """
         try:
-            return template.render_to_response(self.queryset)
+            return template.render_to_response(queryset=self.queryset)
         except Exception as e:
             messages.error(
                 request,
@@ -195,6 +196,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         context = {
             'model': model,
             'table': table,
+            'table_configs': get_table_configs(table, request.user),
             'actions': actions,
             'filter_form': self.filterset_form(request.GET) if self.filterset_form else None,
             'prerequisite_model': get_prerequisite_model(self.queryset),

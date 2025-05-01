@@ -1,6 +1,12 @@
 import { getElements, scrollTo } from '../util';
 
 function handleFormSubmit(event: Event, form: HTMLFormElement): void {
+  // Automatically select all options in any <select> with the "select-all" class. This is useful for
+  // multi-select fields that are used to add/remove choices.
+  for (const element of getElements<HTMLOptionElement>('select.select-all option')) {
+    element.selected = true;
+  }
+
   // Track the names of each invalid field.
   const invalids = new Set<string>();
 

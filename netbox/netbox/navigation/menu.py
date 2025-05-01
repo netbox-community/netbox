@@ -14,9 +14,9 @@ ORGANIZATION_MENU = Menu(
         MenuGroup(
             label=_('Sites'),
             items=(
-                get_model_item('dcim', 'site', _('Sites')),
                 get_model_item('dcim', 'region', _('Regions')),
                 get_model_item('dcim', 'sitegroup', _('Site Groups')),
+                get_model_item('dcim', 'site', _('Sites')),
                 get_model_item('dcim', 'location', _('Locations')),
             ),
         ),
@@ -85,6 +85,7 @@ DEVICES_MENU = Menu(
             items=(
                 get_model_item('dcim', 'devicetype', _('Device Types')),
                 get_model_item('dcim', 'moduletype', _('Module Types')),
+                get_model_item('dcim', 'moduletypeprofile', _('Module Type Profiles')),
                 get_model_item('dcim', 'manufacturer', _('Manufacturers')),
             ),
         ),
@@ -348,6 +349,7 @@ CUSTOMIZATION_MENU = Menu(
                 get_model_item('extras', 'customlink', _('Custom Links')),
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
+                get_model_item('extras', 'tableconfig', _('Table Configs'), actions=()),
                 get_model_item('extras', 'tag', 'Tags'),
                 get_model_item('extras', 'imageattachment', _('Image Attachments'), actions=()),
             ),

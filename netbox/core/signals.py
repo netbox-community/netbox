@@ -8,16 +8,15 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from core.choices import ObjectChangeActionChoices
+from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
-from core.models import ObjectChange
 from extras.events import enqueue_event
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
 from utilities.exceptions import AbortRequest
-from .models import ConfigRevision
+from .models import ConfigRevision, DataSource, ObjectChange
 
 __all__ = (
     'clear_events',
@@ -187,6 +186,25 @@ def clear_events_queue(sender, **kwargs):
 #
 # DataSource handlers
 #
+
+@receiver(post_save, sender=DataSource)
+def enqueue_sync_job(instance, created, **kwargs):
+    """
+    When a DataSource is saved, check its sync_interval and enqueue a sync job if appropriate.
+    """
+    from .jobs import SyncDataSourceJob
+
+    if instance.enabled and instance.sync_interval:
+        SyncDataSourceJob.enqueue_once(instance, interval=instance.sync_interval)
+    elif not created:
+        # Delete any previously scheduled recurring jobs for this DataSource
+        for job in SyncDataSourceJob.get_jobs(instance).defer('data').filter(
+            interval__isnull=False,
+            status=JobStatusChoices.STATUS_SCHEDULED
+        ):
+            # Call delete() per instance to ensure the associated background task is deleted as well
+            job.delete()
+
 
 @receiver(post_sync)
 def auto_sync(instance, **kwargs):

@@ -33,6 +33,19 @@ The technology employed in forming and operating the L2VPN. Choices include:
 !!! note
     Designating the type as VPWS, EPL, EP-LAN, EP-TREE will limit the L2VPN instance to two terminations.
 
+### Status
+
+The operational status of the L2VPN. By default, the following statuses are available:
+
+* Active (default)
+* Planned
+* Faulty
+
+!!! tip "Custom L2VPN statuses"
+    Additional L2VPN statuses may be defined by setting `L2VPN.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+!!! info "This field was introduced in NetBox v4.3."
+
 ### Identifier
 
 An optional numeric identifier. This can be used to track a pseudowire ID, for example.

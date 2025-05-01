@@ -9,6 +9,7 @@ from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from utilities.fields import ColorField
+from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Tag',
@@ -39,13 +40,17 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         blank=True,
         help_text=_("The object type(s) to which this tag can be applied.")
     )
+    weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
+        default=1000,
+    )
 
     clone_fields = (
         'color', 'description', 'object_types',
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('weight', 'name')
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
 
@@ -72,6 +77,7 @@ class TaggedItem(GenericTaggedItemBase):
     )
 
     _netbox_private = True
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]

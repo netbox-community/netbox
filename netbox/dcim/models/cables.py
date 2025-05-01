@@ -261,7 +261,6 @@ class CableTermination(ChangeLoggedModel):
     )
     termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=CABLE_TERMINATION_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -301,9 +300,6 @@ class CableTermination(ChangeLoggedModel):
 
     class Meta:
         ordering = ('cable', 'cable_end', 'pk')
-        indexes = (
-            models.Index(fields=('termination_type', 'termination_id')),
-        )
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),

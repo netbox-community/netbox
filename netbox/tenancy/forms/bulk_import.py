@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
-from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentImportForm',
@@ -31,7 +31,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = TenantGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class TenantImportForm(NetBoxModelImportForm):
@@ -65,7 +65,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class ContactRoleImportForm(NetBoxModelImportForm):
@@ -77,17 +77,16 @@ class ContactRoleImportForm(NetBoxModelImportForm):
 
 
 class ContactImportForm(NetBoxModelImportForm):
-    group = CSVModelChoiceField(
-        label=_('Group'),
+    groups = CSVModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Assigned group')
+        help_text=_('Group names separated by commas, encased with double quotes (e.g. "Group 1,Group 2")')
     )
 
     class Meta:
         model = Contact
-        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'group', 'description', 'comments', 'tags')
+        fields = ('name', 'title', 'phone', 'email', 'address', 'link', 'groups', 'description', 'comments', 'tags')
 
 
 class ContactAssignmentImportForm(NetBoxModelImportForm):

@@ -452,6 +452,12 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=PowerOutletStatusChoices,
+        default=PowerOutletStatusChoices.STATUS_ENABLED
+    )
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -494,6 +500,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
             raise ValidationError(
                 _("Parent power port ({power_port}) must belong to the same device").format(power_port=self.power_port)
             )
+
+    def get_status_color(self):
+        return PowerOutletStatusChoices.colors.get(self.status)
 
 
 #
@@ -1268,7 +1277,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     )
     component_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=MODULAR_COMPONENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,

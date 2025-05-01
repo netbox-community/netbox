@@ -103,6 +103,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `name`                | Raw plugin name; same as the plugin's source directory                                                                             |
 | `verbose_name`        | Human-friendly name for the plugin                                                                                                 |
 | `version`             | Current release ([semantic versioning](https://semver.org/) is encouraged)                                                         |
+| `release_track`       | An alternate release track (e.g. `dev` or `beta`) to which a release belongs                                                       |
 | `description`         | Brief description of the plugin's purpose                                                                                          |
 | `author`              | Name of plugin's author                                                                                                            |
 | `author_email`        | Author's public email address                                                                                                      |
