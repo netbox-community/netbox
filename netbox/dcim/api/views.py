@@ -270,6 +270,12 @@ class DeviceTypeViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceTypeFilterSet
 
 
+class ModuleTypeProfileViewSet(NetBoxModelViewSet):
+    queryset = ModuleTypeProfile.objects.all()
+    serializer_class = serializers.ModuleTypeProfileSerializer
+    filterset_class = filtersets.ModuleTypeProfileFilterSet
+
+
 class ModuleTypeViewSet(NetBoxModelViewSet):
     queryset = ModuleType.objects.all()
     serializer_class = serializers.ModuleTypeSerializer

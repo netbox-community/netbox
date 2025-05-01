@@ -2,7 +2,10 @@
 
 ## ALLOW_TOKEN_RETRIEVAL
 
-Default: `True`
+Default: `False`
+
+!!! note
+    The default value of this parameter changed from true to false in NetBox v4.3.0.
 
 If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token prior to its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
 
@@ -183,6 +186,17 @@ When enabled, only authenticated users are permitted to access any part of NetBo
 Default: `1209600` seconds (14 days)
 
 The lifetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
+
+---
+
+## LOGIN_FORM_HIDDEN
+
+Default: False
+
+Option to hide the login form when only SSO authentication is in use. 
+
+!!! warning
+    If the SSO provider is unreachable, login to NetBox will be impossible if this option is enabled. The only recourse is to disable it in the local configuration and restart the NetBox service.
 
 ---
 

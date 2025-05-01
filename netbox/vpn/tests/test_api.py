@@ -1,4 +1,5 @@
 from django.urls import reverse
+from rest_framework import status
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
@@ -527,19 +528,22 @@ class L2VPNTest(APIViewTestCases.APIViewTestCase):
             'name': 'L2VPN 4',
             'slug': 'l2vpn-4',
             'type': 'vxlan',
-            'identifier': 33343344
+            'identifier': 33343344,
+            'status': L2VPNStatusChoices.STATUS_ACTIVE,
         },
         {
             'name': 'L2VPN 5',
             'slug': 'l2vpn-5',
             'type': 'vxlan',
-            'identifier': 33343345
+            'identifier': 33343345,
+            'status': L2VPNStatusChoices.STATUS_PLANNED,
         },
         {
             'name': 'L2VPN 6',
             'slug': 'l2vpn-6',
             'type': 'vpws',
-            'identifier': 33343346
+            'identifier': 33343346,
+            'status': L2VPNStatusChoices.STATUS_DECOMMISSIONING,
         },
     ]
     bulk_update_data = {
@@ -550,11 +554,52 @@ class L2VPNTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier=650001),
-            L2VPN(name='L2VPN 2', slug='l2vpn-2', type='vpws', identifier=650002),
-            L2VPN(name='L2VPN 3', slug='l2vpn-3', type='vpls'),  # No RD
+            L2VPN(
+                name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier=650001,
+                status=L2VPNStatusChoices.STATUS_ACTIVE,
+            ),
+            L2VPN(
+                name='L2VPN 2', slug='l2vpn-2', type='vpws', identifier=650002,
+                status=L2VPNStatusChoices.STATUS_PLANNED,
+            ),
+            L2VPN(
+                name='L2VPN 3', slug='l2vpn-3', type='vpls',
+                status=L2VPNStatusChoices.STATUS_DECOMMISSIONING,
+            ),  # No RD
         )
         L2VPN.objects.bulk_create(l2vpns)
+
+    def test_status_filter(self):
+        url = reverse('vpn-api:l2vpn-list')
+
+        self.add_permissions('vpn.view_l2vpn')
+        response = self.client.get(url, **self.header)
+        response_data = response.json()
+
+        # all L2VPNs present with not filter
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response_data['count'], 3)
+
+        # 1 L2VPN present with active status filter
+        filter_url = f'{url}?status={L2VPNStatusChoices.STATUS_ACTIVE}'
+        response = self.client.get(filter_url, **self.header)
+        response_data = response.json()
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response_data['count'], 1)
+
+        # 2 L2VPNs present with active and planned status filter
+        filter_url = f'{filter_url}&status={L2VPNStatusChoices.STATUS_PLANNED}'
+        response = self.client.get(filter_url, **self.header)
+        response_data = response.json()
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response_data['count'], 2)
+
+        # 1 L2VPN present with decommissioning status filter
+        filter_url = f'{url}?status={L2VPNStatusChoices.STATUS_DECOMMISSIONING}'
+        response = self.client.get(filter_url, **self.header)
+        response_data = response.json()
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response_data['count'], 1)
 
 
 class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):

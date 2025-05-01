@@ -21,7 +21,7 @@ Blocks:
     {# Sidebar #}
     <aside class="navbar navbar-vertical navbar-expand-lg d-print-none">
 
-      {% if 'commercial' in settings.RELEASE.features %}
+      {% if settings.RELEASE.features.commercial %}
         <img class="motif" src="{% static 'motif.svg' %}" alt="{% trans "NetBox Motif" %}">
       {% endif %}
 
@@ -51,8 +51,19 @@ Blocks:
         {# Navigation menu #}
         <div class="collapse navbar-collapse" id="sidebar-menu">
           {% nav %}
-        </div>
 
+          {# Release info #}
+          <div class="text-muted text-center fs-5 my-3">
+            {{ settings.RELEASE.name }}
+            {% if not settings.RELEASE.features.commercial %}
+              <div>
+                <a href="https://netboxlabs.com/netbox-cloud/" class="text-muted">{% trans "Get" %} Cloud</a> |
+                <a href="https://netboxlabs.com/netbox-enterprise/" class="text-muted">{% trans "Get" %} Enterprise</a>
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
       </div>
     </aside>
 
@@ -210,7 +221,6 @@ Blocks:
             <ul class="list-inline list-inline-dots fs-5 mb-0" id="footer-stamp" hx-swap-oob="true">
               <li class="list-inline-item">{% now 'Y-m-d H:i:s T' %}</li>
               <li class="list-inline-item">{{ settings.HOSTNAME }}</li>
-              <li class="list-inline-item">{{ settings.RELEASE.name }}</li>
             </ul>
             {# /Footer text #}
 

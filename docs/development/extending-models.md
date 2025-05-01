@@ -6,7 +6,7 @@ Below is a list of tasks to consider when adding a new field to a core model.
 
 Add the field to the model, taking care to address any of the following conditions.
 
-* When adding a GenericForeignKey field, also add an index under `Meta` for its two concrete fields. For example:
+* When adding a GenericForeignKey field, you may need add an index under `Meta` for its two concrete fields. (This is required only for non-unique GFK relationships, as the unique constraint introduces its own index.) For example:
 
     ```python
     class Meta:

@@ -4,7 +4,6 @@ import taggit.managers
 from django.db import migrations, models
 
 import utilities.json
-import wireless.models
 
 
 class Migration(migrations.Migration):
@@ -21,7 +20,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0002_squashed_0046'),
-        ('tenancy', '0007_contact_link'),
+        ('tenancy', '0002_squashed_0011'),
         ('extras', '0002_squashed_0059'),
         ('dcim', '0003_squashed_0130'),
     ]
@@ -149,7 +148,6 @@ class Migration(migrations.Migration):
                 (
                     'interface_a',
                     models.ForeignKey(
-                        limit_choices_to=wireless.models.get_wireless_interface_types,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='+',
                         to='dcim.interface',
@@ -158,7 +156,6 @@ class Migration(migrations.Migration):
                 (
                     'interface_b',
                     models.ForeignKey(
-                        limit_choices_to=wireless.models.get_wireless_interface_types,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='+',
                         to='dcim.interface',

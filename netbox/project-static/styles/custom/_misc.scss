@@ -75,3 +75,15 @@ span.color-label {
 .btn-grey, .btn-gray {
   @extend .btn-secondary;
 }
+
+img.plugin-icon {
+  max-width: 1.4285em;
+  height: auto;
+}
+
+body[data-bs-theme=dark] {
+  // Assuming icon is black/white line art, invert it and tone down brightness
+  img.plugin-icon {
+    filter: grayscale(100%) invert(100%) brightness(80%);
+  }
+}

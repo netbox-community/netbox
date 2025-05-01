@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from .template_code import WEIGHT
+from .template_code import OUTER_UNIT, WEIGHT
 
 __all__ = (
     'RackTable',
@@ -62,12 +62,16 @@ class RackTypeTable(NetBoxTable):
         template_code="{{ value }}U",
         verbose_name=_('Height')
     )
-    outer_width = tables.TemplateColumn(
-        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
+    outer_width = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_depth = tables.TemplateColumn(
-        template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
+    outer_height = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
+        verbose_name=_('Outer Height')
+    )
+    outer_depth = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
     weight = columns.TemplateColumn(
@@ -96,8 +100,8 @@ class RackTypeTable(NetBoxTable):
         model = RackType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description', 'comments',
-            'instance_count', 'tags', 'created', 'last_updated',
+            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description',
+            'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
@@ -159,12 +163,16 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
-    outer_width = tables.TemplateColumn(
-        template_code="{{ record.outer_width }} {{ record.outer_unit }}",
+    outer_width = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Width')
     )
-    outer_depth = tables.TemplateColumn(
-        template_code="{{ record.outer_depth }} {{ record.outer_unit }}",
+    outer_height = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
+        verbose_name=_('Outer Height')
+    )
+    outer_depth = columns.TemplateColumn(
+        template_code=OUTER_UNIT,
         verbose_name=_('Outer Depth')
     )
     weight = columns.TemplateColumn(
@@ -183,8 +191,9 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
             'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments', 'device_count',
-            'get_utilization', 'get_power_utilization', 'description', 'contacts', 'tags', 'created', 'last_updated',
+            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments',
+            'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'rack_type', 'u_height',

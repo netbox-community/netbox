@@ -79,4 +79,4 @@ class L2VPNIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('type', 'identifier', 'tenant', 'description')
+    display_attrs = ('type', 'status', 'identifier', 'tenant', 'description')

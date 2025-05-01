@@ -49,6 +49,7 @@ markdown_extensions:
     - admonition
     - attr_list
     - footnotes
+    - md_in_html
     - pymdownx.emoji:
         emoji_index: !!python/name:material.extensions.emoji.twemoji
         emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -147,7 +148,6 @@ nav:
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Jobs: 'plugins/development/background-jobs.md'
             - Dashboard Widgets: 'plugins/development/dashboard-widgets.md'
-            - Staged Changes: 'plugins/development/staged-changes.md'
             - Exceptions: 'plugins/development/exceptions.md'
             - Migrating to v4.0: 'plugins/development/migration-v4.md'
     - Administration:
@@ -203,6 +203,7 @@ nav:
             - ModuleBay: 'models/dcim/modulebay.md'
             - ModuleBayTemplate: 'models/dcim/modulebaytemplate.md'
             - ModuleType: 'models/dcim/moduletype.md'
+            - ModuleTypeProfile: 'models/dcim/moduletypeprofile.md'
             - Platform: 'models/dcim/platform.md'
             - PowerFeed: 'models/dcim/powerfeed.md'
             - PowerOutlet: 'models/dcim/poweroutlet.md'
@@ -223,7 +224,6 @@ nav:
             - VirtualDeviceContext: 'models/dcim/virtualdevicecontext.md'
         - Extras:
             - Bookmark: 'models/extras/bookmark.md'
-            - Branch: 'models/extras/branch.md'
             - ConfigContext: 'models/extras/configcontext.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
@@ -236,8 +236,8 @@ nav:
             - Notification: 'models/extras/notification.md'
             - NotificationGroup: 'models/extras/notificationgroup.md'
             - SavedFilter: 'models/extras/savedfilter.md'
-            - StagedChange: 'models/extras/stagedchange.md'
             - Subscription: 'models/extras/subscription.md'
+            - TableConfig: 'models/extras/tableconfig.md'
             - Tag: 'models/extras/tag.md'
             - Webhook: 'models/extras/webhook.md'
         - IPAM:
@@ -309,6 +309,7 @@ nav:
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 4.3: 'release-notes/version-4.3.md'
         - Version 4.2: 'release-notes/version-4.2.md'
         - Version 4.1: 'release-notes/version-4.1.md'
         - Version 4.0: 'release-notes/version-4.0.md'

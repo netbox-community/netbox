@@ -33,7 +33,6 @@ class Migration(migrations.Migration):
             name='scope_type',
             field=models.ForeignKey(
                 blank=True,
-                limit_choices_to=models.Q(('model__in', ('region', 'sitegroup', 'site', 'location'))),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',

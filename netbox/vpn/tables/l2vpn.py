@@ -23,6 +23,9 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status')
+    )
     import_targets = columns.TemplateColumn(
         verbose_name=_('Import Targets'),
         template_code=L2VPN_TARGETS,
@@ -43,10 +46,10 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = L2VPN
         fields = (
-            'pk', 'name', 'slug', 'identifier', 'type', 'import_targets', 'export_targets', 'tenant', 'tenant_group',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'name', 'slug', 'status', 'identifier', 'type', 'import_targets', 'export_targets', 'tenant',
+            'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'identifier', 'type', 'description')
+        default_columns = ('pk', 'name', 'status', 'identifier', 'type', 'description')
 
 
 class L2VPNTerminationTable(NetBoxTable):

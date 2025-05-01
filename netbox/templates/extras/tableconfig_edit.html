@@ -1,0 +1,48 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% block form %}
+  <div class="field-group my-5">
+    <div class="row">
+      <h2 class="col-9 offset-3">{% trans "Table Configuration" %}</h2>
+    </div>
+    {% render_field form.name %}
+    {% render_field form.object_type %}
+    {% render_field form.table %}
+    {% render_field form.description %}
+    {% render_field form.weight %}
+    {% render_field form.enabled %}
+    {% render_field form.shared %}
+    {% render_field form.ordering %}
+  </div>
+
+  <div class="field-group my-5">
+    <div class="row">
+      <div class="col-5 text-center">
+        <label class="form-label">{{ form.available_columns.label }}</label>
+        {{ form.available_columns }}
+      </div>
+      <div class="col-2 d-flex align-items-center">
+        <div>
+          <a tabindex="0" class="btn btn-success btn-sm w-100 my-2" id="add_columns">
+            <i class="mdi mdi-arrow-right-bold"></i> {% trans "Add" %}
+          </a>
+          <a tabindex="0" class="btn btn-danger btn-sm w-100 my-2" id="remove_columns">
+            <i class="mdi mdi-arrow-left-bold"></i> {% trans "Remove" %}
+          </a>
+        </div>
+      </div>
+      <div class="col-5 text-center">
+        <label class="form-label">{{ form.columns.label }}</label>
+        {{ form.columns }}
+        <a tabindex="0" class="btn btn-primary btn-sm mt-2" id="move-option-up" data-target="id_columns">
+          <i class="mdi mdi-arrow-up-bold"></i> {% trans "Move Up" %}
+        </a>
+        <a tabindex="0" class="btn btn-primary btn-sm mt-2" id="move-option-down" data-target="id_columns">
+          <i class="mdi mdi-arrow-down-bold"></i> {% trans "Move Down" %}
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

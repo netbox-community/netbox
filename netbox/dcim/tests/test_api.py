@@ -74,6 +74,7 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Region 4',
             'slug': 'region-4',
+            'comments': 'this is region 4, not region 5',
         },
         {
             'name': 'Region 5',
@@ -86,13 +87,14 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'New comments',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         Region.objects.create(name='Region 1', slug='region-1')
-        Region.objects.create(name='Region 2', slug='region-2')
+        Region.objects.create(name='Region 2', slug='region-2', comments='what in the world is happening?')
         Region.objects.create(name='Region 3', slug='region-3')
 
 
@@ -103,26 +105,30 @@ class SiteGroupTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Site Group 4',
             'slug': 'site-group-4',
+            'comments': '',
         },
         {
             'name': 'Site Group 5',
             'slug': 'site-group-5',
+            'comments': 'not actually empty',
         },
         {
             'name': 'Site Group 6',
             'slug': 'site-group-6',
+            'comments': 'Do I really exist?',
         },
     ]
     bulk_update_data = {
         'description': 'New description',
+        'comments': 'I do exist!',
     }
 
     @classmethod
     def setUpTestData(cls):
 
         SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
-        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
-        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+        SiteGroup.objects.create(name='Site Group 2', slug='site-group-2', comments='')
+        SiteGroup.objects.create(name='Site Group 3', slug='site-group-3', comments='Hi!')
 
 
 class SiteTest(APIViewTestCases.APIViewTestCase):
@@ -212,12 +218,14 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 name='Parent Location 1',
                 slug='parent-location-1',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='First!'
             ),
             Location.objects.create(
                 site=sites[1],
                 name='Parent Location 2',
                 slug='parent-location-2',
                 status=LocationStatusChoices.STATUS_ACTIVE,
+                comments='Second!'
             ),
         )
 
@@ -227,6 +235,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
             slug='location-1',
             parent=parent_locations[0],
             status=LocationStatusChoices.STATUS_ACTIVE,
+            comments='Third!'
         )
         Location.objects.create(
             site=sites[0],
@@ -250,6 +259,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': '',
             },
             {
                 'name': 'Test Location 5',
@@ -257,6 +267,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'site': sites[1].pk,
                 'parent': parent_locations[1].pk,
                 'status': LocationStatusChoices.STATUS_PLANNED,
+                'comments': 'Somebody should check on this location',
             },
             {
                 'name': 'Test Location 6',
@@ -580,7 +591,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
     model = ModuleType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
@@ -616,6 +627,70 @@ class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
                 'model': 'Module Type 6',
             },
         ]
+
+
+class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
+    model = ModuleTypeProfile
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    SCHEMAS = [
+        {
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "integer"
+                }
+            }
+        },
+        {
+            "properties": {
+                "foo": {
+                    "type": "boolean"
+                }
+            }
+        },
+    ]
+    create_data = [
+        {
+            'name': 'Module Type Profile 4',
+            'schema': SCHEMAS[0],
+        },
+        {
+            'name': 'Module Type Profile 5',
+            'schema': SCHEMAS[1],
+        },
+        {
+            'name': 'Module Type Profile 6',
+            'schema': SCHEMAS[2],
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+        'comments': 'New comments',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        module_type_profiles = (
+            ModuleTypeProfile(
+                name='Module Type Profile 1',
+                schema=cls.SCHEMAS[0]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 2',
+                schema=cls.SCHEMAS[1]
+            ),
+            ModuleTypeProfile(
+                name='Module Type Profile 3',
+                schema=cls.SCHEMAS[2]
+            ),
+        )
+        ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
 
 class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1138,7 +1213,9 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
-    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = [
+        '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count'
+    ]
     create_data = [
         {
             'name': 'Device Role 4',
@@ -1163,12 +1240,9 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        roles = (
-            DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
-            DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
-            DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff'),
-        )
-        DeviceRole.objects.bulk_create(roles)
+        DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        DeviceRole.objects.create(name='Device Role 2', slug='device-role-2', color='00ff00')
+        DeviceRole.objects.create(name='Device Role 3', slug='device-role-3', color='0000ff')
 
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
@@ -1241,7 +1315,8 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 

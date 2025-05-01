@@ -1,3 +1,5 @@
+import json
+
 import django_filters
 from copy import deepcopy
 from django.contrib.contenttypes.models import ContentType
@@ -10,7 +12,7 @@ from django.utils.translation import gettext as _
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
 from extras.choices import CustomFieldFilterLogicChoices
-from extras.filters import TagFilter
+from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
@@ -20,6 +22,7 @@ from utilities.forms.fields import MACAddressField
 from utilities import filters
 
 __all__ = (
+    'AttributeFiltersMixin',
     'BaseFilterSet',
     'ChangeLoggedModelFilterSet',
     'NetBoxModelFilterSet',
@@ -286,6 +289,7 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
         label=_('Search'),
     )
     tag = TagFilter()
+    tag_id = TagIDFilter()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -329,3 +333,48 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
             models.Q(slug__icontains=value) |
             models.Q(description__icontains=value)
         )
+
+
+class NestedGroupModelFilterSet(NetBoxModelFilterSet):
+    """
+    A base FilterSet for models that inherit from NestedGroupModel
+    """
+    def search(self, queryset, name, value):
+        if value.strip():
+            queryset = queryset.filter(
+                models.Q(name__icontains=value) |
+                models.Q(slug__icontains=value) |
+                models.Q(description__icontains=value) |
+                models.Q(comments__icontains=value)
+            )
+
+        return queryset
+
+
+class AttributeFiltersMixin:
+    attributes_field_name = 'attribute_data'
+    attribute_filter_prefix = 'attr_'
+
+    def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
+        self.attr_filters = {}
+
+        # Extract JSONField-based filters from the incoming data
+        if data is not None:
+            for key, value in data.items():
+                if field := self._get_field_lookup(key):
+                    # Attempt to cast the value to a native JSON type
+                    try:
+                        self.attr_filters[field] = json.loads(value)
+                    except (ValueError, json.JSONDecodeError):
+                        self.attr_filters[field] = value
+
+        super().__init__(data=data, queryset=queryset, request=request, prefix=prefix)
+
+    def _get_field_lookup(self, key):
+        if not key.startswith(self.attribute_filter_prefix):
+            return
+        lookup = key.split(self.attribute_filter_prefix, 1)[1]  # Strip prefix
+        return f'{self.attributes_field_name}__{lookup}'
+
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset).filter(**self.attr_filters)

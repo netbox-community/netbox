@@ -294,7 +294,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         devices = (
             create_test_device('device1', cluster=clusters[0]),

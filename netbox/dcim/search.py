@@ -145,6 +145,7 @@ class LocationIndex(SearchIndex):
         ('facility', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('site', 'status', 'tenant', 'facility', 'description')
 
@@ -181,6 +182,17 @@ class ModuleBayIndex(SearchIndex):
         ('description', 500),
     )
     display_attrs = ('device', 'label', 'position', 'description')
+
+
+@register_search
+class ModuleTypeProfileIndex(SearchIndex):
+    model = models.ModuleTypeProfile
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('name', 'description')
 
 
 @register_search
@@ -225,7 +237,7 @@ class PowerOutletIndex(SearchIndex):
         ('label', 200),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'type', 'description')
+    display_attrs = ('device', 'label', 'type', 'status', 'description')
 
 
 @register_search
@@ -318,6 +330,7 @@ class RegionIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('parent', 'description')
 
@@ -344,6 +357,7 @@ class SiteGroupIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('parent', 'description')
 

@@ -1,15 +1,36 @@
+from dataclasses import dataclass
 import netaddr
+
+from django.utils.translation import gettext_lazy as _
 
 from .constants import *
 from .models import Prefix, VLAN
 
 __all__ = (
-    'add_available_ipaddresses',
+    'AvailableIPSpace',
     'add_available_vlans',
     'add_requested_prefixes',
+    'annotate_ip_space',
     'get_next_available_prefix',
     'rebuild_prefixes',
 )
+
+
+@dataclass
+class AvailableIPSpace:
+    """
+    A representation of available IP space between two IP addresses/ranges.
+    """
+    size: int
+    first_ip: str
+
+    @property
+    def title(self):
+        if self.size == 1:
+            return _('1 IP available')
+        if self.size <= 65536:
+            return _('{count} IPs available').format(count=self.size)
+        return _('Many IPs available')
 
 
 def add_requested_prefixes(parent, prefix_list, show_available=True, show_assigned=True):
@@ -42,50 +63,69 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
     return child_prefixes
 
 
-def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
-    """
-    Annotate ranges of available IP addresses within a given prefix. If is_pool is True, the first and last IP will be
-    considered usable (regardless of mask length).
-    """
+def annotate_ip_space(prefix):
+    # Compile child objects
+    records = []
+    records.extend([
+        (iprange.start_address.ip, iprange) for iprange in prefix.get_child_ranges(mark_populated=True)
+    ])
+    records.extend([
+        (ip.address.ip, ip) for ip in prefix.get_child_ips()
+    ])
+    records = sorted(records, key=lambda x: x[0])
+
+    # Determine the first & last valid IP addresses in the prefix
+    if prefix.family == 4 and prefix.mask_length < 31 and not prefix.is_pool:
+        # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31
+        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first + 1)
+        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last - 1)
+    else:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first)
+        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last)
+
+    if not records:
+        return [
+            AvailableIPSpace(
+                size=int(last_ip_in_prefix - first_ip_in_prefix + 1),
+                first_ip=f'{first_ip_in_prefix}/{prefix.mask_length}'
+            )
+        ]
 
     output = []
     prev_ip = None
 
-    # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31.
-    if prefix.version == 4 and prefix.prefixlen < 31 and not is_pool:
-        first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
-        last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
-    else:
-        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
-        last_ip_in_prefix = netaddr.IPAddress(prefix.last)
-
-    if not ipaddress_list:
-        return [(
-            int(last_ip_in_prefix - first_ip_in_prefix + 1),
-            '{}/{}'.format(first_ip_in_prefix, prefix.prefixlen)
-        )]
-
     # Account for any available IPs before the first real IP
-    if ipaddress_list[0].address.ip > first_ip_in_prefix:
-        skipped_count = int(ipaddress_list[0].address.ip - first_ip_in_prefix)
-        first_skipped = '{}/{}'.format(first_ip_in_prefix, prefix.prefixlen)
-        output.append((skipped_count, first_skipped))
+    if records[0][0] > first_ip_in_prefix:
+        output.append(AvailableIPSpace(
+            size=int(records[0][0] - first_ip_in_prefix),
+            first_ip=f'{first_ip_in_prefix}/{prefix.mask_length}'
+        ))
 
-    # Iterate through existing IPs and annotate free ranges
-    for ip in ipaddress_list:
+    # Add IP ranges & addresses, annotating available space in between records
+    for record in records:
         if prev_ip:
-            diff = int(ip.address.ip - prev_ip.address.ip)
-            if diff > 1:
-                first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
-                output.append((diff - 1, first_skipped))
-        output.append(ip)
-        prev_ip = ip
+            # Annotate available space
+            if (diff := int(record[0]) - int(prev_ip)) > 1:
+                first_skipped = f'{prev_ip + 1}/{prefix.mask_length}'
+                output.append(AvailableIPSpace(
+                    size=diff - 1,
+                    first_ip=first_skipped
+                ))
+
+        output.append(record[1])
+
+        # Update the previous IP address
+        if hasattr(record[1], 'end_address'):
+            prev_ip = record[1].end_address.ip
+        else:
+            prev_ip = record[0]
 
     # Include any remaining available IPs
-    if prev_ip.address.ip < last_ip_in_prefix:
-        skipped_count = int(last_ip_in_prefix - prev_ip.address.ip)
-        first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
-        output.append((skipped_count, first_skipped))
+    if prev_ip < last_ip_in_prefix:
+        output.append(AvailableIPSpace(
+            size=int(last_ip_in_prefix - prev_ip),
+            first_ip=f'{prev_ip + 1}/{prefix.mask_length}'
+        ))
 
     return output
 

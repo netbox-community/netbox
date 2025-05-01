@@ -1,4 +1,4 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List, TYPE_CHECKING, Union
 
 import strawberry
 import strawberry_django
@@ -9,6 +9,21 @@ from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
 from virtualization import models
 from .filters import *
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import (
+        DeviceRoleType,
+        DeviceType,
+        LocationType,
+        MACAddressType,
+        PlatformType,
+        RegionType,
+        SiteGroupType,
+        SiteType,
+    )
+    from extras.graphql.types import ConfigTemplateType
+    from ipam.graphql.types import IPAddressType, ServiceType, VLANTranslationPolicyType, VLANType, VRFType
+    from tenancy.graphql.types import TenantType
 
 __all__ = (
     'ClusterType',
@@ -30,8 +45,9 @@ class ComponentType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Cluster,
-    exclude=('scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'),
-    filters=ClusterFilter
+    exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
+    filters=ClusterFilter,
+    pagination=True
 )
 class ClusterType(ContactsMixin, VLANGroupsMixin, NetBoxObjectType):
     type: Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')] | None
@@ -53,7 +69,8 @@ class ClusterType(ContactsMixin, VLANGroupsMixin, NetBoxObjectType):
 @strawberry_django.type(
     models.ClusterGroup,
     fields='__all__',
-    filters=ClusterGroupFilter
+    filters=ClusterGroupFilter,
+    pagination=True
 )
 class ClusterGroupType(ContactsMixin, VLANGroupsMixin, OrganizationalObjectType):
 
@@ -63,7 +80,8 @@ class ClusterGroupType(ContactsMixin, VLANGroupsMixin, OrganizationalObjectType)
 @strawberry_django.type(
     models.ClusterType,
     fields='__all__',
-    filters=ClusterTypeFilter
+    filters=ClusterTypeFilter,
+    pagination=True
 )
 class ClusterTypeType(OrganizationalObjectType):
 
@@ -73,7 +91,8 @@ class ClusterTypeType(OrganizationalObjectType):
 @strawberry_django.type(
     models.VirtualMachine,
     fields='__all__',
-    filters=VirtualMachineFilter
+    filters=VirtualMachineFilter,
+    pagination=True
 )
 class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     interface_count: BigInt
@@ -97,7 +116,8 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
 @strawberry_django.type(
     models.VMInterface,
     fields='__all__',
-    filters=VMInterfaceFilter
+    filters=VMInterfaceFilter,
+    pagination=True
 )
 class VMInterfaceType(IPAddressesMixin, ComponentType):
     _name: str
@@ -119,7 +139,8 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
 @strawberry_django.type(
     models.VirtualDisk,
     fields='__all__',
-    filters=VirtualDiskFilter
+    filters=VirtualDiskFilter,
+    pagination=True
 )
 class VirtualDiskType(ComponentType):
     pass

@@ -1,6 +1,6 @@
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<5.2
+Django==5.2.*
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -42,6 +42,10 @@ django-rich
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
 django-rq
 
+# Provides a variety of storage backends
+# https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst
+django-storages
+
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
 django-tables2
@@ -77,6 +81,10 @@ gunicorn
 # Platform-agnostic template rendering engine
 # https://jinja.palletsprojects.com/changes/
 Jinja2
+
+# JSON schema validation
+# https://github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst
+jsonschema
 
 # Simple markup language for rendering HTML
 # https://python-markdown.github.io/changelog/

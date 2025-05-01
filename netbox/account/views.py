@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme, urlencode
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
@@ -28,6 +28,7 @@ from netbox.config import get_config
 from netbox.views import generic
 from users import forms, tables
 from users.models import UserConfig
+from utilities.request import safe_for_redirect
 from utilities.string import remove_linebreaks
 from utilities.views import register_model_view
 
@@ -90,10 +91,12 @@ class LoginView(View):
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
             return self.redirect_to_next(request, logger)
+        login_form_hidden = settings.LOGIN_FORM_HIDDEN
 
         return render(request, self.template_name, {
             'form': form,
             'auth_backends': self.get_auth_backends(request),
+            'login_form_hidden': login_form_hidden,
         })
 
     def post(self, request):
@@ -146,7 +149,7 @@ class LoginView(View):
         data = request.POST if request.method == "POST" else request.GET
         redirect_url = data.get('next', settings.LOGIN_REDIRECT_URL)
 
-        if redirect_url and url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+        if redirect_url and safe_for_redirect(redirect_url):
             logger.debug(f"Redirecting user to {remove_linebreaks(redirect_url)}")
         else:
             if redirect_url:

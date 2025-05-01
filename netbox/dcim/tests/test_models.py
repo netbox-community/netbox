@@ -383,7 +383,8 @@ class DeviceTestCase(TestCase):
             DeviceRole(name='Test Role 1', slug='test-role-1'),
             DeviceRole(name='Test Role 2', slug='test-role-2'),
         )
-        DeviceRole.objects.bulk_create(roles)
+        for role in roles:
+            role.save()
 
         # Create a CustomField with a default value & assign it to all component models
         cf1 = CustomField.objects.create(name='cf1', default='foo')
@@ -502,7 +503,8 @@ class DeviceTestCase(TestCase):
             device=device,
             name='Power Outlet 1',
             power_port=powerport,
-            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
+            feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
+            status=PowerOutletStatusChoices.STATUS_ENABLED,
         )
         self.assertEqual(poweroutlet.cf['cf1'], 'foo')
 

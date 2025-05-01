@@ -3,6 +3,9 @@ from netbox.plugins.templates import PluginTemplateExtension
 
 class GlobalContent(PluginTemplateExtension):
 
+    def head(self):
+        return "<!-- HEAD CONTENT -->"
+
     def navbar(self):
         return "GLOBAL CONTENT - NAVBAR"
 
