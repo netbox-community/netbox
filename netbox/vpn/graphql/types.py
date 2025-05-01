@@ -86,7 +86,7 @@ class IKEProposalType(OrganizationalObjectType):
 class IKEPolicyType(OrganizationalObjectType):
 
     proposals: List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]
-    ipsec_profiles: List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]
+    ipsec_profiles: List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
