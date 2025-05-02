@@ -46,6 +46,7 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
             orderable=False
         )
         import_targets_table.configure(request)
+
         export_targets_table = tables.RouteTargetTable(
             instance.export_targets.all(),
             orderable=False
@@ -895,6 +896,7 @@ class IPAddressAssignView(generic.ObjectView):
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
+            table.configure(request)
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
@@ -1060,6 +1062,8 @@ class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
             data=instance.rules.all(),
             orderable=False
         )
+        vlan_translation_table.configure(request)
+
         return {
             'vlan_translation_table': vlan_translation_table,
         }

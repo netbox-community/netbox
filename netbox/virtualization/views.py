@@ -350,6 +350,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
 
         selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
         device_table = DeviceTable(list(selected_objects), orderable=False)
+        device_table.configure(request)
 
         return render(request, self.template_name, {
             'form': form,
@@ -514,6 +515,7 @@ class VMInterfaceView(generic.ObjectView):
                 data=instance.vlan_translation_policy.rules.all(),
                 orderable=False
             )
+            vlan_translation_table.configure(request)
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
@@ -528,6 +530,7 @@ class VMInterfaceView(generic.ObjectView):
             data=vlans,
             orderable=False
         )
+        vlan_table.configure(request)
 
         return {
             'child_interfaces_table': child_interfaces_tables,

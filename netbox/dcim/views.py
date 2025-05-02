@@ -2826,6 +2826,7 @@ class InterfaceView(generic.ObjectView):
             data=vlans,
             orderable=False
         )
+        vlan_table.configure(request)
 
         # Get VLAN translation rules
         vlan_translation_table = None
@@ -2834,6 +2835,7 @@ class InterfaceView(generic.ObjectView):
                 data=instance.vlan_translation_policy.rules.all(),
                 orderable=False
             )
+            vlan_translation_table.configure(request)
 
         return {
             'vdc_table': vdc_table,

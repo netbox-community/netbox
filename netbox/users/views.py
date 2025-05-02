@@ -77,6 +77,7 @@ class UserView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=instance)[:20]
         changelog_table = ObjectChangeTable(changelog)
+        changelog_table.configure(request)
 
         return {
             'changelog_table': changelog_table,
