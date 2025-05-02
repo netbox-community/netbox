@@ -505,6 +505,7 @@ class VMInterfaceView(generic.ObjectView):
             exclude=('virtual_machine',),
             orderable=False
         )
+        child_interfaces_tables.configure(request)
 
         # Get VLAN translation rules
         vlan_translation_table = None

@@ -2793,6 +2793,7 @@ class InterfaceView(generic.ObjectView):
             ),
             orderable=False
         )
+        vdc_table.configure(request)
 
         # Get bridge interfaces
         bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
@@ -2801,6 +2802,7 @@ class InterfaceView(generic.ObjectView):
             exclude=('device', 'parent'),
             orderable=False
         )
+        bridge_interfaces_table.configure(request)
 
         # Get child interfaces
         child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
@@ -2809,6 +2811,7 @@ class InterfaceView(generic.ObjectView):
             exclude=('device', 'parent'),
             orderable=False
         )
+        child_interfaces_table.configure(request)
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
