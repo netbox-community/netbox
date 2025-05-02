@@ -100,7 +100,6 @@ class SearchView(ConditionalLoginRequiredMixin, View):
                 highlight = form.cleaned_data['q']
 
         table = SearchTable(results, highlight=highlight)
-        table.configure(request)
 
         # Paginate the table results
         RequestConfig(request, {
