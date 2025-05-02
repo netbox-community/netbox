@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load i18n %}
 {% load django_htmx %}
+{% load plugins %}
 <!DOCTYPE html>
 <html
   lang="en"
@@ -17,6 +18,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=5, width=device-width, viewport-fit=cover" />
     <meta name="htmx-config" content='{"scrollBehavior": "auto"}'>
+    <meta name="hostname" content="{{ settings.HOSTNAME }}" />
 
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
@@ -58,6 +60,7 @@
 
     {# Additional <head> content #}
     {% block head %}{% endblock %}
+    {% plugin_head %}
 
   </head>
   <body>

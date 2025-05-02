@@ -144,8 +144,8 @@ class BaseFilterSetTests:
                 # Check that the filter class is correct
                 filter = filters[filter_name]
                 if filter_class is not None:
-                    self.assertIs(
-                        type(filter),
+                    self.assertIsInstance(
+                        filter,
                         filter_class,
                         f"Invalid filter class {type(filter)} for {filter_name} (should be {filter_class})!"
                     )

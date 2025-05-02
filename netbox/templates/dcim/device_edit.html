@@ -3,7 +3,9 @@
 {% load i18n %}
 
 {% block form %}
-    {% render_errors form %}
+    {% for field in form.hidden_fields %}
+      {{ field }}
+    {% endfor %}
 
     <div class="field-group my-5">
       <div class="row">

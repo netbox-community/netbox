@@ -59,7 +59,7 @@ MACADDRESS_COPY_BUTTON = """
 #
 
 class DeviceRoleTable(NetBoxTable):
-    name = tables.Column(
+    name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True
     )
@@ -144,7 +144,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
         template_code=DEVICE_LINK,
-        linkify=True
+        linkify=True,
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
@@ -520,6 +520,9 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         verbose_name=_('Power Port'),
         linkify=True
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     color = columns.ColorColumn()
     tags = columns.TagColumn(
         url_name='dcim:poweroutlet_list'
@@ -530,9 +533,11 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'description', 'power_port',
             'color', 'feed_leg', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'inventory_items',
-            'tags', 'created', 'last_updated',
+            'tags', 'created', 'last_updated', 'status',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description')
+        default_columns = (
+            'pk', 'name', 'device', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'description',
+        )
 
 
 class DevicePowerOutletTable(PowerOutletTable):
@@ -550,9 +555,11 @@ class DevicePowerOutletTable(PowerOutletTable):
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'color', 'power_port', 'feed_leg',
             'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags', 'actions',
+            'status',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description', 'cable', 'connection',
+            'pk', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'description', 'cable',
+            'connection',
         )
 
 
@@ -671,7 +678,7 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
             'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
             'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'qinq_svlan', 'inventory_items', 'created', 'last_updated', 'vlan_translation_policy'
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -705,7 +712,7 @@ class DeviceInterfaceTable(InterfaceTable):
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
-            'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'mgmt_only', 'mtu', 'mode', 'primary_mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
             'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
             'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'actions',

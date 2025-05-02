@@ -52,6 +52,13 @@ class NestedLocationSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'rack_count', '_depth']
 
 
+class NestedDeviceRoleSerializer(WritableNestedSerializer):
+
+    class Meta:
+        model = models.DeviceRole
+        fields = ['id', 'url', 'display_url', 'display', 'name']
+
+
 class NestedDeviceSerializer(WritableNestedSerializer):
 
     class Meta:

@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="row my-3">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
         <div class="card">
             <h2 class="card-header">{% trans "Virtual Machine" %}</h2>
             <table class="table table-hover attr-table">
@@ -87,7 +87,7 @@
         {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
         <div class="card">
             <h2 class="card-header">{% trans "Cluster" %}</h2>
             <table class="table table-hover attr-table">
@@ -129,7 +129,7 @@
                     <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
                     <td>
                         {% if object.memory %}
-                            <span title={{ object.memory }}>{{ object.memory|humanize_megabytes }}</span>
+                            <span title={{ object.memory }}>{{ object.memory|humanize_ram_megabytes }}</span>
                         {% else %}
                             {{ ''|placeholder }}
                         {% endif %}
@@ -141,7 +141,7 @@
                   </th>
                   <td>
                     {% if object.disk %}
-                      {{ object.disk|humanize_megabytes }}
+                      {{ object.disk|humanize_disk_megabytes }}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}

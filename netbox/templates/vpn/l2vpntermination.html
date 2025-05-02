@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
         <div class="card">
             <h2 class="card-header">{% trans "L2VPN Attributes" %}</h2>
             <table class="table table-hover">
@@ -19,7 +19,7 @@
             </table>
         </div>
 	</div>
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' with tags=object.tags.all url='vpn:l2vpntermination_list' %}
     </div>

@@ -2,39 +2,17 @@
 
 This section entails the installation and configuration of a local PostgreSQL database. If you already have a PostgreSQL database service in place, skip to [the next section](2-redis.md).
 
-!!! warning "PostgreSQL 12 or later required"
-    NetBox requires PostgreSQL 12 or later. Please note that MySQL and other relational databases are **not** supported.
+!!! warning "PostgreSQL 14 or later required"
+    NetBox requires PostgreSQL 14 or later. Please note that MySQL and other relational databases are **not** supported.
 
 ## Installation
 
-=== "Ubuntu"
+```no-highlight
+sudo apt update
+sudo apt install -y postgresql
+```
 
-    ```no-highlight
-    sudo apt update
-    sudo apt install -y postgresql
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y postgresql-server
-    sudo postgresql-setup --initdb
-    ```
-
-    CentOS configures ident host-based authentication for PostgreSQL by default. Because NetBox will need to authenticate using a username and password, modify `/var/lib/pgsql/data/pg_hba.conf` to support MD5 authentication by changing `ident` to `md5` for the lines below:
-
-    ```no-highlight
-    host    all             all             127.0.0.1/32            md5
-    host    all             all             ::1/128                 md5
-    ```
-
-    Once PostgreSQL has been installed, start the service and enable it to run at boot:
-
-    ```no-highlight
-    sudo systemctl enable --now postgresql
-    ```
-
-Before continuing, verify that you have installed PostgreSQL 12 or later:
+Before continuing, verify that you have installed PostgreSQL 14 or later:
 
 ```no-highlight
 psql -V
@@ -61,6 +39,9 @@ GRANT CREATE ON SCHEMA public TO netbox;
 
 !!! danger "Use a strong password"
     **Do not use the password from the example.** Choose a strong, random password to ensure secure database authentication for your NetBox installation.
+
+!!! danger "Use UTF8 encoding"
+    Make sure that your database uses `UTF8` encoding (the default for new installations). Especially do not use `SQL_ASCII` encoding, as it can lead to unpredictable and unrecoverable errors. Enter `\l` to check your encoding.
 
 Once complete, enter `\q` to exit the PostgreSQL shell.
 

@@ -39,6 +39,7 @@ __all__ = (
     'ModuleImportForm',
     'ModuleBayImportForm',
     'ModuleTypeImportForm',
+    'ModuleTypeProfileImportForm',
     'PlatformImportForm',
     'PowerFeedImportForm',
     'PowerOutletImportForm',
@@ -68,7 +69,7 @@ class RegionImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Region
-        fields = ('name', 'slug', 'parent', 'description', 'tags')
+        fields = ('name', 'slug', 'parent', 'description', 'tags', 'comments')
 
 
 class SiteGroupImportForm(NetBoxModelImportForm):
@@ -82,7 +83,7 @@ class SiteGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = SiteGroup
-        fields = ('name', 'slug', 'parent', 'description')
+        fields = ('name', 'slug', 'parent', 'description', 'comments', 'tags')
 
 
 class SiteImportForm(NetBoxModelImportForm):
@@ -160,7 +161,10 @@ class LocationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description', 'tags')
+        fields = (
+            'site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description',
+            'tags', 'comments',
+        )
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -219,7 +223,7 @@ class RackTypeImportForm(NetBoxModelImportForm):
         model = RackType
         fields = (
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
-            'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
+            'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
             'weight_unit', 'description', 'comments', 'tags',
         )
 
@@ -304,7 +308,7 @@ class RackImportForm(NetBoxModelImportForm):
         model = Rack
         fields = (
             'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor', 'serial',
-            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
             'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         )
 
@@ -424,7 +428,22 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         ]
 
 
+class ModuleTypeProfileImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = ModuleTypeProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeImportForm(NetBoxModelImportForm):
+    profile = forms.ModelChoiceField(
+        label=_('Profile'),
+        queryset=ModuleTypeProfile.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     manufacturer = forms.ModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -457,6 +476,16 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent Device Role'),
+        error_messages={
+            'invalid_choice': _('Device role not found.'),
+        }
+    )
     config_template = CSVModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
@@ -468,7 +497,9 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags'
+        )
 
 
 class PlatformImportForm(NetBoxModelImportForm):
@@ -1161,27 +1192,45 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         else:
             self.fields['parent'].queryset = InventoryItem.objects.none()
 
-    def clean_component_name(self):
-        content_type = self.cleaned_data.get('component_type')
-        component_name = self.cleaned_data.get('component_name')
+    def clean(self):
+        super().clean()
+        cleaned_data = self.cleaned_data
+        component_type = cleaned_data.get('component_type')
+        component_name = cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
-        if not device and hasattr(self, 'instance') and hasattr(self.instance, 'device'):
-            device = self.instance.device
-
-        if not all([device, content_type, component_name]):
-            return None
-
-        model = content_type.model_class()
-        try:
-            component = model.objects.get(device=device, name=component_name)
-            self.instance.component = component
-        except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                _("Component not found: {device} - {component_name}").format(
-                    device=device, component_name=component_name
+        if component_type:
+            if device is None:
+                cleaned_data.pop('component_type', None)
+            if component_name is None:
+                cleaned_data.pop('component_type', None)
+                raise forms.ValidationError(
+                    _("Component name must be specified when component type is specified")
                 )
-            )
+            if all([device, component_name]):
+                try:
+                    model = component_type.model_class()
+                    self.instance.component = model.objects.get(device=device, name=component_name)
+                except ObjectDoesNotExist:
+                    cleaned_data.pop('component_type', None)
+                    cleaned_data.pop('component_name', None)
+                    raise forms.ValidationError(
+                        _("Component not found: {device} - {component_name}").format(
+                            device=device, component_name=component_name
+                        )
+                    )
+            else:
+                cleaned_data.pop('component_type', None)
+                if not component_name:
+                    raise forms.ValidationError(
+                        _("Component name must be specified when component type is specified")
+                    )
+        else:
+            if component_name:
+                raise forms.ValidationError(
+                    _("Component type must be specified when component name is specified")
+                )
+        return cleaned_data
 
 
 #

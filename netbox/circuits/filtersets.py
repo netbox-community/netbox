@@ -95,7 +95,7 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         )
 
 
-class ProviderAccountFilterSet(NetBoxModelFilterSet):
+class ProviderAccountFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
@@ -233,6 +233,11 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site (slug)'),
+    )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='terminations___location',
+        label=_('Location (ID)'),
+        queryset=Location.objects.all(),
     )
     termination_a_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitTermination.objects.all(),

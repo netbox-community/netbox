@@ -5,12 +5,12 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
-from django.db import DEFAULT_DB_ALIAS
 from django.utils import timezone
 from packaging import version
 
 from core.models import Job, ObjectChange
 from netbox.config import Config
+from utilities.proxy import resolve_proxies
 
 
 class Command(BaseCommand):
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                         ending=""
                     )
                     self.stdout.flush()
-                ObjectChange.objects.filter(time__lt=cutoff)._raw_delete(using=DEFAULT_DB_ALIAS)
+                ObjectChange.objects.filter(time__lt=cutoff).delete()
                 if options['verbosity']:
                     self.stdout.write("Done.", self.style.SUCCESS)
             elif options['verbosity']:
@@ -107,7 +107,7 @@ class Command(BaseCommand):
                 response = requests.get(
                     url=settings.RELEASE_CHECK_URL,
                     headers=headers,
-                    proxies=settings.HTTP_PROXIES
+                    proxies=resolve_proxies(url=settings.RELEASE_CHECK_URL)
                 )
                 response.raise_for_status()
 

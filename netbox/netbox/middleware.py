@@ -2,6 +2,7 @@ from contextlib import ExitStack
 
 import logging
 import uuid
+import warnings
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -37,13 +38,21 @@ class CoreMiddleware:
         # Apply all registered request processors
         with ExitStack() as stack:
             for request_processor in registry['request_processors']:
-                stack.enter_context(request_processor(request))
+                try:
+                    stack.enter_context(request_processor(request))
+                except Exception as e:
+                    warnings.warn(f'Failed to initialize request processor {request_processor}: {e}')
             response = self.get_response(request)
 
         # Check if language cookie should be renewed
         if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
             if language := request.user.config.get('locale.language'):
-                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language, max_age=request.session.get_expiry_age())
+                response.set_cookie(
+                    key=settings.LANGUAGE_COOKIE_NAME,
+                    value=language,
+                    max_age=request.session.get_expiry_age(),
+                    secure=settings.SESSION_COOKIE_SECURE,
+                )
 
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id
@@ -94,18 +103,23 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
     """
     Custom implementation of Django's RemoteUserMiddleware which allows for a user-configurable HTTP header name.
     """
+    async_capable = False
     force_logout_if_no_header = False
+
+    def __init__(self, get_response):
+        if get_response is None:
+            raise ValueError("get_response must be provided.")
+        self.get_response = get_response
 
     @property
     def header(self):
         return settings.REMOTE_AUTH_HEADER
 
-    def process_request(self, request):
-        logger = logging.getLogger(
-            'netbox.authentication.RemoteUserMiddleware')
+    def __call__(self, request):
+        logger = logging.getLogger('netbox.authentication.RemoteUserMiddleware')
         # Bypass middleware if remote authentication is not enabled
         if not settings.REMOTE_AUTH_ENABLED:
-            return
+            return self.get_response(request)
         # AuthenticationMiddleware is required so that request.user exists.
         if not hasattr(request, 'user'):
             raise ImproperlyConfigured(
@@ -122,13 +136,13 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             # AnonymousUser by the AuthenticationMiddleware).
             if self.force_logout_if_no_header and request.user.is_authenticated:
                 self._remove_invalid_user(request)
-            return
+            return self.get_response(request)
         # If the user is already authenticated and that user is the user we are
         # getting passed in the headers, then the correct user is already
         # persisted in the session and we don't need to continue.
         if request.user.is_authenticated:
             if request.user.get_username() == self.clean_username(username, request):
-                return
+                return self.get_response(request)
             else:
                 # An authenticated user is associated with the request, but
                 # it does not match the authorized user in the header.
@@ -161,6 +175,8 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             # by logging the user in.
             request.user = user
             auth.login(request, user)
+
+        return self.get_response(request)
 
     def _get_groups(self, request):
         logger = logging.getLogger(

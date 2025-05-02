@@ -136,9 +136,11 @@ def get_field_value(form, field_name):
     """
     field = form.fields[field_name]
 
-    if form.is_bound and (data := form.data.get(field_name)):
-        if hasattr(field, 'valid_value') and field.valid_value(data):
-            return data
+    if form.is_bound and field_name in form.data:
+        if (value := form.data[field_name]) is None:
+            return
+        if hasattr(field, 'valid_value') and field.valid_value(value):
+            return value
 
     return form.get_initial_for_field(field, field_name)
 
@@ -198,6 +200,7 @@ def form_from_model(model, fields):
     form_fields = fields_for_model(model, fields=fields)
     for field in form_fields.values():
         field.required = False
+        field.widget.is_required = False
 
     return type('FormFromModel', (forms.Form,), form_fields)
 

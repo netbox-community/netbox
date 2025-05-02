@@ -7,16 +7,18 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% if object.device %}
-    <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}?device_id={{ object.device.pk }}">{{ object.device }}</a></li>
-  {% elif object.virtual_machine %}
-    <li class="breadcrumb-item"><a href="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.virtual_machine.pk }}">{{ object.virtual_machine }}</a></li>
+  {% if object.parent and breadcrumb_queryparam %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'ipam:service_list' %}?{{ breadcrumb_queryparam }}={{ object.parent.pk }}">
+        {{ object.parent }}
+      </a>
+    </li>
   {% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="row mb-3">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
         <div class="card">
             <h2 class="card-header">{% trans "Service" %}</h2>
             <table class="table table-hover attr-table">
@@ -54,7 +56,7 @@
         </div>
         {% plugin_left_page object %}
     </div>
-    <div class="col col-md-6">
+    <div class="col col-12 col-md-6">
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}

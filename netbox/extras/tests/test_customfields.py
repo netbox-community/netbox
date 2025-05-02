@@ -660,8 +660,8 @@ class CustomFieldAPITest(APITestCase):
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_BOOLEAN,
                 name='boolean_field',
-                default=False)
-            ,
+                default=False
+            ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_DATE,
                 name='date_field',

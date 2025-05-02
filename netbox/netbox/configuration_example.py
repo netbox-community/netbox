@@ -12,14 +12,16 @@ ALLOWED_HOSTS = []
 
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
-DATABASE = {
-    'ENGINE': 'django.db.backends.postgresql',  # Database engine
-    'NAME': 'netbox',         # Database name
-    'USER': '',               # PostgreSQL username
-    'PASSWORD': '',           # PostgreSQL password
-    'HOST': 'localhost',      # Database server
-    'PORT': '',               # Database port (leave blank for default)
-    'CONN_MAX_AGE': 300,      # Max database connection age
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  # Database engine
+        'NAME': 'netbox',         # Database name
+        'USER': '',               # PostgreSQL username
+        'PASSWORD': '',           # PostgreSQL password
+        'HOST': 'localhost',      # Database server
+        'PORT': '',               # Database port (leave blank for default)
+        'CONN_MAX_AGE': 300,      # Max database connection age
+    }
 }
 
 # Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
@@ -164,6 +166,9 @@ LOGIN_REQUIRED = True
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
 
+# Hide the login form. Useful when only allowing SSO authentication.
+LOGIN_FORM_HIDDEN = False
+
 # The view name or URL to which users are redirected after logging out.
 LOGOUT_REDIRECT_URL = 'home'
 
@@ -220,6 +225,11 @@ SESSION_COOKIE_NAME = 'sessionid'
 # local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
 # database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
 SESSION_FILE_PATH = None
+
+# By default the memory and disk sizes are displayed using base 10 (e.g. 1000 MB = 1 GB).
+# If you would like to use base 2 (e.g. 1024 MB = 1 GB) set this to 1024.
+# DISK_BASE_UNIT = 1024
+# RAM_BASE_UNIT = 1024
 
 # By default, uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
 # class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:

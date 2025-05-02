@@ -38,7 +38,7 @@ span.color-label {
 .btn-float-group {
   position: sticky;
   bottom: 10px;
-  z-index: 2;
+  z-index: 4;
 }
 
 .btn-float-group-left {
@@ -62,4 +62,28 @@ span.color-label {
 
 .sso-icon {
   height: 24px;
+}
+
+.btn-white {
+  @extend .btn-light;
+}
+
+.btn-black {
+  @extend .btn-dark;
+}
+
+.btn-grey, .btn-gray {
+  @extend .btn-secondary;
+}
+
+img.plugin-icon {
+  max-width: 1.4285em;
+  height: auto;
+}
+
+body[data-bs-theme=dark] {
+  // Assuming icon is black/white line art, invert it and tone down brightness
+  img.plugin-icon {
+    filter: grayscale(100%) invert(100%) brightness(80%);
+  }
 }

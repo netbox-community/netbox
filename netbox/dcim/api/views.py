@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
@@ -269,6 +270,12 @@ class DeviceTypeViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceTypeFilterSet
 
 
+class ModuleTypeProfileViewSet(NetBoxModelViewSet):
+    queryset = ModuleTypeProfile.objects.all()
+    serializer_class = serializers.ModuleTypeProfileSerializer
+    filterset_class = filtersets.ModuleTypeProfileFilterSet
+
+
 class ModuleTypeViewSet(NetBoxModelViewSet):
     queryset = ModuleType.objects.all()
     serializer_class = serializers.ModuleTypeSerializer
@@ -442,7 +449,18 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
-        '_path', 'cable__terminations',
+        GenericPrefetch(
+            "cable__terminations__termination",
+            [
+                Interface.objects.select_related("device", "cable"),
+            ],
+        ),
+        GenericPrefetch(
+            "_path__path_objects",
+            [
+                Interface.objects.select_related("device", "cable"),
+            ],
+        ),
         'l2vpn_terminations',  # Referenced by InterfaceSerializer.l2vpn_termination
         'ip_addresses',  # Referenced by Interface.count_ipaddresses()
         'fhrp_group_assignments',  # Referenced by Interface.count_fhrp_groups()

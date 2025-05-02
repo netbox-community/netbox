@@ -27,7 +27,7 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     model = DataSource
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('type', 'status', name=_('Data Source')),
+        FieldSet('type', 'status', 'enabled', 'sync_interval', name=_('Data Source')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -46,6 +46,11 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    sync_interval = forms.ChoiceField(
+        label=_('Sync interval'),
+        choices=JobIntervalChoices,
+        required=False
+    )
 
 
 class DataFileFilterForm(NetBoxModelFilterSetForm):
@@ -62,6 +67,7 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
 
 
 class JobFilterForm(SavedFiltersMixin, FilterForm):
+    model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type', 'status', name=_('Attributes')),
@@ -162,6 +168,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    model = ConfigRevision
     fieldsets = (
         FieldSet('q', 'filter_id'),
     )

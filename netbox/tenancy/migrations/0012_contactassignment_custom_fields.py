@@ -6,7 +6,7 @@ import utilities.json
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('tenancy', '0011_contactassignment_tags'),
+        ('tenancy', '0002_squashed_0011'),
     ]
 
     operations = [

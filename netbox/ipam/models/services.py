@@ -1,5 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -64,21 +64,17 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='services',
-        verbose_name=_('device'),
-        null=True,
-        blank=True
+    parent_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        related_name='+',
     )
-    virtual_machine = models.ForeignKey(
-        to='virtualization.VirtualMachine',
-        on_delete=models.CASCADE,
-        related_name='services',
-        null=True,
-        blank=True
+    parent_object_id = models.PositiveBigIntegerField()
+    parent = GenericForeignKey(
+        ct_field='parent_object_type',
+        fk_field='parent_object_id'
     )
+
     name = models.CharField(
         max_length=100,
         verbose_name=_('name')
@@ -91,22 +87,12 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         help_text=_("The specific IP addresses (if any) to which this service is bound")
     )
 
-    clone_fields = ['protocol', 'ports', 'description', 'device', 'virtual_machine', 'ipaddresses', ]
+    clone_fields = ['protocol', 'ports', 'description', 'parent', 'ipaddresses', ]
 
     class Meta:
+        indexes = (
+            models.Index(fields=('parent_object_type', 'parent_object_id')),
+        )
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
         verbose_name = _('service')
         verbose_name_plural = _('services')
-
-    @property
-    def parent(self):
-        return self.device or self.virtual_machine
-
-    def clean(self):
-        super().clean()
-
-        # A Service must belong to a Device *or* to a VirtualMachine
-        if self.device and self.virtual_machine:
-            raise ValidationError(_("A service cannot be associated with both a device and a virtual machine."))
-        if not self.device and not self.virtual_machine:
-            raise ValidationError(_("A service must be associated with either a device or a virtual machine."))

@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, IntegerRangeField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -6,7 +7,7 @@ from django.db import models
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Interface
+from dcim.models import Interface, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
@@ -45,7 +46,6 @@ class VLANGroup(OrganizationalModel):
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.CASCADE,
-        limit_choices_to=Q(model__in=VLANGROUP_SCOPE_TYPES),
         blank=True,
         null=True
     )
@@ -61,6 +61,13 @@ class VLANGroup(OrganizationalModel):
         IntegerRangeField(),
         verbose_name=_('VLAN ID ranges'),
         default=default_vid_ranges
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='vlan_groups',
+        blank=True,
+        null=True
     )
     _total_vlan_ids = models.PositiveBigIntegerField(
         default=VLAN_VID_MAX - VLAN_VID_MIN + 1
@@ -279,12 +286,20 @@ class VLAN(PrimaryModel):
         super().clean()
 
         # Validate VLAN group (if assigned)
-        if self.group and self.site and self.group.scope != self.site:
-            raise ValidationError(
-                _(
-                    "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
-                ).format(group=self.group, scope=self.group.scope, site=self.site)
-            )
+        if self.group and self.site and self.group.scope_type == ContentType.objects.get_for_model(Site):
+            if self.site != self.group.scope:
+                raise ValidationError(
+                    _(
+                        "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
+                    ).format(group=self.group, scope=self.group.scope, site=self.site)
+                )
+        if self.group and self.site and self.group.scope_type == ContentType.objects.get_for_model(SiteGroup):
+            if self.site not in self.group.scope.sites.all():
+                raise ValidationError(
+                    _(
+                        "The assigned site {site} is not a member of the assigned group {group} (scope: {scope})."
+                    ).format(group=self.group, scope=self.group.scope, site=self.site)
+                )
 
         # Check that the VLAN ID is permitted in the assigned group (if any)
         if self.group:
@@ -361,7 +376,7 @@ class VLANTranslationRule(NetBoxModel):
     )
     local_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Local VLAN ID'),
-            validators=(
+        validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),
@@ -369,7 +384,7 @@ class VLANTranslationRule(NetBoxModel):
     )
     remote_vid = models.PositiveSmallIntegerField(
         verbose_name=_('Remote VLAN ID'),
-            validators=(
+        validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
         ),

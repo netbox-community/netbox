@@ -21,6 +21,7 @@ __all__ = (
     'JournalEntryBulkEditForm',
     'NotificationGroupBulkEditForm',
     'SavedFilterBulkEditForm',
+    'TableConfigBulkEditForm',
     'TagBulkEditForm',
     'WebhookBulkEditForm',
 )
@@ -155,6 +156,10 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         max_length=50,
         required=False
     )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
+    )
     file_extension = forms.CharField(
         label=_('File extension'),
         max_length=15,
@@ -166,12 +171,40 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('description', 'mime_type', 'file_extension')
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
 class SavedFilterBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    shared = forms.NullBooleanField(
+        label=_('Shared'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    nullable_fields = ('description',)
+
+
+class TableConfigBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=TableConfig.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
@@ -275,6 +308,10 @@ class TagBulkEditForm(BulkEditForm):
         max_length=200,
         required=False
     )
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
 
     nullable_fields = ('description',)
 
@@ -313,8 +350,27 @@ class ConfigTemplateBulkEditForm(BulkEditForm):
         max_length=200,
         required=False
     )
+    mime_type = forms.CharField(
+        label=_('MIME type'),
+        max_length=50,
+        required=False
+    )
+    file_name = forms.CharField(
+        label=_('File name'),
+        required=False
+    )
+    file_extension = forms.CharField(
+        label=_('File extension'),
+        max_length=15,
+        required=False
+    )
+    as_attachment = forms.NullBooleanField(
+        label=_('As attachment'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
 
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
 class JournalEntryBulkEditForm(BulkEditForm):

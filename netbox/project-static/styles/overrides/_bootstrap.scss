@@ -3,6 +3,12 @@ html {
   scroll-behavior: auto !important;
 }
 
+// Remove horizontal padding from highlighted text
+mark {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 // Prevent dropdown menus from being clipped inside responsive tables
 .table-responsive {
   .dropdown, .btn-group, .btn-group-vertical {

@@ -20,9 +20,19 @@ Template code may optionally be sourced from a remote [data file](../core/datafi
 
 Jinja2 template code for rendering the exported data.
 
+### Environment Parameters
+
+!!! info "This field was introduced in NetBox v4.3."
+
+A dictionary of any additional parameters to pass when instantiating the [Jinja2 environment](https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment). Jinja2 supports various optional parameters which can be used to modify its default behavior.
+
 ### MIME Type
 
 The MIME type to indicate in the response when rendering the export template (optional). Defaults to `text/plain`.
+
+### File Name
+
+The file name to give to the rendered export file (optional).
 
 ### File Extension
 

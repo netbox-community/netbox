@@ -1,6 +1,6 @@
 # GraphQL API Overview
 
-NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by [Strawberry Django](https://strawberry-graphql.github.io/strawberry-django/).
+NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by [Strawberry Django](https://strawberry.rocks/).
 
 ## Queries
 
@@ -11,7 +11,7 @@ curl -H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 http://netbox/graphql/ \
---data '{"query": "query {circuit_list(status:\"active\") {cid provider {name}}}"}'
+--data '{"query": "query {circuit_list(filters:{status: STATUS_ACTIVE}) {cid provider {name}}}"}'
 ```
 
 The response will include the requested data formatted as JSON:
@@ -47,23 +47,52 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
-For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry-graphql.github.io/strawberry-django/guide/filters/).
+For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry.rocks/docs/django/guide/filters).
 
 ## Filtering
 
-The GraphQL API employs the same filtering logic as the UI and REST API. Filters can be specified as key-value pairs within parentheses immediately following the query name. For example, the following will return only sites within the North Carolina region with a status of active:
+!!! note "Changed in NetBox v4.3"
+    The filtering syntax fo the GraphQL API has changed substantially in NetBox v4.3.
+
+Filters can be specified as key-value pairs within parentheses immediately following the query name. For example, the following will return only active sites:
 
 ```
 query {
-  site_list(filters: {region: "us-nc", status: "active"}) {
+  site_list(
+    filters: {
+      status: STATUS_ACTIVE
+    }
+  ) {
     name
   }
 }
 ```
-In addition, filtering can be done on list of related objects as shown in the following query:
+
+Filters can be combined with logical operators, such as `OR` and `NOT`. For example, the following will return every site that is planned _or_ assigned to a tenant named Foo:
 
 ```
-{
+query {
+  site_list(
+    filters: {
+      status: STATUS_PLANNED,
+      OR: {
+        tenant: {
+          name: {
+            exact: "Foo"
+          }
+        }
+      }
+    }
+  ) {
+    name
+  }
+}
+```
+
+Filtering can also be applied to related objects. For example, the following query will return only enabled interfaces for each device:
+
+```
+query {
   device_list {
     id
     name
@@ -98,9 +127,21 @@ Certain queries can return multiple types of objects, for example cable terminat
       }
     }
 }
+```
+
+The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
+
+## Pagination
+
+Queries can be paginated by specifying pagination in the query and supplying an offset and optionaly a limit in the query.  If no limit is given, a default of 100 is used.  Queries are not paginated unless requested in the query. An example paginated query is shown below:
 
 ```
-The field "class_type" is an easy way to distinguish what type of object it is when viewing the returned data, or when filtering.  It contains the class name, for example "CircuitTermination" or "ConsoleServerPort".
+query {
+  device_list(pagination: { offset: 0, limit: 20 }) {
+    id
+  }
+}
+```
 
 ## Authentication
 

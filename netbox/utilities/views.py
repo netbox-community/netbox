@@ -5,12 +5,12 @@ from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.relations import get_related_models
+from utilities.request import safe_for_redirect
 from .permissions import resolve_permission
 
 __all__ = (
@@ -136,7 +136,7 @@ class GetReturnURLMixin:
         # First, see if `return_url` was specified as a query parameter or form data. Use this URL only if it's
         # considered safe.
         return_url = request.GET.get('return_url') or request.POST.get('return_url')
-        if return_url and url_has_allowed_host_and_scheme(return_url, allowed_hosts=None):
+        if return_url and safe_for_redirect(return_url):
             return return_url
 
         # Next, check if the object being modified (if any) has an absolute URL.
@@ -149,9 +149,8 @@ class GetReturnURLMixin:
 
         # Attempt to dynamically resolve the list view for the object
         if hasattr(self, 'queryset'):
-            model_opts = self.queryset.model._meta
             try:
-                return reverse(f'{model_opts.app_label}:{model_opts.model_name}_list')
+                return reverse(get_viewname(self.queryset.model, 'list'))
             except NoReverseMatch:
                 pass
 
@@ -196,7 +195,10 @@ class GetRelatedModelsMixin:
         ]
         related_models.extend(extra)
 
-        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
+        return sorted(
+            filter(lambda qs: qs[0].exists(), related_models),
+            key=lambda qs: qs[0].model._meta.verbose_name.lower(),
+        )
 
 
 class ViewTab:
@@ -206,22 +208,30 @@ class ViewTab:
 
     Args:
         label: Human-friendly text
+        visible: A callable which determines whether the tab should be displayed. This callable must accept exactly one
+            argument: the object instance. If a callable is not specified, the tab's visibility will be determined by
+            its badge (if any) and the value of `hide_if_empty`.
         badge: A static value or callable to display alongside the label (optional). If a callable is used, it must
             accept a single argument representing the object being viewed.
         weight: Numeric weight to influence ordering among other tabs (default: 1000)
         permission: The permission required to display the tab (optional).
-        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (Tabs without a
-            badge are always displayed.)
+        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (This parameter is
+            evaluated only if the tab is permitted to be displayed according to the `visible` parameter.)
     """
-    def __init__(self, label, badge=None, weight=1000, permission=None, hide_if_empty=False):
+    def __init__(self, label, visible=None, badge=None, weight=1000, permission=None, hide_if_empty=False):
         self.label = label
+        self.visible = visible
         self.badge = badge
         self.weight = weight
         self.permission = permission
         self.hide_if_empty = hide_if_empty
 
     def render(self, instance):
-        """Return the attributes needed to render a tab in HTML."""
+        """
+        Return the attributes needed to render a tab in HTML if the tab should be displayed. Otherwise, return None.
+        """
+        if self.visible is not None and not self.visible(instance):
+            return None
         badge_value = self._get_badge_value(instance)
         if self.badge and self.hide_if_empty and not badge_value:
             return None

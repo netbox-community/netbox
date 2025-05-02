@@ -35,6 +35,7 @@ __all__ = (
     'ContentTypesColumn',
     'CustomFieldColumn',
     'CustomLinkColumn',
+    'DictColumn',
     'DistanceColumn',
     'DurationColumn',
     'LinkedCountColumn',
@@ -259,11 +260,15 @@ class ActionsColumn(tables.Column):
         return ''
 
     def render(self, record, table, **kwargs):
-        # Skip dummy records (e.g. available VLANs) or those with no actions
-        if not getattr(record, 'pk', None) or not (self.actions or self.extra_buttons):
+        model = table.Meta.model
+
+        # Skip if no actions or extra buttons are defined
+        if not (self.actions or self.extra_buttons):
+            return ''
+        # Skip dummy records (e.g. available VLANs or IP ranges replacing individual IPs)
+        if type(record) is not model or not getattr(record, 'pk', None):
             return ''
 
-        model = table.Meta.model
         if request := getattr(table, 'context', {}).get('request'):
             return_url = request.GET.get('return_url', request.get_full_path())
             url_appendix = f'?return_url={quote(return_url)}'
@@ -707,3 +712,14 @@ class DistanceColumn(TemplateColumn):
 
     def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
         super().__init__(template_code=template_code, order_by=order_by, **kwargs)
+
+
+class DictColumn(tables.Column):
+    """
+    Render a dictionary of data in a simple key: value format, one pair per line.
+    """
+    def render(self, value):
+        output = '<br />'.join([
+            f'{escape(k)}: {escape(v)}' for k, v in value.items()
+        ])
+        return mark_safe(output)

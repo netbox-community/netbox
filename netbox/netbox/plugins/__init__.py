@@ -6,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
 
+from core.exceptions import IncompatiblePluginError
 from netbox.registry import registry
 from netbox.search import register_search
 from netbox.utils import register_data_backend
@@ -16,6 +17,7 @@ from .utils import *
 
 # Initialize plugin registry
 registry['plugins'].update({
+    'installed': [],
     'graphql_schemas': [],
     'menus': [],
     'menu_items': {},
@@ -47,6 +49,7 @@ class PluginConfig(AppConfig):
     author_email = ''
     description = ''
     version = ''
+    release_track = ''
 
     # Root URL path under /plugins. If not set, the plugin's label will be used.
     base_url = None
@@ -138,14 +141,14 @@ class PluginConfig(AppConfig):
         if cls.min_version is not None:
             min_version = version.parse(cls.min_version)
             if current_version < min_version:
-                raise ImproperlyConfigured(
+                raise IncompatiblePluginError(
                     f"Plugin {cls.__module__} requires NetBox minimum version {cls.min_version} (current: "
                     f"{netbox_version})."
                 )
         if cls.max_version is not None:
             max_version = version.parse(cls.max_version)
             if current_version > max_version:
-                raise ImproperlyConfigured(
+                raise IncompatiblePluginError(
                     f"Plugin {cls.__module__} requires NetBox maximum version {cls.max_version} (current: "
                     f"{netbox_version})."
                 )

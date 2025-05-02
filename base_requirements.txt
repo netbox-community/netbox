@@ -1,6 +1,6 @@
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<5.2
+Django==5.2.*
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -8,8 +8,6 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-# Pinned for DNS looukp bug; see https://github.com/netbox-community/netbox/issues/16454
-# and https://github.com/jazzband/django-debug-toolbar/issues/1927
 django-debug-toolbar
 
 # Library for writing reusable URL query filters
@@ -43,6 +41,10 @@ django-rich
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
 django-rq
+
+# Provides a variety of storage backends
+# https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst
+django-storages
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
@@ -80,6 +82,10 @@ gunicorn
 # https://jinja.palletsprojects.com/changes/
 Jinja2
 
+# JSON schema validation
+# https://github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst
+jsonschema
+
 # Simple markup language for rendering HTML
 # https://python-markdown.github.io/changelog/
 Markdown
@@ -90,7 +96,7 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-mkdocstrings[python-legacy]
+mkdocstrings[python]
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst

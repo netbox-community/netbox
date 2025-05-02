@@ -2,7 +2,7 @@
 
 ## PLUGINS
 
-Default: Empty
+Default: `[]`
 
 A list of installed [NetBox plugins](../plugins/index.md) to enable. Plugins will not take effect unless they are listed here.
 
@@ -13,7 +13,7 @@ A list of installed [NetBox plugins](../plugins/index.md) to enable. Plugins wil
 
 ## PLUGINS_CONFIG
 
-Default: Empty
+Default: `[]`
 
 This parameter holds configuration settings for individual NetBox plugins. It is defined as a dictionary, with each key using the name of an installed plugin. The specific parameters supported are unique to each plugin: Reference the plugin's documentation to determine the supported parameters. An example configuration is shown below:
 
@@ -33,3 +33,21 @@ Note that a plugin must be listed in `PLUGINS` for its configuration to take eff
 
 ---
 
+## PLUGINS_CATALOG_CONFIG
+
+Default: Empty
+
+This parameter controls how individual plugins are displayed in the plugins catalog under Admin > System > Plugins. Adding a plugin to the `hidden` list will omit that plugin from the catalog. Adding a plugin to the `static` list will display the plugin, but not link to the plugin details or upgrade instructions.
+
+An example configuration is shown below:
+
+```python
+PLUGINS_CATALOG_CONFIG = {
+    'hidden': [
+        'plugin1',
+    ],
+    'static': [
+        'plugin2',
+    ],
+}
+```

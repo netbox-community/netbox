@@ -28,7 +28,7 @@ AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span
 # VLAN groups
 #
 
-class VLANGroupTable(NetBoxTable):
+class VLANGroupTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -65,9 +65,11 @@ class VLANGroupTable(NetBoxTable):
         model = VLANGroup
         fields = (
             'pk', 'id', 'name', 'scope_type', 'scope', 'vid_ranges_list', 'vlan_count', 'slug', 'description',
-            'tags', 'created', 'last_updated', 'actions', 'utilization',
+            'tenant', 'tenant_group', 'tags', 'created', 'last_updated', 'actions', 'utilization',
         )
-        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
+        default_columns = (
+            'pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'tenant', 'description'
+        )
 
 
 #

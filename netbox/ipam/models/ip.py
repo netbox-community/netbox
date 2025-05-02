@@ -383,14 +383,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         else:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
-    def get_child_ranges(self):
+    def get_child_ranges(self, **kwargs):
         """
         Return all IPRanges within this Prefix and VRF.
         """
         return IPRange.objects.filter(
             vrf=self.vrf,
             start_address__net_host_contained=str(self.prefix),
-            end_address__net_host_contained=str(self.prefix)
+            end_address__net_host_contained=str(self.prefix),
+            **kwargs
         )
 
     def get_child_ips(self):
@@ -407,15 +408,14 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         Return all available IPs within this prefix as an IPSet.
         """
-        if self.mark_utilized:
-            return netaddr.IPSet()
-
         prefix = netaddr.IPSet(self.prefix)
-        child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
-        child_ranges = []
-        for iprange in self.get_child_ranges():
-            child_ranges.append(iprange.range)
-        available_ips = prefix - child_ips - netaddr.IPSet(child_ranges)
+        child_ips = netaddr.IPSet([
+            ip.address.ip for ip in self.get_child_ips()
+        ])
+        child_ranges = netaddr.IPSet([
+            iprange.range for iprange in self.get_child_ranges().filter(mark_populated=True)
+        ])
+        available_ips = prefix - child_ips - child_ranges
 
         # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
         if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (
@@ -433,6 +433,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             # For IPv6 prefixes, omit the Subnet-Router anycast address
             # per RFC 4291
             available_ips -= netaddr.IPSet([netaddr.IPAddress(self.prefix.first)])
+
         return available_ips
 
     def get_first_available_ip(self):
@@ -461,9 +462,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             utilization = float(child_prefixes.size) / self.prefix.size * 100
         else:
             # Compile an IPSet to avoid counting duplicate IPs
-            child_ips = netaddr.IPSet(
-                [_.range for _ in self.get_child_ranges()] + [_.address.ip for _ in self.get_child_ips()]
-            )
+            child_ips = netaddr.IPSet()
+            for iprange in self.get_child_ranges().filter(mark_utilized=True):
+                child_ips.add(iprange.range)
+            for ip in self.get_child_ips():
+                child_ips.add(ip.address.ip)
 
             prefix_size = self.prefix.size
             if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
@@ -519,14 +522,19 @@ class IPRange(ContactsMixin, PrimaryModel):
         null=True,
         help_text=_('The primary function of this range')
     )
+    mark_populated = models.BooleanField(
+        verbose_name=_('mark populated'),
+        default=False,
+        help_text=_("Prevent the creation of IP addresses within this range")
+    )
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as fully utilized")
+        help_text=_("Report space as 100% utilized")
     )
 
     clone_fields = (
-        'vrf', 'tenant', 'status', 'role', 'description',
+        'vrf', 'tenant', 'status', 'role', 'description', 'mark_populated', 'mark_utilized',
     )
 
     class Meta:
@@ -663,6 +671,9 @@ class IPRange(ContactsMixin, PrimaryModel):
         """
         Return all available IPs within this range as an IPSet.
         """
+        if self.mark_populated:
+            return netaddr.IPSet()
+
         range = netaddr.IPRange(self.start_address.ip, self.end_address.ip)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
 
@@ -742,7 +753,6 @@ class IPAddress(ContactsMixin, PrimaryModel):
     )
     assigned_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,
@@ -875,6 +885,20 @@ class IPAddress(ContactsMixin, PrimaryModel):
                             ipaddress=duplicate_ips.first(),
                         )
                     })
+
+            # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
+            parent_range = IPRange.objects.filter(
+                start_address__lte=self.address,
+                end_address__gte=self.address,
+                vrf=self.vrf,
+                mark_populated=True
+            ).first()
+            if parent_range:
+                raise ValidationError({
+                    'address': _(
+                        "Cannot create IP address {ip} inside range {range}."
+                    ).format(ip=self.address, range=parent_range)
+                })
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)

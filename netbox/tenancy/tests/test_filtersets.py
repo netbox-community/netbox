@@ -16,7 +16,7 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         parent_tenant_groups = (
             TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', comments='Parent group 2 comment'),
             TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenant_group in parent_tenant_groups:
@@ -27,7 +27,8 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Tenant Group 1A',
                 slug='tenant-group-1a',
                 parent=parent_tenant_groups[0],
-                description='foobar1'
+                description='foobar1',
+                comments='Tenant Group 1A comment',
             ),
             TenantGroup(
                 name='Tenant Group 2A',
@@ -48,7 +49,10 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         child_tenant_groups = (
             TenantGroup(name='Tenant Group 1A1', slug='tenant-group-1a1', parent=tenant_groups[0]),
             TenantGroup(name='Tenant Group 2A1', slug='tenant-group-2a1', parent=tenant_groups[1]),
-            TenantGroup(name='Tenant Group 3A1', slug='tenant-group-3a1', parent=tenant_groups[2]),
+            TenantGroup(
+                name='Tenant Group 3A1', slug='tenant-group-3a1', parent=tenant_groups[2],
+                comments='Tenant Group 3A1 comment',
+            ),
         )
         for tenant_group in child_tenant_groups:
             tenant_group.save()
@@ -56,6 +60,13 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'q': 'comment'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_name(self):
         params = {'name': ['Tenant Group 1', 'Tenant Group 2']}
@@ -139,7 +150,7 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         parent_contact_groups = (
             ContactGroup(name='Contact Group 1', slug='contact-group-1'),
-            ContactGroup(name='Contact Group 2', slug='contact-group-2'),
+            ContactGroup(name='Contact Group 2', slug='contact-group-2', comments='Parent group 2'),
             ContactGroup(name='Contact Group 3', slug='contact-group-3'),
         )
         for contact_group in parent_contact_groups:
@@ -162,14 +173,18 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Contact Group 3A',
                 slug='contact-group-3a',
                 parent=parent_contact_groups[2],
-                description='foobar3'
+                description='foobar3',
+                comments='Contact Group 3A comment, not a parent',
             ),
         )
         for contact_group in contact_groups:
             contact_group.save()
 
         child_contact_groups = (
-            ContactGroup(name='Contact Group 1A1', slug='contact-group-1a1', parent=contact_groups[0]),
+            ContactGroup(
+                name='Contact Group 1A1', slug='contact-group-1a1', parent=contact_groups[0],
+                comments='Contact Group 1A1 comment',
+            ),
             ContactGroup(name='Contact Group 2A1', slug='contact-group-2a1', parent=contact_groups[1]),
             ContactGroup(name='Contact Group 3A1', slug='contact-group-3a1', parent=contact_groups[2]),
         )
@@ -178,6 +193,13 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_q(self):
         params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_q_comments(self):
+        params = {'q': 'parent'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'q': '1A1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
@@ -241,6 +263,7 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Contact.objects.all()
     filterset = ContactFilterSet
+    ignore_fields = ('groups',)
 
     @classmethod
     def setUpTestData(cls):
@@ -254,11 +277,14 @@ class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
             contactgroup.save()
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0], description='foobar1'),
-            Contact(name='Contact 2', group=contact_groups[1], description='foobar2'),
-            Contact(name='Contact 3', group=contact_groups[2], description='foobar3'),
+            Contact(name='Contact 1', description='foobar1'),
+            Contact(name='Contact 2', description='foobar2'),
+            Contact(name='Contact 3', description='foobar3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
+        contacts[2].groups.add(contact_groups[2])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -311,11 +337,14 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         ContactRole.objects.bulk_create(contact_roles)
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[1]),
-            Contact(name='Contact 3', group=contact_groups[2]),
+            Contact(name='Contact 1'),
+            Contact(name='Contact 2'),
+            Contact(name='Contact 3'),
         )
         Contact.objects.bulk_create(contacts)
+        contacts[0].groups.add(contact_groups[0])
+        contacts[1].groups.add(contact_groups[1])
+        contacts[2].groups.add(contact_groups[2])
 
         assignments = (
             ContactAssignment(object=sites[0], contact=contacts[0], role=contact_roles[0]),

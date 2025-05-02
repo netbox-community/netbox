@@ -8,7 +8,7 @@
 
 {% block content %}
   <div class="row">
-	  <div class="col col-6">
+	  <div class="col col-12 col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Rack Type" %}</h2>
         <table class="table table-hover attr-table">
@@ -35,7 +35,7 @@
       {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
 	  </div>
-    <div class="col col-6">
+    <div class="col col-12 col-md-6">
       {% include 'dcim/inc/panels/racktype_numbering.html' %}
       <div class="card">
         <h2 class="card-header">{% trans "Weight" %}</h2>

@@ -45,13 +45,13 @@ class Migration(migrations.Migration):
     dependencies = [
         ('virtualization', '0001_squashed_0022'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0001_initial'),
+        ('core', '0001_squashed_0005'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('wireless', '0008_wirelesslan_status'),
-        ('dcim', '0166_virtualdevicecontext'),
-        ('tenancy', '0009_standardize_description_comments'),
-        ('extras', '0059_exporttemplate_as_attachment'),
-        ('circuits', '0041_standardize_description_comments'),
+        ('wireless', '0001_squashed_0008'),
+        ('dcim', '0160_squashed_0166'),
+        ('tenancy', '0001_squashed_0012'),
+        ('extras', '0002_squashed_0059'),
+        ('circuits', '0038_squashed_0042'),
     ]
 
     operations = [

@@ -13,6 +13,7 @@ env:
 
 jobs:
   makemessages:
+    if: github.repository == 'netbox-community/netbox'
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
@@ -47,7 +48,7 @@ jobs:
       run: python netbox/manage.py makemessages -l ${{ env.LOCALE }}
 
     - name: Commit changes
-      uses: EndBug/add-and-commit@v9
+      uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
       with:
         add: 'netbox/translations/'
         default_author: github_actions

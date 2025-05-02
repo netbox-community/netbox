@@ -46,6 +46,14 @@ def _get_registered_content(obj, method, template_context):
 
 
 @register.simple_tag(takes_context=True)
+def plugin_head(context):
+    """
+    Render any <head> content embedded by plugins
+    """
+    return _get_registered_content(None, 'head', context)
+
+
+@register.simple_tag(takes_context=True)
 def plugin_navbar(context):
     """
     Render any navbar content embedded by plugins

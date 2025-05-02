@@ -1,11 +1,18 @@
+import os
+
 from django import forms
+from django.conf import settings
+from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
-from extras.choices import DurationChoices
-from utilities.forms.widgets import DateTimePicker, NumberWithOptions
+from core.choices import JobIntervalChoices
+from core.forms import ManagedFileForm
+from extras.storage import ScriptFileSystemStorage
 from utilities.datetime import local_now
+from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 
 __all__ = (
+    'ScriptFileForm',
     'ScriptForm',
 )
 
@@ -28,7 +35,7 @@ class ScriptForm(forms.Form):
         min_value=1,
         label=_("Recurs every"),
         widget=NumberWithOptions(
-            options=DurationChoices
+            options=JobIntervalChoices
         ),
         help_text=_("Interval at which this script is re-run (in minutes)")
     )
@@ -55,3 +62,26 @@ class ScriptForm(forms.Form):
             self.cleaned_data['_schedule_at'] = local_now()
 
         return self.cleaned_data
+
+
+class ScriptFileForm(ManagedFileForm):
+    """
+    ManagedFileForm with a custom save method to use django-storages.
+    """
+    def save(self, *args, **kwargs):
+        # If a file was uploaded, save it to disk
+        if self.cleaned_data['upload_file']:
+            storage = storages.create_storage(storages.backends["scripts"])
+
+            filename = self.cleaned_data['upload_file'].name
+            if isinstance(storage, ScriptFileSystemStorage):
+                full_path = os.path.join(settings.SCRIPTS_ROOT, filename)
+            else:
+                full_path = filename
+
+            self.instance.file_path = full_path
+            data = self.cleaned_data['upload_file']
+            storage.save(filename, data)
+
+        # need to skip ManagedFileForm save method
+        return super(ManagedFileForm, self).save(*args, **kwargs)

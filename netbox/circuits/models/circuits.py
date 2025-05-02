@@ -182,7 +182,6 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
     """
     member_type = models.ForeignKey(
         to='contenttypes.ContentType',
-        limit_choices_to=CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -249,7 +248,6 @@ class CircuitTermination(
     termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
-        limit_choices_to=Q(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         related_name='+',
         blank=True,
         null=True
@@ -349,9 +347,8 @@ class CircuitTermination(
     def clean(self):
         super().clean()
 
-        # Must define either site *or* provider network
         if self.termination is None:
-            raise ValidationError(_("A circuit termination must attach to termination."))
+            raise ValidationError(_("A circuit termination must attach to a terminating object."))
 
     def save(self, *args, **kwargs):
         # Cache objects associated with the terminating object (for filtering)

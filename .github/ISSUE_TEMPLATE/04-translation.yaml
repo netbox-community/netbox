@@ -1,5 +1,6 @@
 ---
 name: 🌍 Translation
+type: Translation
 description: Request support for a new language in the user interface
 labels: ["type: translation"]
 body:

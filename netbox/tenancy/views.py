@@ -1,41 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _
 
 from netbox.views import generic
 from utilities.query import count_related
-from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *
-
-
-class ObjectContactsView(generic.ObjectChildrenView):
-    child_model = ContactAssignment
-    table = tables.ContactAssignmentTable
-    filterset = filtersets.ContactAssignmentFilterSet
-    filterset_form = forms.ContactAssignmentFilterForm
-    template_name = 'tenancy/object_contacts.html'
-    tab = ViewTab(
-        label=_('Contacts'),
-        badge=lambda obj: obj.contacts.count(),
-        permission='tenancy.view_contactassignment',
-        weight=5000
-    )
-
-    def get_children(self, request, parent):
-        return ContactAssignment.objects.restrict(request.user, 'view').filter(
-            object_type=ContentType.objects.get_for_model(parent),
-            object_id=parent.pk
-        ).order_by('priority', 'contact', 'role')
-
-    def get_table(self, *args, **kwargs):
-        table = super().get_table(*args, **kwargs)
-
-        # Hide object columns
-        table.columns.hide('object_type')
-        table.columns.hide('object')
-
-        return table
 
 
 #
@@ -80,7 +50,7 @@ class TenantGroupDeleteView(generic.ObjectDeleteView):
     queryset = TenantGroup.objects.all()
 
 
-@register_model_view(TenantGroup, 'bulk_import', detail=False)
+@register_model_view(TenantGroup, 'bulk_import', path='import', detail=False)
 class TenantGroupBulkImportView(generic.BulkImportView):
     queryset = TenantGroup.objects.all()
     model_form = forms.TenantGroupImportForm
@@ -147,7 +117,7 @@ class TenantDeleteView(generic.ObjectDeleteView):
     queryset = Tenant.objects.all()
 
 
-@register_model_view(Tenant, 'bulk_import', detail=False)
+@register_model_view(Tenant, 'bulk_import', path='import', detail=False)
 class TenantBulkImportView(generic.BulkImportView):
     queryset = Tenant.objects.all()
     model_form = forms.TenantImportForm
@@ -168,11 +138,6 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     table = tables.TenantTable
 
 
-@register_model_view(Tenant, 'contacts')
-class TenantContactsView(ObjectContactsView):
-    queryset = Tenant.objects.all()
-
-
 #
 # Contact groups
 #
@@ -182,7 +147,7 @@ class ContactGroupListView(generic.ObjectListView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -199,7 +164,13 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
         groups = instance.get_descendants(include_self=True)
 
         return {
-            'related_models': self.get_related_models(request, groups),
+            'related_models': self.get_related_models(
+                request,
+                groups,
+                extra=(
+                    (Contact.objects.restrict(request.user, 'view').filter(groups__in=groups), 'group_id'),
+                ),
+            ),
         }
 
 
@@ -215,7 +186,7 @@ class ContactGroupDeleteView(generic.ObjectDeleteView):
     queryset = ContactGroup.objects.all()
 
 
-@register_model_view(ContactGroup, 'bulk_import', detail=False)
+@register_model_view(ContactGroup, 'bulk_import', path='import', detail=False)
 class ContactGroupBulkImportView(generic.BulkImportView):
     queryset = ContactGroup.objects.all()
     model_form = forms.ContactGroupImportForm
@@ -226,7 +197,7 @@ class ContactGroupBulkEditView(generic.BulkEditView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -240,7 +211,7 @@ class ContactGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
-        'group',
+        'groups',
         'contact_count',
         cumulative=True
     )
@@ -282,7 +253,7 @@ class ContactRoleDeleteView(generic.ObjectDeleteView):
     queryset = ContactRole.objects.all()
 
 
-@register_model_view(ContactRole, 'bulk_import', detail=False)
+@register_model_view(ContactRole, 'bulk_import', path='import', detail=False)
 class ContactRoleBulkImportView(generic.BulkImportView):
     queryset = ContactRole.objects.all()
     model_form = forms.ContactRoleImportForm
@@ -334,7 +305,7 @@ class ContactDeleteView(generic.ObjectDeleteView):
     queryset = Contact.objects.all()
 
 
-@register_model_view(Contact, 'bulk_import', detail=False)
+@register_model_view(Contact, 'bulk_import', path='import', detail=False)
 class ContactBulkImportView(generic.BulkImportView):
     queryset = Contact.objects.all()
     model_form = forms.ContactImportForm
@@ -348,6 +319,15 @@ class ContactBulkEditView(generic.BulkEditView):
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
     form = forms.ContactBulkEditForm
+
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
+        # Add/remove groups
+        if form.cleaned_data.get('add_groups', None):
+            obj.groups.add(*form.cleaned_data['add_groups'])
+        if form.cleaned_data.get('remove_groups', None):
+            obj.groups.remove(*form.cleaned_data['remove_groups'])
 
 
 @register_model_view(Contact, 'bulk_delete', path='delete', detail=False)
@@ -397,7 +377,7 @@ class ContactAssignmentEditView(generic.ObjectEditView):
         }
 
 
-@register_model_view(ContactAssignment, 'bulk_import', detail=False)
+@register_model_view(ContactAssignment, 'bulk_import', path='import', detail=False)
 class ContactAssignmentBulkImportView(generic.BulkImportView):
     queryset = ContactAssignment.objects.all()
     model_form = forms.ContactAssignmentImportForm

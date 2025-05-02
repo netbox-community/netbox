@@ -9,17 +9,11 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! warning "Python 3.10 or later required"
     NetBox supports Python 3.10, 3.11, and 3.12.
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
-    ```
+```no-highlight
+sudo apt install -y python3 python3-pip python3-venv python3-dev \
+build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev \
+libssl-dev zlib1g-dev
+```
 
 Before continuing, check that your installed Python version is at least 3.10:
 
@@ -29,7 +23,7 @@ python3 -V
 
 ## Download NetBox
 
-This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by re-pulling the `master` branch.
+This documentation provides two options for installing NetBox: from a downloadable archive, or from the git repository. Installing from a package (option A below) requires manually fetching and extracting the archive for every future update, whereas installation via git (option B) allows for seamless upgrades by checking out the latest release tag.
 
 ### Option A: Download a Release Archive
 
@@ -55,28 +49,17 @@ cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y git
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y git
-    ```
-
-Next, clone the **master** branch of the NetBox GitHub repository into the current directory. (This branch always holds the current stable release.)
-
 ```no-highlight
-sudo git clone -b master --depth 1 https://github.com/netbox-community/netbox.git .
+sudo apt install -y git
 ```
 
-!!! note
-    The `git clone` command above utilizes a "shallow clone" to retrieve only the most recent commit. If you need to download the entire history, omit the `--depth 1` argument.
+Next, clone the git repository:
 
-The `git clone` command should generate output similar to the following:
+```no-highlight
+sudo git clone https://github.com/netbox-community/netbox.git .
+```
+
+This command should generate output similar to the following:
 
 ```
 Cloning into '.'...
@@ -88,31 +71,24 @@ Receiving objects: 100% (996/996), 4.26 MiB | 9.81 MiB/s, done.
 Resolving deltas: 100% (148/148), done.
 ```
 
-!!! note
-    Installation via git also allows you to easily try out different versions of NetBox. To check out a [specific NetBox release](https://github.com/netbox-community/netbox/releases), use the `git checkout` command with the desired release tag. For example, `git checkout v3.0.8`.
+Finally, check out the tag for the desired release. You can find these on our [releases page](https://github.com/netbox-community/netbox/releases). Replace `vX.Y.Z` with your selected release tag below.
+
+```
+sudo git checkout vX.Y.Z
+```
+
+Using this installation method enables easy upgrades in the future by simply checking out the latest release tag.
 
 ## Create the NetBox System User
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-=== "Ubuntu"
-
-    ```
-    sudo adduser --system --group netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
-
-=== "CentOS"
-
-    ```
-    sudo groupadd --system netbox
-    sudo adduser --system -g netbox netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
+```
+sudo adduser --system --group netbox
+sudo chown --recursive netbox /opt/netbox/netbox/media/
+sudo chown --recursive netbox /opt/netbox/netbox/reports/
+sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+```
 
 ## Configuration
 
@@ -126,7 +102,7 @@ sudo cp configuration_example.py configuration.py
 Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
 
 * `ALLOWED_HOSTS`
-* `DATABASE`
+* `DATABASES` (or `DATABASE`)
 * `REDIS`
 * `SECRET_KEY`
 
@@ -144,18 +120,22 @@ If you are not yet sure what the domain name and/or IP address of the NetBox ins
 ALLOWED_HOSTS = ['*']
 ```
 
-### DATABASE
+### DATABASES
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-parameters.md#database) for more detail on individual parameters.
+This parameter holds the PostgreSQL database configuration details. The default database must be defined; additional databases may be defined as needed e.g. by plugins.
+
+A username and password must be defined for the default database. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-parameters.md#databases) for more detail on individual parameters.
 
 ```python
-DATABASE = {
-    'NAME': 'netbox',               # Database name
-    'USER': 'netbox',               # PostgreSQL username
-    'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
-    'HOST': 'localhost',            # Database server
-    'PORT': '',                     # Database port (leave blank for default)
-    'CONN_MAX_AGE': 300,            # Max database connection age (seconds)
+DATABASES = {
+    'default': {
+        'NAME': 'netbox',               # Database name
+        'USER': 'netbox',               # PostgreSQL username
+        'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
+        'HOST': 'localhost',            # Database server
+        'PORT': '',                     # Database port (leave blank for default)
+        'CONN_MAX_AGE': 300,            # Max database connection age (seconds)
+    }
 }
 ```
 
@@ -205,7 +185,7 @@ All Python packages required by NetBox are listed in `requirements.txt` and will
 
 ### Remote File Storage
 
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storage_backend) in `configuration.py`.
+By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storages) in `configuration.py`.
 
 ```no-highlight
 sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
@@ -244,7 +224,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 
 * Create a Python virtual environment
 * Installs all required Python packages
-* Run database schema migrations
+* Run database schema migrations (skip with `--readonly`)
 * Builds the documentation locally (for offline use)
 * Aggregate static resource files on disk
 
@@ -263,6 +243,9 @@ sudo PYTHON=/usr/bin/python3.10 /opt/netbox/upgrade.sh
 
 !!! note
     Upon completion, the upgrade script may warn that no existing virtual environment was detected. As this is a new installation, this warning can be safely ignored.
+
+!!! note
+    To run the script on a node connected to a database in read-only mode, include the `--readonly` parameter. This will skip the application of any database migrations.
 
 ## Create a Super User
 

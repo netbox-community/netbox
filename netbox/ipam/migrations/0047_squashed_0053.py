@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('ipam', '0046_set_vlangroup_scope_types'),
+        ('ipam', '0002_squashed_0046'),
         ('tenancy', '0001_squashed_0012'),
         ('extras', '0002_squashed_0059'),
         ('contenttypes', '0002_remove_content_type_name'),
@@ -136,14 +136,6 @@ class Migration(migrations.Migration):
             name='assigned_object_type',
             field=models.ForeignKey(
                 blank=True,
-                limit_choices_to=models.Q(
-                    models.Q(
-                        models.Q(('app_label', 'dcim'), ('model', 'interface')),
-                        models.Q(('app_label', 'ipam'), ('model', 'fhrpgroup')),
-                        models.Q(('app_label', 'virtualization'), ('model', 'vminterface')),
-                        _connector='OR',
-                    )
-                ),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
