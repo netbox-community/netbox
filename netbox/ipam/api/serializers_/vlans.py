@@ -66,7 +66,7 @@ class VLANSerializer(NetBoxModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = RoleSerializer(nested=True, required=False, allow_null=True)
-    qinq_role = ChoiceField(choices=VLANQinQRoleChoices, required=False)
+    qinq_role = ChoiceField(choices=VLANQinQRoleChoices, required=False, allow_null=True)
     qinq_svlan = NestedVLANSerializer(required=False, allow_null=True, default=None)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
 
