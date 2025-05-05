@@ -135,7 +135,7 @@ DEFAULT_PERMISSIONS = {
 
 ## EXEMPT_VIEW_PERMISSIONS
 
-Default: Empty list
+Default: `[]` (Empty list)
 
 A list of NetBox models to exempt from the enforcement of view permissions. Models listed here will be viewable by all users, both authenticated and anonymous.
 
@@ -191,7 +191,7 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 
 ## LOGIN_FORM_HIDDEN
 
-Default: False
+Default: `False`
 
 Option to hide the login form when only SSO authentication is in use. 
 
