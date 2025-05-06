@@ -461,6 +461,7 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
                 Interface.objects.select_related("device", "cable"),
             ],
         ),
+        'virtual_circuit_termination',
         'l2vpn_terminations',  # Referenced by InterfaceSerializer.l2vpn_termination
         'ip_addresses',  # Referenced by Interface.count_ipaddresses()
         'fhrp_group_assignments',  # Referenced by Interface.count_fhrp_groups()
