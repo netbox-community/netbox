@@ -23,6 +23,7 @@ from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
+from virtualization.models import VMInterface
 from . import serializers
 
 
@@ -106,7 +107,10 @@ class IPAddressViewSet(NetBoxModelViewSet):
         GenericPrefetch(
             "assigned_object",
             [
-                Interface.objects.select_related("device"),
+                # serializers are taken according to IPADDRESS_ASSIGNMENT_MODELS
+                FHRPGroup.objects.all(),
+                Interface.objects.select_related("cable", "device"),
+                VMInterface.objects.select_related("virtual_machine"),
             ],
         ),
     )
