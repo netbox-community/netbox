@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-02 05:02+0000\n"
+"POT-Creation-Date: 2025-05-06 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,15 +70,15 @@ msgstr ""
 msgid "You have logged out."
 msgstr ""
 
-#: netbox/account/views.py:226
+#: netbox/account/views.py:227
 msgid "Your preferences have been updated."
 msgstr ""
 
-#: netbox/account/views.py:254
+#: netbox/account/views.py:255
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
 
-#: netbox/account/views.py:269
+#: netbox/account/views.py:270
 msgid "Your password has been changed successfully."
 msgstr ""
 
@@ -453,7 +453,7 @@ msgstr ""
 #: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:137
 #: netbox/dcim/forms/filtersets.py:197 netbox/dcim/forms/model_forms.py:132
 #: netbox/dcim/tables/sites.py:100 netbox/ipam/models/asns.py:123
-#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:229
+#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:232
 #: netbox/netbox/navigation/menu.py:179 netbox/netbox/navigation/menu.py:182
 #: netbox/templates/circuits/provider.html:23
 msgid "ASNs"
@@ -2911,7 +2911,7 @@ msgstr ""
 msgid "No workers found"
 msgstr ""
 
-#: netbox/core/utils.py:84 netbox/core/utils.py:150 netbox/core/views.py:397
+#: netbox/core/utils.py:84 netbox/core/utils.py:150 netbox/core/views.py:398
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr ""
@@ -2926,46 +2926,46 @@ msgstr ""
 msgid "Queued job #{id} to sync {datasource}"
 msgstr ""
 
-#: netbox/core/views.py:333
+#: netbox/core/views.py:334
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr ""
 
-#: netbox/core/views.py:436
+#: netbox/core/views.py:437
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr ""
 
-#: netbox/core/views.py:438
+#: netbox/core/views.py:439
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr ""
 
-#: netbox/core/views.py:447
+#: netbox/core/views.py:448
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr ""
 
-#: netbox/core/views.py:456
+#: netbox/core/views.py:457
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr ""
 
-#: netbox/core/views.py:465
+#: netbox/core/views.py:466
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr ""
 
-#: netbox/core/views.py:467
+#: netbox/core/views.py:468
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr ""
 
-#: netbox/core/views.py:602
+#: netbox/core/views.py:603
 msgid "Plugins catalog could not be loaded"
 msgstr ""
 
-#: netbox/core/views.py:638
+#: netbox/core/views.py:639
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr ""
@@ -7310,7 +7310,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:27
 #: netbox/templates/virtualization/virtualmachine_list.html:14
 #: netbox/virtualization/tables/virtualmachines.py:71
-#: netbox/virtualization/views.py:394 netbox/wireless/tables/wirelesslan.py:63
+#: netbox/virtualization/views.py:395 netbox/wireless/tables/wirelesslan.py:63
 msgid "Interfaces"
 msgstr ""
 
@@ -7367,8 +7367,8 @@ msgid "Allocated draw (W)"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:578 netbox/ipam/forms/model_forms.py:785
-#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:627
-#: netbox/ipam/views.py:727 netbox/netbox/navigation/menu.py:165
+#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:632
+#: netbox/ipam/views.py:733 netbox/netbox/navigation/menu.py:165
 #: netbox/netbox/navigation/menu.py:167
 #: netbox/templates/dcim/interface.html:396
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
@@ -7637,11 +7637,11 @@ msgstr ""
 #: netbox/dcim/views.py:2337 netbox/extras/forms/model_forms.py:659
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:232
-#: netbox/virtualization/views.py:435
+#: netbox/virtualization/views.py:436
 msgid "Config Context"
 msgstr ""
 
-#: netbox/dcim/views.py:2347 netbox/virtualization/views.py:445
+#: netbox/dcim/views.py:2347 netbox/virtualization/views.py:446
 msgid "Render Config"
 msgstr ""
 
@@ -7651,31 +7651,31 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr ""
 
-#: netbox/dcim/views.py:3188
+#: netbox/dcim/views.py:3193
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3229
+#: netbox/dcim/views.py:3234
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3345 netbox/ipam/tables/ip.py:181
+#: netbox/dcim/views.py:3350 netbox/ipam/tables/ip.py:181
 msgid "Children"
 msgstr ""
 
-#: netbox/dcim/views.py:3812
+#: netbox/dcim/views.py:3817
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
-#: netbox/dcim/views.py:3861
+#: netbox/dcim/views.py:3866
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
 
-#: netbox/dcim/views.py:3874
+#: netbox/dcim/views.py:3879
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
@@ -10282,7 +10282,7 @@ msgstr ""
 
 #: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:280
 #: netbox/ipam/tables/ip.py:123 netbox/ipam/tables/vlans.py:51
-#: netbox/ipam/views.py:1015 netbox/netbox/navigation/menu.py:200
+#: netbox/ipam/views.py:1024 netbox/netbox/navigation/menu.py:200
 #: netbox/netbox/navigation/menu.py:202
 msgid "VLANs"
 msgstr ""
@@ -10879,7 +10879,7 @@ msgid "Added"
 msgstr ""
 
 #: netbox/ipam/tables/ip.py:75 netbox/ipam/tables/ip.py:113
-#: netbox/ipam/tables/vlans.py:120 netbox/ipam/views.py:372
+#: netbox/ipam/tables/vlans.py:120 netbox/ipam/views.py:375
 #: netbox/netbox/navigation/menu.py:172 netbox/netbox/navigation/menu.py:174
 #: netbox/templates/ipam/vlan.html:100
 msgid "Prefixes"
@@ -11019,23 +11019,23 @@ msgid ""
 "are allowed in DNS names"
 msgstr ""
 
-#: netbox/ipam/views.py:564
+#: netbox/ipam/views.py:569
 msgid "Child Prefixes"
 msgstr ""
 
-#: netbox/ipam/views.py:600
+#: netbox/ipam/views.py:605
 msgid "Child Ranges"
 msgstr ""
 
-#: netbox/ipam/views.py:942
+#: netbox/ipam/views.py:951
 msgid "Related IPs"
 msgstr ""
 
-#: netbox/ipam/views.py:1306
+#: netbox/ipam/views.py:1319
 msgid "Device Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:1324
+#: netbox/ipam/views.py:1337
 msgid "VM Interfaces"
 msgstr ""
 
@@ -11661,7 +11661,7 @@ msgstr ""
 #: netbox/templates/virtualization/virtualmachine/base.html:32
 #: netbox/templates/virtualization/virtualmachine_list.html:21
 #: netbox/virtualization/tables/virtualmachines.py:74
-#: netbox/virtualization/views.py:416
+#: netbox/virtualization/views.py:417
 msgid "Virtual Disks"
 msgstr ""
 
