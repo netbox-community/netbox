@@ -8,10 +8,11 @@ def set_null_values(apps, schema_editor):
     Circuit = apps.get_model('circuits', 'Circuit')
     CircuitGroupAssignment = apps.get_model('circuits', 'CircuitGroupAssignment')
     CircuitTermination = apps.get_model('circuits', 'CircuitTermination')
+    db_alias = schema_editor.connection.alias
 
-    Circuit.objects.filter(distance_unit='').update(distance_unit=None)
-    CircuitGroupAssignment.objects.filter(priority='').update(priority=None)
-    CircuitTermination.objects.filter(cable_end='').update(cable_end=None)
+    Circuit.objects.using(db_alias).filter(distance_unit='').update(distance_unit=None)
+    CircuitGroupAssignment.objects.using(db_alias).filter(priority='').update(priority=None)
+    CircuitTermination.objects.using(db_alias).filter(cable_end='').update(cable_end=None)
 
 
 class Migration(migrations.Migration):

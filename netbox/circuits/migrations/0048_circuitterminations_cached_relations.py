@@ -7,15 +7,20 @@ def populate_denormalized_fields(apps, schema_editor):
     Copy site ForeignKey values to the Termination GFK.
     """
     CircuitTermination = apps.get_model('circuits', 'CircuitTermination')
+    db_alias = schema_editor.connection.alias
 
-    terminations = CircuitTermination.objects.filter(site__isnull=False).prefetch_related('site')
+    terminations = CircuitTermination.objects.using(db_alias).filter(site__isnull=False).prefetch_related('site')
     for termination in terminations:
         termination._region_id = termination.site.region_id
         termination._site_group_id = termination.site.group_id
         termination._site_id = termination.site_id
         # Note: Location cannot be set prior to migration
 
-    CircuitTermination.objects.bulk_update(terminations, ['_region', '_site_group', '_site'], batch_size=100)
+    CircuitTermination.objects.using(db_alias).bulk_update(
+        terminations,
+        ['_region', '_site_group', '_site'],
+        batch_size=100
+    )
 
 
 class Migration(migrations.Migration):
