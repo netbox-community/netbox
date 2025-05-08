@@ -227,6 +227,8 @@ class Job(models.Model):
             interval: Recurrence interval (in minutes)
             immediate: Run the job immediately without scheduling it in the background. Should be used for interactive
                 management commands only.
+            queue_name:  Specifies a target queue name for task scheduling. If omitted,
+                the system defaults to the predefined model queue.(optional)
         """
         if schedule_at and immediate:
             raise ValueError(_("enqueue() cannot be called with values for both schedule_at and immediate."))
