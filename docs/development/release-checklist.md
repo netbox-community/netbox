@@ -53,6 +53,7 @@ If a new Django release is adopted or other major dependencies (Python, PostgreS
 
 * Update the installation guide (`docs/installation/index.md`) with the new minimum versions.
 * Update the upgrade guide (`docs/installation/upgrading.md`) for the current version accordingly.
+* Update the minimum PostgreSQL version in the programming error template (`netbox/templates/exceptions/programming_error.html`).
 
 ### Manually Perform a New Install
 
