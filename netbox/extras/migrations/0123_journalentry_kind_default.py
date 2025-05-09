@@ -8,7 +8,9 @@ def set_kind_default(apps, schema_editor):
     Set kind to "info" on any entries with no kind assigned.
     """
     JournalEntry = apps.get_model('extras', 'JournalEntry')
-    JournalEntry.objects.filter(kind='').update(kind=JournalEntryKindChoices.KIND_INFO)
+    db_alias = schema_editor.connection.alias
+
+    JournalEntry.objects.using(db_alias).filter(kind='').update(kind=JournalEntryKindChoices.KIND_INFO)
 
 
 class Migration(migrations.Migration):

@@ -88,24 +88,33 @@ def update_scripts(apps, schema_editor):
     ScriptModule = apps.get_model('extras', 'ScriptModule')
     ReportModule = apps.get_model('extras', 'ReportModule')
     Job = apps.get_model('core', 'Job')
+    db_alias = schema_editor.connection.alias
 
     script_ct = ContentType.objects.get_for_model(Script, for_concrete_model=False)
     scriptmodule_ct = ContentType.objects.get_for_model(ScriptModule, for_concrete_model=False)
     reportmodule_ct = ContentType.objects.get_for_model(ReportModule, for_concrete_model=False)
 
-    for module in ScriptModule.objects.all():
+    for module in ScriptModule.objects.using(db_alias).all():
         for script_name in get_module_scripts(module):
-            script = Script.objects.create(
+            script = Script.objects.using(db_alias).create(
                 name=script_name,
                 module=module,
             )
 
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
-            Job.objects.filter(object_type_id=scriptmodule_ct.id, object_id=module.pk, name=script_name).update(
+            Job.objects.using(db_alias).filter(
+                object_type_id=scriptmodule_ct.id,
+                object_id=module.pk,
+                name=script_name
+            ).update(
                 object_type_id=script_ct.id, object_id=script.pk
             )
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
-            Job.objects.filter(object_type_id=reportmodule_ct.id, object_id=module.pk, name=script_name).update(
+            Job.objects.using(db_alias).filter(
+                object_type_id=reportmodule_ct.id,
+                object_id=module.pk,
+                name=script_name
+            ).update(
                 object_type_id=script_ct.id, object_id=script.pk
             )
 
@@ -119,16 +128,22 @@ def update_event_rules(apps, schema_editor):
     Script = apps.get_model('extras', 'Script')
     ScriptModule = apps.get_model('extras', 'ScriptModule')
     EventRule = apps.get_model('extras', 'EventRule')
+    db_alias = schema_editor.connection.alias
 
     script_ct = ContentType.objects.get_for_model(Script)
     scriptmodule_ct = ContentType.objects.get_for_model(ScriptModule)
 
-    for eventrule in EventRule.objects.filter(action_object_type=scriptmodule_ct):
+    for eventrule in EventRule.objects.using(db_alias).filter(action_object_type=scriptmodule_ct):
         name = eventrule.action_parameters.get('script_name')
-        obj, __ = Script.objects.get_or_create(
-            module_id=eventrule.action_object_id, name=name, defaults={'is_executable': False}
+        obj, __ = Script.objects.using(db_alias).get_or_create(
+            module_id=eventrule.action_object_id,
+            name=name,
+            defaults={'is_executable': False}
         )
-        EventRule.objects.filter(pk=eventrule.pk).update(action_object_type=script_ct, action_object_id=obj.id)
+        EventRule.objects.using(db_alias).filter(pk=eventrule.pk).update(
+            action_object_type=script_ct,
+            action_object_id=obj.id
+        )
 
 
 class Migration(migrations.Migration):

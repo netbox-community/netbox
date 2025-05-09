@@ -3,19 +3,21 @@ from django.db import migrations
 
 def update_content_types(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
+    db_alias = schema_editor.connection.alias
 
     # Delete the new ContentTypes effected by the new model in the core app
-    ContentType.objects.filter(app_label='core', model='objectchange').delete()
+    ContentType.objects.using(db_alias).filter(app_label='core', model='objectchange').delete()
 
     # Update the app labels of the original ContentTypes for extras.ObjectChange to ensure that any
     # foreign key references are preserved
-    ContentType.objects.filter(app_label='extras', model='objectchange').update(app_label='core')
+    ContentType.objects.using(db_alias).filter(app_label='extras', model='objectchange').update(app_label='core')
 
 
 def update_dashboard_widgets(apps, schema_editor):
     Dashboard = apps.get_model('extras', 'Dashboard')
+    db_alias = schema_editor.connection.alias
 
-    for dashboard in Dashboard.objects.all():
+    for dashboard in Dashboard.objects.using(db_alias).all():
         for key, widget in dashboard.config.items():
             if widget['config'].get('model') == 'extras.objectchange':
                 widget['config']['model'] = 'core.objectchange'

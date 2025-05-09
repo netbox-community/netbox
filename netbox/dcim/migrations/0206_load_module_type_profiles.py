@@ -11,6 +11,8 @@ def load_initial_data(apps, schema_editor):
     Load initial ModuleTypeProfile objects from file.
     """
     ModuleTypeProfile = apps.get_model('dcim', 'ModuleTypeProfile')
+    db_alias = schema_editor.connection.alias
+
     initial_profiles = (
         'cpu',
         'fan',
@@ -25,7 +27,7 @@ def load_initial_data(apps, schema_editor):
         with file_path.open('r') as f:
             data = json.load(f)
             try:
-                ModuleTypeProfile.objects.create(**data)
+                ModuleTypeProfile.objects.using(db_alias).create(**data)
             except Exception as e:
                 print(f"Error loading data from {file_path}")
                 raise e

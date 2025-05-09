@@ -6,8 +6,9 @@ def set_null_values(apps, schema_editor):
     Replace empty strings with null values.
     """
     CustomFieldChoiceSet = apps.get_model('extras', 'CustomFieldChoiceSet')
+    db_alias = schema_editor.connection.alias
 
-    CustomFieldChoiceSet.objects.filter(base_choices='').update(base_choices=None)
+    CustomFieldChoiceSet.objects.using(db_alias).filter(base_choices='').update(base_choices=None)
 
 
 class Migration(migrations.Migration):

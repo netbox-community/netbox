@@ -9,10 +9,11 @@ def update_custom_fields(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     CustomField = apps.get_model('extras', 'CustomField')
     Group = apps.get_model('users', 'Group')
+    db_alias = schema_editor.connection.alias
 
-    if old_ct := ContentType.objects.filter(app_label='users', model='netboxgroup').first():
+    if old_ct := ContentType.objects.using(db_alias).filter(app_label='users', model='netboxgroup').first():
         new_ct = ContentType.objects.get_for_model(Group)
-        CustomField.objects.filter(related_object_type=old_ct).update(related_object_type=new_ct)
+        CustomField.objects.using(db_alias).filter(related_object_type=old_ct).update(related_object_type=new_ct)
 
 
 class Migration(migrations.Migration):

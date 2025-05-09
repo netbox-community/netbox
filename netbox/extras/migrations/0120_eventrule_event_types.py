@@ -6,8 +6,9 @@ from core.events import *
 
 def set_event_types(apps, schema_editor):
     EventRule = apps.get_model('extras', 'EventRule')
-    event_rules = EventRule.objects.all()
+    db_alias = schema_editor.connection.alias
 
+    event_rules = EventRule.objects.using(db_alias).all()
     for event_rule in event_rules:
         event_rule.event_types = []
         if event_rule.type_create:

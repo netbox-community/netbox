@@ -3,18 +3,22 @@ from django.db import migrations
 
 def update_content_types(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
+    CustomField = apps.get_model('extras', 'CustomField')
+    db_alias = schema_editor.connection.alias
+
     # Delete the new ContentTypes effected by the new models in the users app
-    ContentType.objects.filter(app_label='users', model='user').delete()
+    ContentType.objects.using(db_alias).filter(app_label='users', model='user').delete()
 
     # Update the app labels of the original ContentTypes for auth.User to ensure
     # that any foreign key references are preserved
-    ContentType.objects.filter(app_label='auth', model='user').update(app_label='users')
+    ContentType.objects.using(db_alias).filter(app_label='auth', model='user').update(app_label='users')
 
-    netboxuser_ct = ContentType.objects.filter(app_label='users', model='netboxuser').first()
+    netboxuser_ct = ContentType.objects.using(db_alias).filter(app_label='users', model='netboxuser').first()
     if netboxuser_ct:
-        user_ct = ContentType.objects.filter(app_label='users', model='user').first()
-        CustomField = apps.get_model('extras', 'CustomField')
-        CustomField.objects.filter(related_object_type_id=netboxuser_ct.id).update(related_object_type_id=user_ct.id)
+        user_ct = ContentType.objects.using(db_alias).filter(app_label='users', model='user').first()
+        CustomField.objects.using(db_alias).filter(related_object_type_id=netboxuser_ct.id).update(
+            related_object_type_id=user_ct.id
+        )
         netboxuser_ct.delete()
 
 

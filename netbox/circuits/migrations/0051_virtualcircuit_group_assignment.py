@@ -9,8 +9,9 @@ def set_member_type(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Circuit = apps.get_model('circuits', 'Circuit')
     CircuitGroupAssignment = apps.get_model('circuits', 'CircuitGroupAssignment')
+    db_alias = schema_editor.connection.alias
 
-    CircuitGroupAssignment.objects.update(
+    CircuitGroupAssignment.objects.using(db_alias).update(
         member_type=ContentType.objects.get_for_model(Circuit)
     )
 

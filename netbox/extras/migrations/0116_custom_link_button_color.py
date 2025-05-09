@@ -3,7 +3,9 @@ from django.db import migrations, models
 
 def update_link_buttons(apps, schema_editor):
     CustomLink = apps.get_model('extras', 'CustomLink')
-    CustomLink.objects.filter(button_class='outline-dark').update(button_class='default')
+    db_alias = schema_editor.connection.alias
+
+    CustomLink.objects.using(db_alias).filter(button_class='outline-dark').update(button_class='default')
 
 
 class Migration(migrations.Migration):

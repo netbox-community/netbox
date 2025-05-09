@@ -3,10 +3,10 @@ from django.db import migrations, models
 
 
 def migrate_contact_groups(apps, schema_editor):
-    Contacts = apps.get_model('tenancy', 'Contact')
+    Contact = apps.get_model('tenancy', 'Contact')
+    db_alias = schema_editor.connection.alias
 
-    qs = Contacts.objects.filter(group__isnull=False)
-    for contact in qs:
+    for contact in Contact.objects.using(db_alias).filter(group__isnull=False):
         contact.groups.add(contact.group)
 
 

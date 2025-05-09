@@ -6,19 +6,24 @@ def populate_mac_addresses(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     VMInterface = apps.get_model('virtualization', 'VMInterface')
     MACAddress = apps.get_model('dcim', 'MACAddress')
+    db_alias = schema_editor.connection.alias
     vminterface_ct = ContentType.objects.get_for_model(VMInterface)
 
     mac_addresses = [
         MACAddress(
-            mac_address=vminterface.mac_address, assigned_object_type=vminterface_ct, assigned_object_id=vminterface.pk
+            mac_address=vminterface.mac_address,
+            assigned_object_type=vminterface_ct,
+            assigned_object_id=vminterface.pk
         )
-        for vminterface in VMInterface.objects.filter(mac_address__isnull=False)
+        for vminterface in VMInterface.objects.using(db_alias).filter(mac_address__isnull=False)
     ]
-    MACAddress.objects.bulk_create(mac_addresses, batch_size=100)
+    MACAddress.objects.using(db_alias).bulk_create(mac_addresses, batch_size=100)
 
     # TODO: Optimize interface updates
     for mac_address in mac_addresses:
-        VMInterface.objects.filter(pk=mac_address.assigned_object_id).update(primary_mac_address=mac_address)
+        VMInterface.objects.using(db_alias).filter(pk=mac_address.assigned_object_id).update(
+            primary_mac_address=mac_address
+        )
 
 
 class Migration(migrations.Migration):

@@ -11,7 +11,9 @@ def set_vid_ranges(apps, schema_editor):
     Convert the min_vid & max_vid fields to a range in the new vid_ranges ArrayField.
     """
     VLANGroup = apps.get_model('ipam', 'VLANGroup')
-    for group in VLANGroup.objects.all():
+    db_alias = schema_editor.connection.alias
+
+    for group in VLANGroup.objects.using(db_alias).all():
         group.vid_ranges = [NumericRange(group.min_vid, group.max_vid, bounds='[]')]
         group._total_vlan_ids = group.max_vid - group.min_vid + 1
         group.save()

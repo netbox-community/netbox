@@ -8,14 +8,15 @@ def copy_site_assignments(apps, schema_editor):
     """
     ContentType = apps.get_model('contenttypes', 'ContentType')
     CircuitTermination = apps.get_model('circuits', 'CircuitTermination')
+    ProviderNetwork = apps.get_model('circuits', 'ProviderNetwork')
     Site = apps.get_model('dcim', 'Site')
+    db_alias = schema_editor.connection.alias
 
-    CircuitTermination.objects.filter(site__isnull=False).update(
+    CircuitTermination.objects.using(db_alias).filter(site__isnull=False).update(
         termination_type=ContentType.objects.get_for_model(Site), termination_id=models.F('site_id')
     )
 
-    ProviderNetwork = apps.get_model('circuits', 'ProviderNetwork')
-    CircuitTermination.objects.filter(provider_network__isnull=False).update(
+    CircuitTermination.objects.using(db_alias).filter(provider_network__isnull=False).update(
         termination_type=ContentType.objects.get_for_model(ProviderNetwork),
         termination_id=models.F('provider_network_id'),
     )
