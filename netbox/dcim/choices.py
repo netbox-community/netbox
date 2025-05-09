@@ -1240,6 +1240,8 @@ class InterfaceSpeedChoices(ChoiceSet):
         (10000, '10 Mbps'),
         (100000, '100 Mbps'),
         (1000000, '1 Gbps'),
+        (2500000, '2.5 Gbps'),
+        (5000000, '5 Gbps'),
         (10000000, '10 Gbps'),
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
