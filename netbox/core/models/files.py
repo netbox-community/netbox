@@ -88,19 +88,11 @@ class ManagedFile(SyncedDataMixin, models.Model):
     def sync_data(self):
         if self.data_file:
             self.file_path = os.path.basename(self.data_path)
-            self._write_to_disk(self.full_path, overwrite=True)
 
-    def _write_to_disk(self, path, overwrite=False):
-        """
-        Write the object's data to disk at the specified path
-        """
-        # Check whether file already exists
-        storage = self.storage
-        if storage.exists(path) and not overwrite:
-            raise FileExistsError()
+            storage = self.storage
 
-        with storage.open(path, 'wb+') as new_file:
-            new_file.write(self.data)
+            with storage.open(self.full_path, 'wb+') as new_file:
+                new_file.write(self.data_file.data)
 
     @cached_property
     def storage(self):
