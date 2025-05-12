@@ -2,36 +2,38 @@ from django.db import migrations
 from django.db.models import F
 
 
-def populate_service_parent_gfk(apps, schema_config):
+def populate_service_parent_gfk(apps, schema_editor):
     Service = apps.get_model('ipam', 'Service')
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Device = apps.get_model('dcim', 'device')
     VirtualMachine = apps.get_model('virtualization', 'virtualmachine')
+    db_alias = schema_editor.connection.alias
 
-    Service.objects.filter(device_id__isnull=False).update(
+    Service.objects.using(db_alias).filter(device_id__isnull=False).update(
         parent_object_type=ContentType.objects.get_for_model(Device),
         parent_object_id=F('device_id'),
     )
 
-    Service.objects.filter(virtual_machine_id__isnull=False).update(
+    Service.objects.using(db_alias).filter(virtual_machine_id__isnull=False).update(
         parent_object_type=ContentType.objects.get_for_model(VirtualMachine),
         parent_object_id=F('virtual_machine_id'),
     )
 
 
-def repopulate_device_and_virtualmachine_relations(apps, schemaconfig):
+def repopulate_device_and_virtualmachine_relations(apps, schema_editor):
     Service = apps.get_model('ipam', 'Service')
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Device = apps.get_model('dcim', 'device')
     VirtualMachine = apps.get_model('virtualization', 'virtualmachine')
+    db_alias = schema_editor.connection.alias
 
-    Service.objects.filter(
+    Service.objects.using(db_alias).filter(
         parent_object_type=ContentType.objects.get_for_model(Device),
     ).update(
         device_id=F('parent_object_id')
     )
 
-    Service.objects.filter(
+    Service.objects.using(db_alias).filter(
         parent_object_type=ContentType.objects.get_for_model(VirtualMachine),
     ).update(
         virtual_machine_id=F('parent_object_id')

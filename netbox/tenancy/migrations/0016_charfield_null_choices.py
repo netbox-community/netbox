@@ -6,8 +6,9 @@ def set_null_values(apps, schema_editor):
     Replace empty strings with null values.
     """
     ContactAssignment = apps.get_model('tenancy', 'ContactAssignment')
+    db_alias = schema_editor.connection.alias
 
-    ContactAssignment.objects.filter(priority='').update(priority=None)
+    ContactAssignment.objects.using(db_alias).filter(priority='').update(priority=None)
 
 
 class Migration(migrations.Migration):
