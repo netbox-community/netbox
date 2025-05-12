@@ -54,6 +54,9 @@ def clear_primary_ip(instance, **kwargs):
     """
     When an IPAddress is deleted, trigger save() on any Devices/VirtualMachines for which it was a primary IP.
     """
+    origin = kwargs.get('origin')
+    if isinstance(origin, (Device, VirtualMachine)) and origin.primary_ip4 == instance:
+        return
     field_name = f'primary_ip{instance.family}'
     if device := Device.objects.filter(**{field_name: instance}).first():
         device.snapshot()
