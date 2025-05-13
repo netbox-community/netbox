@@ -1779,6 +1779,13 @@ class InventoryItemBulkEditForm(
     )
     nullable_fields = ('label', 'role', 'manufacturer', 'part_id', 'description')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Remove parent device passed as context to avoid conflicts with the actual device field
+        # on this form (see bug #19464)
+        self.initial.pop('device', None)
+
 
 #
 # Device component roles
