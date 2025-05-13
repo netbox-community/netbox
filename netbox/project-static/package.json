@@ -24,13 +24,13 @@
   "dependencies": {
     "@mdi/font": "7.4.47",
     "@tabler/core": "1.2.0",
-    "bootstrap": "5.3.5",
+    "bootstrap": "5.3.6",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
-    "gridstack": "12.1.1",
+    "gridstack": "12.1.2",
     "htmx.org": "2.0.4",
-    "query-string": "9.1.1",
-    "sass": "1.87.0",
+    "query-string": "9.1.2",
+    "sass": "1.88.0",
     "tom-select": "2.4.3",
     "typeface-inter": "3.18.1",
     "typeface-roboto-mono": "1.1.13"

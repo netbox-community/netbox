@@ -1,3 +1,35 @@
+# NetBox v4.3
+
+## v4.3.1 (2025-05-13)
+
+### Enhancements
+
+* [#17073](https://github.com/netbox-community/netbox/issues/17073) - Enable global search for tags
+* [#18419](https://github.com/netbox-community/netbox/issues/18419) - Enable specifying a queue name when calling `Job.enqueue()`
+* [#19416](https://github.com/netbox-community/netbox/issues/19416) - Add the 1000BASE-SX interface type
+* [#19434](https://github.com/netbox-community/netbox/issues/19434) - Add pre-populated interface speed choices for 2.5 and 5 Gbps
+
+### Bug Fixes
+
+* [#17107](https://github.com/netbox-community/netbox/issues/17107) - Fix cosmetic issue in cable traces ending at a provider network
+* [#19309](https://github.com/netbox-community/netbox/issues/19309) - Improve REST API query performance for prefixes and IP addresses
+* [#19361](https://github.com/netbox-community/netbox/issues/19361) - Fix incorrect GraphQL object types
+* [#19375](https://github.com/netbox-community/netbox/issues/19375) - Fix table configuration after applying a saved table config
+* [#19376](https://github.com/netbox-community/netbox/issues/19376) - Fix `FieldDoesNotExist` exception when global search results include a contact
+* [#19380](https://github.com/netbox-community/netbox/issues/19380) - Fix column selections for child object tables
+* [#19381](https://github.com/netbox-community/netbox/issues/19381) - Fix syncing of custom scripts from a remote data source
+* [#19396](https://github.com/netbox-community/netbox/issues/19396) - Enable nullifying VLAN `qinq_role` via the REST API
+* [#19397](https://github.com/netbox-community/netbox/issues/19397) - Correct enum type for IPRangeFilter in GraphQL API
+* [#19432](https://github.com/netbox-community/netbox/issues/19432) - Update minimum required PostgreSQL version referenced by server error page
+* [#19440](https://github.com/netbox-community/netbox/issues/19440) - Ensure data migrations use the correct database connection
+* [#19444](https://github.com/netbox-community/netbox/issues/19444) - Fix change logging for contact group assignments
+* [#19463](https://github.com/netbox-community/netbox/issues/19463) - Hide button dropdown for tables which do not support saved configs
+* [#19464](https://github.com/netbox-community/netbox/issues/19464) - Fix bulk editing of inventory items from device view
+* [#19465](https://github.com/netbox-community/netbox/issues/19465) - Fix ability to clear assigned prefix scope in UI
+* [#19472](https://github.com/netbox-community/netbox/issues/19472) - Fix device column rendering in virtual device contexts table
+
+---
+
 ## v4.3.0 (2025-05-01)
 
 ### Breaking Changes
