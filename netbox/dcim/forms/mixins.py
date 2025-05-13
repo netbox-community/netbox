@@ -66,6 +66,10 @@ class ScopedForm(forms.Form):
             if self.instance and scope_type_id != self.instance.scope_type_id:
                 self.initial['scope'] = None
 
+        else:
+            # Clear the initial scope value if scope_type is not set
+            self.initial['scope'] = None
+
 
 class ScopedBulkEditForm(forms.Form):
     scope_type = ContentTypeChoiceField(
