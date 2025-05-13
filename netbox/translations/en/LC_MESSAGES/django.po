@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-10 05:01+0000\n"
+"POT-Creation-Date: 2025-05-13 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2686,7 +2686,7 @@ msgstr ""
 msgid "managed files"
 msgstr ""
 
-#: netbox/core/models/files.py:120
+#: netbox/core/models/files.py:112
 #, python-brace-format
 msgid "A {model} with this file path already exists ({path})."
 msgstr ""
