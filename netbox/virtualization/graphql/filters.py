@@ -39,7 +39,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.Cluster, lookups=True)
+@strawberry_django.filter_type(models.Cluster, lookups=True)
 class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     type: Annotated['ClusterTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
@@ -58,19 +58,19 @@ class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, P
     )
 
 
-@strawberry_django.filter(models.ClusterGroup, lookups=True)
+@strawberry_django.filter_type(models.ClusterGroup, lookups=True)
 class ClusterGroupFilter(ContactFilterMixin, OrganizationalModelFilterMixin):
     vlan_groups: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter(models.ClusterType, lookups=True)
+@strawberry_django.filter_type(models.ClusterType, lookups=True)
 class ClusterTypeFilter(OrganizationalModelFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.VirtualMachine, lookups=True)
+@strawberry_django.filter_type(models.VirtualMachine, lookups=True)
 class VirtualMachineFilter(
     ContactFilterMixin,
     ImageAttachmentFilterMixin,
@@ -130,7 +130,7 @@ class VirtualMachineFilter(
     )
 
 
-@strawberry_django.filter(models.VMInterface, lookups=True)
+@strawberry_django.filter_type(models.VMInterface, lookups=True)
 class VMInterfaceFilter(VMComponentFilterMixin, InterfaceBaseFilterMixin):
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -155,7 +155,7 @@ class VMInterfaceFilter(VMComponentFilterMixin, InterfaceBaseFilterMixin):
     )
 
 
-@strawberry_django.filter(models.VirtualDisk, lookups=True)
+@strawberry_django.filter_type(models.VirtualDisk, lookups=True)
 class VirtualDiskFilter(VMComponentFilterMixin):
     size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()

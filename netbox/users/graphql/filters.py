@@ -14,13 +14,13 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.Group, lookups=True)
+@strawberry_django.filter_type(models.Group, lookups=True)
 class GroupFilter(BaseObjectTypeFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter(models.User, lookups=True)
+@strawberry_django.filter_type(models.User, lookups=True)
 class UserFilter(BaseObjectTypeFilterMixin):
     username: FilterLookup[str] | None = strawberry_django.filter_field()
     first_name: FilterLookup[str] | None = strawberry_django.filter_field()

@@ -23,12 +23,12 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.WirelessLANGroup, lookups=True)
+@strawberry_django.filter_type(models.WirelessLANGroup, lookups=True)
 class WirelessLANGroupFilter(NestedGroupModelFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.WirelessLAN, lookups=True)
+@strawberry_django.filter_type(models.WirelessLAN, lookups=True)
 class WirelessLANFilter(
     WirelessAuthenticationBaseFilterMixin,
     ScopedFilterMixin,
@@ -47,7 +47,7 @@ class WirelessLANFilter(
     vlan_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter(models.WirelessLink, lookups=True)
+@strawberry_django.filter_type(models.WirelessLink, lookups=True)
 class WirelessLinkFilter(
     WirelessAuthenticationBaseFilterMixin,
     DistanceFilterMixin,
