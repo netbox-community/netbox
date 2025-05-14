@@ -52,8 +52,6 @@ class DistanceValidationMixin(forms.Form):
     def clean(self):
         super().clean()
 
-        # validate max distance in meters based on model
-        # breakpoint()
         distance = self.cleaned_data.get('distance', None)
         unit = self.cleaned_data.get('distance_unit', None)
         if distance and unit:
