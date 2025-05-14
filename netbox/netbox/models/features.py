@@ -5,6 +5,7 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -19,7 +20,6 @@ from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
-from utilities.views import register_model_view
 
 __all__ = (
     'BookmarksMixin',
@@ -360,7 +360,7 @@ class ImageAttachmentsMixin(models.Model):
 
 class ContactsMixin(models.Model):
     """
-    Enables the assignments of Contacts (via ContactAssignment).
+    Enables the assignment of Contacts to a model (via ContactAssignment).
     """
     contacts = GenericRelation(
         to='tenancy.ContactAssignment',
@@ -370,6 +370,27 @@ class ContactsMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_contacts(self, inherited=True):
+        """
+        Return a `QuerySet` matching all contacts assigned to this object.
+
+        Args:
+            inherited: If `True`, inherited contacts from parent objects are included.
+        """
+        from tenancy.models import ContactAssignment
+        from . import NestedGroupModel
+
+        filter = Q(
+            object_type=ObjectType.objects.get_for_model(self),
+            object_id__in=(
+                self.get_ancestors(include_self=True)
+                if (isinstance(self, NestedGroupModel) and inherited)
+                else [self.pk]
+            ),
+        )
+
+        return ContactAssignment.objects.filter(filter)
 
 
 class BookmarksMixin(models.Model):
@@ -442,7 +463,8 @@ class TagsMixin(models.Model):
     which is a `TaggableManager` instance.
     """
     tags = TaggableManager(
-        through='extras.TaggedItem'
+        through='extras.TaggedItem',
+        ordering=('weight', 'name'),
     )
 
     class Meta:
@@ -625,6 +647,8 @@ def register_models(*models):
 
     register_model() should be called for each relevant model under the ready() of an app's AppConfig class.
     """
+    from utilities.views import register_model_view
+
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
@@ -645,6 +669,10 @@ def register_models(*models):
                 )
 
         # Register applicable feature views for the model
+        if issubclass(model, ContactsMixin):
+            register_model_view(model, 'contacts', kwargs={'model': model})(
+                'netbox.views.generic.ObjectContactsView'
+            )
         if issubclass(model, JournalingMixin):
             register_model_view(model, 'journal', kwargs={'model': model})(
                 'netbox.views.generic.ObjectJournalView'

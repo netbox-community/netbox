@@ -22,8 +22,6 @@ class ConfigContextQuerySet(RestrictedQuerySet):
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
         """
 
-        role = obj.role
-
         # Device type and location assignment is relevant only for Devices
         device_type = getattr(obj, 'device_type', None)
         location = getattr(obj, 'location', None)
@@ -44,13 +42,16 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         sitegroup = getattr(obj.site, 'group', None)
         sitegroups = sitegroup.get_ancestors(include_self=True) if sitegroup else []
 
+        # Match against the directly assigned role as well as any parent roles.
+        device_roles = obj.role.get_ancestors(include_self=True) if obj.role else []
+
         queryset = self.filter(
             Q(regions__in=regions) | Q(regions=None),
             Q(site_groups__in=sitegroups) | Q(site_groups=None),
             Q(sites=obj.site) | Q(sites=None),
             Q(locations=location) | Q(locations=None),
             Q(device_types=device_type) | Q(device_types=None),
-            Q(roles=role) | Q(roles=None),
+            Q(roles__in=device_roles) | Q(roles=None),
             Q(platforms=obj.platform) | Q(platforms=None),
             Q(cluster_types=cluster_type) | Q(cluster_types=None),
             Q(cluster_groups=cluster_group) | Q(cluster_groups=None),
@@ -107,6 +108,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             Q(clusters=OuterRef('cluster')) | Q(clusters=None),
             Q(tenant_groups=OuterRef('tenant__group')) | Q(tenant_groups=None),
             Q(tenants=OuterRef('tenant')) | Q(tenants=None),
+            Q(sites=OuterRef('site')) | Q(sites=None),
             Q(
                 tags__pk__in=Subquery(
                     TaggedItem.objects.filter(
@@ -128,9 +130,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             base_query.add(Q(locations=None), Q.AND)
             base_query.add(Q(device_types=None), Q.AND)
 
-        base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
-        base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
-
+        # MPTT-based filters
         base_query.add(
             (Q(
                 regions__tree_id=OuterRef('site__region__tree_id'),
@@ -140,7 +140,6 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             ) | Q(regions=None)),
             Q.AND
         )
-
         base_query.add(
             (Q(
                 site_groups__tree_id=OuterRef('site__group__tree_id'),
@@ -148,6 +147,15 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                 site_groups__lft__lte=OuterRef('site__group__lft'),
                 site_groups__rght__gte=OuterRef('site__group__rght'),
             ) | Q(site_groups=None)),
+            Q.AND
+        )
+        base_query.add(
+            (Q(
+                roles__tree_id=OuterRef('role__tree_id'),
+                roles__level__lte=OuterRef('role__level'),
+                roles__lft__lte=OuterRef('role__lft'),
+                roles__rght__gte=OuterRef('role__rght'),
+            ) | Q(roles=None)),
             Q.AND
         )
 

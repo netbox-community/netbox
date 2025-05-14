@@ -123,7 +123,7 @@ class ServiceIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('device', 'virtual_machine', 'description')
+    display_attrs = ('parent', 'description')
 
 
 @register_search

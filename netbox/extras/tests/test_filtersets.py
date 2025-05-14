@@ -616,16 +616,39 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
 class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
-    ignore_fields = ('template_code', 'data_path')
+    ignore_fields = ('template_code', 'environment_params', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
         object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
         export_templates = (
-            ExportTemplate(name='Export Template 1', template_code='TESTING', description='foobar1'),
-            ExportTemplate(name='Export Template 2', template_code='TESTING', description='foobar2'),
-            ExportTemplate(name='Export Template 3', template_code='TESTING'),
+            ExportTemplate(
+                name='Export Template 1',
+                template_code='TESTING',
+                description='foobar1',
+                mime_type='text/foo',
+                file_name='foo',
+                file_extension='foo',
+                as_attachment=True,
+            ),
+            ExportTemplate(
+                name='Export Template 2',
+                template_code='TESTING',
+                description='foobar2',
+                mime_type='text/bar',
+                file_name='bar',
+                file_extension='bar',
+                as_attachment=True,
+            ),
+            ExportTemplate(
+                name='Export Template 3',
+                template_code='TESTING',
+                mime_type='text/baz',
+                file_name='baz',
+                file_extension='baz',
+                as_attachment=False,
+            ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for i, et in enumerate(export_templates):
@@ -647,6 +670,22 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mime_type(self):
+        params = {'mime_type': ['text/foo', 'text/bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_name(self):
+        params = {'file_name': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_extension(self):
+        params = {'file_extension': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_as_attachment(self):
+        params = {'as_attachment': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -884,7 +923,8 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        for device_role in device_roles:
+            device_role.save()
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
@@ -1067,9 +1107,32 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         config_templates = (
-            ConfigTemplate(name='Config Template 1', template_code='TESTING', description='foobar1'),
-            ConfigTemplate(name='Config Template 2', template_code='TESTING', description='foobar2'),
-            ConfigTemplate(name='Config Template 3', template_code='TESTING'),
+            ConfigTemplate(
+                name='Config Template 1',
+                template_code='TESTING',
+                description='foobar1',
+                mime_type='text/foo',
+                file_name='foo',
+                file_extension='foo',
+                as_attachment=True,
+            ),
+            ConfigTemplate(
+                name='Config Template 2',
+                template_code='TESTING',
+                description='foobar2',
+                mime_type='text/bar',
+                file_name='bar',
+                file_extension='bar',
+                as_attachment=True,
+            ),
+            ConfigTemplate(
+                name='Config Template 3',
+                template_code='TESTING',
+                mime_type='text/baz',
+                file_name='baz',
+                file_extension='baz',
+                as_attachment=False,
+            ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
@@ -1083,6 +1146,22 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mime_type(self):
+        params = {'mime_type': ['text/foo', 'text/bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_name(self):
+        params = {'file_name': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_file_extension(self):
+        params = {'file_extension': ['foo', 'bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_as_attachment(self):
+        params = {'as_attachment': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1141,6 +1220,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'module',
         'modulebay',
         'moduletype',
+        'moduletypeprofile',
         'platform',
         'powerfeed',
         'poweroutlet',
@@ -1195,9 +1275,9 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         }
 
         tags = (
-            Tag(name='Tag 1', slug='tag-1', color='ff0000', description='foobar1'),
-            Tag(name='Tag 2', slug='tag-2', color='00ff00', description='foobar2'),
-            Tag(name='Tag 3', slug='tag-3', color='0000ff'),
+            Tag(name='Tag 1', slug='tag-1', color='ff0000', weight=1000, description='foobar1'),
+            Tag(name='Tag 2', slug='tag-2', color='00ff00', weight=2000, description='foobar2'),
+            Tag(name='Tag 3', slug='tag-3', color='0000ff', weight=3000),
         )
         Tag.objects.bulk_create(tags)
         tags[0].object_types.add(object_types['site'])
@@ -1249,6 +1329,66 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
             list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
             ['Tag 2', 'Tag 3']
         )
+
+    def test_weight(self):
+        params = {'weight': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class TaggedItemFilterSetTestCase(TestCase):
+    queryset = TaggedItem.objects.all()
+    filterset = TaggedItemFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        tags = (
+            Tag(name='Tag 1', slug='tag-1'),
+            Tag(name='Tag 2', slug='tag-2'),
+            Tag(name='Tag 3', slug='tag-3'),
+        )
+        Tag.objects.bulk_create(tags)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        sites[0].tags.add(tags[0])
+        sites[1].tags.add(tags[1])
+        sites[2].tags.add(tags[2])
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+        tenants[0].tags.add(tags[0])
+        tenants[1].tags.add(tags[1])
+        tenants[2].tags.add(tags[2])
+
+    def test_tag(self):
+        tags = Tag.objects.all()[:2]
+        params = {'tag': [tags[0].slug, tags[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'tag_id': [tags[0].pk, tags[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_object_type(self):
+        object_type = ObjectType.objects.get_for_model(Site)
+        params = {'object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'object_type_id': [object_type.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_object_id(self):
+        site_ids = Site.objects.values_list('pk', flat=True)
+        params = {
+            'object_type': 'dcim.site',
+            'object_id': site_ids[:2],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ChangeLoggedFilterSetTestCase(TestCase):

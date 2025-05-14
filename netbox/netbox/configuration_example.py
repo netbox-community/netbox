@@ -12,14 +12,16 @@ ALLOWED_HOSTS = []
 
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
-DATABASE = {
-    'ENGINE': 'django.db.backends.postgresql',  # Database engine
-    'NAME': 'netbox',         # Database name
-    'USER': '',               # PostgreSQL username
-    'PASSWORD': '',           # PostgreSQL password
-    'HOST': 'localhost',      # Database server
-    'PORT': '',               # Database port (leave blank for default)
-    'CONN_MAX_AGE': 300,      # Max database connection age
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  # Database engine
+        'NAME': 'netbox',         # Database name
+        'USER': '',               # PostgreSQL username
+        'PASSWORD': '',           # PostgreSQL password
+        'HOST': 'localhost',      # Database server
+        'PORT': '',               # Database port (leave blank for default)
+        'CONN_MAX_AGE': 300,      # Max database connection age
+    }
 }
 
 # Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
@@ -163,6 +165,9 @@ LOGIN_REQUIRED = True
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None
+
+# Hide the login form. Useful when only allowing SSO authentication.
+LOGIN_FORM_HIDDEN = False
 
 # The view name or URL to which users are redirected after logging out.
 LOGOUT_REDIRECT_URL = 'home'

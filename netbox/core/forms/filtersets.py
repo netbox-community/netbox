@@ -27,7 +27,7 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     model = DataSource
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('type', 'status', name=_('Data Source')),
+        FieldSet('type', 'status', 'enabled', 'sync_interval', name=_('Data Source')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -45,6 +45,11 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    sync_interval = forms.ChoiceField(
+        label=_('Sync interval'),
+        choices=JobIntervalChoices,
+        required=False
     )
 
 

@@ -32,12 +32,15 @@ class RegionTable(ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:region_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Region
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
@@ -59,12 +62,15 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = SiteGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
+            'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
 
@@ -157,12 +163,16 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     actions = columns.ActionsColumn(
         extra_buttons=LOCATION_BUTTONS
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
             'pk', 'id', 'name', 'site', 'status', 'facility', 'tenant', 'tenant_group', 'rack_count', 'device_count',
-            'description', 'slug', 'contacts', 'tags', 'actions', 'created', 'last_updated', 'vlangroup_count',
+            'description', 'slug', 'comments', 'contacts', 'tags', 'actions', 'created', 'last_updated',
+            'vlangroup_count',
         )
         default_columns = (
             'pk', 'name', 'site', 'status', 'facility', 'tenant', 'rack_count', 'device_count', 'vlangroup_count',

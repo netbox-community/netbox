@@ -215,6 +215,7 @@ class Job(models.Model):
             schedule_at=None,
             interval=None,
             immediate=False,
+            queue_name=None,
             **kwargs
     ):
         """
@@ -238,7 +239,7 @@ class Job(models.Model):
             object_id = instance.pk
         else:
             object_type = object_id = None
-        rq_queue_name = get_queue_for_model(object_type.model if object_type else None)
+        rq_queue_name = queue_name if queue_name else get_queue_for_model(object_type.model if object_type else None)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING
         job = Job(

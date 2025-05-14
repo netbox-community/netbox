@@ -215,9 +215,14 @@ class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilt
     model = L2VPN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('type', 'import_target_id', 'export_target_id', name=_('Attributes')),
+        FieldSet('type', 'status', 'import_target_id', 'export_target_id', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=L2VPNStatusChoices,
+        required=False
     )
     type = forms.ChoiceField(
         label=_('Type'),

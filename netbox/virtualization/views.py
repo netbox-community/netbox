@@ -15,7 +15,6 @@ from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -155,11 +154,6 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
-
-
-@register_model_view(ClusterGroup, 'contacts')
-class ClusterGroupContactsView(ObjectContactsView):
-    queryset = ClusterGroup.objects.all()
 
 
 #
@@ -356,6 +350,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
 
         selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
         device_table = DeviceTable(list(selected_objects), orderable=False)
+        device_table.configure(request)
 
         return render(request, self.template_name, {
             'form': form,
@@ -364,11 +359,6 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
             'obj_type_plural': 'devices',
             'return_url': cluster.get_absolute_url(),
         })
-
-
-@register_model_view(Cluster, 'contacts')
-class ClusterContactsView(ObjectContactsView):
-    queryset = Cluster.objects.all()
 
 
 #
@@ -491,11 +481,6 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     table = tables.VirtualMachineTable
 
 
-@register_model_view(VirtualMachine, 'contacts')
-class VirtualMachineContactsView(ObjectContactsView):
-    queryset = VirtualMachine.objects.all()
-
-
 #
 # VM interfaces
 #
@@ -521,6 +506,7 @@ class VMInterfaceView(generic.ObjectView):
             exclude=('virtual_machine',),
             orderable=False
         )
+        child_interfaces_tables.configure(request)
 
         # Get VLAN translation rules
         vlan_translation_table = None
@@ -529,6 +515,7 @@ class VMInterfaceView(generic.ObjectView):
                 data=instance.vlan_translation_policy.rules.all(),
                 orderable=False
             )
+            vlan_translation_table.configure(request)
 
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
@@ -543,6 +530,7 @@ class VMInterfaceView(generic.ObjectView):
             data=vlans,
             orderable=False
         )
+        vlan_table.configure(request)
 
         return {
             'child_interfaces_table': child_interfaces_tables,

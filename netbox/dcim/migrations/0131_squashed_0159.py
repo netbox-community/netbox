@@ -43,12 +43,12 @@ class Migration(migrations.Migration):
     ]
 
     dependencies = [
-        ('tenancy', '0012_standardize_models'),
+        ('tenancy', '0001_squashed_0012'),
         ('extras', '0002_squashed_0059'),
-        ('dcim', '0130_sitegroup'),
+        ('dcim', '0003_squashed_0130'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('ipam', '0053_asn_model'),
-        ('wireless', '0001_wireless'),
+        ('ipam', '0047_squashed_0053'),
+        ('wireless', '0001_squashed_0008'),
     ]
 
     operations = [
@@ -866,21 +866,6 @@ class Migration(migrations.Migration):
             name='component_type',
             field=models.ForeignKey(
                 blank=True,
-                limit_choices_to=models.Q(
-                    ('app_label', 'dcim'),
-                    (
-                        'model__in',
-                        (
-                            'consoleport',
-                            'consoleserverport',
-                            'frontport',
-                            'interface',
-                            'poweroutlet',
-                            'powerport',
-                            'rearport',
-                        ),
-                    ),
-                ),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
@@ -1238,21 +1223,6 @@ class Migration(migrations.Migration):
                     'component_type',
                     models.ForeignKey(
                         blank=True,
-                        limit_choices_to=models.Q(
-                            ('app_label', 'dcim'),
-                            (
-                                'model__in',
-                                (
-                                    'consoleporttemplate',
-                                    'consoleserverporttemplate',
-                                    'frontporttemplate',
-                                    'interfacetemplate',
-                                    'poweroutlettemplate',
-                                    'powerporttemplate',
-                                    'rearporttemplate',
-                                ),
-                            ),
-                        ),
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='+',
@@ -1478,28 +1448,6 @@ class Migration(migrations.Migration):
                 (
                     'termination_type',
                     models.ForeignKey(
-                        limit_choices_to=models.Q(
-                            models.Q(
-                                models.Q(('app_label', 'circuits'), ('model__in', ('circuittermination',))),
-                                models.Q(
-                                    ('app_label', 'dcim'),
-                                    (
-                                        'model__in',
-                                        (
-                                            'consoleport',
-                                            'consoleserverport',
-                                            'frontport',
-                                            'interface',
-                                            'powerfeed',
-                                            'poweroutlet',
-                                            'powerport',
-                                            'rearport',
-                                        ),
-                                    ),
-                                ),
-                                _connector='OR',
-                            )
-                        ),
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name='+',
                         to='contenttypes.contenttype',

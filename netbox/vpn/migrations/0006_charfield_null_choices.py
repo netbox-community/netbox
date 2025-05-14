@@ -8,11 +8,12 @@ def set_null_values(apps, schema_editor):
     IKEPolicy = apps.get_model('vpn', 'IKEPolicy')
     IKEProposal = apps.get_model('vpn', 'IKEProposal')
     IPSecProposal = apps.get_model('vpn', 'IPSecProposal')
+    db_alias = schema_editor.connection.alias
 
-    IKEPolicy.objects.filter(mode='').update(mode=None)
-    IKEProposal.objects.filter(authentication_algorithm='').update(authentication_algorithm=None)
-    IPSecProposal.objects.filter(authentication_algorithm='').update(authentication_algorithm=None)
-    IPSecProposal.objects.filter(encryption_algorithm='').update(encryption_algorithm=None)
+    IKEPolicy.objects.using(db_alias).filter(mode='').update(mode=None)
+    IKEProposal.objects.using(db_alias).filter(authentication_algorithm='').update(authentication_algorithm=None)
+    IPSecProposal.objects.using(db_alias).filter(authentication_algorithm='').update(authentication_algorithm=None)
+    IPSecProposal.objects.using(db_alias).filter(encryption_algorithm='').update(encryption_algorithm=None)
 
 
 class Migration(migrations.Migration):

@@ -1,7 +1,12 @@
-import strawberry_django
+from datetime import datetime
+from typing import Annotated
 
-from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
-from users import filtersets, models
+import strawberry
+import strawberry_django
+from strawberry_django import DatetimeFilterLookup, FilterLookup
+
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
+from users import models
 
 __all__ = (
     'GroupFilter',
@@ -10,12 +15,20 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Group, lookups=True)
-@autotype_decorator(filtersets.GroupFilterSet)
-class GroupFilter(BaseFilterMixin):
-    pass
+class GroupFilter(BaseObjectTypeFilterMixin):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    description: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.User, lookups=True)
-@autotype_decorator(filtersets.UserFilterSet)
-class UserFilter(BaseFilterMixin):
-    pass
+class UserFilter(BaseObjectTypeFilterMixin):
+    username: FilterLookup[str] | None = strawberry_django.filter_field()
+    first_name: FilterLookup[str] | None = strawberry_django.filter_field()
+    last_name: FilterLookup[str] | None = strawberry_django.filter_field()
+    email: FilterLookup[str] | None = strawberry_django.filter_field()
+    is_superuser: FilterLookup[bool] | None = strawberry_django.filter_field()
+    is_staff: FilterLookup[bool] | None = strawberry_django.filter_field()
+    is_active: FilterLookup[bool] | None = strawberry_django.filter_field()
+    date_joined: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    last_login: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()

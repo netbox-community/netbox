@@ -9,8 +9,9 @@ def set_member_type(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Circuit = apps.get_model('circuits', 'Circuit')
     CircuitGroupAssignment = apps.get_model('circuits', 'CircuitGroupAssignment')
+    db_alias = schema_editor.connection.alias
 
-    CircuitGroupAssignment.objects.update(
+    CircuitGroupAssignment.objects.using(db_alias).update(
         member_type=ContentType.objects.get_for_model(Circuit)
     )
 
@@ -51,7 +52,6 @@ class Migration(migrations.Migration):
             name='member_type',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.PROTECT,
-                limit_choices_to=models.Q(('app_label', 'circuits'), ('model__in', ['circuit', 'virtualcircuit'])),
                 related_name='+',
                 to='contenttypes.contenttype',
                 blank=True,
@@ -68,7 +68,6 @@ class Migration(migrations.Migration):
             model_name='circuitgroupassignment',
             name='member_type',
             field=models.ForeignKey(
-                limit_choices_to=models.Q(('app_label', 'circuits'), ('model__in', ['circuit', 'virtualcircuit'])),
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',
                 to='contenttypes.contenttype'

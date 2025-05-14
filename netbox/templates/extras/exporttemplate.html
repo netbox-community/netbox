@@ -6,8 +6,8 @@
 {% block title %}{{ object.name }}{% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
-    <div class="col col-12 col-md-5">
+  <div class="row">
+    <div class="col col-12 col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Export Template" %}</h2>
         <table class="table table-hover attr-table">
@@ -22,6 +22,10 @@
           <tr>
             <th scope="row">{% trans "MIME Type" %}</th>
             <td>{{ object.mime_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Name" %}</th>
+            <td>{{ object.file_name|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "File Extension" %}</th>
@@ -62,6 +66,9 @@
             </tr>
         </table>
       </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Assigned Models" %}</h2>
         <table class="table table-hover attr-table">
@@ -72,14 +79,14 @@
           {% endfor %}
         </table>
       </div>
-      {% plugin_left_page object %}
-    </div>
-    <div class="col col-md-7">
       <div class="card">
-        <h2 class="card-header">{% trans "Template" %}</h2>
+        <h2 class="card-header">{% trans "Environment Parameters" %}</h2>
         <div class="card-body">
-          {% include 'inc/sync_warning.html' %}
-          <pre>{{ object.template_code }}</pre>
+          {% if object.environment_params %}
+            <pre>{{ object.environment_params|json }}</pre>
+          {% else %}
+            <span class="text-muted">{% trans "None" %}</span>
+          {% endif %}
         </div>
       </div>
       {% plugin_right_page object %}
@@ -87,6 +94,13 @@
   </div>
   <div class="row">
     <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">{% trans "Template" %}</h2>
+        <div class="card-body">
+          {% include 'inc/sync_warning.html' %}
+          <pre>{{ object.template_code }}</pre>
+        </div>
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

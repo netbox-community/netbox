@@ -1,6 +1,5 @@
 from ipam.tables import RouteTargetTable
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
@@ -68,11 +67,6 @@ class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.TunnelGroupTable
 
 
-@register_model_view(TunnelGroup, 'contacts')
-class TunnelGroupContactsView(ObjectContactsView):
-    queryset = TunnelGroup.objects.all()
-
-
 #
 # Tunnels
 #
@@ -135,11 +129,6 @@ class TunnelBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.TunnelFilterSet
     table = tables.TunnelTable
-
-
-@register_model_view(Tunnel, 'contacts')
-class TunnelContactsView(ObjectContactsView):
-    queryset = Tunnel.objects.all()
 
 
 #
@@ -463,10 +452,12 @@ class L2VPNView(generic.ObjectView):
             instance.import_targets.prefetch_related('tenant'),
             orderable=False
         )
+        import_targets_table.configure(request)
         export_targets_table = RouteTargetTable(
             instance.export_targets.prefetch_related('tenant'),
             orderable=False
         )
+        export_targets_table.configure(request)
 
         return {
             'import_targets_table': import_targets_table,
@@ -505,11 +496,6 @@ class L2VPNBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
     table = tables.L2VPNTable
-
-
-@register_model_view(L2VPN, 'contacts')
-class L2VPNContactsView(ObjectContactsView):
-    queryset = L2VPN.objects.all()
 
 
 #

@@ -6,7 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('virtualization', '0036_virtualmachine_config_template'),
+        ('virtualization', '0023_squashed_0036'),
     ]
 
     operations = [

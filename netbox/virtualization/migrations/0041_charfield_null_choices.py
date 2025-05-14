@@ -6,8 +6,9 @@ def set_null_values(apps, schema_editor):
     Replace empty strings with null values.
     """
     VMInterface = apps.get_model('virtualization', 'VMInterface')
+    db_alias = schema_editor.connection.alias
 
-    VMInterface.objects.filter(mode='').update(mode=None)
+    VMInterface.objects.using(db_alias).filter(mode='').update(mode=None)
 
 
 class Migration(migrations.Migration):

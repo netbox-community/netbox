@@ -7,9 +7,10 @@ def set_null_values(apps, schema_editor):
     """
     FHRPGroup = apps.get_model('ipam', 'FHRPGroup')
     IPAddress = apps.get_model('ipam', 'IPAddress')
+    db_alias = schema_editor.connection.alias
 
-    FHRPGroup.objects.filter(auth_type='').update(auth_type=None)
-    IPAddress.objects.filter(role='').update(role=None)
+    FHRPGroup.objects.using(db_alias).filter(auth_type='').update(auth_type=None)
+    IPAddress.objects.using(db_alias).filter(role='').update(role=None)
 
 
 class Migration(migrations.Migration):

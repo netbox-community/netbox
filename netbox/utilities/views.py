@@ -208,22 +208,30 @@ class ViewTab:
 
     Args:
         label: Human-friendly text
+        visible: A callable which determines whether the tab should be displayed. This callable must accept exactly one
+            argument: the object instance. If a callable is not specified, the tab's visibility will be determined by
+            its badge (if any) and the value of `hide_if_empty`.
         badge: A static value or callable to display alongside the label (optional). If a callable is used, it must
             accept a single argument representing the object being viewed.
         weight: Numeric weight to influence ordering among other tabs (default: 1000)
         permission: The permission required to display the tab (optional).
-        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (Tabs without a
-            badge are always displayed.)
+        hide_if_empty: If true, the tab will be displayed only if its badge has a meaningful value. (This parameter is
+            evaluated only if the tab is permitted to be displayed according to the `visible` parameter.)
     """
-    def __init__(self, label, badge=None, weight=1000, permission=None, hide_if_empty=False):
+    def __init__(self, label, visible=None, badge=None, weight=1000, permission=None, hide_if_empty=False):
         self.label = label
+        self.visible = visible
         self.badge = badge
         self.weight = weight
         self.permission = permission
         self.hide_if_empty = hide_if_empty
 
     def render(self, instance):
-        """Return the attributes needed to render a tab in HTML."""
+        """
+        Return the attributes needed to render a tab in HTML if the tab should be displayed. Otherwise, return None.
+        """
+        if self.visible is not None and not self.visible(instance):
+            return None
         badge_value = self._get_badge_value(instance)
         if self.badge and self.hide_if_empty and not badge_value:
             return None

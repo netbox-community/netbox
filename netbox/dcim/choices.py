@@ -128,14 +128,15 @@ class RackElevationDetailRenderChoices(ChoiceSet):
 
 
 class RackAirflowChoices(ChoiceSet):
+    key = 'Rack.airflow'
 
     FRONT_TO_REAR = 'front-to-rear'
     REAR_TO_FRONT = 'rear-to-front'
 
-    CHOICES = (
+    CHOICES = [
         (FRONT_TO_REAR, _('Front to rear')),
         (REAR_TO_FRONT, _('Rear to front')),
-    )
+    ]
 
 
 #
@@ -191,6 +192,7 @@ class DeviceStatusChoices(ChoiceSet):
 
 
 class DeviceAirflowChoices(ChoiceSet):
+    key = 'Device.airflow'
 
     AIRFLOW_FRONT_TO_REAR = 'front-to-rear'
     AIRFLOW_REAR_TO_FRONT = 'rear-to-front'
@@ -203,7 +205,7 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_PASSIVE = 'passive'
     AIRFLOW_MIXED = 'mixed'
 
-    CHOICES = (
+    CHOICES = [
         (AIRFLOW_FRONT_TO_REAR, _('Front to rear')),
         (AIRFLOW_REAR_TO_FRONT, _('Rear to front')),
         (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
@@ -214,7 +216,7 @@ class DeviceAirflowChoices(ChoiceSet):
         (AIRFLOW_TOP_TO_BOTTOM, _('Top to bottom')),
         (AIRFLOW_PASSIVE, _('Passive')),
         (AIRFLOW_MIXED, _('Mixed')),
-    )
+    ]
 
 
 #
@@ -242,6 +244,7 @@ class ModuleStatusChoices(ChoiceSet):
 
 
 class ModuleAirflowChoices(ChoiceSet):
+    key = 'Module.airflow'
 
     FRONT_TO_REAR = 'front-to-rear'
     REAR_TO_FRONT = 'rear-to-front'
@@ -250,14 +253,14 @@ class ModuleAirflowChoices(ChoiceSet):
     SIDE_TO_REAR = 'side-to-rear'
     PASSIVE = 'passive'
 
-    CHOICES = (
+    CHOICES = [
         (FRONT_TO_REAR, _('Front to rear')),
         (REAR_TO_FRONT, _('Rear to front')),
         (LEFT_TO_RIGHT, _('Left to right')),
         (RIGHT_TO_LEFT, _('Right to left')),
         (SIDE_TO_REAR, _('Side to rear')),
         (PASSIVE, _('Passive')),
-    )
+    ]
 
 
 #
@@ -871,6 +874,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_T1 = '100base-t1'
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_FIXED = '1000base-t'
+    TYPE_1GE_SX_FIXED = '1000base-sx'
     TYPE_1GE_LX_FIXED = '1000base-lx'
     TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
@@ -1035,6 +1039,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_1GE_SX_FIXED, '1000BASE-SX (1GE)'),
                 (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
                 (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
@@ -1235,6 +1240,8 @@ class InterfaceSpeedChoices(ChoiceSet):
         (10000, '10 Mbps'),
         (100000, '100 Mbps'),
         (1000000, '1 Gbps'),
+        (2500000, '2.5 Gbps'),
+        (5000000, '5 Gbps'),
         (10000000, '10 Gbps'),
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
@@ -1633,6 +1640,23 @@ class PowerFeedPhaseChoices(ChoiceSet):
         (PHASE_SINGLE, _('Single phase')),
         (PHASE_3PHASE, _('Three-phase')),
     )
+
+
+#
+# PowerOutlets
+#
+class PowerOutletStatusChoices(ChoiceSet):
+    key = 'PowerOutlet.status'
+
+    STATUS_ENABLED = 'enabled'
+    STATUS_DISABLED = 'disabled'
+    STATUS_FAULTY = 'faulty'
+
+    CHOICES = [
+        (STATUS_ENABLED, _('Enabled'), 'green'),
+        (STATUS_DISABLED, _('Disabled'), 'red'),
+        (STATUS_FAULTY, _('Faulty'), 'gray'),
+    ]
 
 
 #

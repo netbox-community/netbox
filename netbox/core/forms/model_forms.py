@@ -36,7 +36,7 @@ class DataSourceForm(NetBoxModelForm):
     class Meta:
         model = DataSource
         fields = [
-            'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'ignore_rules', 'tags',
+            'name', 'type', 'source_url', 'enabled', 'description', 'sync_interval', 'ignore_rules', 'comments', 'tags',
         ]
         widgets = {
             'ignore_rules': forms.Textarea(
@@ -51,7 +51,10 @@ class DataSourceForm(NetBoxModelForm):
     @property
     def fieldsets(self):
         fieldsets = [
-            FieldSet('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules', name=_('Source')),
+            FieldSet(
+                'name', 'type', 'source_url', 'description', 'tags', 'ignore_rules', name=_('Source')
+            ),
+            FieldSet('enabled', 'sync_interval', name=_('Sync')),
         ]
         if self.backend_fields:
             fieldsets.append(

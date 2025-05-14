@@ -24,11 +24,15 @@ class TenantGroupTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = TenantGroup
         fields = (
-            'pk', 'id', 'name', 'tenant_count', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'tenant_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 

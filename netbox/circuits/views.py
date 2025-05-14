@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from dcim.views import PathTraceView
 from ipam.models import ASN
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
@@ -89,11 +88,6 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
     table = tables.ProviderTable
 
 
-@register_model_view(Provider, 'contacts')
-class ProviderContactsView(ObjectContactsView):
-    queryset = Provider.objects.all()
-
-
 #
 # ProviderAccounts
 #
@@ -154,11 +148,6 @@ class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ProviderAccountFilterSet
     table = tables.ProviderAccountTable
-
-
-@register_model_view(ProviderAccount, 'contacts')
-class ProviderAccountContactsView(ObjectContactsView):
-    queryset = ProviderAccount.objects.all()
 
 
 #
@@ -431,11 +420,6 @@ class CircuitSwapTerminations(generic.ObjectEditView):
             'button_class': 'primary',
             'return_url': circuit.get_absolute_url(),
         })
-
-
-@register_model_view(Circuit, 'contacts')
-class CircuitContactsView(ObjectContactsView):
-    queryset = Circuit.objects.all()
 
 
 #

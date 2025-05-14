@@ -1,7 +1,7 @@
 import strawberry
 from django.conf import settings
 from strawberry_django.optimizer import DjangoOptimizerExtension
-from strawberry.extensions import MaxAliasesLimiter
+from strawberry.extensions import MaxAliasesLimiter  # , SchemaExtension
 from strawberry.schema.config import StrawberryConfig
 
 from circuits.graphql.schema import CircuitsQuery

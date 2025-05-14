@@ -8,21 +8,20 @@ from django.utils.translation import gettext_lazy as _
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
-from dcim.models import Interface, Site
+from dcim.models import Device, Interface, Site
 from ipam.tables import VLANTranslationRuleTable
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.forms import VMInterfaceFilterForm
-from virtualization.models import VMInterface
+from virtualization.models import VirtualMachine, VMInterface
 from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
-from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
+from .utils import add_requested_prefixes, add_available_vlans, annotate_ip_space
 
 
 #
@@ -46,10 +45,13 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
             instance.import_targets.all(),
             orderable=False
         )
+        import_targets_table.configure(request)
+
         export_targets_table = tables.RouteTargetTable(
             instance.export_targets.all(),
             orderable=False
         )
+        export_targets_table.configure(request)
 
         return {
             'related_models': self.get_related_models(request, instance, omit=[Interface, VMInterface]),
@@ -434,11 +436,6 @@ class AggregateBulkDeleteView(generic.BulkDeleteView):
     table = tables.AggregateTable
 
 
-@register_model_view(Aggregate, 'contacts')
-class AggregateContactsView(ObjectContactsView):
-    queryset = Aggregate.objects.all()
-
-
 #
 # Prefix/VLAN roles
 #
@@ -536,6 +533,7 @@ class PrefixView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefix_table.configure(request)
 
         # Duplicate prefixes table
         duplicate_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
@@ -550,6 +548,7 @@ class PrefixView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        duplicate_prefix_table.configure(request)
 
         return {
             'aggregate': aggregate,
@@ -625,7 +624,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 class PrefixIPAddressesView(generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
-    table = tables.IPAddressTable
+    table = tables.AnnotatedIPAddressTable
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     template_name = 'ipam/prefix/ip_addresses.html'
@@ -641,7 +640,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         if not request.GET.get('q') and not get_table_ordering(request, self.table):
-            return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
+            return annotate_ip_space(parent)
         return queryset
 
     def get_extra_context(self, request, instance):
@@ -684,11 +683,6 @@ class PrefixBulkDeleteView(generic.BulkDeleteView):
     table = tables.PrefixTable
 
 
-@register_model_view(Prefix, 'contacts')
-class PrefixContactsView(ObjectContactsView):
-    queryset = Prefix.objects.all()
-
-
 #
 # IP Ranges
 #
@@ -720,6 +714,7 @@ class IPRangeView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefixes_table.configure(request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -778,11 +773,6 @@ class IPRangeBulkDeleteView(generic.BulkDeleteView):
     table = tables.IPRangeTable
 
 
-@register_model_view(IPRange, 'contacts')
-class IPRangeContactsView(ObjectContactsView):
-    queryset = IPRange.objects.all()
-
-
 #
 # IP addresses
 #
@@ -812,6 +802,7 @@ class IPAddressView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefixes_table.configure(request)
 
         # Duplicate IPs table
         duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
@@ -827,6 +818,7 @@ class IPAddressView(generic.ObjectView):
             duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
         # Limit to a maximum of 10 duplicates displayed here
         duplicate_ips_table = tables.IPAddressTable(duplicate_ips[:10], orderable=False)
+        duplicate_ips_table.configure(request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -904,6 +896,7 @@ class IPAddressAssignView(generic.ObjectView):
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
+            table.configure(request)
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
@@ -963,11 +956,6 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.get_related_ips().restrict(request.user, 'view')
-
-
-@register_model_view(IPAddress, 'contacts')
-class IPAddressContactsView(ObjectContactsView):
-    queryset = IPAddress.objects.all()
 
 
 #
@@ -1074,6 +1062,8 @@ class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
             data=instance.rules.all(),
             orderable=False
         )
+        vlan_translation_table.configure(request)
+
         return {
             'vlan_translation_table': vlan_translation_table,
         }
@@ -1182,7 +1172,7 @@ class FHRPGroupListView(generic.ObjectListView):
 
 
 @register_model_view(FHRPGroup)
-class FHRPGroupView(generic.ObjectView):
+class FHRPGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
@@ -1191,9 +1181,22 @@ class FHRPGroupView(generic.ObjectView):
             data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
             orderable=False
         )
+        members_table.configure(request)
         members_table.columns.hide('group')
 
         return {
+            'related_models': self.get_related_models(
+                request, instance,
+                extra=(
+                    (
+                        Service.objects.restrict(request.user, 'view').filter(
+                            parent_object_type=ContentType.objects.get_for_model(FHRPGroup),
+                            parent_object_id=instance.id,
+                        ),
+                        'fhrpgroup_id'
+                    ),
+                ),
+            ),
             'members_table': members_table,
             'member_count': FHRPGroupAssignment.objects.filter(group=instance).count(),
         }
@@ -1298,6 +1301,7 @@ class VLANView(generic.ObjectView):
             'vrf', 'scope', 'role', 'tenant'
         )
         prefix_table = tables.PrefixTable(list(prefixes), exclude=('vlan', 'utilization'), orderable=False)
+        prefix_table.configure(request)
 
         return {
             'prefix_table': prefix_table,
@@ -1430,7 +1434,7 @@ class ServiceTemplateBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Service, 'list', path='', detail=False)
 class ServiceListView(generic.ObjectListView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     filterset_form = forms.ServiceFilterForm
     table = tables.ServiceTable
@@ -1439,6 +1443,18 @@ class ServiceListView(generic.ObjectListView):
 @register_model_view(Service)
 class ServiceView(generic.ObjectView):
     queryset = Service.objects.all()
+
+    def get_extra_context(self, request, instance):
+        context = {}
+        match instance.parent:
+            case Device():
+                context['breadcrumb_queryparam'] = 'device_id'
+            case VirtualMachine():
+                context['breadcrumb_queryparam'] = 'virtual_machine_id'
+            case FHRPGroup():
+                context['breadcrumb_queryparam'] = 'fhrpgroup_id'
+
+        return context
 
 
 @register_model_view(Service, 'add', detail=False)
@@ -1466,7 +1482,7 @@ class ServiceBulkImportView(generic.BulkImportView):
 
 @register_model_view(Service, 'bulk_edit', path='edit', detail=False)
 class ServiceBulkEditView(generic.BulkEditView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
     form = forms.ServiceBulkEditForm
@@ -1474,11 +1490,6 @@ class ServiceBulkEditView(generic.BulkEditView):
 
 @register_model_view(Service, 'bulk_delete', path='delete', detail=False)
 class ServiceBulkDeleteView(generic.BulkDeleteView):
-    queryset = Service.objects.prefetch_related('device', 'virtual_machine')
+    queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
-
-
-@register_model_view(Service, 'contacts')
-class ServiceContactsView(ObjectContactsView):
-    queryset = Service.objects.all()

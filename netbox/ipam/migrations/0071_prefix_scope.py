@@ -9,9 +9,11 @@ def copy_site_assignments(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Prefix = apps.get_model('ipam', 'Prefix')
     Site = apps.get_model('dcim', 'Site')
+    db_alias = schema_editor.connection.alias
 
-    Prefix.objects.filter(site__isnull=False).update(
-        scope_type=ContentType.objects.get_for_model(Site), scope_id=models.F('site_id')
+    Prefix.objects.using(db_alias).filter(site__isnull=False).update(
+        scope_type=ContentType.objects.get_for_model(Site),
+        scope_id=models.F('site_id')
     )
 
 
@@ -33,7 +35,6 @@ class Migration(migrations.Migration):
             name='scope_type',
             field=models.ForeignKey(
                 blank=True,
-                limit_choices_to=models.Q(('model__in', ('region', 'sitegroup', 'site', 'location'))),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name='+',

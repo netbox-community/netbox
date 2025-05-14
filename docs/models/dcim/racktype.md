@@ -40,7 +40,9 @@ The number of the numerically lowest unit in the rack. This value defaults to on
 
 ### Outer Dimensions
 
-The external width and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.
+The external width, height and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.
+
+!!! info "The `outer_height` field was introduced in NetBox v4.3."
 
 ### Mounting Depth
 

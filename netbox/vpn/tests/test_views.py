@@ -574,16 +574,25 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RouteTarget.objects.bulk_create(rts)
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650001'),
-            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650002'),
-            L2VPN(name='L2VPN 3', slug='l2vpn-3', type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650003')
+            L2VPN(
+                name='L2VPN 1', slug='l2vpn-1', status=L2VPNStatusChoices.STATUS_ACTIVE,
+                type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650001'
+            ),
+            L2VPN(
+                name='L2VPN 2', slug='l2vpn-2', status=L2VPNStatusChoices.STATUS_DECOMMISSIONING,
+                type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650002'
+            ),
+            L2VPN(
+                name='L2VPN 3', slug='l2vpn-3', status=L2VPNStatusChoices.STATUS_PLANNED,
+                type=L2VPNTypeChoices.TYPE_VXLAN, identifier='650003'
+            )
         )
         L2VPN.objects.bulk_create(l2vpns)
 
         cls.csv_data = (
-            'name,slug,type,identifier',
-            'L2VPN 5,l2vpn-5,vxlan,456',
-            'L2VPN 6,l2vpn-6,vxlan,444',
+            'name,status,slug,type,identifier',
+            'L2VPN 5,active,l2vpn-5,vxlan,456',
+            'L2VPN 6,planned,l2vpn-6,vxlan,444',
         )
 
         cls.csv_update_data = (
@@ -594,12 +603,14 @@ class L2VPNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New Description',
+            'status': L2VPNStatusChoices.STATUS_DECOMMISSIONING,
         }
 
         cls.form_data = {
             'name': 'L2VPN 8',
             'slug': 'l2vpn-8',
             'type': L2VPNTypeChoices.TYPE_VXLAN,
+            'status': L2VPNStatusChoices.STATUS_PLANNED,
             'identifier': 123,
             'description': 'Description',
             'import_targets': [rts[0].pk],

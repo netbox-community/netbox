@@ -144,7 +144,8 @@ class ExportTemplateImportForm(CSVModelForm):
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'template_code',
+            'name', 'object_types', 'description', 'environment_params', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'template_code',
         )
 
 
@@ -153,7 +154,8 @@ class ConfigTemplateImportForm(CSVModelForm):
     class Meta:
         model = ConfigTemplate
         fields = (
-            'name', 'description', 'environment_params', 'template_code', 'tags',
+            'name', 'description', 'template_code', 'environment_params', 'mime_type', 'file_name', 'file_extension',
+            'as_attachment', 'tags',
         )
 
 
@@ -232,10 +234,14 @@ class EventRuleImportForm(NetBoxModelImportForm):
 
 class TagImportForm(CSVModelForm):
     slug = SlugField()
+    weight = forms.IntegerField(
+        label=_('Weight'),
+        required=False
+    )
 
     class Meta:
         model = Tag
-        fields = ('name', 'slug', 'color', 'description')
+        fields = ('name', 'slug', 'color', 'weight', 'description')
 
 
 class JournalEntryImportForm(NetBoxModelImportForm):

@@ -47,12 +47,11 @@ class Contact(PrimaryModel):
     """
     Contact information for a particular object(s) in NetBox.
     """
-    group = models.ForeignKey(
+    groups = models.ManyToManyField(
         to='tenancy.ContactGroup',
-        on_delete=models.SET_NULL,
         related_name='contacts',
-        blank=True,
-        null=True
+        related_query_name='contact',
+        blank=True
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -84,17 +83,11 @@ class Contact(PrimaryModel):
     )
 
     clone_fields = (
-        'group', 'name', 'title', 'phone', 'email', 'address', 'link',
+        'groups', 'name', 'title', 'phone', 'email', 'address', 'link',
     )
 
     class Meta:
         ordering = ['name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=('group', 'name'),
-                name='%(app_label)s_%(class)s_unique_group_name'
-            ),
-        )
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
 

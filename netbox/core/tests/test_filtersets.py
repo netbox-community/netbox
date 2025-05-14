@@ -27,7 +27,8 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 source_url='file:///var/tmp/source1/',
                 status=DataSourceStatusChoices.NEW,
                 enabled=True,
-                description='foobar1'
+                description='foobar1',
+                sync_interval=JobIntervalChoices.INTERVAL_HOURLY
             ),
             DataSource(
                 name='Data Source 2',
@@ -35,14 +36,16 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 source_url='file:///var/tmp/source2/',
                 status=DataSourceStatusChoices.SYNCING,
                 enabled=True,
-                description='foobar2'
+                description='foobar2',
+                sync_interval=JobIntervalChoices.INTERVAL_DAILY
             ),
             DataSource(
                 name='Data Source 3',
                 type='git',
                 source_url='https://example.com/git/source3',
                 status=DataSourceStatusChoices.COMPLETED,
-                enabled=False
+                enabled=False,
+                sync_interval=JobIntervalChoices.INTERVAL_WEEKLY
             ),
         )
         DataSource.objects.bulk_create(data_sources)
@@ -71,6 +74,10 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [DataSourceStatusChoices.NEW, DataSourceStatusChoices.SYNCING]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_sync_interval(self):
+        params = {'sync_interval': [JobIntervalChoices.INTERVAL_HOURLY, JobIntervalChoices.INTERVAL_DAILY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

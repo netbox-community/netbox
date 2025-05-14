@@ -228,6 +228,7 @@ class L2VPNTypeChoices(ChoiceSet):
     TYPE_MPLS_EVPN = 'mpls-evpn'
     TYPE_PBB_EVPN = 'pbb-evpn'
     TYPE_EVPN_VPWS = 'evpn-vpws'
+    TYPE_SPB = 'spb'
 
     CHOICES = (
         ('VPLS', (
@@ -255,6 +256,9 @@ class L2VPNTypeChoices(ChoiceSet):
             (TYPE_EPTREE, _('Ethernet Private Tree')),
             (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
         )),
+        ('Other', (
+            (TYPE_SPB, _('SPB')),
+        )),
     )
 
     P2P = (
@@ -263,3 +267,17 @@ class L2VPNTypeChoices(ChoiceSet):
         TYPE_EPLAN,
         TYPE_EPTREE
     )
+
+
+class L2VPNStatusChoices(ChoiceSet):
+    key = 'L2VPN.status'
+
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_DECOMMISSIONING = 'decommissioning'
+
+    CHOICES = [
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'red'),
+    ]

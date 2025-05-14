@@ -1,0 +1,59 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block title %}{{ object.name }}{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Module Type Profile" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header d-flex justify-content-between">
+          {% trans "Schema" %}
+          {% copy_content 'profile_schema' %}
+        </h2>
+        <pre id="profile_schema">{{ object.schema|json }}</pre>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">
+          {% trans "Module Types" %}
+          {% if perms.dcim.add_moduletype %}
+            <div class="card-actions">
+              <a href="{% url 'dcim:moduletype_add' %}?profile={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Module Type" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
+        {% htmx_table 'dcim:moduletype_list' profile_id=object.pk %}
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

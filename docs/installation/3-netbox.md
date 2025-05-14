@@ -9,17 +9,11 @@ Begin by installing all system packages required by NetBox and its dependencies.
 !!! warning "Python 3.10 or later required"
     NetBox supports Python 3.10, 3.11, and 3.12.
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y gcc libxml2-devel libxslt-devel libffi-devel libpq-devel openssl-devel redhat-rpm-config
-    ```
+```no-highlight
+sudo apt install -y python3 python3-pip python3-venv python3-dev \
+build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev \
+libssl-dev zlib1g-dev
+```
 
 Before continuing, check that your installed Python version is at least 3.10:
 
@@ -55,17 +49,9 @@ cd /opt/netbox/
 
 If `git` is not already installed, install it:
 
-=== "Ubuntu"
-
-    ```no-highlight
-    sudo apt install -y git
-    ```
-
-=== "CentOS"
-
-    ```no-highlight
-    sudo yum install -y git
-    ```
+```no-highlight
+sudo apt install -y git
+```
 
 Next, clone the git repository:
 
@@ -97,24 +83,12 @@ Using this installation method enables easy upgrades in the future by simply che
 
 Create a system user account named `netbox`. We'll configure the WSGI and HTTP services to run under this account. We'll also assign this user ownership of the media directory. This ensures that NetBox will be able to save uploaded files.
 
-=== "Ubuntu"
-
-    ```
-    sudo adduser --system --group netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
-
-=== "CentOS"
-
-    ```
-    sudo groupadd --system netbox
-    sudo adduser --system -g netbox netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
-    ```
+```
+sudo adduser --system --group netbox
+sudo chown --recursive netbox /opt/netbox/netbox/media/
+sudo chown --recursive netbox /opt/netbox/netbox/reports/
+sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+```
 
 ## Configuration
 
@@ -128,7 +102,7 @@ sudo cp configuration_example.py configuration.py
 Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
 
 * `ALLOWED_HOSTS`
-* `DATABASE`
+* `DATABASES` (or `DATABASE`)
 * `REDIS`
 * `SECRET_KEY`
 
@@ -146,18 +120,22 @@ If you are not yet sure what the domain name and/or IP address of the NetBox ins
 ALLOWED_HOSTS = ['*']
 ```
 
-### DATABASE
+### DATABASES
 
-This parameter holds the database configuration details. You must define the username and password used when you configured PostgreSQL. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-parameters.md#database) for more detail on individual parameters.
+This parameter holds the PostgreSQL database configuration details. The default database must be defined; additional databases may be defined as needed e.g. by plugins.
+
+A username and password must be defined for the default database. If the service is running on a remote host, update the `HOST` and `PORT` parameters accordingly. See the [configuration documentation](../configuration/required-parameters.md#databases) for more detail on individual parameters.
 
 ```python
-DATABASE = {
-    'NAME': 'netbox',               # Database name
-    'USER': 'netbox',               # PostgreSQL username
-    'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
-    'HOST': 'localhost',            # Database server
-    'PORT': '',                     # Database port (leave blank for default)
-    'CONN_MAX_AGE': 300,            # Max database connection age (seconds)
+DATABASES = {
+    'default': {
+        'NAME': 'netbox',               # Database name
+        'USER': 'netbox',               # PostgreSQL username
+        'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
+        'HOST': 'localhost',            # Database server
+        'PORT': '',                     # Database port (leave blank for default)
+        'CONN_MAX_AGE': 300,            # Max database connection age (seconds)
+    }
 }
 ```
 
@@ -207,7 +185,7 @@ All Python packages required by NetBox are listed in `requirements.txt` and will
 
 ### Remote File Storage
 
-By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storage_backend) in `configuration.py`.
+By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storages) in `configuration.py`.
 
 ```no-highlight
 sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
