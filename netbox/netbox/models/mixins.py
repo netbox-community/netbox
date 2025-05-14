@@ -55,7 +55,7 @@ class WeightMixin(models.Model):
 class DistanceMixin(models.Model):
     distance = models.DecimalField(
         verbose_name=_('distance'),
-        max_digits=8,
+        max_digits=16,
         decimal_places=2,
         blank=True,
         null=True
@@ -69,7 +69,7 @@ class DistanceMixin(models.Model):
     )
     # Stores the normalized distance (in meters) for database ordering
     _abs_distance = models.DecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=4,
         blank=True,
         null=True
