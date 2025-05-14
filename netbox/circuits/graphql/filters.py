@@ -41,7 +41,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.CircuitTermination, lookups=True)
+@strawberry_django.filter_type(models.CircuitTermination, lookups=True)
 class CircuitTerminationFilter(
     BaseObjectTypeFilterMixin,
     CustomFieldsFilterMixin,
@@ -87,7 +87,7 @@ class CircuitTerminationFilter(
     )
 
 
-@strawberry_django.filter(models.Circuit, lookups=True)
+@strawberry_django.filter_type(models.Circuit, lookups=True)
 class CircuitFilter(
     ContactFilterMixin,
     ImageAttachmentFilterMixin,
@@ -121,17 +121,17 @@ class CircuitFilter(
     )
 
 
-@strawberry_django.filter(models.CircuitType, lookups=True)
+@strawberry_django.filter_type(models.CircuitType, lookups=True)
 class CircuitTypeFilter(BaseCircuitTypeFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.CircuitGroup, lookups=True)
+@strawberry_django.filter_type(models.CircuitGroup, lookups=True)
 class CircuitGroupFilter(TenancyFilterMixin, OrganizationalModelFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.CircuitGroupAssignment, lookups=True)
+@strawberry_django.filter_type(models.CircuitGroupAssignment, lookups=True)
 class CircuitGroupAssignmentFilter(
     BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin
 ):
@@ -148,7 +148,7 @@ class CircuitGroupAssignmentFilter(
     )
 
 
-@strawberry_django.filter(models.Provider, lookups=True)
+@strawberry_django.filter_type(models.Provider, lookups=True)
 class ProviderFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -158,7 +158,7 @@ class ProviderFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     )
 
 
-@strawberry_django.filter(models.ProviderAccount, lookups=True)
+@strawberry_django.filter_type(models.ProviderAccount, lookups=True)
 class ProviderAccountFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     provider: Annotated['ProviderFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -168,7 +168,7 @@ class ProviderAccountFilter(ContactFilterMixin, PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter(models.ProviderNetwork, lookups=True)
+@strawberry_django.filter_type(models.ProviderNetwork, lookups=True)
 class ProviderNetworkFilter(PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     provider: Annotated['ProviderFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
@@ -178,12 +178,12 @@ class ProviderNetworkFilter(PrimaryModelFilterMixin):
     service_id: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter(models.VirtualCircuitType, lookups=True)
+@strawberry_django.filter_type(models.VirtualCircuitType, lookups=True)
 class VirtualCircuitTypeFilter(BaseCircuitTypeFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.VirtualCircuit, lookups=True)
+@strawberry_django.filter_type(models.VirtualCircuit, lookups=True)
 class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     cid: FilterLookup[str] | None = strawberry_django.filter_field()
     provider_network: Annotated['ProviderNetworkFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
@@ -206,7 +206,7 @@ class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     )
 
 
-@strawberry_django.filter(models.VirtualCircuitTermination, lookups=True)
+@strawberry_django.filter_type(models.VirtualCircuitTermination, lookups=True)
 class VirtualCircuitTerminationFilter(
     BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin
 ):

@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.DataFile, lookups=True)
+@strawberry_django.filter_type(models.DataFile, lookups=True)
 class DataFileFilter(BaseFilterMixin):
     id: ID | None = strawberry_django.filter_field()
     created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
@@ -39,7 +39,7 @@ class DataFileFilter(BaseFilterMixin):
     hash: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter(models.DataSource, lookups=True)
+@strawberry_django.filter_type(models.DataSource, lookups=True)
 class DataSourceFilter(PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     type: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -56,7 +56,7 @@ class DataSourceFilter(PrimaryModelFilterMixin):
     )
 
 
-@strawberry_django.filter(models.ObjectChange, lookups=True)
+@strawberry_django.filter_type(models.ObjectChange, lookups=True)
 class ObjectChangeFilter(BaseFilterMixin):
     id: ID | None = strawberry_django.filter_field()
     time: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
@@ -82,7 +82,7 @@ class ObjectChangeFilter(BaseFilterMixin):
     )
 
 
-@strawberry_django.filter(DjangoContentType, lookups=True)
+@strawberry_django.filter_type(DjangoContentType, lookups=True)
 class ContentTypeFilter(BaseFilterMixin):
     id: ID | None = strawberry_django.filter_field()
     app_label: FilterLookup[str] | None = strawberry_django.filter_field()
