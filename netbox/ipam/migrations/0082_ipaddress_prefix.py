@@ -50,7 +50,7 @@ def unset_prefix(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0078_iprange_mark_utilized'),
+        ('ipam', '0081_remove_service_device_virtual_machine_add_parent_gfk_index'),
     ]
 
     operations = [
