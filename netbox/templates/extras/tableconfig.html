@@ -1,0 +1,88 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Table Config" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Object Type" %}</th>
+            <td>{{ object.object_type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Table" %}</th>
+            <td>{{ object.table }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "User" %}</th>
+            <td>{{ object.user|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Enabled" %}</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Shared" %}</th>
+            <td>{% checkmark object.shared %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Weight" %}</th>
+            <td>{{ object.weight }}</td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Columns Displayed" %}</h2>
+        <ul class="list-group list-group-flush" role="presentation">
+          {% for name in object.columns %}
+            <li class="list-group-item list-group-item-action">
+              {% with column=columns|get_key:name %}
+                {{ column.verbose_name }}
+              {% endwith %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Ordering" %}</h2>
+        <ul class="list-group list-group-flush" role="presentation">
+          {% for column, ascending in object.ordering_items %}
+            <li class="list-group-item">
+              {% with column=columns|get_key:column %}
+                {% if ascending %}
+                  <i class="mdi mdi-arrow-down-thick"></i>
+                {% else %}
+                  <i class="mdi mdi-arrow-up-thick"></i>
+                {% endif %}
+                {{ column.verbose_name }}
+              {% endwith %}
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">{% trans "Default" %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

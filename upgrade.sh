@@ -6,6 +6,13 @@
 # variable (if set), or fall back to "python3". Note that NetBox v4.0+ requires
 # Python 3.10 or later.
 
+# Parse arguments
+if [[ "$1" == "--readonly" ]]; then
+  READONLY_MODE=true
+else
+  READONLY_MODE=false
+fi
+
 cd "$(dirname "$0")"
 
 NETBOX_VERSION="$(grep ^version netbox/release.yaml | cut -d \" -f2)"
@@ -83,9 +90,14 @@ else
 fi
 
 # Apply any database migrations
-COMMAND="python3 netbox/manage.py migrate"
-echo "Applying database migrations ($COMMAND)..."
-eval $COMMAND || exit 1
+if [ "$READONLY_MODE" = true ]; then
+  echo "Skipping database migrations (read-only mode)"
+  exit 0
+else
+  COMMAND="python3 netbox/manage.py migrate"
+  echo "Applying database migrations ($COMMAND)..."
+  eval $COMMAND || exit 1
+fi
 
 # Trace any missing cable paths (not typically needed)
 COMMAND="python3 netbox/manage.py trace_paths --no-input"

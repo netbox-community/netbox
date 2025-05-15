@@ -1110,6 +1110,13 @@ class DeviceFilterSet(
         lookup_expr='in',
         label=_('Location (ID)'),
     )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
@@ -1246,6 +1253,7 @@ class DeviceFilterSet(
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
@@ -1382,9 +1390,74 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         lookup_expr='in',
         label=_('Module bay (ID)'),
     )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='device__site__region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='device__site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='device__site__group',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='device__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site',
+        queryset=Site.objects.all(),
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label=_('Site name (slug)'),
+    )
+    location_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location',
+        queryset=Location.objects.all(),
+        label=_('Location (ID)'),
+    )
+    location = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__location__slug',
+        queryset=Location.objects.all(),
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
+    rack_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__rack',
+        queryset=Rack.objects.all(),
+        label=_('Rack (ID)'),
+    )
+    rack = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__rack__name',
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        label=_('Rack (name)'),
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label=_('Device (ID)'),
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label=_('Device (name)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ModuleStatusChoices,
@@ -1738,6 +1811,10 @@ class MACAddressFilterSet(NetBoxModelFilterSet):
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
+    mode = django_filters.MultipleChoiceFilter(
+        choices=InterfaceModeChoices,
+        label=_('802.1Q Mode')
+    )
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label=_('Assigned VLAN')

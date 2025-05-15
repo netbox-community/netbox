@@ -1,5 +1,7 @@
 from django.db import models
 
+from netbox.models import NetBoxModel
+
 
 class DummyModel(models.Model):
     name = models.CharField(
@@ -11,3 +13,7 @@ class DummyModel(models.Model):
 
     class Meta:
         ordering = ['name']
+
+
+class DummyNetBoxModel(NetBoxModel):
+    pass

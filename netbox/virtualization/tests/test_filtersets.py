@@ -526,14 +526,22 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = IPAddress.objects.filter(address__family=4)
         params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip4': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_primary_ip6(self):
         addresses = IPAddress.objects.filter(address__family=6)
         params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6': [str(addresses[0].address), str(addresses[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'primary_ip6': [str(addresses[2].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_serial_number(self):
@@ -606,6 +614,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=100,
                 vrf=vrfs[0],
                 description='foobar1',
+                mode=InterfaceModeChoices.MODE_ACCESS,
                 vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
@@ -615,6 +624,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 mtu=200,
                 vrf=vrfs[1],
                 description='foobar2',
+                mode=InterfaceModeChoices.MODE_TAGGED,
                 vlan_translation_policy=vlan_translation_policies[0],
             ),
             VMInterface(
@@ -699,6 +709,10 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_mode(self):
+        params = {'mode': [InterfaceModeChoices.MODE_ACCESS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_vlan(self):
         vlan = VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE).first()

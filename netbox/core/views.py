@@ -103,7 +103,7 @@ class DataSourceDeleteView(generic.ObjectDeleteView):
     queryset = DataSource.objects.all()
 
 
-@register_model_view(DataSource, 'bulk_import', detail=False)
+@register_model_view(DataSource, 'bulk_import', path='import', detail=False)
 class DataSourceBulkImportView(generic.BulkImportView):
     queryset = DataSource.objects.all()
     model_form = forms.DataSourceImportForm
@@ -166,7 +166,7 @@ class DataFileBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Job, 'list', path='', detail=False)
 class JobListView(generic.ObjectListView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
@@ -183,12 +183,12 @@ class JobView(generic.ObjectView):
 
 @register_model_view(Job, 'delete')
 class JobDeleteView(generic.ObjectDeleteView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
 
 
 @register_model_view(Job, 'bulk_delete', path='delete', detail=False)
 class JobBulkDeleteView(generic.BulkDeleteView):
-    queryset = Job.objects.all()
+    queryset = Job.objects.defer('data')
     filterset = filtersets.JobFilterSet
     table = tables.JobTable
 

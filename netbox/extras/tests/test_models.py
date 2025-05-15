@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.test import TestCase
 
 from core.models import ObjectType
@@ -11,10 +12,10 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 class TagTest(TestCase):
 
     def test_default_ordering_weight_then_name_is_set(self):
-        Tag.objects.create(name='Tag 1', slug='tag-1', weight=100)
-        Tag.objects.create(name='Tag 2', slug='tag-2')
-        Tag.objects.create(name='Tag 3', slug='tag-3', weight=10)
-        Tag.objects.create(name='Tag 4', slug='tag-4', weight=10)
+        Tag.objects.create(name='Tag 1', slug='tag-1', weight=3000)
+        Tag.objects.create(name='Tag 2', slug='tag-2')  # Default: 1000
+        Tag.objects.create(name='Tag 3', slug='tag-3', weight=2000)
+        Tag.objects.create(name='Tag 4', slug='tag-4', weight=2000)
 
         tags = Tag.objects.all()
 
@@ -25,10 +26,10 @@ class TagTest(TestCase):
 
     def test_tag_related_manager_ordering_weight_then_name(self):
         tags = [
-            Tag.objects.create(name='Tag 1', slug='tag-1', weight=100),
-            Tag.objects.create(name='Tag 2', slug='tag-2'),
-            Tag.objects.create(name='Tag 3', slug='tag-3', weight=10),
-            Tag.objects.create(name='Tag 4', slug='tag-4', weight=10),
+            Tag.objects.create(name='Tag 1', slug='tag-1', weight=3000),
+            Tag.objects.create(name='Tag 2', slug='tag-2'),  # Default: 1000
+            Tag.objects.create(name='Tag 3', slug='tag-3', weight=2000),
+            Tag.objects.create(name='Tag 4', slug='tag-4', weight=2000),
         ]
 
         site = Site.objects.create(name='Site 1')
@@ -512,3 +513,30 @@ class ConfigContextTest(TestCase):
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
+
+    def test_valid_local_context_data(self):
+        device = Device.objects.first()
+        device.local_context_data = None
+        device.clean()
+
+        device.local_context_data = {"foo": "bar"}
+        device.clean()
+
+    def test_invalid_local_context_data(self):
+        device = Device.objects.first()
+
+        device.local_context_data = ""
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 0
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = False
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 'foo'
+        with self.assertRaises(ValidationError):
+            device.clean()

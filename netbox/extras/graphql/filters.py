@@ -34,6 +34,7 @@ __all__ = (
     'JournalEntryFilter',
     'NotificationGroupFilter',
     'SavedFilterFilter',
+    'TableConfigFilter',
     'TagFilter',
     'WebhookFilter',
 )
@@ -260,6 +261,19 @@ class SavedFilterFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
     parameters: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+
+
+@strawberry_django.filter(models.TableConfig, lookups=True)
+class TableConfigFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
+    user_id: ID | None = strawberry_django.filter_field()
+    weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
+    shared: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter(models.Tag, lookups=True)

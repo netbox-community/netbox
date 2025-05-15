@@ -19,6 +19,9 @@ urlpatterns = [
     path('export-templates/', include(get_model_urls('extras', 'exporttemplate', detail=False))),
     path('export-templates/<int:pk>/', include(get_model_urls('extras', 'exporttemplate'))),
 
+    path('table-configs/', include(get_model_urls('extras', 'tableconfig', detail=False))),
+    path('table-configs/<int:pk>/', include(get_model_urls('extras', 'tableconfig'))),
+
     path('saved-filters/', include(get_model_urls('extras', 'savedfilter', detail=False))),
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
 
@@ -75,8 +78,11 @@ urlpatterns = [
     path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
     path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
     path('scripts/<int:pk>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<str:module>.<str:name>/', views.ScriptView.as_view(), name='script'),
     path('scripts/<int:pk>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/<str:module>.<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
     path('scripts/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('scripts/<str:module>.<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
     path('script-modules/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
 
     # Markdown

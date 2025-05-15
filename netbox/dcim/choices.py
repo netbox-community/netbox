@@ -989,6 +989,7 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Coaxial
     TYPE_DOCSIS = 'docsis'
+    TYPE_MOCA = 'moca'
 
     # PON
     TYPE_BPON = 'bpon'
@@ -1185,6 +1186,7 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Coaxial'),
             (
                 (TYPE_DOCSIS, 'DOCSIS'),
+                (TYPE_MOCA, 'MoCA'),
             )
         ),
         (
@@ -1348,6 +1350,9 @@ class PortTypeChoices(ChoiceSet):
     TYPE_SC_UPC = 'sc-upc'
     TYPE_SC_APC = 'sc-apc'
     TYPE_FC = 'fc'
+    TYPE_FC_PC = 'fc-pc'
+    TYPE_FC_UPC = 'fc-upc'
+    TYPE_FC_APC = 'fc-apc'
     TYPE_LC = 'lc'
     TYPE_LC_PC = 'lc-pc'
     TYPE_LC_UPC = 'lc-upc'
@@ -1408,6 +1413,9 @@ class PortTypeChoices(ChoiceSet):
             _('Fiber Optic'),
             (
                 (TYPE_FC, 'FC'),
+                (TYPE_FC_PC, 'FC/PC'),
+                (TYPE_FC_UPC, 'FC/UPC'),
+                (TYPE_FC_APC, 'FC/APC'),
                 (TYPE_LC, 'LC'),
                 (TYPE_LC_PC, 'LC/PC'),
                 (TYPE_LC_UPC, 'LC/UPC'),

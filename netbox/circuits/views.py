@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
+from ipam.models import ASN
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
@@ -19,7 +20,9 @@ from .models import *
 @register_model_view(Provider, 'list', path='', detail=False)
 class ProviderListView(generic.ObjectListView):
     queryset = Provider.objects.annotate(
-        count_circuits=count_related(Circuit, 'provider')
+        count_circuits=count_related(Circuit, 'provider'),
+        asn_count=count_related(ASN, 'providers'),
+        account_count=count_related(ProviderAccount, 'provider'),
     )
     filterset = filtersets.ProviderFilterSet
     filterset_form = forms.ProviderFilterForm
@@ -32,7 +35,19 @@ class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(),
+                extra=(
+                    (
+                        VirtualCircuit.objects.restrict(request.user, 'view').filter(
+                            provider_network__provider=instance
+                        ),
+                        'provider_id',
+                    ),
+                ),
+                ),
         }
 
 
@@ -48,7 +63,7 @@ class ProviderDeleteView(generic.ObjectDeleteView):
     queryset = Provider.objects.all()
 
 
-@register_model_view(Provider, 'bulk_import', detail=False)
+@register_model_view(Provider, 'bulk_import', path='import', detail=False)
 class ProviderBulkImportView(generic.BulkImportView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderImportForm
@@ -109,7 +124,7 @@ class ProviderAccountDeleteView(generic.ObjectDeleteView):
     queryset = ProviderAccount.objects.all()
 
 
-@register_model_view(ProviderAccount, 'bulk_import', detail=False)
+@register_model_view(ProviderAccount, 'bulk_import', path='import', detail=False)
 class ProviderAccountBulkImportView(generic.BulkImportView):
     queryset = ProviderAccount.objects.all()
     model_form = forms.ProviderAccountImportForm
@@ -156,9 +171,14 @@ class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 instance,
+                omit=(CircuitTermination,),
                 extra=(
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(terminations___provider_network=instance),
+                        'provider_network_id',
+                    ),
+                    (
+                        CircuitTermination.objects.restrict(request.user, 'view').filter(_provider_network=instance),
                         'provider_network_id',
                     ),
                 ),
@@ -178,7 +198,7 @@ class ProviderNetworkDeleteView(generic.ObjectDeleteView):
     queryset = ProviderNetwork.objects.all()
 
 
-@register_model_view(ProviderNetwork, 'bulk_import', detail=False)
+@register_model_view(ProviderNetwork, 'bulk_import', path='import', detail=False)
 class ProviderNetworkBulkImportView(generic.BulkImportView):
     queryset = ProviderNetwork.objects.all()
     model_form = forms.ProviderNetworkImportForm
@@ -235,7 +255,7 @@ class CircuitTypeDeleteView(generic.ObjectDeleteView):
     queryset = CircuitType.objects.all()
 
 
-@register_model_view(CircuitType, 'bulk_import', detail=False)
+@register_model_view(CircuitType, 'bulk_import', path='import', detail=False)
 class CircuitTypeBulkImportView(generic.BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeImportForm
@@ -291,7 +311,7 @@ class CircuitDeleteView(generic.ObjectDeleteView):
     queryset = Circuit.objects.all()
 
 
-@register_model_view(Circuit, 'bulk_import', detail=False)
+@register_model_view(Circuit, 'bulk_import', path='import', detail=False)
 class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitImportForm
@@ -431,7 +451,7 @@ class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()
 
 
-@register_model_view(CircuitTermination, 'bulk_import', detail=False)
+@register_model_view(CircuitTermination, 'bulk_import', path='import', detail=False)
 class CircuitTerminationBulkImportView(generic.BulkImportView):
     queryset = CircuitTermination.objects.all()
     model_form = forms.CircuitTerminationImportForm
@@ -492,7 +512,7 @@ class CircuitGroupDeleteView(generic.ObjectDeleteView):
     queryset = CircuitGroup.objects.all()
 
 
-@register_model_view(CircuitGroup, 'bulk_import', detail=False)
+@register_model_view(CircuitGroup, 'bulk_import', path='import', detail=False)
 class CircuitGroupBulkImportView(generic.BulkImportView):
     queryset = CircuitGroup.objects.all()
     model_form = forms.CircuitGroupImportForm
@@ -542,7 +562,7 @@ class CircuitGroupAssignmentDeleteView(generic.ObjectDeleteView):
     queryset = CircuitGroupAssignment.objects.all()
 
 
-@register_model_view(CircuitGroupAssignment, 'bulk_import', detail=False)
+@register_model_view(CircuitGroupAssignment, 'bulk_import', path='import', detail=False)
 class CircuitGroupAssignmentBulkImportView(generic.BulkImportView):
     queryset = CircuitGroupAssignment.objects.all()
     model_form = forms.CircuitGroupAssignmentImportForm
@@ -599,7 +619,7 @@ class VirtualCircuitTypeDeleteView(generic.ObjectDeleteView):
     queryset = VirtualCircuitType.objects.all()
 
 
-@register_model_view(VirtualCircuitType, 'bulk_import', detail=False)
+@register_model_view(VirtualCircuitType, 'bulk_import', path='import', detail=False)
 class VirtualCircuitTypeBulkImportView(generic.BulkImportView):
     queryset = VirtualCircuitType.objects.all()
     model_form = forms.VirtualCircuitTypeImportForm

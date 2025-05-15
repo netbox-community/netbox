@@ -49,6 +49,7 @@ markdown_extensions:
     - admonition
     - attr_list
     - footnotes
+    - md_in_html
     - pymdownx.emoji:
         emoji_index: !!python/name:material.extensions.emoji.twemoji
         emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -59,6 +60,8 @@ markdown_extensions:
             format: !!python/name:pymdownx.superfences.fence_code_format
     - pymdownx.tabbed:
         alternate_style: true
+not_in_nav: |
+    /index.md
 nav:
     - Introduction: 'introduction.md'
     - Features:
@@ -200,6 +203,7 @@ nav:
             - ModuleBay: 'models/dcim/modulebay.md'
             - ModuleBayTemplate: 'models/dcim/modulebaytemplate.md'
             - ModuleType: 'models/dcim/moduletype.md'
+            - ModuleTypeProfile: 'models/dcim/moduletypeprofile.md'
             - Platform: 'models/dcim/platform.md'
             - PowerFeed: 'models/dcim/powerfeed.md'
             - PowerOutlet: 'models/dcim/poweroutlet.md'
@@ -233,6 +237,7 @@ nav:
             - NotificationGroup: 'models/extras/notificationgroup.md'
             - SavedFilter: 'models/extras/savedfilter.md'
             - Subscription: 'models/extras/subscription.md'
+            - TableConfig: 'models/extras/tableconfig.md'
             - Tag: 'models/extras/tag.md'
             - Webhook: 'models/extras/webhook.md'
         - IPAM:
@@ -304,6 +309,7 @@ nav:
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 4.3: 'release-notes/version-4.3.md'
         - Version 4.2: 'release-notes/version-4.2.md'
         - Version 4.1: 'release-notes/version-4.1.md'
         - Version 4.0: 'release-notes/version-4.0.md'

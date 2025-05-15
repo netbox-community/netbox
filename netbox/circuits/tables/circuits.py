@@ -61,9 +61,8 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True,
         verbose_name=_('Account')
     )
-    type = tables.Column(
+    type = columns.ColoredLabelColumn(
         verbose_name=_('Type'),
-        linkify=True
     )
     status = columns.ChoiceFieldColumn()
     termination_a = columns.TemplateColumn(
@@ -111,7 +110,7 @@ class CircuitTerminationTable(NetBoxTable):
     provider = tables.Column(
         verbose_name=_('Provider'),
         linkify=True,
-        accessor='circuit.provider'
+        accessor='circuit__provider'
     )
     term_side = tables.Column(
         verbose_name=_('Side')

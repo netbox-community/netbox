@@ -13,7 +13,7 @@ from utilities.filters import (
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
-from .filters import TagFilter
+from .filters import TagFilter, TagIDFilter
 from .models import *
 
 __all__ = (
@@ -32,6 +32,7 @@ __all__ = (
     'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
+    'TableConfigFilterSet',
     'TagFilterSet',
     'TaggedItemFilterSet',
     'WebhookFilterSet',
@@ -315,6 +316,59 @@ class SavedFilterFilterSet(ChangeLoggedModelFilterSet):
     def _usable(self, queryset, name, value):
         """
         Return only SavedFilters that are both enabled and are shared (or belong to the current user).
+        """
+        user = self.request.user if self.request else None
+        if not user or user.is_anonymous:
+            if value:
+                return queryset.filter(enabled=True, shared=True)
+            return queryset.filter(Q(enabled=False) | Q(shared=False))
+        if value:
+            return queryset.filter(enabled=True).filter(Q(shared=True) | Q(user=user))
+        return queryset.filter(Q(enabled=False) | Q(Q(shared=False) & ~Q(user=user)))
+
+
+class TableConfigFilterSet(ChangeLoggedModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_type'
+    )
+    object_type = ContentTypeFilter(
+        field_name='object_type'
+    )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label=_('User (name)'),
+    )
+    usable = django_filters.BooleanFilter(
+        method='_usable'
+    )
+
+    class Meta:
+        model = TableConfig
+        fields = ('id', 'name', 'description', 'table', 'enabled', 'shared', 'weight')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(table__icontains=value)
+        )
+
+    def _usable(self, queryset, name, value):
+        """
+        Return only TableConfigs that are both enabled and are shared (or belong to the current user).
         """
         user = self.request.user if self.request else None
         if not user or user.is_anonymous:
@@ -704,6 +758,7 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
         label=_('Data file (ID)'),
     )
     tag = TagFilter()
+    tag_id = TagIDFilter()
 
     class Meta:
         model = ConfigTemplate

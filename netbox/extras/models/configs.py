@@ -197,7 +197,7 @@ class ConfigContextModel(models.Model):
         super().clean()
 
         # Verify that JSON data is provided as an object
-        if self.local_context_data and type(self.local_context_data) is not dict:
+        if self.local_context_data is not None and type(self.local_context_data) is not dict:
             raise ValidationError(
                 {'local_context_data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
             )

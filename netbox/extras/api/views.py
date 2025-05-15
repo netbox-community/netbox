@@ -132,6 +132,17 @@ class SavedFilterViewSet(NetBoxModelViewSet):
 
 
 #
+# Table Configs
+#
+
+class TableConfigViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = TableConfig.objects.all()
+    serializer_class = serializers.TableConfigSerializer
+    filterset_class = filtersets.TableConfigFilterSet
+
+
+#
 # Bookmarks
 #
 

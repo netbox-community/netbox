@@ -44,6 +44,7 @@ class DeviceIndex(SearchIndex):
         ('asset_tag', 50),
         ('serial', 60),
         ('name', 100),
+        ('virtual_chassis', 200),
         ('description', 500),
         ('comments', 5000),
     )

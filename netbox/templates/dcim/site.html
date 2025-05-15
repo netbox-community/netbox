@@ -23,7 +23,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col col-md-6">
+	<div class="col col-12 col-md-6">
     <div class="card">
       <h2 class="card-header">{% trans "Site" %}</h2>
       <table class="table table-hover attr-table">
@@ -114,7 +114,7 @@
     {% include 'inc/panels/comments.html' %}
     {% plugin_left_page object %}
     </div>
-    <div class="col col-md-6">
+    <div class="col col-12 col-md-6">
       {% include 'inc/panels/related_objects.html' with filter_name='site_id' %}
       {% include 'inc/panels/image_attachments.html' %}
       {% plugin_right_page object %}

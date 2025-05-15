@@ -3,7 +3,7 @@ from typing import Annotated, List, TYPE_CHECKING
 import strawberry
 import strawberry_django
 
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
+from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from tenancy import models
 from .filters import *
@@ -51,16 +51,14 @@ __all__ = (
 # Tenants
 #
 
-
 @strawberry_django.type(
     models.Tenant,
     fields='__all__',
     filters=TenantFilter,
     pagination=True
 )
-class TenantType(NetBoxObjectType):
+class TenantType(ContactsMixin, NetBoxObjectType):
     group: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
-    contacts: List[Annotated['ContactType', strawberry.lazy('tenancy.graphql.types')]]
     asns: List[Annotated['ASNType', strawberry.lazy('ipam.graphql.types')]]
     circuits: List[Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]]
     sites: List[Annotated['SiteType', strawberry.lazy('dcim.graphql.types')]]
@@ -103,7 +101,6 @@ class TenantGroupType(OrganizationalObjectType):
 #
 # Contacts
 #
-
 
 @strawberry_django.type(
     models.Contact,

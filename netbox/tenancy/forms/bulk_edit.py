@@ -123,6 +123,7 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
     )
     link = forms.URLField(
         label=_('Link'),
+        assume_scheme='https',
         required=False
     )
     description = forms.CharField(

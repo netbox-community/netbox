@@ -12,6 +12,12 @@ __all__ = (
 )
 
 
+PLUGIN_NAME_TEMPLATE = """
+<img class="plugin-icon" src="{{ record.icon_url }}">
+<a href="{% url 'core:plugin' record.config_name %}">{{ record.title_long }}</a>
+"""
+
+
 class PluginVersionTable(BaseTable):
     version = tables.Column(
         verbose_name=_('Version')
@@ -42,8 +48,9 @@ class PluginVersionTable(BaseTable):
 
 
 class CatalogPluginTable(BaseTable):
-    title_long = tables.Column(
-        verbose_name=_('Name'),
+    title_long = columns.TemplateColumn(
+        template_code=PLUGIN_NAME_TEMPLATE,
+        verbose_name=_('Name')
     )
     author = tables.Column(
         accessor=tables.A('author__name'),

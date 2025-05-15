@@ -1,9 +1,12 @@
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery, QuerySet
 from django.db.models.functions import Coalesce
+
+from utilities.mptt import TreeManager
 
 __all__ = (
     'count_related',
     'dict_to_filter_params',
+    'reapply_model_ordering',
 )
 
 
@@ -54,3 +57,15 @@ def dict_to_filter_params(d, prefix=''):
         else:
             params[k] = val
     return params
+
+
+def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
+    """
+    Reapply model-level ordering in case it has been lost through .annotate().
+    https://code.djangoproject.com/ticket/32811
+    """
+    # MPTT-based models are exempt from this; use caution when annotating querysets of these models
+    if any(isinstance(manager, TreeManager) for manager in queryset.model._meta.local_managers):
+        return queryset
+    ordering = queryset.model._meta.ordering
+    return queryset.order_by(*ordering)

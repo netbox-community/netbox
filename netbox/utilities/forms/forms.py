@@ -121,7 +121,7 @@ class TableConfigForm(forms.Form):
         choices=[],
         required=False,
         widget=forms.SelectMultiple(
-            attrs={'size': 10, 'class': 'form-select'}
+            attrs={'size': 10, 'class': 'form-select select-all'}
         ),
         label=_('Selected Columns')
     )
@@ -132,8 +132,9 @@ class TableConfigForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Initialize columns field based on table attributes
-        self.fields['available_columns'].choices = table.available_columns
-        self.fields['columns'].choices = table.selected_columns
+        if table:
+            self.fields['available_columns'].choices = table.available_columns
+            self.fields['columns'].choices = table.selected_columns
 
     @property
     def table_name(self):

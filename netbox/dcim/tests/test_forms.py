@@ -1,7 +1,8 @@
 from django.test import TestCase
 
 from dcim.choices import (
-    DeviceFaceChoices, DeviceStatusChoices, InterfaceTypeChoices, InterfaceModeChoices, PowerOutletStatusChoices
+    DeviceFaceChoices, DeviceStatusChoices, InterfaceModeChoices, InterfaceTypeChoices, PortTypeChoices,
+    PowerOutletStatusChoices,
 )
 from dcim.forms import *
 from dcim.models import *
@@ -168,6 +169,51 @@ class DeviceTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('position', form.errors)
+
+
+class FrontPortTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Panel Device 1')
+        cls.rear_ports = (
+            RearPort(name='RearPort1', device=cls.device, type=PortTypeChoices.TYPE_8P8C),
+            RearPort(name='RearPort2', device=cls.device, type=PortTypeChoices.TYPE_8P8C),
+            RearPort(name='RearPort3', device=cls.device, type=PortTypeChoices.TYPE_8P8C),
+            RearPort(name='RearPort4', device=cls.device, type=PortTypeChoices.TYPE_8P8C),
+        )
+        RearPort.objects.bulk_create(cls.rear_ports)
+
+    def test_front_port_label_count_valid(self):
+        """
+        Test that generating an equal number of names and labels passes form validation.
+        """
+        front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-4]',
+            'label': 'Port[1-4]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+        }
+        form = FrontPortCreateForm(front_port_data)
+
+        self.assertTrue(form.is_valid())
+
+    def test_front_port_label_count_mismatch(self):
+        """
+        Check that attempting to generate a differing number of names and labels results in a validation error.
+        """
+        bad_front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-4]',
+            'label': 'Port[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_port': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+        }
+        form = FrontPortCreateForm(bad_front_port_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('label', form.errors)
 
 
 class InterfaceTestCase(TestCase):
