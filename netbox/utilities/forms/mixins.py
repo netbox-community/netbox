@@ -1,9 +1,9 @@
 import time
+from decimal import Decimal
 
 from django import forms
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
-
-from utilities.conversion import to_meters
 
 __all__ = (
     'CheckLastUpdatedMixin',
@@ -49,30 +49,10 @@ class CheckLastUpdatedMixin(forms.Form):
 
 
 class DistanceValidationMixin(forms.Form):
-    def clean(self):
-        super().clean()
-
-        distance = self.cleaned_data.get('distance', None)
-        unit = self.cleaned_data.get('distance_unit', None)
-        if distance and unit:
-            model_class = self._meta.model
-            distance_field = model_class._meta.get_field('distance')
-            max_digits = distance_field.max_digits - distance_field.decimal_places
-            max_distance = 10 ** max_digits
-
-            abs_distance = to_meters(distance, unit)
-
-            if abs_distance > max_distance:
-                raise forms.ValidationError(_(
-                    "{distance} {unit} ({abs_distance} m) exceeds the maximum allowed distance for "
-                    "{model._meta.verbose_name} distance. Distance must normalize to no more than "
-                    "{max_distance} meters.".format(
-                        distance=distance,
-                        unit=unit,
-                        abs_distance=abs_distance,
-                        model=model_class,
-                        max_distance=max_distance
-                    )
-                ))
-
-            self.cleaned_data['_abs_distance'] = abs_distance
+    distance = forms.DecimalField(
+        required=False,
+        validators=[
+            MinValueValidator(Decimal(0)),
+            MaxValueValidator(Decimal(100000)),
+        ]
+    )

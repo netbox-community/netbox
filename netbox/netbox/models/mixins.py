@@ -1,3 +1,4 @@
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -55,10 +56,10 @@ class WeightMixin(models.Model):
 class DistanceMixin(models.Model):
     distance = models.DecimalField(
         verbose_name=_('distance'),
-        max_digits=16,
+        max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
     )
     distance_unit = models.CharField(
         verbose_name=_('distance unit'),
@@ -69,7 +70,7 @@ class DistanceMixin(models.Model):
     )
     # Stores the normalized distance (in meters) for database ordering
     _abs_distance = models.DecimalField(
-        max_digits=18,
+        max_digits=13,
         decimal_places=4,
         blank=True,
         null=True

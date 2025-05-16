@@ -53,6 +53,7 @@ def render_fieldset(form, fieldset):
     Render a group set of fields.
     """
     rows = []
+
     for item in fieldset.items:
 
         # Multiple fields side-by-side
@@ -61,7 +62,7 @@ def render_fieldset(form, fieldset):
                 form[name] for name in item.fields if name in form.fields
             ]
             rows.append(
-                ('inline', item.label, fields)
+                ('inline', item.label, fields, any(f.errors for f in fields))
             )
 
         # Tabbed groups of fields
@@ -78,7 +79,7 @@ def render_fieldset(form, fieldset):
             if not any(tab['active'] for tab in tabs):
                 tabs[0]['active'] = True
             rows.append(
-                ('tabs', None, tabs)
+                ('tabs', None, tabs, False)
             )
 
         elif type(item) is ObjectAttribute:
@@ -95,7 +96,7 @@ def render_fieldset(form, fieldset):
             if field.name in getattr(form, 'nullable_fields', []):
                 field._nullable = True
             rows.append(
-                ('field', None, [field])
+                ('field', None, [field], False)
             )
 
     return {
