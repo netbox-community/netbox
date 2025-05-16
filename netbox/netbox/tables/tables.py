@@ -47,7 +47,7 @@ class BaseTable(tables.Table):
 
     class Meta:
         attrs = {
-            'class': 'table table-hover object-list',
+            'class': 'table object-list',
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -163,6 +163,10 @@ class BaseTable(tables.Table):
                 columns = userconfig.get(f"tables.{self.name}.columns")
             if ordering is None:
                 ordering = userconfig.get(f"tables.{self.name}.ordering")
+            if userconfig.get("ui.table.rows.hover"):
+                self.attrs['class'] += ' table-hover'
+            if userconfig.get("ui.table.rows.striped"):
+                self.attrs['class'] += ' table-striped'
 
         # Fall back to the default columns & ordering
         if columns is None and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):
