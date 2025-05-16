@@ -16,6 +16,7 @@ from utilities.forms import get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField,
 )
+from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 from utilities.templatetags.builtins.filters import bettertitle
@@ -105,7 +106,7 @@ class CircuitTypeForm(NetBoxModelForm):
         ]
 
 
-class CircuitForm(TenancyForm, NetBoxModelForm):
+class CircuitForm(DistanceValidationMixin, TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),

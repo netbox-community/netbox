@@ -1,10 +1,13 @@
 import time
+from decimal import Decimal
 
 from django import forms
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 __all__ = (
     'CheckLastUpdatedMixin',
+    'DistanceValidationMixin',
 )
 
 
@@ -44,3 +47,13 @@ class CheckLastUpdatedMixin(forms.Form):
                 "This object has been modified since the form was rendered. Please consult the object's change "
                 "log for details."
             ))
+
+
+class DistanceValidationMixin(forms.Form):
+    distance = forms.DecimalField(
+        required=False,
+        validators=[
+            MinValueValidator(Decimal(0)),
+            MaxValueValidator(Decimal(100000)),
+        ]
+    )
