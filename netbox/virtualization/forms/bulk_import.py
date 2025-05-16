@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.forms.mixins import ScopedImportForm
-from dcim.models import Device, DeviceRole, Platform, Site
+from dcim.models import Device, DeviceRole, Platform, Site, Manufacturer
 from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
@@ -124,6 +124,13 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
+    manufacturer = CSVModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Device type manufacturer'),
+    )
     platform = CSVModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
@@ -138,12 +145,25 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         label=_('Config template'),
         help_text=_('Config template')
     )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        manufacturer_name = self.data.get('manufacturer') or self.initial.get('manufacturer')
+        platform_name = self.data.get('platform') or self.initial.get('platform')
+
+        if manufacturer_name:
+            try:
+                manufacturer = Manufacturer.objects.get(name=manufacturer_name)
+                self.fields['platform'].queryset = Platform.objects.filter(manufacturer=manufacturer)
+            except Manufacturer.DoesNotExist:
+                self.fields['platform'].queryset = Platform.objects.none()
+        elif platform_name:
+            self.add_error('manufacturer', _("Manufacturer is required if Platform is provided"))
 
     class Meta:
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'serial', 'config_template', 'comments', 'tags',
+            'description', 'serial', 'config_template', 'comments', 'tags','manufacturer'
         )
 
 
