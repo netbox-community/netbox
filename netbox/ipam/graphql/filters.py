@@ -143,6 +143,10 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
     dns_name: FilterLookup[str] | None = strawberry_django.filter_field()
 
     @strawberry_django.filter_field()
+    def assigned(self, value: bool, prefix) -> Q:
+        return Q(assigned_object_id__isnull=(not value))
+
+    @strawberry_django.filter_field()
     def parent(self, value: list[str], prefix) -> Q:
         if not value:
             return Q()
