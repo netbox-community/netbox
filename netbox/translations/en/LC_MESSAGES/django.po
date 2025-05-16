@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-15 05:02+0000\n"
+"POT-Creation-Date: 2025-05-16 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5475,7 +5475,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1290 netbox/dcim/forms/model_forms.py:1761
 #: netbox/dcim/tables/connections.py:27
 #: netbox/templates/dcim/consoleport.html:17
-#: netbox/templates/dcim/consoleserverport.html:74
+#: netbox/templates/dcim/consoleserverport.html:73
 #: netbox/templates/dcim/frontport.html:112
 msgid "Console Port"
 msgstr ""
@@ -5490,7 +5490,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1292 netbox/dcim/forms/model_forms.py:1763
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:53
 #: netbox/templates/dcim/consoleport.html:76
-#: netbox/templates/dcim/consoleserverport.html:77
+#: netbox/templates/dcim/consoleserverport.html:76
 #: netbox/templates/dcim/frontport.html:17
 #: netbox/templates/dcim/frontport.html:115
 #: netbox/templates/dcim/interface.html:244
@@ -5502,7 +5502,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:750
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:54
 #: netbox/templates/dcim/consoleport.html:79
-#: netbox/templates/dcim/consoleserverport.html:80
+#: netbox/templates/dcim/consoleserverport.html:79
 #: netbox/templates/dcim/frontport.html:50
 #: netbox/templates/dcim/frontport.html:118
 #: netbox/templates/dcim/interface.html:247
@@ -12509,7 +12509,7 @@ msgstr ""
 
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:20
 #: netbox/templates/dcim/consoleport.html:59
-#: netbox/templates/dcim/consoleserverport.html:60
+#: netbox/templates/dcim/consoleserverport.html:59
 #: netbox/templates/dcim/powerfeed.html:114
 msgid "Marked as connected"
 msgstr ""
@@ -12553,7 +12553,7 @@ msgstr ""
 
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:49
 #: netbox/templates/dcim/consoleport.html:69
-#: netbox/templates/dcim/consoleserverport.html:70
+#: netbox/templates/dcim/consoleserverport.html:69
 #: netbox/templates/dcim/frontport.html:102
 #: netbox/templates/dcim/interface.html:237
 #: netbox/templates/dcim/interface.html:257
@@ -13072,7 +13072,7 @@ msgid "Rename Selected"
 msgstr ""
 
 #: netbox/templates/dcim/consoleport.html:65
-#: netbox/templates/dcim/consoleserverport.html:66
+#: netbox/templates/dcim/consoleserverport.html:65
 #: netbox/templates/dcim/frontport.html:98
 #: netbox/templates/dcim/interface.html:233
 #: netbox/templates/dcim/poweroutlet.html:83
