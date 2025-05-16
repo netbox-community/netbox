@@ -63,10 +63,14 @@
             </h2>
             <pre class="card-body" id="rendered_config">{{ rendered_config }}</pre>
           </div>
-        {% else %}
+        {% elif error_message %}
           <div class="alert alert-warning">
             <h4 class="alert-title mb-1">{% trans "Error rendering template" %}</h4>
             {% trans error_message %}
+          </div>
+        {% else %}
+          <div class="alert alert-warning">
+            <h4 class="alert-title mb-1">{% trans "Template output is empty" %}</h4>
           </div>
         {% endif %}
       {% else %}
