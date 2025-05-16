@@ -40,7 +40,14 @@
     {% if table %}
     <div class="card">
       <div class="table-responsive" id="object_list">
-        <h2 class="card-header">{% trans "Log" %}</h2>
+        <h2 class="card-header d-flex justify-content-between">
+          {% trans "Log" %}
+          <div>
+            <a href="?export=log" class="btn btn-primary lh-1" role="button">
+              <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+            </a>
+          </div>
+        </h2>
         <div class="htmx-container table-responsive"
           hx-get="{% url 'extras:script_result' job_pk=job.pk %}?embedded=True&log=True&log_threshold={{log_threshold}}"
           hx-target="this"
@@ -55,9 +62,9 @@
       <div class="card mb-3">
       <h2 class="card-header d-flex justify-content-between">
         {% trans "Output" %}
-        {% if job.completed and job.data and job.data.output %}
+        {% if job.data.output %}
         <div>
-          <a href="?export=True" class="btn btn-primary lh-1" role="button">
+          <a href="?export=output" class="btn btn-primary lh-1" role="button">
             <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
           </a>
         </div>
