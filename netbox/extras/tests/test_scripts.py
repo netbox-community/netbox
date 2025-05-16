@@ -1,3 +1,4 @@
+import logging
 import tempfile
 from datetime import date, datetime, timezone
 
@@ -7,6 +8,7 @@ from netaddr import IPAddress, IPNetwork
 
 from dcim.models import DeviceRole
 from extras.scripts import *
+from utilities.testing import disable_logging
 
 CHOICES = (
     ('ff0000', 'Red'),
@@ -39,7 +41,8 @@ class ScriptTest(TestCase):
         datafile.write(bytes(YAML_DATA, 'UTF-8'))
         datafile.seek(0)
 
-        data = Script().load_yaml(datafile.name)
+        with disable_logging(level=logging.WARNING):
+            data = Script().load_yaml(datafile.name)
         self.assertEqual(data, {
             'Foo': 123,
             'Bar': 456,
@@ -51,7 +54,8 @@ class ScriptTest(TestCase):
         datafile.write(bytes(JSON_DATA, 'UTF-8'))
         datafile.seek(0)
 
-        data = Script().load_json(datafile.name)
+        with disable_logging(level=logging.WARNING):
+            data = Script().load_json(datafile.name)
         self.assertEqual(data, {
             'Foo': 123,
             'Bar': 456,

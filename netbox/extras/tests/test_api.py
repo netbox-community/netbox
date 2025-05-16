@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
@@ -991,6 +991,10 @@ class SubscriptionTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.bulk_update_data = {
+            'user': users[3].pk,
+        }
+
 
 class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
     model = NotificationGroup
@@ -1072,6 +1076,9 @@ class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
 class NotificationTest(APIViewTestCases.APIViewTestCase):
     model = Notification
     brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
+    bulk_update_data = {
+        'read': now(),
+    }
 
     @classmethod
     def setUpTestData(cls):
