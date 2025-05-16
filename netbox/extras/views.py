@@ -966,7 +966,7 @@ class ObjectRenderConfigView(generic.ObjectView):
 
         # Render the config template
         rendered_config = None
-        error_message = None
+        error_message = ''
         if config_template := instance.get_config_template():
             try:
                 rendered_config = config_template.render(context=context_data)
