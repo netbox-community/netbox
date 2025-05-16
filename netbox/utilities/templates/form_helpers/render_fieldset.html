@@ -6,7 +6,7 @@
       <h2 class="col-9 offset-3">{{ heading }}</h2>
     </div>
   {% endif %}
-  {% for layout, title, items, has_errors in rows %}
+  {% for layout, title, items, has_field_errors in rows %}
 
     {% if layout == 'field' %}
       {# Single form field #}
@@ -25,7 +25,7 @@
 
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
-      <div class="row mb-3 {% if has_errors %} has-errors{% endif %}">
+      <div class="row mb-3 {% if has_field_errors %} has-errors{% endif %}">
         <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1 {% if field.errors %} has-errors{% endif %}">

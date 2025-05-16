@@ -51,6 +51,8 @@ def widget_type(field):
 def render_fieldset(form, fieldset):
     """
     Render a group set of fields.
+
+    The signature for row tuples is (layout, title, items, has_field_errors).
     """
     rows = []
 
@@ -75,18 +77,21 @@ def render_fieldset(form, fieldset):
                     'fields': [form[name] for name in tab['fields'] if name in form.fields]
                 } for tab in item.tabs
             ]
+            has_field_errors = any(
+                field.errors for tab in tabs for field in tab['fields']
+            )
             # If none of the tabs has been marked as active, activate the first one
             if not any(tab['active'] for tab in tabs):
                 tabs[0]['active'] = True
             rows.append(
-                ('tabs', None, tabs, False)
+                ('tabs', None, tabs, has_field_errors)
             )
 
         elif type(item) is ObjectAttribute:
             value = getattr(form.instance, item.name)
             label = value._meta.verbose_name if hasattr(value, '_meta') else item.name
             rows.append(
-                ('attribute', label.title(), [value])
+                ('attribute', label.title(), [value], False)
             )
 
         # A single form field
@@ -96,7 +101,7 @@ def render_fieldset(form, fieldset):
             if field.name in getattr(form, 'nullable_fields', []):
                 field._nullable = True
             rows.append(
-                ('field', None, [field], False)
+                ('field', None, [field], bool(field.errors))
             )
 
     return {
