@@ -148,7 +148,7 @@ class VLANQuerySet(RestrictedQuerySet):
 
         # Find all relevant VLANGroups
         q = Q()
-        site = vm.site or vm.cluster._site
+        site = vm.site
         if vm.cluster:
             # Add VLANGroups scoped to the assigned cluster (or its group)
             q |= Q(
@@ -160,6 +160,30 @@ class VLANQuerySet(RestrictedQuerySet):
                     scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
                     scope_id=vm.cluster.group_id
                 )
+            # Looking all possible cluster scopes
+            if vm.cluster.scope_type == ContentType.objects.get_by_natural_key('dcim', 'location'):
+                site = site or vm.cluster.scope.site
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'location'),
+                    scope_id__in=vm.cluster.scope.get_ancestors(include_self=True)
+                )
+            elif vm.cluster.scope_type == ContentType.objects.get_by_natural_key('dcim', 'site'):
+                site = site or vm.cluster.scope
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
+                    scope_id=vm.cluster.scope.pk
+                )
+            elif vm.cluster.scope_type == ContentType.objects.get_by_natural_key('dcim', 'sitegroup'):
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+                    scope_id__in=vm.cluster.scope.get_ancestors(include_self=True)
+                )
+            elif vm.cluster.scope_type == ContentType.objects.get_by_natural_key('dcim', 'region'):
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('dcim', 'region'),
+                    scope_id__in=vm.cluster.scope.get_ancestors(include_self=True)
+                )
+        # VM can be assigned to a site without a cluster so checking assigned site independently
         if site:
             # Add VLANGroups scoped to the assigned site (or its group or region)
             q |= Q(
