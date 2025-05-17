@@ -40,6 +40,7 @@ IPADDRESS_MASK_LENGTH_MAX = 128  # IPv6
 IPADDRESS_ROLES_NONUNIQUE = (
     # IPAddress roles which are exempt from unique address enforcement
     IPAddressRoleChoices.ROLE_ANYCAST,
+    IPAddressRoleChoices.ROLE_VARP,
     IPAddressRoleChoices.ROLE_VIP,
     IPAddressRoleChoices.ROLE_VRRP,
     IPAddressRoleChoices.ROLE_HSRP,
