@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from netbox.choices import *
 from utilities.conversion import to_grams, to_meters
 
@@ -58,7 +59,7 @@ class DistanceMixin(models.Model):
         max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
     )
     distance_unit = models.CharField(
         verbose_name=_('distance unit'),
@@ -69,7 +70,7 @@ class DistanceMixin(models.Model):
     )
     # Stores the normalized distance (in meters) for database ordering
     _abs_distance = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=4,
         blank=True,
         null=True
