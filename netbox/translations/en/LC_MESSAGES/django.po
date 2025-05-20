@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-16 05:02+0000\n"
+"POT-Creation-Date: 2025-05-20 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,8 +252,8 @@ msgstr ""
 #: netbox/virtualization/forms/model_forms.py:178
 #: netbox/virtualization/tables/virtualmachines.py:33
 #: netbox/vpn/forms/filtersets.py:277 netbox/wireless/forms/filtersets.py:88
-#: netbox/wireless/forms/model_forms.py:80
-#: netbox/wireless/forms/model_forms.py:122
+#: netbox/wireless/forms/model_forms.py:81
+#: netbox/wireless/forms/model_forms.py:123
 msgid "Site"
 msgstr ""
 
@@ -369,9 +369,9 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:224
 #: netbox/circuits/forms/filtersets.py:251
 #: netbox/circuits/forms/filtersets.py:297
-#: netbox/circuits/forms/model_forms.py:139
-#: netbox/circuits/forms/model_forms.py:162
-#: netbox/circuits/forms/model_forms.py:262
+#: netbox/circuits/forms/model_forms.py:140
+#: netbox/circuits/forms/model_forms.py:163
+#: netbox/circuits/forms/model_forms.py:263
 #: netbox/circuits/tables/circuits.py:107
 #: netbox/circuits/tables/circuits.py:202 netbox/dcim/forms/connections.py:73
 #: netbox/templates/circuits/circuit.html:15
@@ -434,8 +434,8 @@ msgstr ""
 #: netbox/circuits/forms/bulk_import.py:249
 #: netbox/circuits/forms/filtersets.py:373
 #: netbox/circuits/forms/filtersets.py:379
-#: netbox/circuits/forms/model_forms.py:343
-#: netbox/circuits/forms/model_forms.py:358
+#: netbox/circuits/forms/model_forms.py:344
+#: netbox/circuits/forms/model_forms.py:359
 #: netbox/circuits/tables/virtual_circuits.py:87
 #: netbox/templates/circuits/virtualcircuit.html:20
 #: netbox/templates/circuits/virtualcircuittermination.html:38
@@ -449,7 +449,7 @@ msgid "Interface (ID)"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:42 netbox/circuits/forms/filtersets.py:64
-#: netbox/circuits/forms/model_forms.py:42
+#: netbox/circuits/forms/model_forms.py:43
 #: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:137
 #: netbox/dcim/forms/filtersets.py:197 netbox/dcim/forms/model_forms.py:132
 #: netbox/dcim/tables/sites.py:100 netbox/ipam/models/asns.py:123
@@ -620,9 +620,9 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:338
 #: netbox/circuits/forms/filtersets.py:374
 #: netbox/circuits/forms/filtersets.py:397
-#: netbox/circuits/forms/model_forms.py:60
-#: netbox/circuits/forms/model_forms.py:76
-#: netbox/circuits/forms/model_forms.py:110
+#: netbox/circuits/forms/model_forms.py:61
+#: netbox/circuits/forms/model_forms.py:77
+#: netbox/circuits/forms/model_forms.py:111
 #: netbox/circuits/tables/circuits.py:57 netbox/circuits/tables/circuits.py:111
 #: netbox/circuits/tables/circuits.py:195
 #: netbox/circuits/tables/providers.py:70
@@ -740,8 +740,8 @@ msgstr ""
 #: netbox/circuits/forms/bulk_import.py:214
 #: netbox/circuits/forms/filtersets.py:151
 #: netbox/circuits/forms/filtersets.py:346
-#: netbox/circuits/forms/model_forms.py:116
-#: netbox/circuits/forms/model_forms.py:330
+#: netbox/circuits/forms/model_forms.py:117
+#: netbox/circuits/forms/model_forms.py:331
 #: netbox/templates/circuits/virtualcircuit.html:31
 #: netbox/templates/circuits/virtualcircuittermination.html:34
 msgid "Provider account"
@@ -921,12 +921,12 @@ msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:176
 #: netbox/circuits/forms/filtersets.py:209
-#: netbox/circuits/forms/model_forms.py:136
+#: netbox/circuits/forms/model_forms.py:137
 #: netbox/templates/circuits/circuit.html:38
 #: netbox/templates/wireless/wirelesslink.html:38
 #: netbox/wireless/forms/bulk_edit.py:133
 #: netbox/wireless/forms/filtersets.py:130
-#: netbox/wireless/forms/model_forms.py:169
+#: netbox/wireless/forms/model_forms.py:170
 msgid "Distance"
 msgstr ""
 
@@ -942,7 +942,7 @@ msgid "Distance unit"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:196
-#: netbox/circuits/forms/model_forms.py:141
+#: netbox/circuits/forms/model_forms.py:142
 msgid "Service Parameters"
 msgstr ""
 
@@ -984,9 +984,9 @@ msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:198
 #: netbox/circuits/forms/bulk_edit.py:356
-#: netbox/circuits/forms/model_forms.py:142
-#: netbox/circuits/forms/model_forms.py:240
-#: netbox/circuits/forms/model_forms.py:345
+#: netbox/circuits/forms/model_forms.py:143
+#: netbox/circuits/forms/model_forms.py:241
+#: netbox/circuits/forms/model_forms.py:346
 #: netbox/dcim/forms/model_forms.py:148 netbox/dcim/forms/model_forms.py:191
 #: netbox/dcim/forms/model_forms.py:281 netbox/dcim/forms/model_forms.py:339
 #: netbox/dcim/forms/model_forms.py:874 netbox/dcim/forms/model_forms.py:1869
@@ -1004,13 +1004,13 @@ msgstr ""
 #: netbox/virtualization/forms/model_forms.py:229
 #: netbox/vpn/forms/bulk_edit.py:78 netbox/vpn/forms/filtersets.py:48
 #: netbox/vpn/forms/model_forms.py:63 netbox/vpn/forms/model_forms.py:148
-#: netbox/vpn/forms/model_forms.py:414 netbox/wireless/forms/model_forms.py:58
-#: netbox/wireless/forms/model_forms.py:174
+#: netbox/vpn/forms/model_forms.py:414 netbox/wireless/forms/model_forms.py:59
+#: netbox/wireless/forms/model_forms.py:175
 msgid "Tenancy"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:215
-#: netbox/circuits/forms/model_forms.py:170
+#: netbox/circuits/forms/model_forms.py:171
 #: netbox/dcim/forms/bulk_import.py:1348 netbox/dcim/forms/bulk_import.py:1366
 msgid "Termination type"
 msgstr ""
@@ -1018,7 +1018,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_edit.py:218
 #: netbox/circuits/forms/bulk_import.py:133
 #: netbox/circuits/forms/filtersets.py:226
-#: netbox/circuits/forms/model_forms.py:173
+#: netbox/circuits/forms/model_forms.py:174
 #: netbox/templates/circuits/inc/circuit_termination.html:6
 #: netbox/templates/dcim/cable.html:68 netbox/templates/dcim/cable.html:72
 #: netbox/vpn/forms/bulk_import.py:100 netbox/vpn/forms/filtersets.py:82
@@ -1042,7 +1042,7 @@ msgid "Mark connected"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:243
-#: netbox/circuits/forms/model_forms.py:184
+#: netbox/circuits/forms/model_forms.py:185
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:55
 #: netbox/templates/dcim/frontport.html:121
 #: netbox/templates/dcim/interface.html:250
@@ -1051,7 +1051,7 @@ msgid "Circuit Termination"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_edit.py:245
-#: netbox/circuits/forms/model_forms.py:186
+#: netbox/circuits/forms/model_forms.py:187
 msgid "Termination Details"
 msgstr ""
 
@@ -1074,7 +1074,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:264
 #: netbox/circuits/forms/filtersets.py:354
 #: netbox/circuits/forms/filtersets.py:392
-#: netbox/circuits/forms/model_forms.py:325
+#: netbox/circuits/forms/model_forms.py:326
 #: netbox/circuits/tables/virtual_circuits.py:51
 #: netbox/circuits/tables/virtual_circuits.py:98
 msgid "Provider network"
@@ -1083,7 +1083,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_edit.py:365
 #: netbox/circuits/forms/bulk_import.py:254
 #: netbox/circuits/forms/filtersets.py:382
-#: netbox/circuits/forms/model_forms.py:365 netbox/dcim/forms/bulk_edit.py:372
+#: netbox/circuits/forms/model_forms.py:366 netbox/dcim/forms/bulk_edit.py:372
 #: netbox/dcim/forms/bulk_edit.py:1324 netbox/dcim/forms/bulk_edit.py:1760
 #: netbox/dcim/forms/bulk_import.py:259 netbox/dcim/forms/bulk_import.py:1137
 #: netbox/dcim/forms/filtersets.py:369 netbox/dcim/forms/filtersets.py:797
@@ -1207,7 +1207,7 @@ msgid "Operational role"
 msgstr ""
 
 #: netbox/circuits/forms/bulk_import.py:259
-#: netbox/circuits/forms/model_forms.py:368
+#: netbox/circuits/forms/model_forms.py:369
 #: netbox/circuits/tables/virtual_circuits.py:111
 #: netbox/dcim/forms/bulk_import.py:1268 netbox/dcim/forms/model_forms.py:1289
 #: netbox/dcim/forms/model_forms.py:1558 netbox/dcim/forms/model_forms.py:1725
@@ -1231,8 +1231,8 @@ msgstr ""
 #: netbox/templates/wireless/wirelesslink.html:55
 #: netbox/virtualization/forms/model_forms.py:377
 #: netbox/vpn/forms/bulk_import.py:302 netbox/vpn/forms/model_forms.py:439
-#: netbox/vpn/forms/model_forms.py:448 netbox/wireless/forms/model_forms.py:117
-#: netbox/wireless/forms/model_forms.py:159
+#: netbox/vpn/forms/model_forms.py:448 netbox/wireless/forms/model_forms.py:118
+#: netbox/wireless/forms/model_forms.py:160
 msgid "Interface"
 msgstr ""
 
@@ -1274,8 +1274,8 @@ msgstr ""
 #: netbox/virtualization/forms/filtersets.py:80
 #: netbox/virtualization/forms/filtersets.py:106
 #: netbox/wireless/forms/filtersets.py:93
-#: netbox/wireless/forms/model_forms.py:91
-#: netbox/wireless/forms/model_forms.py:133
+#: netbox/wireless/forms/model_forms.py:92
+#: netbox/wireless/forms/model_forms.py:134
 msgid "Location"
 msgstr ""
 
@@ -1373,7 +1373,7 @@ msgid "Assignment"
 msgstr ""
 
 #: netbox/circuits/forms/filtersets.py:302
-#: netbox/circuits/forms/model_forms.py:252
+#: netbox/circuits/forms/model_forms.py:253
 #: netbox/circuits/tables/circuits.py:190 netbox/dcim/forms/bulk_edit.py:126
 #: netbox/dcim/forms/bulk_import.py:103 netbox/dcim/forms/model_forms.py:125
 #: netbox/dcim/tables/sites.py:95 netbox/extras/forms/filtersets.py:544
@@ -1407,21 +1407,21 @@ msgstr ""
 #: netbox/vpn/tables/tunnels.py:44 netbox/wireless/forms/bulk_edit.py:51
 #: netbox/wireless/forms/bulk_import.py:38
 #: netbox/wireless/forms/filtersets.py:49
-#: netbox/wireless/forms/model_forms.py:42
+#: netbox/wireless/forms/model_forms.py:43
 #: netbox/wireless/tables/wirelesslan.py:48
 msgid "Group"
 msgstr ""
 
-#: netbox/circuits/forms/model_forms.py:239
+#: netbox/circuits/forms/model_forms.py:240
 #: netbox/templates/circuits/circuitgroup.html:25
 msgid "Circuit Group"
 msgstr ""
 
-#: netbox/circuits/forms/model_forms.py:259
+#: netbox/circuits/forms/model_forms.py:260
 msgid "Circuit type"
 msgstr ""
 
-#: netbox/circuits/forms/model_forms.py:270
+#: netbox/circuits/forms/model_forms.py:271
 msgid "Group Assignment"
 msgstr ""
 
@@ -1841,7 +1841,7 @@ msgid "Circuit ID"
 msgstr ""
 
 #: netbox/circuits/tables/circuits.py:71
-#: netbox/wireless/forms/model_forms.py:164
+#: netbox/wireless/forms/model_forms.py:165
 msgid "Side A"
 msgstr ""
 
@@ -2000,8 +2000,8 @@ msgstr ""
 #: netbox/vpn/forms/bulk_import.py:86 netbox/vpn/forms/bulk_import.py:288
 #: netbox/vpn/forms/filtersets.py:286 netbox/vpn/forms/model_forms.py:91
 #: netbox/vpn/forms/model_forms.py:126 netbox/vpn/forms/model_forms.py:237
-#: netbox/vpn/forms/model_forms.py:456 netbox/wireless/forms/model_forms.py:103
-#: netbox/wireless/forms/model_forms.py:145
+#: netbox/vpn/forms/model_forms.py:456 netbox/wireless/forms/model_forms.py:104
+#: netbox/wireless/forms/model_forms.py:146
 #: netbox/wireless/tables/wirelesslan.py:84
 msgid "Device"
 msgstr ""
@@ -3113,7 +3113,7 @@ msgstr ""
 #: netbox/virtualization/tables/virtualmachines.py:132
 #: netbox/wireless/forms/bulk_edit.py:26
 #: netbox/wireless/forms/bulk_import.py:23
-#: netbox/wireless/forms/model_forms.py:22
+#: netbox/wireless/forms/model_forms.py:23
 msgid "Parent"
 msgstr ""
 
@@ -3913,7 +3913,7 @@ msgid "Virtual Device Context (Identifier)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:1973 netbox/templates/wireless/wirelesslan.html:11
-#: netbox/wireless/forms/model_forms.py:56
+#: netbox/wireless/forms/model_forms.py:57
 msgid "Wireless LAN"
 msgstr ""
 
@@ -5361,7 +5361,7 @@ msgstr ""
 #: netbox/virtualization/forms/model_forms.py:79
 #: netbox/virtualization/tables/clusters.py:80
 #: netbox/wireless/forms/bulk_edit.py:94 netbox/wireless/forms/filtersets.py:37
-#: netbox/wireless/forms/model_forms.py:57
+#: netbox/wireless/forms/model_forms.py:58
 #: netbox/wireless/tables/wirelesslan.py:58
 msgid "Scope"
 msgstr ""
@@ -7769,7 +7769,7 @@ msgstr ""
 
 #: netbox/extras/choices.py:108 netbox/templates/tenancy/contact.html:67
 #: netbox/tenancy/forms/bulk_edit.py:125
-#: netbox/wireless/forms/model_forms.py:172
+#: netbox/wireless/forms/model_forms.py:173
 msgid "Link"
 msgstr ""
 
@@ -8650,7 +8650,7 @@ msgstr ""
 #: netbox/extras/models/configs.py:38 netbox/extras/models/models.py:315
 #: netbox/extras/models/models.py:480 netbox/extras/models/models.py:559
 #: netbox/extras/models/search.py:48 netbox/extras/models/tags.py:44
-#: netbox/ipam/models/ip.py:188 netbox/netbox/models/mixins.py:15
+#: netbox/ipam/models/ip.py:188 netbox/netbox/models/mixins.py:16
 msgid "weight"
 msgstr ""
 
@@ -9991,7 +9991,7 @@ msgstr ""
 #: netbox/vpn/forms/model_forms.py:436 netbox/vpn/forms/model_forms.py:455
 #: netbox/wireless/forms/bulk_edit.py:58
 #: netbox/wireless/forms/bulk_import.py:50
-#: netbox/wireless/forms/model_forms.py:51 netbox/wireless/models.py:102
+#: netbox/wireless/forms/model_forms.py:52 netbox/wireless/models.py:102
 msgid "VLAN"
 msgstr ""
 
@@ -10060,8 +10060,8 @@ msgstr ""
 #: netbox/wireless/forms/bulk_edit.py:95 netbox/wireless/forms/bulk_edit.py:153
 #: netbox/wireless/forms/filtersets.py:39
 #: netbox/wireless/forms/filtersets.py:104
-#: netbox/wireless/forms/model_forms.py:59
-#: netbox/wireless/forms/model_forms.py:175
+#: netbox/wireless/forms/model_forms.py:60
+#: netbox/wireless/forms/model_forms.py:176
 msgid "Authentication"
 msgstr ""
 
@@ -11471,23 +11471,23 @@ msgstr ""
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:22
+#: netbox/netbox/models/mixins.py:23
 msgid "weight unit"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:52
+#: netbox/netbox/models/mixins.py:53
 msgid "Must specify a unit when setting a weight"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:57
+#: netbox/netbox/models/mixins.py:58
 msgid "distance"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:64
+#: netbox/netbox/models/mixins.py:65
 msgid "distance unit"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:99
+#: netbox/netbox/models/mixins.py:100
 msgid "Must specify a unit when setting a distance"
 msgstr ""
 
@@ -15103,7 +15103,7 @@ msgid "Add Wireless LAN"
 msgstr ""
 
 #: netbox/templates/wireless/wirelesslangroup.html:26
-#: netbox/wireless/forms/model_forms.py:30
+#: netbox/wireless/forms/model_forms.py:31
 msgid "Wireless LAN Group"
 msgstr ""
 
@@ -15699,7 +15699,7 @@ msgstr ""
 msgid "Unrecognized header: {name}"
 msgstr ""
 
-#: netbox/utilities/forms/mixins.py:44
+#: netbox/utilities/forms/mixins.py:47
 msgid ""
 "This object has been modified since the form was rendered. Please consult "
 "the object's change log for details."
@@ -16644,7 +16644,7 @@ msgstr ""
 msgid "Interface B"
 msgstr ""
 
-#: netbox/wireless/forms/model_forms.py:165
+#: netbox/wireless/forms/model_forms.py:166
 msgid "Side B"
 msgstr ""
 
