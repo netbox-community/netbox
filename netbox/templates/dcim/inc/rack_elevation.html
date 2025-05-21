@@ -1,14 +1,15 @@
 {% load i18n %}
-<div
-  hx-get="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{ face }}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}"
-  hx-trigger="intersect"
-  hx-swap="innerHTML"
-  aria-label="{% trans 'Rack elevation' %}"
-  style="margin-left: -30px"
->
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px; margin-left: 30px;">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Rack Loading...</span>
+<div style="margin-left: -30px">
+  <div
+    hx-get="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{ face }}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}"
+    hx-trigger="intersect"
+    hx-swap="outerHTML"
+    aria-label="{% trans 'Rack elevation' %}"
+  >
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px; margin-left: 30px;">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Rack Loading...</span>
+      </div>
     </div>
   </div>
 </div>
