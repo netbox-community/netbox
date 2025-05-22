@@ -15,7 +15,7 @@ class ContactIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('group', 'title', 'phone', 'email', 'description')
+    display_attrs = ('title', 'phone', 'email', 'description')
 
 
 @register_search

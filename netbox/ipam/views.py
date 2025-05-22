@@ -45,10 +45,13 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
             instance.import_targets.all(),
             orderable=False
         )
+        import_targets_table.configure(request)
+
         export_targets_table = tables.RouteTargetTable(
             instance.export_targets.all(),
             orderable=False
         )
+        export_targets_table.configure(request)
 
         return {
             'related_models': self.get_related_models(request, instance, omit=[Interface, VMInterface]),
@@ -530,6 +533,7 @@ class PrefixView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefix_table.configure(request)
 
         # Duplicate prefixes table
         duplicate_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
@@ -544,6 +548,7 @@ class PrefixView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        duplicate_prefix_table.configure(request)
 
         return {
             'aggregate': aggregate,
@@ -709,6 +714,7 @@ class IPRangeView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefixes_table.configure(request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -796,6 +802,7 @@ class IPAddressView(generic.ObjectView):
             exclude=('vrf', 'utilization'),
             orderable=False
         )
+        parent_prefixes_table.configure(request)
 
         # Duplicate IPs table
         duplicate_ips = IPAddress.objects.restrict(request.user, 'view').filter(
@@ -811,6 +818,7 @@ class IPAddressView(generic.ObjectView):
             duplicate_ips = duplicate_ips.exclude(role=IPAddressRoleChoices.ROLE_ANYCAST)
         # Limit to a maximum of 10 duplicates displayed here
         duplicate_ips_table = tables.IPAddressTable(duplicate_ips[:10], orderable=False)
+        duplicate_ips_table.configure(request)
 
         return {
             'parent_prefixes_table': parent_prefixes_table,
@@ -888,6 +896,7 @@ class IPAddressAssignView(generic.ObjectView):
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
             table = tables.IPAddressAssignTable(addresses)
+            table.configure(request)
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
@@ -1053,6 +1062,8 @@ class VLANTranslationPolicyView(GetRelatedModelsMixin, generic.ObjectView):
             data=instance.rules.all(),
             orderable=False
         )
+        vlan_translation_table.configure(request)
+
         return {
             'vlan_translation_table': vlan_translation_table,
         }
@@ -1170,6 +1181,7 @@ class FHRPGroupView(GetRelatedModelsMixin, generic.ObjectView):
             data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
             orderable=False
         )
+        members_table.configure(request)
         members_table.columns.hide('group')
 
         return {
@@ -1289,6 +1301,7 @@ class VLANView(generic.ObjectView):
             'vrf', 'scope', 'role', 'tenant'
         )
         prefix_table = tables.PrefixTable(list(prefixes), exclude=('vlan', 'utilization'), orderable=False)
+        prefix_table.configure(request)
 
         return {
             'prefix_table': prefix_table,

@@ -26,6 +26,12 @@
                         <th scope="row">{% trans "Location" %}</th>
                         <td>{% nested_tree object.location %}</td>
                     </tr>
+                    {% if object.virtual_chassis %}
+                      <tr>
+                        <th scope="row">{% trans "Virtual Chassis" %}</th>
+                        <td>{{ object.virtual_chassis|linkify }}</td>
+                      </tr>
+                    {% endif %}
                     <tr>
                         <th scope="row">{% trans "Rack" %}</th>
                         <td class="d-flex justify-content-between align-items-start">

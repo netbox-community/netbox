@@ -223,6 +223,7 @@ class ObjectChangeView(generic.ObjectView):
             data=related_changes[:50],
             orderable=False
         )
+        related_changes_table.configure(request)
 
         objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             changed_object_type=instance.changed_object_type,

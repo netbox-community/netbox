@@ -541,10 +541,10 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
 class ManufacturerType(OrganizationalObjectType, ContactsMixin):
 
     platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
-    device_types: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    device_types: List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
     inventory_item_templates: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
     inventory_items: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
-    module_types: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+    module_types: List[Annotated["ModuleTypeType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -617,11 +617,11 @@ class ModuleTypeType(NetBoxObjectType):
     frontporttemplates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     consoleserverporttemplates: List[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     interfacetemplates: List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    powerporttemplates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    powerporttemplates: List[Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlettemplates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
     rearporttemplates: List[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    instances: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
-    consoleporttemplates: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+    instances: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+    consoleporttemplates: List[Annotated["ConsolePortTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

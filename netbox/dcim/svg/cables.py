@@ -329,11 +329,9 @@ class CableTraceSVG:
 
         # Draw attachment (line)
         start = (OFFSET + self.center, OFFSET + self.cursor)
-        height = PADDING * 2 + LINE_HEIGHT + PADDING * 2
-        end = (start[0], start[1] + height)
+        end = (start[0], start[1] + CABLE_HEIGHT)
         line = Line(start=start, end=end, class_='attachment')
         group.add(line)
-        self.cursor += PADDING * 4
 
         return group
 
@@ -358,10 +356,10 @@ class CableTraceSVG:
             # Else: No need to draw parent objects (parent objects are drawn in last "round" as the far-end!)
 
             near_terminations = self.draw_terminations(near_ends, parent_object_nodes)
-            self.cursor += CABLE_HEIGHT
 
             # Connector (a Cable or WirelessLink)
             if links and far_ends:
+                self.cursor += CABLE_HEIGHT
 
                 obj_list = {end.parent_object for end in far_ends}
                 parent_object_nodes, far_terminations = self.draw_far_objects(obj_list, far_ends)
@@ -449,6 +447,7 @@ class CableTraceSVG:
                 # Attachment
                 attachment = self.draw_attachment()
                 self.connectors.append(attachment)
+                self.cursor += CABLE_HEIGHT
 
                 # Object
                 parent_object_nodes = self.draw_parent_objects(far_ends)

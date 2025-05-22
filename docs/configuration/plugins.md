@@ -35,7 +35,7 @@ Note that a plugin must be listed in `PLUGINS` for its configuration to take eff
 
 ## PLUGINS_CATALOG_CONFIG
 
-Default: Empty
+Default: `{}` (Empty)
 
 This parameter controls how individual plugins are displayed in the plugins catalog under Admin > System > Plugins. Adding a plugin to the `hidden` list will omit that plugin from the catalog. Adding a plugin to the `static` list will display the plugin, but not link to the plugin details or upgrade instructions.
 

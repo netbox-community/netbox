@@ -14,7 +14,7 @@ from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.models import User
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
@@ -1858,7 +1858,8 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
 
         # Attempt to delete only the parent interface
         url = self._get_detail_url(interface1)
-        self.client.delete(url, **self.header)
+        with disable_logging():
+            self.client.delete(url, **self.header)
         self.assertEqual(device.interfaces.count(), 4)  # Parent was not deleted
 
         # Attempt to bulk delete parent & child together

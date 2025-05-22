@@ -452,10 +452,12 @@ class L2VPNView(generic.ObjectView):
             instance.import_targets.prefetch_related('tenant'),
             orderable=False
         )
+        import_targets_table.configure(request)
         export_targets_table = RouteTargetTable(
             instance.export_targets.prefetch_related('tenant'),
             orderable=False
         )
+        export_targets_table.configure(request)
 
         return {
             'import_targets_table': import_targets_table,

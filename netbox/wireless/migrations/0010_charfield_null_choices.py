@@ -7,12 +7,13 @@ def set_null_values(apps, schema_editor):
     """
     WirelessLAN = apps.get_model('wireless', 'WirelessLAN')
     WirelessLink = apps.get_model('wireless', 'WirelessLink')
+    db_alias = schema_editor.connection.alias
 
-    WirelessLAN.objects.filter(auth_cipher='').update(auth_cipher=None)
-    WirelessLAN.objects.filter(auth_type='').update(auth_type=None)
-    WirelessLink.objects.filter(auth_cipher='').update(auth_cipher=None)
-    WirelessLink.objects.filter(auth_type='').update(auth_type=None)
-    WirelessLink.objects.filter(distance_unit='').update(distance_unit=None)
+    WirelessLAN.objects.using(db_alias).filter(auth_cipher='').update(auth_cipher=None)
+    WirelessLAN.objects.using(db_alias).filter(auth_type='').update(auth_type=None)
+    WirelessLink.objects.using(db_alias).filter(auth_cipher='').update(auth_cipher=None)
+    WirelessLink.objects.using(db_alias).filter(auth_type='').update(auth_type=None)
+    WirelessLink.objects.using(db_alias).filter(distance_unit='').update(distance_unit=None)
 
 
 class Migration(migrations.Migration):

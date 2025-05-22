@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.urls import reverse
 from netaddr import IPNetwork
@@ -9,7 +10,7 @@ from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
 from utilities.data import string_to_ranges
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 
 
 class AppTest(APITestCase):
@@ -1026,7 +1027,7 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('ipam.delete_vlan')
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': vlan.pk})
-        with disable_warnings('netbox.api.views.ModelViewSet'):
+        with disable_logging(level=logging.WARNING):
             response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)

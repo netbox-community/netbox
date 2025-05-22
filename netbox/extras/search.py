@@ -25,6 +25,17 @@ class JournalEntryIndex(SearchIndex):
 
 
 @register_search
+class TagIndex(SearchIndex):
+    model = models.Tag
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class WebhookEntryIndex(SearchIndex):
     model = models.Webhook
     fields = (
