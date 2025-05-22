@@ -195,7 +195,7 @@ class ProfileView(LoginRequiredMixin, View):
             user=request.user
         ).prefetch_related(
             'changed_object_type'
-        )[:20]
+        )
         changelog_table = ObjectChangeTable(changelog)
         changelog_table.configure(request)
 
