@@ -9,6 +9,7 @@ from django import forms
 from django.conf import settings
 from django.core.files.storage import storages
 from django.core.validators import RegexValidator
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
@@ -646,6 +647,10 @@ def is_variable(obj):
 
 
 def get_module_and_script(module_name, script_name):
-    module = ScriptModule.objects.get(file_path=f'{module_name}.py')
+    path = f'{module_name}.py'
+    module = ScriptModule.objects.get(
+        Q(file_path=path) |
+        Q(file_path=os.path.join(settings.SCRIPTS_ROOT, path))
+    )
     script = module.scripts.get(name=script_name)
     return module, script
