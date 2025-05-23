@@ -54,6 +54,24 @@ PREFERENCES = {
         default='bottom',
         description=_('Where the paginator controls will be displayed relative to a table')
     ),
+    'ui.table.rows.hover': UserPreference(
+        label=_('Hover table rows'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Show hover effect on table rows'),
+        default=False,
+    ),
+    'ui.table.rows.striped': UserPreference(
+        label=_('Striped table rows'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Show striped effect on table rows'),
+        default=False,
+    ),
 
     # Miscellaneous
     'data_format': UserPreference(
