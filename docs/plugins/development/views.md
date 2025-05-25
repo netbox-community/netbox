@@ -181,7 +181,7 @@ Below are the class definitions for NetBox's multi-object views. These views han
 These views are provided to enable or enhance certain NetBox model features, such as change logging or journaling. These typically do not need to be subclassed: They can be used directly e.g. in a URL path.
 
 !!! note
-These feature views are automatically registered for all models that implement the respective feature.  There is usually no need to override them. However, if that's the case, the URL must be registered manually in `urls.py` instead of using the `register_model_view()` function or decorator.
+    These feature views are automatically registered for all models that implement the respective feature.  There is usually no need to override them. However, if that's the case, the URL must be registered manually in `urls.py` instead of using the `register_model_view()` function or decorator.
 
 ::: netbox.views.generic.ObjectChangeLogView
     options:
