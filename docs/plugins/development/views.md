@@ -1,6 +1,6 @@
 # Views
 
-## Writing Views
+## Writing Basic Views
 
 If your plugin will provide its own page or pages within the NetBox web UI, you'll need to define views. A view is a piece of business logic which performs an action and/or renders a page when a request is made to a particular URL. HTML content is rendered using a [template](./templates.md). Views are typically defined in `views.py`, and URL patterns in `urls.py`.
 
@@ -47,9 +47,13 @@ A URL pattern has three components:
 
 This makes our view accessible at the URL `/plugins/animal-sounds/random/`. (Remember, our `AnimalSoundsConfig` class sets our plugin's base URL to `animal-sounds`.) Viewing this URL should show the base NetBox template with our custom content inside it.
 
+## NetBox Model Views
+
+NetBox provides several generic view classes and additional helper functions, to simplify the implementation of plugin logic. These are recommended to be used whenever possible to keep the maintenance overhead of plugins low.
+
 ### View Classes
 
-NetBox provides several generic view classes (documented below) to facilitate common operations, such as creating, viewing, modifying, and deleting objects. Plugins can subclass these views for their own use.
+Generic view classes (documented below) facilitate common operations, such as creating, viewing, modifying, and deleting objects. Plugins can subclass these views for their own use.
 
 | View Class           | Description                                            |
 |----------------------|--------------------------------------------------------|
@@ -65,18 +69,51 @@ NetBox provides several generic view classes (documented below) to facilitate co
 !!! warning
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `views.generic` module, they are not yet supported for use by plugins.
 
-#### Example Usage
+### URL registration
+
+The NetBox URL registration process has two parts:
+
+1. View classes can be decorated with `@register_model_view()`. This registers a new URL for the model.
+2. All of a model's URLs can be included in `urls.py` using the `get_model_urls()` function. This call is usually required twice: once to import general views for the model and again to import model detail views tied to the object's primary key.
+
+::: utilities.views.register_model_view
+
+!!! note "Changed in NetBox v4.2"
+    In NetBox v4.2, the `register_model_view()` function was extended to support the registration of list views by passing `detail=False`.
+
+::: utilities.urls.get_model_urls
+
+!!! note "Changed in NetBox v4.2"
+    In NetBox v4.2, the `get_model_urls()` function was extended to support retrieving registered general model views (e.g. for listing objects) by passing `detail=False`.
+
+### Example Usage
 
 ```python
 # views.py
 from netbox.views.generic import ObjectEditView
+from utilities.views import register_model_view
 from .models import Thing
 
+@register_model_view(Thing, name='add', detail=False)
+@register_model_view(Thing, name='edit')
 class ThingEditView(ObjectEditView):
     queryset = Thing.objects.all()
     template_name = 'myplugin/thing.html'
     ...
 ```
+
+```python
+# urls.py
+from django.urls import include, path
+from utilities.urls import get_model_urls
+
+urlpatterns = [
+    path('thing/', include(get_model_urls('myplugin', 'thing', detail=False))),
+    path('thing/<int:pk>/', include(get_model_urls('myplugin', 'thing'))),
+    ...
+]
+```
+
 ## Object Views
 
 Below are the class definitions for NetBox's object views. These views handle CRUD actions for individual objects. The view, add/edit, and delete views each inherit from `BaseObjectView`, which is not intended to be used directly.
@@ -143,6 +180,9 @@ Below are the class definitions for NetBox's multi-object views. These views han
 
 These views are provided to enable or enhance certain NetBox model features, such as change logging or journaling. These typically do not need to be subclassed: They can be used directly e.g. in a URL path.
 
+!!! note
+    These feature views are automatically registered for all models that implement the respective feature.  There is usually no need to override them. However, if that's the case, the URL must be registered manually in `urls.py` instead of using the `register_model_view()` function or decorator.
+
 ::: netbox.views.generic.ObjectChangeLogView
     options:
       members:
@@ -157,7 +197,7 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ### Additional Tabs
 
-Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`, and add it to the template context dict:
+Plugins can "attach" a custom view to a NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`, and add it to the template context dict:
 
 ```python
 from dcim.models import Site
@@ -184,11 +224,6 @@ class MyView(generic.ObjectView):
             },
         )
 ```
-
-!!! note "Changed in NetBox v4.2"
-    The `register_model_view()` function was extended in NetBox v4.2 to support registration of list views by passing `detail=False`.
-
-::: utilities.views.register_model_view
 
 ::: utilities.views.ViewTab
 
