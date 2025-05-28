@@ -66,3 +66,17 @@ class Migration(migrations.Migration):
             name='group',
         ),
     ]
+
+
+def oc_contact_groups(objectchange, revert):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if 'group' in data:
+            data['groups'] = [data['group']] if data['group'] else []
+            data.pop('group')
+
+
+objectchange_migrators = {
+    'tenancy.contact': oc_contact_groups,
+}
