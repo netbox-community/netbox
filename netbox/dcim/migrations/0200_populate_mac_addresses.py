@@ -15,7 +15,7 @@ def populate_mac_addresses(apps, schema_editor):
             assigned_object_type=interface_ct,
             assigned_object_id=interface.pk
         )
-        for interface in Interface.objects.filter(mac_address__isnull=False)
+        for interface in Interface.objects.using(db_alias).filter(mac_address__isnull=False)
     ]
     MACAddress.objects.using(db_alias).bulk_create(mac_addresses, batch_size=100)
 
