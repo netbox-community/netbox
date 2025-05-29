@@ -220,6 +220,7 @@ class Cable(PrimaryModel):
         b_terminations = {ct.termination: ct for ct in self.terminations.filter(cable_end='B')}
 
         # Delete stale CableTerminations
+
         if self._terminations_modified:
             for termination, ct in a_terminations.items():
                 if termination.pk and termination not in self.a_terminations:
@@ -312,6 +313,12 @@ class CableTermination(ChangeLoggedModel):
     def __str__(self):
         return f'Cable {self.cable} to {self.termination}'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._orig_cable = self.__dict__.get('cable')
+        self._orig_cable_end = self.__dict__.get('cable_end')
+
     def clean(self):
         super().clean()
 
@@ -349,6 +356,7 @@ class CableTermination(ChangeLoggedModel):
 
         # Cache objects associated with the terminating object (for filtering)
         self.cache_related_objects()
+        created = self.pk is None
 
         super().save(*args, **kwargs)
 
@@ -358,6 +366,29 @@ class CableTermination(ChangeLoggedModel):
         termination.cable = self.cable
         termination.cable_end = self.cable_end
         termination.save()
+
+        # figure out which cable terminations changed
+        update_cable_termination = False
+        update_orig_cable_termination = False
+        if created:
+            update_cable_termination = True
+        else:
+            if self._orig_cable and self._orig_cable != self.cable:
+                update_cable_termination = True
+                update_orig_cable_termination = True
+            elif self._orig_cable_end and self._orig_cable_end != self.cable_end:
+                update_cable_termination = True
+
+        if update_cable_termination:
+            self.cable._terminations_modified = True
+            trace_paths.send(Cable, instance=self.cable, created=False)
+
+        if update_orig_cable_termination:
+            self._orig_cable._terminations_modified = True
+            trace_paths.send(Cable, instance=self._orig_cable, created=False)
+
+        self._orig_cable_end = self.cable_end
+        self._orig_cable = self.cable
 
     def delete(self, *args, **kwargs):
 
@@ -369,6 +400,7 @@ class CableTermination(ChangeLoggedModel):
         termination.save()
 
         super().delete(*args, **kwargs)
+        trace_paths.send(Cable, instance=self.cable, created=False)
 
     def cache_related_objects(self):
         """
