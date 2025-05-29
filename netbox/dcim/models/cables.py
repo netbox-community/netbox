@@ -368,22 +368,23 @@ class CableTermination(ChangeLoggedModel):
         termination.save()
 
         # figure out which cable terminations changed
-        update_cable_termination = False
-        update_orig_cable_termination = False
         if not created:
+            update_cable_termination = False
+            update_orig_cable_termination = False
+
             if self._orig_cable and self._orig_cable != self.cable:
                 update_cable_termination = True
                 update_orig_cable_termination = True
             elif self._orig_cable_end and self._orig_cable_end != self.cable_end:
                 update_cable_termination = True
 
-        if update_cable_termination:
-            self.cable._terminations_modified = True
-            trace_paths.send(Cable, instance=self.cable, created=False)
+            if update_cable_termination:
+                self.cable._terminations_modified = True
+                trace_paths.send(Cable, instance=self.cable, created=False)
 
-        if update_orig_cable_termination:
-            self._orig_cable._terminations_modified = True
-            trace_paths.send(Cable, instance=self._orig_cable, created=False)
+            if update_orig_cable_termination:
+                self._orig_cable._terminations_modified = True
+                trace_paths.send(Cable, instance=self._orig_cable, created=False)
 
         self._orig_cable_end = self.cable_end
         self._orig_cable = self.cable
