@@ -370,9 +370,7 @@ class CableTermination(ChangeLoggedModel):
         # figure out which cable terminations changed
         update_cable_termination = False
         update_orig_cable_termination = False
-        if created:
-            update_cable_termination = True
-        else:
+        if not created:
             if self._orig_cable and self._orig_cable != self.cable:
                 update_cable_termination = True
                 update_orig_cable_termination = True
