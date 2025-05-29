@@ -1,4 +1,6 @@
 import django.db.models.deletion
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
 
@@ -51,3 +53,41 @@ class Migration(migrations.Migration):
             name='mac_address',
         ),
     ]
+
+
+def oc_interface_primary_mac_address(objectchange, revert):
+    MACAddress = apps.get_model('dcim', 'MACAddress')
+    interface_ct = ContentType.objects.get_by_natural_key('dcim', 'interface')
+
+    if not revert:
+        before, after = objectchange.prechange_data, objectchange.postchange_data
+    else:
+        before, after = objectchange.postchange_data, objectchange.prechange_data
+
+    if after.get('mac_address') != before.get('mac_address'):
+        # Create & assign the new MACAddress (if any)
+        if after.get('mac_address'):
+            mac = MACAddress.objects.create(
+                mac_address=after['mac_address'],
+                assigned_object_type=interface_ct,
+                assigned_object_id=objectchange.changed_object_id,
+            )
+            after['primary_mac_address'] = mac.pk
+        else:
+            after['primary_mac_address'] = None
+        # Delete the old MACAddress (if any)
+        if before.get('mac_address'):
+            MACAddress.objects.filter(
+                mac_address=before['mac_address'],
+                assigned_object_type=interface_ct,
+                assigned_object_id=objectchange.changed_object_id,
+            ).delete()
+        before['primary_mac_address'] = None
+
+    before.pop('mac_address')
+    after.pop('mac_address')
+
+
+objectchange_migrators = {
+    'dcim.interface': oc_interface_primary_mac_address,
+}
