@@ -78,6 +78,7 @@
           <h2 class="text-center">{% trans "Recent Activity" %}</h2>
           <div class="card-body table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
+            {% include 'inc/paginator.html' with paginator=changelog_table.paginator page=changelog_table.page %}
           </div>
         </div>
       </div>
