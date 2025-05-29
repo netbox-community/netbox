@@ -89,7 +89,8 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
     )
     termination = tables.Column(
         verbose_name=_('Tunnel interface'),
-        linkify=True
+        linkify=True,
+        orderable=False,
     )
     ip_addresses = columns.ManyToManyColumn(
         accessor=tables.A('termination__ip_addresses'),
