@@ -120,7 +120,8 @@ class CircuitTerminationTable(NetBoxTable):
     )
     termination = tables.Column(
         verbose_name=_('Termination Point'),
-        linkify=True
+        linkify=True,
+        orderable=False,
     )
 
     # Termination types
