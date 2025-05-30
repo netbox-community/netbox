@@ -73,7 +73,7 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
         default_columns = ('pk', 'name', 'group', 'status', 'encapsulation', 'tenant', 'terminations_count')
 
 
-class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
+class TunnelTerminationTable(NetBoxTable):
     tunnel = tables.Column(
         verbose_name=_('Tunnel'),
         linkify=True
