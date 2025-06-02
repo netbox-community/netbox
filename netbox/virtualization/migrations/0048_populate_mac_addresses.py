@@ -54,11 +54,12 @@ class Migration(migrations.Migration):
     ]
 
 
-def oc_vminterface_primary_mac_address(objectchange, revert):
+def oc_vminterface_primary_mac_address(objectchange, reverting):
     MACAddress = apps.get_model('dcim', 'MACAddress')
     vminterface_ct = ContentType.objects.get_by_natural_key('virtualization', 'vminterface')
 
-    if not revert:
+    # Swap data order if the change is being reverted
+    if not reverting:
         before, after = objectchange.prechange_data, objectchange.postchange_data
     else:
         before, after = objectchange.postchange_data, objectchange.prechange_data
@@ -83,8 +84,8 @@ def oc_vminterface_primary_mac_address(objectchange, revert):
             ).delete()
         before['primary_mac_address'] = None
 
-    before.pop('mac_address')
-    after.pop('mac_address')
+    before.pop('mac_address', None)
+    after.pop('mac_address', None)
 
 
 objectchange_migrators = {

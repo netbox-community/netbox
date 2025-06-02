@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
     ]
 
 
-def oc_cluster_scope(objectchange, revert):
+def oc_cluster_scope(objectchange, reverting):
     site_ct = ContentType.objects.get_by_natural_key('dcim', 'site').pk
     for data in (objectchange.prechange_data, objectchange.postchange_data):
         if data is None:
@@ -56,7 +56,7 @@ def oc_cluster_scope(objectchange, revert):
                 'scope_type': site_ct,
                 'scope_id': site_id,
             })
-        data.pop('site')
+        data.pop('site', None)
 
 
 objectchange_migrators = {

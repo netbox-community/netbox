@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
     ]
 
 
-def oc_circuitgroupassignment_member(objectchange, revert):
+def oc_circuitgroupassignment_member(objectchange, reverting):
     circuit_ct = ContentType.objects.get_by_natural_key('circuits', 'circuit').pk
     for data in (objectchange.prechange_data, objectchange.postchange_data):
         if data is None:
@@ -95,7 +95,7 @@ def oc_circuitgroupassignment_member(objectchange, revert):
                 'member_type': circuit_ct,
                 'member_id': circuit_id,
             })
-        data.pop('circuit')
+        data.pop('circuit', None)
 
 
 objectchange_migrators = {

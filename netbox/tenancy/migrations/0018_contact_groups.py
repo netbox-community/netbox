@@ -68,13 +68,13 @@ class Migration(migrations.Migration):
     ]
 
 
-def oc_contact_groups(objectchange, revert):
+def oc_contact_groups(objectchange, reverting):
     for data in (objectchange.prechange_data, objectchange.postchange_data):
         if data is None:
             continue
-        if 'group' in data:
-            data['groups'] = [data['group']] if data['group'] else []
-            data.pop('group')
+        # Set the M2M field `groups` to a list containing the group ID
+        data['groups'] = [data['group']] if data.get('group') else []
+        data.pop('group', None)
 
 
 objectchange_migrators = {

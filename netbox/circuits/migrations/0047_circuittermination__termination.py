@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
     ]
 
 
-def oc_circuittermination_termination(objectchange, revert):
+def oc_circuittermination_termination(objectchange, reverting):
     site_ct = ContentType.objects.get_by_natural_key('dcim', 'site').pk
     provider_network_ct = ContentType.objects.get_by_natural_key('circuits', 'providernetwork').pk
     for data in (objectchange.prechange_data, objectchange.postchange_data):
@@ -68,8 +68,8 @@ def oc_circuittermination_termination(objectchange, revert):
                 'termination_type': provider_network_ct,
                 'termination_id': provider_network_id,
             })
-        data.pop('site')
-        data.pop('provider_network')
+        data.pop('site', None)
+        data.pop('provider_network', None)
 
 
 objectchange_migrators = {
