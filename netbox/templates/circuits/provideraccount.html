@@ -28,7 +28,11 @@
             <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name|placeholder }}</td>
           </tr>
-        </table>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+      </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
