@@ -2012,6 +2012,21 @@ class InterfaceFilterSet(
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
 
+    # Override the method on CabledObjectFilterSet to also check for wireless links
+    def filter_occupied(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                Q(cable__isnull=False) |
+                Q(wireless_link__isnull=False) |
+                Q(mark_connected=True)
+            )
+        else:
+            return queryset.filter(
+                cable__isnull=True,
+                wireless_link__isnull=True,
+                mark_connected=False
+            )
+
 
 class FrontPortFilterSet(
     ModularDeviceComponentFilterSet,

@@ -12,6 +12,7 @@ from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterType, ClusterGroup, VMInterface, VirtualMachine
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
+from wireless.models import WirelessLink
 
 
 class DeviceComponentFilterSetTests:
@@ -4496,7 +4497,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         # Cables
         Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[5]]).save()
         Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[6]]).save()
-        # Third pair is not connected
+
+        # Wireless links
+        WirelessLink(interface_a=interfaces[7], interface_b=interfaces[8]).save()
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
@@ -4684,15 +4687,15 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_occupied(self):
         params = {'occupied': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'occupied': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_connected(self):
         params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_kind(self):
         params = {'kind': 'physical'}
