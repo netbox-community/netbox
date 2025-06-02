@@ -197,6 +197,7 @@ class ProfileView(LoginRequiredMixin, View):
             'changed_object_type'
         )[:20]
         changelog_table = ObjectChangeTable(changelog)
+        changelog_table.orderable = False
         changelog_table.configure(request)
 
         return render(request, self.template_name, {

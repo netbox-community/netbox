@@ -65,7 +65,14 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
-          <h2 class="card-header text-center">{% trans "Recent Activity" %}</h2>
+          <h2 class="card-header text-center">
+            {% trans "Recent Activity" %}
+            <div class="card-actions">
+              <a href="{% url 'core:objectchange_list' %}?user_id={{ request.user.pk }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-arrow-right-thick" aria-hidden="true"></i> {% trans "View All" %}
+              </a>
+            </div>
+          </h2>
           <div class="table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
           </div>
