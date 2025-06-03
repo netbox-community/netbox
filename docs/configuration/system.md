@@ -95,7 +95,7 @@ Default: `('127.0.0.1', '::1')`
 
 A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
-addresses (and [`DEBUG`](./development.md#debug) is True).
+addresses (and [`DEBUG`](./development.md#debug) is `True`).
 
 ---
 
