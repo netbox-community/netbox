@@ -103,7 +103,7 @@ addresses (and [`DEBUG`](./development.md#debug) is True).
 
 Default: `False`
 
-Set this configuration parameter to True for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
+Set this configuration parameter to `True` for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
 
 !!! note
     If Internet access is available via a proxy, set [`HTTP_PROXIES`](#http_proxies) instead.
