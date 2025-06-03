@@ -87,3 +87,14 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
+
+
+def oc_cluster_remove_site(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is not None:
+            data.pop('site', None)
+
+
+objectchange_migrators = {
+    'virtualization.cluster': oc_cluster_remove_site,
+}

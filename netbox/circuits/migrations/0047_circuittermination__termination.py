@@ -68,8 +68,6 @@ def oc_circuittermination_termination(objectchange, reverting):
                 'termination_type': provider_network_ct,
                 'termination_id': provider_network_id,
             })
-        data.pop('site', None)
-        data.pop('provider_network', None)
 
 
 objectchange_migrators = {

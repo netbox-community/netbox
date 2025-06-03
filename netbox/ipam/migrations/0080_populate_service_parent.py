@@ -73,8 +73,6 @@ def oc_service_parent(objectchange, reverting):
                 'parent_object_type': virtual_machine_ct,
                 'parent_object_id': virtual_machine_id,
             })
-        data.pop('device', None)
-        data.pop('virtual_machine', None)
 
 
 objectchange_migrators = {

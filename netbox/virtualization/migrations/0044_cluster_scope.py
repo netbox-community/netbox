@@ -56,7 +56,6 @@ def oc_cluster_scope(objectchange, reverting):
                 'scope_type': site_ct,
                 'scope_id': site_id,
             })
-        data.pop('site', None)
 
 
 objectchange_migrators = {
