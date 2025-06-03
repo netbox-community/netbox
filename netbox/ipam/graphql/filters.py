@@ -159,6 +159,14 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
                 return Q()
         return q
 
+    @strawberry_django.filter_field()
+    def family(
+        self,
+        value: Annotated['IPAddressFamilyEnum', strawberry.lazy('ipam.graphql.enums')],
+        prefix,
+    ) -> Q:
+        return Q(**{f"{prefix}address__family": value.value})
+
 
 @strawberry_django.filter_type(models.IPRange, lookups=True)
 class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
