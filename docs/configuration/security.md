@@ -52,7 +52,7 @@ Although it is not recommended, the default validation rules can be disabled by 
 
 Default: `False`
 
-If True, cross-origin resource sharing (CORS) requests will be accepted from all origins. If False, a whitelist will be used (see below).
+If `True`, cross-origin resource sharing (CORS) requests will be accepted from all origins. If False, a whitelist will be used (see below).
 
 ---
 
@@ -84,7 +84,7 @@ The name of the cookie to use for the cross-site request forgery (CSRF) authenti
 
 Default: `False`
 
-If true, the cookie employed for cross-site request forgery (CSRF) protection will be marked as secure, meaning that it can only be sent across an HTTPS connection.
+If `True`, the cookie employed for cross-site request forgery (CSRF) protection will be marked as secure, meaning that it can only be sent across an HTTPS connection.
 
 ---
 
@@ -164,7 +164,7 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 Default: `False`
 
-If true, the lifetime of a user's authentication session will be automatically reset upon each valid request. For example, if [`LOGIN_TIMEOUT`](#login_timeout) is configured to 14 days (the default), and a user whose session is due to expire in five days makes a NetBox request (with a valid session cookie), the session's lifetime will be reset to 14 days.
+If `True`, the lifetime of a user's authentication session will be automatically reset upon each valid request. For example, if [`LOGIN_TIMEOUT`](#login_timeout) is configured to 14 days (the default), and a user whose session is due to expire in five days makes a NetBox request (with a valid session cookie), the session's lifetime will be reset to 14 days.
 
 Note that enabling this setting causes NetBox to update a user's session in the database (or file, as configured per [`SESSION_FILE_PATH`](#session_file_path)) with each request, which may introduce significant overhead in very active environments. It also permits an active user to remain authenticated to NetBox indefinitely.
 
@@ -212,7 +212,7 @@ The view name or URL to which a user is redirected after logging out.
 
 Default: `False`
 
-If true, the `includeSubDomains` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to apply the HSTS policy to all subdomains of the current domain.
+If `True`, the `includeSubDomains` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to apply the HSTS policy to all subdomains of the current domain.
 
 ---
 
@@ -220,7 +220,7 @@ If true, the `includeSubDomains` directive will be included in the HTTP Strict T
 
 Default: `False`
 
-If true, the `preload` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to preload the site in HTTPS. Browsers that use the HSTS preload list will force the site to be accessed via HTTPS even if the user types HTTP in the address bar.
+If `True`, the `preload` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to preload the site in HTTPS. Browsers that use the HSTS preload list will force the site to be accessed via HTTPS even if the user types HTTP in the address bar.
 
 ---
 
@@ -236,7 +236,7 @@ If set to a non-zero integer value, the SecurityMiddleware sets the HTTP Strict 
 
 Default: `False`
 
-If true, all non-HTTPS requests will be automatically redirected to use HTTPS.
+If `True`, all non-HTTPS requests will be automatically redirected to use HTTPS.
 
 !!! warning
     Ensure that your frontend HTTP daemon has been configured to forward the HTTP scheme correctly before enabling this option. An incorrectly configured frontend may result in a looping redirect.
@@ -255,7 +255,7 @@ The name used for the session cookie. See the [Django documentation](https://doc
 
 Default: `False`
 
-If true, the cookie employed for session authentication will be marked as secure, meaning that it can only be sent across an HTTPS connection.
+If `True`, the cookie employed for session authentication will be marked as secure, meaning that it can only be sent across an HTTPS connection.
 
 ---
 
