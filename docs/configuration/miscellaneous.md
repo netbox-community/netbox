@@ -57,7 +57,7 @@ Sets content for the top banner in the user interface.
 
 Default: `True`
 
-Enables anonymous census reporting. To opt out of census reporting, set this to False.
+Enables anonymous census reporting. To opt out of census reporting, set this to `False`.
 
 This data enables the project maintainers to estimate how many NetBox deployments exist and track the adoption of new versions over time. Census reporting effects a single HTTP request each time a worker starts. The only data reported by this function are the NetBox version, Python version, and a pseudorandom unique identifier.
 
@@ -102,7 +102,7 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 Default: `True`
 
-By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
+By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to `False`.
 
 ---
 
@@ -143,7 +143,7 @@ The number of days to retain job results (scripts and reports). Set this to `0` 
 
 Default: `False`
 
-Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
+Setting this to `True` will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
 
 ---
 
@@ -181,7 +181,7 @@ Toggle the availability Prometheus-compatible metrics at `/metrics`. See the [Pr
 
 Default: `False`
 
-When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
+When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to `True` to prefer IPv4 instead.
 
 ---
 

@@ -4,7 +4,7 @@
 
 Default: `None`
 
-Defines a Sentry data source name (DSN) for automated error reporting. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
+Defines a Sentry data source name (DSN) for automated error reporting. `SENTRY_ENABLED` must be `True` for this parameter to take effect. For example:
 
 ```
 SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
@@ -16,7 +16,7 @@ SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
 
 Default: `False`
 
-Set to True to enable automatic error reporting via [Sentry](https://sentry.io/).
+Set to `True` to enable automatic error reporting via [Sentry](https://sentry.io/).
 
 !!! note
     The `sentry-sdk` Python package is required to enable Sentry integration.
@@ -27,7 +27,7 @@ Set to True to enable automatic error reporting via [Sentry](https://sentry.io/)
 
 Default: `1.0` (all)
 
-The sampling rate for errors. Must be a value between 0 (disabled) and 1.0 (report on all errors).
+The sampling rate for errors. Must be a value between `0` (disabled) and `1.0` (report on all errors).
 
 ---
 
@@ -62,7 +62,7 @@ SENTRY_TAGS = {
 
 Default: `0` (disabled)
 
-The sampling rate for transactions. Must be a value between 0 (disabled) and 1.0 (report on all transactions).
+The sampling rate for transactions. Must be a value between `0` (disabled) and `1.0` (report on all transactions).
 
 !!! warning "Consider performance implications"
     A high sampling rate for transactions can induce significant performance penalties. If transaction reporting is desired, it is recommended to use a relatively low sample rate of 10% to 20% (0.1 to 0.2).

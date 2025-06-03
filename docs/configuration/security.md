@@ -5,7 +5,7 @@
 Default: `False`
 
 !!! note
-    The default value of this parameter changed from true to false in NetBox v4.3.0.
+    The default value of this parameter changed from `True` to `False` in NetBox v4.3.0.
 
 If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token prior to its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
 
@@ -62,7 +62,7 @@ If `True`, cross-origin resource sharing (CORS) requests will be accepted from a
 
 These settings specify a list of origins that are authorized to make cross-site API requests. Use
 `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular 
-expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
+expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is `True`.) For example:
 
 ```python
 CORS_ORIGIN_WHITELIST = [
