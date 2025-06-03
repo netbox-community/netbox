@@ -55,6 +55,7 @@ class Migration(migrations.Migration):
     ]
 
 
+# See peer migrator in virtualization.0048_populate_mac_addresses before making changes
 def oc_interface_primary_mac_address(objectchange, reverting):
     MACAddress = apps.get_model('dcim', 'MACAddress')
     interface_ct = ContentType.objects.get_by_natural_key('dcim', 'interface')
