@@ -4,38 +4,35 @@
 [project]
 name = "netbox"
 version = "4.3.1"
+requires-python = ">=3.10"
 authors = [
     { name = "NetBox Community" }
 ]
-description = """\
-NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling\
- and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and\
- DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked.\
- By providing a single robust user interface and programmable APIs for everything from cable maps to device\
- configurations, NetBox serves as the central source of truth for the modern network.
-"""
+maintainers = [
+    { name = "NetBox Community" }
+]
+description = "The premier source of truth powering network automation."
 readme = "README.md"
-license = { file = "LICENSE.txt" }
-
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Framework :: Django",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 
-requires-python = ">=3.10"
 
 [project.urls]
 Homepage = "https://netboxlabs.com/products/netbox/"
-Source = "https://github.com/netbox-community/netbox"
 Documentation = "https://netboxlabs.com/docs/netbox/"
+Repository = "https://github.com/netbox-community/netbox"
 Issues = "https://github.com/netbox-community/netbox/issues"
 
 [tool.black]
