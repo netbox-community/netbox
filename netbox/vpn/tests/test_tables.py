@@ -9,10 +9,7 @@ class TunnelTerminationTableTest(TestCase):
     def test_every_orderable_field_does_not_throw_exception(self):
         terminations = TunnelTermination.objects.all()
         fake_request = RequestFactory().get("/")
-        disallowed = {
-            'actions',
-            'termination',  # TODO: remove this when #19600 is merged
-        }
+        disallowed = {'actions'}
 
         orderable_columns = [
             column.name for column in TunnelTerminationTable(terminations).columns
