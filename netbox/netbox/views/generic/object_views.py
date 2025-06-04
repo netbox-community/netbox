@@ -3,7 +3,7 @@ from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.db import router, transaction
+from django.db import router
 from django.db.models import ProtectedError, RestrictedError
 from django.db.models.deletion import Collector
 from django.http import HttpResponse
@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from netbox.registry import registry
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
@@ -282,7 +283,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     object_created = form.instance.pk is None
                     obj = form.save()
 
@@ -570,7 +571,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
             if not form.errors and not component_form.errors:
                 try:
-                    with transaction.atomic():
+                    with registry['functions']['atomic']():
                         # Create the new components
                         new_objs = []
                         for component_form in new_components:

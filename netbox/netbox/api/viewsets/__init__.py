@@ -2,7 +2,6 @@ import logging
 from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import transaction
 from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
 from netbox.constants import ADVISORY_LOCK_KEYS
@@ -10,6 +9,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from netbox.registry import registry
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from utilities.query import reapply_model_ordering
@@ -170,7 +170,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic():
+            with registry['functions']['atomic']():
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
@@ -190,7 +190,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic():
+            with registry['functions']['atomic']():
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:

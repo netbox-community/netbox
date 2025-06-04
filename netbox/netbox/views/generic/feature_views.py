@@ -1,7 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
-from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -12,6 +11,7 @@ from core.tables import JobTable, ObjectChangeTable
 from extras.forms import JournalEntryForm
 from extras.models import JournalEntry
 from extras.tables import JournalEntryTable
+from netbox.registry import registry
 from tenancy.models import ContactAssignment
 from tenancy.tables import ContactAssignmentTable
 from tenancy.filtersets import ContactAssignmentFilterSet
@@ -240,7 +240,7 @@ class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
             data_file__isnull=False
         )
 
-        with transaction.atomic():
+        with registry['functions']['atomic']():
             for obj in selected_objects:
                 obj.sync(save=True)
 

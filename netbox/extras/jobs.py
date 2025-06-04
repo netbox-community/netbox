@@ -2,7 +2,6 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.db import transaction
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
@@ -39,7 +38,7 @@ class ScriptJob(JobRunner):
 
         try:
             try:
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     script.output = script.run(data, commit)
                     if not commit:
                         raise AbortTransaction()

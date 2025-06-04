@@ -1,10 +1,10 @@
 from django.contrib import messages
-from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
 from ipam.models import ASN
+from netbox.registry import registry
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
@@ -384,7 +384,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
             if termination_a and termination_z:
                 # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     termination_a.term_side = '_'
                     termination_a.save()
                     termination_z.term_side = 'A'

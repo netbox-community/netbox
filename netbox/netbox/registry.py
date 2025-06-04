@@ -1,4 +1,5 @@
 import collections
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 
@@ -26,6 +27,9 @@ registry = Registry({
     'data_backends': dict(),
     'denormalized_fields': collections.defaultdict(list),
     'event_types': dict(),
+    'functions': {
+        'atomic': transaction.atomic,
+    },
     'model_features': dict(),
     'models': collections.defaultdict(set),
     'plugins': dict(),

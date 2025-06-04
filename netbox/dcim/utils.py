@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from netbox.registry import registry
 
 
 def compile_path_node(ct_id, object_id):
@@ -53,7 +53,7 @@ def rebuild_paths(terminations):
     for obj in terminations:
         cable_paths = CablePath.objects.filter(_nodes__contains=obj)
 
-        with transaction.atomic():
+        with registry['functions']['atomic']():
             for cp in cable_paths:
                 cp.delete()
                 create_cablepath(cp.origins)

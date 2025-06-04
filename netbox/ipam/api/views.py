@@ -2,7 +2,6 @@ from copy import deepcopy
 
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django_pglocks import advisory_lock
@@ -22,6 +21,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
+from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from virtualization.models import VMInterface
 from . import serializers
@@ -295,7 +295,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
             # Create the new IP address(es)
             try:
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     created = serializer.save()
                     self._validate_objects(created)
             except ObjectDoesNotExist:

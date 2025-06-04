@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
@@ -22,6 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.registry import registry
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -278,7 +279,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     new_objs = self._create_objects(form, request)
 
                     # Enforce object-level permissions
@@ -501,7 +502,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
-                with transaction.atomic():
+                with registry['functions']['atomic']():
                     new_objs = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
@@ -681,7 +682,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 logger.debug("Form validation was successful")
                 try:
-                    with transaction.atomic():
+                    with registry['functions']['atomic']():
                         updated_objects = self._update_objects(form, request)
 
                         # Enforce object-level permissions
@@ -778,7 +779,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
             if form.is_valid():
                 try:
-                    with transaction.atomic():
+                    with registry['functions']['atomic']():
                         renamed_pks = self._rename_objects(form, selected_objects)
 
                         if '_apply' in request.POST:
@@ -875,7 +876,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    with transaction.atomic():
+                    with registry['functions']['atomic']():
                         for obj in queryset:
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
@@ -980,7 +981,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 }
 
                 try:
-                    with transaction.atomic():
+                    with registry['functions']['atomic']():
 
                         for obj in data['pk']:
 

@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
 from django.db.models import Prefetch, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -14,6 +13,7 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.registry import registry
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -297,7 +297,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         if form.is_valid():
 
             device_pks = form.cleaned_data['devices']
-            with transaction.atomic():
+            with registry['functions']['atomic']():
 
                 # Assign the selected Devices to the Cluster
                 for device in Device.objects.filter(pk__in=device_pks):
@@ -332,7 +332,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
             if form.is_valid():
 
                 device_pks = form.cleaned_data['pk']
-                with transaction.atomic():
+                with registry['functions']['atomic']():
 
                     # Remove the selected Devices from the Cluster
                     for device in Device.objects.filter(pk__in=device_pks):
