@@ -54,6 +54,7 @@ If a new Django release is adopted or other major dependencies (Python, PostgreS
 * Update the installation guide (`docs/installation/index.md`) with the new minimum versions.
 * Update the upgrade guide (`docs/installation/upgrading.md`) for the current version accordingly.
 * Update the minimum PostgreSQL version in the programming error template (`netbox/templates/exceptions/programming_error.html`).
+* Update the minimum and supported Python versions in the project metadata file (`pyproject.toml`)
 
 ### Manually Perform a New Install
 
@@ -165,7 +166,7 @@ Then, compile these portable (`.po`) files for use in the application:
 
 ### Update Version and Changelog
 
-* Update the version number and date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
+* Update the version number and date in `netbox/release.yaml` and `pyproject.toml`. Add or remove the designation (e.g. `beta1`) if applicable.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Add a section for this release at the top of the changelog page for the minor version (e.g. `docs/release-notes/version-4.2.md`) listing all relevant changes made in this release.
 
