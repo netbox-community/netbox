@@ -32,7 +32,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://netboxlabs.com/products/netbox/"
 Documentation = "https://netboxlabs.com/docs/netbox/"
-Repository = "https://github.com/netbox-community/netbox"
+Source = "https://github.com/netbox-community/netbox"
 Issues = "https://github.com/netbox-community/netbox/issues"
 
 [tool.black]
