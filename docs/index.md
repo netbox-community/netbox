@@ -9,7 +9,7 @@ NetBox is the leading solution for modeling and documenting modern networks. By 
 
 ## :material-server-network: Built for Networks
 
-Unlike general-purpose CMDBs, NetBox has curated a data model which caters specifically to the needs of network engineers and operators. It delivers a wide assortment of object types carefully crafted to best serve the needs of infrastructure design and documentation. These cover all facets of network technology, from IP address managements to cabling to overlays and more:
+Unlike general-purpose configuration management databases (CMDBs), NetBox has curated a data model which caters specifically to the needs of network engineers and operators. It delivers a wide assortment of object types carefully crafted to best serve the needs of infrastructure design and documentation. These cover all facets of network technology, from IP address managements to cabling to overlays and more:
 
 * Hierarchical regions, sites, and locations
 * Racks, devices, and device components

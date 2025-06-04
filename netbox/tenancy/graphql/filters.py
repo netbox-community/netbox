@@ -56,7 +56,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.Tenant, lookups=True)
+@strawberry_django.filter_type(models.Tenant, lookups=True)
 class TenantFilter(PrimaryModelFilterMixin, ContactFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -135,7 +135,7 @@ class TenantFilter(PrimaryModelFilterMixin, ContactFilterMixin):
     )
 
 
-@strawberry_django.filter(models.TenantGroup, lookups=True)
+@strawberry_django.filter_type(models.TenantGroup, lookups=True)
 class TenantGroupFilter(OrganizationalModelFilterMixin):
     parent: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -149,7 +149,7 @@ class TenantGroupFilter(OrganizationalModelFilterMixin):
     )
 
 
-@strawberry_django.filter(models.Contact, lookups=True)
+@strawberry_django.filter_type(models.Contact, lookups=True)
 class ContactFilter(PrimaryModelFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     title: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -165,19 +165,19 @@ class ContactFilter(PrimaryModelFilterMixin):
     )
 
 
-@strawberry_django.filter(models.ContactRole, lookups=True)
+@strawberry_django.filter_type(models.ContactRole, lookups=True)
 class ContactRoleFilter(OrganizationalModelFilterMixin):
     pass
 
 
-@strawberry_django.filter(models.ContactGroup, lookups=True)
+@strawberry_django.filter_type(models.ContactGroup, lookups=True)
 class ContactGroupFilter(NestedGroupModelFilterMixin):
     parent: Annotated['ContactGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter(models.ContactAssignment, lookups=True)
+@strawberry_django.filter_type(models.ContactAssignment, lookups=True)
 class ContactAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin):
     object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()

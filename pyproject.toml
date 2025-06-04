@@ -1,6 +1,40 @@
 # See PEP 518 for the spec of this file
 # https://www.python.org/dev/peps/pep-0518/
 
+[project]
+name = "netbox"
+version = "4.3.1"
+requires-python = ">=3.10"
+authors = [
+    { name = "NetBox Community" }
+]
+maintainers = [
+    { name = "NetBox Community" }
+]
+description = "The premier source of truth powering network automation."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+
+[project.urls]
+Homepage = "https://netboxlabs.com/products/netbox/"
+Documentation = "https://netboxlabs.com/docs/netbox/"
+Source = "https://github.com/netbox-community/netbox"
+Issues = "https://github.com/netbox-community/netbox/issues"
+
 [tool.black]
 line-length = 120
 target_version = ['py310', 'py311', 'py312']

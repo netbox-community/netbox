@@ -14,7 +14,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import *
 from dcim.models import Site
 from users.models import User
-from utilities.testing import TestCase, ViewTestCases, create_tags
+from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -271,7 +271,8 @@ class BackgroundTaskTestCase(TestCase):
         # Enqueue & run a job that will fail
         job = queue.enqueue(self.dummy_job_failing)
         worker = get_worker('default')
-        worker.work(burst=True)
+        with disable_logging():
+            worker.work(burst=True)
         self.assertTrue(job.is_failed)
 
         # Re-enqueue the failed job and check that its status has been reset
@@ -317,7 +318,8 @@ class BackgroundTaskTestCase(TestCase):
         self.assertEqual(len(started_job_registry), 1)
         response = self.client.get(reverse('core:background_task_stop', args=[job.id]))
         self.assertEqual(response.status_code, 302)
-        worker.monitor_work_horse(job, queue)  # Sets the job as Failed and removes from Started
+        with disable_logging():
+            worker.monitor_work_horse(job, queue)  # Sets the job as Failed and removes from Started
         self.assertEqual(len(started_job_registry), 0)
 
         canceled_job_registry = FailedJobRegistry(queue.name, connection=queue.connection)

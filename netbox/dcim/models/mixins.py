@@ -85,7 +85,7 @@ class CachedScopeMixin(models.Model):
         abstract = True
 
     def clean(self):
-        if self.scope_type and not self.scope:
+        if self.scope_type and not (self.scope or self.scope_id):
             scope_type = self.scope_type.model_class()
             raise ValidationError({
                 'scope': _(
