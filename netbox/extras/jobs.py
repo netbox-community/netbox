@@ -2,10 +2,11 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.db import transaction
+from django.db import router, transaction
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from dcim.models import Device
 from extras.models import Script as ScriptModel
 from netbox.jobs import JobRunner
 from netbox.registry import registry
@@ -39,10 +40,15 @@ class ScriptJob(JobRunner):
 
         try:
             try:
+                # A script can modify multiple models so need to do an atomic lock on
+                # both the default database (for non ChangeLogged models) and potentially
+                # any other database (for ChangeLogged models) - choosing Device as
+                # the model to use as it has ChangeLoggingMixin
                 with transaction.atomic():
-                    script.output = script.run(data, commit)
-                    if not commit:
-                        raise AbortTransaction()
+                    with transaction.atomic(router.db_for_write(Device)):
+                        script.output = script.run(data, commit)
+                        if not commit:
+                            raise AbortTransaction()
             except AbortTransaction:
                 script.log_info(message=_("Database changes have been reverted automatically."))
                 if script.failed:
