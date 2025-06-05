@@ -33,7 +33,7 @@ requests==2.32.3
 rq==2.3.3
 social-auth-app-django==5.4.3
 social-auth-core==4.6.1
-strawberry-graphql==0.271.1
+strawberry-graphql==0.271.0
 strawberry-graphql-django==0.60.0
 svgwrite==1.4.3
 tablib==3.8.0
