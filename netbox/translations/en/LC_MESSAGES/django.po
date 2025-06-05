@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 05:01+0000\n"
+"POT-Creation-Date: 2025-06-05 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,15 +70,15 @@ msgstr ""
 msgid "You have logged out."
 msgstr ""
 
-#: netbox/account/views.py:227
+#: netbox/account/views.py:224
 msgid "Your preferences have been updated."
 msgstr ""
 
-#: netbox/account/views.py:255
+#: netbox/account/views.py:252
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
 
-#: netbox/account/views.py:270
+#: netbox/account/views.py:267
 msgid "Your password has been changed successfully."
 msgstr ""
 
@@ -104,7 +104,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:539 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
 #: netbox/ipam/choices.py:154 netbox/templates/extras/configcontext.html:25
-#: netbox/templates/users/user.html:37 netbox/users/forms/bulk_edit.py:38
+#: netbox/templates/users/user.html:35 netbox/users/forms/bulk_edit.py:38
 #: netbox/virtualization/choices.py:22 netbox/virtualization/choices.py:45
 #: netbox/vpn/choices.py:19 netbox/vpn/choices.py:280
 #: netbox/wireless/choices.py:25
@@ -211,7 +211,7 @@ msgstr ""
 #: netbox/circuits/filtersets.py:62 netbox/circuits/forms/filtersets.py:59
 #: netbox/circuits/forms/filtersets.py:183
 #: netbox/circuits/forms/filtersets.py:241
-#: netbox/circuits/tables/circuits.py:128 netbox/dcim/forms/bulk_edit.py:177
+#: netbox/circuits/tables/circuits.py:129 netbox/dcim/forms/bulk_edit.py:177
 #: netbox/dcim/forms/bulk_edit.py:344 netbox/dcim/forms/bulk_edit.py:730
 #: netbox/dcim/forms/bulk_edit.py:935 netbox/dcim/forms/bulk_import.py:134
 #: netbox/dcim/forms/bulk_import.py:236 netbox/dcim/forms/bulk_import.py:337
@@ -373,7 +373,7 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:163
 #: netbox/circuits/forms/model_forms.py:263
 #: netbox/circuits/tables/circuits.py:107
-#: netbox/circuits/tables/circuits.py:202 netbox/dcim/forms/connections.py:73
+#: netbox/circuits/tables/circuits.py:203 netbox/dcim/forms/connections.py:73
 #: netbox/templates/circuits/circuit.html:15
 #: netbox/templates/circuits/circuitgroupassignment.html:30
 #: netbox/templates/circuits/circuittermination.html:19
@@ -625,7 +625,7 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:77
 #: netbox/circuits/forms/model_forms.py:111
 #: netbox/circuits/tables/circuits.py:57 netbox/circuits/tables/circuits.py:111
-#: netbox/circuits/tables/circuits.py:195
+#: netbox/circuits/tables/circuits.py:196
 #: netbox/circuits/tables/providers.py:70
 #: netbox/circuits/tables/providers.py:101
 #: netbox/circuits/tables/virtual_circuits.py:46
@@ -679,7 +679,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_import.py:221
 #: netbox/circuits/forms/filtersets.py:138
 #: netbox/circuits/forms/filtersets.py:359
-#: netbox/circuits/tables/circuits.py:65 netbox/circuits/tables/circuits.py:199
+#: netbox/circuits/tables/circuits.py:65 netbox/circuits/tables/circuits.py:200
 #: netbox/circuits/tables/virtual_circuits.py:58
 #: netbox/core/forms/bulk_edit.py:19 netbox/core/forms/filtersets.py:33
 #: netbox/core/tables/change_logging.py:32 netbox/core/tables/data.py:20
@@ -1059,7 +1059,7 @@ msgstr ""
 #: netbox/circuits/forms/bulk_edit.py:289
 #: netbox/circuits/forms/bulk_import.py:188
 #: netbox/circuits/forms/filtersets.py:305
-#: netbox/circuits/tables/circuits.py:206 netbox/dcim/forms/model_forms.py:656
+#: netbox/circuits/tables/circuits.py:207 netbox/dcim/forms/model_forms.py:656
 #: netbox/templates/circuits/circuitgroupassignment.html:34
 #: netbox/templates/dcim/device.html:139
 #: netbox/templates/dcim/virtualchassis.html:68
@@ -1241,7 +1241,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:130
 #: netbox/circuits/forms/filtersets.py:188
 #: netbox/circuits/forms/filtersets.py:246
-#: netbox/circuits/tables/circuits.py:143 netbox/dcim/forms/bulk_edit.py:353
+#: netbox/circuits/tables/circuits.py:144 netbox/dcim/forms/bulk_edit.py:353
 #: netbox/dcim/forms/bulk_edit.py:466 netbox/dcim/forms/bulk_edit.py:735
 #: netbox/dcim/forms/bulk_edit.py:790 netbox/dcim/forms/bulk_edit.py:944
 #: netbox/dcim/forms/bulk_import.py:241 netbox/dcim/forms/bulk_import.py:343
@@ -1305,7 +1305,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:45
 #: netbox/circuits/forms/filtersets.py:169
 #: netbox/circuits/forms/filtersets.py:231
-#: netbox/circuits/tables/circuits.py:138 netbox/dcim/forms/bulk_edit.py:121
+#: netbox/circuits/tables/circuits.py:139 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_edit.py:328 netbox/dcim/forms/bulk_edit.py:919
 #: netbox/dcim/forms/bulk_import.py:96 netbox/dcim/forms/filtersets.py:75
 #: netbox/dcim/forms/filtersets.py:187 netbox/dcim/forms/filtersets.py:213
@@ -1375,7 +1375,7 @@ msgstr ""
 
 #: netbox/circuits/forms/filtersets.py:302
 #: netbox/circuits/forms/model_forms.py:253
-#: netbox/circuits/tables/circuits.py:190 netbox/dcim/forms/bulk_edit.py:126
+#: netbox/circuits/tables/circuits.py:191 netbox/dcim/forms/bulk_edit.py:126
 #: netbox/dcim/forms/bulk_import.py:103 netbox/dcim/forms/model_forms.py:125
 #: netbox/dcim/tables/sites.py:95 netbox/extras/forms/filtersets.py:544
 #: netbox/ipam/filtersets.py:994 netbox/ipam/forms/bulk_edit.py:488
@@ -1696,7 +1696,7 @@ msgstr ""
 msgid "virtual circuit terminations"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:30 netbox/circuits/tables/circuits.py:167
+#: netbox/circuits/tables/circuits.py:30 netbox/circuits/tables/circuits.py:168
 #: netbox/circuits/tables/providers.py:18
 #: netbox/circuits/tables/providers.py:67
 #: netbox/circuits/tables/providers.py:97
@@ -1821,7 +1821,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:39 netbox/circuits/tables/circuits.py:173
+#: netbox/circuits/tables/circuits.py:39 netbox/circuits/tables/circuits.py:174
 #: netbox/circuits/tables/providers.py:43
 #: netbox/circuits/tables/providers.py:77
 #: netbox/circuits/tables/virtual_circuits.py:27
@@ -1906,12 +1906,12 @@ msgstr ""
 msgid "Termination Point"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:133 netbox/dcim/tables/devices.py:160
+#: netbox/circuits/tables/circuits.py:134 netbox/dcim/tables/devices.py:160
 #: netbox/templates/dcim/sitegroup.html:26
 msgid "Site Group"
 msgstr ""
 
-#: netbox/circuits/tables/circuits.py:148
+#: netbox/circuits/tables/circuits.py:149
 #: netbox/templates/circuits/providernetwork.html:17
 #: netbox/templates/circuits/virtualcircuit.html:27
 #: netbox/templates/circuits/virtualcircuittermination.html:30
@@ -2168,7 +2168,7 @@ msgid "Local"
 msgstr ""
 
 #: netbox/core/data_backends.py:50 netbox/core/tables/change_logging.py:20
-#: netbox/templates/account/profile.html:15 netbox/templates/users/user.html:17
+#: netbox/templates/account/profile.html:13 netbox/templates/users/user.html:15
 #: netbox/users/tables.py:31
 msgid "Username"
 msgstr ""
@@ -2343,7 +2343,7 @@ msgstr ""
 #: netbox/templates/extras/savedfilter.html:21
 #: netbox/templates/extras/tableconfig.html:29
 #: netbox/templates/inc/user_menu.html:33 netbox/templates/users/token.html:21
-#: netbox/templates/users/user.html:6 netbox/templates/users/user.html:14
+#: netbox/templates/users/user.html:4 netbox/templates/users/user.html:12
 #: netbox/users/filtersets.py:107 netbox/users/filtersets.py:174
 #: netbox/users/forms/filtersets.py:84 netbox/users/forms/filtersets.py:125
 #: netbox/users/forms/model_forms.py:155 netbox/users/forms/model_forms.py:192
@@ -2754,7 +2754,7 @@ msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
 
 #: netbox/core/tables/change_logging.py:25
-#: netbox/templates/account/profile.html:19 netbox/templates/users/user.html:21
+#: netbox/templates/account/profile.html:17 netbox/templates/users/user.html:19
 msgid "Full Name"
 msgstr ""
 
@@ -7376,7 +7376,7 @@ msgstr ""
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
 #: netbox/templates/ipam/service.html:42
 #: netbox/templates/virtualization/vminterface.html:107
-#: netbox/vpn/tables/tunnels.py:98
+#: netbox/vpn/tables/tunnels.py:99
 msgid "IP Addresses"
 msgstr ""
 
@@ -12276,44 +12276,44 @@ msgstr ""
 msgid "None found"
 msgstr ""
 
-#: netbox/templates/account/profile.html:6
+#: netbox/templates/account/profile.html:4
 msgid "User Profile"
 msgstr ""
 
-#: netbox/templates/account/profile.html:12
+#: netbox/templates/account/profile.html:10
 msgid "Account Details"
 msgstr ""
 
-#: netbox/templates/account/profile.html:29
-#: netbox/templates/tenancy/contact.html:53 netbox/templates/users/user.html:25
+#: netbox/templates/account/profile.html:27
+#: netbox/templates/tenancy/contact.html:53 netbox/templates/users/user.html:23
 #: netbox/tenancy/forms/bulk_edit.py:116
 msgid "Email"
 msgstr ""
 
-#: netbox/templates/account/profile.html:33 netbox/templates/users/user.html:29
+#: netbox/templates/account/profile.html:31 netbox/templates/users/user.html:27
 msgid "Account Created"
 msgstr ""
 
-#: netbox/templates/account/profile.html:37 netbox/templates/users/user.html:33
+#: netbox/templates/account/profile.html:35 netbox/templates/users/user.html:31
 msgid "Last Login"
 msgstr ""
 
-#: netbox/templates/account/profile.html:41 netbox/templates/users/user.html:45
+#: netbox/templates/account/profile.html:39 netbox/templates/users/user.html:43
 msgid "Superuser"
 msgstr ""
 
-#: netbox/templates/account/profile.html:45
-#: netbox/templates/inc/user_menu.html:31 netbox/templates/users/user.html:41
+#: netbox/templates/account/profile.html:43
+#: netbox/templates/inc/user_menu.html:31 netbox/templates/users/user.html:39
 msgid "Staff"
 msgstr ""
 
-#: netbox/templates/account/profile.html:53
+#: netbox/templates/account/profile.html:51
 #: netbox/templates/users/objectpermission.html:82
-#: netbox/templates/users/user.html:53
+#: netbox/templates/users/user.html:51
 msgid "Assigned Groups"
 msgstr ""
 
-#: netbox/templates/account/profile.html:58
+#: netbox/templates/account/profile.html:56
 #: netbox/templates/circuits/circuit_terminations_swap.html:18
 #: netbox/templates/circuits/circuit_terminations_swap.html:26
 #: netbox/templates/circuits/circuittermination.html:34
@@ -12339,12 +12339,8 @@ msgstr ""
 #: netbox/templates/users/group.html:34 netbox/templates/users/group.html:44
 #: netbox/templates/users/objectpermission.html:77
 #: netbox/templates/users/objectpermission.html:87
-#: netbox/templates/users/user.html:58 netbox/templates/users/user.html:68
+#: netbox/templates/users/user.html:56 netbox/templates/users/user.html:66
 msgid "None"
-msgstr ""
-
-#: netbox/templates/account/profile.html:68 netbox/templates/users/user.html:78
-msgid "Recent Activity"
 msgstr ""
 
 #: netbox/templates/account/token.html:8
@@ -14850,8 +14846,16 @@ msgstr ""
 msgid "Add Tenant Group"
 msgstr ""
 
-#: netbox/templates/users/group.html:39 netbox/templates/users/user.html:63
+#: netbox/templates/users/group.html:39 netbox/templates/users/user.html:61
 msgid "Assigned Permissions"
+msgstr ""
+
+#: netbox/templates/users/inc/user_activity.html:6
+msgid "Recent Activity"
+msgstr ""
+
+#: netbox/templates/users/inc/user_activity.html:9
+msgid "View All"
 msgstr ""
 
 #: netbox/templates/users/objectpermission.html:6
@@ -15077,7 +15081,7 @@ msgstr ""
 #: netbox/templates/vpn/tunneltermination.html:35
 #: netbox/vpn/forms/bulk_import.py:107 netbox/vpn/forms/model_forms.py:103
 #: netbox/vpn/forms/model_forms.py:139 netbox/vpn/forms/model_forms.py:248
-#: netbox/vpn/tables/tunnels.py:101
+#: netbox/vpn/tables/tunnels.py:102
 msgid "Outside IP"
 msgstr ""
 
