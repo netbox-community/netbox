@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import transaction, router
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -113,7 +113,7 @@ class BulkUpdateModelMixin:
         return Response(data, status=status.HTTP_200_OK)
 
     def perform_bulk_update(self, objects, update_data, partial):
-        with transaction.atomic():
+        with transaction.atomic(router.db_for_write(self.queryset.model)):
             data_list = []
             for obj in objects:
                 data = update_data.get(obj.id)
@@ -157,7 +157,7 @@ class BulkDestroyModelMixin:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_bulk_destroy(self, objects):
-        with transaction.atomic():
+        with transaction.atomic(router.db_for_write(self.queryset.model)):
             for obj in objects:
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()

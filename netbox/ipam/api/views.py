@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import transaction
+from django.db import transaction, router
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django_pglocks import advisory_lock
@@ -295,7 +295,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
             # Create the new IP address(es)
             try:
-                with transaction.atomic():
+                with transaction.atomic(router.db_for_write(serializer.Meta.model)):
                     created = serializer.save()
                     self._validate_objects(created)
             except ObjectDoesNotExist:
