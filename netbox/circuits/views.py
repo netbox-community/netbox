@@ -384,7 +384,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
             if termination_a and termination_z:
                 # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
-                with transaction.atomic(router.db_for_write(CircuitTermination)):
+                with transaction.atomic(using=router.db_for_write(CircuitTermination)):
                     termination_a.term_side = '_'
                     termination_a.save()
                     termination_z.term_side = 'A'

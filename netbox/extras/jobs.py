@@ -45,7 +45,7 @@ class ScriptJob(JobRunner):
                 # any other database (for ChangeLogged models) - choosing Device as
                 # the model to use as it has ChangeLoggingMixin
                 with transaction.atomic():
-                    with transaction.atomic(router.db_for_write(Device)):
+                    with transaction.atomic(using=router.db_for_write(Device)):
                         script.output = script.run(data, commit)
                         if not commit:
                             raise AbortTransaction()

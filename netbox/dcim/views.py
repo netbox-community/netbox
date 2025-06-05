@@ -124,7 +124,7 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
 
             if form.is_valid():
 
-                with transaction.atomic(router.db_for_write(self.queryset.model)):
+                with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                     count = 0
                     cable_ids = set()
                     for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
@@ -3746,7 +3746,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
 
         if vc_form.is_valid() and formset.is_valid():
 
-            with transaction.atomic(router.db_for_write(Device)):
+            with transaction.atomic(using=router.db_for_write(Device)):
 
                 # Save the VirtualChassis
                 vc_form.save()

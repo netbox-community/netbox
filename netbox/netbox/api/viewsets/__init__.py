@@ -170,7 +170,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic(router.db_for_write(model)):
+            with transaction.atomic(using=router.db_for_write(model)):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
@@ -190,7 +190,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic(router.db_for_write(model)):
+            with transaction.atomic(using=router.db_for_write(model)):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:

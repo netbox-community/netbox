@@ -240,7 +240,7 @@ class BulkSyncDataView(GetReturnURLMixin, BaseMultiObjectView):
             data_file__isnull=False
         )
 
-        with transaction.atomic(router.db_for_write(self.queryset.model)):
+        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             for obj in selected_objects:
                 obj.sync(save=True)
 

@@ -53,7 +53,7 @@ def rebuild_paths(terminations):
     for obj in terminations:
         cable_paths = CablePath.objects.filter(_nodes__contains=obj)
 
-        with transaction.atomic(router.db_for_write(CablePath)):
+        with transaction.atomic(using=router.db_for_write(CablePath)):
             for cp in cable_paths:
                 cp.delete()
                 create_cablepath(cp.origins)
