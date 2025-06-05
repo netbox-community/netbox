@@ -27,7 +27,7 @@ Set to `True` to enable automatic error reporting via [Sentry](https://sentry.io
 
 Default: `1.0` (all)
 
-The sampling rate for errors. Must be a value between `0` (disabled) and `1.0` (report on all errors).
+The sampling rate for errors. Must be a value between 0 (disabled) and 1.0 (report on all errors).
 
 ---
 
