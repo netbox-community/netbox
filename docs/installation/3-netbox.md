@@ -108,7 +108,7 @@ Open `configuration.py` with your preferred editor to begin configuring NetBox. 
 
 ### ALLOWED_HOSTS
 
-This is a list of the valid hostnames and IP addresses by which this server can be reached. You must specify at least one name or IP address. (Note that this does not restrict the locations from which NetBox may be accessed: It is merely for [HTTP host header validation](https://docs.djangoproject.com/en/3.0/topics/security/#host-headers-virtual-hosting).)
+This is a list of the valid hostnames and IP addresses by which this server can be reached. You must specify at least one name or IP address. (Note that this does not restrict the locations from which NetBox may be accessed: It is merely for [HTTP host header validation](https://docs.djangoproject.com/en/stable/topics/security/#host-headers-virtual-hosting).)
 
 ```python
 ALLOWED_HOSTS = ['netbox.example.com', '192.0.2.123']

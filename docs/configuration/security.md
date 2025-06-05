@@ -92,7 +92,7 @@ If `True`, the cookie employed for cross-site request forgery (CSRF) protection 
 
 Default: `[]`
 
-Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a pass-through to Django's [`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS) setting. Note that each host listed must specify a scheme (e.g. `http://` or `https://).
+Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a pass-through to Django's [`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-trusted-origins) setting. Note that each host listed must specify a scheme (e.g. `http://` or `https://).
 
 ```python
 CSRF_TRUSTED_ORIGINS = (
