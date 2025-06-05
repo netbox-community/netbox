@@ -16,7 +16,7 @@ def draw_progress(count, total, length=20):
     sys.stdout.flush()
 
 
-def set_prefix(apps, schema_editor):
+def set_ipaddress_prefix(apps, schema_editor):
     start = time.time()
     IPAddress = apps.get_model('ipam', 'IPAddress')
     Prefix = apps.get_model('ipam', 'Prefix')
@@ -27,24 +27,85 @@ def set_prefix(apps, schema_editor):
     if total > 0:
         print('\r\n')
     draw_progress(i, total, 50)
-    for ip in addresses:
+    for address in addresses:
         i += 1
         prefixes = Prefix.objects.filter(
-            vrf=ip.vrf,
-            prefix__net_contains_or_equals=str(ip.address.ip),
-            prefix__net_mask_length__lte=ip.address.prefixlen,
+            vrf=address.vrf,
+            prefix__net_contains_or_equals=str(address.address.ip),
+            prefix__net_mask_length__lte=address.address.prefixlen,
         )
-        ip.prefix = prefixes.last()
-        ip.save()
+        address.prefix = prefixes.last()
+        address.save()
         draw_progress(i, total, 50)
 
     end = time.time()
     print(f"\r\nElapsed Time: {end - start:.2f}s")
 
 
-def unset_prefix(apps, schema_editor):
+def unset_ipaddress_prefix(apps, schema_editor):
     IPAddress = apps.get_model('ipam', 'IPAddress')
     IPAddress.objects.update(prefix=None)
+
+
+def set_iprange_prefix(apps, schema_editor):
+    IPRange = apps.get_model('ipam', 'IPRange')
+    Prefix = apps.get_model('ipam', 'Prefix')
+    start = time.time()
+
+    addresses = IPRange.objects.all()
+    i = 0
+    total = addresses.count()
+    if total > 0:
+        print('\r\n')
+    draw_progress(i, total, 50)
+    for address in addresses:
+        i += 1
+        prefixes = Prefix.objects.filter(
+            vrf=address.vrf,
+            prefix__net_contains_or_equals=str(address.start_address.ip),
+            prefix__net_mask_length__lte=address.start_address.prefixlen,
+        )
+        address.prefix = prefixes.last()
+        address.save()
+        draw_progress(i, total, 50)
+
+    end = time.time()
+    print(f"\r\nElapsed Time: {end - start:.2f}s")
+
+
+def unset_iprange_prefix(apps, schema_editor):
+    IPRange = apps.get_model('ipam', 'IPRange')
+    IPRange.objects.update(prefix=None)
+
+
+def set_prefix_aggregate(apps, schema_editor):
+    Prefix = apps.get_model('ipam', 'Prefix')
+    Aggregate = apps.get_model('ipam', 'Aggregate')
+
+    start = time.time()
+    addresses = Prefix.objects.all()
+    i = 0
+    total = addresses.count()
+    if total > 0:
+        print('\r\n')
+    draw_progress(i, total, 50)
+    for address in addresses:
+        i += 1
+        aggregates = Aggregate.objects.filter(
+            prefix__net_contains_or_equals=str(address.prefix.ip),
+            prefix__net_mask_length__lte=address.prefix.prefixlen,
+        )
+        address.aggregate = aggregates.last()
+        address.save()
+        draw_progress(i, total, 50)
+
+    end = time.time()
+    print(f"\r\nElapsed Time: {end - start:.2f}s")
+
+
+def unset_prefix_aggregate(apps, schema_editor):
+    Prefix = apps.get_model('ipam', 'Prefix')
+    Prefix.objects.update(aggregate=None)
 
 
 class Migration(migrations.Migration):
@@ -65,5 +126,29 @@ class Migration(migrations.Migration):
                 to='ipam.prefix',
             ),
         ),
-        migrations.RunPython(set_prefix, unset_prefix)
+        migrations.AddField(
+            model_name='iprange',
+            name='prefix',
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='ip_ranges',
+                to='ipam.prefix',
+            ),
+        ),
+        migrations.AddField(
+            model_name='prefix',
+            name='aggregate',
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='prefixes',
+                to='ipam.aggregate',
+            ),
+        ),
+        migrations.RunPython(set_ipaddress_prefix, unset_ipaddress_prefix),
+        migrations.RunPython(set_iprange_prefix, unset_iprange_prefix),
+        migrations.RunPython(set_prefix_aggregate, unset_prefix_aggregate),
     ]

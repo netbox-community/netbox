@@ -204,6 +204,14 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     areas and/or assigned to VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role.
     A Prefix can also be assigned to a VLAN where appropriate.
     """
+    aggregate = models.ForeignKey(
+        to='ipam.Aggregate',
+        on_delete=models.PROTECT,
+        related_name='prefixes',
+        blank=True,
+        null=True,
+        verbose_name=_('aggregate')
+    )
     prefix = IPNetworkField(
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
@@ -480,6 +488,14 @@ class IPRange(ContactsMixin, PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
+    prefix = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.PROTECT,
+        related_name='ip_ranges',
+        null=True,
+        blank=True,
+        verbose_name=_('prefix'),
+    )
     start_address = IPAddressField(
         verbose_name=_('start address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
