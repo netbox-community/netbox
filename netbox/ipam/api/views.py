@@ -295,7 +295,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
             # Create the new IP address(es)
             try:
-                with transaction.atomic(using=router.db_for_write(serializer.Meta.model)):
+                with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                     created = serializer.save()
                     self._validate_objects(created)
             except ObjectDoesNotExist:
