@@ -100,3 +100,16 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
+
+
+def oc_rename_type(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if 'type' in data:
+            data['form_factor'] = data.pop('type')
+
+
+objectchange_migrators = {
+    'dcim.rack': oc_rename_type,
+}

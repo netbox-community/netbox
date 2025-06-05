@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import migrations
 from django.db.models import F
 
@@ -54,3 +55,26 @@ class Migration(migrations.Migration):
                 reverse_code=repopulate_device_and_virtualmachine_relations,
             )
     ]
+
+
+def oc_service_parent(objectchange, reverting):
+    device_ct = ContentType.objects.get_by_natural_key('dcim', 'device').pk
+    virtual_machine_ct = ContentType.objects.get_by_natural_key('virtualization', 'virtualmachine').pk
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if device_id := data.get('device'):
+            data.update({
+                'parent_object_type': device_ct,
+                'parent_object_id': device_id,
+            })
+        elif virtual_machine_id := data.get('virtual_machine'):
+            data.update({
+                'parent_object_type': virtual_machine_ct,
+                'parent_object_id': virtual_machine_id,
+            })
+
+
+objectchange_migrators = {
+    'ipam.service': oc_service_parent,
+}
