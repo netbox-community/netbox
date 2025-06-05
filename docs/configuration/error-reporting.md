@@ -62,7 +62,7 @@ SENTRY_TAGS = {
 
 Default: `0` (disabled)
 
-The sampling rate for transactions. Must be a value between `0` (disabled) and `1.0` (report on all transactions).
+The sampling rate for transactions. Must be a value between 0 (disabled) and 1.0 (report on all transactions).
 
 !!! warning "Consider performance implications"
     A high sampling rate for transactions can induce significant performance penalties. If transaction reporting is desired, it is recommended to use a relatively low sample rate of 10% to 20% (0.1 to 0.2).
