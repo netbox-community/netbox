@@ -22,7 +22,7 @@ from netbox.plugins import PluginConfig
 
 ### ContentType renamed to ObjectType
 
-NetBox's proxy model for Django's [ContentType model](https://docs.djangoproject.com/en/5.0/ref/contrib/contenttypes/#the-contenttype-model) has been renamed to ObjectType for clarity. In general, plugins should use the ObjectType proxy when referencing content types, as it includes several custom manager methods. The one exception to this is when defining [generic foreign keys](https://docs.djangoproject.com/en/5.0/ref/contrib/contenttypes/#generic-relations): The ForeignKey field used for a GFK should point to Django's native ContentType.
+NetBox's proxy model for Django's [ContentType model](https://docs.djangoproject.com/en/stable/ref/contrib/contenttypes/#the-contenttype-model) has been renamed to ObjectType for clarity. In general, plugins should use the ObjectType proxy when referencing content types, as it includes several custom manager methods. The one exception to this is when defining [generic foreign keys](https://docs.djangoproject.com/en/stable/ref/contrib/contenttypes/#generic-relations): The ForeignKey field used for a GFK should point to Django's native ContentType.
 
 Additionally, plugin maintainers are strongly encouraged to adopt the "object type" terminology for field and filter names wherever feasible to be consistent with NetBox core (however this is not required for compatibility).
 
