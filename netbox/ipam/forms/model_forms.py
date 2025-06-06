@@ -826,7 +826,7 @@ class ServiceForm(NetBoxModelForm):
             except ObjectDoesNotExist:
                 pass
 
-            if self.instance and parent_object_type_id != self.instance.parent_object_type_id:
+            if self.instance and self.instance.pk and parent_object_type_id != self.instance.parent_object_type_id:
                 self.initial['parent'] = None
 
     def clean(self):

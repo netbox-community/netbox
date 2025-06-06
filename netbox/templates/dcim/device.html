@@ -308,7 +308,7 @@
                 {% trans "Services" %}
                 {% if perms.ipam.add_service %}
                   <div class="card-actions">
-                    <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                    <a href="{% url 'ipam:service_add' %}?parent_object_type={{ object|content_type_id }}&parent={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
                       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
                     </a>
                   </div>
