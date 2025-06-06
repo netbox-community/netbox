@@ -25,6 +25,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models.deletion import DeleteMixin
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
@@ -430,12 +431,13 @@ class Platform(OrganizationalModel):
 
 
 class Device(
+    DeleteMixin,
     ContactsMixin,
     ImageAttachmentsMixin,
     RenderConfigMixin,
     ConfigContextModel,
     TrackingModelMixin,
-    PrimaryModel
+    PrimaryModel,
 ):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
