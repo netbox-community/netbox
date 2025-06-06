@@ -449,7 +449,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
     @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
         if vrf is None:
-            return queryset.none
+            return queryset.none()
         return queryset.filter(
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
@@ -729,7 +729,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
     @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
         if vrf is None:
-            return queryset.none
+            return queryset.none()
         return queryset.filter(
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
