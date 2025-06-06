@@ -231,14 +231,19 @@ SESSION_FILE_PATH = None
 # DISK_BASE_UNIT = 1024
 # RAM_BASE_UNIT = 1024
 
-# By default, uploaded media is stored on the local filesystem. Using Django-storages is also supported. Provide the
-# class path of the storage driver in STORAGE_BACKEND and any configuration options in STORAGE_CONFIG. For example:
-# STORAGE_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
-# STORAGE_CONFIG = {
-#     'AWS_ACCESS_KEY_ID': 'Key ID',
-#     'AWS_SECRET_ACCESS_KEY': 'Secret',
-#     'AWS_STORAGE_BUCKET_NAME': 'netbox',
-#     'AWS_S3_REGION_NAME': 'eu-west-1',
+# Within the STORAGES dictionary, "default" is used for image uploads, "staticfiles" is for static files and "scripts"
+# is used for custom scripts. See django-storages and django-storage-swift libraries for more details. By default the
+# following configuration is used:
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+#     "scripts": {
+#         "BACKEND": "extras.storage.ScriptFileSystemStorage",
+#     },
 # }
 
 # Time zone (default: UTC)
