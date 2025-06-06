@@ -86,3 +86,69 @@ netbox=> DELETE FROM django_migrations WHERE app='pluginname';
 
 !!! warning
     Exercise extreme caution when altering Django system tables. Users are strongly encouraged to perform a backup of their database immediately before taking these actions.
+
+## Clean Up Content Types and Permissions
+
+After removing a plugin and its database tables, you may find that object type references (`ContentTypes`) created by the plugin still appear in the permissions management section (e.g., when editing permissions in the NetBox UI).
+This happens because the `django_content_type` table retains entries for the models that the plugin registered with Django.
+
+!!! warning
+    Please use caution when removing `ContentTypes`. It is strongly recommended to **back up your database** before making these changes.
+
+**Identify Stale Content Types:**
+
+Open the Django shell to inspect lingering `ContentType` entries related to the removed plugin.
+Typically, the Content Type's `app_label` matches the plugin’s name.
+
+
+```no-highlight
+$ cd /opt/netbox/
+$ source /opt/netbox/venv/bin/activate
+(venv) $ python3 netbox/manage.py nbshell
+```
+
+Then, in the shell:
+
+```no-highlight
+from django.contrib.contenttypes.models import ContentType
+# Replace 'pluginname' with your plugin's actual name
+stale_types = ContentType.objects.filter(app_label="pluginname")
+for ct in stale_types:
+    print(ct)
+### ^^^ These will be removed, make sure its ok
+```
+
+!!! warning
+    Review the output carefully and confirm that each listed Content Type is related to the plugin you removed.
+
+**Remove Stale Content Types and Related Permissions:**
+
+Next, check for any permissions associated with these Content Types:
+
+```no-highlight
+from django.contrib.auth.models import Permission
+for ct in stale_types:
+   perms = Permission.objects.filter(content_type=ct)
+   print(list(perms))
+```
+
+If there are related Permissions, you can remove them safely:
+
+```no-highlight
+for ct in stale_types:
+   Permission.objects.filter(content_type=ct).delete()
+```
+
+After removing any related permissions, delete the Content Type entries:
+
+```no-highlight
+stale_types.delete()
+```
+
+**Restart NetBox:**
+
+After making these changes, restart the NetBox service to ensure all changes are reflected.
+
+```no-highlight
+sudo systemctl restart netbox
+```
