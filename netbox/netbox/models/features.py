@@ -16,6 +16,7 @@ from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.models.deletion import DeleteMixin
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
@@ -45,7 +46,7 @@ __all__ = (
 # Feature mixins
 #
 
-class ChangeLoggingMixin(models.Model):
+class ChangeLoggingMixin(DeleteMixin, models.Model):
     """
     Provides change logging support for a model. Adds the `created` and `last_updated` fields.
     """
