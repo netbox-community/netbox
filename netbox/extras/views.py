@@ -1,6 +1,3 @@
-import csv
-from io import StringIO
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
