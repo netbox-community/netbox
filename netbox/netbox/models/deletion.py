@@ -31,20 +31,9 @@ class CustomCollector(Collector):
         Override collect to first collect standard dependencies,
         then add GenericRelations to the dependency graph.
         """
-        # Filter out objects we've already processed
-        new_objs = []
-        for obj in objs:
-            obj_key = f"{obj._meta.model_name}.{obj.pk}"
-            if obj_key not in self._processed_objects:
-                self._processed_objects.add(obj_key)
-                new_objs.append(obj)
-
-        if not new_objs:
-            return
-
         # Call parent collect first to get all standard dependencies
         super().collect(
-            new_objs,
+            objs,
             source=source,
             nullable=nullable,
             collect_related=collect_related,
