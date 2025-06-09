@@ -12,10 +12,6 @@ class CustomCollector(Collector):
     Custom collector that handles GenericRelations correctly.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._processed_objects = set()
-
     def collect(
         self,
         objs,
