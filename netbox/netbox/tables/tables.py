@@ -66,6 +66,9 @@ class BaseTable(tables.Table):
                 if column.visible:
                     model = getattr(self.Meta, 'model')
                     accessor = column.accessor
+                    if accessor.startswith('custom_field_data__'):
+                        # Ignore custom field references
+                        continue
                     prefetch_path = []
                     for field_name in accessor.split(accessor.SEPARATOR):
                         try:
