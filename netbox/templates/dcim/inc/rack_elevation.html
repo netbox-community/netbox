@@ -4,7 +4,7 @@
     hx-get="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{ face }}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}"
     hx-trigger="intersect"
     hx-swap="outerHTML"
-    aria-label="{% trans 'Rack elevation' %}"
+    aria-label="{% trans "Rack elevation" %}"
   >
     <div class="d-flex justify-content-center align-items-center" style="min-height: 200px; margin-left: 30px;">
       <div class="spinner-border" role="status">
