@@ -69,20 +69,8 @@ class CustomCollector(Collector):
                             continue
                         processed_relations.add(relation_key)
 
-                        # Get the related objects
-                        related_objs = getattr(instance, field.name).all()
-                        if related_objs:
-                            # Add them to the dependency graph
-                            self.collect(
-                                related_objs,
-                                source=instance,
-                                nullable=True,
-                                collect_related=True,
-                                source_attr=field.name,
-                                reverse_dependency=True,
-                                keep_parents=keep_parents,
-                                fail_on_restricted=False,
-                            )
+                        # Add the model that the generic relation points to as a dependency
+                        self.add_dependency(field.related_model, instance, reverse_dependency=True)
 
 
 class DeleteMixin:

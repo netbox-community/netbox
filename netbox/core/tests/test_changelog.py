@@ -335,14 +335,16 @@ class ChangeLogViewTest(ModelViewTestCase):
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
 
-        # Get the last 3 ObjectChange records ordered by time
-        changes = ObjectChange.objects.order_by('-time')[:3]
+        # Get the ObjectChange records for delete actions ordered by time
+        changes = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_DELETE
+        ).order_by('time')[:3]
 
         # Verify the order of deletion
         self.assertEqual(len(changes), 3)
-        self.assertEqual(changes[0].changed_object_type, ContentType.objects.get_for_model(Device))
+        self.assertEqual(changes[0].changed_object_type, ContentType.objects.get_for_model(CableTermination))
         self.assertEqual(changes[1].changed_object_type, ContentType.objects.get_for_model(Interface))
-        self.assertEqual(changes[2].changed_object_type, ContentType.objects.get_for_model(CableTermination))
+        self.assertEqual(changes[2].changed_object_type, ContentType.objects.get_for_model(Device))
 
 
 class ChangeLogAPITest(APITestCase):
