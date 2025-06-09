@@ -435,7 +435,7 @@ class Device(
     RenderConfigMixin,
     ConfigContextModel,
     TrackingModelMixin,
-    PrimaryModel,
+    PrimaryModel
 ):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
