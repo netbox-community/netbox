@@ -1482,31 +1482,13 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
-        if job.completed and job.data:
+        if job.completed:
             # If a direct export output has been requested, return the job data content as a
             # downloadable file.
-            if request.GET.get('export') == 'output' and job.data.get('output'):
-                content = job.data['output'].encode()
+            if request.GET.get('export') == 'output':
+                content = (job.data.get("output") or "").encode()
                 response = HttpResponse(content, content_type='text')
                 filename = f"{job.object.name or 'script-output'}_{job.completed.strftime('%Y-%m-%d-%H-%M-%S')}.txt"
-                response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                return response
-
-            # If a direct export log has been requested, return the job log content as a
-            # downloadable CSV file.
-            if request.GET.get('export') == 'log' and table:
-                # Filter generator for visible columns
-                def column_filter(data):
-                    for item in data:
-                        yield dict((k, v) for k, v, in item.items() if k in table.columns.names())
-                # Write a CSV to a string buffer for content
-                buf = StringIO()
-                writer = csv.DictWriter(buf, fieldnames=table.columns.names())
-                writer.writeheader()
-                writer.writerows(column_filter(table.data))
-                buf.seek(0)
-                response = HttpResponse(buf.read().encode(), content_type='text/csv')
-                filename = f"{job.object.name or 'script-log'}_{job.completed.strftime('%Y-%m-%d-%H-%M-%S')}.csv"
                 response['Content-Disposition'] = f'attachment; filename="{filename}"'
                 return response
 
