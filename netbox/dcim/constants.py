@@ -53,6 +53,11 @@ WIRELESS_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_802151,
     InterfaceTypeChoices.TYPE_802154,
     InterfaceTypeChoices.TYPE_OTHER_WIRELESS,
+    InterfaceTypeChoices.TYPE_GSM,
+    InterfaceTypeChoices.TYPE_CDMA,
+    InterfaceTypeChoices.TYPE_LTE,
+    InterfaceTypeChoices.TYPE_4G,
+    InterfaceTypeChoices.TYPE_5G,
 ]
 
 NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
