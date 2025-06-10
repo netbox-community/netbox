@@ -1,4 +1,4 @@
-Django==5.2.1
+Django==5.2.2
 django-cors-headers==4.7.0
 django-debug-toolbar==5.2.0
 django-filter==25.1
@@ -16,11 +16,11 @@ django-tables2==2.7.5
 django-timezone-field==7.1
 djangorestframework==3.16.0
 drf-spectacular==0.28.0
-drf-spectacular-sidecar==2025.5.1
+drf-spectacular-sidecar==2025.6.1
 feedparser==6.0.11
 gunicorn==23.0.0
 Jinja2==3.1.6
-jsonschema==4.23.0
+jsonschema==4.24.0
 Markdown==3.8
 mkdocs-material==9.6.14
 mkdocstrings[python]==0.29.1
@@ -33,8 +33,8 @@ requests==2.32.3
 rq==2.3.3
 social-auth-app-django==5.4.3
 social-auth-core==4.6.1
-strawberry-graphql==0.268.1
-strawberry-graphql-django==0.59.1
+strawberry-graphql==0.271.0
+strawberry-graphql-django==0.60.0
 svgwrite==1.4.3
 tablib==3.8.0
 tzdata==2025.2

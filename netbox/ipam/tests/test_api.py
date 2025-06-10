@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.test import tag
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -382,6 +383,18 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             Prefix(prefix=IPNetwork('192.168.3.0/24')),
         )
         Prefix.objects.bulk_create(prefixes)
+
+    @tag('regression')
+    def test_clean_validates_scope(self):
+        prefix = Prefix.objects.first()
+        site = Site.objects.create(name='Test Site', slug='test-site')
+
+        data = {'scope_type': 'dcim.site', 'scope_id': site.id}
+        url = reverse('ipam-api:prefix-detail', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.change_prefix')
+
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_list_available_prefixes(self):
         """

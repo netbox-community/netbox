@@ -95,7 +95,7 @@ Default: `('127.0.0.1', '::1')`
 
 A list of IP addresses recognized as internal to the system, used to control the display of debugging output. For
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
-addresses (and [`DEBUG`](./development.md#debug) is true).
+addresses (and [`DEBUG`](./development.md#debug) is `True`).
 
 ---
 
@@ -103,7 +103,7 @@ addresses (and [`DEBUG`](./development.md#debug) is true).
 
 Default: `False`
 
-Set this configuration parameter to True for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
+Set this configuration parameter to `True` for NetBox deployments which do not have Internet access. This will disable miscellaneous functionality which depends on access to the Internet.
 
 !!! note
     If Internet access is available via a proxy, set [`HTTP_PROXIES`](#http_proxies) instead.
@@ -114,7 +114,7 @@ Set this configuration parameter to True for NetBox deployments which do not hav
 
 Default: `{}`
 
-A dictionary of custom jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
+A dictionary of custom Jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
 
 ```python
 def uppercase(x):

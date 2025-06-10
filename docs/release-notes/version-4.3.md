@@ -1,5 +1,31 @@
 # NetBox v4.3
 
+## v4.3.2 (2025-06-05)
+
+### Enhancements
+
+* [#19200](https://github.com/netbox-community/netbox/issues/19200) - Display assigned virtual chassis (if any) on device view
+* [#19461](https://github.com/netbox-community/netbox/issues/19461) - Add color backgrounds for virtual circuit types
+* [#19605](https://github.com/netbox-community/netbox/issues/19605) - Enable filtering IP addresses by family in GraphQL API
+* [#19627](https://github.com/netbox-community/netbox/issues/19627) - Introduce object change migrators
+
+### Bug Fixes
+
+* [#19415](https://github.com/netbox-community/netbox/issues/19415) - Increase maximum supported distance for circuits and wireless links
+* [#19475](https://github.com/netbox-community/netbox/issues/19475) - VLANs belonging to the same location as a VM's cluster should be eligible for assignment to interfaces on that VM
+* [#19486](https://github.com/netbox-community/netbox/issues/19486) - Fix connection card rendering for console server ports
+* [#19487](https://github.com/netbox-community/netbox/issues/19487) - Fix `FieldError` exception when ordering circuit or tunnel terminations by the terminating object
+* [#19490](https://github.com/netbox-community/netbox/issues/19490) - Fix inclusion support for config templates populated via a data source
+* [#19496](https://github.com/netbox-community/netbox/issues/19496) - Fix `AttributeError` exception when rendering a config template with no output
+* [#19510](https://github.com/netbox-community/netbox/issues/19510) - Restore GraphQL API filtering for assigned IP addresses
+* [#19520](https://github.com/netbox-community/netbox/issues/19520) - Restore ability to alter prefix scope via the REST API
+* [#19587](https://github.com/netbox-community/netbox/issues/19587) - The `occupied` filter should include interfaces terminating a wireless link
+* [#19599](https://github.com/netbox-community/netbox/issues/19599) - Fix `AttributeError` exception when sorting change history under user view
+* [#19610](https://github.com/netbox-community/netbox/issues/19610) - Fix `FieldError` exception when sorting tunnel terminations by tenant
+* [#19623](https://github.com/netbox-community/netbox/issues/19623) - Display description under provider account view
+
+---
+
 ## v4.3.1 (2025-05-13)
 
 ### Enhancements

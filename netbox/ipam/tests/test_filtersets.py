@@ -1849,6 +1849,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             Cluster(name='Cluster 1', type=cluster_type, group=cluster_groups[0], scope=sites[0]),
             Cluster(name='Cluster 2', type=cluster_type, group=cluster_groups[1], scope=sites[1]),
             Cluster(name='Cluster 3', type=cluster_type, group=cluster_groups[2], scope=sites[2]),
+            Cluster(name='Cluster 4', type=cluster_type, group=cluster_groups[0], scope=locations[0]),
         )
         for cluster in clusters:
             cluster.save()
@@ -1857,6 +1858,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VirtualMachine(name='Virtual Machine 1', cluster=clusters[0]),
             VirtualMachine(name='Virtual Machine 2', cluster=clusters[1]),
             VirtualMachine(name='Virtual Machine 3', cluster=clusters[2]),
+            VirtualMachine(name='Virtual Machine 4', cluster=clusters[3]),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
@@ -1864,6 +1866,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VMInterface(virtual_machine=virtual_machines[0], name='VM Interface 1'),
             VMInterface(virtual_machine=virtual_machines[1], name='VM Interface 2'),
             VMInterface(virtual_machine=virtual_machines[2], name='VM Interface 3'),
+            VMInterface(virtual_machine=virtual_machines[3], name='VM Interface 4'),
         )
         VMInterface.objects.bulk_create(vm_interfaces)
 
@@ -1890,6 +1893,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLANGroup(name='Cluster 1', slug='cluster-1', scope=clusters[0]),
             VLANGroup(name='Cluster 2', slug='cluster-2', scope=clusters[1]),
             VLANGroup(name='Cluster 3', slug='cluster-3', scope=clusters[2]),
+            VLANGroup(name='Cluster 4', slug='cluster-4', scope=clusters[3]),
 
             # General purpose VLAN groups
             VLANGroup(name='VLAN Group 1', slug='vlan-group-1'),
@@ -1944,11 +1948,12 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLAN(vid=19, name='Cluster 1', group=groups[18]),
             VLAN(vid=20, name='Cluster 2', group=groups[19]),
             VLAN(vid=21, name='Cluster 3', group=groups[20]),
+            VLAN(vid=22, name='Cluster 4', group=groups[21]),
             VLAN(
                 vid=101,
                 name='VLAN 101',
                 site=sites[3],
-                group=groups[21],
+                group=groups[22],
                 role=roles[0],
                 tenant=tenants[0],
                 status=VLANStatusChoices.STATUS_ACTIVE,
@@ -1957,7 +1962,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vid=102,
                 name='VLAN 102',
                 site=sites[3],
-                group=groups[21],
+                group=groups[22],
                 role=roles[0],
                 tenant=tenants[0],
                 status=VLANStatusChoices.STATUS_ACTIVE,
@@ -1966,7 +1971,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vid=201,
                 name='VLAN 201',
                 site=sites[4],
-                group=groups[22],
+                group=groups[23],
                 role=roles[1],
                 tenant=tenants[1],
                 status=VLANStatusChoices.STATUS_DEPRECATED,
@@ -1975,7 +1980,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vid=202,
                 name='VLAN 202',
                 site=sites[4],
-                group=groups[22],
+                group=groups[23],
                 role=roles[1],
                 tenant=tenants[1],
                 status=VLANStatusChoices.STATUS_DEPRECATED,
@@ -1984,7 +1989,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vid=301,
                 name='VLAN 301',
                 site=sites[5],
-                group=groups[23],
+                group=groups[24],
                 role=roles[2],
                 tenant=tenants[2],
                 status=VLANStatusChoices.STATUS_RESERVED,
@@ -1993,13 +1998,13 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vid=302,
                 name='VLAN 302',
                 site=sites[5],
-                group=groups[23],
+                group=groups[24],
                 role=roles[2],
                 tenant=tenants[2],
                 status=VLANStatusChoices.STATUS_RESERVED,
             ),
             # Create one globally available VLAN on a VLAN group
-            VLAN(vid=500, name='VLAN Group 1', group=groups[24]),
+            VLAN(vid=500, name='VLAN Group 1', group=groups[25]),
             # Create one globally available VLAN
             VLAN(vid=1000, name='Global VLAN'),
             # Create some Q-in-Q service VLANs
@@ -2130,6 +2135,9 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         vm_id = VirtualMachine.objects.first().pk
         params = {'available_on_virtualmachine': vm_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)  # 5 scoped + 1 global group + 1 global
+        vm_id = VirtualMachine.objects.get(name='Virtual Machine 4').pk
+        params = {'available_on_virtualmachine': vm_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)  # 6 scoped + 1 global group + 1 global
 
     def test_available_at_site(self):
         site_id = Site.objects.first().pk

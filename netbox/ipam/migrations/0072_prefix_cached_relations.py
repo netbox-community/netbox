@@ -60,3 +60,14 @@ class Migration(migrations.Migration):
             name='site',
         ),
     ]
+
+
+def oc_prefix_remove_fields(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is not None:
+            data.pop('site', None)
+
+
+objectchange_migrators = {
+    'ipam.prefix': oc_prefix_remove_fields,
+}

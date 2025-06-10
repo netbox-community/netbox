@@ -144,7 +144,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         super().clean()
 
         # Validate any attributes against the assigned profile's schema
-        if self.profile:
+        if self.profile and self.profile.schema:
             try:
                 jsonschema.validate(self.attribute_data, schema=self.profile.schema)
             except JSONValidationError as e:
