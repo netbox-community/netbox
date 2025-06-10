@@ -3,7 +3,7 @@
 
 [project]
 name = "netbox"
-version = "4.3.1"
+version = "4.3.2"
 requires-python = ">=3.10"
 authors = [
     { name = "NetBox Community" }
