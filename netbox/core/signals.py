@@ -117,6 +117,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    print(f"handle_deleted_object: {model_name}")
     validators = get_config().PROTECTION_RULES.get(model_name, [])
     try:
         run_validators(instance, validators)
@@ -162,6 +163,12 @@ def handle_deleted_object(sender, instance, **kwargs):
                 getattr(obj, related_field_name).remove(instance)
             elif type(relation) is ManyToOneRel and relation.field.null is True:
                 setattr(obj, related_field_name, None)
+                # make sure the object hasn't been deleted - in case of
+                # deletion chaining of related objects
+                try:
+                    obj.refresh_from_db()
+                except DoesNotExist:
+                    continue
                 obj.save()
 
     # Enqueue the object for event processing
