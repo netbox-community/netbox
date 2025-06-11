@@ -954,6 +954,7 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    @tag('regression')
     def test_cable_cannot_terminate_to_a_cellular_interface(self):
         """
         A cable cannot terminate to a cellular interface
