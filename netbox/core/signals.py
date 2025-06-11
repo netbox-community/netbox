@@ -117,7 +117,6 @@ def handle_deleted_object(sender, instance, **kwargs):
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    print(f"handle_deleted_object: {model_name}")
     validators = get_config().PROTECTION_RULES.get(model_name, [])
     try:
         run_validators(instance, validators)
