@@ -66,11 +66,11 @@ class ScriptInputSerializer(serializers.Serializer):
     interval = serializers.IntegerField(required=False, allow_null=True)
 
     def validate_schedule_at(self, value):
-        if value and not self.context['script'].scheduling_enabled:
+        if value and not self.context['script'].python_class.scheduling_enabled:
             raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
     def validate_interval(self, value):
-        if value and not self.context['script'].scheduling_enabled:
+        if value and not self.context['script'].python_class.scheduling_enabled:
             raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
