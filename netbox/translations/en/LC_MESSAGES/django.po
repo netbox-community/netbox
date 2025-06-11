@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-10 05:02+0000\n"
+"POT-Creation-Date: 2025-06-11 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5278,7 +5278,7 @@ msgid "Connection"
 msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1426 netbox/extras/forms/bulk_edit.py:382
-#: netbox/extras/forms/bulk_import.py:253 netbox/extras/forms/filtersets.py:527
+#: netbox/extras/forms/bulk_import.py:261 netbox/extras/forms/filtersets.py:527
 #: netbox/extras/forms/model_forms.py:759 netbox/extras/tables/tables.py:640
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
@@ -8192,7 +8192,8 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:37 netbox/extras/forms/bulk_import.py:118
 #: netbox/extras/forms/bulk_import.py:139
 #: netbox/extras/forms/bulk_import.py:164
-#: netbox/extras/forms/bulk_import.py:188 netbox/extras/forms/filtersets.py:141
+#: netbox/extras/forms/bulk_import.py:188
+#: netbox/extras/forms/bulk_import.py:242 netbox/extras/forms/filtersets.py:141
 #: netbox/extras/forms/filtersets.py:235 netbox/extras/forms/filtersets.py:265
 #: netbox/extras/forms/model_forms.py:50 netbox/extras/forms/model_forms.py:222
 #: netbox/extras/forms/model_forms.py:254
@@ -8206,6 +8207,7 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:141
 #: netbox/extras/forms/bulk_import.py:166
 #: netbox/extras/forms/bulk_import.py:190
+#: netbox/extras/forms/bulk_import.py:244
 #: netbox/tenancy/forms/bulk_import.py:95
 msgid "One or more assigned object types"
 msgstr ""
@@ -8282,15 +8284,15 @@ msgstr ""
 msgid "Script {name} not found"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:250
+#: netbox/extras/forms/bulk_import.py:258
 msgid "Assigned object type"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:255
+#: netbox/extras/forms/bulk_import.py:263
 msgid "The classification of entry"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:267
+#: netbox/extras/forms/bulk_import.py:275
 #: netbox/extras/forms/model_forms.py:398 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/extras/notificationgroup.html:41
 #: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:236
@@ -8299,11 +8301,11 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:271
+#: netbox/extras/forms/bulk_import.py:279
 msgid "User names separated by commas, encased with double quotes"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:274
+#: netbox/extras/forms/bulk_import.py:282
 #: netbox/extras/forms/model_forms.py:393 netbox/netbox/navigation/menu.py:295
 #: netbox/netbox/navigation/menu.py:433
 #: netbox/templates/extras/notificationgroup.html:31
@@ -8316,7 +8318,7 @@ msgstr ""
 msgid "Groups"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:278
+#: netbox/extras/forms/bulk_import.py:286
 msgid "Group names separated by commas, encased with double quotes"
 msgstr ""
 
