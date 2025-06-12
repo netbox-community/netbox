@@ -198,10 +198,10 @@ class WirelessLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "interface_a,interface_b,status,tenant",
-            f"{interfaces[6].pk},{interfaces[7].pk},connected,{tenants[0].name}",
-            f"{interfaces[8].pk},{interfaces[9].pk},connected,{tenants[1].name}",
-            f"{interfaces[10].pk},{interfaces[11].pk},connected,{tenants[2].name}",
+            "device_a,interface_a,device_b,interface_b,status,tenant",
+            f"{interfaces[6].device.name},{interfaces[6].name},{interfaces[7].device.name},{interfaces[7].name},connected,{tenants[0].name}",
+            f"{interfaces[8].device.name},{interfaces[8].name},{interfaces[9].device.name},{interfaces[9].name},connected,{tenants[1].name}",
+            f"{interfaces[10].device.name},{interfaces[10].name},{interfaces[11].device.name},{interfaces[11].name},connected,{tenants[2].name}",
         )
 
         cls.csv_update_data = (
