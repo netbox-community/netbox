@@ -954,6 +954,19 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    @tag('regression')
+    def test_cable_cannot_terminate_to_a_cellular_interface(self):
+        """
+        A cable cannot terminate to a cellular interface
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+
+        cellular_interface = Interface(device=device1, name="W1", type=InterfaceTypeChoices.TYPE_LTE)
+        cable = Cable(a_terminations=[interface2], b_terminations=[cellular_interface])
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
 
 class VirtualDeviceContextTestCase(TestCase):
 
