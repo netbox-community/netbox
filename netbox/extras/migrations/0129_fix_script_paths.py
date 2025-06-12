@@ -7,7 +7,10 @@ from extras.storage import ScriptFileSystemStorage
 
 
 def normalize(url):
-    return url if urlparse(url).path else url + "/"
+    parsed_url = urlparse(url)
+    if not parsed_url.path.endswith('/'):
+        return url + '/'
+    return url
 
 
 def fix_script_paths(apps, schema_editor):
