@@ -38,3 +38,20 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(code=fix_script_paths, reverse_code=migrations.RunPython.noop),
     ]
+
+
+def oc_fix_script_paths(objectchange, reverting):
+    script_root_path = normalize(settings.SCRIPTS_ROOT)
+
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+
+        if file_path := data.get('file_path'):
+            if file_path.startswith(script_root_path):
+                data['file_path'] = file_path[len(script_root_path):]
+
+
+objectchange_migrators = {
+    'extras.scriptmodule': oc_fix_script_paths,
+}
