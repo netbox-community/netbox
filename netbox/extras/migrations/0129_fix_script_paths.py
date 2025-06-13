@@ -23,7 +23,7 @@ def fix_script_paths(apps, schema_editor):
 
     ScriptModule = apps.get_model('extras', 'ScriptModule')
     script_root_path = normalize(settings.SCRIPTS_ROOT)
-    for script in ScriptModule.object.filter(file_path__startswith=script_root_path):
+    for script in ScriptModule.objects.filter(file_path__startswith=script_root_path):
         script.file_path = script.file_path[len(script_root_path):]
         script.save()
 
