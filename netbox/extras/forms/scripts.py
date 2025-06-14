@@ -1,13 +1,8 @@
-import os
-
-from django import forms
-from django.conf import settings
-from django.core.files.storage import storages
-from django.utils.translation import gettext_lazy as _
-
 from core.choices import JobIntervalChoices
 from core.forms import ManagedFileForm
-from extras.storage import ScriptFileSystemStorage
+from django import forms
+from django.core.files.storage import storages
+from django.utils.translation import gettext_lazy as _
 from utilities.datetime import local_now
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 
@@ -74,12 +69,7 @@ class ScriptFileForm(ManagedFileForm):
             storage = storages.create_storage(storages.backends["scripts"])
 
             filename = self.cleaned_data['upload_file'].name
-            if isinstance(storage, ScriptFileSystemStorage):
-                full_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-            else:
-                full_path = filename
-
-            self.instance.file_path = full_path
+            self.instance.file_path = filename
             data = self.cleaned_data['upload_file']
             storage.save(filename, data)
 
