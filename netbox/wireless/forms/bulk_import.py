@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from dcim.forms.mixins import ScopedImportForm
-from dcim.models import Interface
+from dcim.models import Device, Interface, Site
 from ipam.models import VLAN
 from netbox.choices import *
 from netbox.forms import NetBoxModelImportForm
@@ -85,18 +85,53 @@ class WirelessLANImportForm(ScopedImportForm, NetBoxModelImportForm):
 
 
 class WirelessLinkImportForm(NetBoxModelImportForm):
-    status = CSVChoiceField(
-        label=_('Status'),
-        choices=LinkStatusChoices,
-        help_text=_('Connection status')
+    # Termination A
+    site_a = CSVModelChoiceField(
+        label=_('Site A'),
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Site of parent device A (if any)'),
+    )
+    device_a = CSVModelChoiceField(
+        label=_('Device A'),
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text=_('Parent device of assigned interface A'),
     )
     interface_a = CSVModelChoiceField(
         label=_('Interface A'),
-        queryset=Interface.objects.all()
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned interface A'),
+    )
+
+    # Termination B
+    site_b = CSVModelChoiceField(
+        label=_('Site B'),
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Site of parent device B (if any)'),
+    )
+    device_b = CSVModelChoiceField(
+        label=_('Device B'),
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text=_('Parent device of assigned interface B'),
     )
     interface_b = CSVModelChoiceField(
         label=_('Interface B'),
-        queryset=Interface.objects.all()
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned interface B'),
+    )
+
+    # WirelessLink attributes
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=LinkStatusChoices,
+        help_text=_('Connection status'),
     )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
@@ -127,6 +162,28 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
     class Meta:
         model = WirelessLink
         fields = (
-            'interface_a', 'interface_b', 'ssid', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'distance', 'distance_unit', 'description', 'comments', 'tags',
+            'site_a', 'device_a', 'interface_a', 'site_b', 'device_b', 'interface_b', 'status', 'ssid', 'tenant',
+            'auth_type', 'auth_cipher', 'auth_psk', 'distance', 'distance_unit', 'description', 'comments', 'tags',
         )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit choices for interface_a to the assigned device_a
+            interface_a_params = {f'device__{self.fields["device_a"].to_field_name}': data.get('device_a')}
+            # Limit choices for device_a to the assigned site_a
+            if site_a := data.get('site_a'):
+                device_a_params = {f'site__{self.fields["site_a"].to_field_name}': site_a}
+                self.fields['device_a'].queryset = self.fields['device_a'].queryset.filter(**device_a_params)
+                interface_a_params.update({f'device__site__{self.fields["site_a"].to_field_name}': site_a})
+            self.fields['interface_a'].queryset = self.fields['interface_a'].queryset.filter(**interface_a_params)
+
+            # Limit choices for interface_b to the assigned device_b
+            interface_b_params = {f'device__{self.fields["device_b"].to_field_name}': data.get('device_b')}
+            # Limit choices for device_b to the assigned site_b
+            if site_b := data.get('site_b'):
+                device_b_params = {f'site__{self.fields["site_b"].to_field_name}': site_b}
+                self.fields['device_b'].queryset = self.fields['device_b'].queryset.filter(**device_b_params)
+                interface_b_params.update({f'device__site__{self.fields["site_b"].to_field_name}': site_b})
+            self.fields['interface_b'].queryset = self.fields['interface_b'].queryset.filter(**interface_b_params)
