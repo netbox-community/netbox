@@ -135,6 +135,7 @@ class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin)
         return Q(interface_id__in=VMInterface.objects.filter(virtual_machine__name__in=value))
 
     def filter_device(self, field, value) -> Q:
+        """Helper to standardize logic for device and device_id filters"""
         devices = Device.objects.filter(**{f'{field}__in': value})
         interface_ids = []
         for device in devices:
