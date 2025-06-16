@@ -1,7 +1,7 @@
 from functools import cached_property
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -143,6 +143,12 @@ class NotificationGroup(ChangeLoggedModel):
         verbose_name=_('users'),
         blank=True,
         related_name='notification_groups'
+    )
+    event_rules = GenericRelation(
+        to='extras.EventRule',
+        content_type_field='action_object_type',
+        object_id_field='action_object_id',
+        related_query_name='+'
     )
 
     objects = RestrictedQuerySet.as_manager()
