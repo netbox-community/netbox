@@ -143,7 +143,7 @@ class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
 
 
 class VLANGroupViewSet(NetBoxModelViewSet):
-    queryset = VLANGroup.objects.annotate_utilization()
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('scope')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
 
@@ -175,7 +175,7 @@ class ServiceTemplateViewSet(NetBoxModelViewSet):
 
 
 class ServiceViewSet(NetBoxModelViewSet):
-    queryset = Service.objects.all()
+    queryset = Service.objects.prefetch_related('parent')
     serializer_class = serializers.ServiceSerializer
     filterset_class = filtersets.ServiceFilterSet
 
