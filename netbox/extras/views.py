@@ -1476,7 +1476,16 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         table = None
         job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
 
-        if job.completed:
+        # If a direct export output has been requested, return the job data content as a
+        # downloadable file.
+        if job.completed and request.GET.get('export') == 'output':
+            content = (job.data.get("output") or "").encode()
+            response = HttpResponse(content, content_type='text')
+            filename = f"{job.object.name or 'script-output'}_{job.completed.strftime('%Y-%m-%d_%H%M%S')}.txt"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        elif job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
         log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)
