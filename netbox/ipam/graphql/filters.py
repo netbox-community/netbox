@@ -11,10 +11,12 @@ from strawberry_django import FilterLookup, DateFilterLookup
 
 from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 from dcim.graphql.filter_mixins import ScopedFilterMixin
+from dcim.models import Device
 from ipam import models
 from ipam.graphql.filter_mixins import ServiceBaseFilterMixin
 from netbox.graphql.filter_mixins import NetBoxModelFilterMixin, OrganizationalModelFilterMixin, PrimaryModelFilterMixin
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
+from virtualization.models import VMInterface
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import IntegerArrayLookup, IntegerLookup
@@ -115,6 +117,30 @@ class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin)
     priority: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+
+    @strawberry_django.filter_field()
+    def device_id(self, queryset, value: list[str], prefix) -> Q:
+        return self.filter_device('id', value)
+
+    @strawberry_django.filter_field()
+    def device(self, value: list[str], prefix) -> Q:
+        return self.filter_device('name', value)
+
+    @strawberry_django.filter_field()
+    def virtual_machine_id(self, value: list[str], prefix) -> Q:
+        return Q(interface_id__in=VMInterface.objects.filter(virtual_machine_id__in=value))
+
+    @strawberry_django.filter_field()
+    def virtual_machine(self, value: list[str], prefix) -> Q:
+        return Q(interface_id__in=VMInterface.objects.filter(virtual_machine__name__in=value))
+
+    def filter_device(self, field, value) -> Q:
+        """Helper to standardize logic for device and device_id filters"""
+        devices = Device.objects.filter(**{f'{field}__in': value})
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+        return Q(interface_id__in=interface_ids)
 
 
 @strawberry_django.filter_type(models.IPAddress, lookups=True)
