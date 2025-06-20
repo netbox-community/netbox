@@ -270,6 +270,7 @@ class ScriptViewSet(ModelViewSet):
             module_name, script_name = pk.split('.', maxsplit=1)
         except ValueError:
             raise Http404
+
         return get_object_or_404(self.queryset, module__file_path=f'{module_name}.py', name=script_name)
 
     def retrieve(self, request, pk):

@@ -1,4 +1,5 @@
 import django.db.models.deletion
+from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
 
@@ -49,3 +50,26 @@ class Migration(migrations.Migration):
         # Copy over existing site assignments
         migrations.RunPython(code=copy_site_assignments, reverse_code=migrations.RunPython.noop),
     ]
+
+
+def oc_circuittermination_termination(objectchange, reverting):
+    site_ct = ContentType.objects.get_by_natural_key('dcim', 'site').pk
+    provider_network_ct = ContentType.objects.get_by_natural_key('circuits', 'providernetwork').pk
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if site_id := data.get('site'):
+            data.update({
+                'termination_type': site_ct,
+                'termination_id': site_id,
+            })
+        elif provider_network_id := data.get('provider_network'):
+            data.update({
+                'termination_type': provider_network_ct,
+                'termination_id': provider_network_id,
+            })
+
+
+objectchange_migrators = {
+    'circuits.circuittermination': oc_circuittermination_termination,
+}

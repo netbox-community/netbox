@@ -1,6 +1,6 @@
 # Remote Authentication Settings
 
-The configuration parameters listed here control remote authentication for NetBox. Note that `REMOTE_AUTH_ENABLED` must be true in order for these settings to take effect.
+The configuration parameters listed here control remote authentication for NetBox. Note that `REMOTE_AUTH_ENABLED` must be `True` in order for these settings to take effect.
 
 ---
 
@@ -8,7 +8,7 @@ The configuration parameters listed here control remote authentication for NetBo
 
 Default: `False`
 
-If true, NetBox will automatically create groups specified in the `REMOTE_AUTH_GROUP_HEADER` header if they don't already exist. (Requires `REMOTE_AUTH_ENABLED`.)
+If `True`, NetBox will automatically create groups specified in the `REMOTE_AUTH_GROUP_HEADER` header if they don't already exist. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 
@@ -16,7 +16,7 @@ If true, NetBox will automatically create groups specified in the `REMOTE_AUTH_G
 
 Default: `False`
 
-If true, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
+If `True`, NetBox will automatically create local accounts for users authenticated via a remote service. (Requires `REMOTE_AUTH_ENABLED`.)
 
 ---
 
@@ -43,7 +43,7 @@ The list of groups to assign a new user account when created using remote authen
 
 Default: `{}` (Empty dictionary)
 
-A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED` as True and `REMOTE_AUTH_GROUP_SYNC_ENABLED` as False.)
+A mapping of permissions to assign a new user account when created using remote authentication. Each key in the dictionary should be set to a dictionary of the attributes to be applied to the permission, or `None` to allow all objects. (Requires `REMOTE_AUTH_ENABLED` as `True` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` as `False`.)
 
 ---
 

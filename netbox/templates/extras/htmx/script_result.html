@@ -53,7 +53,16 @@
     {# Script output. Legacy reports will not have this. #}
     {% if 'output' in job.data %}
       <div class="card mb-3">
-      <h2 class="card-header">{% trans "Output" %}</h2>
+        <h2 class="card-header d-flex justify-content-between">
+          {% trans "Output" %}
+          {% if job.completed %}
+            <div>
+              <a href="?export=output" class="btn btn-primary lh-1" role="button">
+                <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+              </a>
+            </div>
+          {% endif %}
+        </h2>
         {% if job.data.output %}
           <pre class="card-body font-monospace">{{ job.data.output }}</pre>
         {% else %}

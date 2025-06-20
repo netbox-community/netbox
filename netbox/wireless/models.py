@@ -198,15 +198,15 @@ class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
         super().clean()
 
         # Validate interface types
-        if self.interface_a.type not in WIRELESS_IFACE_TYPES:
+        if hasattr(self, "interface_a") and self.interface_a.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
                 'interface_a': _(
                     "{type} is not a wireless interface."
                 ).format(type=self.interface_a.get_type_display())
             })
-        if self.interface_b.type not in WIRELESS_IFACE_TYPES:
+        if hasattr(self, "interface_b") and self.interface_b.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
-                'interface_a': _(
+                'interface_b': _(
                     "{type} is not a wireless interface."
                 ).format(type=self.interface_b.get_type_display())
             })

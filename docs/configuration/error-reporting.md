@@ -4,7 +4,7 @@
 
 Default: `None`
 
-Defines a Sentry data source name (DSN) for automated error reporting. `SENTRY_ENABLED` must be True for this parameter to take effect. For example:
+Defines a Sentry data source name (DSN) for automated error reporting. `SENTRY_ENABLED` must be `True` for this parameter to take effect. For example:
 
 ```
 SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
@@ -16,7 +16,7 @@ SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
 
 Default: `False`
 
-Set to True to enable automatic error reporting via [Sentry](https://sentry.io/).
+Set to `True` to enable automatic error reporting via [Sentry](https://sentry.io/).
 
 !!! note
     The `sentry-sdk` Python package is required to enable Sentry integration.

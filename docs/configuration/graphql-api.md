@@ -6,7 +6,7 @@
 
 Default: `True`
 
-Setting this to False will disable the GraphQL API.
+Setting this to `False` will disable the GraphQL API.
 
 ---
 

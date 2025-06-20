@@ -6,12 +6,13 @@ from rest_framework import status
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import SiteStatusChoices
-from dcim.models import Site
+from dcim.models import Site, CableTermination, Device, DeviceType, DeviceRole, Interface, Cable
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet, Tag
 from utilities.testing import APITestCase
 from utilities.testing.utils import create_tags, post_data
 from utilities.testing.views import ModelViewTestCase
+from dcim.models import Manufacturer
 
 
 class ChangeLogViewTest(ModelViewTestCase):
@@ -269,6 +270,81 @@ class ChangeLogViewTest(ModelViewTestCase):
 
         # Check that no ObjectChange records have been created
         self.assertEqual(ObjectChange.objects.count(), 0)
+
+    def test_ordering_genericrelation(self):
+        # Create required objects first
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Model 1',
+            slug='model-1'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Role 1',
+            slug='role-1'
+        )
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1'
+        )
+
+        # Create two devices
+        device1 = Device.objects.create(
+            name='Device 1',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+        device2 = Device.objects.create(
+            name='Device 2',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        # Create interfaces on both devices
+        interface1 = Interface.objects.create(
+            device=device1,
+            name='eth0',
+            type='1000base-t'
+        )
+        interface2 = Interface.objects.create(
+            device=device2,
+            name='eth0',
+            type='1000base-t'
+        )
+
+        # Create a cable between the interfaces
+        _ = Cable.objects.create(
+            a_terminations=[interface1],
+            b_terminations=[interface2],
+            status='connected'
+        )
+
+        # Delete device1
+        request = {
+            'path': reverse('dcim:device_delete', kwargs={'pk': device1.pk}),
+            'data': post_data({'confirm': True}),
+        }
+        self.add_permissions(
+            'dcim.delete_device',
+            'dcim.delete_interface',
+            'dcim.delete_cable',
+            'dcim.delete_cabletermination'
+        )
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        # Get the ObjectChange records for delete actions ordered by time
+        changes = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_DELETE
+        ).order_by('time')[:3]
+
+        # Verify the order of deletion
+        self.assertEqual(len(changes), 3)
+        self.assertEqual(changes[0].changed_object_type, ContentType.objects.get_for_model(CableTermination))
+        self.assertEqual(changes[1].changed_object_type, ContentType.objects.get_for_model(Interface))
+        self.assertEqual(changes[2].changed_object_type, ContentType.objects.get_for_model(Device))
 
 
 class ChangeLogAPITest(APITestCase):

@@ -86,3 +86,15 @@ class Migration(migrations.Migration):
             new_name='_provider_network',
         ),
     ]
+
+
+def oc_circuittermination_remove_fields(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is not None:
+            data.pop('site', None)
+            data.pop('provider_network', None)
+
+
+objectchange_migrators = {
+    'circuits.circuittermination': oc_circuittermination_remove_fields,
+}
