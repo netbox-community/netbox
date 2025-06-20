@@ -282,7 +282,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(model)):
                     object_created = form.instance.pk is None
                     obj = form.save()
 
@@ -570,7 +570,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
             if not form.errors and not component_form.errors:
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                         # Create the new components
                         new_objs = []
                         for component_form in new_components:

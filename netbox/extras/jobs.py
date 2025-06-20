@@ -39,6 +39,10 @@ class ScriptJob(JobRunner):
 
         try:
             try:
+                # A script can modify multiple models so need to do an atomic lock on
+                # both the default database (for non ChangeLogged models) and potentially
+                # any other database (for ChangeLogged models) - choosing Device as
+                # the model to use as it has ChangeLoggingMixin
                 with transaction.atomic():
                     script.output = script.run(data, commit)
                     if not commit:

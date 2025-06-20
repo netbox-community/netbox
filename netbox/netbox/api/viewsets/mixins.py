@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import router, transaction
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -56,22 +56,22 @@ class SequentialBulkCreatesMixin:
     which depends on the evaluation of existing objects (such as checking for free space within a rack) functions
     appropriately.
     """
-    @transaction.atomic
     def create(self, request, *args, **kwargs):
-        if not isinstance(request.data, list):
-            # Creating a single object
-            return super().create(request, *args, **kwargs)
+        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+            if not isinstance(request.data, list):
+                # Creating a single object
+                return super().create(request, *args, **kwargs)
 
-        return_data = []
-        for data in request.data:
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            return_data.append(serializer.data)
+            return_data = []
+            for data in request.data:
+                serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                self.perform_create(serializer)
+                return_data.append(serializer.data)
 
-        headers = self.get_success_headers(serializer.data)
+            headers = self.get_success_headers(serializer.data)
 
-        return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class BulkUpdateModelMixin:
@@ -113,7 +113,7 @@ class BulkUpdateModelMixin:
         return Response(data, status=status.HTTP_200_OK)
 
     def perform_bulk_update(self, objects, update_data, partial):
-        with transaction.atomic():
+        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             data_list = []
             for obj in objects:
                 data = update_data.get(obj.id)
@@ -157,7 +157,7 @@ class BulkDestroyModelMixin:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_bulk_destroy(self, objects):
-        with transaction.atomic():
+        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             for obj in objects:
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from django.db import router, transaction
 from django.db.models import Prefetch, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -297,7 +297,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         if form.is_valid():
 
             device_pks = form.cleaned_data['devices']
-            with transaction.atomic():
+            with transaction.atomic(using=router.db_for_write(Device)):
 
                 # Assign the selected Devices to the Cluster
                 for device in Device.objects.filter(pk__in=device_pks):
@@ -332,7 +332,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
             if form.is_valid():
 
                 device_pks = form.cleaned_data['pk']
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(Device)):
 
                     # Remove the selected Devices from the Cluster
                     for device in Device.objects.filter(pk__in=device_pks):
