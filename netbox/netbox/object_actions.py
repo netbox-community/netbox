@@ -1,0 +1,123 @@
+from django.urls import reverse
+from django.utils.translation import gettext as _
+
+from core.models import ObjectType
+from extras.models import ExportTemplate
+
+__all__ = (
+    'Add',
+    'BulkDelete',
+    'BulkEdit',
+    'BulkExport',
+    'BulkImport',
+    'Delete',
+    'Edit',
+    'ObjectAction',
+)
+
+
+class ObjectAction:
+    name = ''
+    label = None
+    bulk = False
+    permissions_required = set()
+    url_kwargs = []
+
+    def get_context(self, context, obj):
+        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{self.name}'
+        url = reverse(viewname, kwargs={kwarg: getattr(obj, kwarg) for kwarg in self.url_kwargs})
+        return {
+            'url': url,
+        }
+
+
+class Add(ObjectAction):
+    """
+    Create a new object.
+    """
+    name = 'add'
+    label = _('Add')
+    permissions_required = {'add'}
+    template_name = 'buttons/add.html'
+
+
+class Edit(ObjectAction):
+    """
+    Edit a single object.
+    """
+    name = 'edit'
+    label = _('Edit')
+    permissions_required = {'change'}
+    url_kwargs = ['pk']
+    template_name = 'buttons/edit.html'
+
+
+class Delete(ObjectAction):
+    """
+    Delete a single object.
+    """
+    name = 'delete'
+    label = _('Delete')
+    permissions_required = {'delete'}
+    url_kwargs = ['pk']
+    template_name = 'buttons/delete.html'
+
+
+class BulkImport(ObjectAction):
+    """
+    Import multiple objects at once.
+    """
+    name = 'bulk_import'
+    label = _('Import')
+    permissions_required = {'add'}
+    template_name = 'buttons/import.html'
+
+
+class BulkExport(ObjectAction):
+    """
+    Export multiple objects at once.
+    """
+    name = 'export'
+    label = _('Export')
+    permissions_required = {'view'}
+    template_name = 'buttons/export.html'
+
+    def get_context(self, context, model):
+        object_type = ObjectType.objects.get_for_model(model)
+        user = context['request'].user
+
+        # Determine if the "all data" export returns CSV or YAML
+        data_format = 'YAML' if hasattr(object_type.model_class(), 'to_yaml') else 'CSV'
+
+        # Retrieve all export templates for this model
+        export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
+
+        return {
+            'perms': context['perms'],
+            'object_type': object_type,
+            'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
+            'export_templates': export_templates,
+            'data_format': data_format,
+        }
+
+
+class BulkEdit(ObjectAction):
+    """
+    Change the value of one or more fields on a set of objects.
+    """
+    name = 'bulk_edit'
+    label = _('Edit')
+    bulk = True
+    permissions_required = {'change'}
+    template_name = 'buttons/bulk_edit.html'
+
+
+class BulkDelete(ObjectAction):
+    """
+    Delete each of a set of objects.
+    """
+    name = 'bulk_delete'
+    label = _('Delete')
+    bulk = True
+    permissions_required = {'delete'}
+    template_name = 'buttons/bulk_delete.html'

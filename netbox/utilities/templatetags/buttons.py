@@ -1,5 +1,6 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.template import loader
 from django.urls import NoReverseMatch, reverse
 
 from core.models import ObjectType
@@ -9,8 +10,10 @@ from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_viewname
 
 __all__ = (
+    'action_button',
     'add_button',
     'bookmark_button',
+    'bulk_action_button',
     'bulk_delete_button',
     'bulk_edit_button',
     'clone_button',
@@ -217,3 +220,13 @@ def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
         'htmx_navigation': context.get('htmx_navigation'),
         'url': url,
     }
+
+
+@register.simple_tag(takes_context=True)
+def action_button(context, action, obj):
+    return loader.render_to_string(action.template_name, action.get_context(context, obj))
+
+
+@register.simple_tag(takes_context=True)
+def bulk_action_button(context, action, model):
+    return loader.render_to_string(action.template_name, action.get_context(context, model))

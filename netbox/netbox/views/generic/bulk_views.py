@@ -22,6 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.object_actions import Add, BulkDelete, BulkEdit, BulkExport, BulkImport
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -60,6 +61,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
+    actions = (Add, BulkImport, BulkEdit, BulkExport, BulkDelete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -150,7 +152,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        # has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        has_bulk_actions = True
 
         if 'export' in request.GET:
 

@@ -14,6 +14,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from netbox.object_actions import Add, BulkDelete, BulkEdit, BulkExport, BulkImport, Delete, Edit
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
@@ -36,7 +37,7 @@ __all__ = (
 )
 
 
-class ObjectView(BaseObjectView):
+class ObjectView(ActionsMixin, BaseObjectView):
     """
     Retrieve a single object for display.
 
@@ -46,6 +47,7 @@ class ObjectView(BaseObjectView):
         tab: A ViewTab instance for the view
     """
     tab = None
+    actions = (Edit, Delete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -72,9 +74,11 @@ class ObjectView(BaseObjectView):
             request: The current request
         """
         instance = self.get_object(**kwargs)
+        actions = self.get_permitted_actions(request.user, model=instance)
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'actions': actions,
             'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
@@ -97,6 +101,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     table = None
     filterset = None
     filterset_form = None
+    actions = (Add, BulkImport, BulkEdit, BulkExport, BulkDelete)
     template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):

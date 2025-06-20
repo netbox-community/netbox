@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 
 from extras.models import TableConfig
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
@@ -19,7 +18,7 @@ class ActionsMixin:
     Standard actions include: add, import, export, bulk_edit, and bulk_delete. Some views extend this default map
     with custom actions, such as bulk_sync.
     """
-    actions = DEFAULT_ACTION_PERMISSIONS
+    # actions = DEFAULT_ACTION_PERMISSIONS
 
     def get_permitted_actions(self, user, model=None):
         """
@@ -30,13 +29,16 @@ class ActionsMixin:
         # Resolve required permissions for each action
         permitted_actions = []
         for action in self.actions:
+            perms = action if type(action) is str else action.permissions_required  # Backward compatibility
             required_permissions = [
-                get_permission_for_model(model, name) for name in self.actions.get(action, set())
+                get_permission_for_model(model, perm) for perm in perms
             ]
             if not required_permissions or user.has_perms(required_permissions):
                 permitted_actions.append(action)
 
-        return permitted_actions
+        return {
+            action.name: action for action in permitted_actions
+        }
 
 
 class TableMixin:
