@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from django.db import transaction, router
+from django.db import router, transaction
 from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
@@ -124,7 +124,7 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
 
             if form.is_valid():
 
-                with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+                with transaction.atomic(using=router.db_for_write(Cable)):
                     count = 0
                     cable_ids = set()
                     for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):

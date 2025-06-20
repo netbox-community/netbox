@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction, router
+from django.db import router, transaction
 
 
 def compile_path_node(ct_id, object_id):

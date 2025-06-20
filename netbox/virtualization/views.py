@@ -297,7 +297,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         if form.is_valid():
 
             device_pks = form.cleaned_data['devices']
-            with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+            with transaction.atomic(using=router.db_for_write(Device)):
 
                 # Assign the selected Devices to the Cluster
                 for device in Device.objects.filter(pk__in=device_pks):
@@ -332,7 +332,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
             if form.is_valid():
 
                 device_pks = form.cleaned_data['pk']
-                with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+                with transaction.atomic(using=router.db_for_write(Device)):
 
                     # Remove the selected Devices from the Cluster
                     for device in Device.objects.filter(pk__in=device_pks):

@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
-from django.db import transaction, IntegrityError, router
+from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
