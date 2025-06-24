@@ -1068,6 +1068,9 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, role=role)
         interface = Interface.objects.create(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
+        fhrp_group = FHRPGroup.objects.create(
+            name='Group 1', group_id=1234, protocol=FHRPGroupProtocolChoices.PROTOCOL_CARP
+        )
 
         services = (
             Service(parent=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
@@ -1079,6 +1082,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ip_addresses = (
             IPAddress(assigned_object=interface, address='192.0.2.1/24'),
             IPAddress(assigned_object=interface, address='192.0.2.2/24'),
+            IPAddress(assigned_object=fhrp_group, address='192.0.2.3/24'),
         )
         IPAddress.objects.bulk_create(ip_addresses)
 
@@ -1100,6 +1104,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "dcim.device,Device 1,Service 1,tcp,1,192.0.2.1/24,First service",
             "dcim.device,Device 1,Service 2,tcp,2,192.0.2.2/24,Second service",
             "dcim.device,Device 1,Service 3,udp,3,,Third service",
+            "ipam.fhrpgroup,Group 1,Service 4,udp,4,192.0.2.3/24,Fourth service",
         )
 
         cls.csv_update_data = (
