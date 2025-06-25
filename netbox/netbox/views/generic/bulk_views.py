@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
@@ -278,7 +278,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(model)):
                     new_objs = self._create_objects(form, request)
 
                     # Enforce object-level permissions
@@ -501,7 +501,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(model)):
                     new_objs = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
@@ -681,7 +681,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 logger.debug("Form validation was successful")
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(model)):
                         updated_objects = self._update_objects(form, request)
 
                         # Enforce object-level permissions
@@ -778,7 +778,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
             if form.is_valid():
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                         renamed_pks = self._rename_objects(form, selected_objects)
 
                         if '_apply' in request.POST:
@@ -875,7 +875,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(model)):
                         for obj in queryset:
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
@@ -980,7 +980,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 }
 
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
 
                         for obj in data['pk']:
 

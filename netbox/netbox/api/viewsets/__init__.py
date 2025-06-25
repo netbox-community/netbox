@@ -2,7 +2,7 @@ import logging
 from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.db import transaction
+from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
 from netbox.constants import ADVISORY_LOCK_KEYS
@@ -170,7 +170,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic():
+            with transaction.atomic(using=router.db_for_write(model)):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
@@ -190,7 +190,7 @@ class NetBoxModelViewSet(
 
         # Enforce object-level permissions on save()
         try:
-            with transaction.atomic():
+            with transaction.atomic(using=router.db_for_write(model)):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
