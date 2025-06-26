@@ -14,12 +14,13 @@ from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import Job
+from core.object_actions import BulkSync
 from dcim.models import Device, DeviceRole, Platform
 from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from extras.utils import SharedObjectViewMixin
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
@@ -232,11 +233,7 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset = filtersets.ExportTemplateFilterSet
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
-    template_name = 'extras/exporttemplate_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_sync': {'sync'},
-    }
+    actions = (Add, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
 
 
 @register_model_view(ExportTemplate)
@@ -347,9 +344,7 @@ class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
     filterset = filtersets.TableConfigFilterSet
     filterset_form = forms.TableConfigFilterForm
     table = tables.TableConfigTable
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
 
 @register_model_view(TableConfig)
@@ -759,12 +754,7 @@ class ConfigContextListView(generic.ObjectListView):
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
     template_name = 'extras/configcontext_list.html'
-    actions = {
-        'add': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-        'bulk_sync': {'sync'},
-    }
+    actions = (Add, BulkSync, BulkEdit, BulkDelete)
 
 
 @register_model_view(ConfigContext)
@@ -877,11 +867,7 @@ class ConfigTemplateListView(generic.ObjectListView):
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
-    template_name = 'extras/configtemplate_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_sync': {'sync'},
-    }
+    actions = (Add, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
 
 
 @register_model_view(ConfigTemplate)
@@ -992,9 +978,7 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset = filtersets.ImageAttachmentFilterSet
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
 
 @register_model_view(ImageAttachment, 'add', detail=False)
@@ -1038,12 +1022,7 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = {
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkImport, BulkSync, BulkEdit, BulkDelete)
 
 
 @register_model_view(JournalEntry)

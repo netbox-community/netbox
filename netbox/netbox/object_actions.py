@@ -10,6 +10,7 @@ __all__ = (
     'BulkEdit',
     'BulkExport',
     'BulkImport',
+    'BulkRename',
     'Delete',
     'Edit',
     'ObjectAction',
@@ -23,11 +24,13 @@ class ObjectAction:
     permissions_required = set()
     url_kwargs = []
 
-    def get_context(self, context, obj):
-        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{self.name}'
-        url = reverse(viewname, kwargs={kwarg: getattr(obj, kwarg) for kwarg in self.url_kwargs})
+    @classmethod
+    def get_context(cls, context, obj):
+        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{cls.name}'
+        url = reverse(viewname, kwargs={kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs})
         return {
             'url': url,
+            'label': cls.label,
         }
 
 
@@ -106,10 +109,21 @@ class BulkEdit(ObjectAction):
     Change the value of one or more fields on a set of objects.
     """
     name = 'bulk_edit'
-    label = _('Edit')
+    label = _('Edit Selected')
     bulk = True
     permissions_required = {'change'}
     template_name = 'buttons/bulk_edit.html'
+
+
+class BulkRename(ObjectAction):
+    """
+    Rename multiple objects at once.
+    """
+    name = 'bulk_rename'
+    label = _('Rename Selected')
+    bulk = True
+    permissions_required = {'change'}
+    template_name = 'buttons/bulk_rename.html'
 
 
 class BulkDelete(ObjectAction):
@@ -117,7 +131,7 @@ class BulkDelete(ObjectAction):
     Delete each of a set of objects.
     """
     name = 'bulk_delete'
-    label = _('Delete')
+    label = _('Delete Selected')
     bulk = True
     permissions_required = {'delete'}
     template_name = 'buttons/bulk_delete.html'

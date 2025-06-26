@@ -224,9 +224,13 @@ def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
 
 @register.simple_tag(takes_context=True)
 def action_button(context, action, obj):
+    if action.bulk:
+        return ''
     return loader.render_to_string(action.template_name, action.get_context(context, obj))
 
 
 @register.simple_tag(takes_context=True)
 def bulk_action_button(context, action, model):
+    if not action.bulk:
+        return ''
     return loader.render_to_string(action.template_name, action.get_context(context, model))

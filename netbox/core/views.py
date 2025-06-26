@@ -22,6 +22,7 @@ from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
+from netbox.object_actions import BulkDelete, BulkExport
 from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -138,9 +139,7 @@ class DataFileListView(generic.ObjectListView):
     filterset = filtersets.DataFileFilterSet
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
-    actions = {
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkDelete,)
 
 
 @register_model_view(DataFile)
@@ -170,10 +169,7 @@ class JobListView(generic.ObjectListView):
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
-    actions = {
-        'export': {'view'},
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkExport, BulkDelete)
 
 
 @register_model_view(Job)
@@ -204,9 +200,7 @@ class ObjectChangeListView(generic.ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'core/objectchange_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
 
 @register_model_view(ObjectChange)

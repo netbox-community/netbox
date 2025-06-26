@@ -88,9 +88,7 @@ Context:
                 </div>
                 <div class="bulk-action-buttons">
                   {% for name, action in actions.items %}
-                    {% if action.bulk %}
-                      {% bulk_action_button action model %}
-                    {% endif %}
+                    {% bulk_action_button action model %}
                   {% endfor %}
                 </div>
               </div>
@@ -120,9 +118,7 @@ Context:
             {% block bulk_buttons %}
               <div class="bulk-action-buttons">
                 {% for name, action in actions.items %}
-                  {% if action.bulk %}
-                    {% bulk_action_button action model %}
-                  {% endif %}
+                  {% bulk_action_button action model %}
                 {% endfor %}
               </div>
             {% endblock %}

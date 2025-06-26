@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from extras.models import TableConfig
+from netbox import object_actions
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
@@ -18,7 +19,27 @@ class ActionsMixin:
     Standard actions include: add, import, export, bulk_edit, and bulk_delete. Some views extend this default map
     with custom actions, such as bulk_sync.
     """
-    # actions = DEFAULT_ACTION_PERMISSIONS
+
+    # TODO: Remove in NetBox v4.6
+    @staticmethod
+    def _get_legacy_action(name):
+        """
+        Given a legacy action name, return the corresponding action class.
+        """
+        action = {
+            'add': object_actions.Add,
+            'edit': object_actions.Edit,
+            'delete': object_actions.Delete,
+            'export': object_actions.BulkExport,
+            'bulk_import': object_actions.BulkImport,
+            'bulk_edit': object_actions.BulkEdit,
+            'bulk_rename': object_actions.BulkRename,
+            'bulk_delete': object_actions.BulkDelete,
+        }.get(name)
+        if name is None:
+            raise ValueError(f"Unknown action: {action}")
+
+        return action
 
     def get_permitted_actions(self, user, model=None):
         """
@@ -29,7 +50,8 @@ class ActionsMixin:
         # Resolve required permissions for each action
         permitted_actions = []
         for action in self.actions:
-            perms = action if type(action) is str else action.permissions_required  # Backward compatibility
+            # Backward compatibility
+            perms = self._get_legacy_action(action) if type(action) is str else action.permissions_required
             required_permissions = [
                 get_permission_for_model(model, perm) for perm in perms
             ]

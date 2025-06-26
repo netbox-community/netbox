@@ -15,7 +15,7 @@ from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.object_actions import *
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -34,6 +34,7 @@ from wireless.models import WirelessLAN
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
+from .object_actions import BulkDisconnect
 
 CABLE_TERMINATION_TYPES = {
     'dcim.consoleport': ConsolePort,
@@ -49,11 +50,6 @@ CABLE_TERMINATION_TYPES = {
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-        'bulk_disconnect': {'change'},
-    }
     queryset = Device.objects.all()
 
     def get_children(self, request, parent):
@@ -61,10 +57,7 @@ class DeviceComponentsView(generic.ObjectChildrenView):
 
 
 class DeviceTypeComponentsView(generic.ObjectChildrenView):
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     queryset = DeviceType.objects.all()
     template_name = 'dcim/devicetype/component_templates.html'
     viewname = None  # Used for return_url resolution
@@ -78,8 +71,9 @@ class DeviceTypeComponentsView(generic.ObjectChildrenView):
         }
 
 
-class ModuleTypeComponentsView(DeviceComponentsView):
+class ModuleTypeComponentsView(generic.ObjectChildrenView):
     queryset = ModuleType.objects.all()
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     template_name = 'dcim/moduletype/component_templates.html'
     viewname = None  # Used for return_url resolution
 
@@ -2157,7 +2151,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
-    template_name = 'dcim/device/consoleports.html',
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.console_port_count,
@@ -2173,7 +2167,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
-    template_name = 'dcim/device/consoleserverports.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.console_server_port_count,
@@ -2189,7 +2183,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
-    template_name = 'dcim/device/powerports.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.power_port_count,
@@ -2205,7 +2199,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
-    template_name = 'dcim/device/poweroutlets.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.power_outlet_count,
@@ -2221,6 +2215,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
@@ -2243,7 +2238,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
-    template_name = 'dcim/device/frontports.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.front_port_count,
@@ -2259,7 +2254,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
-    template_name = 'dcim/device/rearports.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rear_port_count,
@@ -2275,11 +2270,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
-    template_name = 'dcim/device/modulebays.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.module_bay_count,
@@ -2295,11 +2286,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
-    template_name = 'dcim/device/devicebays.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.device_bay_count,
@@ -2315,11 +2302,7 @@ class DeviceInventoryView(DeviceComponentsView):
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
-    template_name = 'dcim/device/inventory.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Inventory Items'),
         badge=lambda obj: obj.inventory_item_count,
@@ -2472,11 +2455,7 @@ class ConsolePortListView(generic.ObjectListView):
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ConsolePort)
@@ -2547,11 +2526,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ConsoleServerPort)
@@ -2622,11 +2597,7 @@ class PowerPortListView(generic.ObjectListView):
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(PowerPort)
@@ -2697,11 +2668,7 @@ class PowerOutletListView(generic.ObjectListView):
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(PowerOutlet)
@@ -2772,11 +2739,7 @@ class InterfaceListView(generic.ObjectListView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(Interface)
@@ -2920,11 +2883,7 @@ class FrontPortListView(generic.ObjectListView):
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(FrontPort)
@@ -2995,11 +2954,7 @@ class RearPortListView(generic.ObjectListView):
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(RearPort)
@@ -3070,11 +3025,7 @@ class ModuleBayListView(generic.ObjectListView):
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ModuleBay)
@@ -3136,11 +3087,7 @@ class DeviceBayListView(generic.ObjectListView):
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(DeviceBay)
@@ -3283,11 +3230,7 @@ class InventoryItemListView(generic.ObjectListView):
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
-    template_name = 'dcim/component_list.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(InventoryItem)
@@ -3627,9 +3570,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     filterset_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
     def get_extra_context(self, request):
         return {
@@ -3643,9 +3584,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     filterset_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
     def get_extra_context(self, request):
         return {
@@ -3659,9 +3598,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     filterset_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
     def get_extra_context(self, request):
         return {

@@ -13,7 +13,7 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.object_actions import *
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -223,13 +223,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     filterset = DeviceFilterSet
     filterset_form = DeviceFilterForm
     template_name = 'virtualization/cluster/devices.html'
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_devices': {'change'},
-    }
+    actions = (Add, BulkExport, BulkImport, BulkEdit)
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -386,11 +380,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
-    template_name = 'virtualization/virtualmachine/interfaces.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interface_count,
@@ -412,17 +402,13 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVirtualDiskTable
     filterset = filtersets.VirtualDiskFilterSet
     filterset_form = forms.VirtualDiskFilterForm
-    template_name = 'virtualization/virtualmachine/virtual_disks.html'
+    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,
         permission='virtualization.view_virtualdisk',
         weight=500
     )
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
 
     def get_children(self, request, parent):
         return parent.virtualdisks.restrict(request.user, 'view').prefetch_related('tags')
