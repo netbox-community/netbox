@@ -59,7 +59,7 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
             'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.htmx_navigation',
-            'ui.table.rows.striped',
+            'ui.tables.striping',
             name=_('User Interface')
         ),
         FieldSet('data_format', name=_('Miscellaneous')),
