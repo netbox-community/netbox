@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-05 05:01+0000\n"
+"POT-Creation-Date: 2025-06-26 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Italian (https://app.transifex.com/netbox-community/teams/178115/it/)\n"
@@ -719,7 +719,7 @@ msgstr "Colore"
 #: netbox/dcim/tables/devices.py:852 netbox/dcim/tables/power.py:77
 #: netbox/dcim/tables/racks.py:141 netbox/extras/forms/bulk_import.py:42
 #: netbox/extras/tables/tables.py:449 netbox/extras/tables/tables.py:509
-#: netbox/netbox/tables/tables.py:269
+#: netbox/netbox/tables/tables.py:272
 #: netbox/templates/circuits/circuit.html:30
 #: netbox/templates/circuits/virtualcircuit.html:39
 #: netbox/templates/circuits/virtualcircuittermination.html:64
@@ -836,7 +836,7 @@ msgstr "Provider account "
 #: netbox/wireless/forms/bulk_edit.py:46
 #: netbox/wireless/forms/bulk_edit.py:109
 #: netbox/wireless/forms/bulk_import.py:45
-#: netbox/wireless/forms/bulk_import.py:89
+#: netbox/wireless/forms/bulk_import.py:132
 #: netbox/wireless/forms/filtersets.py:52
 #: netbox/wireless/forms/filtersets.py:111
 #: netbox/wireless/tables/wirelesslan.py:52
@@ -916,7 +916,7 @@ msgstr "Status"
 #: netbox/vpn/forms/filtersets.py:219 netbox/wireless/forms/bulk_edit.py:66
 #: netbox/wireless/forms/bulk_edit.py:114
 #: netbox/wireless/forms/bulk_import.py:57
-#: netbox/wireless/forms/bulk_import.py:102
+#: netbox/wireless/forms/bulk_import.py:137
 #: netbox/wireless/forms/filtersets.py:38
 #: netbox/wireless/forms/filtersets.py:103
 msgid "Tenant"
@@ -953,8 +953,8 @@ msgstr "Distanza"
 #: netbox/circuits/forms/bulk_import.py:108
 #: netbox/circuits/forms/filtersets.py:213
 #: netbox/wireless/forms/bulk_edit.py:138
-#: netbox/wireless/forms/bulk_import.py:121
-#: netbox/wireless/forms/bulk_import.py:124
+#: netbox/wireless/forms/bulk_import.py:156
+#: netbox/wireless/forms/bulk_import.py:159
 #: netbox/wireless/forms/filtersets.py:134
 msgid "Distance unit"
 msgstr "Unità di distanza"
@@ -989,7 +989,7 @@ msgstr "Parametri del servizio"
 #: netbox/ipam/forms/filtersets.py:406 netbox/ipam/forms/filtersets.py:492
 #: netbox/ipam/forms/filtersets.py:505 netbox/ipam/forms/filtersets.py:530
 #: netbox/ipam/forms/filtersets.py:601 netbox/ipam/forms/filtersets.py:619
-#: netbox/netbox/tables/tables.py:285 netbox/templates/dcim/moduletype.html:68
+#: netbox/netbox/tables/tables.py:288 netbox/templates/dcim/moduletype.html:68
 #: netbox/virtualization/forms/filtersets.py:46
 #: netbox/virtualization/forms/filtersets.py:109
 #: netbox/virtualization/forms/filtersets.py:204
@@ -1193,7 +1193,7 @@ msgstr "Stato operativo"
 #: netbox/virtualization/forms/bulk_import.py:71
 #: netbox/virtualization/forms/bulk_import.py:125
 #: netbox/vpn/forms/bulk_import.py:63 netbox/wireless/forms/bulk_import.py:61
-#: netbox/wireless/forms/bulk_import.py:106
+#: netbox/wireless/forms/bulk_import.py:141
 msgid "Assigned tenant"
 msgstr "Tenant assegnato"
 
@@ -2549,8 +2549,8 @@ msgstr ""
 #: netbox/core/models/config.py:18 netbox/core/models/data.py:269
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:52
 #: netbox/extras/models/models.py:806 netbox/extras/models/notifications.py:39
-#: netbox/extras/models/notifications.py:186
-#: netbox/netbox/models/features.py:53 netbox/users/models/tokens.py:32
+#: netbox/extras/models/notifications.py:192
+#: netbox/netbox/models/features.py:54 netbox/users/models/tokens.py:32
 msgid "created"
 msgstr "creato"
 
@@ -2669,7 +2669,7 @@ msgstr ""
 "necessario installare una dipendenza: "
 
 #: netbox/core/models/data.py:273 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:59
+#: netbox/netbox/models/features.py:60
 msgid "last updated"
 msgstr "ultimo aggiornamento"
 
@@ -2813,7 +2813,7 @@ msgstr "Nome completo"
 #: netbox/extras/tables/tables.py:341 netbox/extras/tables/tables.py:373
 #: netbox/extras/tables/tables.py:453 netbox/extras/tables/tables.py:514
 #: netbox/extras/tables/tables.py:637 netbox/extras/tables/tables.py:677
-#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:273
+#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:276
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2851,7 +2851,7 @@ msgstr "Ultimo aggiornamento"
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:230
 #: netbox/extras/tables/tables.py:504 netbox/extras/tables/tables.py:702
-#: netbox/netbox/tables/tables.py:218
+#: netbox/netbox/tables/tables.py:221
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:73
 #: netbox/wireless/tables/wirelesslink.py:16
@@ -5153,7 +5153,7 @@ msgid "Side B name"
 msgstr "Nome lato B"
 
 #: netbox/dcim/forms/bulk_import.py:1378
-#: netbox/wireless/forms/bulk_import.py:91
+#: netbox/wireless/forms/bulk_import.py:134
 msgid "Connection status"
 msgstr "Stato della connessione"
 
@@ -5366,7 +5366,7 @@ msgid "Connection"
 msgstr "Connessione"
 
 #: netbox/dcim/forms/filtersets.py:1426 netbox/extras/forms/bulk_edit.py:382
-#: netbox/extras/forms/bulk_import.py:253
+#: netbox/extras/forms/bulk_import.py:261
 #: netbox/extras/forms/filtersets.py:527
 #: netbox/extras/forms/model_forms.py:759 netbox/extras/tables/tables.py:640
 #: netbox/templates/extras/journalentry.html:30
@@ -7448,11 +7448,13 @@ msgstr "Terminazione A"
 msgid "Termination B"
 msgstr "Terminazione B"
 
-#: netbox/dcim/tables/cables.py:66 netbox/wireless/tables/wirelesslink.py:22
+#: netbox/dcim/tables/cables.py:66 netbox/wireless/forms/bulk_import.py:97
+#: netbox/wireless/tables/wirelesslink.py:22
 msgid "Device A"
 msgstr "Dispositivo A"
 
-#: netbox/dcim/tables/cables.py:72 netbox/wireless/tables/wirelesslink.py:31
+#: netbox/dcim/tables/cables.py:72 netbox/wireless/forms/bulk_import.py:118
+#: netbox/wireless/tables/wirelesslink.py:31
 msgid "Device B"
 msgstr "Dispositivo B"
 
@@ -7472,11 +7474,11 @@ msgstr "Cremagliera A"
 msgid "Rack B"
 msgstr "Cremagliera B"
 
-#: netbox/dcim/tables/cables.py:102
+#: netbox/dcim/tables/cables.py:102 netbox/wireless/forms/bulk_import.py:90
 msgid "Site A"
 msgstr "Sito A"
 
-#: netbox/dcim/tables/cables.py:108
+#: netbox/dcim/tables/cables.py:108 netbox/wireless/forms/bulk_import.py:111
 msgid "Site B"
 msgstr "Sito B"
 
@@ -8479,6 +8481,7 @@ msgstr "È attivo"
 #: netbox/extras/forms/bulk_import.py:139
 #: netbox/extras/forms/bulk_import.py:164
 #: netbox/extras/forms/bulk_import.py:188
+#: netbox/extras/forms/bulk_import.py:242
 #: netbox/extras/forms/filtersets.py:141 netbox/extras/forms/filtersets.py:235
 #: netbox/extras/forms/filtersets.py:265 netbox/extras/forms/model_forms.py:50
 #: netbox/extras/forms/model_forms.py:222
@@ -8495,6 +8498,7 @@ msgstr "Tipi di oggetti"
 #: netbox/extras/forms/bulk_import.py:141
 #: netbox/extras/forms/bulk_import.py:166
 #: netbox/extras/forms/bulk_import.py:190
+#: netbox/extras/forms/bulk_import.py:244
 #: netbox/tenancy/forms/bulk_import.py:95
 msgid "One or more assigned object types"
 msgstr "Uno o più tipi di oggetti assegnati"
@@ -8578,15 +8582,15 @@ msgstr "Webhook {name} non trovato"
 msgid "Script {name} not found"
 msgstr "Sceneggiatura {name} non trovato"
 
-#: netbox/extras/forms/bulk_import.py:250
+#: netbox/extras/forms/bulk_import.py:258
 msgid "Assigned object type"
 msgstr "Tipo di oggetto assegnato"
 
-#: netbox/extras/forms/bulk_import.py:255
+#: netbox/extras/forms/bulk_import.py:263
 msgid "The classification of entry"
 msgstr "La classificazione degli ingressi"
 
-#: netbox/extras/forms/bulk_import.py:267
+#: netbox/extras/forms/bulk_import.py:275
 #: netbox/extras/forms/model_forms.py:398 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/extras/notificationgroup.html:41
 #: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:236
@@ -8595,11 +8599,11 @@ msgstr "La classificazione degli ingressi"
 msgid "Users"
 msgstr "Utenti"
 
-#: netbox/extras/forms/bulk_import.py:271
+#: netbox/extras/forms/bulk_import.py:279
 msgid "User names separated by commas, encased with double quotes"
 msgstr "Nomi utente separati da virgole, racchiusi tra virgolette"
 
-#: netbox/extras/forms/bulk_import.py:274
+#: netbox/extras/forms/bulk_import.py:282
 #: netbox/extras/forms/model_forms.py:393 netbox/netbox/navigation/menu.py:295
 #: netbox/netbox/navigation/menu.py:433
 #: netbox/templates/extras/notificationgroup.html:31
@@ -8612,7 +8616,7 @@ msgstr "Nomi utente separati da virgole, racchiusi tra virgolette"
 msgid "Groups"
 msgstr "Gruppi"
 
-#: netbox/extras/forms/bulk_import.py:278
+#: netbox/extras/forms/bulk_import.py:286
 msgid "Group names separated by commas, encased with double quotes"
 msgstr "Nomi di gruppo separati da virgole, racchiusi tra virgolette doppie"
 
@@ -8910,7 +8914,7 @@ msgstr "I dati vengono compilati dalla fonte remota selezionata di seguito."
 msgid "Must specify either local data or a data file"
 msgstr "È necessario specificare dati locali o un file di dati"
 
-#: netbox/extras/forms/reports.py:17 netbox/extras/forms/scripts.py:30
+#: netbox/extras/forms/reports.py:17 netbox/extras/forms/scripts.py:25
 msgid "Schedule at"
 msgstr "Programma a"
 
@@ -8918,7 +8922,7 @@ msgstr "Programma a"
 msgid "Schedule execution of report to a set time"
 msgstr "Pianifica l'esecuzione del rapporto a un orario prestabilito"
 
-#: netbox/extras/forms/reports.py:23 netbox/extras/forms/scripts.py:36
+#: netbox/extras/forms/reports.py:23 netbox/extras/forms/scripts.py:31
 msgid "Recurs every"
 msgstr "Ricorre ogni"
 
@@ -8926,46 +8930,46 @@ msgstr "Ricorre ogni"
 msgid "Interval at which this report is re-run (in minutes)"
 msgstr "Intervallo di ripetizione del rapporto (in minuti)"
 
-#: netbox/extras/forms/reports.py:35 netbox/extras/forms/scripts.py:48
+#: netbox/extras/forms/reports.py:35 netbox/extras/forms/scripts.py:43
 #, python-brace-format
 msgid " (current time: <strong>{now}</strong>)"
 msgstr " (ora corrente: <strong>{now}</strong>)"
 
-#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:58
+#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:53
 msgid "Scheduled time must be in the future."
 msgstr "L'orario programmato deve essere futuro."
 
-#: netbox/extras/forms/scripts.py:24
+#: netbox/extras/forms/scripts.py:19
 msgid "Commit changes"
 msgstr "Effettua modifiche"
 
-#: netbox/extras/forms/scripts.py:25
+#: netbox/extras/forms/scripts.py:20
 msgid "Commit changes to the database (uncheck for a dry-run)"
 msgstr ""
 "Effettua il commit delle modifiche al database (deseleziona l'opzione «dry "
 "run»)"
 
-#: netbox/extras/forms/scripts.py:31
+#: netbox/extras/forms/scripts.py:26
 msgid "Schedule execution of script to a set time"
 msgstr "Pianifica l'esecuzione dello script a un orario prestabilito"
 
-#: netbox/extras/forms/scripts.py:40
+#: netbox/extras/forms/scripts.py:35
 msgid "Interval at which this script is re-run (in minutes)"
 msgstr "Intervallo di riesecuzione dello script (in minuti)"
 
-#: netbox/extras/jobs.py:47
+#: netbox/extras/jobs.py:50
 msgid "Database changes have been reverted automatically."
 msgstr "Le modifiche al database sono state annullate automaticamente."
 
-#: netbox/extras/jobs.py:53
+#: netbox/extras/jobs.py:56
 msgid "Script aborted with error: "
 msgstr "Script interrotto con errore: "
 
-#: netbox/extras/jobs.py:63
+#: netbox/extras/jobs.py:66
 msgid "An exception occurred: "
 msgstr "Si è verificata un'eccezione: "
 
-#: netbox/extras/jobs.py:68
+#: netbox/extras/jobs.py:71
 msgid "Database changes have been reverted due to error."
 msgstr "Le modifiche al database sono state annullate a causa di un errore."
 
@@ -9735,7 +9739,7 @@ msgid "notifications"
 msgstr "notifiche"
 
 #: netbox/extras/models/notifications.py:99
-#: netbox/extras/models/notifications.py:234
+#: netbox/extras/models/notifications.py:240
 #, python-brace-format
 msgid "Objects of this type ({type}) do not support notifications."
 msgstr "Oggetti di questo tipo ({type}) non supportano le notifiche."
@@ -9749,19 +9753,19 @@ msgstr "gruppi"
 msgid "users"
 msgstr "utenti"
 
-#: netbox/extras/models/notifications.py:152
+#: netbox/extras/models/notifications.py:158
 msgid "notification group"
 msgstr "gruppo di notifiche"
 
-#: netbox/extras/models/notifications.py:153
+#: netbox/extras/models/notifications.py:159
 msgid "notification groups"
 msgstr "gruppi di notifica"
 
-#: netbox/extras/models/notifications.py:217
+#: netbox/extras/models/notifications.py:223
 msgid "subscription"
 msgstr "sottoscrizione"
 
-#: netbox/extras/models/notifications.py:218
+#: netbox/extras/models/notifications.py:224
 msgid "subscriptions"
 msgstr "sottoscrizioni"
 
@@ -10446,8 +10450,8 @@ msgstr "ID gruppo"
 #: netbox/wireless/forms/bulk_edit.py:119
 #: netbox/wireless/forms/bulk_import.py:64
 #: netbox/wireless/forms/bulk_import.py:67
-#: netbox/wireless/forms/bulk_import.py:109
-#: netbox/wireless/forms/bulk_import.py:112
+#: netbox/wireless/forms/bulk_import.py:144
+#: netbox/wireless/forms/bulk_import.py:147
 #: netbox/wireless/forms/filtersets.py:57
 #: netbox/wireless/forms/filtersets.py:116
 msgid "Authentication type"
@@ -11901,53 +11905,53 @@ msgstr "Rimuovi tag"
 msgid "{class_name} must specify a model class."
 msgstr "{class_name} deve specificare una classe del modello."
 
-#: netbox/netbox/models/features.py:280
+#: netbox/netbox/models/features.py:281
 #, python-brace-format
 msgid "Unknown field name '{name}' in custom field data."
 msgstr "Nome di campo sconosciuto '{name}'nei dati dei campi personalizzati."
 
-#: netbox/netbox/models/features.py:286
+#: netbox/netbox/models/features.py:287
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr "Valore non valido per il campo personalizzato '{name}»: {error}"
 
-#: netbox/netbox/models/features.py:295
+#: netbox/netbox/models/features.py:296
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr "Campo personalizzato '{name}'deve avere un valore univoco."
 
-#: netbox/netbox/models/features.py:302
+#: netbox/netbox/models/features.py:303
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr "Campo personalizzato obbligatorio mancante '{name}»."
 
-#: netbox/netbox/models/features.py:492
+#: netbox/netbox/models/features.py:493
 msgid "Remote data source"
 msgstr "Fonte dati remota"
 
-#: netbox/netbox/models/features.py:502
+#: netbox/netbox/models/features.py:503
 msgid "data path"
 msgstr "percorso dati"
 
-#: netbox/netbox/models/features.py:506
+#: netbox/netbox/models/features.py:507
 msgid "Path to remote file (relative to data source root)"
 msgstr "Percorso del file remoto (relativo alla radice dell'origine dati)"
 
-#: netbox/netbox/models/features.py:509
+#: netbox/netbox/models/features.py:510
 msgid "auto sync enabled"
 msgstr "sincronizzazione automatica abilitata"
 
-#: netbox/netbox/models/features.py:511
+#: netbox/netbox/models/features.py:512
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 "Abilita la sincronizzazione automatica dei dati quando il file di dati viene"
 " aggiornato"
 
-#: netbox/netbox/models/features.py:514
+#: netbox/netbox/models/features.py:515
 msgid "date synced"
 msgstr "data sincronizzata"
 
-#: netbox/netbox/models/features.py:608
+#: netbox/netbox/models/features.py:609
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} deve implementare un metodo sync_data ()."
@@ -12550,12 +12554,12 @@ msgstr "Errore"
 msgid "No {model_name} found"
 msgstr "No {model_name} trovato"
 
-#: netbox/netbox/tables/tables.py:278
+#: netbox/netbox/tables/tables.py:281
 #: netbox/templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr "Campo"
 
-#: netbox/netbox/tables/tables.py:281
+#: netbox/netbox/tables/tables.py:284
 msgid "Value"
 msgstr "Valore"
 
@@ -12830,7 +12834,7 @@ msgstr "Gruppi assegnati"
 #: netbox/templates/extras/configtemplate.html:77
 #: netbox/templates/extras/eventrule.html:66
 #: netbox/templates/extras/exporttemplate.html:88
-#: netbox/templates/extras/htmx/script_result.html:60
+#: netbox/templates/extras/htmx/script_result.html:69
 #: netbox/templates/extras/webhook.html:65
 #: netbox/templates/extras/webhook.html:75
 #: netbox/templates/inc/panel_table.html:13
@@ -13055,7 +13059,7 @@ msgstr "Disconnetti"
 #: netbox/templates/dcim/frontport.html:102
 #: netbox/templates/dcim/interface.html:237
 #: netbox/templates/dcim/interface.html:257
-#: netbox/templates/dcim/powerfeed.html:127
+#: netbox/templates/dcim/powerfeed.html:123
 #: netbox/templates/dcim/poweroutlet.html:85
 #: netbox/templates/dcim/poweroutlet.html:86
 #: netbox/templates/dcim/powerport.html:73
@@ -14551,9 +14555,14 @@ msgstr "Riepilogo del test"
 msgid "Log"
 msgstr "Registro"
 
-#: netbox/templates/extras/htmx/script_result.html:56
+#: netbox/templates/extras/htmx/script_result.html:57
 msgid "Output"
 msgstr "Uscita"
+
+#: netbox/templates/extras/htmx/script_result.html:61
+#: netbox/templates/extras/object_render_config.html:60
+msgid "Download"
+msgstr "Scarica"
 
 #: netbox/templates/extras/inc/result_pending.html:4
 msgid "Loading"
@@ -14601,10 +14610,6 @@ msgstr "Dati contestuali"
 #: netbox/templates/extras/object_render_config.html:56
 msgid "Rendered Config"
 msgstr "Configurazione renderizzata"
-
-#: netbox/templates/extras/object_render_config.html:60
-msgid "Download"
-msgstr "Scarica"
 
 #: netbox/templates/extras/object_render_config.html:68
 msgid "Error rendering template"
@@ -15438,7 +15443,7 @@ msgstr "Attività recente"
 
 #: netbox/templates/users/inc/user_activity.html:9
 msgid "View All"
-msgstr ""
+msgstr "Visualizza tutto"
 
 #: netbox/templates/users/objectpermission.html:6
 #: netbox/templates/users/objectpermission.html:14
@@ -17322,8 +17327,8 @@ msgstr "WPA Enterprise"
 #: netbox/wireless/forms/bulk_edit.py:124
 #: netbox/wireless/forms/bulk_import.py:70
 #: netbox/wireless/forms/bulk_import.py:73
-#: netbox/wireless/forms/bulk_import.py:115
-#: netbox/wireless/forms/bulk_import.py:118
+#: netbox/wireless/forms/bulk_import.py:150
+#: netbox/wireless/forms/bulk_import.py:153
 #: netbox/wireless/forms/filtersets.py:62
 #: netbox/wireless/forms/filtersets.py:121
 msgid "Authentication cipher"
@@ -17334,14 +17339,38 @@ msgid "Bridged VLAN"
 msgstr "VLAN con bridge"
 
 #: netbox/wireless/forms/bulk_import.py:94
+msgid "Site of parent device A (if any)"
+msgstr "Sito del dispositivo principale A (se presente)"
+
+#: netbox/wireless/forms/bulk_import.py:100
+msgid "Parent device of assigned interface A"
+msgstr "Dispositivo padre dell'interfaccia assegnata A"
+
+#: netbox/wireless/forms/bulk_import.py:103
 #: netbox/wireless/tables/wirelesslink.py:27
 msgid "Interface A"
 msgstr "Interfaccia A"
 
-#: netbox/wireless/forms/bulk_import.py:98
+#: netbox/wireless/forms/bulk_import.py:106
+msgid "Assigned interface A"
+msgstr "Interfaccia assegnata A"
+
+#: netbox/wireless/forms/bulk_import.py:115
+msgid "Site of parent device B (if any)"
+msgstr "Sito del dispositivo principale B (se presente)"
+
+#: netbox/wireless/forms/bulk_import.py:121
+msgid "Parent device of assigned interface B"
+msgstr "Dispositivo padre dell'interfaccia assegnata B"
+
+#: netbox/wireless/forms/bulk_import.py:124
 #: netbox/wireless/tables/wirelesslink.py:36
 msgid "Interface B"
 msgstr "Interfaccia B"
+
+#: netbox/wireless/forms/bulk_import.py:127
+msgid "Assigned interface B"
+msgstr "Interfaccia assegnata B"
 
 #: netbox/wireless/forms/model_forms.py:166
 msgid "Side B"

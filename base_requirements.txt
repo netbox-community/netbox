@@ -140,7 +140,8 @@ strawberry-graphql
 
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/releases
-strawberry-graphql-django
+# See #19771
+strawberry-graphql-django==0.60.0
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst
