@@ -54,6 +54,14 @@ PREFERENCES = {
         default='bottom',
         description=_('Where the paginator controls will be displayed relative to a table')
     ),
+    'ui.tables.striping': UserPreference(
+        label=_('Striped table rows'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Render table rows with alternating colors to increase readability'),
+    ),
 
     # Miscellaneous
     'data_format': UserPreference(
