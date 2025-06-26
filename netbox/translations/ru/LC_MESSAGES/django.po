@@ -12,18 +12,18 @@
 # Alexander Ryazanov (alryaz) <alryaz@xavux.com>, 2024
 # Vladyslav V. Prodan, 2024
 # Michail Tatarinov, 2025
-# Jeremy Stretch, 2025
 # Artem Kotik, 2025
 # dropclient, 2025
+# Jeremy Stretch, 2025
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-05 05:01+0000\n"
+"POT-Creation-Date: 2025-06-26 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: dropclient, 2025\n"
+"Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -726,7 +726,7 @@ msgstr "Цвет"
 #: netbox/dcim/tables/devices.py:852 netbox/dcim/tables/power.py:77
 #: netbox/dcim/tables/racks.py:141 netbox/extras/forms/bulk_import.py:42
 #: netbox/extras/tables/tables.py:449 netbox/extras/tables/tables.py:509
-#: netbox/netbox/tables/tables.py:269
+#: netbox/netbox/tables/tables.py:272
 #: netbox/templates/circuits/circuit.html:30
 #: netbox/templates/circuits/virtualcircuit.html:39
 #: netbox/templates/circuits/virtualcircuittermination.html:64
@@ -843,7 +843,7 @@ msgstr "Аккаунт провайдера"
 #: netbox/wireless/forms/bulk_edit.py:46
 #: netbox/wireless/forms/bulk_edit.py:109
 #: netbox/wireless/forms/bulk_import.py:45
-#: netbox/wireless/forms/bulk_import.py:89
+#: netbox/wireless/forms/bulk_import.py:132
 #: netbox/wireless/forms/filtersets.py:52
 #: netbox/wireless/forms/filtersets.py:111
 #: netbox/wireless/tables/wirelesslan.py:52
@@ -923,7 +923,7 @@ msgstr "Статус"
 #: netbox/vpn/forms/filtersets.py:219 netbox/wireless/forms/bulk_edit.py:66
 #: netbox/wireless/forms/bulk_edit.py:114
 #: netbox/wireless/forms/bulk_import.py:57
-#: netbox/wireless/forms/bulk_import.py:102
+#: netbox/wireless/forms/bulk_import.py:137
 #: netbox/wireless/forms/filtersets.py:38
 #: netbox/wireless/forms/filtersets.py:103
 msgid "Tenant"
@@ -960,8 +960,8 @@ msgstr "Расстояние"
 #: netbox/circuits/forms/bulk_import.py:108
 #: netbox/circuits/forms/filtersets.py:213
 #: netbox/wireless/forms/bulk_edit.py:138
-#: netbox/wireless/forms/bulk_import.py:121
-#: netbox/wireless/forms/bulk_import.py:124
+#: netbox/wireless/forms/bulk_import.py:156
+#: netbox/wireless/forms/bulk_import.py:159
 #: netbox/wireless/forms/filtersets.py:134
 msgid "Distance unit"
 msgstr "Единица измерения расстояний"
@@ -996,7 +996,7 @@ msgstr "Параметры Службы"
 #: netbox/ipam/forms/filtersets.py:406 netbox/ipam/forms/filtersets.py:492
 #: netbox/ipam/forms/filtersets.py:505 netbox/ipam/forms/filtersets.py:530
 #: netbox/ipam/forms/filtersets.py:601 netbox/ipam/forms/filtersets.py:619
-#: netbox/netbox/tables/tables.py:285 netbox/templates/dcim/moduletype.html:68
+#: netbox/netbox/tables/tables.py:288 netbox/templates/dcim/moduletype.html:68
 #: netbox/virtualization/forms/filtersets.py:46
 #: netbox/virtualization/forms/filtersets.py:109
 #: netbox/virtualization/forms/filtersets.py:204
@@ -1200,7 +1200,7 @@ msgstr "Операционный статус"
 #: netbox/virtualization/forms/bulk_import.py:71
 #: netbox/virtualization/forms/bulk_import.py:125
 #: netbox/vpn/forms/bulk_import.py:63 netbox/wireless/forms/bulk_import.py:61
-#: netbox/wireless/forms/bulk_import.py:106
+#: netbox/wireless/forms/bulk_import.py:141
 msgid "Assigned tenant"
 msgstr "Назначенный арендатор"
 
@@ -2553,8 +2553,8 @@ msgstr ""
 #: netbox/core/models/config.py:18 netbox/core/models/data.py:269
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:52
 #: netbox/extras/models/models.py:806 netbox/extras/models/notifications.py:39
-#: netbox/extras/models/notifications.py:186
-#: netbox/netbox/models/features.py:53 netbox/users/models/tokens.py:32
+#: netbox/extras/models/notifications.py:192
+#: netbox/netbox/models/features.py:54 netbox/users/models/tokens.py:32
 msgid "created"
 msgstr "создан(а)"
 
@@ -2672,7 +2672,7 @@ msgstr ""
 "зависимость: "
 
 #: netbox/core/models/data.py:273 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:59
+#: netbox/netbox/models/features.py:60
 msgid "last updated"
 msgstr "последнее обновление"
 
@@ -2814,7 +2814,7 @@ msgstr "Полное имя"
 #: netbox/extras/tables/tables.py:341 netbox/extras/tables/tables.py:373
 #: netbox/extras/tables/tables.py:453 netbox/extras/tables/tables.py:514
 #: netbox/extras/tables/tables.py:637 netbox/extras/tables/tables.py:677
-#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:273
+#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:276
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2852,7 +2852,7 @@ msgstr "Последнее обновление"
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:230
 #: netbox/extras/tables/tables.py:504 netbox/extras/tables/tables.py:702
-#: netbox/netbox/tables/tables.py:218
+#: netbox/netbox/tables/tables.py:221
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:73
 #: netbox/wireless/tables/wirelesslink.py:16
@@ -5144,7 +5144,7 @@ msgid "Side B name"
 msgstr "Название стороны B"
 
 #: netbox/dcim/forms/bulk_import.py:1378
-#: netbox/wireless/forms/bulk_import.py:91
+#: netbox/wireless/forms/bulk_import.py:134
 msgid "Connection status"
 msgstr "Состояние подключения"
 
@@ -5358,7 +5358,7 @@ msgid "Connection"
 msgstr "Подключение"
 
 #: netbox/dcim/forms/filtersets.py:1426 netbox/extras/forms/bulk_edit.py:382
-#: netbox/extras/forms/bulk_import.py:253
+#: netbox/extras/forms/bulk_import.py:261
 #: netbox/extras/forms/filtersets.py:527
 #: netbox/extras/forms/model_forms.py:759 netbox/extras/tables/tables.py:640
 #: netbox/templates/extras/journalentry.html:30
@@ -7397,11 +7397,13 @@ msgstr "Точка подключения A"
 msgid "Termination B"
 msgstr "Точка подключения Б"
 
-#: netbox/dcim/tables/cables.py:66 netbox/wireless/tables/wirelesslink.py:22
+#: netbox/dcim/tables/cables.py:66 netbox/wireless/forms/bulk_import.py:97
+#: netbox/wireless/tables/wirelesslink.py:22
 msgid "Device A"
 msgstr "Устройство A"
 
-#: netbox/dcim/tables/cables.py:72 netbox/wireless/tables/wirelesslink.py:31
+#: netbox/dcim/tables/cables.py:72 netbox/wireless/forms/bulk_import.py:118
+#: netbox/wireless/tables/wirelesslink.py:31
 msgid "Device B"
 msgstr "Устройство Б"
 
@@ -7421,11 +7423,11 @@ msgstr "Стойка A"
 msgid "Rack B"
 msgstr "Стойка Б"
 
-#: netbox/dcim/tables/cables.py:102
+#: netbox/dcim/tables/cables.py:102 netbox/wireless/forms/bulk_import.py:90
 msgid "Site A"
 msgstr "Площадка A"
 
-#: netbox/dcim/tables/cables.py:108
+#: netbox/dcim/tables/cables.py:108 netbox/wireless/forms/bulk_import.py:111
 msgid "Site B"
 msgstr "Площадка Б"
 
@@ -8424,6 +8426,7 @@ msgstr "Активен"
 #: netbox/extras/forms/bulk_import.py:139
 #: netbox/extras/forms/bulk_import.py:164
 #: netbox/extras/forms/bulk_import.py:188
+#: netbox/extras/forms/bulk_import.py:242
 #: netbox/extras/forms/filtersets.py:141 netbox/extras/forms/filtersets.py:235
 #: netbox/extras/forms/filtersets.py:265 netbox/extras/forms/model_forms.py:50
 #: netbox/extras/forms/model_forms.py:222
@@ -8440,6 +8443,7 @@ msgstr "Типы объектов"
 #: netbox/extras/forms/bulk_import.py:141
 #: netbox/extras/forms/bulk_import.py:166
 #: netbox/extras/forms/bulk_import.py:190
+#: netbox/extras/forms/bulk_import.py:244
 #: netbox/tenancy/forms/bulk_import.py:95
 msgid "One or more assigned object types"
 msgstr "Один или несколько назначенных типов объектов"
@@ -8525,15 +8529,15 @@ msgstr "Вебхук {name} не найден"
 msgid "Script {name} not found"
 msgstr "Сценарий {name} не найден"
 
-#: netbox/extras/forms/bulk_import.py:250
+#: netbox/extras/forms/bulk_import.py:258
 msgid "Assigned object type"
 msgstr "Назначенный тип объекта"
 
-#: netbox/extras/forms/bulk_import.py:255
+#: netbox/extras/forms/bulk_import.py:263
 msgid "The classification of entry"
 msgstr "Классификация записей"
 
-#: netbox/extras/forms/bulk_import.py:267
+#: netbox/extras/forms/bulk_import.py:275
 #: netbox/extras/forms/model_forms.py:398 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/extras/notificationgroup.html:41
 #: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:236
@@ -8542,12 +8546,12 @@ msgstr "Классификация записей"
 msgid "Users"
 msgstr "Пользователи"
 
-#: netbox/extras/forms/bulk_import.py:271
+#: netbox/extras/forms/bulk_import.py:279
 msgid "User names separated by commas, encased with double quotes"
 msgstr ""
 "Имена пользователей, разделенные запятыми и заключенные в двойные кавычки"
 
-#: netbox/extras/forms/bulk_import.py:274
+#: netbox/extras/forms/bulk_import.py:282
 #: netbox/extras/forms/model_forms.py:393 netbox/netbox/navigation/menu.py:295
 #: netbox/netbox/navigation/menu.py:433
 #: netbox/templates/extras/notificationgroup.html:31
@@ -8560,7 +8564,7 @@ msgstr ""
 msgid "Groups"
 msgstr "Группы"
 
-#: netbox/extras/forms/bulk_import.py:278
+#: netbox/extras/forms/bulk_import.py:286
 msgid "Group names separated by commas, encased with double quotes"
 msgstr "Имена групп, разделенные запятыми и заключенные в двойные кавычки"
 
@@ -8855,7 +8859,7 @@ msgstr "Данные заполняются из удаленного источ
 msgid "Must specify either local data or a data file"
 msgstr "Необходимо указать локальные данные или файл данных"
 
-#: netbox/extras/forms/reports.py:17 netbox/extras/forms/scripts.py:30
+#: netbox/extras/forms/reports.py:17 netbox/extras/forms/scripts.py:25
 msgid "Schedule at"
 msgstr "Расписание на"
 
@@ -8863,7 +8867,7 @@ msgstr "Расписание на"
 msgid "Schedule execution of report to a set time"
 msgstr "Запланировать выполнение отчета на установленное время"
 
-#: netbox/extras/forms/reports.py:23 netbox/extras/forms/scripts.py:36
+#: netbox/extras/forms/reports.py:23 netbox/extras/forms/scripts.py:31
 msgid "Recurs every"
 msgstr "Повторяется каждый"
 
@@ -8871,45 +8875,45 @@ msgstr "Повторяется каждый"
 msgid "Interval at which this report is re-run (in minutes)"
 msgstr "Интервал повторного запуска отчета (в минутах)"
 
-#: netbox/extras/forms/reports.py:35 netbox/extras/forms/scripts.py:48
+#: netbox/extras/forms/reports.py:35 netbox/extras/forms/scripts.py:43
 #, python-brace-format
 msgid " (current time: <strong>{now}</strong>)"
 msgstr " (текущее время: <strong>{now}</strong>)"
 
-#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:58
+#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:53
 msgid "Scheduled time must be in the future."
 msgstr "Запланированное время должно быть в будущем."
 
-#: netbox/extras/forms/scripts.py:24
+#: netbox/extras/forms/scripts.py:19
 msgid "Commit changes"
 msgstr "Зафиксируйте изменения"
 
-#: netbox/extras/forms/scripts.py:25
+#: netbox/extras/forms/scripts.py:20
 msgid "Commit changes to the database (uncheck for a dry-run)"
 msgstr ""
 "Зафиксируйте изменения в базе данных (снимите флажок для пробного запуска)"
 
-#: netbox/extras/forms/scripts.py:31
+#: netbox/extras/forms/scripts.py:26
 msgid "Schedule execution of script to a set time"
 msgstr "Запланируйте выполнение скрипта на заданное время"
 
-#: netbox/extras/forms/scripts.py:40
+#: netbox/extras/forms/scripts.py:35
 msgid "Interval at which this script is re-run (in minutes)"
 msgstr "Интервал повторного запуска этого скрипта (в минутах)"
 
-#: netbox/extras/jobs.py:47
+#: netbox/extras/jobs.py:50
 msgid "Database changes have been reverted automatically."
 msgstr "Изменения в базе данных были автоматически отменены."
 
-#: netbox/extras/jobs.py:53
+#: netbox/extras/jobs.py:56
 msgid "Script aborted with error: "
 msgstr "Скрипт прерван с ошибкой: "
 
-#: netbox/extras/jobs.py:63
+#: netbox/extras/jobs.py:66
 msgid "An exception occurred: "
 msgstr "Возникло исключение: "
 
-#: netbox/extras/jobs.py:68
+#: netbox/extras/jobs.py:71
 msgid "Database changes have been reverted due to error."
 msgstr "Изменения в базе данных отменены из-за ошибки."
 
@@ -9668,7 +9672,7 @@ msgid "notifications"
 msgstr "уведомления"
 
 #: netbox/extras/models/notifications.py:99
-#: netbox/extras/models/notifications.py:234
+#: netbox/extras/models/notifications.py:240
 #, python-brace-format
 msgid "Objects of this type ({type}) do not support notifications."
 msgstr "Объекты этого типа ({type}) не поддерживают уведомления."
@@ -9682,19 +9686,19 @@ msgstr "групп"
 msgid "users"
 msgstr "пользователей"
 
-#: netbox/extras/models/notifications.py:152
+#: netbox/extras/models/notifications.py:158
 msgid "notification group"
 msgstr "группа уведомлений"
 
-#: netbox/extras/models/notifications.py:153
+#: netbox/extras/models/notifications.py:159
 msgid "notification groups"
 msgstr "группы уведомлений"
 
-#: netbox/extras/models/notifications.py:217
+#: netbox/extras/models/notifications.py:223
 msgid "subscription"
 msgstr "подписка"
 
-#: netbox/extras/models/notifications.py:218
+#: netbox/extras/models/notifications.py:224
 msgid "subscriptions"
 msgstr "подписки"
 
@@ -10374,8 +10378,8 @@ msgstr "Идентификатор группы"
 #: netbox/wireless/forms/bulk_edit.py:119
 #: netbox/wireless/forms/bulk_import.py:64
 #: netbox/wireless/forms/bulk_import.py:67
-#: netbox/wireless/forms/bulk_import.py:109
-#: netbox/wireless/forms/bulk_import.py:112
+#: netbox/wireless/forms/bulk_import.py:144
+#: netbox/wireless/forms/bulk_import.py:147
 #: netbox/wireless/forms/filtersets.py:57
 #: netbox/wireless/forms/filtersets.py:116
 msgid "Authentication type"
@@ -11814,52 +11818,52 @@ msgstr "Удалить теги"
 msgid "{class_name} must specify a model class."
 msgstr "{class_name} необходимо указать класс модели."
 
-#: netbox/netbox/models/features.py:280
+#: netbox/netbox/models/features.py:281
 #, python-brace-format
 msgid "Unknown field name '{name}' in custom field data."
 msgstr "Неизвестное имя поля '{name}' в данных для настраиваемых полей."
 
-#: netbox/netbox/models/features.py:286
+#: netbox/netbox/models/features.py:287
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr "Неверное значение для настраиваемого поля '{name}': {error}"
 
-#: netbox/netbox/models/features.py:295
+#: netbox/netbox/models/features.py:296
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr "Настраиваемое поле '{name}'должно иметь уникальное значение."
 
-#: netbox/netbox/models/features.py:302
+#: netbox/netbox/models/features.py:303
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr "Отсутствует обязательное настраиваемое поле '{name}'."
 
-#: netbox/netbox/models/features.py:492
+#: netbox/netbox/models/features.py:493
 msgid "Remote data source"
 msgstr "Удаленный источник данных"
 
-#: netbox/netbox/models/features.py:502
+#: netbox/netbox/models/features.py:503
 msgid "data path"
 msgstr "путь к данным"
 
-#: netbox/netbox/models/features.py:506
+#: netbox/netbox/models/features.py:507
 msgid "Path to remote file (relative to data source root)"
 msgstr "Путь к удаленному файлу (относительно корня источника данных)"
 
-#: netbox/netbox/models/features.py:509
+#: netbox/netbox/models/features.py:510
 msgid "auto sync enabled"
 msgstr "автоматическая синхронизация включена"
 
-#: netbox/netbox/models/features.py:511
+#: netbox/netbox/models/features.py:512
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 "Включить автоматическую синхронизацию данных при обновлении файла данных"
 
-#: netbox/netbox/models/features.py:514
+#: netbox/netbox/models/features.py:515
 msgid "date synced"
 msgstr "дата синхронизирована"
 
-#: netbox/netbox/models/features.py:608
+#: netbox/netbox/models/features.py:609
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} должен реализовать метод sync_data ()."
@@ -12460,12 +12464,12 @@ msgstr "Ошибка"
 msgid "No {model_name} found"
 msgstr "{model_name} не найдена"
 
-#: netbox/netbox/tables/tables.py:278
+#: netbox/netbox/tables/tables.py:281
 #: netbox/templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr "Поле"
 
-#: netbox/netbox/tables/tables.py:281
+#: netbox/netbox/tables/tables.py:284
 msgid "Value"
 msgstr "Значение"
 
@@ -12738,7 +12742,7 @@ msgstr "Назначенные группы"
 #: netbox/templates/extras/configtemplate.html:77
 #: netbox/templates/extras/eventrule.html:66
 #: netbox/templates/extras/exporttemplate.html:88
-#: netbox/templates/extras/htmx/script_result.html:60
+#: netbox/templates/extras/htmx/script_result.html:69
 #: netbox/templates/extras/webhook.html:65
 #: netbox/templates/extras/webhook.html:75
 #: netbox/templates/inc/panel_table.html:13
@@ -12964,7 +12968,7 @@ msgstr "Отключить"
 #: netbox/templates/dcim/frontport.html:102
 #: netbox/templates/dcim/interface.html:237
 #: netbox/templates/dcim/interface.html:257
-#: netbox/templates/dcim/powerfeed.html:127
+#: netbox/templates/dcim/powerfeed.html:123
 #: netbox/templates/dcim/poweroutlet.html:85
 #: netbox/templates/dcim/poweroutlet.html:86
 #: netbox/templates/dcim/powerport.html:73
@@ -14458,9 +14462,14 @@ msgstr "Сводка теста"
 msgid "Log"
 msgstr "Журнал"
 
-#: netbox/templates/extras/htmx/script_result.html:56
+#: netbox/templates/extras/htmx/script_result.html:57
 msgid "Output"
 msgstr "Вывод"
+
+#: netbox/templates/extras/htmx/script_result.html:61
+#: netbox/templates/extras/object_render_config.html:60
+msgid "Download"
+msgstr "Скачать"
 
 #: netbox/templates/extras/inc/result_pending.html:4
 msgid "Loading"
@@ -14507,10 +14516,6 @@ msgstr "Контекстные данные"
 #: netbox/templates/extras/object_render_config.html:56
 msgid "Rendered Config"
 msgstr "Отображенная конфигурация"
-
-#: netbox/templates/extras/object_render_config.html:60
-msgid "Download"
-msgstr "Скачать"
 
 #: netbox/templates/extras/object_render_config.html:68
 msgid "Error rendering template"
@@ -15342,7 +15347,7 @@ msgstr "Недавняя активность"
 
 #: netbox/templates/users/inc/user_activity.html:9
 msgid "View All"
-msgstr ""
+msgstr "Показать все"
 
 #: netbox/templates/users/objectpermission.html:6
 #: netbox/templates/users/objectpermission.html:14
@@ -17217,8 +17222,8 @@ msgstr "Предприятие WPA"
 #: netbox/wireless/forms/bulk_edit.py:124
 #: netbox/wireless/forms/bulk_import.py:70
 #: netbox/wireless/forms/bulk_import.py:73
-#: netbox/wireless/forms/bulk_import.py:115
-#: netbox/wireless/forms/bulk_import.py:118
+#: netbox/wireless/forms/bulk_import.py:150
+#: netbox/wireless/forms/bulk_import.py:153
 #: netbox/wireless/forms/filtersets.py:62
 #: netbox/wireless/forms/filtersets.py:121
 msgid "Authentication cipher"
@@ -17229,14 +17234,38 @@ msgid "Bridged VLAN"
 msgstr "Мостовая VLAN"
 
 #: netbox/wireless/forms/bulk_import.py:94
+msgid "Site of parent device A (if any)"
+msgstr "Сайт родительского устройства A (если есть)"
+
+#: netbox/wireless/forms/bulk_import.py:100
+msgid "Parent device of assigned interface A"
+msgstr "Родительское устройство назначенного интерфейса A"
+
+#: netbox/wireless/forms/bulk_import.py:103
 #: netbox/wireless/tables/wirelesslink.py:27
 msgid "Interface A"
 msgstr "Интерфейс A"
 
-#: netbox/wireless/forms/bulk_import.py:98
+#: netbox/wireless/forms/bulk_import.py:106
+msgid "Assigned interface A"
+msgstr "Назначенный интерфейс A"
+
+#: netbox/wireless/forms/bulk_import.py:115
+msgid "Site of parent device B (if any)"
+msgstr "Сайт родительского устройства B (если есть)"
+
+#: netbox/wireless/forms/bulk_import.py:121
+msgid "Parent device of assigned interface B"
+msgstr "Родительское устройство назначенного интерфейса B"
+
+#: netbox/wireless/forms/bulk_import.py:124
 #: netbox/wireless/tables/wirelesslink.py:36
 msgid "Interface B"
 msgstr "Интерфейс B"
+
+#: netbox/wireless/forms/bulk_import.py:127
+msgid "Assigned interface B"
+msgstr "Назначенный интерфейс B"
 
 #: netbox/wireless/forms/model_forms.py:166
 msgid "Side B"

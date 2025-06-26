@@ -166,7 +166,8 @@ Then, compile these portable (`.po`) files for use in the application:
 
 ### Update Version and Changelog
 
-* Update the version number and date in `netbox/release.yaml` and `pyproject.toml`. Add or remove the designation (e.g. `beta1`) if applicable.
+* Update the version number and published date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
+* Copy the version number from `release.yaml` to `pyproject.toml` in the project root.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Add a section for this release at the top of the changelog page for the minor version (e.g. `docs/release-notes/version-4.2.md`) listing all relevant changes made in this release.
 
