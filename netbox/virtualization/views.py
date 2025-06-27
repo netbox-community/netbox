@@ -204,6 +204,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
+    actions = (Edit, Delete, BulkEdit)
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -222,8 +223,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     filterset_form = DeviceFilterForm
-    template_name = 'virtualization/cluster/devices.html'
-    actions = (Add, BulkExport, BulkImport, BulkEdit)
+    actions = (Edit, Delete, BulkEdit)
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -307,50 +307,6 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         return render(request, self.template_name, {
             'cluster': cluster,
             'form': form,
-            'return_url': cluster.get_absolute_url(),
-        })
-
-
-@register_model_view(Cluster, 'remove_devices', path='devices/remove')
-class ClusterRemoveDevicesView(generic.ObjectEditView):
-    queryset = Cluster.objects.all()
-    form = forms.ClusterRemoveDevicesForm
-    template_name = 'generic/bulk_remove.html'
-
-    def post(self, request, pk):
-
-        cluster = get_object_or_404(self.queryset, pk=pk)
-
-        if '_confirm' in request.POST:
-            form = self.form(request.POST)
-            if form.is_valid():
-
-                device_pks = form.cleaned_data['pk']
-                with transaction.atomic(using=router.db_for_write(Device)):
-
-                    # Remove the selected Devices from the Cluster
-                    for device in Device.objects.filter(pk__in=device_pks):
-                        device.cluster = None
-                        device.save()
-
-                messages.success(request, _("Removed {count} devices from cluster {cluster}").format(
-                    count=len(device_pks),
-                    cluster=cluster
-                ))
-                return redirect(cluster.get_absolute_url())
-
-        else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-
-        selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
-        device_table = DeviceTable(list(selected_objects), orderable=False)
-        device_table.configure(request)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'parent_obj': cluster,
-            'table': device_table,
-            'obj_type_plural': 'devices',
             'return_url': cluster.get_absolute_url(),
         })
 

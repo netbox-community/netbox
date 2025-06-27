@@ -1,6 +1,0 @@
-{% load i18n %}
-{% if url %}
-  <button type="submit" name="_remove" {% formaction %}="{{ url }}?return_url={{ return_url }}" class="btn btn-red">
-    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {{ label }}
-  </button>
-{% endif %}
