@@ -5,14 +5,14 @@ from core.models import ObjectType
 from extras.models import ExportTemplate
 
 __all__ = (
-    'Add',
+    'AddObject',
     'BulkDelete',
     'BulkEdit',
     'BulkExport',
     'BulkImport',
     'BulkRename',
-    'Delete',
-    'Edit',
+    'DeleteObject',
+    'EditObject',
     'ObjectAction',
 )
 
@@ -40,7 +40,7 @@ class ObjectAction:
         }
 
 
-class Add(ObjectAction):
+class AddObject(ObjectAction):
     """
     Create a new object.
     """
@@ -50,7 +50,7 @@ class Add(ObjectAction):
     template_name = 'buttons/add.html'
 
 
-class Edit(ObjectAction):
+class EditObject(ObjectAction):
     """
     Edit a single object.
     """
@@ -61,7 +61,7 @@ class Edit(ObjectAction):
     template_name = 'buttons/edit.html'
 
 
-class Delete(ObjectAction):
+class DeleteObject(ObjectAction):
     """
     Delete a single object.
     """

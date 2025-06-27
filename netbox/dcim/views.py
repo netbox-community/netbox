@@ -57,7 +57,7 @@ class DeviceComponentsView(generic.ObjectChildrenView):
 
 
 class DeviceTypeComponentsView(generic.ObjectChildrenView):
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     queryset = DeviceType.objects.all()
     viewname = None  # Used for return_url resolution
 
@@ -72,7 +72,7 @@ class DeviceTypeComponentsView(generic.ObjectChildrenView):
 
 class ModuleTypeComponentsView(generic.ObjectChildrenView):
     queryset = ModuleType.objects.all()
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     viewname = None  # Used for return_url resolution
 
     def get_children(self, request, parent):
@@ -2108,7 +2108,7 @@ class DeviceListView(generic.ObjectListView):
     filterset = filtersets.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
-    actions = (Add, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
     template_name = 'dcim/device_list.html'
 
 
@@ -2150,7 +2150,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.console_port_count,
@@ -2166,7 +2166,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.console_server_port_count,
@@ -2182,7 +2182,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.power_port_count,
@@ -2198,7 +2198,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.power_outlet_count,
@@ -2214,7 +2214,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
@@ -2237,7 +2237,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.front_port_count,
@@ -2253,7 +2253,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rear_port_count,
@@ -2269,7 +2269,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.module_bay_count,
@@ -2285,7 +2285,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.device_bay_count,
@@ -2301,7 +2301,7 @@ class DeviceInventoryView(DeviceComponentsView):
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Inventory Items'),
         badge=lambda obj: obj.inventory_item_count,
@@ -2454,7 +2454,7 @@ class ConsolePortListView(generic.ObjectListView):
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ConsolePort)
@@ -2525,7 +2525,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ConsoleServerPort)
@@ -2596,7 +2596,7 @@ class PowerPortListView(generic.ObjectListView):
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(PowerPort)
@@ -2667,7 +2667,7 @@ class PowerOutletListView(generic.ObjectListView):
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(PowerOutlet)
@@ -2738,7 +2738,7 @@ class InterfaceListView(generic.ObjectListView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(Interface)
@@ -2882,7 +2882,7 @@ class FrontPortListView(generic.ObjectListView):
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(FrontPort)
@@ -2953,7 +2953,7 @@ class RearPortListView(generic.ObjectListView):
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(RearPort)
@@ -3024,7 +3024,7 @@ class ModuleBayListView(generic.ObjectListView):
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(ModuleBay)
@@ -3086,7 +3086,7 @@ class DeviceBayListView(generic.ObjectListView):
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(DeviceBay)
@@ -3229,7 +3229,7 @@ class InventoryItemListView(generic.ObjectListView):
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
-    actions = (Add, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkEdit, BulkRename, BulkExport, BulkDelete)
 
 
 @register_model_view(InventoryItem)

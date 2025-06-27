@@ -204,7 +204,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
-    actions = (Edit, Delete, BulkEdit)
+    actions = (EditObject, DeleteObject, BulkEdit)
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -223,7 +223,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     filterset_form = DeviceFilterForm
-    actions = (Edit, Delete, BulkEdit)
+    actions = (EditObject, DeleteObject, BulkEdit)
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -336,7 +336,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interface_count,
@@ -358,7 +358,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVirtualDiskTable
     filterset = filtersets.VirtualDiskFilterSet
     filterset_form = forms.VirtualDiskFilterForm
-    actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,

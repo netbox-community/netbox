@@ -28,9 +28,9 @@ class ActionsMixin:
         Given a legacy action name, return the corresponding action class.
         """
         action = {
-            'add': object_actions.Add,
-            'edit': object_actions.Edit,
-            'delete': object_actions.Delete,
+            'add': object_actions.AddObject,
+            'edit': object_actions.EditObject,
+            'delete': object_actions.DeleteObject,
             'export': object_actions.BulkExport,
             'bulk_import': object_actions.BulkImport,
             'bulk_edit': object_actions.BulkEdit,

@@ -233,7 +233,7 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset = filtersets.ExportTemplateFilterSet
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
-    actions = (Add, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
 
 
 @register_model_view(ExportTemplate)
@@ -753,7 +753,7 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    actions = (Add, BulkSync, BulkEdit, BulkDelete)
+    actions = (AddObject, BulkSync, BulkEdit, BulkDelete)
 
 
 @register_model_view(ConfigContext)
@@ -866,7 +866,7 @@ class ConfigTemplateListView(generic.ObjectListView):
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
-    actions = (Add, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
 
 
 @register_model_view(ConfigTemplate)
