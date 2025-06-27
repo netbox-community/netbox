@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-26 05:02+0000\n"
+"POT-Creation-Date: 2025-06-27 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: netbox/account/tables.py:27 netbox/templates/account/token.html:22
 #: netbox/templates/users/token.html:17 netbox/users/forms/bulk_import.py:39
-#: netbox/users/forms/model_forms.py:112
+#: netbox/users/forms/model_forms.py:113
 msgid "Key"
 msgstr ""
 
@@ -57,7 +57,7 @@ msgstr ""
 
 #: netbox/account/tables.py:45 netbox/templates/account/token.html:55
 #: netbox/templates/users/token.html:47 netbox/users/forms/bulk_edit.py:122
-#: netbox/users/forms/model_forms.py:124
+#: netbox/users/forms/model_forms.py:125
 msgid "Allowed IPs"
 msgstr ""
 
@@ -705,7 +705,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:852 netbox/dcim/tables/power.py:77
 #: netbox/dcim/tables/racks.py:141 netbox/extras/forms/bulk_import.py:42
 #: netbox/extras/tables/tables.py:449 netbox/extras/tables/tables.py:509
-#: netbox/netbox/tables/tables.py:272 netbox/templates/circuits/circuit.html:30
+#: netbox/netbox/tables/tables.py:274 netbox/templates/circuits/circuit.html:30
 #: netbox/templates/circuits/virtualcircuit.html:39
 #: netbox/templates/circuits/virtualcircuittermination.html:64
 #: netbox/templates/core/datasource.html:38 netbox/templates/dcim/cable.html:15
@@ -804,7 +804,7 @@ msgstr ""
 #: netbox/templates/vpn/l2vpn.html:26 netbox/templates/vpn/tunnel.html:25
 #: netbox/templates/wireless/wirelesslan.html:22
 #: netbox/templates/wireless/wirelesslink.html:17
-#: netbox/users/forms/filtersets.py:32 netbox/users/forms/model_forms.py:194
+#: netbox/users/forms/filtersets.py:32 netbox/users/forms/model_forms.py:195
 #: netbox/virtualization/forms/bulk_edit.py:71
 #: netbox/virtualization/forms/bulk_edit.py:100
 #: netbox/virtualization/forms/bulk_import.py:55
@@ -972,7 +972,7 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:406 netbox/ipam/forms/filtersets.py:492
 #: netbox/ipam/forms/filtersets.py:505 netbox/ipam/forms/filtersets.py:530
 #: netbox/ipam/forms/filtersets.py:601 netbox/ipam/forms/filtersets.py:619
-#: netbox/netbox/tables/tables.py:288 netbox/templates/dcim/moduletype.html:68
+#: netbox/netbox/tables/tables.py:290 netbox/templates/dcim/moduletype.html:68
 #: netbox/virtualization/forms/filtersets.py:46
 #: netbox/virtualization/forms/filtersets.py:109
 #: netbox/virtualization/forms/filtersets.py:204
@@ -1369,7 +1369,7 @@ msgstr ""
 #: netbox/templates/extras/configcontext.html:60
 #: netbox/templates/ipam/ipaddress.html:59
 #: netbox/templates/ipam/vlan_edit.html:42
-#: netbox/tenancy/forms/filtersets.py:87 netbox/users/forms/model_forms.py:314
+#: netbox/tenancy/forms/filtersets.py:87 netbox/users/forms/model_forms.py:315
 msgid "Assignment"
 msgstr ""
 
@@ -2179,7 +2179,7 @@ msgstr ""
 
 #: netbox/core/data_backends.py:56 netbox/templates/account/base.html:23
 #: netbox/templates/account/password.html:12
-#: netbox/users/forms/model_forms.py:170
+#: netbox/users/forms/model_forms.py:171
 msgid "Password"
 msgstr ""
 
@@ -2231,7 +2231,7 @@ msgstr ""
 #: netbox/extras/forms/filtersets.py:335 netbox/extras/tables/tables.py:166
 #: netbox/extras/tables/tables.py:267 netbox/extras/tables/tables.py:300
 #: netbox/extras/tables/tables.py:459 netbox/netbox/preferences.py:22
-#: netbox/templates/core/datasource.html:42
+#: netbox/netbox/preferences.py:61 netbox/templates/core/datasource.html:42
 #: netbox/templates/dcim/interface.html:61
 #: netbox/templates/extras/customlink.html:17
 #: netbox/templates/extras/eventrule.html:17
@@ -2346,7 +2346,7 @@ msgstr ""
 #: netbox/templates/users/user.html:4 netbox/templates/users/user.html:12
 #: netbox/users/filtersets.py:107 netbox/users/filtersets.py:174
 #: netbox/users/forms/filtersets.py:84 netbox/users/forms/filtersets.py:125
-#: netbox/users/forms/model_forms.py:155 netbox/users/forms/model_forms.py:192
+#: netbox/users/forms/model_forms.py:156 netbox/users/forms/model_forms.py:193
 #: netbox/users/tables.py:19
 msgid "User"
 msgstr ""
@@ -2449,7 +2449,7 @@ msgstr ""
 
 #: netbox/core/forms/model_forms.py:170 netbox/dcim/forms/filtersets.py:752
 #: netbox/templates/core/inc/config_data.html:127
-#: netbox/users/forms/model_forms.py:64
+#: netbox/users/forms/model_forms.py:65
 msgid "Miscellaneous"
 msgstr ""
 
@@ -2763,7 +2763,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:341 netbox/extras/tables/tables.py:373
 #: netbox/extras/tables/tables.py:453 netbox/extras/tables/tables.py:514
 #: netbox/extras/tables/tables.py:637 netbox/extras/tables/tables.py:677
-#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:276
+#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:278
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2801,7 +2801,7 @@ msgstr ""
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:230
 #: netbox/extras/tables/tables.py:504 netbox/extras/tables/tables.py:702
-#: netbox/netbox/tables/tables.py:221
+#: netbox/netbox/tables/tables.py:223
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:73 netbox/wireless/tables/wirelesslink.py:16
 msgid "ID"
@@ -3381,8 +3381,9 @@ msgid "Three-phase"
 msgstr ""
 
 #: netbox/dcim/choices.py:1657 netbox/extras/choices.py:53
-#: netbox/netbox/preferences.py:21 netbox/templates/extras/customfield.html:78
-#: netbox/vpn/choices.py:20 netbox/wireless/choices.py:27
+#: netbox/netbox/preferences.py:21 netbox/netbox/preferences.py:60
+#: netbox/templates/extras/customfield.html:78 netbox/vpn/choices.py:20
+#: netbox/wireless/choices.py:27
 msgid "Disabled"
 msgstr ""
 
@@ -8201,7 +8202,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:254
 #: netbox/extras/forms/model_forms.py:297
 #: netbox/extras/forms/model_forms.py:450
-#: netbox/extras/forms/model_forms.py:567 netbox/users/forms/model_forms.py:276
+#: netbox/extras/forms/model_forms.py:567 netbox/users/forms/model_forms.py:277
 msgid "Object types"
 msgstr ""
 
@@ -8297,8 +8298,8 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:275
 #: netbox/extras/forms/model_forms.py:398 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/extras/notificationgroup.html:41
-#: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:236
-#: netbox/users/forms/model_forms.py:248 netbox/users/forms/model_forms.py:300
+#: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:237
+#: netbox/users/forms/model_forms.py:249 netbox/users/forms/model_forms.py:301
 #: netbox/users/tables.py:102
 msgid "Users"
 msgstr ""
@@ -8314,8 +8315,8 @@ msgstr ""
 #: netbox/templates/tenancy/contact.html:21
 #: netbox/tenancy/forms/bulk_edit.py:139 netbox/tenancy/forms/filtersets.py:78
 #: netbox/tenancy/forms/model_forms.py:99 netbox/tenancy/tables/contacts.py:64
-#: netbox/users/forms/model_forms.py:181 netbox/users/forms/model_forms.py:193
-#: netbox/users/forms/model_forms.py:305 netbox/users/tables.py:35
+#: netbox/users/forms/model_forms.py:182 netbox/users/forms/model_forms.py:194
+#: netbox/users/forms/model_forms.py:306 netbox/users/tables.py:35
 #: netbox/users/tables.py:106
 msgid "Groups"
 msgstr ""
@@ -10212,7 +10213,7 @@ msgid ""
 "One of parent or parent_object_id must be included with parent_object_type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:638
+#: netbox/ipam/forms/bulk_import.py:641
 #, python-brace-format
 msgid "{ip} is not assigned to this parent."
 msgstr ""
@@ -11834,9 +11835,9 @@ msgstr ""
 msgid "API Tokens"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:460 netbox/users/forms/model_forms.py:187
-#: netbox/users/forms/model_forms.py:195 netbox/users/forms/model_forms.py:242
-#: netbox/users/forms/model_forms.py:249
+#: netbox/netbox/navigation/menu.py:460 netbox/users/forms/model_forms.py:188
+#: netbox/users/forms/model_forms.py:196 netbox/users/forms/model_forms.py:243
+#: netbox/users/forms/model_forms.py:250
 msgid "Permissions"
 msgstr ""
 
@@ -11959,11 +11960,19 @@ msgstr ""
 msgid "Where the paginator controls will be displayed relative to a table"
 msgstr ""
 
-#: netbox/netbox/preferences.py:60
+#: netbox/netbox/preferences.py:58
+msgid "Striped table rows"
+msgstr ""
+
+#: netbox/netbox/preferences.py:63
+msgid "Render table rows with alternating colors to increase readability"
+msgstr ""
+
+#: netbox/netbox/preferences.py:68
 msgid "Data format"
 msgstr ""
 
-#: netbox/netbox/preferences.py:65
+#: netbox/netbox/preferences.py:73
 msgid "The preferred syntax for displaying generic data within the UI"
 msgstr ""
 
@@ -12062,12 +12071,12 @@ msgstr ""
 msgid "No {model_name} found"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:281
+#: netbox/netbox/tables/tables.py:283
 #: netbox/templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:284
+#: netbox/netbox/tables/tables.py:286
 msgid "Value"
 msgstr ""
 
@@ -13716,7 +13725,7 @@ msgstr ""
 #: netbox/templates/dcim/virtualchassis_add_member.html:27
 #: netbox/templates/generic/object_edit.html:78
 #: netbox/templates/users/objectpermission.html:31
-#: netbox/users/forms/filtersets.py:67 netbox/users/forms/model_forms.py:312
+#: netbox/users/forms/filtersets.py:67 netbox/users/forms/model_forms.py:313
 msgid "Actions"
 msgstr ""
 
@@ -14874,7 +14883,7 @@ msgid "View"
 msgstr ""
 
 #: netbox/templates/users/objectpermission.html:52
-#: netbox/users/forms/model_forms.py:315
+#: netbox/users/forms/model_forms.py:316
 msgid "Constraints"
 msgstr ""
 
@@ -15358,60 +15367,60 @@ msgstr ""
 msgid "Can Delete"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:62
+#: netbox/users/forms/model_forms.py:63
 msgid "User Interface"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:114
+#: netbox/users/forms/model_forms.py:115
 msgid ""
 "Keys must be at least 40 characters in length. <strong>Be sure to record "
 "your key</strong> prior to submitting this form, as it may no longer be "
 "accessible once the token has been created."
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:126
+#: netbox/users/forms/model_forms.py:127
 msgid ""
 "Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for "
 "no restrictions. Example: <code>10.1.1.0/24,192.168.10.16/32,2001:"
 "db8:1::/64</code>"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:175
+#: netbox/users/forms/model_forms.py:176
 msgid "Confirm password"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:178
+#: netbox/users/forms/model_forms.py:179
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:227
+#: netbox/users/forms/model_forms.py:228
 msgid "Passwords do not match! Please check your input and try again."
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:294
+#: netbox/users/forms/model_forms.py:295
 msgid "Additional actions"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:297
+#: netbox/users/forms/model_forms.py:298
 msgid "Actions granted in addition to those listed above"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:313
+#: netbox/users/forms/model_forms.py:314
 msgid "Objects"
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:325
+#: netbox/users/forms/model_forms.py:326
 msgid ""
 "JSON expression of a queryset filter that will return only permitted "
 "objects. Leave null to match all objects of this type. A list of multiple "
 "objects will result in a logical OR operation."
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:364
+#: netbox/users/forms/model_forms.py:365
 msgid "At least one action must be selected."
 msgstr ""
 
-#: netbox/users/forms/model_forms.py:382
+#: netbox/users/forms/model_forms.py:383
 #, python-brace-format
 msgid "Invalid filter for {model}: {error}"
 msgstr ""
