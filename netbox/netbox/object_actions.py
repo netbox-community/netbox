@@ -91,7 +91,8 @@ class BulkExport(ObjectAction):
     permissions_required = {'view'}
     template_name = 'buttons/export.html'
 
-    def get_context(self, context, model):
+    @classmethod
+    def get_context(cls, context, model):
         object_type = ObjectType.objects.get_for_model(model)
         user = context['request'].user
 

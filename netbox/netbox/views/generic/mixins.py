@@ -59,9 +59,7 @@ class ActionsMixin:
             if not required_permissions or user.has_perms(required_permissions):
                 permitted_actions.append(action)
 
-        return {
-            action.name: action for action in permitted_actions
-        }
+        return permitted_actions
 
 
 class TableMixin:

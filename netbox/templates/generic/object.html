@@ -83,9 +83,7 @@ Context:
       {% if request.user|can_add:object %}
         {% clone_button object %}
       {% endif %}
-      {% for name, action in actions.items %}
-        {% action_button action object %}
-      {% endfor %}
+      {% action_buttons actions object %}
     {% endblock control-buttons %}
   </div>
 

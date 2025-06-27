@@ -32,11 +32,7 @@ Context:
   <div class="btn-list">
     {% plugin_list_buttons model %}
     {% block extra_controls %}{% endblock %}
-    {% for name, action in actions.items %}
-      {% if not action.bulk %}
-        {% action_button action model %}
-      {% endif %}
-    {% endfor %}
+    {% action_buttons actions model %}
   </div>
 {% endblock controls %}
 
@@ -88,9 +84,7 @@ Context:
                   </label>
                 </div>
                 <div class="bulk-action-buttons">
-                  {% for name, action in actions.items %}
-                    {% bulk_action_button action model %}
-                  {% endfor %}
+                  {% action_buttons actions model bulk=True %}
                 </div>
               </div>
             </div>
@@ -118,13 +112,8 @@ Context:
           <div class="btn-list d-print-none">
             {% block bulk_buttons %}
               <div class="bulk-action-buttons">
-                {# Extra bulk buttons #}
                 {% block extra_bulk_buttons %}{% endblock %}
-
-                {# Default bulk action buttons #}
-                {% for name, action in actions.items %}
-                  {% bulk_action_button action model %}
-                {% endfor %}
+                {% action_buttons actions model bulk=True %}
               </div>
             {% endblock %}
           </div>

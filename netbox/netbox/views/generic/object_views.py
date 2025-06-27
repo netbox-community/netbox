@@ -143,7 +143,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
-        has_bulk_actions = any(action.bulk for action in actions.values())
+        has_bulk_actions = any(action.bulk for action in actions)
 
         table_data = self.prep_table_data(request, child_objects, instance)
         table = self.get_table(table_data, request, has_bulk_actions)
