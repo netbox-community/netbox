@@ -22,12 +22,6 @@
   {% endif %}
 {% endblock breadcrumbs %}
 
-{% block control-buttons %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock control-buttons %}
-
 {% block content %}
   <div class="row mb-3">
     <div class="col col-12 col-md-6">

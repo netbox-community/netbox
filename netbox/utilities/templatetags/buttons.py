@@ -1,6 +1,8 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.template import loader
 from django.urls import NoReverseMatch, reverse
+from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
@@ -9,6 +11,7 @@ from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_viewname
 
 __all__ = (
+    'action_buttons',
     'add_button',
     'bookmark_button',
     'bulk_delete_button',
@@ -25,8 +28,17 @@ __all__ = (
 register = template.Library()
 
 
+@register.simple_tag(takes_context=True)
+def action_buttons(context, actions, obj, bulk=False):
+    buttons = [
+        loader.render_to_string(action.template_name, action.get_context(context, obj))
+        for action in actions if action.bulk == bulk
+    ]
+    return mark_safe(''.join(buttons))
+
+
 #
-# Instance buttons
+# Legacy object buttons
 #
 
 @register.inclusion_tag('buttons/bookmark.html', takes_context=True)
@@ -142,7 +154,7 @@ def sync_button(instance):
 
 
 #
-# List buttons
+# Legacy list buttons
 #
 
 @register.inclusion_tag('buttons/add.html')

@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if url %}
+  <button type="submit" name="_disconnect" {% formaction %}="{{ url }}" class="btn btn-red">
+    <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> {{ label }}
+  </button>
+{% endif %}

@@ -8,13 +8,14 @@
 
 {% comment %}
 Blocks:
-  - title:             Page title
-  - controls:          Control elements displayed between the header and content
-    - extra_controls:  Any additional action buttons to display
-  - tabs:              Page tabs
-  - content:           Primary page content
-    - bulk_buttons:    Additional bulk action buttons to display beneath the objects list
-  - modals:            Any pre-loaded modals
+  - title:                  Page title
+  - controls:               Control elements displayed between the header and content
+    - extra_controls:       Any additional action buttons to display
+  - tabs:                   Page tabs
+  - content:                Primary page content
+    - bulk_buttons:         Bulk action buttons to display beneath the objects list
+      - extra_bulk_buttons: Addition bulk action buttons
+  - modals:                 Any pre-loaded modals
 
 Context:
   - model:        The model class being listed
@@ -31,15 +32,7 @@ Context:
   <div class="btn-list">
     {% plugin_list_buttons model %}
     {% block extra_controls %}{% endblock %}
-    {% if 'add' in actions %}
-      {% add_button model %}
-    {% endif %}
-    {% if 'bulk_import' in actions %}
-      {% import_button model %}
-    {% endif %}
-    {% if 'export' in actions %}
-      {% export_button model %}
-    {% endif %}
+    {% action_buttons actions model %}
   </div>
 {% endblock controls %}
 
@@ -91,12 +84,7 @@ Context:
                   </label>
                 </div>
                 <div class="bulk-action-buttons">
-                  {% if 'bulk_edit' in actions %}
-                    {% bulk_edit_button model query_params=request.GET %}
-                  {% endif %}
-                  {% if 'bulk_delete' in actions %}
-                    {% bulk_delete_button model query_params=request.GET %}
-                  {% endif %}
+                  {% action_buttons actions model bulk=True %}
                 </div>
               </div>
             </div>
@@ -124,12 +112,8 @@ Context:
           <div class="btn-list d-print-none">
             {% block bulk_buttons %}
               <div class="bulk-action-buttons">
-                {% if 'bulk_edit' in actions %}
-                  {% bulk_edit_button model query_params=request.GET %}
-                {% endif %}
-                {% if 'bulk_delete' in actions %}
-                  {% bulk_delete_button model query_params=request.GET %}
-                {% endif %}
+                {% block extra_bulk_buttons %}{% endblock %}
+                {% action_buttons actions model bulk=True %}
               </div>
             {% endblock %}
           </div>

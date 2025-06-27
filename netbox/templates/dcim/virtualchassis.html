@@ -1,17 +1,7 @@
 {% extends 'generic/object.html' %}
-{% load buttons %}
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
-
-{% block buttons %}
-  {% if perms.dcim.change_virtualchassis %}
-    {% edit_button object %}
-  {% endif %}
-  {% if perms.dcim.delete_virtualchassis %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock %}
 
 {% block content %}
 <div class="row">

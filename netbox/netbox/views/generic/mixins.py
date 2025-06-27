@@ -1,13 +1,25 @@
 from django.shortcuts import get_object_or_404
 
 from extras.models import TableConfig
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox import object_actions
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
     'ActionsMixin',
     'TableMixin',
 )
+
+# TODO: Remove in NetBox v4.5
+LEGACY_ACTIONS = {
+    'add': object_actions.AddObject,
+    'edit': object_actions.EditObject,
+    'delete': object_actions.DeleteObject,
+    'export': object_actions.BulkExport,
+    'bulk_import': object_actions.BulkImport,
+    'bulk_edit': object_actions.BulkEdit,
+    'bulk_rename': object_actions.BulkRename,
+    'bulk_delete': object_actions.BulkDelete,
+}
 
 
 class ActionsMixin:
@@ -19,7 +31,24 @@ class ActionsMixin:
     Standard actions include: add, import, export, bulk_edit, and bulk_delete. Some views extend this default map
     with custom actions, such as bulk_sync.
     """
-    actions = DEFAULT_ACTION_PERMISSIONS
+    actions = tuple()
+
+    # TODO: Remove in NetBox v4.5
+    def _convert_legacy_actions(self):
+        """
+        Convert a legacy dictionary mapping action name to required permissions to a list of ObjectAction subclasses.
+        """
+        if type(self.actions) is not dict:
+            return
+
+        actions = []
+        for name in self.actions.keys():
+            try:
+                actions.append(LEGACY_ACTIONS[name])
+            except KeyError:
+                raise ValueError(f"Unsupported legacy action: {name}")
+
+        self.actions = actions
 
     def get_permitted_actions(self, user, model=None):
         """
@@ -27,11 +56,15 @@ class ActionsMixin:
         """
         model = model or self.queryset.model
 
+        # TODO: Remove in NetBox v4.5
+        # Handle legacy action sets
+        self._convert_legacy_actions()
+
         # Resolve required permissions for each action
         permitted_actions = []
         for action in self.actions:
             required_permissions = [
-                get_permission_for_model(model, name) for name in self.actions.get(action, set())
+                get_permission_for_model(model, perm) for perm in action.permissions_required
             ]
             if not required_permissions or user.has_perms(required_permissions):
                 permitted_actions.append(action)
