@@ -9,6 +9,18 @@ __all__ = (
     'TableMixin',
 )
 
+# TODO: Remove in NetBox v4.5
+LEGACY_ACTIONS = {
+    'add': object_actions.AddObject,
+    'edit': object_actions.EditObject,
+    'delete': object_actions.DeleteObject,
+    'export': object_actions.BulkExport,
+    'bulk_import': object_actions.BulkImport,
+    'bulk_edit': object_actions.BulkEdit,
+    'bulk_rename': object_actions.BulkRename,
+    'bulk_delete': object_actions.BulkDelete,
+}
+
 
 class ActionsMixin:
     """
@@ -21,26 +33,22 @@ class ActionsMixin:
     """
     actions = tuple()
 
-    # TODO: Remove in NetBox v4.6
-    @staticmethod
-    def _get_legacy_action(name):
+    # TODO: Remove in NetBox v4.5
+    def _convert_legacy_actions(self):
         """
-        Given a legacy action name, return the corresponding action class.
+        Convert a legacy dictionary mapping action name to required permissions to a list of ObjectAction subclasses.
         """
-        action = {
-            'add': object_actions.AddObject,
-            'edit': object_actions.EditObject,
-            'delete': object_actions.DeleteObject,
-            'export': object_actions.BulkExport,
-            'bulk_import': object_actions.BulkImport,
-            'bulk_edit': object_actions.BulkEdit,
-            'bulk_rename': object_actions.BulkRename,
-            'bulk_delete': object_actions.BulkDelete,
-        }.get(name)
-        if name is None:
-            raise ValueError(f"Unknown action: {action}")
+        if type(self.actions) is not dict:
+            return
 
-        return action
+        actions = []
+        for name in self.actions.keys():
+            try:
+                actions.append(LEGACY_ACTIONS[name])
+            except KeyError:
+                raise ValueError(f"Unsupported legacy action: {name}")
+
+        self.actions = actions
 
     def get_permitted_actions(self, user, model=None):
         """
@@ -48,13 +56,15 @@ class ActionsMixin:
         """
         model = model or self.queryset.model
 
+        # TODO: Remove in NetBox v4.5
+        # Handle legacy action sets
+        self._convert_legacy_actions()
+
         # Resolve required permissions for each action
         permitted_actions = []
         for action in self.actions:
-            # Backward compatibility
-            perms = self._get_legacy_action(action) if type(action) is str else action.permissions_required
             required_permissions = [
-                get_permission_for_model(model, perm) for perm in perms
+                get_permission_for_model(model, perm) for perm in action.permissions_required
             ]
             if not required_permissions or user.has_perms(required_permissions):
                 permitted_actions.append(action)
