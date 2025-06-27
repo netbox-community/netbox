@@ -753,7 +753,6 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    template_name = 'extras/configcontext_list.html'
     actions = (Add, BulkSync, BulkEdit, BulkDelete)
 
 

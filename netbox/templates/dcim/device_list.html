@@ -1,10 +1,9 @@
 {% extends 'generic/object_list.html' %}
-{% load buttons %}
 {% load i18n %}
 
-{% block bulk_buttons %}
+{% block extra_bulk_buttons %}
   {% if perms.dcim.change_device %}
-    <div class="dropdown">
+    <div class="btn-group">
       <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Components" %}
       </button>
@@ -75,9 +74,4 @@
       </ul>
     </div>
   {% endif %}
-  <div class="bulk-action-buttons">
-    {% for name, action in actions.items %}
-      {% bulk_action_button action model %}
-    {% endfor %}
-  </div>
-{% endblock %}
+{% endblock extra_bulk_buttons %}
