@@ -152,8 +152,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        # has_bulk_actions = any([a.startswith('bulk_') for a in actions])
-        has_bulk_actions = True
+        has_bulk_actions = any(action.bulk for action in actions.values())
 
         if 'export' in request.GET:
 
