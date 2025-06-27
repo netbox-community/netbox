@@ -25,11 +25,17 @@ class ObjectAction:
     url_kwargs = []
 
     @classmethod
-    def get_context(cls, context, obj):
+    def get_url(cls, obj):
         viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{cls.name}'
-        url = reverse(viewname, kwargs={kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs})
+        kwargs = {
+            kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs
+        }
+        return reverse(viewname, kwargs=kwargs)
+
+    @classmethod
+    def get_context(cls, context, obj):
         return {
-            'url': url,
+            'url': cls.get_url(obj),
             'label': cls.label,
         }
 

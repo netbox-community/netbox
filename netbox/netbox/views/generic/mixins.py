@@ -19,6 +19,7 @@ class ActionsMixin:
     Standard actions include: add, import, export, bulk_edit, and bulk_delete. Some views extend this default map
     with custom actions, such as bulk_sync.
     """
+    actions = tuple()
 
     # TODO: Remove in NetBox v4.6
     @staticmethod

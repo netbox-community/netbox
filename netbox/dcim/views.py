@@ -59,7 +59,6 @@ class DeviceComponentsView(generic.ObjectChildrenView):
 class DeviceTypeComponentsView(generic.ObjectChildrenView):
     actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
     queryset = DeviceType.objects.all()
-    template_name = 'dcim/devicetype/component_templates.html'
     viewname = None  # Used for return_url resolution
 
     def get_children(self, request, parent):
@@ -74,7 +73,6 @@ class DeviceTypeComponentsView(generic.ObjectChildrenView):
 class ModuleTypeComponentsView(generic.ObjectChildrenView):
     queryset = ModuleType.objects.all()
     actions = (Edit, Delete, BulkEdit, BulkRename, BulkDelete)
-    template_name = 'dcim/moduletype/component_templates.html'
     viewname = None  # Used for return_url resolution
 
     def get_children(self, request, parent):
