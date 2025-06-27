@@ -2108,6 +2108,7 @@ class DeviceListView(generic.ObjectListView):
     filterset = filtersets.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
+    actions = (Add, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
     template_name = 'dcim/device_list.html'
 
 
