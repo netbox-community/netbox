@@ -74,17 +74,19 @@ def bookmark_button(context, instance):
 
 @register.inclusion_tag('buttons/clone.html')
 def clone_button(instance):
-    url = reverse(get_viewname(instance, 'add'))
+    # Resolve URL path
+    viewname = get_viewname(instance, 'add')
+    try:
+        url = reverse(viewname)
+    except NoReverseMatch:
+        return {
+            'url': None,
+        }
 
-    # Populate cloned field values
+    # Populate cloned field values and return full URL
     param_string = prepare_cloned_fields(instance).urlencode()
-    if param_string:
-        url = f'{url}?{param_string}'
-    else:
-        url = None
-
     return {
-        'url': url,
+        'url': f'{url}?{param_string}' if param_string else None,
     }
 
 
