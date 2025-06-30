@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template import loader
 from django.urls import NoReverseMatch, reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
@@ -36,10 +37,6 @@ def action_buttons(context, actions, obj, multi=False):
     ]
     return mark_safe(''.join(buttons))
 
-
-#
-# Legacy object buttons
-#
 
 @register.inclusion_tag('buttons/bookmark.html', takes_context=True)
 def bookmark_button(context, instance):
@@ -90,26 +87,6 @@ def clone_button(instance):
     }
 
 
-@register.inclusion_tag('buttons/edit.html')
-def edit_button(instance):
-    viewname = get_viewname(instance, 'edit')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
-
-    return {
-        'url': url,
-    }
-
-
-@register.inclusion_tag('buttons/delete.html')
-def delete_button(instance):
-    viewname = get_viewname(instance, 'delete')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
-
-    return {
-        'url': url,
-    }
-
-
 @register.inclusion_tag('buttons/subscribe.html', takes_context=True)
 def subscribe_button(context, instance):
     # Skip for objects which don't support notifications
@@ -145,12 +122,42 @@ def subscribe_button(context, instance):
     }
 
 
+#
+# Legacy object buttons
+#
+
+# TODO: Remove in NetBox v4.6
+@register.inclusion_tag('buttons/edit.html')
+def edit_button(instance):
+    viewname = get_viewname(instance, 'edit')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+        'label': _('Edit'),
+    }
+
+
+# TODO: Remove in NetBox v4.6
+@register.inclusion_tag('buttons/delete.html')
+def delete_button(instance):
+    viewname = get_viewname(instance, 'delete')
+    url = reverse(viewname, kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+        'label': _('Delete'),
+    }
+
+
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/sync.html')
 def sync_button(instance):
     viewname = get_viewname(instance, 'sync')
     url = reverse(viewname, kwargs={'pk': instance.pk})
 
     return {
+        'label': _('Sync'),
         'url': url,
     }
 
@@ -159,6 +166,7 @@ def sync_button(instance):
 # Legacy list buttons
 #
 
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/add.html')
 def add_button(model, action='add'):
     try:
@@ -168,9 +176,11 @@ def add_button(model, action='add'):
 
     return {
         'url': url,
+        'label': _('Add'),
     }
 
 
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/import.html')
 def import_button(model, action='bulk_import'):
     try:
@@ -180,9 +190,11 @@ def import_button(model, action='bulk_import'):
 
     return {
         'url': url,
+        'label': _('Import'),
     }
 
 
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, model):
     object_type = ObjectType.objects.get_for_model(model)
@@ -195,6 +207,7 @@ def export_button(context, model):
     export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
 
     return {
+        'label': _('Export'),
         'perms': context['perms'],
         'object_type': object_type,
         'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
@@ -203,6 +216,7 @@ def export_button(context, model):
     }
 
 
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/bulk_edit.html', takes_context=True)
 def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     try:
@@ -213,11 +227,13 @@ def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
         url = None
 
     return {
-        'htmx_navigation': context.get('htmx_navigation'),
+        'label': _('Edit Selected'),
         'url': url,
+        'htmx_navigation': context.get('htmx_navigation'),
     }
 
 
+# TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/bulk_delete.html', takes_context=True)
 def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     try:
@@ -228,6 +244,7 @@ def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
         url = None
 
     return {
-        'htmx_navigation': context.get('htmx_navigation'),
+        'label': _('Delete Selected'),
         'url': url,
+        'htmx_navigation': context.get('htmx_navigation'),
     }
