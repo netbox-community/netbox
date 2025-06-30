@@ -29,10 +29,10 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def action_buttons(context, actions, obj, bulk=False):
+def action_buttons(context, actions, obj, multi=False):
     buttons = [
         loader.render_to_string(action.template_name, action.get_context(context, obj))
-        for action in actions if action.bulk == bulk
+        for action in actions if action.multi == multi
     ]
     return mark_safe(''.join(buttons))
 

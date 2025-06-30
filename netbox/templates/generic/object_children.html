@@ -37,7 +37,7 @@ Context:
         </div>
         <div class="d-print-none mt-2">
             {% block bulk_controls %}
-              {% action_buttons actions model bulk=True %}
+              {% action_buttons actions model multi=True %}
               {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>

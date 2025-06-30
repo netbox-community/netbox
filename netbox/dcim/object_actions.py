@@ -13,6 +13,6 @@ class BulkDisconnect(ObjectAction):
     """
     name = 'bulk_disconnect'
     label = _('Disconnect Selected')
-    bulk = True
+    multi = True
     permissions_required = {'change'}
     template_name = 'buttons/bulk_disconnect.html'

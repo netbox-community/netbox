@@ -143,10 +143,10 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
-        has_bulk_actions = any(action.bulk for action in actions)
+        has_table_actions = any(action.multi for action in actions)
 
         table_data = self.prep_table_data(request, child_objects, instance)
-        table = self.get_table(table_data, request, has_bulk_actions)
+        table = self.get_table(table_data, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):

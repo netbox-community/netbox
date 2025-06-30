@@ -18,9 +18,19 @@ __all__ = (
 
 
 class ObjectAction:
+    """
+    Base class for single- and multi-object operations.
+
+    Params:
+        name: The action name
+        label: Human-friendly label for the rendered button
+        multi: Set to True if this action is performed by selecting multiple objects (i.e. using a table)
+        permissions_required: The set of permissions a user must have to perform the action
+        url_kwargs: The set of URL keyword arguments to pass when resolving the view's URL
+    """
     name = ''
     label = None
-    bulk = False
+    multi = False
     permissions_required = set()
     url_kwargs = []
 
@@ -117,7 +127,7 @@ class BulkEdit(ObjectAction):
     """
     name = 'bulk_edit'
     label = _('Edit Selected')
-    bulk = True
+    multi = True
     permissions_required = {'change'}
     template_name = 'buttons/bulk_edit.html'
 
@@ -128,7 +138,7 @@ class BulkRename(ObjectAction):
     """
     name = 'bulk_rename'
     label = _('Rename Selected')
-    bulk = True
+    multi = True
     permissions_required = {'change'}
     template_name = 'buttons/bulk_rename.html'
 
@@ -139,6 +149,6 @@ class BulkDelete(ObjectAction):
     """
     name = 'bulk_delete'
     label = _('Delete Selected')
-    bulk = True
+    multi = True
     permissions_required = {'delete'}
     template_name = 'buttons/bulk_delete.html'

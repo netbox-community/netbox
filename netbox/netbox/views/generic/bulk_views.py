@@ -152,13 +152,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        has_bulk_actions = any(action.bulk for action in actions)
+        has_table_actions = any(action.multi for action in actions)
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
                 return self.export_table(table, columns)
 
@@ -176,11 +176,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 return self.export_table(table)
 
         # Render the objects table
-        table = self.get_table(self.queryset, request, has_bulk_actions)
+        table = self.get_table(self.queryset, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):

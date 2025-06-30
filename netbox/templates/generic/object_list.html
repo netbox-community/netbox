@@ -84,7 +84,7 @@ Context:
                   </label>
                 </div>
                 <div class="bulk-action-buttons">
-                  {% action_buttons actions model bulk=True %}
+                  {% action_buttons actions model multi=True %}
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ Context:
             {% block bulk_buttons %}
               <div class="bulk-action-buttons">
                 {% block extra_bulk_buttons %}{% endblock %}
-                {% action_buttons actions model bulk=True %}
+                {% action_buttons actions model multi=True %}
               </div>
             {% endblock %}
           </div>
