@@ -22,6 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -60,6 +61,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
+    actions = (AddObject, BulkImport, BulkEdit, BulkExport, BulkDelete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -150,13 +152,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        has_table_actions = any(action.multi for action in actions)
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
                 return self.export_table(table, columns)
 
@@ -174,11 +176,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 return self.export_table(table)
 
         # Render the objects table
-        table = self.get_table(self.queryset, request, has_bulk_actions)
+        table = self.get_table(self.queryset, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):

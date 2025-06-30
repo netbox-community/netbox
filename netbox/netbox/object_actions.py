@@ -1,0 +1,176 @@
+from django.urls import reverse
+from django.utils.translation import gettext as _
+
+from core.models import ObjectType
+from extras.models import ExportTemplate
+from utilities.querydict import prepare_cloned_fields
+
+__all__ = (
+    'AddObject',
+    'BulkDelete',
+    'BulkEdit',
+    'BulkExport',
+    'BulkImport',
+    'BulkRename',
+    'CloneObject',
+    'DeleteObject',
+    'EditObject',
+    'ObjectAction',
+)
+
+
+class ObjectAction:
+    """
+    Base class for single- and multi-object operations.
+
+    Params:
+        name: The action name appended to the module for view resolution
+        label: Human-friendly label for the rendered button
+        multi: Set to True if this action is performed by selecting multiple objects (i.e. using a table)
+        permissions_required: The set of permissions a user must have to perform the action
+        url_kwargs: The set of URL keyword arguments to pass when resolving the view's URL
+    """
+    name = ''
+    label = None
+    multi = False
+    permissions_required = set()
+    url_kwargs = []
+
+    @classmethod
+    def get_url(cls, obj):
+        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{cls.name}'
+        kwargs = {
+            kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs
+        }
+        return reverse(viewname, kwargs=kwargs)
+
+    @classmethod
+    def get_context(cls, context, obj):
+        return {
+            'url': cls.get_url(obj),
+            'label': cls.label,
+        }
+
+
+class AddObject(ObjectAction):
+    """
+    Create a new object.
+    """
+    name = 'add'
+    label = _('Add')
+    permissions_required = {'add'}
+    template_name = 'buttons/add.html'
+
+
+class CloneObject(ObjectAction):
+    """
+    Populate the new object form with select details from an existing object.
+    """
+    name = 'add'
+    label = _('Clone')
+    permissions_required = {'add'}
+    template_name = 'buttons/clone.html'
+
+    @classmethod
+    def get_context(cls, context, obj):
+        param_string = prepare_cloned_fields(obj).urlencode()
+        url = f'{cls.get_url(obj)}?{param_string}' if param_string else None
+        return {
+            'url': url,
+            'label': cls.label,
+        }
+
+
+class EditObject(ObjectAction):
+    """
+    Edit a single object.
+    """
+    name = 'edit'
+    label = _('Edit')
+    permissions_required = {'change'}
+    url_kwargs = ['pk']
+    template_name = 'buttons/edit.html'
+
+
+class DeleteObject(ObjectAction):
+    """
+    Delete a single object.
+    """
+    name = 'delete'
+    label = _('Delete')
+    permissions_required = {'delete'}
+    url_kwargs = ['pk']
+    template_name = 'buttons/delete.html'
+
+
+class BulkImport(ObjectAction):
+    """
+    Import multiple objects at once.
+    """
+    name = 'bulk_import'
+    label = _('Import')
+    permissions_required = {'add'}
+    template_name = 'buttons/import.html'
+
+
+class BulkExport(ObjectAction):
+    """
+    Export multiple objects at once.
+    """
+    name = 'export'
+    label = _('Export')
+    permissions_required = {'view'}
+    template_name = 'buttons/export.html'
+
+    @classmethod
+    def get_context(cls, context, model):
+        object_type = ObjectType.objects.get_for_model(model)
+        user = context['request'].user
+
+        # Determine if the "all data" export returns CSV or YAML
+        data_format = 'YAML' if hasattr(object_type.model_class(), 'to_yaml') else 'CSV'
+
+        # Retrieve all export templates for this model
+        export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
+
+        return {
+            'label': cls.label,
+            'perms': context['perms'],
+            'object_type': object_type,
+            'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
+            'export_templates': export_templates,
+            'data_format': data_format,
+        }
+
+
+class BulkEdit(ObjectAction):
+    """
+    Change the value of one or more fields on a set of objects.
+    """
+    name = 'bulk_edit'
+    label = _('Edit Selected')
+    multi = True
+    permissions_required = {'change'}
+    template_name = 'buttons/bulk_edit.html'
+
+
+class BulkRename(ObjectAction):
+    """
+    Rename multiple objects at once.
+    """
+    name = 'bulk_rename'
+    label = _('Rename Selected')
+    multi = True
+    permissions_required = {'change'}
+    template_name = 'buttons/bulk_rename.html'
+
+
+class BulkDelete(ObjectAction):
+    """
+    Delete each of a set of objects.
+    """
+    name = 'bulk_delete'
+    label = _('Delete Selected')
+    multi = True
+    permissions_required = {'delete'}
+    template_name = 'buttons/bulk_delete.html'

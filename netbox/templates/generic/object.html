@@ -80,15 +80,7 @@ Context:
       {% if perms.extras.add_subscription and object.subscriptions %}
         {% subscribe_button object %}
       {% endif %}
-      {% if request.user|can_add:object %}
-        {% clone_button object %}
-      {% endif %}
-      {% if request.user|can_change:object %}
-        {% edit_button object %}
-      {% endif %}
-      {% if request.user|can_delete:object %}
-        {% delete_button object %}
-      {% endif %}
+      {% action_buttons actions object %}
     {% endblock control-buttons %}
   </div>
 

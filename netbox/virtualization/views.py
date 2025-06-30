@@ -13,13 +13,14 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.object_actions import *
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .object_actions import BulkAddComponents
 
 
 #
@@ -204,6 +205,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
+    actions = (EditObject, DeleteObject, BulkEdit)
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -222,14 +224,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     filterset_form = DeviceFilterForm
-    template_name = 'virtualization/cluster/devices.html'
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_devices': {'change'},
-    }
+    actions = (EditObject, DeleteObject, BulkEdit)
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -317,50 +312,6 @@ class ClusterAddDevicesView(generic.ObjectEditView):
         })
 
 
-@register_model_view(Cluster, 'remove_devices', path='devices/remove')
-class ClusterRemoveDevicesView(generic.ObjectEditView):
-    queryset = Cluster.objects.all()
-    form = forms.ClusterRemoveDevicesForm
-    template_name = 'generic/bulk_remove.html'
-
-    def post(self, request, pk):
-
-        cluster = get_object_or_404(self.queryset, pk=pk)
-
-        if '_confirm' in request.POST:
-            form = self.form(request.POST)
-            if form.is_valid():
-
-                device_pks = form.cleaned_data['pk']
-                with transaction.atomic(using=router.db_for_write(Device)):
-
-                    # Remove the selected Devices from the Cluster
-                    for device in Device.objects.filter(pk__in=device_pks):
-                        device.cluster = None
-                        device.save()
-
-                messages.success(request, _("Removed {count} devices from cluster {cluster}").format(
-                    count=len(device_pks),
-                    cluster=cluster
-                ))
-                return redirect(cluster.get_absolute_url())
-
-        else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-
-        selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
-        device_table = DeviceTable(list(selected_objects), orderable=False)
-        device_table.configure(request)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'parent_obj': cluster,
-            'table': device_table,
-            'obj_type_plural': 'devices',
-            'return_url': cluster.get_absolute_url(),
-        })
-
-
 #
 # Virtual machines
 #
@@ -371,7 +322,7 @@ class VirtualMachineListView(generic.ObjectListView):
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
-    template_name = 'virtualization/virtualmachine_list.html'
+    actions = (AddObject, BulkImport, BulkExport, BulkAddComponents, BulkEdit, BulkDelete)
 
 
 @register_model_view(VirtualMachine)
@@ -386,11 +337,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
-    template_name = 'virtualization/virtualmachine/interfaces.html'
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interface_count,
@@ -412,17 +359,13 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVirtualDiskTable
     filterset = filtersets.VirtualDiskFilterSet
     filterset_form = forms.VirtualDiskFilterForm
-    template_name = 'virtualization/virtualmachine/virtual_disks.html'
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,
         permission='virtualization.view_virtualdisk',
         weight=500
     )
-    actions = {
-        **DEFAULT_ACTION_PERMISSIONS,
-        'bulk_rename': {'change'},
-    }
 
     def get_children(self, request, parent):
         return parent.virtualdisks.restrict(request.user, 'view').prefetch_related('tags')

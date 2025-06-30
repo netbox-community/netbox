@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 
+from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
@@ -349,12 +350,7 @@ class ContactAssignmentListView(generic.ObjectListView):
     filterset = filtersets.ContactAssignmentFilterSet
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
-    actions = {
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkExport, BulkImport, BulkEdit, BulkDelete)
 
 
 @register_model_view(ContactAssignment, 'add', detail=False)
