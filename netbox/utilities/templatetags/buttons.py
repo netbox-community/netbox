@@ -69,24 +69,6 @@ def bookmark_button(context, instance):
     }
 
 
-@register.inclusion_tag('buttons/clone.html')
-def clone_button(instance):
-    # Resolve URL path
-    viewname = get_viewname(instance, 'add')
-    try:
-        url = reverse(viewname)
-    except NoReverseMatch:
-        return {
-            'url': None,
-        }
-
-    # Populate cloned field values and return full URL
-    param_string = prepare_cloned_fields(instance).urlencode()
-    return {
-        'url': f'{url}?{param_string}' if param_string else None,
-    }
-
-
 @register.inclusion_tag('buttons/subscribe.html', takes_context=True)
 def subscribe_button(context, instance):
     # Skip for objects which don't support notifications
@@ -125,6 +107,25 @@ def subscribe_button(context, instance):
 #
 # Legacy object buttons
 #
+
+# TODO: Remove in NetBox v4.6
+@register.inclusion_tag('buttons/clone.html')
+def clone_button(instance):
+    # Resolve URL path
+    viewname = get_viewname(instance, 'add')
+    try:
+        url = reverse(viewname)
+    except NoReverseMatch:
+        return {
+            'url': None,
+        }
+
+    # Populate cloned field values and return full URL
+    param_string = prepare_cloned_fields(instance).urlencode()
+    return {
+        'url': f'{url}?{param_string}' if param_string else None,
+    }
+
 
 # TODO: Remove in NetBox v4.6
 @register.inclusion_tag('buttons/edit.html')

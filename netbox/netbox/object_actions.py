@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
+from utilities.querydict import prepare_cloned_fields
 
 __all__ = (
     'AddObject',
@@ -11,6 +12,7 @@ __all__ = (
     'BulkExport',
     'BulkImport',
     'BulkRename',
+    'CloneObject',
     'DeleteObject',
     'EditObject',
     'ObjectAction',
@@ -22,7 +24,7 @@ class ObjectAction:
     Base class for single- and multi-object operations.
 
     Params:
-        name: The action name
+        name: The action name appended to the module for view resolution
         label: Human-friendly label for the rendered button
         multi: Set to True if this action is performed by selecting multiple objects (i.e. using a table)
         permissions_required: The set of permissions a user must have to perform the action
@@ -58,6 +60,25 @@ class AddObject(ObjectAction):
     label = _('Add')
     permissions_required = {'add'}
     template_name = 'buttons/add.html'
+
+
+class CloneObject(ObjectAction):
+    """
+    Populate the new object form with select details from an existing object.
+    """
+    name = 'add'
+    label = _('Clone')
+    permissions_required = {'add'}
+    template_name = 'buttons/clone.html'
+
+    @classmethod
+    def get_context(cls, context, obj):
+        param_string = prepare_cloned_fields(obj).urlencode()
+        url = f'{cls.get_url(obj)}?{param_string}' if param_string else None
+        return {
+            'url': url,
+            'label': cls.label,
+        }
 
 
 class EditObject(ObjectAction):
