@@ -1021,7 +1021,7 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = (BulkImport, BulkSync, BulkEdit, BulkDelete)
+    actions = (BulkImport, BulkEdit, BulkDelete)
 
 
 @register_model_view(JournalEntry)

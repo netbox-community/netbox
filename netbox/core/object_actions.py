@@ -15,4 +15,4 @@ class BulkSync(ObjectAction):
     label = _('Sync Data')
     multi = True
     permissions_required = {'sync'}
-    template_name = 'buttons/bulk_sync.html'
+    template_name = 'core/buttons/bulk_sync.html'
