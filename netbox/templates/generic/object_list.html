@@ -112,7 +112,6 @@ Context:
           <div class="btn-list d-print-none">
             {% block bulk_buttons %}
               <div class="bulk-action-buttons">
-                {% block extra_bulk_buttons %}{% endblock %}
                 {% action_buttons actions model multi=True %}
               </div>
             {% endblock %}

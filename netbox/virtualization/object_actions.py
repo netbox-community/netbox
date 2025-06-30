@@ -4,18 +4,17 @@ from netbox.object_actions import ObjectAction
 
 __all__ = (
     'BulkAddComponents',
-    'BulkDisconnect',
 )
 
 
 class BulkAddComponents(ObjectAction):
     """
-    Add components to the selected devices.
+    Add components to the selected virtual machines.
     """
     label = _('Add Components')
     multi = True
     permissions_required = {'change'}
-    template_name = 'dcim/buttons/bulk_add_components.html'
+    template_name = 'virtualization/buttons/bulk_add_components.html'
 
     @classmethod
     def get_context(cls, context, obj):
@@ -25,14 +24,3 @@ class BulkAddComponents(ObjectAction):
             'formaction': context.get('formaction'),
             'label': cls.label,
         }
-
-
-class BulkDisconnect(ObjectAction):
-    """
-    Disconnect each of a set of objects to which a cable is connected.
-    """
-    name = 'bulk_disconnect'
-    label = _('Disconnect Selected')
-    multi = True
-    permissions_required = {'change'}
-    template_name = 'dcim/buttons/bulk_disconnect.html'

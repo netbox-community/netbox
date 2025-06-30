@@ -34,7 +34,7 @@ from wireless.models import WirelessLAN
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
-from .object_actions import BulkDisconnect
+from .object_actions import BulkAddComponents, BulkDisconnect
 
 CABLE_TERMINATION_TYPES = {
     'dcim.consoleport': ConsolePort,
@@ -2108,8 +2108,7 @@ class DeviceListView(generic.ObjectListView):
     filterset = filtersets.DeviceFilterSet
     filterset_form = forms.DeviceFilterForm
     table = tables.DeviceTable
-    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
-    template_name = 'dcim/device_list.html'
+    actions = (AddObject, BulkImport, BulkExport, BulkAddComponents, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(Device)
@@ -2150,7 +2149,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     table = tables.DeviceConsolePortTable
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Console Ports'),
         badge=lambda obj: obj.console_port_count,
@@ -2166,7 +2165,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     table = tables.DeviceConsoleServerPortTable
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Console Server Ports'),
         badge=lambda obj: obj.console_server_port_count,
@@ -2182,7 +2181,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     table = tables.DevicePowerPortTable
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Power Ports'),
         badge=lambda obj: obj.power_port_count,
@@ -2198,7 +2197,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     table = tables.DevicePowerOutletTable
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Power Outlets'),
         badge=lambda obj: obj.power_outlet_count,
@@ -2214,7 +2213,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
@@ -2237,7 +2236,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     table = tables.DeviceFrontPortTable
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Front Ports'),
         badge=lambda obj: obj.front_port_count,
@@ -2253,7 +2252,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     table = tables.DeviceRearPortTable
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
-    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete, BulkDisconnect)
+    actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     tab = ViewTab(
         label=_('Rear Ports'),
         badge=lambda obj: obj.rear_port_count,

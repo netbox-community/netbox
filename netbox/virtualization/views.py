@@ -20,6 +20,7 @@ from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import *
+from .object_actions import BulkAddComponents
 
 
 #
@@ -321,7 +322,7 @@ class VirtualMachineListView(generic.ObjectListView):
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
-    template_name = 'virtualization/virtualmachine_list.html'
+    actions = (AddObject, BulkImport, BulkExport, BulkAddComponents, BulkEdit, BulkDelete)
 
 
 @register_model_view(VirtualMachine)
