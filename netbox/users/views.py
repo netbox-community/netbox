@@ -2,6 +2,7 @@ from django.db.models import Count
 
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkRename
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -162,6 +163,11 @@ class GroupBulkEditView(generic.BulkEditView):
     form = forms.GroupBulkEditForm
 
 
+@register_model_view(Group, 'bulk_rename', path='rename', detail=False)
+class GroupBulkRenameView(generic.BulkRenameView):
+    queryset = Group.objects.all()
+
+
 @register_model_view(Group, 'bulk_delete', path='delete', detail=False)
 class GroupBulkDeleteView(generic.BulkDeleteView):
     queryset = Group.objects.annotate(users_count=Count('user')).order_by('name')
@@ -179,6 +185,7 @@ class ObjectPermissionListView(generic.ObjectListView):
     filterset = filtersets.ObjectPermissionFilterSet
     filterset_form = forms.ObjectPermissionFilterForm
     table = tables.ObjectPermissionTable
+    actions = (AddObject, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ObjectPermission)
@@ -205,6 +212,11 @@ class ObjectPermissionBulkEditView(generic.BulkEditView):
     filterset = filtersets.ObjectPermissionFilterSet
     table = tables.ObjectPermissionTable
     form = forms.ObjectPermissionBulkEditForm
+
+
+@register_model_view(ObjectPermission, 'bulk_rename', path='rename', detail=False)
+class ObjectPermissionBulkRenameView(generic.BulkRenameView):
+    queryset = ObjectPermission.objects.all()
 
 
 @register_model_view(ObjectPermission, 'bulk_delete', path='delete', detail=False)

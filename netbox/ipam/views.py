@@ -86,6 +86,11 @@ class VRFBulkEditView(generic.BulkEditView):
     form = forms.VRFBulkEditForm
 
 
+@register_model_view(VRF, 'bulk_rename', path='rename', detail=False)
+class VRFBulkRenameView(generic.BulkRenameView):
+    queryset = VRF.objects.all()
+
+
 @register_model_view(VRF, 'bulk_delete', path='delete', detail=False)
 class VRFBulkDeleteView(generic.BulkDeleteView):
     queryset = VRF.objects.all()
@@ -134,6 +139,11 @@ class RouteTargetBulkEditView(generic.BulkEditView):
     filterset = filtersets.RouteTargetFilterSet
     table = tables.RouteTargetTable
     form = forms.RouteTargetBulkEditForm
+
+
+@register_model_view(RouteTarget, 'bulk_rename', path='rename', detail=False)
+class RouteTargetBulkRenameView(generic.BulkRenameView):
+    queryset = RouteTarget.objects.all()
 
 
 @register_model_view(RouteTarget, 'bulk_delete', path='delete', detail=False)
@@ -193,6 +203,11 @@ class RIRBulkEditView(generic.BulkEditView):
     filterset = filtersets.RIRFilterSet
     table = tables.RIRTable
     form = forms.RIRBulkEditForm
+
+
+@register_model_view(RIR, 'bulk_rename', path='rename', detail=False)
+class RIRBulkRenameView(generic.BulkRenameView):
+    queryset = RIR.objects.all()
 
 
 @register_model_view(RIR, 'bulk_delete', path='delete', detail=False)
@@ -268,6 +283,11 @@ class ASNRangeBulkEditView(generic.BulkEditView):
     form = forms.ASNRangeBulkEditForm
 
 
+@register_model_view(ASNRange, 'bulk_rename', path='rename', detail=False)
+class ASNRangeBulkRenameView(generic.BulkRenameView):
+    queryset = ASNRange.objects.all()
+
+
 @register_model_view(ASNRange, 'bulk_delete', path='delete', detail=False)
 class ASNRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = ASNRange.objects.annotate_asn_counts()
@@ -333,6 +353,11 @@ class ASNBulkEditView(generic.BulkEditView):
     filterset = filtersets.ASNFilterSet
     table = tables.ASNTable
     form = forms.ASNBulkEditForm
+
+
+@register_model_view(ASN, 'bulk_rename', path='rename', detail=False)
+class ASNBulkRenameView(generic.BulkRenameView):
+    queryset = ASN.objects.all()
 
 
 @register_model_view(ASN, 'bulk_delete', path='delete', detail=False)
@@ -486,6 +511,11 @@ class RoleBulkEditView(generic.BulkEditView):
     filterset = filtersets.RoleFilterSet
     table = tables.RoleTable
     form = forms.RoleBulkEditForm
+
+
+@register_model_view(Role, 'bulk_rename', path='rename', detail=False)
+class RoleBulkRenameView(generic.BulkRenameView):
+    queryset = Role.objects.all()
 
 
 @register_model_view(Role, 'bulk_delete', path='delete', detail=False)
@@ -766,6 +796,11 @@ class IPRangeBulkEditView(generic.BulkEditView):
     form = forms.IPRangeBulkEditForm
 
 
+@register_model_view(IPRange, 'bulk_rename', path='rename', detail=False)
+class IPRangeBulkRenameView(generic.BulkRenameView):
+    queryset = IPRange.objects.all()
+
+
 @register_model_view(IPRange, 'bulk_delete', path='delete', detail=False)
 class IPRangeBulkDeleteView(generic.BulkDeleteView):
     queryset = IPRange.objects.all()
@@ -1006,6 +1041,11 @@ class VLANGroupBulkEditView(generic.BulkEditView):
     form = forms.VLANGroupBulkEditForm
 
 
+@register_model_view(VLANGroup, 'bulk_rename', path='rename', detail=False)
+class VLANGroupBulkRenameView(generic.BulkRenameView):
+    queryset = VLANGroup.objects.all()
+
+
 @register_model_view(VLANGroup, 'bulk_delete', path='delete', detail=False)
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
@@ -1093,6 +1133,11 @@ class VLANTranslationPolicyBulkEditView(generic.BulkEditView):
     filterset = filtersets.VLANTranslationPolicyFilterSet
     table = tables.VLANTranslationPolicyTable
     form = forms.VLANTranslationPolicyBulkEditForm
+
+
+@register_model_view(VLANTranslationPolicy, 'bulk_rename', path='rename', detail=False)
+class VLANTranslationPolicyBulkRenameView(generic.BulkRenameView):
+    queryset = VLANTranslationPolicy.objects.all()
 
 
 @register_model_view(VLANTranslationPolicy, 'bulk_delete', path='delete', detail=False)
@@ -1244,6 +1289,11 @@ class FHRPGroupBulkEditView(generic.BulkEditView):
     form = forms.FHRPGroupBulkEditForm
 
 
+@register_model_view(FHRPGroup, 'bulk_rename', path='rename', detail=False)
+class FHRPGroupBulkRenameView(generic.BulkRenameView):
+    queryset = FHRPGroup.objects.all()
+
+
 @register_model_view(FHRPGroup, 'bulk_delete', path='delete', detail=False)
 class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = FHRPGroup.objects.all()
@@ -1371,6 +1421,11 @@ class VLANBulkEditView(generic.BulkEditView):
     form = forms.VLANBulkEditForm
 
 
+@register_model_view(VLAN, 'bulk_rename', path='rename', detail=False)
+class VLANBulkRenameView(generic.BulkRenameView):
+    queryset = VLAN.objects.all()
+
+
 @register_model_view(VLAN, 'bulk_delete', path='delete', detail=False)
 class VLANBulkDeleteView(generic.BulkDeleteView):
     queryset = VLAN.objects.all()
@@ -1419,6 +1474,11 @@ class ServiceTemplateBulkEditView(generic.BulkEditView):
     filterset = filtersets.ServiceTemplateFilterSet
     table = tables.ServiceTemplateTable
     form = forms.ServiceTemplateBulkEditForm
+
+
+@register_model_view(ServiceTemplate, 'bulk_rename', path='rename', detail=False)
+class ServiceTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = ServiceTemplate.objects.all()
 
 
 @register_model_view(ServiceTemplate, 'bulk_delete', path='delete', detail=False)
@@ -1486,6 +1546,11 @@ class ServiceBulkEditView(generic.BulkEditView):
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
     form = forms.ServiceBulkEditForm
+
+
+@register_model_view(Service, 'bulk_rename', path='rename', detail=False)
+class ServiceBulkRenameView(generic.BulkRenameView):
+    queryset = Service.objects.all()
 
 
 @register_model_view(Service, 'bulk_delete', path='delete', detail=False)

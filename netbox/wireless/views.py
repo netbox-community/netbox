@@ -68,6 +68,11 @@ class WirelessLANGroupBulkEditView(generic.BulkEditView):
     form = forms.WirelessLANGroupBulkEditForm
 
 
+@register_model_view(WirelessLANGroup, 'bulk_rename', path='rename', detail=False)
+class WirelessLANGroupBulkRenameView(generic.BulkRenameView):
+    queryset = WirelessLANGroup.objects.all()
+
+
 @register_model_view(WirelessLANGroup, 'bulk_delete', path='delete', detail=False)
 class WirelessLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = WirelessLANGroup.objects.add_related_count(
