@@ -113,6 +113,7 @@ class BulkExport(ObjectAction):
         export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
 
         return {
+            'label': cls.label,
             'perms': context['perms'],
             'object_type': object_type,
             'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
