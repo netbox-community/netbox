@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
@@ -42,7 +43,10 @@ class ObjectAction:
         kwargs = {
             kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs
         }
-        return reverse(viewname, kwargs=kwargs)
+        try:
+            return reverse(viewname, kwargs=kwargs)
+        except NoReverseMatch:
+            return
 
     @classmethod
     def get_context(cls, context, obj):
