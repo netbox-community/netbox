@@ -10,6 +10,7 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
 from dcim.models import Device, Interface, Site
 from ipam.tables import VLANTranslationRuleTable
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
@@ -381,6 +382,7 @@ class AggregateListView(generic.ObjectListView):
     filterset = filtersets.AggregateFilterSet
     filterset_form = forms.AggregateFilterForm
     table = tables.AggregateTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(Aggregate)
@@ -536,6 +538,7 @@ class PrefixListView(generic.ObjectListView):
     filterset_form = forms.PrefixFilterForm
     table = tables.PrefixTable
     template_name = 'ipam/prefix_list.html'
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(Prefix)
@@ -818,6 +821,7 @@ class IPAddressListView(generic.ObjectListView):
     filterset = filtersets.IPAddressFilterSet
     filterset_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(IPAddress)
@@ -1157,6 +1161,7 @@ class VLANTranslationRuleListView(generic.ObjectListView):
     filterset = filtersets.VLANTranslationRuleFilterSet
     filterset_form = forms.VLANTranslationRuleFilterForm
     table = tables.VLANTranslationRuleTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(VLANTranslationRule)

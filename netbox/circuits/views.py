@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
 from ipam.models import ASN
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
@@ -357,6 +358,12 @@ class CircuitBulkEditView(generic.BulkEditView):
     form = forms.CircuitBulkEditForm
 
 
+@register_model_view(Circuit, 'bulk_rename', path='rename', detail=False)
+class CircuitBulkRenameView(generic.BulkRenameView):
+    queryset = Circuit.objects.all()
+    field_name = 'cid'
+
+
 @register_model_view(Circuit, 'bulk_delete', path='delete', detail=False)
 class CircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = Circuit.objects.prefetch_related(
@@ -452,6 +459,7 @@ class CircuitTerminationListView(generic.ObjectListView):
     filterset = filtersets.CircuitTerminationFilterSet
     filterset_form = forms.CircuitTerminationFilterForm
     table = tables.CircuitTerminationTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(CircuitTermination)
@@ -568,6 +576,7 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
     filterset = filtersets.CircuitGroupAssignmentFilterSet
     filterset_form = forms.CircuitGroupAssignmentFilterForm
     table = tables.CircuitGroupAssignmentTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(CircuitGroupAssignment)
@@ -727,6 +736,12 @@ class VirtualCircuitBulkEditView(generic.BulkEditView):
     form = forms.VirtualCircuitBulkEditForm
 
 
+@register_model_view(VirtualCircuit, 'bulk_rename', path='rename', detail=False)
+class VirtualCircuitulkRenameView(generic.BulkRenameView):
+    queryset = VirtualCircuit.objects.all()
+    field_name = 'cid'
+
+
 class VirtualCircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -744,6 +759,7 @@ class VirtualCircuitTerminationListView(generic.ObjectListView):
     filterset = filtersets.VirtualCircuitTerminationFilterSet
     filterset_form = forms.VirtualCircuitTerminationFilterForm
     table = tables.VirtualCircuitTerminationTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(VirtualCircuitTermination)

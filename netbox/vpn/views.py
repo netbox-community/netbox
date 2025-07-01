@@ -1,4 +1,5 @@
 from ipam.tables import RouteTargetTable
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
@@ -548,6 +549,7 @@ class L2VPNTerminationListView(generic.ObjectListView):
     table = tables.L2VPNTerminationTable
     filterset = filtersets.L2VPNTerminationFilterSet
     filterset_form = forms.L2VPNTerminationFilterForm
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(L2VPNTermination)

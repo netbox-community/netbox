@@ -756,6 +756,12 @@ class RackTypeBulkEditView(generic.BulkEditView):
     form = forms.RackTypeBulkEditForm
 
 
+@register_model_view(RackType, 'bulk_rename', path='rename', detail=False)
+class RackTypeBulkRenameView(generic.BulkRenameView):
+    queryset = RackType.objects.all()
+    field_name = 'model'
+
+
 @register_model_view(RackType, 'bulk_delete', path='delete', detail=False)
 class RackTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = RackType.objects.all()
@@ -957,6 +963,7 @@ class RackReservationListView(generic.ObjectListView):
     filterset = filtersets.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(RackReservation)
@@ -1325,6 +1332,12 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
     form = forms.DeviceTypeBulkEditForm
 
 
+@register_model_view(DeviceType, 'bulk_rename', path='rename', detail=False)
+class DeviceTypeBulkRenameView(generic.BulkRenameView):
+    queryset = DeviceType.objects.all()
+    field_name = 'model'
+
+
 @register_model_view(DeviceType, 'bulk_delete', path='delete', detail=False)
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceType.objects.annotate(
@@ -1594,6 +1607,11 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
     filterset = filtersets.ModuleTypeFilterSet
     table = tables.ModuleTypeTable
     form = forms.ModuleTypeBulkEditForm
+
+
+@register_model_view(ModuleType, 'bulk_rename', path='rename', detail=False)
+class ModuleTypeBulkRenameView(generic.BulkRenameView):
+    queryset = ModuleType.objects.all()
 
 
 @register_model_view(ModuleType, 'bulk_delete', path='delete', detail=False)
@@ -2448,6 +2466,7 @@ class ModuleListView(generic.ObjectListView):
     filterset = filtersets.ModuleFilterSet
     filterset_form = forms.ModuleFilterForm
     table = tables.ModuleTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(Module)
@@ -3593,6 +3612,12 @@ class CableBulkEditView(generic.BulkEditView):
     form = forms.CableBulkEditForm
 
 
+@register_model_view(Cable, 'bulk_rename', path='rename', detail=False)
+class CableBulkRenameView(generic.BulkRenameView):
+    queryset = Cable.objects.all()
+    field_name = 'label'
+
+
 @register_model_view(Cable, 'bulk_delete', path='delete', detail=False)
 class CableBulkDeleteView(generic.BulkDeleteView):
     queryset = Cable.objects.prefetch_related(
@@ -4104,6 +4129,7 @@ class MACAddressListView(generic.ObjectListView):
     filterset = filtersets.MACAddressFilterSet
     filterset_form = forms.MACAddressFilterForm
     table = tables.MACAddressTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(MACAddress)

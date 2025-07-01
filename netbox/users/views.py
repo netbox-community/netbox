@@ -2,7 +2,7 @@ from django.db.models import Count
 
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
-from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkRename
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -19,6 +19,7 @@ class TokenListView(generic.ObjectListView):
     filterset = filtersets.TokenFilterSet
     filterset_form = forms.TokenFilterForm
     table = tables.TokenTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(Token)
@@ -110,6 +111,12 @@ class UserBulkEditView(generic.BulkEditView):
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
+
+
+@register_model_view(User, 'bulk_rename', path='rename', detail=False)
+class UserBulkRenameView(generic.BulkRenameView):
+    queryset = User.objects.all()
+    field_name = 'username'
 
 
 @register_model_view(User, 'bulk_delete', path='delete', detail=False)
