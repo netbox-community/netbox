@@ -732,6 +732,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
     """
+    field_name = 'name'
     template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
@@ -761,12 +762,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name or '')
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
                 # Catch regex group reference errors
                 except re.error:
-                    obj.new_name = obj.name
+                    obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = (obj.name or '').replace(find, replace)
+                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -785,7 +786,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
                         if '_apply' in request.POST:
                             for obj in selected_objects:
-                                obj.name = obj.new_name
+                                setattr(obj, self.field_name, obj.new_name)
                                 obj.save()
 
                             # Enforce constrained permissions
@@ -815,6 +816,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
+            'field_name': self.field_name,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,

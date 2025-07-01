@@ -42,10 +42,12 @@ Context:
             </thead>
             <tbody>
                 {% for obj in selected_objects %}
-                    <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
-                        <td>{{ obj.name }}</td>
-                        <td>{{ obj.new_name }}</td>
-                    </tr>
+                    {% with obj_name=obj|getattr:field_name %}
+                        <tr{% if obj.new_name and obj_name != obj.new_name %} class="success"{% endif %}>
+                            <td>{{ obj_name }}</td>
+                            <td>{{ obj.new_name }}</td>
+                        </tr>
+                    {% endwith %}
                 {% endfor %}
             </tbody>
         </table>
