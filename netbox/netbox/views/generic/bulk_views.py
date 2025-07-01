@@ -55,8 +55,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     template_name = 'generic/object_list.html'
     filterset = None
@@ -731,6 +730,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
+
+    Attributes:
+        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
     """
     field_name = 'name'
     template_name = 'generic/bulk_rename.html'
