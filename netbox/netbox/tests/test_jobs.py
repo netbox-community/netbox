@@ -7,11 +7,15 @@ from django_rq import get_queue
 from ..jobs import *
 from core.models import DataSource, Job
 from core.choices import JobStatusChoices
+from core.exceptions import JobFailed
+from utilities.testing import disable_warnings
 
 
 class TestJobRunner(JobRunner):
+
     def run(self, *args, **kwargs):
-        pass
+        if kwargs.get('make_fail', False):
+            raise JobFailed()
 
 
 class JobRunnerTestCase(TestCase):
@@ -48,6 +52,12 @@ class JobRunnerTest(JobRunnerTestCase):
         job = TestJobRunner.enqueue(immediate=True)
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+    def test_handle_failed(self):
+        with disable_warnings('netbox.jobs'):
+            job = TestJobRunner.enqueue(immediate=True, make_fail=True)
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
 
     def test_handle_errored(self):
         class ErroredJobRunner(TestJobRunner):
