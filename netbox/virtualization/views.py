@@ -13,7 +13,9 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
-from netbox.object_actions import *
+from netbox.object_actions import (
+    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename, DeleteObject, EditObject,
+)
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -73,6 +75,11 @@ class ClusterTypeBulkEditView(generic.BulkEditView):
     filterset = filtersets.ClusterTypeFilterSet
     table = tables.ClusterTypeTable
     form = forms.ClusterTypeBulkEditForm
+
+
+@register_model_view(ClusterType, 'bulk_rename', path='rename', detail=False)
+class ClusterTypeBulkRenameView(generic.BulkRenameView):
+    queryset = ClusterType.objects.all()
 
 
 @register_model_view(ClusterType, 'bulk_delete', path='delete', detail=False)
@@ -146,6 +153,11 @@ class ClusterGroupBulkEditView(generic.BulkEditView):
     filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
     form = forms.ClusterGroupBulkEditForm
+
+
+@register_model_view(ClusterGroup, 'bulk_rename', path='rename', detail=False)
+class ClusterGroupBulkRenameView(generic.BulkRenameView):
+    queryset = ClusterGroup.objects.all()
 
 
 @register_model_view(ClusterGroup, 'bulk_delete', path='delete', detail=False)
@@ -262,6 +274,11 @@ class ClusterBulkEditView(generic.BulkEditView):
     form = forms.ClusterBulkEditForm
 
 
+@register_model_view(Cluster, 'bulk_rename', path='rename', detail=False)
+class ClusterBulkRenameView(generic.BulkRenameView):
+    queryset = Cluster.objects.all()
+
+
 @register_model_view(Cluster, 'bulk_delete', path='delete', detail=False)
 class ClusterBulkDeleteView(generic.BulkDeleteView):
     queryset = Cluster.objects.all()
@@ -322,7 +339,7 @@ class VirtualMachineListView(generic.ObjectListView):
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
-    actions = (AddObject, BulkImport, BulkExport, BulkAddComponents, BulkEdit, BulkDelete)
+    actions = (AddObject, BulkImport, BulkExport, BulkAddComponents, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(VirtualMachine)
@@ -415,6 +432,11 @@ class VirtualMachineBulkEditView(generic.BulkEditView):
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
+
+
+@register_model_view(VirtualMachine, 'bulk_rename', path='rename', detail=False)
+class VirtualMachineBulkRenameView(generic.BulkRenameView):
+    queryset = VirtualMachine.objects.all()
 
 
 @register_model_view(VirtualMachine, 'bulk_delete', path='delete', detail=False)

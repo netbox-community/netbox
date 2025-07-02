@@ -120,6 +120,11 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
+@register_model_view(DataSource, 'bulk_rename', path='rename', detail=False)
+class DataSourceBulkRenameView(generic.BulkRenameView):
+    queryset = DataSource.objects.all()
+
+
 @register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(

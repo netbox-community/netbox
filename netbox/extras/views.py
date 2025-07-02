@@ -97,6 +97,11 @@ class CustomFieldBulkEditView(generic.BulkEditView):
     form = forms.CustomFieldBulkEditForm
 
 
+@register_model_view(CustomField, 'bulk_rename', path='rename', detail=False)
+class CustomFieldBulkRenameView(generic.BulkRenameView):
+    queryset = CustomField.objects.all()
+
+
 @register_model_view(CustomField, 'bulk_delete', path='delete', detail=False)
 class CustomFieldBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomField.objects.select_related('choice_set')
@@ -166,6 +171,11 @@ class CustomFieldChoiceSetBulkEditView(generic.BulkEditView):
     form = forms.CustomFieldChoiceSetBulkEditForm
 
 
+@register_model_view(CustomFieldChoiceSet, 'bulk_rename', path='rename', detail=False)
+class CustomFieldChoiceSetBulkRenameView(generic.BulkRenameView):
+    queryset = CustomFieldChoiceSet.objects.all()
+
+
 @register_model_view(CustomFieldChoiceSet, 'bulk_delete', path='delete', detail=False)
 class CustomFieldChoiceSetBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomFieldChoiceSet.objects.all()
@@ -216,6 +226,11 @@ class CustomLinkBulkEditView(generic.BulkEditView):
     form = forms.CustomLinkBulkEditForm
 
 
+@register_model_view(CustomLink, 'bulk_rename', path='rename', detail=False)
+class CustomLinkBulkRenameView(generic.BulkRenameView):
+    queryset = CustomLink.objects.all()
+
+
 @register_model_view(CustomLink, 'bulk_delete', path='delete', detail=False)
 class CustomLinkBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomLink.objects.all()
@@ -233,7 +248,7 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset = filtersets.ExportTemplateFilterSet
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
-    actions = (AddObject, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkSync, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ExportTemplate)
@@ -265,6 +280,11 @@ class ExportTemplateBulkEditView(generic.BulkEditView):
     filterset = filtersets.ExportTemplateFilterSet
     table = tables.ExportTemplateTable
     form = forms.ExportTemplateBulkEditForm
+
+
+@register_model_view(ExportTemplate, 'bulk_rename', path='rename', detail=False)
+class ExportTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = ExportTemplate.objects.all()
 
 
 @register_model_view(ExportTemplate, 'bulk_delete', path='delete', detail=False)
@@ -327,6 +347,11 @@ class SavedFilterBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
     form = forms.SavedFilterBulkEditForm
 
 
+@register_model_view(SavedFilter, 'bulk_rename', path='rename', detail=False)
+class SavedFilterBulkRenameView(generic.BulkRenameView):
+    queryset = SavedFilter.objects.all()
+
+
 @register_model_view(SavedFilter, 'bulk_delete', path='delete', detail=False)
 class SavedFilterBulkDeleteView(SharedObjectViewMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
@@ -344,7 +369,7 @@ class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
     filterset = filtersets.TableConfigFilterSet
     filterset_form = forms.TableConfigFilterForm
     table = tables.TableConfigTable
-    actions = (BulkExport,)
+    actions = (BulkExport, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(TableConfig)
@@ -382,6 +407,11 @@ class TableConfigBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
     filterset = filtersets.TableConfigFilterSet
     table = tables.TableConfigTable
     form = forms.TableConfigBulkEditForm
+
+
+@register_model_view(TableConfig, 'bulk_rename', path='rename', detail=False)
+class TableConfigBulkRenameView(generic.BulkRenameView):
+    queryset = TableConfig.objects.all()
 
 
 @register_model_view(TableConfig, 'bulk_delete', path='delete', detail=False)
@@ -463,6 +493,11 @@ class NotificationGroupBulkEditView(generic.BulkEditView):
     filterset = filtersets.NotificationGroupFilterSet
     table = tables.NotificationGroupTable
     form = forms.NotificationGroupBulkEditForm
+
+
+@register_model_view(NotificationGroup, 'bulk_rename', path='rename', detail=False)
+class NotificationGroupBulkRenameView(generic.BulkRenameView):
+    queryset = NotificationGroup.objects.all()
 
 
 @register_model_view(NotificationGroup, 'bulk_delete', path='delete', detail=False)
@@ -611,6 +646,11 @@ class WebhookBulkEditView(generic.BulkEditView):
     form = forms.WebhookBulkEditForm
 
 
+@register_model_view(Webhook, 'bulk_rename', path='rename', detail=False)
+class WebhookBulkRenameView(generic.BulkRenameView):
+    queryset = Webhook.objects.all()
+
+
 @register_model_view(Webhook, 'bulk_delete', path='delete', detail=False)
 class WebhookBulkDeleteView(generic.BulkDeleteView):
     queryset = Webhook.objects.all()
@@ -659,6 +699,11 @@ class EventRuleBulkEditView(generic.BulkEditView):
     filterset = filtersets.EventRuleFilterSet
     table = tables.EventRuleTable
     form = forms.EventRuleBulkEditForm
+
+
+@register_model_view(EventRule, 'bulk_rename', path='rename', detail=False)
+class EventRuleBulkRenameView(generic.BulkRenameView):
+    queryset = EventRule.objects.all()
 
 
 @register_model_view(EventRule, 'bulk_delete', path='delete', detail=False)
@@ -735,6 +780,11 @@ class TagBulkEditView(generic.BulkEditView):
     form = forms.TagBulkEditForm
 
 
+@register_model_view(Tag, 'bulk_rename', path='rename', detail=False)
+class TagBulkRenameView(generic.BulkRenameView):
+    queryset = Tag.objects.all()
+
+
 @register_model_view(Tag, 'bulk_delete', path='delete', detail=False)
 class TagBulkDeleteView(generic.BulkDeleteView):
     queryset = Tag.objects.annotate(
@@ -753,7 +803,7 @@ class ConfigContextListView(generic.ObjectListView):
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
-    actions = (AddObject, BulkSync, BulkEdit, BulkDelete)
+    actions = (AddObject, BulkSync, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ConfigContext)
@@ -814,6 +864,11 @@ class ConfigContextBulkEditView(generic.BulkEditView):
     form = forms.ConfigContextBulkEditForm
 
 
+@register_model_view(ConfigContext, 'bulk_rename', path='rename', detail=False)
+class ConfigContextBulkRenameView(generic.BulkRenameView):
+    queryset = ConfigContext.objects.all()
+
+
 @register_model_view(ConfigContext, 'bulk_delete', path='delete', detail=False)
 class ConfigContextBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigContext.objects.all()
@@ -866,7 +921,7 @@ class ConfigTemplateListView(generic.ObjectListView):
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
-    actions = (AddObject, BulkImport, BulkSync, BulkEdit, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkExport, BulkSync, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ConfigTemplate)
@@ -898,6 +953,11 @@ class ConfigTemplateBulkEditView(generic.BulkEditView):
     filterset = filtersets.ConfigTemplateFilterSet
     table = tables.ConfigTemplateTable
     form = forms.ConfigTemplateBulkEditForm
+
+
+@register_model_view(ConfigTemplate, 'bulk_rename', path='rename', detail=False)
+class ConfigTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = ConfigTemplate.objects.all()
 
 
 @register_model_view(ConfigTemplate, 'bulk_delete', path='delete', detail=False)

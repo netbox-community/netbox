@@ -27,12 +27,7 @@
   {# Update the bulk action buttons with new query parameters #}
   {% if actions %}
     <div class="bulk-action-buttons" hx-swap-oob="outerHTML:.bulk-action-buttons">
-      {% if 'bulk_edit' in actions %}
-        {% bulk_edit_button model query_params=request.GET %}
-      {% endif %}
-      {% if 'bulk_delete' in actions %}
-        {% bulk_delete_button model query_params=request.GET %}
-      {% endif %}
+      {% action_buttons actions model multi=True %}
     </div>
   {% endif %}
 {% endif %}

@@ -47,6 +47,7 @@ class ObjectView(ActionsMixin, BaseObjectView):
 
     Attributes:
         tab: A ViewTab instance for the view
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     tab = None
     actions = (CloneObject, EditObject, DeleteObject)
@@ -96,8 +97,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     child_model = None
     table = None

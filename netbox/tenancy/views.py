@@ -71,6 +71,11 @@ class TenantGroupBulkEditView(generic.BulkEditView):
     form = forms.TenantGroupBulkEditForm
 
 
+@register_model_view(TenantGroup, 'bulk_rename', path='rename', detail=False)
+class TenantGroupBulkRenameView(generic.BulkRenameView):
+    queryset = TenantGroup.objects.all()
+
+
 @register_model_view(TenantGroup, 'bulk_delete', path='delete', detail=False)
 class TenantGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = TenantGroup.objects.add_related_count(
@@ -130,6 +135,11 @@ class TenantBulkEditView(generic.BulkEditView):
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
     form = forms.TenantBulkEditForm
+
+
+@register_model_view(Tenant, 'bulk_rename', path='rename', detail=False)
+class TenantBulkRenameView(generic.BulkRenameView):
+    queryset = Tenant.objects.all()
 
 
 @register_model_view(Tenant, 'bulk_delete', path='delete', detail=False)
@@ -207,6 +217,11 @@ class ContactGroupBulkEditView(generic.BulkEditView):
     form = forms.ContactGroupBulkEditForm
 
 
+@register_model_view(ContactGroup, 'bulk_rename', path='rename', detail=False)
+class ContactGroupBulkRenameView(generic.BulkRenameView):
+    queryset = ContactGroup.objects.all()
+
+
 @register_model_view(ContactGroup, 'bulk_delete', path='delete', detail=False)
 class ContactGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactGroup.objects.add_related_count(
@@ -266,6 +281,11 @@ class ContactRoleBulkEditView(generic.BulkEditView):
     filterset = filtersets.ContactRoleFilterSet
     table = tables.ContactRoleTable
     form = forms.ContactRoleBulkEditForm
+
+
+@register_model_view(ContactRole, 'bulk_rename', path='rename', detail=False)
+class ContactRoleBulkRenameView(generic.BulkRenameView):
+    queryset = ContactRole.objects.all()
 
 
 @register_model_view(ContactRole, 'bulk_delete', path='delete', detail=False)
@@ -329,6 +349,11 @@ class ContactBulkEditView(generic.BulkEditView):
             obj.groups.add(*form.cleaned_data['add_groups'])
         if form.cleaned_data.get('remove_groups', None):
             obj.groups.remove(*form.cleaned_data['remove_groups'])
+
+
+@register_model_view(Contact, 'bulk_rename', path='rename', detail=False)
+class ContactBulkRenameView(generic.BulkRenameView):
+    queryset = Contact.objects.all()
 
 
 @register_model_view(Contact, 'bulk_delete', path='delete', detail=False)

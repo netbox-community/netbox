@@ -22,7 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
-from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -55,13 +55,12 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
-    actions = (AddObject, BulkImport, BulkEdit, BulkExport, BulkDelete)
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -731,7 +730,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
+
+    Attributes:
+        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
     """
+    field_name = 'name'
     template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
@@ -761,12 +764,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name or '')
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
                 # Catch regex group reference errors
                 except re.error:
-                    obj.new_name = obj.name
+                    obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = (obj.name or '').replace(find, replace)
+                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -785,7 +788,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
                         if '_apply' in request.POST:
                             for obj in selected_objects:
-                                obj.name = obj.new_name
+                                setattr(obj, self.field_name, obj.new_name)
                                 obj.save()
 
                             # Enforce constrained permissions
@@ -815,6 +818,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
+            'field_name': self.field_name,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
