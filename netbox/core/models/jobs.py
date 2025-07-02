@@ -187,15 +187,14 @@ class Job(models.Model):
         """
         Mark the job as completed, optionally specifying a particular termination status.
         """
-        valid_statuses = JobStatusChoices.TERMINAL_STATE_CHOICES
-        if status not in valid_statuses:
+        if status not in JobStatusChoices.TERMINAL_STATE_CHOICES:
             raise ValueError(
                 _("Invalid status for job termination. Choices are: {choices}").format(
-                    choices=', '.join(valid_statuses)
+                    choices=', '.join(JobStatusChoices.TERMINAL_STATE_CHOICES)
                 )
             )
 
-        # Mark the job as completed
+        # Set the job's status and completion time
         self.status = status
         if error:
             self.error = error
