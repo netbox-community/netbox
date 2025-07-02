@@ -8,11 +8,15 @@ from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
+from core.events import JOB_COMPLETED, JOB_FAILED
 from core.models import Job, ObjectType
+from extras.models import Notification
 from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.registry import registry
+from utilities.request import apply_request_processors
 
 __all__ = (
+    'AsyncViewJob',
     'JobRunner',
     'system_job',
 )
@@ -154,3 +158,34 @@ class JobRunner(ABC):
             job.delete()
 
         return cls.enqueue(instance=instance, schedule_at=schedule_at, interval=interval, *args, **kwargs)
+
+
+class AsyncViewJob(JobRunner):
+    """
+    Execute a view as a background job.
+    """
+    class Meta:
+        name = 'Async View'
+
+    def run(self, view_cls, request, **kwargs):
+        view = view_cls.as_view()
+
+        # Apply all registered request processors (e.g. event_tracking)
+        with apply_request_processors(request):
+            result, errors = view(request)
+
+        self.job.data = {
+            'result': result,
+            'errors': errors,
+        }
+        # TODO: Figure out how to mark a job as "failed"
+        # if errors:
+        #     self.job.terminate(status=JobStatusChoices.STATUS_FAILED, error=errors[0])
+
+        # Notify the user
+        notification = Notification(
+            user=request.user,
+            object=self.job,
+            event_type=JOB_COMPLETED if not errors else JOB_FAILED,
+        )
+        notification.save()

@@ -22,6 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.jobs import AsyncViewJob
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -30,7 +31,7 @@ from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
-from utilities.request import safe_for_redirect
+from utilities.request import copy_safe_request, safe_for_redirect
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
@@ -500,24 +501,37 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
+            redirect_url = reverse(get_viewname(model, action='list'))
+            new_objects = []
+
+            # Defer the request to a background job?
+            if form.cleaned_data['background_job'] and not getattr(request, '_background', False):
+
+                # Create a serializable copy of the original request
+                request_copy = copy_safe_request(request)
+                request_copy._background = True
+
+                # Enqueue a job to perform the work in the background
+                job = AsyncViewJob.enqueue(
+                    user=request.user,
+                    view_cls=self.__class__,
+                    request=request_copy,
+                )
+                msg = _("Background job enqueued: {job}").format(job=job.pk)
+                logger.info(msg)
+                messages.info(request, msg)
+
+                # Redirect to the model's list view
+                return redirect(redirect_url)
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
                 with transaction.atomic(using=router.db_for_write(model)):
-                    new_objs = self.create_and_update_objects(form, request)
+                    new_objects = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
-                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objects]).count() != len(new_objects):
                         raise PermissionsViolation
-
-                if new_objs:
-                    msg = f"Imported {len(new_objs)} {model._meta.verbose_name_plural}"
-                    logger.info(msg)
-                    messages.success(request, msg)
-
-                    view_name = get_viewname(model, action='list')
-                    results_url = f"{reverse(view_name)}?modified_by_request={request.id}"
-                    return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
                 clear_events.send(sender=self)
@@ -526,6 +540,20 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug(e.message)
                 form.add_error(None, e.message)
                 clear_events.send(sender=self)
+
+            # If this request was executed via a background job, return the raw data for logging
+            if getattr(request, '_background', False):
+                result = [
+                    _('Created {object}').format(object=str(obj))
+                    for obj in new_objects
+                ]
+                return result, form.errors
+
+            if new_objects:
+                msg = f"Imported {len(new_objects)} {model._meta.verbose_name_plural}"
+                logger.info(msg)
+                messages.success(request, msg)
+                return redirect(f"{redirect_url}?modified_by_request={request.id}")
 
         else:
             logger.debug("Form validation failed")
