@@ -507,7 +507,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             # If indicated, defer this request to a background job & redirect the user
             if form.cleaned_data['background_job']:
                 if job := process_request_as_job(self.__class__, request):
-                    messages.info(request, _("Background job enqueued: {job}").format(job=job.pk))
+                    msg = _('Created background job <a href="{url}">{job}</a>').format(
+                        url=job.get_absolute_url(),
+                        job=job
+                    )
+                    messages.info(request, mark_safe(msg))
                     return redirect(redirect_url)
 
             try:
