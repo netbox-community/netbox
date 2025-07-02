@@ -172,20 +172,21 @@ class AsyncViewJob(JobRunner):
 
         # Apply all registered request processors (e.g. event_tracking)
         with apply_request_processors(request):
-            result, errors = view(request)
+            data = view(request)
 
         self.job.data = {
-            'result': result,
-            'errors': errors,
+            'log': data.log,
+            'errors': data.errors,
         }
-        # TODO: Figure out how to mark a job as "failed"
-        # if errors:
-        #     self.job.terminate(status=JobStatusChoices.STATUS_FAILED, error=errors[0])
 
         # Notify the user
         notification = Notification(
             user=request.user,
             object=self.job,
-            event_type=JOB_COMPLETED if not errors else JOB_FAILED,
+            event_type=JOB_COMPLETED if not data.errors else JOB_FAILED,
         )
         notification.save()
+
+        # TODO: Waiting on fix for bug #19806
+        # if errors:
+        #     raise JobFailed()

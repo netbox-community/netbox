@@ -22,16 +22,16 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
-from netbox.jobs import AsyncViewJob
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
+from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
-from utilities.request import copy_safe_request, safe_for_redirect
+from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
@@ -504,25 +504,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             redirect_url = reverse(get_viewname(model, action='list'))
             new_objects = []
 
-            # Defer the request to a background job?
-            if form.cleaned_data['background_job'] and not getattr(request, '_background', False):
-
-                # Create a serializable copy of the original request
-                request_copy = copy_safe_request(request)
-                request_copy._background = True
-
-                # Enqueue a job to perform the work in the background
-                job = AsyncViewJob.enqueue(
-                    user=request.user,
-                    view_cls=self.__class__,
-                    request=request_copy,
-                )
-                msg = _("Background job enqueued: {job}").format(job=job.pk)
-                logger.info(msg)
-                messages.info(request, msg)
-
-                # Redirect to the model's list view
-                return redirect(redirect_url)
+            # If indicated, defer this request to a background job & redirect the user
+            if form.cleaned_data['background_job']:
+                if job := process_request_as_job(self.__class__, request):
+                    messages.info(request, _("Background job enqueued: {job}").format(job=job.pk))
+                    return redirect(redirect_url)
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
@@ -542,15 +528,20 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 clear_events.send(sender=self)
 
             # If this request was executed via a background job, return the raw data for logging
-            if getattr(request, '_background', False):
-                result = [
-                    _('Created {object}').format(object=str(obj))
-                    for obj in new_objects
-                ]
-                return result, form.errors
+            if is_background_request(request):
+                return AsyncJobData(
+                    log=[
+                        _('Created {object}').format(object=str(obj))
+                        for obj in new_objects
+                    ],
+                    errors=form.errors
+                )
 
             if new_objects:
-                msg = f"Imported {len(new_objects)} {model._meta.verbose_name_plural}"
+                msg = _("Imported {count} {object_type}").format(
+                    count=len(new_objects),
+                    object_type=model._meta.verbose_name_plural
+                )
                 logger.info(msg)
                 messages.success(request, msg)
                 return redirect(f"{redirect_url}?modified_by_request={request.id}")
