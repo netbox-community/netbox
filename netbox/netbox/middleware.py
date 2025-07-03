@@ -1,8 +1,5 @@
-from contextlib import ExitStack
-
 import logging
 import uuid
-import warnings
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -13,10 +10,10 @@ from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
 from netbox.config import clear_config, get_config
-from netbox.registry import registry
 from netbox.views import handler_500
 from utilities.api import is_api_request
 from utilities.error_handlers import handle_rest_api_exception
+from utilities.request import apply_request_processors
 
 __all__ = (
     'CoreMiddleware',
@@ -36,12 +33,7 @@ class CoreMiddleware:
         request.id = uuid.uuid4()
 
         # Apply all registered request processors
-        with ExitStack() as stack:
-            for request_processor in registry['request_processors']:
-                try:
-                    stack.enter_context(request_processor(request))
-                except Exception as e:
-                    warnings.warn(f'Failed to initialize request processor {request_processor}: {e}')
+        with apply_request_processors(request):
             response = self.get_response(request)
 
         # Check if language cookie should be renewed

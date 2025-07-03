@@ -116,7 +116,7 @@ class Job(models.Model):
         verbose_name_plural = _('jobs')
 
     def __str__(self):
-        return str(self.job_id)
+        return self.name
 
     def get_absolute_url(self):
         # TODO: Employ dynamic registration

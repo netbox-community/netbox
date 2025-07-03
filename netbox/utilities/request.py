@@ -1,13 +1,17 @@
+import warnings
+from contextlib import ExitStack, contextmanager
 from urllib.parse import urlparse
 
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
 
+from netbox.registry import registry
 from .constants import HTTP_REQUEST_META_SAFE_COPY
 
 __all__ = (
     'NetBoxFakeRequest',
+    'apply_request_processors',
     'copy_safe_request',
     'get_client_ip',
     'safe_for_redirect',
@@ -48,6 +52,7 @@ def copy_safe_request(request):
         'GET': request.GET,
         'FILES': request.FILES,
         'user': request.user,
+        'method': request.method,
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
@@ -87,3 +92,17 @@ def safe_for_redirect(url):
     Returns True if the given URL is safe to use as an HTTP redirect; otherwise returns False.
     """
     return url_has_allowed_host_and_scheme(url, allowed_hosts=None)
+
+
+@contextmanager
+def apply_request_processors(request):
+    """
+    A context manager with applies all registered request processors (such as event_tracking).
+    """
+    with ExitStack() as stack:
+        for request_processor in registry['request_processors']:
+            try:
+                stack.enter_context(request_processor(request))
+            except Exception as e:
+                warnings.warn(f'Failed to initialize request processor {request_processor.__name__}: {e}')
+        yield
