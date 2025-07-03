@@ -10,11 +10,11 @@ The assignment of platforms to devices is an optional feature, and may be disreg
 
 ### Name
 
-A unique human-friendly name.
+A human-friendly name for the platform. Must be unique per manufacturer.
 
 ### Slug
 
-A unique URL-friendly identifier. (This value can be used for filtering.)
+A URL-friendly identifier; must be unique per manufacturer. (This value can be used for filtering.)
 
 ### Manufacturer
 

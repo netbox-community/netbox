@@ -415,6 +415,15 @@ class Platform(OrganizationalModel):
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
+    # Override name & slug from OrganizationalModel to not enforce uniqueness
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100
+    )
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',
         on_delete=models.PROTECT,
@@ -427,6 +436,28 @@ class Platform(OrganizationalModel):
         ordering = ('name',)
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'name'),
+                name='%(app_label)s_%(class)s_manufacturer_name',
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(manufacturer__isnull=True),
+                violation_error_message=_("Platform name must be unique.")
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_manufacturer_slug',
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(manufacturer__isnull=True),
+                violation_error_message=_("Platform slug must be unique.")
+            ),
+        )
 
 
 class Device(
