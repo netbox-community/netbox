@@ -506,8 +506,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             # If indicated, defer this request to a background job & redirect the user
             if form.cleaned_data['background_job']:
-                if job := process_request_as_job(self.__class__, request):
-                    msg = _('Created background job <a href="{url}">{job}</a>').format(
+                job_name = _('Bulk import {count} {object_type}').format(
+                    count=len(form.cleaned_data['data']),
+                    object_type=model._meta.verbose_name_plural,
+                )
+                if job := process_request_as_job(self.__class__, request, name=job_name):
+                    msg = _('Created background job {job.pk}: <a href="{url}">{job.name}</a>').format(
                         url=job.get_absolute_url(),
                         job=job
                     )

@@ -24,7 +24,7 @@ def is_background_request(request):
     return getattr(request, '_background', False)
 
 
-def process_request_as_job(view, request):
+def process_request_as_job(view, request, name=None):
     """
     Process a request using a view as a background job.
     """
@@ -39,6 +39,7 @@ def process_request_as_job(view, request):
 
     # Enqueue a job to perform the work in the background
     return AsyncViewJob.enqueue(
+        name=name,
         user=request.user,
         view_cls=view,
         request=request_copy,
