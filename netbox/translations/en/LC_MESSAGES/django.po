@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 05:02+0000\n"
+"POT-Creation-Date: 2025-07-03 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2738,12 +2738,12 @@ msgstr ""
 msgid "Jobs cannot be assigned to this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/jobs.py:193
+#: netbox/core/models/jobs.py:192
 #, python-brace-format
 msgid "Invalid status for job termination. Choices are: {choices}"
 msgstr ""
 
-#: netbox/core/models/jobs.py:235
+#: netbox/core/models/jobs.py:234
 msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
 msgstr ""
