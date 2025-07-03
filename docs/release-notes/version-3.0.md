@@ -434,7 +434,7 @@ A new management command has been added: `manage.py housekeeping`. This command 
 * Delete change log records which have surpassed the configured retention period (if configured)
 * Check for new NetBox releases (if enabled)
 
-A convenience script for calling this command via an automated scheduler has been included at `/contrib/netbox-housekeeping.sh`. Please see the [housekeeping documentation](../administration/housekeeping.md) for further details.
+A convenience script for calling this command via an automated scheduler has been included at `/contrib/netbox-housekeeping.sh`. Please see the housekeeping documentation for further details.
 
 #### Custom Queue Support for Plugins ([#6651](https://github.com/netbox-community/netbox/issues/6651))
 
