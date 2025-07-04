@@ -62,66 +62,89 @@ class ConditionTestCase(TestCase):
 
     def test_eq(self):
         c = Condition('x', 1, 'eq')
-        self.assertTrue(c.eval({'x': 1}))
-        self.assertFalse(c.eval({'x': 2}))
+        self.assertTrue(c.eval({'x': 1}))  # 1 == 1 → True
+        self.assertFalse(c.eval({'x': 2}))  # 2 == 1 → False
+        self.assertFalse(c.eval({'x': None}))  # None == 1 → False
+        self.assertFalse(c.eval({'z': 1}))  # Missing 'x' → treated as None → False
 
     def test_eq_negated(self):
         c = Condition('x', 1, 'eq', negate=True)
-        self.assertFalse(c.eval({'x': 1}))
-        self.assertTrue(c.eval({'x': 2}))
+        self.assertFalse(c.eval({'x': 1}))  # not (1 == 1) → False
+        self.assertTrue(c.eval({'x': 2}))  # not (2 == 1) → True
+        self.assertTrue(c.eval({'x': None}))  # not (None == 1) → True
+        self.assertTrue(c.eval({'z': 1}))  # Missing 'x' → treated as None → True
 
     def test_gt(self):
         c = Condition('x', 1, 'gt')
-        self.assertTrue(c.eval({'x': 2}))
-        self.assertFalse(c.eval({'x': 1}))
+        self.assertTrue(c.eval({'x': 2}))      # 2 > 1 → True
+        self.assertFalse(c.eval({'x': 1}))     # 1 > 1 → False
+        self.assertFalse(c.eval({'x': None}))  # None > 1 → False (safe handling)
+        self.assertFalse(c.eval({'z': 1}))     # Missing 'x' → treated as None → False
 
     def test_gte(self):
         c = Condition('x', 1, 'gte')
-        self.assertTrue(c.eval({'x': 2}))
-        self.assertTrue(c.eval({'x': 1}))
-        self.assertFalse(c.eval({'x': 0}))
+        self.assertTrue(c.eval({'x': 2}))      # 2 >= 1 → True
+        self.assertTrue(c.eval({'x': 1}))      # 1 >= 1 → True
+        self.assertFalse(c.eval({'x': 0}))     # 0 >= 1 → False
+        self.assertFalse(c.eval({'x': None}))  # None >= 1 → False
+        self.assertFalse(c.eval({'z': 1}))     # Missing 'x' → False
 
     def test_lt(self):
         c = Condition('x', 2, 'lt')
-        self.assertTrue(c.eval({'x': 1}))
-        self.assertFalse(c.eval({'x': 2}))
+        self.assertTrue(c.eval({'x': 1}))      # 1 < 2 → True
+        self.assertFalse(c.eval({'x': 2}))     # 2 < 2 → False
+        self.assertFalse(c.eval({'x': None}))   # None < 2 → False
+        self.assertFalse(c.eval({'z': 1}))     # Missing 'x' → False
 
     def test_lte(self):
         c = Condition('x', 2, 'lte')
-        self.assertTrue(c.eval({'x': 1}))
-        self.assertTrue(c.eval({'x': 2}))
-        self.assertFalse(c.eval({'x': 3}))
+        self.assertTrue(c.eval({'x': 1}))      # 1 <= 2 → True
+        self.assertTrue(c.eval({'x': 2}))      # 2 <= 2 → True
+        self.assertFalse(c.eval({'x': 3}))     # 3 <= 2 → False
+        self.assertFalse(c.eval({'x': None}))  # None <= 2 → False
+        self.assertFalse(c.eval({'z': 1}))     # Missing 'x' → False
 
     def test_in(self):
         c = Condition('x', [1, 2, 3], 'in')
-        self.assertTrue(c.eval({'x': 1}))
-        self.assertFalse(c.eval({'x': 9}))
+        self.assertTrue(c.eval({'x': 1}))       # 1 in [1,2,3] → True
+        self.assertFalse(c.eval({'x': 9}))      # 9 in [1,2,3] → False
+        self.assertFalse(c.eval({'x': None}))   # None in [1,2,3] → False
+        self.assertFalse(c.eval({'z': 1}))      # Missing 'x' → False
 
     def test_in_negated(self):
         c = Condition('x', [1, 2, 3], 'in', negate=True)
-        self.assertFalse(c.eval({'x': 1}))
-        self.assertTrue(c.eval({'x': 9}))
+        self.assertFalse(c.eval({'x': 1}))      # not (1 in [1,2,3]) → False
+        self.assertTrue(c.eval({'x': 9}))       # not (9 in [1,2,3]) → True
+        self.assertTrue(c.eval({'x': None}))    # not (None in [1,2,3]) → True
+        self.assertTrue(c.eval({'z': 1}))       # Missing 'x' → True
 
     def test_contains(self):
         c = Condition('x', 1, 'contains')
-        self.assertTrue(c.eval({'x': [1, 2, 3]}))
-        self.assertFalse(c.eval({'x': [2, 3, 4]}))
+        self.assertTrue(c.eval({'x': [1, 2, 3]}))   # 1 in [1,2,3] → True
+        self.assertFalse(c.eval({'x': [2, 3, 4]}))  # 1 in [2,3,4] → False
+        self.assertFalse(c.eval({'x': None}))        # 1 in None → False
+        self.assertFalse(c.eval({'z': [1, 2, 3]}))  # Missing 'x' → False
 
     def test_contains_negated(self):
         c = Condition('x', 1, 'contains', negate=True)
-        self.assertFalse(c.eval({'x': [1, 2, 3]}))
-        self.assertTrue(c.eval({'x': [2, 3, 4]}))
+        self.assertFalse(c.eval({'x': [1, 2, 3]}))  # not (1 in [1,2,3]) → False
+        self.assertTrue(c.eval({'x': [2, 3, 4]}))   # not (1 in [2,3,4]) → True
+        self.assertTrue(c.eval({'x': None}))        # not (1 in None) → True
+        self.assertTrue(c.eval({'z': [1, 2, 3]}))  # Missing 'x' → True
 
     def test_regex(self):
         c = Condition('x', '[a-z]+', 'regex')
-        self.assertTrue(c.eval({'x': 'abc'}))
-        self.assertFalse(c.eval({'x': '123'}))
+        self.assertTrue(c.eval({'x': 'abc'}))      # 'abc' matches regex → True
+        self.assertFalse(c.eval({'x': '123'}))    # '123' doesn't match → False
+        self.assertFalse(c.eval({'x': None}))     # None doesn't match → False
+        self.assertFalse(c.eval({'z': 'abc'}))    # Missing 'x' → False
 
     def test_regex_negated(self):
         c = Condition('x', '[a-z]+', 'regex', negate=True)
-        self.assertFalse(c.eval({'x': 'abc'}))
-        self.assertTrue(c.eval({'x': '123'}))
-
+        self.assertFalse(c.eval({'x': 'abc'}))    # not (match) → False
+        self.assertTrue(c.eval({'x': '123'}))     # not (no match) → True
+        self.assertTrue(c.eval({'x': None}))      # not (None match) → True
+        self.assertTrue(c.eval({'z': 'abc'}))     # Missing 'x' → True
 
 class ConditionSetTest(TestCase):
 
