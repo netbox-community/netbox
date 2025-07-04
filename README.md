@@ -6,7 +6,7 @@
   <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" /></a>
   <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
   <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-15-blue" alt="Languages supported" /></a>
-  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=main" alt="CI status" /></a>
+  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <p>
     <strong><a href="https://netboxlabs.com/community/">NetBox Community</a></strong> |
     <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong> |
