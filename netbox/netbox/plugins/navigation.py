@@ -32,7 +32,8 @@ class PluginMenuItem:
     This class represents a navigation menu item. This constitutes primary link and its text, but also allows for
     specifying additional link buttons that appear to the right of the item in the van menu.
 
-    Links are specified as Django reverse URL strings.
+    Links are specified as Django reverse URL strings suitable for rendering via {% url item.link %}.
+    Alternatively, a pre-generated url can be specified which will be rendered literally.
     Buttons are each specified as a list of PluginMenuButton instances.
     """
     permissions = []
