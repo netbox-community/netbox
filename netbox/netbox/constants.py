@@ -44,3 +44,10 @@ CENSOR_TOKEN_CHANGED = '***CHANGED***'
 
 # Placeholder text for empty tables
 EMPTY_TABLE_TEXT = 'No results found'
+
+# CSV delimiters
+CSV_DELIMITERS = {
+    'comma': ',',
+    'semicolon': ';',
+    'pipe': '|',
+}
