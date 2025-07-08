@@ -1,6 +1,8 @@
 import inspect
 
 from django.urls import NoReverseMatch, reverse
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import ObjectType
@@ -28,6 +30,7 @@ class ObjectTypeSerializer(BaseModelSerializer):
             'is_plugin_model', 'rest_api_endpoint', 'description',
         ]
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_rest_api_endpoint(self, obj):
         if not (model := obj.model_class()):
             return
@@ -37,6 +40,7 @@ class ObjectTypeSerializer(BaseModelSerializer):
             except NoReverseMatch:
                 return
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_description(self, obj):
         if not (model := obj.model_class()):
             return

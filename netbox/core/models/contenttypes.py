@@ -70,7 +70,6 @@ class ObjectType(ContentType):
     def model_verbose_name_plural(self):
         if model := self.model_class():
             return model._meta.verbose_name_plural
-        return model._meta.label
 
     @property
     def is_plugin_model(self):
