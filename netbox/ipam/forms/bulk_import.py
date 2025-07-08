@@ -633,7 +633,10 @@ class ServiceImportForm(NetBoxModelImportForm):
         # triggered
         parent = self.cleaned_data.get('parent')
         for ip_address in self.cleaned_data.get('ipaddresses', []):
-            if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
+            if not (assigned := ip_address.assigned_object) or (        # no assigned object
+                (isinstance(parent, FHRPGroup) and assigned != parent)  # assigned to FHRPGroup
+                and getattr(assigned, 'parent_object') != parent        # assigned to [VM]Interface
+            ):
                 raise forms.ValidationError(
                     _("{ip} is not assigned to this parent.").format(ip=ip_address)
                 )

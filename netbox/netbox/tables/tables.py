@@ -166,6 +166,8 @@ class BaseTable(tables.Table):
                 columns = userconfig.get(f"tables.{self.name}.columns")
             if ordering is None:
                 ordering = userconfig.get(f"tables.{self.name}.ordering")
+            if userconfig.get("ui.tables.striping"):
+                self.attrs['class'] += ' table-striped'
 
         # Fall back to the default columns & ordering
         if columns is None and hasattr(settings, 'DEFAULT_USER_PREFERENCES'):

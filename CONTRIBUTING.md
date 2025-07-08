@@ -8,7 +8,7 @@
   </h3>
   <h3>
     :jigsaw: <a href="#jigsaw-creating-plugins">Create a plugin</a> &middot;
-    :rescue_worker_helmet: <a href="#rescue_worker_helmet-become-a-maintainer">Become a maintainer</a> &middot;
+    :briefcase: <a href="#briefcase-looking-for-a-job">Work with us!</a> &middot;
     :heart: <a href="#heart-other-ways-to-contribute">Other ideas</a>
   </h3>
 </div>
@@ -109,21 +109,9 @@ Do you have an idea for something you'd like to build in NetBox, but might not b
 
 Check out our [plugin development tutorial](https://github.com/netbox-community/netbox-plugin-tutorial) to get started!
 
-## :rescue_worker_helmet: Become a Maintainer
+## :briefcase: Looking for a Job?
 
-We're always looking for motivated individuals to join the maintainers team and help drive NetBox's long-term development. Some of our most sought-after skills include:
-
-* Python development with a strong focus on the [Django](https://www.djangoproject.com/) framework
-* Expertise working with PostgreSQL databases
-* Javascript & TypeScript proficiency
-* A knack for web application design (HTML & CSS)
-* Familiarity with git and software development best practices
-* Excellent attention to detail
-* Working experience in the field of network operations & engineering
-
-We generally ask that maintainers dedicate around four hours of work to the project each week on average, which includes both hands-on development and project management tasks such as issue triage. Maintainers are also encouraged (but not required) to attend our bi-weekly Zoom call to catch up on recent items.
-
-Interested? You can contact our lead maintainer, Jeremy Stretch, at jeremy@netbox.dev or on the [NetDev Community Slack](https://netdev.chat/). We'd love to have you on the team!
+At [NetBox Labs](https://netboxlabs.com/), we're always looking for highly skilled and motivated people to join our team. While NetBox is a core part of our product lineup, we have an ever-expanding suite of solutions serving the network automation space. Check out our [current openings](https://netboxlabs.com/careers/) to see if you might be a fit!
 
 ## :heart: Other Ways to Contribute
 

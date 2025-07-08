@@ -19,7 +19,8 @@ def load_initial_data(apps, schema_editor):
         'gpu',
         'hard_disk',
         'memory',
-        'power_supply'
+        'power_supply',
+        'expansion_card'
     )
 
     for name in initial_profiles:

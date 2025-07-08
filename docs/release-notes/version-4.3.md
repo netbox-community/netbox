@@ -1,5 +1,33 @@
 # NetBox v4.3
 
+## v4.3.3 (2025-06-26)
+
+### Enhancements
+
+* [#17183](https://github.com/netbox-community/netbox/issues/17183) - Enable associating tags with object types during bulk import
+* [#17719](https://github.com/netbox-community/netbox/issues/17719) - Introduce a user preference for table row striping
+* [#19492](https://github.com/netbox-community/netbox/issues/19492) - Add a UI button to download the output of an executed custom script
+* [#19499](https://github.com/netbox-community/netbox/issues/19499) - Support qualifying interfaces by parent device when bulk importing wireless links
+
+### Bug Fixes
+
+* [#19529](https://github.com/netbox-community/netbox/issues/19529) - Fix support for running custom scripts via the `runscript` management command
+* [#19555](https://github.com/netbox-community/netbox/issues/19555) - Fix support for `schedule_at` when invoking a custom script via the REST API
+* [#19617](https://github.com/netbox-community/netbox/issues/19617) - Ensure consistent styling of "connect" buttons in UI
+* [#19640](https://github.com/netbox-community/netbox/issues/19640) - Restore ability to filter FHRP group assignments by device/VM in GraphQL API
+* [#19644](https://github.com/netbox-community/netbox/issues/19644) - Atomic transactions should always employ database routing
+* [#19659](https://github.com/netbox-community/netbox/issues/19659) - Populate initial device/VM selection for "add a service" button
+* [#19665](https://github.com/netbox-community/netbox/issues/19665) - Correct field reference in wireless link model validation
+* [#19667](https://github.com/netbox-community/netbox/issues/19667) - Fix `TypeError` exception when creating a new module profile type with no schema
+* [#19673](https://github.com/netbox-community/netbox/issues/19673) - Ignore custom field references when compiling table prefetches
+* [#19677](https://github.com/netbox-community/netbox/issues/19677) - Fix exception when passing null value to `present_in_vrf` filter
+* [#19680](https://github.com/netbox-community/netbox/issues/19680) - Correct chronological ordering of change records resulting from device deletions
+* [#19687](https://github.com/netbox-community/netbox/issues/19687) - Cellular interface types should be considered non-connectable
+* [#19702](https://github.com/netbox-community/netbox/issues/19702) - Fix `DoesNotExist` exception when deleting a notification group with an associated event rule
+* [#19745](https://github.com/netbox-community/netbox/issues/19745) - Fix bulk import of services with IP addresses assigned to FHRP groups
+
+---
+
 ## v4.3.2 (2025-06-05)
 
 ### Enhancements
