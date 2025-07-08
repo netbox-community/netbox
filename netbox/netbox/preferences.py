@@ -72,6 +72,16 @@ PREFERENCES = {
         ),
         description=_('The preferred syntax for displaying generic data within the UI')
     ),
+    'csv_delimiter': UserPreference(
+        label=_('CSV delimiter'),
+        choices=(
+            ('comma', 'Comma (,)'),
+            ('semicolon', 'Semicolon (;)'),
+            ('pipe', 'Pipe (|)'),
+        ),
+        default='comma',
+        description=_('The character used to separate fields in CSV data')
+    ),
 
 }
 

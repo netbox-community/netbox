@@ -15,7 +15,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_tables2.export import TableExport
 from mptt.models import MPTTModel
 
 from core.models import ObjectType
@@ -25,6 +24,7 @@ from extras.models import CustomField, ExportTemplate
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
+from utilities.export import TableExport
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
@@ -77,7 +77,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         return '---\n'.join(yaml_data)
 
-    def export_table(self, table, columns=None, filename=None):
+    def export_table(self, table, columns=None, filename=None, delimiter=None):
         """
         Export all table data in CSV format.
 
@@ -86,6 +86,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             columns: A list of specific columns to include. If None, all columns will be exported.
             filename: The name of the file attachment sent to the client. If None, will be determined automatically
                 from the queryset model name.
+            delimiter: The character used to separate columns (a comma is used by default)
         """
         exclude_columns = {'pk', 'actions'}
         if columns:
@@ -96,7 +97,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         exporter = TableExport(
             export_format=TableExport.CSV,
             table=table,
-            exclude_columns=exclude_columns
+            exclude_columns=exclude_columns,
+            delimiter=delimiter,
         )
         return exporter.response(
             filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
@@ -159,7 +161,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             if request.GET['export'] == 'table':
                 table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
-                return self.export_table(table, columns)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, columns, delimiter=delimiter)
 
             # Render an ExportTemplate
             elif request.GET['export']:
@@ -176,7 +179,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             # Fall back to default table/YAML export
             else:
                 table = self.get_table(self.queryset, request, has_table_actions)
-                return self.export_table(table)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
         table = self.get_table(self.queryset, request, has_table_actions)
