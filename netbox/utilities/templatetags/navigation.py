@@ -22,14 +22,10 @@ def nav(context):
 
     # Construct the navigation menu based upon the current user's permissions
     for menu in MENUS:
-        if callable(menu):
-            menu = menu()
         groups = []
         for group in menu.groups:
             items = []
             for item in group.items:
-                if callable(item):
-                    item = item()
                 if getattr(item, 'auth_required', False) and not user.is_authenticated:
                     continue
                 if not user.has_perms(item.permissions):
@@ -37,9 +33,7 @@ def nav(context):
                 if item.staff_only and not user.is_staff:
                     continue
                 buttons = [
-                    button for button in [
-                        button() if callable(button) else button for button in item.buttons
-                    ] if user.has_perms(button.permissions)
+                    button for button in item.buttons if user.has_perms(button.permissions)
                 ]
                 items.append((item, buttons))
             if items:
