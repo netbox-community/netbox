@@ -146,6 +146,7 @@ class ConditionTestCase(TestCase):
         self.assertTrue(c.eval({'x': None}))      # not (None match) → True
         self.assertTrue(c.eval({'z': 'abc'}))     # Missing 'x' → True
 
+
 class ConditionSetTest(TestCase):
 
     def test_empty(self):
