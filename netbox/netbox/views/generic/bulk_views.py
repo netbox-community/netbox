@@ -179,7 +179,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             # Fall back to default table/YAML export
             else:
                 table = self.get_table(self.queryset, request, has_table_actions)
-                return self.export_table(table)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
         table = self.get_table(self.queryset, request, has_table_actions)
