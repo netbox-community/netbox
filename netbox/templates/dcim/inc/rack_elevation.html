@@ -1,6 +1,17 @@
 {% load i18n %}
 <div style="margin-left: -30px">
-    <object data="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" class="rack_elevation" aria-label="{% trans "Rack elevation" %}"></object>
+  <div
+    hx-get="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{ face }}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}"
+    hx-trigger="intersect"
+    hx-swap="outerHTML"
+    aria-label="{% trans "Rack elevation" %}"
+  >
+    <div class="d-flex justify-content-center align-items-center rack-loading-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">{% trans "Loading..." %}</span>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="text-center mt-3">
     <a class="btn btn-outline-primary" href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" hx-boost="false">
