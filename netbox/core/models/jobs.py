@@ -1,9 +1,12 @@
+import logging
 import uuid
+from dataclasses import asdict
 from functools import partial
 
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
@@ -14,6 +17,7 @@ from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
+from core.dataclasses import JobLogEntry
 from core.models import ObjectType
 from core.signals import job_end, job_start
 from utilities.querysets import RestrictedQuerySet
@@ -103,6 +107,14 @@ class Job(models.Model):
     job_id = models.UUIDField(
         verbose_name=_('job ID'),
         unique=True
+    )
+    log_entries = ArrayField(
+        base_field=models.JSONField(
+            encoder=DjangoJSONEncoder,
+            # TODO: Specify a decoder to handle ISO 8601 timestamps
+        ),
+        blank=True,
+        default=list,
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -271,3 +283,10 @@ class Job(models.Model):
             transaction.on_commit(callback)
 
         return job
+
+    def log(self, record: logging.LogRecord):
+        """
+        Record a Python LogRecord in the job's log.
+        """
+        entry = JobLogEntry.from_logrecord(record)
+        self.log_entries.append(asdict(entry))

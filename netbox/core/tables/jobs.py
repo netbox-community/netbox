@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import BaseTable, NetBoxTable, columns
 from ..models import Job
 
 
@@ -40,6 +40,9 @@ class JobTable(NetBoxTable):
     completed = columns.DateTimeColumn(
         verbose_name=_('Completed'),
     )
+    log_entries = tables.Column(
+        verbose_name=_('Log Entries'),
+    )
     actions = columns.ActionsColumn(
         actions=('delete',)
     )
@@ -53,3 +56,22 @@ class JobTable(NetBoxTable):
         default_columns = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',
         )
+
+    def render_log_entries(self, value):
+        return len(value)
+
+
+class JobLogEntryTable(BaseTable):
+    timestamp = tables.Column(
+        verbose_name=_('Time'),
+    )
+    level = tables.Column(
+        verbose_name=_('Level'),
+    )
+    message = tables.Column(
+        verbose_name=_('Message'),
+    )
+
+    class Meta(BaseTable.Meta):
+        empty_text = _('No log entries')
+        fields = ('timestamp', 'level', 'message')
