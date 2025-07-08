@@ -2,7 +2,7 @@
     "name": "Expansion card",
     "schema": {
         "properties": {
-            "Connector type": {
+            "connector_type": {
                 "type": "string",
                 "description": "Connector type e.g. PCIe x4"
             },
