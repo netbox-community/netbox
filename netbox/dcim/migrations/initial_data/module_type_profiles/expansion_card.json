@@ -1,0 +1,15 @@
+{
+    "name": "Expansion card",
+    "schema": {
+        "properties": {
+            "connector_type": {
+                "type": "string",
+                "description": "Connector type e.g. PCIe x4"
+            },
+            "bandwidth": {
+                "type": "integer",
+                "description": "Total Bandwidth for this module"
+            }
+        }
+    }
+}
