@@ -291,8 +291,6 @@ class RoleFilterSet(OrganizationalModelFilterSet):
 
 
 class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    # TODO: Alter for aggregate
-    # TODO: Alter for parent prefix
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -331,6 +329,26 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
     mask_length__lte = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='net_mask_length__lte'
+    )
+    aggregate_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Aggregate.objects.all(),
+        label=_('Aggregate'),
+    )
+    aggregate = django_filters.ModelMultipleChoiceFilter(
+        field_name='aggregate__prefix',
+        queryset=Aggregate.objects.all(),
+        to_field_name='prefix',
+        label=_('Aggregate (Prefix)'),
+    )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Parent Prefix'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Parent Prefix (Prefix)'),
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
@@ -459,7 +477,6 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
 
 
 class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilterSet):
-    # TODO: Alter for prefix
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -562,7 +579,6 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilte
 
 
 class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
-    # TODO: Alter for prefix
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'

@@ -44,7 +44,6 @@ class AggregateSerializer(NetBoxModelSerializer):
 
 
 class PrefixSerializer(NetBoxModelSerializer):
-    # TODO: Alter for parent prefix
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
@@ -61,7 +60,7 @@ class PrefixSerializer(NetBoxModelSerializer):
     vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = RoleSerializer(nested=True, required=False, allow_null=True)
-    children = serializers.IntegerField(read_only=True)
+    _children = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
     prefix = IPNetworkField()
 
@@ -70,7 +69,7 @@ class PrefixSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
             'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'custom_fields', 'created', 'last_updated', '_children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
 
@@ -135,7 +134,7 @@ class AvailablePrefixSerializer(serializers.Serializer):
 #
 
 class IPRangeSerializer(NetBoxModelSerializer):
-    # TODO: Alter for prefix
+    prefix = PrefixSerializer(nested=True, required=False, allow_null=True)
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -160,7 +159,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
 #
 
 class IPAddressSerializer(NetBoxModelSerializer):
-    # TODO: Alter for prefix
+    prefix = PrefixSerializer(nested=True, required=False, allow_null=True)
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)

@@ -204,6 +204,12 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
         choices=PREFIX_MASK_LENGTH_CHOICES,
         label=_('Mask length')
     )
+    aggregate_id = DynamicModelMultipleChoiceField(
+        queryset=Aggregate.objects.all(),
+        required=False,
+        label=_('Aggregate'),
+        null_option='Global'
+    )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,

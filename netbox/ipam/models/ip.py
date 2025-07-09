@@ -369,11 +369,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         return self.prefix.prefixlen if self.prefix else None
 
     @property
-    def depth(self):
+    def depth_count(self):
         return self._depth
 
     @property
-    def children(self):
+    def children_count(self):
         return self._children
 
     def _set_prefix_length(self, value):
