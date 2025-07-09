@@ -17,6 +17,7 @@ from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_jo
 from django_rq.queues import get_redis_connection
 from django_rq.utils import get_statistics
 from django_rq.settings import QUEUES_LIST
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
@@ -83,6 +84,16 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     queryset = ObjectChange.objects.valid_models()
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
+
+
+class ObjectTypeViewSet(ReadOnlyModelViewSet):
+    """
+    Read-only list of ObjectTypes.
+    """
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    queryset = ObjectType.objects.order_by('app_label', 'model')
+    serializer_class = serializers.ObjectTypeSerializer
+    filterset_class = filtersets.ObjectTypeFilterSet
 
 
 class BaseRQViewSet(viewsets.ViewSet):
