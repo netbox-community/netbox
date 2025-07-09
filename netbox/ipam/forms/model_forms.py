@@ -250,6 +250,11 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -265,8 +270,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized', 'description',
-            'tags', name=_('IP Range')
+            'prefix', 'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized',
+            'description', 'tags', name=_('IP Range')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -274,8 +279,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
-            'mark_utilized', 'description', 'comments', 'tags',
+            'prefix', 'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant',
+            'mark_populated', 'mark_utilized', 'description', 'comments', 'tags',
         ]
 
 

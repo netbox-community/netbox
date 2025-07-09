@@ -39,6 +39,26 @@ class TestAggregate(TestCase):
 
 
 class TestIPRange(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.vrf = VRF.objects.create(name='VRF A', rd='1:1')
+
+        cls.prefixes = (
+
+            # IPv4
+            Prefix(prefix='192.0.0.0/16'),
+            Prefix(prefix='192.0.2.0/24'),
+            Prefix(prefix='192.0.0.0/16', vrf=cls.vrf),
+
+            # IPv6
+            Prefix(prefix='2001:db8::/32'),
+            Prefix(prefix='2001:db8::/64'),
+
+        )
+
+        for prefix in cls.prefixes:
+            prefix.clean()
+            prefix.save()
 
     def test_overlapping_range(self):
         iprange_192_168 = IPRange.objects.create(
@@ -86,6 +106,69 @@ class TestIPRange(TestCase):
                 start_address=IPNetwork('1.2.4.198/24'), end_address=IPNetwork('1.2.4.201/24')
             )
             iprange_4_198_201.clean()
+
+    def test_parent_prefix(self):
+        ranges = (
+            IPRange(
+                start_address=IPNetwork('192.0.0.1/24'),
+                end_address=IPNetwork('192.0.0.254/24'),
+                prefix=self.prefixes[0]
+            ),
+            IPRange(
+                start_address=IPNetwork('192.0.2.1/24'),
+                end_address=IPNetwork('192.0.2.254/24'),
+                prefix=self.prefixes[1]
+            ),
+            IPRange(
+                start_address=IPNetwork('192.0.2.1/24'),
+                end_address=IPNetwork('192.0.2.254/24'),
+                vrf=self.vrf,
+                prefix=self.prefixes[2]
+            ),
+            IPRange(
+                start_address=IPNetwork('2001:db8::/64'),
+                end_address=IPNetwork('2001:db8::ffff/64'),
+                prefix=self.prefixes[4]
+            ),
+            IPRange(
+                start_address=IPNetwork('2001:db8:2::/64'),
+                end_address=IPNetwork('2001:db8:2::ffff/64'),
+                prefix=self.prefixes[3]
+            ),
+        )
+
+        for range in ranges:
+            range.clean()
+            range.save()
+
+        self.assertEqual(ranges[0].prefix, self.prefixes[0])
+        self.assertEqual(ranges[1].prefix, self.prefixes[1])
+        self.assertEqual(ranges[2].prefix, self.prefixes[2])
+        self.assertEqual(ranges[3].prefix, self.prefixes[4])
+
+    def test_parent_prefix_change(self):
+
+        range = IPRange(
+            start_address=IPNetwork('192.0.1.1/24'),
+            end_address=IPNetwork('192.0.1.254/24'),
+            prefix=self.prefixes[0]
+        )
+        range.clean()
+        range.save()
+
+        prefix = Prefix(prefix='192.0.1.0/17')
+        prefix.clean()
+        prefix.save()
+
+        range.refresh_from_db()
+
+        self.assertEqual(range.prefix, prefix)
+
+        # TODO: Prefix Altered
+        # TODO: Prefix Deleted
+
+    # TODO: Prefix falls outside range
+    # TODO: Prefix VRF does not match range VRF
 
 
 class TestPrefix(TestCase):
@@ -344,17 +427,21 @@ class TestPrefixHierarchy(TestCase):
         prefixes = (
 
             # IPv4
-            Prefix(prefix='10.0.0.0/8', _depth=0, _children=2),
-            Prefix(prefix='10.0.0.0/16', _depth=1, _children=1),
-            Prefix(prefix='10.0.0.0/24', _depth=2, _children=0),
+            Prefix(prefix='10.0.0.0/8'),
+            Prefix(prefix='10.0.0.0/16'),
+            Prefix(prefix='10.0.0.0/24'),
+            Prefix(prefix='192.168.0.0/16'),
 
             # IPv6
-            Prefix(prefix='2001:db8::/32', _depth=0, _children=2),
-            Prefix(prefix='2001:db8::/40', _depth=1, _children=1),
-            Prefix(prefix='2001:db8::/48', _depth=2, _children=0),
+            Prefix(prefix='2001:db8::/32'),
+            Prefix(prefix='2001:db8::/40'),
+            Prefix(prefix='2001:db8::/48'),
 
         )
-        Prefix.objects.bulk_create(prefixes)
+
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
 
     def test_create_prefix4(self):
         # Create 10.0.0.0/12
@@ -362,15 +449,19 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=4)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/8'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 3)
         self.assertEqual(prefixes[1].prefix, IPNetwork('10.0.0.0/12'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 2)
         self.assertEqual(prefixes[2].prefix, IPNetwork('10.0.0.0/16'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('10.0.0.0/12'))
         self.assertEqual(prefixes[2]._depth, 2)
         self.assertEqual(prefixes[2]._children, 1)
         self.assertEqual(prefixes[3].prefix, IPNetwork('10.0.0.0/24'))
+        self.assertEqual(prefixes[3].parent.prefix, IPNetwork('10.0.0.0/16'))
         self.assertEqual(prefixes[3]._depth, 3)
         self.assertEqual(prefixes[3]._children, 0)
 
@@ -380,15 +471,19 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=6)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/32'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 3)
         self.assertEqual(prefixes[1].prefix, IPNetwork('2001:db8::/36'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 2)
         self.assertEqual(prefixes[2].prefix, IPNetwork('2001:db8::/40'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('2001:db8::/36'))
         self.assertEqual(prefixes[2]._depth, 2)
         self.assertEqual(prefixes[2]._children, 1)
         self.assertEqual(prefixes[3].prefix, IPNetwork('2001:db8::/48'))
+        self.assertEqual(prefixes[3].parent.prefix, IPNetwork('2001:db8::/40'))
         self.assertEqual(prefixes[3]._depth, 3)
         self.assertEqual(prefixes[3]._children, 0)
 
@@ -400,12 +495,15 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=4)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/8'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 2)
         self.assertEqual(prefixes[1].prefix, IPNetwork('10.0.0.0/12'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 1)
         self.assertEqual(prefixes[2].prefix, IPNetwork('10.0.0.0/16'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('10.0.0.0/12'))
         self.assertEqual(prefixes[2]._depth, 2)
         self.assertEqual(prefixes[2]._children, 0)
 
@@ -417,12 +515,15 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=6)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/32'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 2)
         self.assertEqual(prefixes[1].prefix, IPNetwork('2001:db8::/36'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 1)
         self.assertEqual(prefixes[2].prefix, IPNetwork('2001:db8::/40'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('2001:db8::/36'))
         self.assertEqual(prefixes[2]._depth, 2)
         self.assertEqual(prefixes[2]._children, 0)
 
@@ -437,14 +538,17 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(vrf__isnull=True, prefix__family=4)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/8'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 1)
         self.assertEqual(prefixes[1].prefix, IPNetwork('10.0.0.0/24'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 0)
 
         prefixes = Prefix.objects.filter(vrf=vrf)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/16'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 0)
 
@@ -459,14 +563,17 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(vrf__isnull=True, prefix__family=6)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/32'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 1)
         self.assertEqual(prefixes[1].prefix, IPNetwork('2001:db8::/48'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 0)
 
         prefixes = Prefix.objects.filter(vrf=vrf)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/40'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 0)
 
@@ -476,9 +583,11 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=4)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/8'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 1)
         self.assertEqual(prefixes[1].prefix, IPNetwork('10.0.0.0/24'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 0)
 
@@ -488,9 +597,11 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=6)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/32'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 1)
         self.assertEqual(prefixes[1].prefix, IPNetwork('2001:db8::/48'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 0)
 
@@ -500,15 +611,20 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=4)
         self.assertEqual(prefixes[0].prefix, IPNetwork('10.0.0.0/8'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 3)
         self.assertEqual(prefixes[1].prefix, IPNetwork('10.0.0.0/16'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 1)
         self.assertEqual(prefixes[2].prefix, IPNetwork('10.0.0.0/16'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('10.0.0.0/8'))
         self.assertEqual(prefixes[2]._depth, 1)
         self.assertEqual(prefixes[2]._children, 1)
         self.assertEqual(prefixes[3].prefix, IPNetwork('10.0.0.0/24'))
+        # TODO: How to we resolve the parent for duplicate prefixes
+        self.assertEqual(prefixes[3].parent.prefix, IPNetwork('10.0.0.0/16'))
         self.assertEqual(prefixes[3]._depth, 2)
         self.assertEqual(prefixes[3]._children, 0)
 
@@ -518,20 +634,48 @@ class TestPrefixHierarchy(TestCase):
 
         prefixes = Prefix.objects.filter(prefix__family=6)
         self.assertEqual(prefixes[0].prefix, IPNetwork('2001:db8::/32'))
+        self.assertEqual(prefixes[0].parent, None)
         self.assertEqual(prefixes[0]._depth, 0)
         self.assertEqual(prefixes[0]._children, 3)
         self.assertEqual(prefixes[1].prefix, IPNetwork('2001:db8::/40'))
+        self.assertEqual(prefixes[1].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[1]._depth, 1)
         self.assertEqual(prefixes[1]._children, 1)
         self.assertEqual(prefixes[2].prefix, IPNetwork('2001:db8::/40'))
+        self.assertEqual(prefixes[2].parent.prefix, IPNetwork('2001:db8::/32'))
         self.assertEqual(prefixes[2]._depth, 1)
         self.assertEqual(prefixes[2]._children, 1)
         self.assertEqual(prefixes[3].prefix, IPNetwork('2001:db8::/48'))
+        self.assertEqual(prefixes[3].parent.prefix, IPNetwork('2001:db8::/40'))
         self.assertEqual(prefixes[3]._depth, 2)
         self.assertEqual(prefixes[3]._children, 0)
 
 
 class TestIPAddress(TestCase):
+    """
+    Test the automatic updating of depth and child count in response to changes made within
+    the prefix hierarchy.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.vrf = VRF.objects.create(name='VRF A', rd='1:1')
+
+        cls.prefixes = (
+
+            # IPv4
+            Prefix(prefix='192.0.0.0/16'),
+            Prefix(prefix='192.0.2.0/24'),
+            Prefix(prefix='192.0.0.0/16', vrf=cls.vrf),
+
+            # IPv6
+            Prefix(prefix='2001:db8::/32'),
+            Prefix(prefix='2001:db8::/64'),
+
+        )
+
+        for prefix in cls.prefixes:
+            prefix.clean()
+            prefix.save()
 
     def test_get_duplicates(self):
         ips = IPAddress.objects.bulk_create((
@@ -542,6 +686,44 @@ class TestIPAddress(TestCase):
         duplicate_ip_pks = [p.pk for p in ips[0].get_duplicates()]
 
         self.assertSetEqual(set(duplicate_ip_pks), {ips[1].pk, ips[2].pk})
+
+    def test_parent_prefix(self):
+        ips = (
+            IPAddress(address=IPNetwork('192.0.0.1/24'), prefix=self.prefixes[0]),
+            IPAddress(address=IPNetwork('192.0.2.1/24'), prefix=self.prefixes[1]),
+            IPAddress(address=IPNetwork('192.0.2.1/24'), vrf=self.vrf, prefix=self.prefixes[2]),
+            IPAddress(address=IPNetwork('2001:db8::/64'), prefix=self.prefixes[4]),
+            IPAddress(address=IPNetwork('2001:db8:2::/64'), prefix=self.prefixes[3]),
+        )
+
+        for ip in ips:
+            ip.clean()
+            ip.save()
+
+        self.assertEqual(ips[0].prefix, self.prefixes[0])
+        self.assertEqual(ips[1].prefix, self.prefixes[1])
+        self.assertEqual(ips[2].prefix, self.prefixes[2])
+        self.assertEqual(ips[3].prefix, self.prefixes[4])
+        self.assertEqual(ips[4].prefix, self.prefixes[3])
+
+    def test_parent_prefix_change(self):
+        ip = IPAddress(address=IPNetwork('192.0.1.1/24'), prefix=self.prefixes[0])
+        ip.clean()
+        ip.save()
+
+        prefix = Prefix(prefix='192.0.1.0/17')
+        prefix.clean()
+        prefix.save()
+
+        ip.refresh_from_db()
+
+        self.assertEqual(ip.prefix, prefix)
+
+        # TODO: Prefix Altered
+        # TODO: Prefix Deleted
+
+    # TODO: Prefix does not contain IP Address
+    # TODO: Prefix VRF does not match IP Address VRF
 
     #
     # Uniqueness enforcement tests

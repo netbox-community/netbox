@@ -3,11 +3,14 @@
 import sys
 import time
 
-import django.db.models.deletion
 from django.db import migrations, models
+
+from ipam.choices import PrefixStatusChoices
 
 
 def draw_progress(count, total, length=20):
+    if total == 0:
+        return
     progress = count / total
     percent = int(progress * 100)
     bar = int(progress * length)
@@ -24,8 +27,9 @@ def set_ipaddress_prefix(apps, schema_editor):
     addresses = IPAddress.objects.all()
     i = 0
     total = addresses.count()
-    if total > 0:
-        print('\r\n')
+    if total == 0:
+        return
+    print('\r\n')
     draw_progress(i, total, 50)
     for address in addresses:
         i += 1
@@ -55,8 +59,10 @@ def set_iprange_prefix(apps, schema_editor):
     addresses = IPRange.objects.all()
     i = 0
     total = addresses.count()
-    if total > 0:
-        print('\r\n')
+    if total == 0:
+        return
+
+    print('\r\n')
     draw_progress(i, total, 50)
     for address in addresses:
         i += 1
@@ -86,8 +92,10 @@ def set_prefix_aggregate(apps, schema_editor):
     addresses = Prefix.objects.all()
     i = 0
     total = addresses.count()
-    if total > 0:
-        print('\r\n')
+    if total == 0:
+        return
+
+    print('\r\n')
     draw_progress(i, total, 50)
     for address in addresses:
         i += 1
@@ -108,47 +116,54 @@ def unset_prefix_aggregate(apps, schema_editor):
     Prefix.objects.update(aggregate=None)
 
 
+def set_prefix_parent(apps, schema_editor):
+    Prefix = apps.get_model('ipam', 'Prefix')
+    start = time.time()
+    addresses = Prefix.objects.all()
+    i = 0
+    total = addresses.count()
+    if total == 0:
+        return
+
+    print('\r\n')
+    draw_progress(i, total, 50)
+    for address in addresses:
+        i += 1
+        prefixes = Prefix.objects.exclude(pk=address.pk).filter(
+            models.Q(
+                vrf=address.vrf,
+                prefix__net_contains=str(address.prefix.ip)
+            ) | models.Q(
+                vrf=None,
+                status=PrefixStatusChoices.STATUS_CONTAINER,
+                prefix__net_contains=str(address.prefix.ip),
+            )
+        )
+        if not prefixes.exists():
+            draw_progress(i, total, 50)
+            continue
+
+        address.parent = prefixes.last()
+        address.save()
+        draw_progress(i, total, 50)
+    end = time.time()
+    print(f"\r\nElapsed Time: {end - start:.2f}s")
+
+
+def unset_prefix_parent(apps, schema_editor):
+    Prefix = apps.get_model('ipam', 'Prefix')
+    Prefix.objects.update(parent=None)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0081_remove_service_device_virtual_machine_add_parent_gfk_index'),
+        ('ipam', '0082_ipaddress_iprange_prefix_parent'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='ipaddress',
-            name='prefix',
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name='ip_addresses',
-                to='ipam.prefix',
-            ),
-        ),
-        migrations.AddField(
-            model_name='iprange',
-            name='prefix',
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.PROTECT,
-                related_name='ip_ranges',
-                to='ipam.prefix',
-            ),
-        ),
-        migrations.AddField(
-            model_name='prefix',
-            name='aggregate',
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.PROTECT,
-                related_name='prefixes',
-                to='ipam.aggregate',
-            ),
-        ),
         migrations.RunPython(set_ipaddress_prefix, unset_ipaddress_prefix),
         migrations.RunPython(set_iprange_prefix, unset_iprange_prefix),
         migrations.RunPython(set_prefix_aggregate, unset_prefix_aggregate),
+        migrations.RunPython(set_prefix_parent, unset_prefix_parent),
     ]

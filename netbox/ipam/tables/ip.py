@@ -155,6 +155,7 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 
 class PrefixTable(TenancyColumnsMixin, NetBoxTable):
+    # TODO: Alter for parent prefix
     prefix = columns.TemplateColumn(
         verbose_name=_('Prefix'),
         template_code=PREFIX_LINK_WITH_DEPTH,
@@ -253,6 +254,7 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
 # IP ranges
 #
 class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
+    # TODO: Alter for prefix
     start_address = tables.Column(
         verbose_name=_('Start address'),
         linkify=True
@@ -309,6 +311,7 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
+    # TODO: Alter for prefix
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')

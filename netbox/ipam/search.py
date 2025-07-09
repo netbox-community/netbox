@@ -66,10 +66,11 @@ class IPRangeIndex(SearchIndex):
     fields = (
         ('start_address', 100),
         ('end_address', 300),
+        ('prefix', 400),
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('vrf', 'tenant', 'status', 'role', 'description')
+    display_attrs = ('prefix', 'vrf', 'tenant', 'status', 'role', 'description')
 
 
 @register_search
@@ -77,10 +78,12 @@ class PrefixIndex(SearchIndex):
     model = models.Prefix
     fields = (
         ('prefix', 110),
+        ('parent', 200),
+        ('aggregate', 300),
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('scope', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description')
+    display_attrs = ('scope', 'aggregate', 'parent', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description')
 
 
 @register_search

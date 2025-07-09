@@ -44,6 +44,7 @@ class AggregateSerializer(NetBoxModelSerializer):
 
 
 class PrefixSerializer(NetBoxModelSerializer):
+    # TODO: Alter for parent prefix
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
@@ -134,6 +135,7 @@ class AvailablePrefixSerializer(serializers.Serializer):
 #
 
 class IPRangeSerializer(NetBoxModelSerializer):
+    # TODO: Alter for prefix
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -158,6 +160,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
 #
 
 class IPAddressSerializer(NetBoxModelSerializer):
+    # TODO: Alter for prefix
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)

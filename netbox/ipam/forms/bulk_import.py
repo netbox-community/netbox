@@ -156,6 +156,8 @@ class RoleImportForm(NetBoxModelImportForm):
 
 
 class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
+    # TODO: Alter for aggregate
+    # TODO: Alter for parent prefix
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -245,6 +247,7 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
 
 
 class IPRangeImportForm(NetBoxModelImportForm):
+    # TODO: Alter for prefix
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -281,6 +284,7 @@ class IPRangeImportForm(NetBoxModelImportForm):
 
 
 class IPAddressImportForm(NetBoxModelImportForm):
+    # TODO: Alter for prefix
     prefix = CSVModelChoiceField(
         label=_('Prefix'),
         queryset=Prefix.objects.all(),

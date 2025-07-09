@@ -291,6 +291,8 @@ class RoleFilterSet(OrganizationalModelFilterSet):
 
 
 class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
+    # TODO: Alter for aggregate
+    # TODO: Alter for parent prefix
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -457,6 +459,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
 
 
 class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilterSet):
+    # TODO: Alter for prefix
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -472,6 +475,16 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilte
     contains = django_filters.CharFilter(
         method='search_contains',
         label=_('Ranges which contain this prefix or IP'),
+    )
+    prefix_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Prefix (ID)'),
+    )
+    prefix = django_filters.ModelMultipleChoiceFilter(
+        field_name='prefix__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Prefix'),
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
@@ -549,6 +562,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilte
 
 
 class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+    # TODO: Alter for prefix
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'

@@ -356,6 +356,7 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
 
 class PrefixTest(APIViewTestCases.APIViewTestCase):
     model = Prefix
+    # TODO: Alter for parent prefix
     brief_fields = ['_depth', 'description', 'display', 'family', 'id', 'prefix', 'url']
     create_data = [
         {
@@ -535,6 +536,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 
 class IPRangeTest(APIViewTestCases.APIViewTestCase):
     model = IPRange
+    # TODO: Alter for parent prefix
     brief_fields = ['description', 'display', 'end_address', 'family', 'id', 'start_address', 'url']
     create_data = [
         {
@@ -634,6 +636,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
 
 class IPAddressTest(APIViewTestCases.APIViewTestCase):
     model = IPAddress
+    # TODO: Alter for parent prefix
     brief_fields = ['address', 'description', 'display', 'family', 'id', 'url']
     create_data = [
         {

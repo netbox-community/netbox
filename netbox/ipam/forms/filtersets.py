@@ -278,9 +278,17 @@ class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFi
     model = IPRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')),
+        FieldSet(
+            'prefix', 'family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')
+        ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+    )
+    prefix = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix'),
+        null_option='None'
     )
     family = forms.ChoiceField(
         required=False,
