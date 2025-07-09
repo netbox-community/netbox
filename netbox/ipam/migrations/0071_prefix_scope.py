@@ -1,4 +1,5 @@
 import django.db.models.deletion
+from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
 
@@ -9,9 +10,11 @@ def copy_site_assignments(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Prefix = apps.get_model('ipam', 'Prefix')
     Site = apps.get_model('dcim', 'Site')
+    db_alias = schema_editor.connection.alias
 
-    Prefix.objects.filter(site__isnull=False).update(
-        scope_type=ContentType.objects.get_for_model(Site), scope_id=models.F('site_id')
+    Prefix.objects.using(db_alias).filter(site__isnull=False).update(
+        scope_type=ContentType.objects.get_for_model(Site),
+        scope_id=models.F('site_id')
     )
 
 
@@ -42,3 +45,20 @@ class Migration(migrations.Migration):
         # Copy over existing site assignments
         migrations.RunPython(code=copy_site_assignments, reverse_code=migrations.RunPython.noop),
     ]
+
+
+def oc_prefix_scope(objectchange, reverting):
+    site_ct = ContentType.objects.get_by_natural_key('dcim', 'site').pk
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if site_id := data.get('site'):
+            data.update({
+                'scope_type': site_ct,
+                'scope_id': site_id,
+            })
+
+
+objectchange_migrators = {
+    'ipam.prefix': oc_prefix_scope,
+}

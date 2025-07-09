@@ -162,6 +162,12 @@ def handle_deleted_object(sender, instance, **kwargs):
                 getattr(obj, related_field_name).remove(instance)
             elif type(relation) is ManyToOneRel and relation.field.null is True:
                 setattr(obj, related_field_name, None)
+                # make sure the object hasn't been deleted - in case of
+                # deletion chaining of related objects
+                try:
+                    obj.refresh_from_db()
+                except DoesNotExist:
+                    continue
                 obj.save()
 
     # Enqueue the object for event processing

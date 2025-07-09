@@ -31,6 +31,11 @@
           <div class="col mb-1">
             {{ field }}
             <div class="form-text">{% trans field.label %}</div>
+            {% if field.errors %}
+              <div class="form-text text-danger">
+                {% for error in field.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+              </div>
+            {% endif %}
           </div>
         {% endfor %}
       </div>

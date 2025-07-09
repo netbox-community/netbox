@@ -1,3 +1,5 @@
+import logging
+
 from django.test import tag
 from django.urls import reverse
 from netaddr import IPNetwork
@@ -10,7 +12,9 @@ from extras.choices import CustomFieldTypeChoices
 from extras.models import ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import Prefix, VLAN, VRF
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
+from utilities.testing import (
+    APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine, disable_logging,
+)
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -402,7 +406,8 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
 
         # Attempt to delete only the parent interface
         url = self._get_detail_url(interface1)
-        self.client.delete(url, **self.header)
+        with disable_logging(level=logging.WARNING):
+            self.client.delete(url, **self.header)
         self.assertEqual(virtual_machine.interfaces.count(), 4)  # Parent was not deleted
 
         # Attempt to bulk delete parent & child together

@@ -37,3 +37,15 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
+
+
+def oc_service_remove_fields(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is not None:
+            data.pop('device', None)
+            data.pop('virtual_machine', None)
+
+
+objectchange_migrators = {
+    'ipam.service': oc_service_remove_fields,
+}

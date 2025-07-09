@@ -28,7 +28,8 @@ ADVISORY_LOCK_KEYS = {
     'job-schedules': 110100,
 }
 
-# Default view action permission mapping
+# TODO: Remove in NetBox v4.6
+# Legacy default view action permission mapping
 DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
     'export': {'view'},
@@ -43,3 +44,10 @@ CENSOR_TOKEN_CHANGED = '***CHANGED***'
 
 # Placeholder text for empty tables
 EMPTY_TABLE_TEXT = 'No results found'
+
+# CSV delimiters
+CSV_DELIMITERS = {
+    'comma': ',',
+    'semicolon': ';',
+    'pipe': '|',
+}

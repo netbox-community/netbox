@@ -14,6 +14,12 @@ Administrators are encouraged to adhere to industry best practices concerning th
 * Prohibit access to your database from clients other than the NetBox application
 * Keep your deployment updated to the most recent stable release
 
+## Compliance Reporting
+
+Please note that security compliance reports (e.g. SOC 2) are provided by NetBox Labs only to customers using NetBox Cloud or NetBox Enterprise. They are not available to users of self-hosted NetBox Community Edition.
+
+If you would like to consider upgrading to NetBox Cloud or Enterprise, please contact `sales@netboxlabs.com`.
+
 ## Reporting a Suspected Vulnerability
 
 If you believe you've uncovered a security vulnerability and wish to report it confidentially, you may do so by emailing `security@netboxlabs.com`. Please ensure that your report meets all the following conditions:

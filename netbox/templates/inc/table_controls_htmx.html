@@ -30,20 +30,24 @@
         <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}" class="btn">
           <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
         </button>
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-          <span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <div class="dropdown-menu">
-          {% if table.config_params %}
-            <a class="dropdown-item" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">Save</a>
-          {% endif %}
-          {% if table_configs %}
-            <hr class="dropdown-divider">
-            {% for config in table_configs %}
-              <a class="dropdown-item" href="?tableconfig_id={{ config.pk }}">{{ config }}</a>
-            {% endfor %}
-          {% endif %}
-        </div>
+        {% if table.config_params or table_configs %}
+          <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">{% trans "Toggle Dropdown" %}</span>
+          </button>
+          <div class="dropdown-menu">
+            {% if table.config_params %}
+              <a class="dropdown-item" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">Save</a>
+            {% endif %}
+            {% if table.config_params and table_configs %}
+              <hr class="dropdown-divider">
+            {% endif %}
+            {% if table_configs %}
+              {% for config in table_configs %}
+                <a class="dropdown-item" href="?tableconfig_id={{ config.pk }}">{{ config }}</a>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
     {% endif %}
   </div>

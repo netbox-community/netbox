@@ -238,10 +238,18 @@ class TagImportForm(CSVModelForm):
         label=_('Weight'),
         required=False
     )
+    object_types = CSVMultipleContentTypeField(
+        label=_('Object types'),
+        queryset=ObjectType.objects.with_feature('tags'),
+        help_text=_("One or more assigned object types"),
+        required=False,
+    )
 
     class Meta:
         model = Tag
-        fields = ('name', 'slug', 'color', 'weight', 'description')
+        fields = (
+            'name', 'slug', 'color', 'weight', 'description', 'object_types',
+        )
 
 
 class JournalEntryImportForm(NetBoxModelImportForm):

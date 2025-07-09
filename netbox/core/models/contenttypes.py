@@ -1,7 +1,9 @@
 from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 from django.db.models import Q
 
+from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from utilities.string import title
 
 __all__ = (
     'ObjectType',
@@ -48,3 +50,29 @@ class ObjectType(ContentType):
 
     class Meta:
         proxy = True
+
+    @property
+    def app_labeled_name(self):
+        # Override ContentType's "app | model" representation style.
+        return f"{self.app_verbose_name} > {title(self.model_verbose_name)}"
+
+    @property
+    def app_verbose_name(self):
+        if model := self.model_class():
+            return model._meta.app_config.verbose_name
+
+    @property
+    def model_verbose_name(self):
+        if model := self.model_class():
+            return model._meta.verbose_name
+
+    @property
+    def model_verbose_name_plural(self):
+        if model := self.model_class():
+            return model._meta.verbose_name_plural
+
+    @property
+    def is_plugin_model(self):
+        if not (model := self.model_class()):
+            return  # Return null if model class is invalid
+        return isinstance(model._meta.app_config, PluginConfig)

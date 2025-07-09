@@ -54,6 +54,14 @@ PREFERENCES = {
         default='bottom',
         description=_('Where the paginator controls will be displayed relative to a table')
     ),
+    'ui.tables.striping': UserPreference(
+        label=_('Striped table rows'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Render table rows with alternating colors to increase readability'),
+    ),
 
     # Miscellaneous
     'data_format': UserPreference(
@@ -63,6 +71,16 @@ PREFERENCES = {
             ('yaml', 'YAML'),
         ),
         description=_('The preferred syntax for displaying generic data within the UI')
+    ),
+    'csv_delimiter': UserPreference(
+        label=_('CSV delimiter'),
+        choices=(
+            ('comma', 'Comma (,)'),
+            ('semicolon', 'Semicolon (;)'),
+            ('pipe', 'Pipe (|)'),
+        ),
+        default='comma',
+        description=_('The character used to separate fields in CSV data')
     ),
 
 }

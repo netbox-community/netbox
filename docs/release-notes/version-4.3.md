@@ -1,4 +1,90 @@
-## v4.3.0-beta2 (2025-04-23)
+# NetBox v4.3
+
+## v4.3.3 (2025-06-26)
+
+### Enhancements
+
+* [#17183](https://github.com/netbox-community/netbox/issues/17183) - Enable associating tags with object types during bulk import
+* [#17719](https://github.com/netbox-community/netbox/issues/17719) - Introduce a user preference for table row striping
+* [#19492](https://github.com/netbox-community/netbox/issues/19492) - Add a UI button to download the output of an executed custom script
+* [#19499](https://github.com/netbox-community/netbox/issues/19499) - Support qualifying interfaces by parent device when bulk importing wireless links
+
+### Bug Fixes
+
+* [#19529](https://github.com/netbox-community/netbox/issues/19529) - Fix support for running custom scripts via the `runscript` management command
+* [#19555](https://github.com/netbox-community/netbox/issues/19555) - Fix support for `schedule_at` when invoking a custom script via the REST API
+* [#19617](https://github.com/netbox-community/netbox/issues/19617) - Ensure consistent styling of "connect" buttons in UI
+* [#19640](https://github.com/netbox-community/netbox/issues/19640) - Restore ability to filter FHRP group assignments by device/VM in GraphQL API
+* [#19644](https://github.com/netbox-community/netbox/issues/19644) - Atomic transactions should always employ database routing
+* [#19659](https://github.com/netbox-community/netbox/issues/19659) - Populate initial device/VM selection for "add a service" button
+* [#19665](https://github.com/netbox-community/netbox/issues/19665) - Correct field reference in wireless link model validation
+* [#19667](https://github.com/netbox-community/netbox/issues/19667) - Fix `TypeError` exception when creating a new module profile type with no schema
+* [#19673](https://github.com/netbox-community/netbox/issues/19673) - Ignore custom field references when compiling table prefetches
+* [#19677](https://github.com/netbox-community/netbox/issues/19677) - Fix exception when passing null value to `present_in_vrf` filter
+* [#19680](https://github.com/netbox-community/netbox/issues/19680) - Correct chronological ordering of change records resulting from device deletions
+* [#19687](https://github.com/netbox-community/netbox/issues/19687) - Cellular interface types should be considered non-connectable
+* [#19702](https://github.com/netbox-community/netbox/issues/19702) - Fix `DoesNotExist` exception when deleting a notification group with an associated event rule
+* [#19745](https://github.com/netbox-community/netbox/issues/19745) - Fix bulk import of services with IP addresses assigned to FHRP groups
+
+---
+
+## v4.3.2 (2025-06-05)
+
+### Enhancements
+
+* [#19200](https://github.com/netbox-community/netbox/issues/19200) - Display assigned virtual chassis (if any) on device view
+* [#19461](https://github.com/netbox-community/netbox/issues/19461) - Add color backgrounds for virtual circuit types
+* [#19605](https://github.com/netbox-community/netbox/issues/19605) - Enable filtering IP addresses by family in GraphQL API
+* [#19627](https://github.com/netbox-community/netbox/issues/19627) - Introduce object change migrators
+
+### Bug Fixes
+
+* [#19415](https://github.com/netbox-community/netbox/issues/19415) - Increase maximum supported distance for circuits and wireless links
+* [#19475](https://github.com/netbox-community/netbox/issues/19475) - VLANs belonging to the same location as a VM's cluster should be eligible for assignment to interfaces on that VM
+* [#19486](https://github.com/netbox-community/netbox/issues/19486) - Fix connection card rendering for console server ports
+* [#19487](https://github.com/netbox-community/netbox/issues/19487) - Fix `FieldError` exception when ordering circuit or tunnel terminations by the terminating object
+* [#19490](https://github.com/netbox-community/netbox/issues/19490) - Fix inclusion support for config templates populated via a data source
+* [#19496](https://github.com/netbox-community/netbox/issues/19496) - Fix `AttributeError` exception when rendering a config template with no output
+* [#19510](https://github.com/netbox-community/netbox/issues/19510) - Restore GraphQL API filtering for assigned IP addresses
+* [#19520](https://github.com/netbox-community/netbox/issues/19520) - Restore ability to alter prefix scope via the REST API
+* [#19587](https://github.com/netbox-community/netbox/issues/19587) - The `occupied` filter should include interfaces terminating a wireless link
+* [#19599](https://github.com/netbox-community/netbox/issues/19599) - Fix `AttributeError` exception when sorting change history under user view
+* [#19610](https://github.com/netbox-community/netbox/issues/19610) - Fix `FieldError` exception when sorting tunnel terminations by tenant
+* [#19623](https://github.com/netbox-community/netbox/issues/19623) - Display description under provider account view
+
+---
+
+## v4.3.1 (2025-05-13)
+
+### Enhancements
+
+* [#17073](https://github.com/netbox-community/netbox/issues/17073) - Enable global search for tags
+* [#18419](https://github.com/netbox-community/netbox/issues/18419) - Enable specifying a queue name when calling `Job.enqueue()`
+* [#19416](https://github.com/netbox-community/netbox/issues/19416) - Add the 1000BASE-SX interface type
+* [#19434](https://github.com/netbox-community/netbox/issues/19434) - Add pre-populated interface speed choices for 2.5 and 5 Gbps
+
+### Bug Fixes
+
+* [#17107](https://github.com/netbox-community/netbox/issues/17107) - Fix cosmetic issue in cable traces ending at a provider network
+* [#19309](https://github.com/netbox-community/netbox/issues/19309) - Improve REST API query performance for prefixes and IP addresses
+* [#19361](https://github.com/netbox-community/netbox/issues/19361) - Fix incorrect GraphQL object types
+* [#19375](https://github.com/netbox-community/netbox/issues/19375) - Fix table configuration after applying a saved table config
+* [#19376](https://github.com/netbox-community/netbox/issues/19376) - Fix `FieldDoesNotExist` exception when global search results include a contact
+* [#19380](https://github.com/netbox-community/netbox/issues/19380) - Fix column selections for child object tables
+* [#19381](https://github.com/netbox-community/netbox/issues/19381) - Fix syncing of custom scripts from a remote data source
+* [#19396](https://github.com/netbox-community/netbox/issues/19396) - Enable nullifying VLAN `qinq_role` via the REST API
+* [#19397](https://github.com/netbox-community/netbox/issues/19397) - Correct enum type for IPRangeFilter in GraphQL API
+* [#19432](https://github.com/netbox-community/netbox/issues/19432) - Update minimum required PostgreSQL version referenced by server error page
+* [#19440](https://github.com/netbox-community/netbox/issues/19440) - Ensure data migrations use the correct database connection
+* [#19444](https://github.com/netbox-community/netbox/issues/19444) - Fix change logging for contact group assignments
+* [#19463](https://github.com/netbox-community/netbox/issues/19463) - Hide button dropdown for tables which do not support saved configs
+* [#19464](https://github.com/netbox-community/netbox/issues/19464) - Fix bulk editing of inventory items from device view
+* [#19465](https://github.com/netbox-community/netbox/issues/19465) - Fix ability to clear assigned prefix scope in UI
+* [#19472](https://github.com/netbox-community/netbox/issues/19472) - Fix device column rendering in virtual device contexts table
+
+---
+
+## v4.3.0 (2025-05-01)
 
 ### Breaking Changes
 
@@ -7,6 +93,7 @@
 * The `ALLOW_TOKEN_RETRIEVAL` configuration parameter now defaults to False.
 * The `device` and `virtual_machine` foreign keys on the Service model have been replaced with a generic `parent` relationship to support the assignment of services to FHRP groups as well.
 * The `group` foreign key on the Contact model has been replaced with a many-to-many `groups` field.
+* `django-storages` is now a required dependency. (It will be installed automatically on upgrade.)
 * PluginTemplateExtension no longer supports registration via the singular `model` attribute (use `models` instead).
 * The legacy staged changes functionality has been removed.
 
@@ -58,6 +145,7 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#18780](https://github.com/netbox-community/netbox/issues/18780) - Introduce `DATABASES` and `DATABASE_ROUTERS` configuration parameters to enable defining connections to external databases (e.g. for plugins)
 * [#18783](https://github.com/netbox-community/netbox/issues/18783) - Enable filtering all applicable models by tag ID
 * [#18785](https://github.com/netbox-community/netbox/issues/18785) - Enable custom choices for rack, device, and module airflow
+* [#18896](https://github.com/netbox-community/netbox/issues/18896) - Enable the use of remote storage for custom scripts
 
 ### Plugins
 
@@ -67,15 +155,6 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#18305](https://github.com/netbox-community/netbox/issues/18305) - Introduce plugin support for ContactsMixin
 * [#19073](https://github.com/netbox-community/netbox/issues/19073) - Allow installed plugins to be omitted from the plugins list
 
-### Bug Fixes (From beta1)
-
-* [#19213](https://github.com/netbox-community/netbox/issues/19213) - Fix rendering of dropdown selection form fields
-* [#19224](https://github.com/netbox-community/netbox/issues/19224) - Fix GraphQL API support for custom field choices
-* [#19225](https://github.com/netbox-community/netbox/issues/19225) - Restore missing GraphQL API filters
-* [#19263](https://github.com/netbox-community/netbox/issues/19263) - Render action buttons only if the record model matches the table model
-* [#19264](https://github.com/netbox-community/netbox/issues/19264) - Support table configs on child object list views
-* [#19266](https://github.com/netbox-community/netbox/issues/19266) - Fix copy-to-clipboard button for IP addresses
-
 ### Other Changes
 
 * [#18071](https://github.com/netbox-community/netbox/issues/18071) - Removed legacy staged changed functionality in favor of the [netbox-branching](https://github.com/netboxlabs/netbox-branching) plugin
@@ -83,7 +162,7 @@ User can now declare one or more proxy routers via the `PROXY_ROUTERS` configura
 * [#18191](https://github.com/netbox-community/netbox/issues/18191) - Remove redundant PostgreSQL indexes
 * [#18236](https://github.com/netbox-community/netbox/issues/18236) - Upgrade the HTMX library to v2.0
 * [#18540](https://github.com/netbox-community/netbox/issues/18540) - Operational plugins are now recorded in the application registry
-* [#18623](https://github.com/netbox-community/netbox/issues/18623) - Upgrade the Tabler CSS theme to v1.0
+* [#18623](https://github.com/netbox-community/netbox/issues/18623) - Upgrade the Tabler CSS theme to v1.2
 * [#18743](https://github.com/netbox-community/netbox/issues/18743) - Upgrade Django to v5.2
 * [#18751](https://github.com/netbox-community/netbox/issues/18751) - Change the default value for `ALLOW_TOKEN_RETRIEVAL` to False
 * [#18808](https://github.com/netbox-community/netbox/issues/18808) - Squashed migration dependencies have been altered to rectify an issue with Django's `sqlmigrate` management command

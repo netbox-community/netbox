@@ -1,4 +1,5 @@
 import django.db.models.deletion
+from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
 
@@ -9,8 +10,9 @@ def set_member_type(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Circuit = apps.get_model('circuits', 'Circuit')
     CircuitGroupAssignment = apps.get_model('circuits', 'CircuitGroupAssignment')
+    db_alias = schema_editor.connection.alias
 
-    CircuitGroupAssignment.objects.update(
+    CircuitGroupAssignment.objects.using(db_alias).update(
         member_type=ContentType.objects.get_for_model(Circuit)
     )
 
@@ -81,3 +83,21 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
+
+
+def oc_circuitgroupassignment_member(objectchange, reverting):
+    circuit_ct = ContentType.objects.get_by_natural_key('circuits', 'circuit').pk
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        if circuit_id := data.get('circuit'):
+            data.update({
+                'member_type': circuit_ct,
+                'member_id': circuit_id,
+            })
+        data.pop('circuit', None)
+
+
+objectchange_migrators = {
+    'circuits.circuitgroupassignment': oc_circuitgroupassignment_member,
+}

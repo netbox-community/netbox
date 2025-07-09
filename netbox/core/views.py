@@ -22,6 +22,7 @@ from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
+from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
 from netbox.registry import registry
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
@@ -119,6 +120,11 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
+@register_model_view(DataSource, 'bulk_rename', path='rename', detail=False)
+class DataSourceBulkRenameView(generic.BulkRenameView):
+    queryset = DataSource.objects.all()
+
+
 @register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(
@@ -138,14 +144,13 @@ class DataFileListView(generic.ObjectListView):
     filterset = filtersets.DataFileFilterSet
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
-    actions = {
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkDelete,)
 
 
 @register_model_view(DataFile)
 class DataFileView(generic.ObjectView):
     queryset = DataFile.objects.all()
+    actions = (DeleteObject,)
 
 
 @register_model_view(DataFile, 'delete')
@@ -170,15 +175,13 @@ class JobListView(generic.ObjectListView):
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
-    actions = {
-        'export': {'view'},
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkExport, BulkDelete)
 
 
 @register_model_view(Job)
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
+    actions = (DeleteObject,)
 
 
 @register_model_view(Job, 'delete')
@@ -204,9 +207,7 @@ class ObjectChangeListView(generic.ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'core/objectchange_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
 
 
 @register_model_view(ObjectChange)
@@ -223,6 +224,7 @@ class ObjectChangeView(generic.ObjectView):
             data=related_changes[:50],
             orderable=False
         )
+        related_changes_table.configure(request)
 
         objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             changed_object_type=instance.changed_object_type,
@@ -273,6 +275,7 @@ class ConfigRevisionListView(generic.ObjectListView):
     filterset = filtersets.ConfigRevisionFilterSet
     filterset_form = forms.ConfigRevisionFilterForm
     table = tables.ConfigRevisionTable
+    actions = (AddObject, BulkExport)
 
 
 @register_model_view(ConfigRevision)

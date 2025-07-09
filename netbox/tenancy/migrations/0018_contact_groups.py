@@ -3,10 +3,10 @@ from django.db import migrations, models
 
 
 def migrate_contact_groups(apps, schema_editor):
-    Contacts = apps.get_model('tenancy', 'Contact')
+    Contact = apps.get_model('tenancy', 'Contact')
+    db_alias = schema_editor.connection.alias
 
-    qs = Contacts.objects.filter(group__isnull=False)
-    for contact in qs:
+    for contact in Contact.objects.using(db_alias).filter(group__isnull=False):
         contact.groups.add(contact.group)
 
 
@@ -66,3 +66,17 @@ class Migration(migrations.Migration):
             name='group',
         ),
     ]
+
+
+def oc_contact_groups(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is None:
+            continue
+        # Set the M2M field `groups` to a list containing the group ID
+        data['groups'] = [data['group']] if data.get('group') else []
+        data.pop('group', None)
+
+
+objectchange_migrators = {
+    'tenancy.contact': oc_contact_groups,
+}

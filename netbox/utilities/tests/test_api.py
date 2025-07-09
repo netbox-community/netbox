@@ -1,5 +1,6 @@
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
 
 from core.models import ObjectType
@@ -264,5 +265,6 @@ class APIDocsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         url = reverse('schema')
-        response = self.client.get(url)
+        with GENERATOR_STATS.silence():  # Suppress schema generator warnings
+            response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

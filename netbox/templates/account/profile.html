@@ -1,12 +1,10 @@
 {% extends 'account/base.html' %}
-{% load helpers %}
-{% load render_table from django_tables2 %}
 {% load i18n %}
 
 {% block title %}{% trans "User Profile" %}{% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Account Details" %}</h2>
@@ -64,12 +62,7 @@
   {% if perms.core.view_objectchange %}
     <div class="row">
       <div class="col-md-12">
-        <div class="card">
-          <h2 class="card-header text-center">{% trans "Recent Activity" %}</h2>
-          <div class="table-responsive">
-            {% render_table changelog_table 'inc/table.html' %}
-          </div>
-        </div>
+        {% include 'users/inc/user_activity.html' with user=user table=changelog_table %}
       </div>
     </div>
   {% endif %}

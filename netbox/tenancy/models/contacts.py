@@ -13,7 +13,6 @@ __all__ = (
     'ContactAssignment',
     'Contact',
     'ContactGroup',
-    'ContactGroupMembership',
     'ContactRole',
 )
 
@@ -51,7 +50,6 @@ class Contact(PrimaryModel):
     groups = models.ManyToManyField(
         to='tenancy.ContactGroup',
         related_name='contacts',
-        through='tenancy.ContactGroupMembership',
         related_query_name='contact',
         blank=True
     )
@@ -95,18 +93,6 @@ class Contact(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-
-class ContactGroupMembership(models.Model):
-    group = models.ForeignKey(ContactGroup, related_name="+", on_delete=models.CASCADE)
-    contact = models.ForeignKey(Contact, related_name="+", on_delete=models.CASCADE)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['group', 'contact'], name='unique_group_name')
-        ]
-        verbose_name = _('contact group membership')
-        verbose_name_plural = _('contact group memberships')
 
 
 class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

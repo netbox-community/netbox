@@ -53,6 +53,8 @@ If a new Django release is adopted or other major dependencies (Python, PostgreS
 
 * Update the installation guide (`docs/installation/index.md`) with the new minimum versions.
 * Update the upgrade guide (`docs/installation/upgrading.md`) for the current version accordingly.
+* Update the minimum PostgreSQL version in the programming error template (`netbox/templates/exceptions/programming_error.html`).
+* Update the minimum and supported Python versions in the project metadata file (`pyproject.toml`)
 
 ### Manually Perform a New Install
 
@@ -164,7 +166,8 @@ Then, compile these portable (`.po`) files for use in the application:
 
 ### Update Version and Changelog
 
-* Update the version number and date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
+* Update the version number and published date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
+* Copy the version number from `release.yaml` to `pyproject.toml` in the project root.
 * Update the example version numbers in the feature request and bug report templates under `.github/ISSUE_TEMPLATES/`.
 * Add a section for this release at the top of the changelog page for the minor version (e.g. `docs/release-notes/version-4.2.md`) listing all relevant changes made in this release.
 
@@ -190,15 +193,3 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 * **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
 Once created, the release will become available for users to install.
-
-### Update the Public Documentation
-
-After a release has been published, the public NetBox documentation needs to be updated. This is accomplished by running two actions on the [netboxlabs-docs](https://github.com/netboxlabs/netboxlabs-docs) repository.
-
-First, run the `build-site` action, by navigating to Actions > build-site > Run workflow. This process compiles the documentation along with an overlay for integration with the documentation portal at <https://netboxlabs.com/docs>. The job should take about two minutes.
-
-Once the documentation files have been compiled, they must be published by running the `deploy-kinsta` action. Select the desired deployment environment (staging or production) and specify `latest` as the deploy tag.
-
-Clear the CDN cache from the [Kinsta](https://my.kinsta.com/) portal. Navigate to _Sites_ / _NetBox Labs_ / _Live_, select _Cache_ in the left-nav, click the _Clear Cache_ button, and confirm the clear operation.
-
-Finally, verify that the documentation at <https://netboxlabs.com/docs/netbox/en/stable/> has been updated.

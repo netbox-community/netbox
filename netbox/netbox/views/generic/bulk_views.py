@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
@@ -15,15 +15,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_tables2.export import TableExport
 from mptt.models import MPTTModel
 
 from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
+from utilities.export import TableExport
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
@@ -54,12 +55,12 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -76,7 +77,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         return '---\n'.join(yaml_data)
 
-    def export_table(self, table, columns=None, filename=None):
+    def export_table(self, table, columns=None, filename=None, delimiter=None):
         """
         Export all table data in CSV format.
 
@@ -85,6 +86,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             columns: A list of specific columns to include. If None, all columns will be exported.
             filename: The name of the file attachment sent to the client. If None, will be determined automatically
                 from the queryset model name.
+            delimiter: The character used to separate columns (a comma is used by default)
         """
         exclude_columns = {'pk', 'actions'}
         if columns:
@@ -95,7 +97,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         exporter = TableExport(
             export_format=TableExport.CSV,
             table=table,
-            exclude_columns=exclude_columns
+            exclude_columns=exclude_columns,
+            delimiter=delimiter,
         )
         return exporter.response(
             filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
@@ -150,15 +153,16 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        has_table_actions = any(action.multi for action in actions)
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
-                return self.export_table(table, columns)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, columns, delimiter=delimiter)
 
             # Render an ExportTemplate
             elif request.GET['export']:
@@ -174,11 +178,12 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(self.queryset, request, has_bulk_actions)
-                return self.export_table(table)
+                table = self.get_table(self.queryset, request, has_table_actions)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
-        table = self.get_table(self.queryset, request, has_bulk_actions)
+        table = self.get_table(self.queryset, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
@@ -278,7 +283,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             logger.debug("Form validation was successful")
 
             try:
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(model)):
                     new_objs = self._create_objects(form, request)
 
                     # Enforce object-level permissions
@@ -501,7 +506,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(model)):
                     new_objs = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
@@ -681,7 +686,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 logger.debug("Form validation was successful")
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(model)):
                         updated_objects = self._update_objects(form, request)
 
                         # Enforce object-level permissions
@@ -729,7 +734,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
+
+    Attributes:
+        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
     """
+    field_name = 'name'
     template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
@@ -759,12 +768,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name or '')
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
                 # Catch regex group reference errors
                 except re.error:
-                    obj.new_name = obj.name
+                    obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = (obj.name or '').replace(find, replace)
+                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -778,12 +787,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
             if form.is_valid():
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                         renamed_pks = self._rename_objects(form, selected_objects)
 
                         if '_apply' in request.POST:
                             for obj in selected_objects:
-                                obj.name = obj.new_name
+                                setattr(obj, self.field_name, obj.new_name)
                                 obj.save()
 
                             # Enforce constrained permissions
@@ -813,6 +822,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
+            'field_name': self.field_name,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
@@ -875,7 +885,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(model)):
                         for obj in queryset:
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
@@ -980,7 +990,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 }
 
                 try:
-                    with transaction.atomic():
+                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
 
                         for obj in data['pk']:
 

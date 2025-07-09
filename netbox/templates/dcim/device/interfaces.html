@@ -1,30 +1,5 @@
-{% extends 'dcim/device/components_base.html' %}
-{% load helpers %}
-{% load i18n %}
+{% extends 'generic/object_children.html' %}
 
 {% block table_controls %}
-    {% include 'dcim/device/inc/interface_table_controls.html' with table_modal="DeviceInterfaceTable_config" %}
+  {% include 'dcim/device/inc/interface_table_controls.html' with table_modal="DeviceInterfaceTable_config" %}
 {% endblock table_controls %}
-
-{% block bulk_delete_controls %}
-    {{ block.super }}
-    {% with bulk_disconnect_view=child_model|validated_viewname:"bulk_disconnect" %}
-        {% if 'bulk_disconnect' in actions and bulk_disconnect_view %}
-            <button type="submit" name="_disconnect"
-                    {% formaction %}="{% url bulk_disconnect_view %}?return_url={{ return_url }}"
-                    class="btn btn-outline-danger">
-                <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> {% trans "Disconnect" %}
-            </button>
-        {% endif %}
-    {% endwith %}
-{% endblock bulk_delete_controls %}
-
-{% block bulk_extra_controls %}
-    {{ block.super }}
-    {% if perms.dcim.add_interface %}
-        <a href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}"
-           class="btn btn-primary">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Interfaces" %}
-        </a>
-    {% endif %}
-{% endblock bulk_extra_controls %}

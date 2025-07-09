@@ -7,15 +7,16 @@ def populate_denormalized_fields(apps, schema_editor):
     Copy site ForeignKey values to the scope GFK.
     """
     Prefix = apps.get_model('ipam', 'Prefix')
+    db_alias = schema_editor.connection.alias
 
-    prefixes = Prefix.objects.filter(site__isnull=False).prefetch_related('site')
+    prefixes = Prefix.objects.using(db_alias).filter(site__isnull=False).prefetch_related('site')
     for prefix in prefixes:
         prefix._region_id = prefix.site.region_id
         prefix._site_group_id = prefix.site.group_id
         prefix._site_id = prefix.site_id
         # Note: Location cannot be set prior to migration
 
-    Prefix.objects.bulk_update(prefixes, ['_region', '_site_group', '_site'], batch_size=100)
+    Prefix.objects.using(db_alias).bulk_update(prefixes, ['_region', '_site_group', '_site'], batch_size=100)
 
 
 class Migration(migrations.Migration):
@@ -59,3 +60,14 @@ class Migration(migrations.Migration):
             name='site',
         ),
     ]
+
+
+def oc_prefix_remove_fields(objectchange, reverting):
+    for data in (objectchange.prechange_data, objectchange.postchange_data):
+        if data is not None:
+            data.pop('site', None)
+
+
+objectchange_migrators = {
+    'ipam.prefix': oc_prefix_remove_fields,
+}

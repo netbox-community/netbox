@@ -59,9 +59,10 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
             'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.htmx_navigation',
+            'ui.tables.striping',
             name=_('User Interface')
         ),
-        FieldSet('data_format', name=_('Miscellaneous')),
+        FieldSet('data_format', 'csv_delimiter', name=_('Miscellaneous')),
     )
     # List of clearable preferences
     pk = forms.MultipleChoiceField(
