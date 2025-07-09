@@ -3,7 +3,6 @@
 {% load helpers %}
 {% load perms %}
 {% load i18n %}
-{% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -22,13 +21,3 @@
     </li>
   {% endif %}
 {% endblock breadcrumbs %}
-
-{% block content %}
-  <div class="row mb-3">
-    <div class="col">
-      <div class="card">
-        {% render_table table %}
-      </div>
-    </div>
-  </div>
-{% endblock %}

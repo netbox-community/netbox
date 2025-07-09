@@ -188,7 +188,7 @@ class JobView(generic.ObjectView):
 class JobLogView(generic.ObjectView):
     queryset = Job.objects.all()
     actions = (DeleteObject,)
-    template_name = 'core/job_log.html'
+    template_name = 'core/job/log.html'
     tab = ViewTab(
         label=_('Log'),
         badge=lambda obj: len(obj.log_entries),
