@@ -62,7 +62,8 @@ class JobTable(NetBoxTable):
 
 
 class JobLogEntryTable(BaseTable):
-    timestamp = tables.Column(
+    timestamp = columns.DateTimeColumn(
+        timespec='milliseconds',
         verbose_name=_('Time'),
     )
     level = tables.Column(

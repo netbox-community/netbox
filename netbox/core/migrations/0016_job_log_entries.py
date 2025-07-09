@@ -2,6 +2,8 @@ import django.contrib.postgres.fields
 import django.core.serializers.json
 from django.db import migrations, models
 
+import utilities.json
+
 
 class Migration(migrations.Migration):
 
@@ -15,6 +17,7 @@ class Migration(migrations.Migration):
             name='log_entries',
             field=django.contrib.postgres.fields.ArrayField(
                 base_field=models.JSONField(
+                    decoder=utilities.json.JobLogDecoder,
                     encoder=django.core.serializers.json.DjangoJSONEncoder
                 ),
                 blank=True,

@@ -20,6 +20,7 @@ from core.choices import JobStatusChoices
 from core.dataclasses import JobLogEntry
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
@@ -111,7 +112,7 @@ class Job(models.Model):
     log_entries = ArrayField(
         base_field=models.JSONField(
             encoder=DjangoJSONEncoder,
-            # TODO: Specify a decoder to handle ISO 8601 timestamps
+            decoder=JobLogDecoder,
         ),
         blank=True,
         default=list,
