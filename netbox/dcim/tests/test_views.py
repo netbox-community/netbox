@@ -3,17 +3,18 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
-from users.models import User
+from users.models import ObjectPermission, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -1000,18 +1001,7 @@ inventory-items:
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by absence of bulk import view for ModuleTypes
-class ModuleTypeTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.GetObjectChangelogViewTestCase,
-    ViewTestCases.CreateObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ModuleType
 
     @classmethod
@@ -1023,13 +1013,15 @@ class ModuleTypeTestCase(
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        ModuleType.objects.bulk_create([
+        module_types = ModuleType.objects.bulk_create([
             ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1043,6 +1035,62 @@ class ModuleTypeTestCase(
             'manufacturer': manufacturers[1].pk,
             'part_number': '456DEF',
         }
+
+        cls.csv_data = (
+            "manufacturer,model,part_number,comments,profile",
+            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+        )
+
+        cls.csv_update_data = (
+            "id,model",
+            f"{module_types[0].id},test model",
+        )
+
+    def _set_module_type_bulk_import_permissions(self, **permission_definition):
+        obj_perm = ObjectPermission(**permission_definition)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        additional_permissions = [
+            ConsolePortTemplate, ConsoleServerPortTemplate, PowerPortTemplate, PowerOutletTemplate,
+            InterfaceTemplate, FrontPortTemplate, RearPortTemplate, ModuleBayTemplate,
+        ]
+        for model in additional_permissions:
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_update_objects_with_permission(self):
+        self._set_module_type_bulk_import_permissions(
+            name='Expanded ModuleType bulk import add permissions', actions=['add']
+        )
+
+        # run base test
+        super().test_bulk_update_objects_with_permission()
+
+    @tag('regression')
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_permission(self):
+        self._set_module_type_bulk_import_permissions(
+            name='Expanded ModuleType bulk import add permissions', actions=['add']
+        )
+
+        # run base test
+        super().test_bulk_import_objects_with_permission()
+
+        # extra regression asserts
+        fan_module_type = ModuleType.objects.get(part_number='generic-fan')
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
+
+        assert fan_module_type.profile == fan_module_type_profile
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_constrained_permission(self):
+        self._set_module_type_bulk_import_permissions(
+            name='Expanded ModuleType bulk import add permissions',
+            constraints={'pk': 0},  # Dummy permission to deny all
+            actions=['add']
+        )
+
+        super().test_bulk_import_objects_with_constrained_permission()
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_moduletype_consoleports(self):
