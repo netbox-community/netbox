@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-03 05:04+0000\n"
+"POT-Creation-Date: 2025-07-09 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13021,7 +13021,7 @@ msgid "Cable Trace for %(object_type)s %(object)s"
 msgstr ""
 
 #: netbox/templates/dcim/cable_trace.html:24
-#: netbox/templates/dcim/inc/rack_elevation.html:7
+#: netbox/templates/dcim/inc/rack_elevation.html:18
 msgid "Download SVG"
 msgstr ""
 
@@ -13424,8 +13424,12 @@ msgstr ""
 msgid "Descending Units"
 msgstr ""
 
-#: netbox/templates/dcim/inc/rack_elevation.html:3
+#: netbox/templates/dcim/inc/rack_elevation.html:7
 msgid "Rack elevation"
+msgstr ""
+
+#: netbox/templates/dcim/inc/rack_elevation.html:11
+msgid "Loading..."
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:17
