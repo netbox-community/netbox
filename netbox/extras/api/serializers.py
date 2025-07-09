@@ -1,4 +1,3 @@
-from .serializers_.objecttypes import *
 from .serializers_.attachments import *
 from .serializers_.bookmarks import *
 from .serializers_.customfields import *
