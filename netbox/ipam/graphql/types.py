@@ -169,6 +169,7 @@ class IPAddressType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
     pagination=True
 )
 class IPRangeType(NetBoxObjectType, ContactsMixin):
+    prefix: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     start_address: str
     end_address: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
@@ -183,6 +184,8 @@ class IPRangeType(NetBoxObjectType, ContactsMixin):
     pagination=True
 )
 class PrefixType(NetBoxObjectType, ContactsMixin, BaseIPAddressFamilyType):
+    aggregate: Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')] | None
+    parent: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     prefix: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None

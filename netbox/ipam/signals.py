@@ -195,6 +195,7 @@ def handle_prefix_saved(instance, created, **kwargs):
     if created or instance.vrf_id != instance._vrf_id or instance.prefix != instance._prefix:
 
         update_ipaddress_prefix(instance)
+        update_iprange_prefix(instance)
         update_prefix_parents(instance)
         update_parents_children(instance)
         update_children_depth(instance)
@@ -209,6 +210,7 @@ def handle_prefix_saved(instance, created, **kwargs):
 @receiver(pre_delete, sender=Prefix)
 def pre_handle_prefix_deleted(instance, **kwargs):
     update_ipaddress_prefix(instance, True)
+    update_iprange_prefix(instance, True)
     update_prefix_parents(instance, delete=True)
 
 
@@ -218,6 +220,7 @@ def handle_prefix_deleted(instance, **kwargs):
     update_parents_children(instance)
     update_children_depth(instance)
     update_ipaddress_prefix(instance, delete=True)
+    update_iprange_prefix(instance, delete=True)
     update_prefix_parents(instance, delete=True)
 
 

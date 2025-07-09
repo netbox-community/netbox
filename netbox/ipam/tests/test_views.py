@@ -481,9 +481,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_prefix_ipranges(self):
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_ranges = (
-            IPRange(start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
-            IPRange(start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
-            IPRange(start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
         )
         IPRange.objects.bulk_create(ip_ranges)
         self.assertEqual(prefix.get_child_ranges().count(), 3)
@@ -495,9 +495,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_prefix_ipaddresses(self):
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_addresses = (
-            IPAddress(address=IPNetwork('192.168.0.1/16')),
-            IPAddress(address=IPNetwork('192.168.0.2/16')),
-            IPAddress(address=IPNetwork('192.168.0.3/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.1/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.2/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.3/16')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
         self.assertEqual(prefix.ip_addresses.all().count(), 3)

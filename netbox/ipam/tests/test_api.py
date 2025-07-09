@@ -357,7 +357,7 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
 class PrefixTest(APIViewTestCases.APIViewTestCase):
     model = Prefix
     # TODO: Alter for parent prefix
-    brief_fields = ['_depth', 'description', 'display', 'family', 'id', 'prefix', 'url']
+    brief_fields = ['_depth', 'aggregate', 'description', 'display', 'family', 'id', 'parent', 'prefix', 'url']
     create_data = [
         {
             'prefix': '192.168.4.0/24',
@@ -537,7 +537,7 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
 class IPRangeTest(APIViewTestCases.APIViewTestCase):
     model = IPRange
     # TODO: Alter for parent prefix
-    brief_fields = ['description', 'display', 'end_address', 'family', 'id', 'start_address', 'url']
+    brief_fields = ['description', 'display', 'end_address', 'family', 'id', 'prefix', 'start_address', 'url']
     create_data = [
         {
             'start_address': '192.168.4.10/24',
@@ -637,7 +637,7 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
 class IPAddressTest(APIViewTestCases.APIViewTestCase):
     model = IPAddress
     # TODO: Alter for parent prefix
-    brief_fields = ['address', 'description', 'display', 'family', 'id', 'url']
+    brief_fields = ['address', 'description', 'display', 'family', 'id', 'prefix', 'url']
     create_data = [
         {
             'address': '192.168.0.4/24',

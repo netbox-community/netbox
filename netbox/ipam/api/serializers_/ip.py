@@ -67,11 +67,17 @@ class PrefixSerializer(NetBoxModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', '_children', '_depth',
+            'id', 'url', 'display_url', 'display', 'family', 'aggregate', 'parent', 'prefix', 'vrf', 'scope_type',
+            'scope_id', 'scope', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_children', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
+        brief_fields = ('id', 'url', 'display', 'family', 'aggregate', 'parent', 'prefix', 'description', '_depth')
+
+    def get_fields(self):
+        fields = super(PrefixSerializer, self).get_fields()
+        fields['parent'] = PrefixSerializer(nested=True, read_only=True)
+
+        return fields
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_scope(self, obj):
@@ -146,12 +152,12 @@ class IPRangeSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPRange
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant',
-            'status', 'role', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'size', 'vrf',
+            'tenant', 'status', 'role', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'mark_populated', 'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address', 'description')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'description')
 
 
 #
@@ -178,11 +184,11 @@ class IPAddressSerializer(NetBoxModelSerializer):
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'address', 'vrf', 'tenant', 'status', 'role',
             'assigned_object_type', 'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside',
             'dns_name', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'address', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, obj):

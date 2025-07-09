@@ -252,10 +252,10 @@ class TestPrefix(TestCase):
             prefix=IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER
         )
         ips = IPAddress.objects.bulk_create((
-            IPAddress(address=IPNetwork('10.0.0.1/24'), vrf=None),
-            IPAddress(address=IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
-            IPAddress(address=IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
-            IPAddress(address=IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.0.1/24'), vrf=None),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
         ))
         child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
 
