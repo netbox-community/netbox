@@ -81,7 +81,7 @@ class Condition:
             # Invalid key path
             value = None
         if value is None:
-            # Hande comparison case when value is None.
+            # Handle comparison case when value is None.
             if self.op in (self.GT, self.GTE, self.LT, self.LTE, self.IN, self.CONTAINS, self.REGEX):
                 result = False
         else:
