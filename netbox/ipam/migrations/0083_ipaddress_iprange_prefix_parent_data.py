@@ -19,31 +19,38 @@ def draw_progress(count, total, length=20):
     sys.stdout.flush()
 
 
-def set_ipaddress_prefix(apps, schema_editor):
+def set_prefix(apps, schema_editor, model, attr='address', parent_model='Prefix'):
     start = time.time()
-    IPAddress = apps.get_model('ipam', 'IPAddress')
-    Prefix = apps.get_model('ipam', 'Prefix')
+    ChildModel = apps.get_model('ipam', model)
+    ParentModel = apps.get_model('ipam', parent_model)
 
-    addresses = IPAddress.objects.all()
-    i = 0
+    addresses = ChildModel.objects.all()
     total = addresses.count()
     if total == 0:
         return
+
     print('\r\n')
+    i = 0
     draw_progress(i, total, 50)
     for address in addresses:
         i += 1
-        prefixes = Prefix.objects.filter(
-            vrf=address.vrf,
-            prefix__net_contains_or_equals=str(address.address.ip),
-            prefix__net_mask_length__lte=address.address.prefixlen,
+        address_attr = getattr(address, attr)
+        prefixes = ParentModel.objects.filter(
+            prefix__net_contains_or_equals=str(address_attr.ip),
+            prefix__net_mask_length__lte=address_attr.prefixlen,
         )
+        if hasattr(ParentModel, 'vrf'):
+            prefixes = prefixes.filter(vrf=address.vrf)
         address.prefix = prefixes.last()
         address.save()
         draw_progress(i, total, 50)
 
     end = time.time()
     print(f"\r\nElapsed Time: {end - start:.2f}s")
+
+
+def set_ipaddress_prefix(apps, schema_editor):
+    set_prefix(apps, schema_editor, 'IPAddress')
 
 
 def unset_ipaddress_prefix(apps, schema_editor):
@@ -52,31 +59,7 @@ def unset_ipaddress_prefix(apps, schema_editor):
 
 
 def set_iprange_prefix(apps, schema_editor):
-    IPRange = apps.get_model('ipam', 'IPRange')
-    Prefix = apps.get_model('ipam', 'Prefix')
-    start = time.time()
-
-    addresses = IPRange.objects.all()
-    i = 0
-    total = addresses.count()
-    if total == 0:
-        return
-
-    print('\r\n')
-    draw_progress(i, total, 50)
-    for address in addresses:
-        i += 1
-        prefixes = Prefix.objects.filter(
-            vrf=address.vrf,
-            prefix__net_contains_or_equals=str(address.start_address.ip),
-            prefix__net_mask_length__lte=address.start_address.prefixlen,
-        )
-        address.prefix = prefixes.last()
-        address.save()
-        draw_progress(i, total, 50)
-
-    end = time.time()
-    print(f"\r\nElapsed Time: {end - start:.2f}s")
+    set_prefix(apps, schema_editor, 'IPRange', 'start_address')
 
 
 def unset_iprange_prefix(apps, schema_editor):
@@ -85,30 +68,7 @@ def unset_iprange_prefix(apps, schema_editor):
 
 
 def set_prefix_aggregate(apps, schema_editor):
-    Prefix = apps.get_model('ipam', 'Prefix')
-    Aggregate = apps.get_model('ipam', 'Aggregate')
-
-    start = time.time()
-    addresses = Prefix.objects.all()
-    i = 0
-    total = addresses.count()
-    if total == 0:
-        return
-
-    print('\r\n')
-    draw_progress(i, total, 50)
-    for address in addresses:
-        i += 1
-        aggregates = Aggregate.objects.filter(
-            prefix__net_contains_or_equals=str(address.prefix.ip),
-            prefix__net_mask_length__lte=address.prefix.prefixlen,
-        )
-        address.aggregate = aggregates.last()
-        address.save()
-        draw_progress(i, total, 50)
-
-    end = time.time()
-    print(f"\r\nElapsed Time: {end - start:.2f}s")
+    set_prefix(apps, schema_editor, 'Prefix', 'prefix', 'Aggregate')
 
 
 def unset_prefix_aggregate(apps, schema_editor):
