@@ -35,7 +35,9 @@ def system_job(interval):
 
 
 class JobLogHandler(logging.Handler):
-
+    """
+    A logging handler which records entries on a Job.
+    """
     def __init__(self, job, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.job = job

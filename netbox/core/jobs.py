@@ -7,7 +7,6 @@ from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
 from utilities.proxy import resolve_proxies
 from .choices import DataSourceStatusChoices, JobIntervalChoices
-from .exceptions import SyncError
 from .models import DataSource
 
 logger = logging.getLogger(__name__)
@@ -23,18 +22,22 @@ class SyncDataSourceJob(JobRunner):
 
     def run(self, *args, **kwargs):
         datasource = DataSource.objects.get(pk=self.job.object_id)
+        self.logger.debug(f"Found DataSource ID {datasource.pk}")
 
         try:
+            self.logger.info(f"Syncing data source {datasource}")
             datasource.sync()
 
             # Update the search cache for DataFiles belonging to this source
+            self.logger.debug("Updating search cache for data files")
             search_backend.cache(datasource.datafiles.iterator())
 
         except Exception as e:
+            self.logger.error(f"Error syncing data source: {e}")
             DataSource.objects.filter(pk=datasource.pk).update(status=DataSourceStatusChoices.FAILED)
-            if type(e) is SyncError:
-                logging.error(e)
             raise e
+
+        self.logger.info("Syncing completed successfully")
 
 
 @system_job(interval=JobIntervalChoices.INTERVAL_DAILY)

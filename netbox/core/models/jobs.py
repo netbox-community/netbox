@@ -110,6 +110,7 @@ class Job(models.Model):
         unique=True
     )
     log_entries = ArrayField(
+        verbose_name=_('log entries'),
         base_field=models.JSONField(
             encoder=DjangoJSONEncoder,
             decoder=JobLogDecoder,
@@ -218,6 +219,13 @@ class Job(models.Model):
         # Send signal
         job_end.send(self)
 
+    def log(self, record: logging.LogRecord):
+        """
+        Record a LogRecord from Python's native logging in the job's log.
+        """
+        entry = JobLogEntry.from_logrecord(record)
+        self.log_entries.append(asdict(entry))
+
     @classmethod
     def enqueue(
             cls,
@@ -284,10 +292,3 @@ class Job(models.Model):
             transaction.on_commit(callback)
 
         return job
-
-    def log(self, record: logging.LogRecord):
-        """
-        Record a Python LogRecord in the job's log.
-        """
-        entry = JobLogEntry.from_logrecord(record)
-        self.log_entries.append(asdict(entry))
