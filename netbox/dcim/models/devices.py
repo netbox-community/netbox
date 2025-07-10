@@ -398,6 +398,28 @@ class DeviceRole(NestedGroupModel):
 
     class Meta:
         ordering = ('name',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('parent', 'name'),
+                name='%(app_label)s_%(class)s_parent_name'
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(parent__isnull=True),
+                violation_error_message=_("A top-level device role with this name already exists.")
+            ),
+            models.UniqueConstraint(
+                fields=('parent', 'slug'),
+                name='%(app_label)s_%(class)s_parent_slug'
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(parent__isnull=True),
+                violation_error_message=_("A top-level device role with this slug already exists.")
+            ),
+        )
         verbose_name = _('device role')
         verbose_name_plural = _('device roles')
 

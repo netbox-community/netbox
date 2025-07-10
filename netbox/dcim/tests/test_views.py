@@ -1804,9 +1804,9 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.csv_data = (
             "name,slug,color",
-            "Device Role 4,device-role-4,ff0000",
-            "Device Role 5,device-role-5,00ff00",
-            "Device Role 6,device-role-6,0000ff",
+            "Device Role 6,device-role-6,ff0000",
+            "Device Role 7,device-role-7,00ff00",
+            "Device Role 8,device-role-8,0000ff",
         )
 
         cls.csv_update_data = (
