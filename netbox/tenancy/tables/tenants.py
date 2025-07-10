@@ -16,6 +16,10 @@ class TenantGroupTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     tenant_count = columns.LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group_id': 'pk'},
@@ -31,7 +35,7 @@ class TenantGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = TenantGroup
         fields = (
-            'pk', 'id', 'name', 'tenant_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'pk', 'id', 'name', 'parent', 'tenant_count', 'description', 'comments', 'slug', 'tags', 'created',
             'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'tenant_count', 'description')

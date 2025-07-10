@@ -18,6 +18,10 @@ class WirelessLANGroupTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     wirelesslan_count = columns.LinkedCountColumn(
         viewname='wireless:wirelesslan_list',
         url_params={'group_id': 'pk'},
@@ -33,8 +37,8 @@ class WirelessLANGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = WirelessLANGroup
         fields = (
-            'pk', 'name', 'wirelesslan_count', 'slug', 'description', 'comments', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'name', 'parent', 'slug', 'description', 'comments', 'tags', 'wirelesslan_count', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'wirelesslan_count', 'description')
 

@@ -19,6 +19,10 @@ class ContactGroupTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     contact_count = columns.LinkedCountColumn(
         viewname='tenancy:contact_list',
         url_params={'group_id': 'pk'},
@@ -34,7 +38,7 @@ class ContactGroupTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ContactGroup
         fields = (
-            'pk', 'name', 'contact_count', 'description', 'comments', 'slug', 'tags', 'created',
+            'pk', 'name', 'parent', 'contact_count', 'description', 'comments', 'slug', 'tags', 'created',
             'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'contact_count', 'description')

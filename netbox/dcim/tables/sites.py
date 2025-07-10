@@ -24,6 +24,10 @@ class RegionTable(ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'region_id': 'pk'},
@@ -39,7 +43,7 @@ class RegionTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Region
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
+            'pk', 'id', 'name', 'parent', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
             'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
@@ -53,6 +57,10 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True
+    )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
     )
     site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
@@ -69,7 +77,7 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = SiteGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
+            'pk', 'id', 'name', 'parent', 'slug', 'site_count', 'description', 'comments', 'contacts', 'tags',
             'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'site_count', 'description')
@@ -135,6 +143,10 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     site = tables.Column(
         verbose_name=_('Site'),
         linkify=True
@@ -170,8 +182,8 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'status', 'facility', 'tenant', 'tenant_group', 'rack_count', 'device_count',
-            'description', 'slug', 'comments', 'contacts', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'site', 'status', 'facility', 'tenant', 'tenant_group', 'rack_count',
+            'device_count', 'description', 'slug', 'comments', 'contacts', 'tags', 'actions', 'created', 'last_updated',
             'vlangroup_count',
         )
         default_columns = (
