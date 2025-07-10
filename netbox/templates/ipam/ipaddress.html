@@ -15,6 +15,10 @@
                   <td>IPv{{ object.family }}</td>
               </tr>
               <tr>
+                  <th scope="row">{% trans "Prefix" %}</th>
+                  <td>{{ object.prefix|linkify|placeholder }}</td>
+              </tr>
+              <tr>
                   <th scope="row">{% trans "VRF" %}</th>
                   <td>
                       {% if object.vrf %}

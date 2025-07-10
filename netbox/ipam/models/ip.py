@@ -6,6 +6,7 @@ from django.db.models import F
 from django.db.models.functions import Cast
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from netaddr.ip import IPNetwork
 
 from core.models import ObjectType
 from dcim.models.mixins import CachedScopeMixin
@@ -204,6 +205,22 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     areas and/or assigned to VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role.
     A Prefix can also be assigned to a VLAN where appropriate.
     """
+    aggregate = models.ForeignKey(
+        to='ipam.Aggregate',
+        on_delete=models.SET_NULL,
+        related_name='prefixes',
+        blank=True,
+        null=True,
+        verbose_name=_('aggregate')
+    )
+    parent = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.SET_NULL,
+        related_name='children',
+        blank=True,
+        null=True,
+        verbose_name=_('Prefix')
+    )
     prefix = IPNetworkField(
         verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
@@ -291,12 +308,25 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         super().clean()
 
         if self.prefix:
+            if not isinstance(self.prefix, IPNetwork):
+                self.prefix = IPNetwork(self.prefix)
 
             # /0 masks are not acceptable
             if self.prefix.prefixlen == 0:
                 raise ValidationError({
                     'prefix': _("Cannot create prefix with /0 mask.")
                 })
+
+            if self.parent:
+                if self.prefix not in self.parent.prefix:
+                    raise ValidationError({
+                        'parent': _("Prefix must be part of parent prefix.")
+                    })
+
+                if self.parent.status != PrefixStatusChoices.STATUS_CONTAINER and self.vrf != self.parent.vrf:
+                    raise ValidationError({
+                        'vrf': _("VRF must match the parent VRF.")
+                    })
 
             # Enforce unique IP space (if applicable)
             if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
@@ -311,6 +341,14 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                     })
 
     def save(self, *args, **kwargs):
+        vrf_id = self.vrf.pk if self.vrf else None
+
+        if not self.pk and not self.parent:
+            parent = self.find_parent_prefix(self)
+            self.parent = parent
+        elif self.parent and (self.prefix != self._prefix or vrf_id != self._vrf_id):
+            parent = self.find_parent_prefix(self)
+            self.parent = parent
 
         if isinstance(self.prefix, netaddr.IPNetwork):
 
@@ -331,11 +369,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         return self.prefix.prefixlen if self.prefix else None
 
     @property
-    def depth(self):
+    def depth_count(self):
         return self._depth
 
     @property
-    def children(self):
+    def children_count(self):
         return self._children
 
     def _set_prefix_length(self, value):
@@ -475,11 +513,33 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
         return min(utilization, 100)
 
+    @classmethod
+    def find_parent_prefix(cls, network):
+        prefixes = Prefix.objects.filter(
+            models.Q(
+                vrf=network.vrf,
+                prefix__net_contains=str(network)
+            ) | models.Q(
+                vrf=None,
+                status=PrefixStatusChoices.STATUS_CONTAINER,
+                prefix__net_contains=str(network),
+            )
+        )
+        return prefixes.last()
+
 
 class IPRange(ContactsMixin, PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
+    prefix = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.SET_NULL,
+        related_name='ip_ranges',
+        null=True,
+        blank=True,
+        verbose_name=_('prefix'),
+    )
     start_address = IPAddressField(
         verbose_name=_('start address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
@@ -549,6 +609,27 @@ class IPRange(ContactsMixin, PrimaryModel):
         super().clean()
 
         if self.start_address and self.end_address:
+            # If prefix is set, validate suitability
+            if self.prefix:
+                # Check that start address and end address are within the prefix range
+                if self.start_address not in self.prefix.prefix and self.end_address not in self.prefix.prefix:
+                    raise ValidationError({
+                        'start_address': _("Start address must be part of the selected prefix"),
+                        'end_address': _("End address must be part of the selected prefix.")
+                    })
+                elif self.start_address not in self.prefix.prefix:
+                    raise ValidationError({
+                        'start_address': _("Start address must be part of the selected prefix")
+                    })
+                elif self.end_address not in self.prefix.prefix:
+                    raise ValidationError({
+                        'end_address': _("End address must be part of the selected prefix.")
+                    })
+                # Check that VRF matches prefix VRF
+                if self.vrf != self.prefix.vrf:
+                    raise ValidationError({
+                        'vrf': _("VRF must match the prefix VRF.")
+                    })
 
             # Check that start & end IP versions match
             if self.start_address.version != self.end_address.version:
@@ -705,6 +786,14 @@ class IPRange(ContactsMixin, PrimaryModel):
 
         return min(float(child_count) / self.size * 100, 100)
 
+    @classmethod
+    def find_prefix(self, address):
+        prefixes = Prefix.objects.filter(
+            models.Q(prefix__net_contains=address.start_address) & Q(prefix__net_contains=address.end_address),
+            vrf=address.vrf,
+        )
+        return prefixes.last()
+
 
 class IPAddress(ContactsMixin, PrimaryModel):
     """
@@ -717,6 +806,14 @@ class IPAddress(ContactsMixin, PrimaryModel):
     for example, when mapping public addresses to private addresses. When an Interface has been assigned an IPAddress
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
+    prefix = models.ForeignKey(
+        to='ipam.Prefix',
+        on_delete=models.SET_NULL,
+        related_name='ip_addresses',
+        blank=True,
+        null=True,
+        verbose_name=_('Prefix')
+    )
     address = IPAddressField(
         verbose_name=_('address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
@@ -804,6 +901,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self._address = self.address
         # Denote the original assigned object (if any) for validation in clean()
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
@@ -845,6 +943,16 @@ class IPAddress(ContactsMixin, PrimaryModel):
         super().clean()
 
         if self.address:
+            # If prefix is set, validate suitability
+            if self.prefix:
+                if self.address not in self.prefix.prefix:
+                    raise ValidationError({
+                        'prefix': _("IP address must be part of the selected prefix.")
+                    })
+                if self.vrf != self.prefix.vrf:
+                    raise ValidationError({
+                        'vrf': _("IP address VRF must match the prefix VRF.")
+                    })
 
             # /0 masks are not acceptable
             if self.address.prefixlen == 0:
@@ -985,3 +1093,8 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
     def get_role_color(self):
         return IPAddressRoleChoices.colors.get(self.role)
+
+    @classmethod
+    def find_prefix(self, address):
+        prefixes = Prefix.objects.filter(prefix__net_contains=address.address, vrf=address.vrf)
+        return prefixes.last()
