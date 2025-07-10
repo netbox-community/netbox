@@ -156,7 +156,7 @@ class TestIPRange(TestCase):
         range.clean()
         range.save()
 
-        prefix = Prefix(prefix='192.0.1.0/17')
+        prefix = Prefix(prefix='192.0.0.0/17')
         prefix.clean()
         prefix.save()
 
@@ -264,6 +264,8 @@ class TestPrefix(TestCase):
 
         parent_prefix.vrf = vrfs[0]
         parent_prefix.save()
+
+        parent_prefix.refresh_from_db()
         child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
 
         # VRF container is limited to its own VRF
@@ -741,13 +743,20 @@ class TestIPAddress(TestCase):
         self.assertRaises(ValidationError, duplicate_ip.clean)
 
     def test_duplicate_vrf(self):
-        vrf = VRF.objects.create(name='Test', rd='1:1', enforce_unique=False)
+        vrf = VRF.objects.get(rd='1:1')
+        vrf.enforce_unique = False
+        vrf.clean()
+        vrf.save()
+
         IPAddress.objects.create(vrf=vrf, address=IPNetwork('192.0.2.1/24'))
         duplicate_ip = IPAddress(vrf=vrf, address=IPNetwork('192.0.2.1/24'))
         self.assertIsNone(duplicate_ip.clean())
 
     def test_duplicate_vrf_unique(self):
-        vrf = VRF.objects.create(name='Test', rd='1:1', enforce_unique=True)
+        vrf = VRF.objects.get(rd='1:1')
+        vrf.enforce_unique = True
+        vrf.clean()
+        vrf.save()
         IPAddress.objects.create(vrf=vrf, address=IPNetwork('192.0.2.1/24'))
         duplicate_ip = IPAddress(vrf=vrf, address=IPNetwork('192.0.2.1/24'))
         self.assertRaises(ValidationError, duplicate_ip.clean)

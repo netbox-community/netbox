@@ -786,6 +786,14 @@ class IPRange(ContactsMixin, PrimaryModel):
 
         return min(float(child_count) / self.size * 100, 100)
 
+    @classmethod
+    def find_prefix(self, address):
+        prefixes = Prefix.objects.filter(
+            models.Q(prefix__net_contains=address.start_address) & Q(prefix__net_contains=address.end_address),
+            vrf=address.vrf,
+        )
+        return prefixes.last()
+
 
 class IPAddress(ContactsMixin, PrimaryModel):
     """
@@ -1085,3 +1093,8 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
     def get_role_color(self):
         return IPAddressRoleChoices.colors.get(self.role)
+
+    @classmethod
+    def find_prefix(self, address):
+        prefixes = Prefix.objects.filter(prefix__net_contains=address.address, vrf=address.vrf)
+        return prefixes.last()
