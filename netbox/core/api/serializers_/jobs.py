@@ -23,6 +23,6 @@ class JobSerializer(BaseModelSerializer):
         model = Job
         fields = [
             'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled',
-            'interval', 'started', 'completed', 'user', 'data', 'error', 'job_id',
+            'interval', 'started', 'completed', 'user', 'data', 'error', 'job_id', 'log_entries',
         ]
         brief_fields = ('url', 'created', 'completed', 'user', 'status')

@@ -2,7 +2,8 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import A
 
-from core.tables.columns import RQJobStatusColumn
+from core.constants import RQ_TASK_STATUSES
+from core.tables.columns import BadgeColumn
 from netbox.tables import BaseTable, columns
 
 
@@ -84,7 +85,8 @@ class BackgroundTaskTable(BaseTable):
     ended_at = columns.DateTimeColumn(
         verbose_name=_("Ended")
     )
-    status = RQJobStatusColumn(
+    status = BadgeColumn(
+        badges=RQ_TASK_STATUSES,
         verbose_name=_("Status"),
         accessor='get_status'
     )

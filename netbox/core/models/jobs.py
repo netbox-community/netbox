@@ -1,9 +1,12 @@
+import logging
 import uuid
+from dataclasses import asdict
 from functools import partial
 
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
@@ -14,8 +17,10 @@ from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
+from core.dataclasses import JobLogEntry
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
@@ -103,6 +108,15 @@ class Job(models.Model):
     job_id = models.UUIDField(
         verbose_name=_('job ID'),
         unique=True
+    )
+    log_entries = ArrayField(
+        verbose_name=_('log entries'),
+        base_field=models.JSONField(
+            encoder=DjangoJSONEncoder,
+            decoder=JobLogDecoder,
+        ),
+        blank=True,
+        default=list,
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -204,6 +218,13 @@ class Job(models.Model):
 
         # Send signal
         job_end.send(self)
+
+    def log(self, record: logging.LogRecord):
+        """
+        Record a LogRecord from Python's native logging in the job's log.
+        """
+        entry = JobLogEntry.from_logrecord(record)
+        self.log_entries.append(asdict(entry))
 
     @classmethod
     def enqueue(
