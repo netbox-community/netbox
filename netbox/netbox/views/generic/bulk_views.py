@@ -28,6 +28,7 @@ from utilities.export import TableExport
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
+from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
@@ -503,24 +504,31 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
+            redirect_url = reverse(get_viewname(model, action='list'))
+            new_objects = []
+
+            # If indicated, defer this request to a background job & redirect the user
+            if form.cleaned_data['background_job']:
+                job_name = _('Bulk import {count} {object_type}').format(
+                    count=len(form.cleaned_data['data']),
+                    object_type=model._meta.verbose_name_plural,
+                )
+                if job := process_request_as_job(self.__class__, request, name=job_name):
+                    msg = _('Created background job {job.pk}: <a href="{url}">{job.name}</a>').format(
+                        url=job.get_absolute_url(),
+                        job=job
+                    )
+                    messages.info(request, mark_safe(msg))
+                    return redirect(redirect_url)
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
                 with transaction.atomic(using=router.db_for_write(model)):
-                    new_objs = self.create_and_update_objects(form, request)
+                    new_objects = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
-                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objects]).count() != len(new_objects):
                         raise PermissionsViolation
-
-                if new_objs:
-                    msg = f"Imported {len(new_objs)} {model._meta.verbose_name_plural}"
-                    logger.info(msg)
-                    messages.success(request, msg)
-
-                    view_name = get_viewname(model, action='list')
-                    results_url = f"{reverse(view_name)}?modified_by_request={request.id}"
-                    return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
                 clear_events.send(sender=self)
@@ -529,6 +537,25 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug(e.message)
                 form.add_error(None, e.message)
                 clear_events.send(sender=self)
+
+            # If this request was executed via a background job, return the raw data for logging
+            if is_background_request(request):
+                return AsyncJobData(
+                    log=[
+                        _('Created {object}').format(object=str(obj))
+                        for obj in new_objects
+                    ],
+                    errors=form.errors
+                )
+
+            if new_objects:
+                msg = _("Imported {count} {object_type}").format(
+                    count=len(new_objects),
+                    object_type=model._meta.verbose_name_plural
+                )
+                logger.info(msg)
+                messages.success(request, msg)
+                return redirect(f"{redirect_url}?modified_by_request={request.id}")
 
         else:
             logger.debug("Form validation failed")

@@ -37,6 +37,11 @@ class BulkImportForm(SyncedDataMixin, forms.Form):
         help_text=_("The character which delimits CSV fields. Applies only to CSV format."),
         required=False
     )
+    background_job = forms.BooleanField(
+        label=_('Background job'),
+        help_text=_("Enqueue a background job to complete the bulk import/update."),
+        required=False,
+    )
 
     data_field = 'data'
 
