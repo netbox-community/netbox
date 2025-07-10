@@ -59,6 +59,7 @@ class Condition:
         if op not in self.TYPES[type(value)]:
             raise ValueError(_("Invalid type for {op} operation: {value}").format(op=op, value=type(value)))
 
+        self.op = op
         self.attr = attr
         self.value = value
         self.eval_func = getattr(self, f'eval_{op}')
@@ -79,11 +80,15 @@ class Condition:
         except TypeError:
             # Invalid key path
             value = None
+
+        if value is None:
+            # Handle comparison case when value is None.
+            if self.op in (self.GT, self.GTE, self.LT, self.LTE, self.IN, self.CONTAINS, self.REGEX):
+                return False ^ self.negate
+
         result = self.eval_func(value)
 
-        if self.negate:
-            return not result
-        return result
+        return result ^ self.negate
 
     # Equivalency
 
