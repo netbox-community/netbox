@@ -80,16 +80,15 @@ class Condition:
         except TypeError:
             # Invalid key path
             value = None
+
         if value is None:
             # Handle comparison case when value is None.
             if self.op in (self.GT, self.GTE, self.LT, self.LTE, self.IN, self.CONTAINS, self.REGEX):
-                result = False
-        else:
-            result = self.eval_func(value)
+                return False ^ self.negate
 
-        if self.negate:
-            return not result
-        return result
+        result = self.eval_func(value)
+
+        return result ^ self.negate
 
     # Equivalency
 

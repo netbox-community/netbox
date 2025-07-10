@@ -390,6 +390,70 @@ class EventRuleTest(APITestCase):
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
 
+    def test_suppression_flush_events(self):
+
+        # Use context manager to verify that exception was logged as we expected
+        with self.assertLogs('netbox.events_processor', level='ERROR') as cm:
+
+            # Get the known event
+            event = EventRule.objects.get(name='Event Rule 2')
+
+            site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_PLANNED)
+
+            # Update an object via the REST API
+            data = {
+                'name': 'Site X',
+                'status': SiteStatusChoices.STATUS_ACTIVE,
+            }
+            url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+            self.add_permissions('dcim.change_site')
+            response = self.client.patch(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+            # Verify that a background task was queued for the updated object
+            self.assertEqual(self.queue.count, 1)
+            job = self.queue.jobs[0]
+            self.assertEqual(job.kwargs['event_rule'], event)
+            self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
+            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['data']['id'], site.pk)
+            self.assertEqual(job.kwargs['data']['status']['value'], SiteStatusChoices.STATUS_ACTIVE)
+            self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
+            self.assertEqual(job.kwargs['snapshots']['prechange']['status'], SiteStatusChoices.STATUS_PLANNED)
+            self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
+            self.assertEqual(job.kwargs['snapshots']['postchange']['status'], SiteStatusChoices.STATUS_ACTIVE)
+
+            # Update the event with non-existent
+            event.action_type = 'non-existent-action-type'
+            event.save()
+
+            # Cleanup queue
+            self.queue.empty()
+
+            # Verify that a queue is empty
+            self.assertEqual(self.queue.count, 0)
+
+            # Update an object via the REST API
+            data = {
+                'name': 'Site X',
+                'status': SiteStatusChoices.STATUS_PLANNED,
+            }
+            url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+            self.add_permissions('dcim.change_site')
+            response = self.client.patch(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+            # Verify that a queue is still empty
+            self.assertEqual(self.queue.count, 0)
+
+        # Verify that we have only one ERROR message in our log
+        self.assertEqual(len(cm.output), 1)
+
+        # Verify message format
+        pattern = (r"Error ValueError in ValueError at .*? - Unknown action type for"
+                   r" an event rule: non-existent-action-type")
+        self.assertRegex(cm.output[0], pattern)
+
     def test_duplicate_triggers(self):
         """
         Test for erroneous duplicate event triggers resulting from saving an object multiple times
