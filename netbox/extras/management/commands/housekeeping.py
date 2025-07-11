@@ -14,9 +14,16 @@ from utilities.proxy import resolve_proxies
 
 
 class Command(BaseCommand):
-    help = "Perform nightly housekeeping tasks. (This command can be run at any time.)"
+    help = "Perform nightly housekeeping tasks [DEPRECATED]"
 
     def handle(self, *args, **options):
+        self.stdout.write(
+            "Running this command is no longer necessary: All housekeeping tasks\n"
+            "are addressed automatically via NetBox's built-in job scheduler. It\n"
+            "will be removed in a future release.",
+            self.style.WARNING
+        )
+
         config = Config()
 
         # Clear expired authentication sessions (essentially replicating the `clearsessions` command)
