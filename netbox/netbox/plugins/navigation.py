@@ -1,4 +1,4 @@
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
@@ -49,7 +49,7 @@ class PluginMenuItem:
         self.auth_required = auth_required
         self.staff_only = staff_only
         if link:
-            self._url = reverse(link)
+            self._url = reverse_lazy(link)
         if permissions is not None:
             if type(permissions) not in (list, tuple):
                 raise TypeError(_("Permissions must be passed as a tuple or list."))
@@ -82,7 +82,7 @@ class PluginMenuButton:
         self.title = title
         self.icon_class = icon_class
         if link:
-            self._url = reverse(link)
+            self._url = reverse_lazy(link)
         if permissions is not None:
             if type(permissions) not in (list, tuple):
                 raise TypeError(_("Permissions must be passed as a tuple or list."))
