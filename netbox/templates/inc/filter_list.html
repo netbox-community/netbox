@@ -29,11 +29,7 @@
           <div class="hr-text">
             <span>{% trans "Custom Fields" %}</span>
           </div>
-          {% for name in filter_form.custom_fields %}
-            {% with field=filter_form|get_item:name %}
-              {% render_field field %}
-            {% endwith %}
-          {% endfor %}
+          {% render_custom_fields filter_form %}
         </div>
       {% endif %}
     </div>
