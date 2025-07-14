@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
@@ -1000,18 +1000,7 @@ inventory-items:
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by absence of bulk import view for ModuleTypes
-class ModuleTypeTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.GetObjectChangelogViewTestCase,
-    ViewTestCases.CreateObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ModuleType
 
     @classmethod
@@ -1023,13 +1012,15 @@ class ModuleTypeTestCase(
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        ModuleType.objects.bulk_create([
+        module_types = ModuleType.objects.bulk_create([
             ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1043,6 +1034,70 @@ class ModuleTypeTestCase(
             'manufacturer': manufacturers[1].pk,
             'part_number': '456DEF',
         }
+
+        cls.csv_data = (
+            "manufacturer,model,part_number,comments,profile",
+            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+        )
+
+        cls.csv_update_data = (
+            "id,model",
+            f"{module_types[0].id},test model",
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_update_objects_with_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_update_objects_with_permission()
+
+    @tag('regression')
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_import_objects_with_permission()
+
+        # TODO: remove extra regression asserts once parent test supports testing all import fields
+        fan_module_type = ModuleType.objects.get(part_number='generic-fan')
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
+
+        assert fan_module_type.profile == fan_module_type_profile
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_constrained_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        super().test_bulk_import_objects_with_constrained_permission()
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_moduletype_consoleports(self):
