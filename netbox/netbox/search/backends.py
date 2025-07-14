@@ -117,7 +117,7 @@ class CachedValueSearchBackend(SearchBackend):
             query_filter &= Q(type=FieldTypes.STRING)
         elif lookup in (LookupTypes.PARTIAL, LookupTypes.EXACT):
             try:
-                # If the value looks like an IP address, add an extra filters for CIDR/INET values
+                # If the value looks like an IP address, add extra filters for CIDR/INET values
                 address = str(netaddr.IPNetwork(value.strip()).cidr)
                 query_filter |= Q(type=FieldTypes.INET) & Q(value__net_host=address)
                 if lookup == LookupTypes.PARTIAL:
