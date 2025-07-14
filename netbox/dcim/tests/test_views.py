@@ -7,14 +7,13 @@ from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
-from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
-from users.models import ObjectPermission, User
+from users.models import User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -1046,21 +1045,17 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{module_types[0].id},test model",
         )
 
-    def _set_module_type_bulk_import_permissions(self, **permission_definition):
-        obj_perm = ObjectPermission(**permission_definition)
-        obj_perm.save()
-        obj_perm.users.add(self.user)
-        additional_permissions = [
-            ConsolePortTemplate, ConsoleServerPortTemplate, PowerPortTemplate, PowerOutletTemplate,
-            InterfaceTemplate, FrontPortTemplate, RearPortTemplate, ModuleBayTemplate,
-        ]
-        for model in additional_permissions:
-            obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
-
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_update_objects_with_permission(self):
-        self._set_module_type_bulk_import_permissions(
-            name='Expanded ModuleType bulk import add permissions', actions=['add']
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
         )
 
         # run base test
@@ -1069,14 +1064,21 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @tag('regression')
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_permission(self):
-        self._set_module_type_bulk_import_permissions(
-            name='Expanded ModuleType bulk import add permissions', actions=['add']
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
         )
 
         # run base test
         super().test_bulk_import_objects_with_permission()
 
-        # extra regression asserts
+        # TODO: remove extra regression asserts once parent test supports testing all import fields
         fan_module_type = ModuleType.objects.get(part_number='generic-fan')
         fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
@@ -1084,10 +1086,15 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_constrained_permission(self):
-        self._set_module_type_bulk_import_permissions(
-            name='Expanded ModuleType bulk import add permissions',
-            constraints={'pk': 0},  # Dummy permission to deny all
-            actions=['add']
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
         )
 
         super().test_bulk_import_objects_with_constrained_permission()
