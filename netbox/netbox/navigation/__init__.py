@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Sequence, Optional
 
-from django.urls import reverse
+from django.urls import reverse_lazy
 
 
 __all__ = (
@@ -30,7 +30,7 @@ class MenuItemButton:
 
     def __post_init__(self):
         if self.link:
-            self._url = reverse(self.link)
+            self._url = reverse_lazy(self.link)
 
     @property
     def url(self):
@@ -54,7 +54,7 @@ class MenuItem:
 
     def __post_init__(self):
         if self.link:
-            self._url = reverse(self.link)
+            self._url = reverse_lazy(self.link)
 
     @property
     def url(self):
