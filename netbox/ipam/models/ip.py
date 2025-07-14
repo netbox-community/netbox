@@ -162,6 +162,11 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
             return self.prefix.version
         return None
 
+    @property
+    def ipv6_full(self):
+        if self.prefix and self.prefix.version == 6:
+            return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
+
     def get_child_prefixes(self):
         """
         Return all Prefixes within this Aggregate
@@ -329,6 +334,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     @property
     def mask_length(self):
         return self.prefix.prefixlen if self.prefix else None
+
+    @property
+    def ipv6_full(self):
+        if self.prefix and self.prefix.version == 6:
+            return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
 
     @property
     def depth(self):
@@ -807,6 +817,11 @@ class IPAddress(ContactsMixin, PrimaryModel):
         # Denote the original assigned object (if any) for validation in clean()
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
+    @property
+    def ipv6_full(self):
+        if self.address and self.address.version == 6:
+            return netaddr.IPAddress(self.address).format(netaddr.ipv6_full)
 
     def get_duplicates(self):
         return IPAddress.objects.filter(
