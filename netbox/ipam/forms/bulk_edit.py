@@ -207,6 +207,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
+    # TODO: Alter for parent prefix
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -276,6 +277,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
+    # TODO: Alter for prefix
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -323,6 +325,12 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
+    # TODO: Alter for prefix
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -364,10 +372,10 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     model = IPAddress
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'description'),
-        FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
+        FieldSet('prefix', 'vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
-        'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
+        'prefix', 'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
     )
 
 
