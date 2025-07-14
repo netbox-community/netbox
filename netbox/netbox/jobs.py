@@ -38,6 +38,19 @@ def system_job(interval):
     return _wrapper
 
 
+class JobLogHandler(logging.Handler):
+    """
+    A logging handler which records entries on a Job.
+    """
+    def __init__(self, job, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.job = job
+
+    def emit(self, record):
+        # Enter the record in the log of the associated Job
+        self.job.log(record)
+
+
 class JobRunner(ABC):
     """
     Background Job helper class.
@@ -55,6 +68,11 @@ class JobRunner(ABC):
             job: The specific `Job` this `JobRunner` is executing.
         """
         self.job = job
+
+        # Initiate the system logger
+        self.logger = logging.getLogger(f"netbox.jobs.{self.__class__.__name__}")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(JobLogHandler(job))
 
     @classproperty
     def name(cls):

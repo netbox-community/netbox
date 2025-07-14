@@ -32,13 +32,13 @@ from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
-from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .choices import DataSourceStatusChoices
 from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_catalog_plugins, get_local_plugins
-from .tables import CatalogPluginTable, PluginVersionTable
+from .tables import CatalogPluginTable, JobLogEntryTable, PluginVersionTable
 
 
 #
@@ -182,6 +182,25 @@ class JobListView(generic.ObjectListView):
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
     actions = (DeleteObject,)
+
+
+@register_model_view(Job, 'log')
+class JobLogView(generic.ObjectView):
+    queryset = Job.objects.all()
+    actions = (DeleteObject,)
+    template_name = 'core/job/log.html'
+    tab = ViewTab(
+        label=_('Log'),
+        badge=lambda obj: len(obj.log_entries),
+        weight=500,
+    )
+
+    def get_extra_context(self, request, instance):
+        table = JobLogEntryTable(instance.log_entries)
+        table.configure(request)
+        return {
+            'table': table,
+        }
 
 
 @register_model_view(Job, 'delete')
