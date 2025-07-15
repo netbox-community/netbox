@@ -37,7 +37,7 @@ class ConditionTestCase(TestCase):
             # 'gt' supports only numeric values
             Condition('x', 'foo', 'gt')
         with self.assertRaises(ValueError):
-            # 'lt' supports only iterable values
+            # 'in' supports only iterable values
             Condition('x', 123, 'in')
 
     #
