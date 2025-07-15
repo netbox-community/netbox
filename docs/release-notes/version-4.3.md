@@ -1,5 +1,27 @@
 # NetBox v4.3
 
+## v4.3.4 (2025-07-15)
+
+### Enhancements
+
+* [#18811](https://github.com/netbox-community/netbox/issues/18811) - Match expanded form IPv6 addresses in global search
+* [#19550](https://github.com/netbox-community/netbox/issues/19550) - Enable lazy loading for rack elevations
+* [#19571](https://github.com/netbox-community/netbox/issues/19571) - Add a default module type profile for expansion cards
+* [#19793](https://github.com/netbox-community/netbox/issues/19793) - Support custom dynamic navigation menu links
+* [#19828](https://github.com/netbox-community/netbox/issues/19828) - Expose L2VPN termination in interface GraphQL response
+
+### Bug Fixes
+
+* [#19413](https://github.com/netbox-community/netbox/issues/19413) - Custom fields should be grouped in filter forms
+* [#19633](https://github.com/netbox-community/netbox/issues/19633) - Introduce InvalidCondition exception and log all evaluations of invalid event rule conditions
+* [#19800](https://github.com/netbox-community/netbox/issues/19800) - Module type bulk import should support profile assignment
+* [#19806](https://github.com/netbox-community/netbox/issues/19806) - Introduce JobFailed exception to allow marking background jobs as failed
+* [#19827](https://github.com/netbox-community/netbox/issues/19827) - Enforce uniqueness for device role names & slugs
+* [#19839](https://github.com/netbox-community/netbox/issues/19839) - Enable export of parent assignment for recursively nested objects
+* [#19876](https://github.com/netbox-community/netbox/issues/19876) - Remove Markdown rendering from CustomFieldChoiceSet description field
+
+---
+
 ## v4.3.3 (2025-06-26)
 
 ### Enhancements
