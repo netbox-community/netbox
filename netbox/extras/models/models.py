@@ -13,7 +13,7 @@ from rest_framework.utils.encoders import JSONEncoder
 
 from core.models import ObjectType
 from extras.choices import *
-from extras.conditions import ConditionSet
+from extras.conditions import ConditionSet, InvalidCondition
 from extras.constants import *
 from extras.utils import image_upload
 from extras.models.mixins import RenderTemplateMixin
@@ -142,7 +142,15 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         if not self.conditions:
             return True
 
-        return ConditionSet(self.conditions).eval(data)
+        logger = logging.getLogger('netbox.event_rules')
+
+        try:
+            result = ConditionSet(self.conditions).eval(data)
+            logger.debug(f'{self.name}: Evaluated as {result}')
+            return result
+        except InvalidCondition as e:
+            logger.error(f"{self.name}: Evaluation failed. {e}")
+            return False
 
 
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
