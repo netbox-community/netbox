@@ -158,6 +158,7 @@ LOGGING = {
 * `netbox.<app>.<model>` - Generic form for model-specific log messages
 * `netbox.auth.*` - Authentication events
 * `netbox.api.views.*` - Views which handle business logic for the REST API
+* `netbox.event_rules` - Event rules
 * `netbox.reports.*` - Report execution (`module.name`)
 * `netbox.scripts.*` - Custom script execution (`module.name`)
 * `netbox.views.*` - Views which handle business logic for the web UI

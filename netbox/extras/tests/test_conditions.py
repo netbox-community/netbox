@@ -4,7 +4,7 @@ from django.test import TestCase
 from core.events import *
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
-from extras.conditions import Condition, ConditionSet
+from extras.conditions import Condition, ConditionSet, InvalidCondition
 from extras.events import serialize_for_event
 from extras.forms import EventRuleForm
 from extras.models import EventRule, Webhook
@@ -12,16 +12,11 @@ from extras.models import EventRule, Webhook
 
 class ConditionTestCase(TestCase):
 
-    def test_dotted_path_access(self):
-        c = Condition('a.b.c', 1, 'eq')
-        self.assertTrue(c.eval({'a': {'b': {'c': 1}}}))
-        self.assertFalse(c.eval({'a': {'b': {'c': 2}}}))
-        self.assertFalse(c.eval({'a': {'b': {'x': 1}}}))
-
     def test_undefined_attr(self):
         c = Condition('x', 1, 'eq')
-        self.assertFalse(c.eval({}))
         self.assertTrue(c.eval({'x': 1}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({})
 
     #
     # Validation tests
@@ -37,10 +32,13 @@ class ConditionTestCase(TestCase):
             # dict type is unsupported
             Condition('x', 1, dict())
 
-    def test_invalid_op_type(self):
+    def test_invalid_op_types(self):
         with self.assertRaises(ValueError):
             # 'gt' supports only numeric values
             Condition('x', 'foo', 'gt')
+        with self.assertRaises(ValueError):
+            # 'in' supports only iterable values
+            Condition('x', 123, 'in')
 
     #
     # Nested attrs tests
@@ -50,7 +48,10 @@ class ConditionTestCase(TestCase):
         c = Condition('x.y.z', 1)
         self.assertTrue(c.eval({'x': {'y': {'z': 1}}}))
         self.assertFalse(c.eval({'x': {'y': {'z': 2}}}))
-        self.assertFalse(c.eval({'a': {'b': {'c': 1}}}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': {'y': None}})
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': {'y': {'a': 1}}})
 
     #
     # Operator tests
@@ -74,23 +75,31 @@ class ConditionTestCase(TestCase):
         c = Condition('x', 1, 'gt')
         self.assertTrue(c.eval({'x': 2}))
         self.assertFalse(c.eval({'x': 1}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': 'foo'})  # Invalid type
 
     def test_gte(self):
         c = Condition('x', 1, 'gte')
         self.assertTrue(c.eval({'x': 2}))
         self.assertTrue(c.eval({'x': 1}))
         self.assertFalse(c.eval({'x': 0}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': 'foo'})  # Invalid type
 
     def test_lt(self):
         c = Condition('x', 2, 'lt')
         self.assertTrue(c.eval({'x': 1}))
         self.assertFalse(c.eval({'x': 2}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': 'foo'})  # Invalid type
 
     def test_lte(self):
         c = Condition('x', 2, 'lte')
         self.assertTrue(c.eval({'x': 1}))
         self.assertTrue(c.eval({'x': 2}))
         self.assertFalse(c.eval({'x': 3}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': 'foo'})  # Invalid type
 
     def test_in(self):
         c = Condition('x', [1, 2, 3], 'in')
@@ -106,6 +115,8 @@ class ConditionTestCase(TestCase):
         c = Condition('x', 1, 'contains')
         self.assertTrue(c.eval({'x': [1, 2, 3]}))
         self.assertFalse(c.eval({'x': [2, 3, 4]}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'x': 123})  # Invalid type
 
     def test_contains_negated(self):
         c = Condition('x', 1, 'contains', negate=True)
