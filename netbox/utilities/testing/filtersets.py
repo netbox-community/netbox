@@ -33,6 +33,7 @@ class BaseFilterSetTests:
     queryset = None
     filterset = None
     ignore_fields = tuple()
+    filter_name_map = {}
 
     def get_m2m_filter_name(self, field):
         """
@@ -46,7 +47,13 @@ class BaseFilterSetTests:
         """
         Given a model field, return an iterable of (name, class) for each filter that should be defined on
         the model's FilterSet class. If the appropriate filter class cannot be determined, it will be None.
+
+        filter_name_map provides a mechanism for developers to provide an actual field name for the
+        filter that is being resolved, given the field's actual name.
         """
+        # If an alias is not present in filter_name_map, then use field.name
+        filter_name = self.filter_name_map.get(field.name, field.name)
+
         # ForeignKey & OneToOneField
         if issubclass(field.__class__, ForeignKey) or type(field) is OneToOneRel:
 
@@ -57,19 +64,20 @@ class BaseFilterSetTests:
             # ForeignKeys to ObjectType need two filters: 'app.model' & PK
             if field.related_model is ObjectType:
                 return [
-                    (field.name, ContentTypeFilter),
-                    (f'{field.name}_id', django_filters.ModelMultipleChoiceFilter),
+                    (filter_name, ContentTypeFilter),
+                    (f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter),
                 ]
 
             # ForeignKey to an MPTT-enabled model
             if issubclass(field.related_model, MPTTModel) and field.model is not field.related_model:
-                return [(f'{field.name}_id', TreeNodeMultipleChoiceFilter)]
+                return [(f'{filter_name}_id', TreeNodeMultipleChoiceFilter)]
 
-            return [(f'{field.name}_id', django_filters.ModelMultipleChoiceFilter)]
+            return [(f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter)]
 
         # Many-to-many relationships (forward & backward)
         elif type(field) in (ManyToManyField, ManyToManyRel):
             filter_name = self.get_m2m_filter_name(field)
+            filter_name = self.filter_name_map.get(filter_name, filter_name)
 
             # ManyToManyFields to ObjectType need two filters: 'app.model' & PK
             if field.related_model is ObjectType:
@@ -85,7 +93,7 @@ class BaseFilterSetTests:
             return [('tag', TagFilter)]
 
         # Unable to determine the correct filter class
-        return [(field.name, None)]
+        return [(filter_name, None)]
 
     def test_id(self):
         """

@@ -55,8 +55,8 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('service template')
-        verbose_name_plural = _('service templates')
+        verbose_name = _('application service template')
+        verbose_name_plural = _('application service templates')
 
 
 class Service(ContactsMixin, ServiceBase, PrimaryModel):
@@ -94,5 +94,5 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
             models.Index(fields=('parent_object_type', 'parent_object_id')),
         )
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
-        verbose_name = _('service')
-        verbose_name_plural = _('services')
+        verbose_name = _('application service')
+        verbose_name_plural = _('application services')

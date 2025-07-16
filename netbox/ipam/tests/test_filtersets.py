@@ -1101,6 +1101,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
     ignore_fields = ('fhrpgroup',)
+    filter_name_map = {
+        'application_service': 'service',
+    }
 
     @classmethod
     def setUpTestData(cls):
