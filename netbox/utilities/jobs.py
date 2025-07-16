@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from typing import List
 
+from django.contrib import messages
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+
 from netbox.jobs import AsyncViewJob
 from utilities.request import copy_safe_request
 
@@ -38,9 +42,19 @@ def process_request_as_job(view, request, name=None):
     request_copy._background = True
 
     # Enqueue a job to perform the work in the background
-    return AsyncViewJob.enqueue(
+    job = AsyncViewJob.enqueue(
         name=name,
         user=request.user,
         view_cls=view,
         request=request_copy,
     )
+
+    # Record a message on the original request indicating deferral to a background job
+    msg = _('Created background job {id}: <a href="{url}">{name}</a>').format(
+        id=job.pk,
+        url=job.get_absolute_url(),
+        name=job.name
+    )
+    messages.info(request, mark_safe(msg))
+
+    return job

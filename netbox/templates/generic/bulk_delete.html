@@ -1,4 +1,5 @@
 {% extends 'generic/_base.html' %}
+{% load form_helpers %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 {% load i18n %}
@@ -61,6 +62,7 @@ Context:
         {% for field in form.hidden_fields %}
           {{ field }}
         {% endfor %}
+        {% render_field form.background_job %}
         <div class="text-end">
           <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
