@@ -192,5 +192,5 @@ def flush_events(events):
             try:
                 func = import_string(name)
                 func(events)
-            except Exception as e:
+            except ImportError as e:
                 logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

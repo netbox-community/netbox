@@ -470,8 +470,8 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'comments',
-            'tags',
+            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'profile',
+            'comments', 'tags'
         ]
 
 

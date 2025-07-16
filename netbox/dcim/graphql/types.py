@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from tenancy.graphql.types import TenantType
     from users.graphql.types import UserType
     from virtualization.graphql.types import ClusterType, VMInterfaceType, VirtualMachineType
+    from vpn.graphql.types import L2VPNTerminationType
     from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
@@ -440,6 +441,7 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     primary_mac_address: Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')] | None
     qinq_svlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
+    l2vpn_termination: Annotated["L2VPNTerminationType", strawberry.lazy('vpn.graphql.types')] | None
 
     vdcs: List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]
     tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]

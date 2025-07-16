@@ -135,7 +135,7 @@ Check out the desired release by specifying its tag. For example:
 
 ```
 cd /opt/netbox && \
-sudo git fetch && \
+sudo git fetch --tags && \
 sudo git checkout v4.2.7
 ```
 

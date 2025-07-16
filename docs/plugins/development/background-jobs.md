@@ -15,7 +15,6 @@ A background job implements a basic [Job](../../models/core/job.md) executor for
 ```python title="jobs.py"
 from netbox.jobs import JobRunner
 
-
 class MyTestJob(JobRunner):
     class Meta:
         name = "My Test Job"
@@ -24,6 +23,8 @@ class MyTestJob(JobRunner):
         obj = self.job.object
         # your logic goes here
 ```
+
+Completed jobs will have their status updated to "completed" by default, or "errored" if an unhandled exception was raised by the `run()` method. To intentionally mark a job as failed, raise the `core.exceptions.JobFailed` exception. (Note that "failed" differs from "errored" in that a failure may be expected under certain conditions, whereas an error is not.)
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 

@@ -1,12 +1,13 @@
 import functools
+import operator
 import re
 from django.utils.translation import gettext as _
 
 __all__ = (
     'Condition',
     'ConditionSet',
+    'InvalidCondition',
 )
-
 
 AND = 'and'
 OR = 'or'
@@ -17,6 +18,10 @@ def is_ruleset(data):
     Determine whether the given dictionary looks like a rule set.
     """
     return type(data) is dict and len(data) == 1 and list(data.keys())[0] in (AND, OR)
+
+
+class InvalidCondition(Exception):
+    pass
 
 
 class Condition:
@@ -61,6 +66,7 @@ class Condition:
 
         self.attr = attr
         self.value = value
+        self.op = op
         self.eval_func = getattr(self, f'eval_{op}')
         self.negate = negate
 
@@ -70,16 +76,17 @@ class Condition:
         """
         def _get(obj, key):
             if isinstance(obj, list):
-                return [dict.get(i, key) for i in obj]
-
-            return dict.get(obj, key)
+                return [operator.getitem(item or {}, key) for item in obj]
+            return operator.getitem(obj or {}, key)
 
         try:
             value = functools.reduce(_get, self.attr.split('.'), data)
-        except TypeError:
-            # Invalid key path
-            value = None
-        result = self.eval_func(value)
+        except KeyError:
+            raise InvalidCondition(f"Invalid key path: {self.attr}")
+        try:
+            result = self.eval_func(value)
+        except TypeError as e:
+            raise InvalidCondition(f"Invalid data type at '{self.attr}' for '{self.op}' evaluation: {e}")
 
         if self.negate:
             return not result

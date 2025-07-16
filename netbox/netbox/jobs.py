@@ -9,6 +9,7 @@ from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
 from core.events import JOB_COMPLETED, JOB_FAILED
+from core.exceptions import JobFailed
 from core.models import Job, ObjectType
 from extras.models import Notification
 from netbox.constants import ADVISORY_LOCK_KEYS
@@ -95,15 +96,21 @@ class JobRunner(ABC):
         This method is called by the Job Scheduler to handle the execution of all job commands. It will maintain the
         job's metadata and handle errors. For periodic jobs, a new job is automatically scheduled using its `interval`.
         """
+        logger = logging.getLogger('netbox.jobs')
+
         try:
             job.start()
             cls(job).run(*args, **kwargs)
             job.terminate()
 
+        except JobFailed:
+            logger.warning(f"Job {job} failed")
+            job.terminate(status=JobStatusChoices.STATUS_FAILED)
+
         except Exception as e:
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if type(e) is JobTimeoutException:
-                logging.error(e)
+                logger.error(e)
 
         # If the executed job is a periodic job, schedule its next execution at the specified interval.
         finally:
