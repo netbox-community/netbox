@@ -89,8 +89,6 @@ Context:
             </div>
           {% endif %}
 
-          {% render_field form.background_job %}
-
         {% else %}
 
           {# Render all fields #}
@@ -103,6 +101,11 @@ Context:
           {% endfor %}
 
         {% endif %}
+
+        {# Meta fields #}
+        <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.background_job %}
+        </div>
 
         <div class="btn-float-group-right">
           <a href="{{ return_url }}" class="btn btn-outline-secondary btn-float">{% trans "Cancel" %}</a>
