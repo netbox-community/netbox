@@ -2,7 +2,6 @@ import logging
 import re
 from copy import deepcopy
 
-from django import forms
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.contrib.contenttypes.models import ContentType
@@ -28,6 +27,7 @@ from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViol
 from utilities.export import TableExport
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.mixins import BackgroundJobMixin
 from utilities.htmx import htmx_partial
 from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
@@ -892,13 +892,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
-        class BulkDeleteForm(ConfirmationForm):
+        class BulkDeleteForm(BackgroundJobMixin, ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-            background_job = forms.BooleanField(
-                label=_('Background job'),
-                help_text=_("Process as a job to edit objects in the background"),
-                required=False,
-            )
 
         return BulkDeleteForm
 
