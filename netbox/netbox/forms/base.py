@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, Tag
-from utilities.forms import CSVModelForm
+from utilities.forms import BulkEditForm, CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.mixins import CheckLastUpdatedMixin
 from .mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
@@ -100,7 +100,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class NetBoxModelBulkEditForm(CustomFieldsMixin, forms.Form):
+class NetBoxModelBulkEditForm(CustomFieldsMixin, BulkEditForm):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
@@ -108,9 +108,8 @@ class NetBoxModelBulkEditForm(CustomFieldsMixin, forms.Form):
     Attributes:
         fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
-        nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
-    nullable_fields = ()
+    fieldsets = None
 
     pk = forms.ModelMultipleChoiceField(
         queryset=None,  # Set from self.model on init

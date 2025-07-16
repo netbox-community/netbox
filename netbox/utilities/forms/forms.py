@@ -31,8 +31,17 @@ class ConfirmationForm(forms.Form):
 class BulkEditForm(forms.Form):
     """
     Provides bulk edit support for objects.
+
+    Attributes:
+        nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
     nullable_fields = ()
+
+    background_job = forms.BooleanField(
+        label=_('Background job'),
+        help_text=_("Process as a job to edit objects in the background"),
+        required=False,
+    )
 
 
 class BulkRenameForm(forms.Form):
