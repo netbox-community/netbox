@@ -20,6 +20,7 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
+from django.utils.safestring import mark_safe
 from utilities.templatetags.builtins.filters import bettertitle
 from virtualization.models import VMInterface
 
@@ -680,7 +681,15 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        selector=True
+        selector=True,
+        help_text=mark_safe(
+            '<span class="text-warning"><i class="mdi mdi-alert"></i> {text}</span>'.format(
+                text=_(
+                    'The direct assignment of VLANs to a site is deprecated and will be removed in a future release. '
+                    'Users are encouraged to utilize VLAN groups for this purpose.'
+                )
+            )
+        )
     )
     role = DynamicModelChoiceField(
         label=_('Role'),

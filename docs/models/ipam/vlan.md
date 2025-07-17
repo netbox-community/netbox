@@ -25,6 +25,9 @@ The user-defined functional [role](./role.md) assigned to the VLAN.
 
 ### VLAN Group or Site
 
+!!! warning "Site assignment is deprecated"
+    The assignment of individual VLANs directly to a site has been deprecated. This ability will be removed in a future NetBox release. Users are strongly encouraged to utilize VLAN groups, which have the added benefit of supporting the assignment of a VLAN to multiple sites.
+
 The [VLAN group](./vlangroup.md) or [site](../dcim/site.md) to which the VLAN is assigned.
 
 ### Q-in-Q Role
