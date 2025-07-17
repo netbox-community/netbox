@@ -72,6 +72,16 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ---
 
+## HOSTNAME
+
+!!! info "This parameter was introduced in NetBox v4.4."
+
+Default: System hostname
+
+The hostname displayed in the user interface identifying the system on which NetBox is running. If not defined, this defaults to the system hostname as reported by Python's `platform.node()`.
+
+---
+
 ## HTTP_PROXIES
 
 Default: `None`

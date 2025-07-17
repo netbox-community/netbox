@@ -27,7 +27,6 @@ from utilities.string import trailing_slash
 
 RELEASE = load_release_data()
 VERSION = RELEASE.full_version  # Retained for backward compatibility
-HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -125,6 +124,7 @@ EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
+HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
