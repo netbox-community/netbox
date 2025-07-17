@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class BackgroundJobMixin(forms.Form):
+class BackgroundJobMixin:
     background_job = forms.BooleanField(
         label=_('Background job'),
         help_text=_("Execute this task via a background job"),
