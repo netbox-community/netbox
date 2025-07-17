@@ -28,6 +28,10 @@
     </div>
   {% endif %}
 
+  {% if form.changelog_message %}
+    {% render_field form.changelog_message %}
+  {% endif %}
+
 {% else %}
 
   {# Render all fields in a single group #}

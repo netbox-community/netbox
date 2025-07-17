@@ -19,7 +19,7 @@ from netbox.object_actions import (
 )
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.forms import DeleteForm, restrict_form_fields
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
@@ -422,7 +422,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             request: The current request
         """
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(initial=request.GET)
+        form = DeleteForm(initial=request.GET)
 
         try:
             dependent_objects = self._get_dependent_objects(obj)
@@ -461,7 +461,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(request.POST)
+        form = DeleteForm(request.POST)
 
         # Take a snapshot of change-logged models
         if hasattr(obj, 'snapshot'):
@@ -469,6 +469,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         if form.is_valid():
             logger.debug("Form validation was successful")
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
 
             try:
                 obj.delete()

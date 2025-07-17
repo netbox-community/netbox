@@ -7,10 +7,25 @@ from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
+    'ChangeLoggingMixin',
     'CustomFieldsMixin',
     'SavedFiltersMixin',
     'TagsMixin',
 )
+
+
+class ChangeLoggingMixin(forms.Form):
+    changelog_message = forms.CharField(
+        required=False,
+        max_length=200
+    )
+
+    def clean(self):
+
+        # Attach the changelog message (if any) to the instance
+        self.instance._changelog_message = self.cleaned_data.pop('changelog_message', None)
+
+        return self.cleaned_data
 
 
 class CustomFieldsMixin:
