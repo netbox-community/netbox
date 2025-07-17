@@ -84,6 +84,7 @@ class ObjectChange(models.Model):
     )
     message = models.CharField(
         verbose_name=_('message'),
+        max_length=200,
         editable=False,
         blank=True
     )

@@ -11,6 +11,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='objectchange',
             name='message',
-            field=models.CharField(blank=True, editable=False),
+            field=models.CharField(blank=True, editable=False, max_length=200),
         ),
     ]
