@@ -1040,6 +1040,11 @@ class ImageAttachmentListView(generic.ObjectListView):
     actions = (BulkExport,)
 
 
+@register_model_view(ImageAttachment)
+class ImageAttachmentView(generic.ObjectView):
+    queryset = ImageAttachment.objects.all()
+
+
 @register_model_view(ImageAttachment, 'add', detail=False)
 @register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
@@ -1053,9 +1058,6 @@ class ImageAttachmentEditView(generic.ObjectEditView):
             instance.parent = get_object_or_404(object_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
-    def get_return_url(self, request, obj=None):
-        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
-
     def get_extra_addanother_params(self, request):
         return {
             'object_type': request.GET.get('object_type'),
@@ -1066,9 +1068,6 @@ class ImageAttachmentEditView(generic.ObjectEditView):
 @register_model_view(ImageAttachment, 'delete')
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
-
-    def get_return_url(self, request, obj=None):
-        return obj.parent.get_absolute_url() if obj else super().get_return_url(request)
 
 
 #

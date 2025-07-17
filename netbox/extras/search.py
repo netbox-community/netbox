@@ -15,6 +15,16 @@ class CustomFieldIndex(SearchIndex):
 
 
 @register_search
+class ImageAttachmentIndex(SearchIndex):
+    model = models.ImageAttachment
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class JournalEntryIndex(SearchIndex):
     model = models.JournalEntry
     fields = (

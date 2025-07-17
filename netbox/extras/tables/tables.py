@@ -249,10 +249,10 @@ class ImageAttachmentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ImageAttachment
         fields = (
-            'pk', 'object_type', 'parent', 'image', 'name', 'image_height', 'image_width', 'size', 'created',
-            'last_updated',
+            'pk', 'object_type', 'parent', 'image', 'name', 'description', 'image_height', 'image_width', 'size',
+            'created', 'last_updated',
         )
-        default_columns = ('object_type', 'parent', 'image', 'name', 'size', 'created')
+        default_columns = ('object_type', 'parent', 'image', 'name', 'description', 'size', 'created')
 
 
 class SavedFilterTable(NetBoxTable):

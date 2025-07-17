@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.parse
 
 from django.conf import settings
@@ -678,6 +679,11 @@ class ImageAttachment(ChangeLoggedModel):
         max_length=50,
         blank=True
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -692,10 +698,10 @@ class ImageAttachment(ChangeLoggedModel):
         verbose_name_plural = _('image attachments')
 
     def __str__(self):
-        if self.name:
-            return self.name
-        filename = self.image.name.rsplit('/', 1)[-1]
-        return filename.split('_', 2)[2]
+        return self.name or self.filename
+
+    def get_absolute_url(self):
+        return reverse('extras:imageattachment', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -718,6 +724,10 @@ class ImageAttachment(ChangeLoggedModel):
         # Deleting the file erases its name. We restore the image's filename here in case we still need to reference it
         # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
         self.image.name = _name
+
+    @property
+    def filename(self):
+        return os.path.basename(self.image.name).split('_', 2)[2]
 
     @property
     def size(self):
