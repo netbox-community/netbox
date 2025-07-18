@@ -20,13 +20,6 @@ class ChangeLoggingMixin(forms.Form):
         max_length=200
     )
 
-    def clean(self):
-
-        # Attach the changelog message (if any) to the instance
-        self.instance._changelog_message = self.cleaned_data.pop('changelog_message', None)
-
-        return self.cleaned_data
-
 
 class CustomFieldsMixin:
     """

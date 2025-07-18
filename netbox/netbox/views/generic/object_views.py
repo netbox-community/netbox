@@ -288,6 +288,9 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            # Record changelog message (if any)
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
+
             try:
                 with transaction.atomic(using=router.db_for_write(model)):
                     object_created = form.instance.pk is None
@@ -463,22 +466,23 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         obj = self.get_object(**kwargs)
         form = DeleteForm(request.POST)
 
-        # Take a snapshot of change-logged models
-        if hasattr(obj, 'snapshot'):
-            obj.snapshot()
-
         if form.is_valid():
             logger.debug("Form validation was successful")
+
+            # Take a snapshot of change-logged models
+            if hasattr(obj, 'snapshot'):
+                obj.snapshot()
+
+            # Record changelog message (if any)
             obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
 
+            # Delete the object
             try:
                 obj.delete()
-
             except (ProtectedError, RestrictedError) as e:
                 logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
-
             except AbortRequest as e:
                 logger.debug(e.message)
                 messages.error(request, mark_safe(e.message))
