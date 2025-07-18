@@ -80,18 +80,20 @@ GET /api/ipam/vlans/?vid__gt=900
 
 String based (char) fields (Name, Address, etc) support these lookup expressions:
 
-| Filter  | Description                            |
-|---------|----------------------------------------|
-| `n`     | Not equal to                           |
-| `ic`    | Contains (case-insensitive)            |
-| `nic`   | Does not contain (case-insensitive)    |
-| `isw`   | Starts with (case-insensitive)         |
-| `nisw`  | Does not start with (case-insensitive) |
-| `iew`   | Ends with (case-insensitive)           |
-| `niew`  | Does not end with (case-insensitive)   |
-| `ie`    | Exact match (case-insensitive)         |
-| `nie`   | Inverse exact match (case-insensitive) |
-| `empty` | Is empty/null (boolean)                |
+| Filter   | Description                            |
+|----------|----------------------------------------|
+| `n`      | Not equal to                           |
+| `ic`     | Contains (case-insensitive)            |
+| `nic`    | Does not contain (case-insensitive)    |
+| `isw`    | Starts with (case-insensitive)         |
+| `nisw`   | Does not start with (case-insensitive) |
+| `iew`    | Ends with (case-insensitive)           |
+| `niew`   | Does not end with (case-insensitive)   |
+| `ie`     | Exact match (case-insensitive)         |
+| `nie`    | Inverse exact match (case-insensitive) |
+| `empty`  | Is empty/null (boolean)                |
+| `regex`  | Regexp matching                        |
+| `iregex` | Regexp matching (case-insensitive)     |
 
 Here is an example of a lookup expression on a string field that will return all devices with `switch` in the name:
 
