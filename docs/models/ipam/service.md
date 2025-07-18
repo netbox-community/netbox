@@ -1,14 +1,18 @@
-# Services
+# Application Services
 
-A service represents a layer seven application available on a device or virtual machine. For example, a service might be created in NetBox to represent an HTTP server running on TCP/8000. Each service may optionally be further bound to one or more specific interfaces assigned to the selected device or virtual machine.
+An application service represents a layer seven application available on a device or virtual machine. For example, a service might be created in NetBox to represent an HTTP server running on TCP/8000. Each service may optionally be further bound to one or more specific interfaces assigned to the selected device or virtual machine.
 
-To aid in the efficient creation of services, users may opt to first create a [service template](./servicetemplate.md) from which service definitions can be quickly replicated.
+To aid in the efficient creation of application services, users may opt to first create an [application service template](./servicetemplate.md) from which service definitions can be quickly replicated.
+
+!!! note "Changed in NetBox v4.4"
+
+    Previously, application services were referred to simply as "services". The name has been changed in the UI to better reflect their intended use. There is no change to the name of the model or in any programmatic NetBox APIs.
 
 ## Fields
 
 ### Parent
 
-The parent object to which the service is assigned. This must be one of [Device](../dcim/device.md),
+The parent object to which the application service is assigned. This must be one of [Device](../dcim/device.md),
 [VirtualMachine](../virtualization/virtualmachine.md), or [FHRP Group](./fhrpgroup.md).
 
 !!! note "Changed in NetBox v4.3"

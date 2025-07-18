@@ -660,7 +660,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
     service_id = django_filters.ModelMultipleChoiceFilter(
         field_name='services',
         queryset=Service.objects.all(),
-        label=_('Service (ID)'),
+        label=_('Application Service (ID)'),
     )
     nat_inside_id = django_filters.ModelMultipleChoiceFilter(
         field_name='nat_inside',
