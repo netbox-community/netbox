@@ -37,6 +37,15 @@ __all__ = (
     'WebhookTable',
 )
 
+IMAGEATTACHMENT_IMAGE = """
+{% if record.image %}
+  <a class="image-preview" href="{{ record.image.url }}" target="_blank">
+    <i class="mdi mdi-image"></i>
+  </a>
+{% endif %}
+<a href="{{ record.get_absolute_url }}">{{ record }}</a>
+"""
+
 NOTIFICATION_ICON = """
 <span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>
 """
@@ -223,9 +232,9 @@ class ImageAttachmentTable(NetBoxTable):
         verbose_name=_('ID'),
         linkify=False
     )
-    image = tables.Column(
+    image = columns.TemplateColumn(
         verbose_name=_('Image'),
-        linkify=True,
+        template_code=IMAGEATTACHMENT_IMAGE,
     )
     name = tables.Column(
         verbose_name=_('Name'),
@@ -260,9 +269,6 @@ class ImageAttachmentTable(NetBoxTable):
             'size', 'created', 'last_updated',
         )
         default_columns = ('image', 'object_type', 'parent', 'description', 'dimensions', 'size')
-
-    def render_image(self, record):
-        return str(record)
 
     def render_size(self, value):
         return filesizeformat(value)
