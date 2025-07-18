@@ -255,7 +255,8 @@ class ImageAttachmentTable(NetBoxTable):
     )
     parent = tables.Column(
         verbose_name=_('Parent'),
-        linkify=True
+        linkify=True,
+        orderable=False,
     )
     size = tables.Column(
         orderable=False,
