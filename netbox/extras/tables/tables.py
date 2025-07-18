@@ -1,6 +1,7 @@
 import json
 
 import django_tables2 as tables
+from django.template.defaultfilters import filesizeformat
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -253,6 +254,12 @@ class ImageAttachmentTable(NetBoxTable):
             'created', 'last_updated',
         )
         default_columns = ('object_type', 'parent', 'image', 'name', 'description', 'size', 'created')
+
+    def render_size(self, value):
+        return filesizeformat(value)
+
+    def value_size(self, value):
+        return value
 
 
 class SavedFilterTable(NetBoxTable):
