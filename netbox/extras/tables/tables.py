@@ -37,14 +37,6 @@ __all__ = (
     'WebhookTable',
 )
 
-IMAGEATTACHMENT_IMAGE = """
-{% if record.image %}
-  <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
-{% else %}
-  &mdash;
-{% endif %}
-"""
-
 NOTIFICATION_ICON = """
 <span class="text-{{ value.color }} fs-3"><i class="{{ value.icon }}"></i></span>
 """
@@ -231,16 +223,25 @@ class ImageAttachmentTable(NetBoxTable):
         verbose_name=_('ID'),
         linkify=False
     )
+    image = tables.Column(
+        verbose_name=_('Image'),
+        linkify=True,
+    )
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+    )
+    filename = tables.Column(
+        verbose_name=_('Filename'),
+        linkify=lambda record: record.image.url,
+        orderable=False,
+    )
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
     parent = tables.Column(
         verbose_name=_('Parent'),
         linkify=True
-    )
-    image = tables.TemplateColumn(
-        verbose_name=_('Image'),
-        template_code=IMAGEATTACHMENT_IMAGE,
     )
     size = tables.Column(
         orderable=False,
@@ -250,10 +251,13 @@ class ImageAttachmentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ImageAttachment
         fields = (
-            'pk', 'object_type', 'parent', 'image', 'name', 'description', 'image_height', 'image_width', 'size',
-            'created', 'last_updated',
+            'pk', 'object_type', 'parent', 'image', 'name', 'filename', 'description', 'image_height', 'image_width',
+            'size', 'created', 'last_updated',
         )
-        default_columns = ('object_type', 'parent', 'image', 'name', 'description', 'size', 'created')
+        default_columns = ('image', 'object_type', 'parent', 'description', 'size')
+
+    def render_image(self, record):
+        return str(record)
 
     def render_size(self, value):
         return filesizeformat(value)
