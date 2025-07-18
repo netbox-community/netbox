@@ -579,7 +579,7 @@ class ImageAttachmentTest(
     APIViewTestCases.GraphQLTestCase
 ):
     model = ImageAttachment
-    brief_fields = ['display', 'id', 'image', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'image', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):

@@ -744,14 +744,17 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
 
 class ImageAttachmentForm(forms.ModelForm):
     fieldsets = (
-        FieldSet(ObjectAttribute('parent'), 'name', 'image'),
+        FieldSet(ObjectAttribute('parent'), 'image', 'name', 'description'),
     )
 
     class Meta:
         model = ImageAttachment
         fields = [
-            'name', 'image',
+            'image', 'name', 'description',
         ]
+        help_texts = {
+            'name': _("If no name is specified, the file name will be used.")
+        }
 
 
 class JournalEntryForm(NetBoxModelForm):
