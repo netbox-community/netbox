@@ -65,6 +65,7 @@ class StatusView(APIView):
 
         return Response({
             'django-version': DJANGO_VERSION,
+            'hostname': settings.HOSTNAME,
             'installed-apps': installed_apps,
             'netbox-version': settings.RELEASE.version,
             'netbox-full-version': settings.RELEASE.full_version,
