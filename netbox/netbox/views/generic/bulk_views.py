@@ -27,6 +27,7 @@ from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViol
 from utilities.export import TableExport
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.mixins import BackgroundJobMixin
 from utilities.htmx import htmx_partial
 from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
@@ -513,12 +514,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     count=len(form.cleaned_data['data']),
                     object_type=model._meta.verbose_name_plural,
                 )
-                if job := process_request_as_job(self.__class__, request, name=job_name):
-                    msg = _('Created background job {job.pk}: <a href="{url}">{job.name}</a>').format(
-                        url=job.get_absolute_url(),
-                        job=job
-                    )
-                    messages.info(request, mark_safe(msg))
+                if process_request_as_job(self.__class__, request, name=job_name):
                     return redirect(redirect_url)
 
             try:
@@ -712,6 +708,16 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         if '_apply' in request.POST:
             if form.is_valid():
                 logger.debug("Form validation was successful")
+
+                # If indicated, defer this request to a background job & redirect the user
+                if form.cleaned_data['background_job']:
+                    job_name = _('Bulk edit {count} {object_type}').format(
+                        count=len(form.cleaned_data['pk']),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    if process_request_as_job(self.__class__, request, name=job_name):
+                        return redirect(self.get_return_url(request))
+
                 try:
                     with transaction.atomic(using=router.db_for_write(model)):
                         updated_objects = self._update_objects(form, request)
@@ -720,6 +726,16 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         object_count = self.queryset.filter(pk__in=[obj.pk for obj in updated_objects]).count()
                         if object_count != len(updated_objects):
                             raise PermissionsViolation
+
+                    # If this request was executed via a background job, return the raw data for logging
+                    if is_background_request(request):
+                        return AsyncJobData(
+                            log=[
+                                _('Updated {object}').format(object=str(obj))
+                                for obj in updated_objects
+                            ],
+                            errors=form.errors
+                        )
 
                     if updated_objects:
                         msg = f'Updated {len(updated_objects)} {model._meta.verbose_name_plural}'
@@ -876,7 +892,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
-        class BulkDeleteForm(ConfirmationForm):
+        class BulkDeleteForm(BackgroundJobMixin, ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         return BulkDeleteForm
@@ -908,6 +924,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 logger.debug("Form validation was successful")
 
+                # If indicated, defer this request to a background job & redirect the user
+                if form.cleaned_data['background_job']:
+                    job_name = _('Bulk delete {count} {object_type}').format(
+                        count=len(form.cleaned_data['pk']),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    if process_request_as_job(self.__class__, request, name=job_name):
+                        return redirect(self.get_return_url(request))
+
                 # Delete objects
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
@@ -928,6 +953,16 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                     logger.debug(e.message)
                     messages.error(request, mark_safe(e.message))
                     return redirect(self.get_return_url(request))
+
+                # If this request was executed via a background job, return the raw data for logging
+                if is_background_request(request):
+                    return AsyncJobData(
+                        log=[
+                            _('Deleted {object}').format(object=str(obj))
+                            for obj in queryset
+                        ],
+                        errors=form.errors
+                    )
 
                 msg = _("Deleted {count} {object_type}").format(
                     count=deleted_count,

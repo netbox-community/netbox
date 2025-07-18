@@ -9,10 +9,11 @@ from django.utils.translation import gettext as _
 from core.forms.mixins import SyncedDataMixin
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from utilities.constants import CSV_DELIMITERS
+from utilities.forms.mixins import BackgroundJobMixin
 from utilities.forms.utils import parse_csv
 
 
-class BulkImportForm(SyncedDataMixin, forms.Form):
+class BulkImportForm(BackgroundJobMixin, SyncedDataMixin, forms.Form):
     import_method = forms.ChoiceField(
         choices=ImportMethodChoices,
         required=False
@@ -36,11 +37,6 @@ class BulkImportForm(SyncedDataMixin, forms.Form):
         label=_("CSV delimiter"),
         help_text=_("The character which delimits CSV fields. Applies only to CSV format."),
         required=False
-    )
-    background_job = forms.BooleanField(
-        label=_('Background job'),
-        help_text=_("Enqueue a background job to complete the bulk import/update."),
-        required=False,
     )
 
     data_field = 'data'

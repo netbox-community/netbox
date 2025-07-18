@@ -1,7 +1,8 @@
 {% extends 'generic/_base.html' %}
+{% load form_helpers %}
 {% load helpers %}
-{% load render_table from django_tables2 %}
 {% load i18n %}
+{% load render_table from django_tables2 %}
 
 {% comment %}
 Blocks:
@@ -58,13 +59,23 @@ Context:
     <div class="row mt-3">
       <form action="" method="post">
         {% csrf_token %}
+
+        {# Form fields #}
         {% for field in form.hidden_fields %}
           {{ field }}
         {% endfor %}
+
+        {# Meta fields #}
+        <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.background_job %}
+        </div>
+
+        {# Form buttons #}
         <div class="text-end">
           <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
         </div>
+
       </form>
     </div>
   </div>

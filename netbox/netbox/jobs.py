@@ -212,6 +212,5 @@ class AsyncViewJob(JobRunner):
         )
         notification.save()
 
-        # TODO: Waiting on fix for bug #19806
-        # if errors:
-        #     raise JobFailed()
+        if data.errors:
+            raise JobFailed()

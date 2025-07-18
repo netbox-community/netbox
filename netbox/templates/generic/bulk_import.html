@@ -1,6 +1,6 @@
 {% extends 'generic/_base.html' %}
-{% load helpers %}
 {% load form_helpers %}
+{% load helpers %}
 {% load i18n %}
 
 {% comment %}
@@ -47,10 +47,17 @@ Context:
         <form action="" method="post" enctype="multipart/form-data" class="form">
           {% csrf_token %}
           <input type="hidden" name="import_method" value="direct" />
+
+          {# Form fields #}
           {% render_field form.data %}
           {% render_field form.format %}
           {% render_field form.csv_delimiter %}
-          {% render_field form.background_job %}
+
+          {# Meta fields #}
+          <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+            {% render_field form.background_job %}
+          </div>
+
           <div class="form-group">
             <div class="col col-md-12 text-end">
               {% if return_url %}
@@ -70,9 +77,12 @@ Context:
       <form action="" method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
         <input type="hidden" name="import_method" value="upload" />
+
+        {# Form fields #}
         {% render_field form.upload_file %}
         {% render_field form.format %}
         {% render_field form.csv_delimiter %}
+
         <div class="form-group">
           <div class="col col-md-12 text-end">
             {% if return_url %}
@@ -91,11 +101,18 @@ Context:
       <form action="" method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
         <input type="hidden" name="import_method" value="datafile" />
+
+        {# Form fields #}
         {% render_field form.data_source %}
         {% render_field form.data_file %}
         {% render_field form.format %}
         {% render_field form.csv_delimiter %}
-        {% render_field form.background_job %}
+
+        {# Meta fields #}
+        <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.background_job %}
+        </div>
+
         <div class="form-group">
           <div class="col col-md-12 text-end">
             {% if return_url %}

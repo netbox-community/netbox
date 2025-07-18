@@ -3,6 +3,8 @@ import re
 from django import forms
 from django.utils.translation import gettext as _
 
+from utilities.forms.mixins import BackgroundJobMixin
+
 __all__ = (
     'BulkEditForm',
     'BulkRenameForm',
@@ -28,9 +30,12 @@ class ConfirmationForm(forms.Form):
     )
 
 
-class BulkEditForm(forms.Form):
+class BulkEditForm(BackgroundJobMixin, forms.Form):
     """
     Provides bulk edit support for objects.
+
+    Attributes:
+        nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
     nullable_fields = ()
 
