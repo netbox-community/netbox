@@ -84,7 +84,7 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         related_name='services',
         blank=True,
         verbose_name=_('IP addresses'),
-        help_text=_("The specific IP addresses (if any) to which this service is bound")
+        help_text=_("The specific IP addresses (if any) to which this application service is bound")
     )
 
     clone_fields = ['protocol', 'ports', 'description', 'parent', 'ipaddresses', ]

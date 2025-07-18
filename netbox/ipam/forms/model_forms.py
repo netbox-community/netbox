@@ -749,7 +749,7 @@ class ServiceTemplateForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Service Template')),
+        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
@@ -794,7 +794,7 @@ class ServiceForm(NetBoxModelForm):
         FieldSet(
             'parent_object_type', 'parent', 'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
-            'ipaddresses', 'description', 'tags', name=_('Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service')
         ),
     )
 
@@ -836,7 +836,7 @@ class ServiceForm(NetBoxModelForm):
 
 class ServiceCreateForm(ServiceForm):
     service_template = DynamicModelChoiceField(
-        label=_('Service template'),
+        label=_('Application Service template'),
         queryset=ServiceTemplate.objects.all(),
         required=False
     )
@@ -848,7 +848,7 @@ class ServiceCreateForm(ServiceForm):
                 FieldSet('service_template', name=_('From Template')),
                 FieldSet('name', 'protocol', 'ports', name=_('Custom')),
             ),
-            'ipaddresses', 'description', 'tags', name=_('Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service')
         ),
     )
 
@@ -877,4 +877,6 @@ class ServiceCreateForm(ServiceForm):
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
-            raise forms.ValidationError(_("Must specify name, protocol, and port(s) if not using a service template."))
+            raise forms.ValidationError(
+                _("Must specify name, protocol, and port(s) if not using an application service template.")
+            )
