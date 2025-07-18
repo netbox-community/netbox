@@ -236,6 +236,11 @@ class ImageAttachmentTable(NetBoxTable):
         linkify=lambda record: record.image.url,
         orderable=False,
     )
+    dimensions = columns.TemplateColumn(
+        verbose_name=_('Dimensions'),
+        orderable=False,
+        template_code="{{ record.image_width }}×{{ record.image_height }}",
+    )
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
@@ -254,7 +259,7 @@ class ImageAttachmentTable(NetBoxTable):
             'pk', 'object_type', 'parent', 'image', 'name', 'filename', 'description', 'image_height', 'image_width',
             'size', 'created', 'last_updated',
         )
-        default_columns = ('image', 'object_type', 'parent', 'description', 'size')
+        default_columns = ('image', 'object_type', 'parent', 'description', 'dimensions', 'size')
 
     def render_image(self, record):
         return str(record)
