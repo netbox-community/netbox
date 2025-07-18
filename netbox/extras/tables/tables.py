@@ -268,7 +268,7 @@ class ImageAttachmentTable(NetBoxTable):
             'pk', 'object_type', 'parent', 'image', 'name', 'filename', 'description', 'image_height', 'image_width',
             'size', 'created', 'last_updated',
         )
-        default_columns = ('image', 'object_type', 'parent', 'description', 'dimensions', 'size')
+        default_columns = ('image', 'parent', 'description', 'dimensions', 'size')
 
     def render_size(self, value):
         return filesizeformat(value)
