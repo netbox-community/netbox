@@ -19,6 +19,7 @@ class ImageAttachmentIndex(SearchIndex):
     model = models.ImageAttachment
     fields = (
         ('name', 100),
+        ('filename', 110),
         ('description', 500),
     )
     display_attrs = ('description',)
