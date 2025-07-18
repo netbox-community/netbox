@@ -458,6 +458,7 @@ class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(image__icontains=value) |
             Q(description__icontains=value)
         )
 
