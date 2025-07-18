@@ -63,6 +63,8 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         null=True
     )
 
+    _changelog_message = None
+
     class Meta:
         abstract = True
 
@@ -103,7 +105,8 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
-            action=action
+            action=action,
+            message=self._changelog_message or '',
         )
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot

@@ -65,9 +65,15 @@
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row">{% trans "Message" %}</th>
+                    <td>
+                        {{ object.message|placeholder }}
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row">{% trans "Request ID" %}</th>
                     <td>
-                        {{ object.request_id }}
+                        <a href="{% url 'core:objectchange_list' %}?request_id={{ object.request_id }}">{{ object.request_id }}</a>
                     </td>
                 </tr>
             </table>

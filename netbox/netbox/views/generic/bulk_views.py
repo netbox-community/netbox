@@ -21,6 +21,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.forms.mixins import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -622,6 +623,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
 
+            # Attach the changelog message (if any) to the object
+            obj._changelog_message = form.cleaned_data.get('changelog_message')
+
             # Update standard fields. If a field is listed in _nullify, delete its value.
             for name, model_field in model_fields.items():
                 # Handle nullification
@@ -892,7 +896,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
-        class BulkDeleteForm(BackgroundJobMixin, ConfirmationForm):
+        class BulkDeleteForm(BackgroundJobMixin, ChangeLoggingMixin, ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         return BulkDeleteForm
@@ -939,9 +943,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     with transaction.atomic(using=router.db_for_write(model)):
                         for obj in queryset:
+
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
                                 obj.snapshot()
+
+                            # Attach the changelog message (if any) to the object
+                            obj._changelog_message = form.cleaned_data.get('changelog_message')
+
+                            # Delete the object
                             obj.delete()
 
                 except (ProtectedError, RestrictedError) as e:
