@@ -141,6 +141,10 @@ social-auth-app-django
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
 social-auth-core
 
+# Image thumbnail generation
+# https://github.com/jazzband/sorl-thumbnail/blob/master/CHANGES.rst
+sorl-thumbnail
+
 # Strawberry GraphQL
 # https://github.com/strawberry-graphql/strawberry/blob/main/CHANGELOG.md
 strawberry-graphql

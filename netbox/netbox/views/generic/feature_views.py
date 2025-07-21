@@ -10,7 +10,7 @@ from django.views.generic import View
 from core.models import Job, ObjectChange
 from core.tables import JobTable, ObjectChangeTable
 from extras.forms import JournalEntryForm
-from extras.models import JournalEntry
+from extras.models import ImageAttachment, JournalEntry
 from extras.tables import JournalEntryTable
 from tenancy.models import ContactAssignment
 from tenancy.tables import ContactAssignmentTable
@@ -25,6 +25,7 @@ __all__ = (
     'BulkSyncDataView',
     'ObjectChangeLogView',
     'ObjectContactsView',
+    'ObjectImageAttachmentsView',
     'ObjectJobsView',
     'ObjectJournalView',
     'ObjectSyncDataView',
@@ -79,6 +80,52 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
             'table': objectchanges_table,
+            'base_template': self.base_template,
+            'tab': self.tab,
+        })
+
+
+class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
+    """
+    Render a list of all Job assigned to an object. For example:
+
+        path(
+            'data-sources/<int:pk>/jobs/',
+             ObjectJobsView.as_view(),
+             name='datasource_jobs',
+             kwargs={'model': DataSource}
+        )
+
+    Attributes:
+        base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
+    """
+    base_template = None
+    tab = ViewTab(
+        label=_('Images'),
+        # badge=lambda obj: obj.imageattachments.count(),
+        permission='extras.view_imageattachment',
+        weight=6000
+    )
+
+    def get_object(self, request, **kwargs):
+        return get_object_or_404(self.model.objects.restrict(request.user, 'view'), **kwargs)
+
+    def get(self, request, model, **kwargs):
+        self.model = model
+        obj = self.get_object(request, **kwargs)
+        image_attachments = ImageAttachment.objects.filter(
+            object_type=ContentType.objects.get_for_model(obj),
+            object_id=obj.pk,
+        )
+
+        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
+        # fall back to using base.html.
+        if self.base_template is None:
+            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
+
+        return render(request, 'extras/object_imageattachments.html', {
+            'object': obj,
+            'image_attachments': image_attachments,
             'base_template': self.base_template,
             'tab': self.tab,
         })
