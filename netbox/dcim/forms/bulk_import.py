@@ -1335,6 +1335,13 @@ class MACAddressImportForm(NetBoxModelImportForm):
 
 class CableImportForm(NetBoxModelImportForm):
     # Termination A
+    side_a_site = CSVModelChoiceField(
+        label=_('Side A site'),
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Site of parent device A (if any)'),
+    )
     side_a_device = CSVModelChoiceField(
         label=_('Side A device'),
         queryset=Device.objects.all(),
@@ -1353,6 +1360,13 @@ class CableImportForm(NetBoxModelImportForm):
     )
 
     # Termination B
+    side_b_site = CSVModelChoiceField(
+        label=_('Side B site'),
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Site of parent device B (if any)'),
+    )
     side_b_device = CSVModelChoiceField(
         label=_('Side B device'),
         queryset=Device.objects.all(),
@@ -1400,9 +1414,28 @@ class CableImportForm(NetBoxModelImportForm):
     class Meta:
         model = Cable
         fields = [
-            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
-            'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
+            'side_a_site', 'side_a_device', 'side_a_type', 'side_a_name', 'side_b_site', 'side_b_device', 'side_b_type',
+            'side_b_name', 'type', 'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
+            'comments', 'tags',
         ]
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit choices for side_a_device to the assigned side_a_site
+            if side_a_site := data.get('side_a_site'):
+                side_a_device_params = {f'site__{self.fields["side_a_site"].to_field_name}': side_a_site}
+                self.fields['side_a_device'].queryset = self.fields['side_a_device'].queryset.filter(
+                    **side_a_device_params
+                )
+
+            # Limit choices for side_b_device to the assigned side_b_site
+            if side_b_site := data.get('side_b_site'):
+                side_b_device_params = {f'site__{self.fields["side_b_site"].to_field_name}': side_b_site}
+                self.fields['side_b_device'].queryset = self.fields['side_b_device'].queryset.filter(
+                    **side_b_device_params
+                )
 
     def _clean_side(self, side):
         """
