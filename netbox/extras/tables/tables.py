@@ -260,7 +260,7 @@ class ImageAttachmentTable(NetBoxTable):
     )
     size = tables.Column(
         orderable=False,
-        verbose_name=_('Size (Bytes)')
+        verbose_name=_('Size')
     )
 
     class Meta(NetBoxTable.Meta):
