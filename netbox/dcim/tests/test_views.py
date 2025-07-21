@@ -3266,17 +3266,21 @@ class CableTestCase(
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         vc = VirtualChassis.objects.create(name='Virtual Chassis')
 
         devices = (
-            Device(name='Device 1', site=site, device_type=devicetype, role=role),
-            Device(name='Device 2', site=site, device_type=devicetype, role=role),
-            Device(name='Device 3', site=site, device_type=devicetype, role=role),
-            Device(name='Device 4', site=site, device_type=devicetype, role=role),
+            Device(name='Device 1', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 2', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 3', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 1', site=sites[1], device_type=devicetype, role=role),
         )
         Device.objects.bulk_create(devices)
 
@@ -3328,12 +3332,12 @@ class CableTestCase(
         }
 
         cls.csv_data = (
-            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
-            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
-            "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
-            "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
-            "Device 1,dcim.interface,Device 2 Interface,Device 4,dcim.interface,Interface 4",
-            "Device 1,dcim.interface,Device 3 Interface,Device 4,dcim.interface,Interface 5",
+            "side_a_site,side_a_device,side_a_type,side_a_name,side_b_site,side_b_device,side_b_type,side_b_name",
+            "Site 1,Device 3,dcim.interface,Interface 1,Site 2,Device 1,dcim.interface,Interface 1",
+            "Site 1,Device 3,dcim.interface,Interface 2,Site 2,Device 1,dcim.interface,Interface 2",
+            "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
+            "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
+            "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
         )
 
         cls.csv_update_data = (
