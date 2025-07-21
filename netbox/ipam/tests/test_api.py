@@ -1162,6 +1162,7 @@ class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_base_name = 'service_template'
 
     @classmethod
     def setUpTestData(cls):
@@ -1197,6 +1198,7 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_base_name = 'service'
 
     @classmethod
     def setUpTestData(cls):
