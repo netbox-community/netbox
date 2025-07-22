@@ -3,6 +3,7 @@ import svgwrite
 from svgwrite.container import Hyperlink
 from svgwrite.image import Image
 from svgwrite.gradients import LinearGradient
+from svgwrite.masking import ClipPath
 from svgwrite.shapes import Rect
 from svgwrite.text import Text
 
@@ -65,6 +66,20 @@ def get_device_description(device):
         description += f'\nDescription: {device.description}'
 
     return description
+
+
+def truncate_text(text, width, font_size=15):
+    """
+    Truncate text to fit within the width of a rectangle.
+
+    :param text: The text to truncate
+    :param width: Width of rectangle
+    :param font_size: Font size (default is 15, ~0.875rem)
+    """
+    char_width = font_size * 0.6  # 0.6 is an approximation of the average character width in pixels
+    max_char = int(width / char_width)
+
+    return text if len(text) <= max_char else text[:max_char] + '...'
 
 
 class RackElevationSVG:
@@ -177,12 +192,26 @@ class RackElevationSVG:
         link = Hyperlink(href=f'{self.base_url}{device.get_absolute_url()}', target="_parent")
         link.set_desc(description)
 
+        # Create clipPath element
+        # This is necessary as fallback because the truncate_text method is an approximation
+        clip_id = f"clip-{device.id}"
+        clip_path = ClipPath(id=clip_id)
+        clip_path.add(Rect(coords, size))
+
+        self.drawing.defs.add(clip_path)
+
+        # Name to display
+        display_name = truncate_text(name, size[0])
+
         # Add rect element to hyperlink
         if color:
             link.add(Rect(coords, size, style=f'fill: #{color}', class_=f'slot{css_extra}'))
         else:
             link.add(Rect(coords, size, class_=f'slot blocked{css_extra}'))
-        link.add(Text(name, insert=text_coords, fill=text_color, class_=f'label{css_extra}'))
+        link.add(
+            Text(display_name, insert=text_coords, fill=text_color, clip_path=f"url(#{clip_id})",
+                 class_=f'label{css_extra}')
+        )
 
         # Embed device type image if provided
         if self.include_images and image:
