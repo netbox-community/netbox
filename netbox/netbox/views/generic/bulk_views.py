@@ -424,7 +424,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         } if prefetch_ids else {}
 
         for i, record in enumerate(records, start=1):
-            instance = None
             object_id = int(record.pop('id')) if record.get('id') else None
 
             # Determine whether this object is being created or updated
@@ -440,6 +439,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     instance.snapshot()
 
             else:
+                instance = self.queryset.model()
+
                 # For newly created objects, apply any default custom field values
                 custom_fields = CustomField.objects.filter(
                     object_types=ContentType.objects.get_for_model(self.queryset.model),
@@ -449,6 +450,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default
+
+            # Record changelog message (if any)
+            instance._changelog_message = form.cleaned_data.pop('changelog_message', '')
 
             # Instantiate the model form for the object
             model_form_kwargs = {

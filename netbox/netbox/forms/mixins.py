@@ -15,6 +15,9 @@ __all__ = (
 
 
 class ChangeLoggingMixin(forms.Form):
+    """
+    Adds an optional field for recording a message on the resulting changelog record(s).
+    """
     changelog_message = forms.CharField(
         required=False,
         max_length=200
