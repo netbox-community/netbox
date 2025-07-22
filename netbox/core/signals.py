@@ -4,7 +4,7 @@ from threading import local
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
-from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django.core.signals import request_finished
 from django.utils.translation import gettext_lazy as _
@@ -12,11 +12,12 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
+from core.models import ObjectType
 from extras.events import enqueue_event
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import ChangeLoggingMixin, FEATURES_MAP
 from utilities.exceptions import AbortRequest
 from .models import ConfigRevision, DataSource, ObjectChange
 
@@ -38,6 +39,33 @@ post_sync = Signal()
 
 # Event signals
 clear_events = Signal()
+
+
+#
+# Model registration
+#
+
+@receiver(post_migrate)
+def update_object_types(sender, **kwargs):
+    models = sender.get_models()
+
+    for model in models:
+        app_label, model_name = model._meta.label_lower.split('.')
+
+        # Determine whether model is public
+        is_public = not getattr(model, '_netbox_private', False)
+
+        # Determine NetBox features supported by the model
+        features = [
+            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+        ]
+
+        # TODO: Update ObjectTypes in bulk
+        # Update the ObjectType for the model
+        ObjectType.objects.filter(app_label=app_label, model=model_name).update(
+            public=is_public,
+            features=features,
+        )
 
 
 #
