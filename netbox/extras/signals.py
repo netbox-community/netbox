@@ -8,7 +8,6 @@ from core.signals import job_end, job_start
 from extras.events import process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
-from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .models import CustomField, TaggedItem
@@ -150,17 +149,24 @@ def notify_object_changed(sender, instance, **kwargs):
         event_type = OBJECT_DELETED
 
     # Skip unsupported object types
-    ct = ContentType.objects.get_for_model(instance)
-    if ct.model not in registry['model_features']['notifications'].get(ct.app_label, []):
+    object_type = ObjectType.objects.get_for_model(instance)
+    if 'notifications' not in object_type.features:
         return
 
     # Find all subscribed Users
-    subscribed_users = Subscription.objects.filter(object_type=ct, object_id=instance.pk).values_list('user', flat=True)
+    subscribed_users = Subscription.objects.filter(
+        object_type=object_type,
+        object_id=instance.pk
+    ).values_list('user', flat=True)
     if not subscribed_users:
         return
 
     # Delete any existing Notifications for the object
-    Notification.objects.filter(object_type=ct, object_id=instance.pk, user__in=subscribed_users).delete()
+    Notification.objects.filter(
+        object_type=object_type,
+        object_id=instance.pk,
+        user__in=subscribed_users
+    ).delete()
 
     # Create Notifications for Subscribers
     Notification.objects.bulk_create([

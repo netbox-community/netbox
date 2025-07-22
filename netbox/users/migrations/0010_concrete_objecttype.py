@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0016_concrete_objecttype'),
+        ('core', '0017_concrete_objecttype'),
         ('users', '0009_update_group_perms'),
     ]
 
