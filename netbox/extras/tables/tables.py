@@ -1,6 +1,7 @@
 import json
 
 import django_tables2 as tables
+from django.template.defaultfilters import filesizeformat
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -38,10 +39,11 @@ __all__ = (
 
 IMAGEATTACHMENT_IMAGE = """
 {% if record.image %}
-  <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
-{% else %}
-  &mdash;
+  <a class="image-preview" href="{{ record.image.url }}" target="_blank">
+    <i class="mdi mdi-image"></i>
+  </a>
 {% endif %}
+<a href="{{ record.get_absolute_url }}">{{ record }}</a>
 """
 
 NOTIFICATION_ICON = """
@@ -230,29 +232,50 @@ class ImageAttachmentTable(NetBoxTable):
         verbose_name=_('ID'),
         linkify=False
     )
+    image = columns.TemplateColumn(
+        verbose_name=_('Image'),
+        template_code=IMAGEATTACHMENT_IMAGE,
+    )
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+    )
+    filename = tables.Column(
+        verbose_name=_('Filename'),
+        linkify=lambda record: record.image.url,
+        orderable=False,
+    )
+    dimensions = columns.TemplateColumn(
+        verbose_name=_('Dimensions'),
+        orderable=False,
+        template_code="{{ record.image_width }}×{{ record.image_height }}",
+    )
     object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type'),
     )
     parent = tables.Column(
         verbose_name=_('Parent'),
-        linkify=True
-    )
-    image = tables.TemplateColumn(
-        verbose_name=_('Image'),
-        template_code=IMAGEATTACHMENT_IMAGE,
+        linkify=True,
+        orderable=False,
     )
     size = tables.Column(
         orderable=False,
-        verbose_name=_('Size (Bytes)')
+        verbose_name=_('Size')
     )
 
     class Meta(NetBoxTable.Meta):
         model = ImageAttachment
         fields = (
-            'pk', 'object_type', 'parent', 'image', 'name', 'description', 'image_height', 'image_width', 'size',
-            'created', 'last_updated',
+            'pk', 'object_type', 'parent', 'image', 'name', 'filename', 'description', 'image_height', 'image_width',
+            'size', 'created', 'last_updated',
         )
-        default_columns = ('object_type', 'parent', 'image', 'name', 'description', 'size', 'created')
+        default_columns = ('image', 'parent', 'description', 'dimensions', 'size')
+
+    def render_size(self, value):
+        return filesizeformat(value)
+
+    def value_size(self, value):
+        return value
 
 
 class SavedFilterTable(NetBoxTable):
