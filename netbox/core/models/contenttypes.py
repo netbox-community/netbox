@@ -1,5 +1,8 @@
 from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
@@ -19,8 +22,8 @@ class ObjectTypeManager(ContentTypeManager):
         in registry['models'] and intended for reference by other objects.
         """
         q = Q()
-        for app_label, models in registry['models'].items():
-            q |= Q(app_label=app_label, model__in=models)
+        for app_label, model_list in registry['models'].items():
+            q |= Q(app_label=app_label, model__in=model_list)
         return self.get_queryset().filter(q)
 
     def with_feature(self, feature):
@@ -36,8 +39,8 @@ class ObjectTypeManager(ContentTypeManager):
             )
 
         q = Q()
-        for app_label, models in registry['model_features'][feature].items():
-            q |= Q(app_label=app_label, model__in=models)
+        for app_label, model_list in registry['model_features'][feature].items():
+            q |= Q(app_label=app_label, model__in=model_list)
 
         return self.get_queryset().filter(q)
 
@@ -46,10 +49,25 @@ class ObjectType(ContentType):
     """
     Wrap Django's native ContentType model to use our custom manager.
     """
+    contenttype_ptr = models.OneToOneField(
+        on_delete=models.CASCADE,
+        to='contenttypes.ContentType',
+        parent_link=True,
+        primary_key=True,
+        serialize=False,
+        related_name='object_type'
+    )
+    features = ArrayField(
+        base_field=models.CharField(max_length=50),
+        blank=True,
+        null=True,
+    )
+
     objects = ObjectTypeManager()
 
     class Meta:
-        proxy = True
+        verbose_name = _('object type')
+        verbose_name_plural = _('object types')
 
     @property
     def app_labeled_name(self):
