@@ -55,7 +55,10 @@ class ObjectType(ContentType):
         parent_link=True,
         primary_key=True,
         serialize=False,
-        related_name='object_type'
+        related_name='object_type',
+    )
+    public = models.BooleanField(
+        default=False,
     )
     features = ArrayField(
         base_field=models.CharField(max_length=50),
