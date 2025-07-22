@@ -49,6 +49,12 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'public',
+                    models.BooleanField(
+                        default=False
+                    )
+                ),
+                (
                     'features',
                     django.contrib.postgres.fields.ArrayField(
                         base_field=models.CharField(max_length=50),
