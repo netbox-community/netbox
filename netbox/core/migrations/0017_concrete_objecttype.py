@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('core', '0015_remove_redundant_indexes'),
+        ('core', '0016_job_log_entries'),
     ]
 
     operations = [

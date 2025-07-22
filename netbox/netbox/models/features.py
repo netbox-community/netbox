@@ -32,6 +32,7 @@ __all__ = (
     'CustomValidationMixin',
     'EventRulesMixin',
     'ExportTemplatesMixin',
+    'FEATURES_MAP',
     'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
@@ -633,6 +634,7 @@ FEATURES_MAP = {
     'tags': TagsMixin,
 }
 
+# TODO: Remove in NetBox v4.5
 registry['model_features'].update({
     feature: defaultdict(set) for feature in FEATURES_MAP.keys()
 })
@@ -653,10 +655,12 @@ def register_models(*models):
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
+        # TODO: Remove in NetBox v4.5
         # Register public models
         if not getattr(model, '_netbox_private', False):
             registry['models'][app_label].add(model_name)
 
+        # TODO: Remove in NetBox v4.5
         # Record each applicable feature for the model in the registry
         features = {
             feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)

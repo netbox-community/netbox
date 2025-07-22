@@ -4,8 +4,8 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0016_concrete_objecttype'),
-        ('extras', '0129_fix_script_paths'),
+        ('core', '0017_concrete_objecttype'),
+        ('extras', '0130_imageattachment_description'),
     ]
 
     operations = [
