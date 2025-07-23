@@ -1,5 +1,5 @@
 {% load i18n %}
-<div style="margin-left: -30px">
+<div style="margin-left: -30px" class="rack_elevation">
   <div
     hx-get="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{ face }}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}"
     hx-trigger="intersect"

@@ -35,7 +35,7 @@ function showRackElements(
   selector: string,
   elevation: HTMLObjectElement,
 ): void {
-  const elements = elevation.contentDocument?.querySelectorAll(selector) ?? [];
+  const elements = elevation.querySelectorAll(selector) ?? [];
   for (const element of elements) {
     element.classList.remove('hidden');
   }
@@ -45,7 +45,7 @@ function hideRackElements(
   selector: string,
   elevation: HTMLObjectElement,
 ): void {
-  const elements = elevation.contentDocument?.querySelectorAll(selector) ?? [];
+  const elements = elevation.querySelectorAll(selector) ?? [];
   for (const element of elements) {
     element.classList.add('hidden');
   }
