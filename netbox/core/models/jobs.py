@@ -20,6 +20,7 @@ from core.choices import JobStatusChoices
 from core.dataclasses import JobLogEntry
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
@@ -148,7 +149,7 @@ class Job(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type and self.object_type not in ObjectType.objects.with_feature('jobs'):
+        if self.object_type and not has_feature(self.object_type, 'jobs'):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
