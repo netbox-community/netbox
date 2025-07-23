@@ -5,6 +5,7 @@ from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultVal
 from .nested import NestedTagSerializer
 
 __all__ = (
+    'ChangeLogMessageSerializer',
     'CustomFieldModelSerializer',
     'TaggableModelSerializer',
 )
@@ -54,3 +55,22 @@ class TaggableModelSerializer(serializers.Serializer):
             instance.tags.clear()
 
         return instance
+
+
+class ChangeLogMessageSerializer(serializers.Serializer):
+    changelog_message = serializers.CharField(write_only=True)
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+
+        # Workaround to bypass requirement to include changelog_message in Meta.fields on every serializer
+        if 'changelog_message' in data and 'changelog_message' not in ret:
+            # TODO: Validation
+            ret['changelog_message'] = data['changelog_message']
+
+        return ret
+
+    def save(self, **kwargs):
+        if self.instance is not None:
+            self.instance._changelog_message = self.validated_data.get('changelog_message')
+        return super().save(**kwargs)

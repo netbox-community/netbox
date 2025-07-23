@@ -63,10 +63,13 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         null=True
     )
 
-    _changelog_message = None
-
     class Meta:
         abstract = True
+
+    def __init__(self, *args, **kwargs):
+        changelog_message = kwargs.pop('changelog_message', None)
+        super().__init__(*args, **kwargs)
+        self._changelog_message = changelog_message
 
     def serialize_object(self, exclude=None):
         """
