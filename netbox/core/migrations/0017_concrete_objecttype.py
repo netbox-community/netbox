@@ -18,7 +18,8 @@ def populate_object_types(apps, schema_editor):
             apps.get_model(ct.app_label, ct.model)
         except LookupError:
             continue
-        ObjectType(pk=ct.pk).save_base(raw=True)
+        # TODO assign public/features
+        ObjectType(pk=ct.pk, features=[]).save_base(raw=True)
 
 
 class Migration(migrations.Migration):
@@ -58,8 +59,7 @@ class Migration(migrations.Migration):
                     'features',
                     django.contrib.postgres.fields.ArrayField(
                         base_field=models.CharField(max_length=50),
-                        blank=True,
-                        null=True,
+                        default=list,
                         size=None
                     )
                 ),

@@ -2,7 +2,8 @@ import logging
 from threading import local
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import ProgrammingError
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -41,8 +42,18 @@ post_sync = Signal()
 clear_events = Signal()
 
 
+def model_is_public(model):
+    return not getattr(model, '_netbox_private', False)
+
+
+def get_model_features(model):
+    return [
+        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+    ]
+
+
 #
-# Model registration
+# Object types
 #
 
 @receiver(post_migrate)
@@ -53,19 +64,41 @@ def update_object_types(sender, **kwargs):
         app_label, model_name = model._meta.label_lower.split('.')
 
         # Determine whether model is public
-        is_public = not getattr(model, '_netbox_private', False)
+        is_public = model_is_public(model)
 
         # Determine NetBox features supported by the model
-        features = [
-            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
-        ]
+        features = get_model_features(model)
 
-        # TODO: Update ObjectTypes in bulk
-        # Update the ObjectType for the model
-        ObjectType.objects.filter(app_label=app_label, model=model_name).update(
-            public=is_public,
-            features=features,
-        )
+        # Create/update the ObjectType for the model
+        try:
+            ot = ObjectType.objects.get_by_natural_key(app_label=app_label, model=model_name)
+            ot.public = is_public
+            ot.features = features
+        except ObjectDoesNotExist:
+            ct = ContentType.objects.get_for_model(model)
+            ot = ObjectType(
+                contenttype_ptr=ct,
+                app_label=app_label,
+                model=model_name,
+                public=is_public,
+                features=features,
+            )
+        ot.save()
+
+
+@receiver(post_save, sender=ContentType)
+def create_object_type(sender, instance, created, **kwargs):
+    if created:
+        model = instance.model_class()
+        try:
+            ObjectType.objects.create(
+                contenttype_ptr=instance,
+                public=model_is_public(model),
+                features=get_model_features(model),
+            )
+        except ProgrammingError:
+            # Will fail during migrations if ObjectType hasn't been created yet
+            pass
 
 
 #
