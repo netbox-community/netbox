@@ -1,6 +1,7 @@
 from django.db.models import QuerySet
 from rest_framework.pagination import LimitOffsetPagination
 
+from netbox.api.exceptions import QuerySetNotOrdered
 from netbox.config import get_config
 
 
@@ -14,6 +15,12 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         self.default_limit = get_config().PAGINATE_COUNT
 
     def paginate_queryset(self, queryset, request, view=None):
+
+        if isinstance(queryset, QuerySet) and not queryset.ordered:
+            raise QuerySetNotOrdered(
+                "Paginating over an unordered queryset is unreliable. Ensure that a minimal "
+                "ordering has been applied to the queryset for this API endpoint."
+            )
 
         if isinstance(queryset, QuerySet):
             self.count = self.get_queryset_count(queryset)
