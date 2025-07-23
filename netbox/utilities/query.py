@@ -67,5 +67,8 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     # MPTT-based models are exempt from this; use caution when annotating querysets of these models
     if any(isinstance(manager, TreeManager) for manager in queryset.model._meta.local_managers):
         return queryset
+    elif queryset.ordered:
+        return queryset
+
     ordering = queryset.model._meta.ordering
     return queryset.order_by(*ordering)
