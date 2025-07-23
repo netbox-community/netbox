@@ -11,8 +11,8 @@ from mptt.models import MPTTModel
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
 from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import has_feature
 from utilities.data import shallow_compare_dict
-from .contenttypes import ObjectType
 
 __all__ = (
     'ObjectChange',
@@ -124,7 +124,7 @@ class ObjectChange(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.changed_object_type not in ObjectType.objects.with_feature('change_logging'):
+        if not has_feature(self.changed_object_type, 'change_logging'):
             raise ValidationError(
                 _("Change logging is not supported for this object type ({type}).").format(
                     type=self.changed_object_type

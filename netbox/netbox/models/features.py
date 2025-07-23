@@ -3,6 +3,7 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -39,6 +40,7 @@ __all__ = (
     'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'has_feature',
     'register_models',
 )
 
@@ -644,6 +646,15 @@ FEATURES_MAP = {
 registry['model_features'].update({
     feature: defaultdict(set) for feature in FEATURES_MAP.keys()
 })
+
+
+def has_feature(model, feature):
+    """
+    Returns True if the model supports the specified feature.
+    """
+    if type(model) is ContentType:
+        model = model.model_class()
+    return feature in ObjectType.objects.get_for_model(model).features
 
 
 def register_models(*models):

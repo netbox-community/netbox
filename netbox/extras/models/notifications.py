@@ -7,9 +7,9 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
 from extras.querysets import NotificationQuerySet
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import has_feature
 from netbox.registry import registry
 from users.models import User
 from utilities.querysets import RestrictedQuerySet
@@ -94,7 +94,7 @@ class Notification(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('notifications'):
+        if not has_feature(self.object_type, 'notifications'):
             raise ValidationError(
                 _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
             )
@@ -235,7 +235,7 @@ class Subscription(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('notifications'):
+        if not has_feature(self.object_type, 'notifications'):
             raise ValidationError(
                 _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
             )

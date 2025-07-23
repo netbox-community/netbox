@@ -12,17 +12,16 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
-from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet, InvalidCondition
 from extras.constants import *
-from extras.utils import image_upload
 from extras.models.mixins import RenderTemplateMixin
+from extras.utils import image_upload
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, has_feature
 )
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
@@ -707,7 +706,7 @@ class ImageAttachment(ChangeLoggedModel):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('image_attachments'):
+        if not has_feature(self.object_type, 'image_attachments'):
             raise ValidationError(
                 _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -807,7 +806,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         super().clean()
 
         # Validate the assigned object type
-        if self.assigned_object_type not in ObjectType.objects.with_feature('journaling'):
+        if not has_feature(self.assigned_object_type, 'journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -863,7 +862,7 @@ class Bookmark(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('bookmarks'):
+        if not has_feature(self.object_type, 'bookmarks'):
             raise ValidationError(
                 _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
