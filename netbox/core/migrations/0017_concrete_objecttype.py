@@ -2,8 +2,6 @@ import django.contrib.postgres.fields
 import django.db.models.deletion
 from django.db import migrations, models
 
-import core.models.contenttypes
-
 
 def populate_object_types(apps, schema_editor):
     """
@@ -69,9 +67,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'object types',
             },
             bases=('contenttypes.contenttype',),
-            managers=[
-                ('objects', core.models.contenttypes.ObjectTypeManager()),
-            ],
+            managers=[],
         ),
         # Create an ObjectType record for each ContentType
         migrations.RunPython(

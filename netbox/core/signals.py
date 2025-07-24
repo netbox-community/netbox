@@ -18,7 +18,7 @@ from extras.events import enqueue_event
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
-from netbox.models.features import ChangeLoggingMixin, FEATURES_MAP
+from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
 from utilities.exceptions import AbortRequest
 from .models import ConfigRevision, DataSource, ObjectChange
 
@@ -40,16 +40,6 @@ post_sync = Signal()
 
 # Event signals
 clear_events = Signal()
-
-
-def model_is_public(model):
-    return not getattr(model, '_netbox_private', False)
-
-
-def get_model_features(model):
-    return [
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
-    ]
 
 
 #

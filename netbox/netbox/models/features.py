@@ -40,7 +40,9 @@ __all__ = (
     'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'get_model_features',
     'has_feature',
+    'model_is_public',
     'register_models',
 )
 
@@ -648,13 +650,24 @@ registry['model_features'].update({
 })
 
 
+def model_is_public(model):
+    return not getattr(model, '_netbox_private', False)
+
+
+def get_model_features(model):
+    return [
+        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+    ]
+
+
 def has_feature(model, feature):
     """
     Returns True if the model supports the specified feature.
     """
     if type(model) is ContentType:
         model = model.model_class()
-    return feature in ObjectType.objects.get_for_model(model).features
+    ot = ObjectType.objects.get_for_model(model)
+    return feature in ot.features
 
 
 def register_models(*models):

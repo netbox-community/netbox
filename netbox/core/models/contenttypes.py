@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -29,7 +29,7 @@ class ObjectTypeQuerySet(models.QuerySet):
         return super().create(**kwargs)
 
 
-class ObjectTypeManager(ContentTypeManager):
+class ObjectTypeManager(models.Manager):
 
     def get_queryset(self):
         return ObjectTypeQuerySet(self.model, using=self._db)
@@ -37,33 +37,35 @@ class ObjectTypeManager(ContentTypeManager):
     def create(self, **kwargs):
         return self.get_queryset().create(**kwargs)
 
-    def get_for_model(self, model, for_concrete_model=True):
-        """
-        Return the ContentType object for a given model, creating the
-        ContentType if necessary. Lookups are cached so that subsequent lookups
-        for the same model don't hit the database.
-        """
-        opts = self._get_opts(model, for_concrete_model)
-        try:
-            return self._get_from_cache(opts)
-        except KeyError:
-            pass
+    def _get_opts(self, model, for_concrete_model):
+        if for_concrete_model:
+            model = model._meta.concrete_model
+        return model._meta
 
-        # The ContentType entry was not found in the cache, therefore we
-        # proceed to load or create it.
+    def get_by_natural_key(self, app_label, model):
+        return self.get(app_label=app_label, model=model)
+
+    def get_for_id(self, id):
+        return self.get(pk=id)
+
+    def get_for_model(self, model, for_concrete_model=True):
+        from netbox.models.features import get_model_features, model_is_public
+        opts = self._get_opts(model, for_concrete_model)
+
         try:
             # Start with get() and not get_or_create() in order to use
             # the db_for_read (see #20401).
-            ct = self.get(app_label=opts.app_label, model=opts.model_name)
+            ot = self.get(app_label=opts.app_label, model=opts.model_name)
         except self.model.DoesNotExist:
             # Not found in the database; we proceed to create it. This time
             # use get_or_create to take care of any race conditions.
-            ct, __ = self.get_or_create(
+            ot, __ = self.get_or_create(
                 app_label=opts.app_label,
                 model=opts.model_name,
+                public=model_is_public(model),
+                features=get_model_features(model.__class__),
             )
-        self._add_to_cache(self.db, ct)
-        return ct
+        return ot
 
     def public(self):
         """
