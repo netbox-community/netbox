@@ -22,8 +22,6 @@ class ObjectTypeQuerySet(models.QuerySet):
         if (app_label := kwargs.get('app_label')) and (model := kwargs.get('model')):
             try:
                 kwargs['contenttype_ptr'] = ContentType.objects.get(app_label=app_label, model=model)
-                kwargs.pop('app_label')
-                kwargs.pop('model')
             except ObjectDoesNotExist:
                 pass
         return super().create(**kwargs)

@@ -64,16 +64,14 @@ def update_object_types(sender, **kwargs):
             ot = ObjectType.objects.get_by_natural_key(app_label=app_label, model=model_name)
             ot.public = is_public
             ot.features = features
+            ot.save()
         except ObjectDoesNotExist:
-            ct = ContentType.objects.get_for_model(model)
-            ot = ObjectType(
-                contenttype_ptr=ct,
+            ObjectType.objects.create(
                 app_label=app_label,
                 model=model_name,
                 public=is_public,
                 features=features,
             )
-        ot.save()
 
 
 @receiver(post_save, sender=ContentType)
