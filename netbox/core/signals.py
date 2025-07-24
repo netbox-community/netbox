@@ -47,15 +47,14 @@ clear_events = Signal()
 
 @receiver(post_migrate)
 def update_object_types(sender, **kwargs):
-    models = sender.get_models()
-
-    for model in models:
+    """
+    Create or update the corresponding ObjectType for each model within the migrated app.
+    """
+    for model in sender.get_models():
         app_label, model_name = model._meta.label_lower.split('.')
 
-        # Determine whether model is public
+        # Determine whether model is public and its supported features
         is_public = model_is_public(model)
-
-        # Determine NetBox features supported by the model
         features = get_model_features(model)
 
         # Create/update the ObjectType for the model

@@ -32,50 +32,63 @@ class ObjectTypeManager(models.Manager):
     def get_queryset(self):
         return ObjectTypeQuerySet(self.model, using=self._db)
 
-    def create(self, **kwargs):
-        return self.get_queryset().create(**kwargs)
+    def get_by_natural_key(self, app_label, model):
+        """
+        Retrieve an ObjectType by its application label & model name.
+
+        This method exists to provide parity with ContentTypeManager.
+        """
+        return self.get(app_label=app_label, model=model)
+
+    def get_for_id(self, id):
+        """
+        Retrieve an ObjectType by its primary key (numeric ID).
+
+        This method exists to provide parity with ContentTypeManager.
+        """
+        return self.get(pk=id)
 
     def _get_opts(self, model, for_concrete_model):
         if for_concrete_model:
             model = model._meta.concrete_model
         return model._meta
 
-    def get_by_natural_key(self, app_label, model):
-        return self.get(app_label=app_label, model=model)
-
-    def get_for_id(self, id):
-        return self.get(pk=id)
-
     def get_for_model(self, model, for_concrete_model=True):
+        """
+        Retrieve or create and return the ObjectType for a model.
+        """
         from netbox.models.features import get_model_features, model_is_public
         opts = self._get_opts(model, for_concrete_model)
 
         try:
-            # Start with get() and not get_or_create() in order to use
-            # the db_for_read (see #20401).
+            # Use .get() instead of .get_or_create() initially to ensure db_for_read is honored (Django bug #20401).
             ot = self.get(app_label=opts.app_label, model=opts.model_name)
         except self.model.DoesNotExist:
-            # Not found in the database; we proceed to create it. This time
-            # use get_or_create to take care of any race conditions.
-            ot, __ = self.get_or_create(
+            # If the ObjectType doesn't exist, create it. (Use .get_or_create() to avoid race conditions.)
+            ot = self.get_or_create(
                 app_label=opts.app_label,
                 model=opts.model_name,
                 public=model_is_public(model),
                 features=get_model_features(model.__class__),
-            )
+            )[0]
         return ot
 
     def public(self):
         """
-        Filter the base queryset to return only ObjectTypes corresponding to "public" models; those which are intended
-        for reference by other objects.
+        Includes only ObjectTypes for "public" models.
+
+        Filter the base queryset to return only ObjectTypes corresponding to public models; those which are intended
+        for reference by other objects within the application.
         """
         return self.get_queryset().filter(public=True)
 
     def with_feature(self, feature):
         """
-        Return the ContentTypes only for models which are registered as supporting the specified feature. For example,
-        we can find all ContentTypes for models which support event rules with:
+        Return ObjectTypes only for models which support the given feature.
+
+        Only ObjectTypes which list the specified feature will be included. Supported features are declared in
+        netbox.models.features.FEATURES_MAP. For example, we can find all ObjectTypes for models which support event
+        rules with:
 
             ObjectType.objects.with_feature('event_rules')
         """
