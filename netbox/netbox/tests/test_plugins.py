@@ -25,7 +25,7 @@ class PluginTest(TestCase):
 
     def test_model_registration(self):
         self.assertTrue(
-            ObjectType.objects.get(app_label='dummy_plugin', model='dummymodel').exists()
+            ObjectType.objects.filter(app_label='dummy_plugin', model='dummymodel').exists()
         )
 
     def test_models(self):
