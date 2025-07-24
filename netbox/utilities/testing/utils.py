@@ -1,6 +1,8 @@
 import json
 import logging
+import random
 import re
+import string
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission
@@ -154,3 +156,15 @@ def add_custom_field_data(form_data, model):
         f'cf_{k}': v if type(v) is str else json.dumps(v)
         for k, v in DUMMY_CF_DATA.items()
     })
+
+
+#
+# Misc utilities
+#
+
+def get_random_string(length, charset=None):
+    """
+    Return a random string of the given length.
+    """
+    characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+    return ''.join(random.choice(characters) for __ in range(length))
