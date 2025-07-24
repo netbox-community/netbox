@@ -3,7 +3,6 @@ from threading import local
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import ProgrammingError
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -72,21 +71,6 @@ def update_object_types(sender, **kwargs):
                 public=is_public,
                 features=features,
             )
-
-
-@receiver(post_save, sender=ContentType)
-def create_object_type(sender, instance, created, **kwargs):
-    if created:
-        model = instance.model_class()
-        try:
-            ObjectType.objects.create(
-                contenttype_ptr=instance,
-                public=model_is_public(model),
-                features=get_model_features(model),
-            )
-        except ProgrammingError:
-            # Will fail during migrations if ObjectType hasn't been created yet
-            pass
 
 
 #
