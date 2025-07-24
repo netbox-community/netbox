@@ -3,23 +3,6 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-def populate_object_types(apps, schema_editor):
-    """
-    Create an ObjectType record for each valid ContentType.
-    """
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    ObjectType = apps.get_model('core', 'ObjectType')
-
-    for ct in ContentType.objects.all():
-        try:
-            # Validate ContentType
-            apps.get_model(ct.app_label, ct.model)
-        except LookupError:
-            continue
-        # TODO assign public/features
-        ObjectType(pk=ct.pk, features=[]).save_base(raw=True)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -68,10 +51,5 @@ class Migration(migrations.Migration):
             },
             bases=('contenttypes.contenttype',),
             managers=[],
-        ),
-        # Create an ObjectType record for each ContentType
-        migrations.RunPython(
-            code=populate_object_types,
-            reverse_code=migrations.RunPython.noop,
         ),
     ]
