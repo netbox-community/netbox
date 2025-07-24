@@ -40,6 +40,7 @@ class ObjectTypeManager(models.Manager):
         """
         return self.get(app_label=app_label, model=model)
 
+    # TODO: Remove in NetBox v4.5
     def get_for_id(self, id):
         """
         Retrieve an ObjectType by its primary key (numeric ID).

@@ -4,6 +4,7 @@ import yaml
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -15,7 +16,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
@@ -1328,7 +1328,7 @@ class MACAddress(PrimaryModel):
         super().clean()
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             assigned_object = self.assigned_object
-            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
 
             if (
