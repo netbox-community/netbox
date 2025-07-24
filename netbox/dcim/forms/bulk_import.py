@@ -1410,6 +1410,12 @@ class CableImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Length unit')
     )
+    color = forms.CharField(
+        label=_('Color'),
+        required=False,
+        max_length=16,
+        help_text=_('Color name (e.g. "Red") or hex code (e.g. "f44336")')
+    )
 
     class Meta:
         model = Cable
@@ -1473,6 +1479,24 @@ class CableImportForm(NetBoxModelImportForm):
         setattr(self.instance, f'{side}_terminations', [termination_object])
         return termination_object
 
+    def _clean_color(self, color):
+        """
+        Derive a colors hex code
+
+        :param color: color as hex or color name
+        """
+        color_parsed = color.strip().lower()
+
+        for hex_code, label in ColorChoices.CHOICES:
+            if color.lower() == label.lower():
+                color_parsed = hex_code
+
+        if len(color_parsed) > 6:
+            raise forms.ValidationError(
+                _(f"{color} did not match any used color name and was longer than six characters: invalid hex.")
+            )
+        return color_parsed
+
     def clean_side_a_name(self):
         return self._clean_side('a')
 
@@ -1484,10 +1508,13 @@ class CableImportForm(NetBoxModelImportForm):
         length_unit = self.cleaned_data.get('length_unit', None)
         return length_unit if length_unit is not None else ''
 
-
+    def clean_color(self):
+        color = self.cleaned_data.get('color', None)
+        return self._clean_color(color) if color is not None else ''
 #
 # Virtual chassis
 #
+
 
 class VirtualChassisImportForm(NetBoxModelImportForm):
     master = CSVModelChoiceField(
