@@ -24,8 +24,8 @@ class PluginTest(TestCase):
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
     def test_model_registration(self):
-        self.assertIsNone(
-            ObjectType.objects.filter(app_label='dummy_plugin', model='dummymodel')
+        self.assertTrue(
+            ObjectType.objects.get(app_label='dummy_plugin', model='dummymodel').exists()
         )
 
     def test_models(self):

@@ -664,6 +664,7 @@ def has_feature(model, feature):
     """
     Returns True if the model supports the specified feature.
     """
+    # Resolve a ContentType to its model class
     if type(model) is ContentType:
         model = model.model_class()
     ot = ObjectType.objects.get_for_model(model)

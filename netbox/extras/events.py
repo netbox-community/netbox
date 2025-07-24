@@ -9,9 +9,9 @@ from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.events import *
-from core.models import ObjectType
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
+from netbox.models.features import has_feature
 from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
@@ -56,7 +56,7 @@ def enqueue_event(queue, instance, user, request_id, event_type):
     events once the request has completed.
     """
     # Bail if this type of object does not support event rules
-    if 'event_rules' not in ObjectType.objects.get_for_model(instance).features:
+    if not has_feature(instance, 'event_rules'):
         return
 
     app_label = instance._meta.app_label
