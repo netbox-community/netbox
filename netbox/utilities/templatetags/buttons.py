@@ -1,6 +1,5 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.template import loader
 from django.urls import NoReverseMatch, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -29,11 +28,10 @@ __all__ = (
 register = template.Library()
 
 
-@register.simple_tag(takes_context=True)
-def action_buttons(context, actions, obj, multi=False):
+@register.simple_tag
+def action_buttons(actions, obj, multi=False, **kwargs):
     buttons = [
-        loader.render_to_string(action.template_name, action.get_context(context, obj))
-        for action in actions if action.multi == multi
+        action.render(obj, **kwargs) for action in actions if action.multi == multi
     ]
     return mark_safe(''.join(buttons))
 

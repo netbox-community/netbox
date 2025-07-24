@@ -1,3 +1,4 @@
+from django.template import loader
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext as _
@@ -27,12 +28,14 @@ class ObjectAction:
     Params:
         name: The action name appended to the module for view resolution
         label: Human-friendly label for the rendered button
+        template_name: Name of the HTML template which renders the button
         multi: Set to True if this action is performed by selecting multiple objects (i.e. using a table)
         permissions_required: The set of permissions a user must have to perform the action
         url_kwargs: The set of URL keyword arguments to pass when resolving the view's URL
     """
     name = ''
     label = None
+    template_name = None
     multi = False
     permissions_required = set()
     url_kwargs = []
@@ -49,11 +52,13 @@ class ObjectAction:
             return
 
     @classmethod
-    def get_context(cls, context, obj):
-        return {
+    def render(cls, obj, **kwargs):
+        context = {
             'url': cls.get_url(obj),
             'label': cls.label,
+            **kwargs,
         }
+        return loader.render_to_string(cls.template_name, context)
 
 
 class AddObject(ObjectAction):

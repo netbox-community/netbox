@@ -35,7 +35,7 @@ Context:
         </div>
         <div class="d-print-none mt-2">
             {% block bulk_controls %}
-              {% action_buttons actions model multi=True %}
+              {% action_buttons actions model multi=True return_url=request.path %}
               {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>
