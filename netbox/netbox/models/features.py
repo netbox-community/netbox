@@ -660,14 +660,19 @@ def get_model_features(model):
     ]
 
 
-def has_feature(model, feature):
+def has_feature(model_or_ct, feature):
     """
     Returns True if the model supports the specified feature.
     """
-    # Resolve a ContentType to its model class
-    if type(model) is ContentType:
-        model = model.model_class()
-    ot = ObjectType.objects.get_for_model(model)
+    # If an ObjectType was passed, we can use it directly
+    if type(model_or_ct) is ObjectType:
+        ot = model_or_ct
+    # If a ContentType was passed, resolve its model class
+    elif type(model_or_ct) is ContentType:
+        ot = ObjectType.objects.get_for_model(model_or_ct.model_class())
+    # For anything else, look up the ObjectType
+    else:
+        ot = ObjectType.objects.get_for_model(model_or_ct)
     return feature in ot.features
 
 
