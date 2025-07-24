@@ -58,13 +58,16 @@ class TaggableModelSerializer(serializers.Serializer):
 
 
 class ChangeLogMessageSerializer(serializers.Serializer):
-    changelog_message = serializers.CharField(write_only=True)
+    changelog_message = serializers.CharField(
+        write_only=True,
+        required=False,
+    )
 
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
 
         # Workaround to bypass requirement to include changelog_message in Meta.fields on every serializer
-        if 'changelog_message' in data and 'changelog_message' not in ret:
+        if type(data) is dict and 'changelog_message' in data:
             # TODO: Validation
             ret['changelog_message'] = data['changelog_message']
 
