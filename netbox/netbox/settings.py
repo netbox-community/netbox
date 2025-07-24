@@ -424,6 +424,7 @@ INSTALLED_APPS = [
     'mptt',
     'rest_framework',
     'social_django',
+    'sorl.thumbnail',
     'taggit',
     'timezone_field',
     'core',
