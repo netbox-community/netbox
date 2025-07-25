@@ -18,13 +18,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='object_types',
-            field=models.ManyToManyField(related_name='custom_fields', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='custom_fields', to='contenttypes.contenttype'),
         ),
         migrations.AlterField(
             model_name='customfield',
             name='object_type',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'
             ),
         ),
         migrations.RunSQL((
@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customlink',
             name='object_types',
-            field=models.ManyToManyField(related_name='custom_links', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='custom_links', to='contenttypes.contenttype'),
         ),
         migrations.RunSQL(
             'ALTER TABLE extras_customlink_content_types_id_seq RENAME TO extras_customlink_object_types_id_seq'
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='eventrule',
             name='object_types',
-            field=models.ManyToManyField(related_name='event_rules', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='event_rules', to='contenttypes.contenttype'),
         ),
         migrations.RunSQL(
             'ALTER TABLE extras_eventrule_content_types_id_seq RENAME TO extras_eventrule_object_types_id_seq'
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='exporttemplate',
             name='object_types',
-            field=models.ManyToManyField(related_name='export_templates', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='export_templates', to='contenttypes.contenttype'),
         ),
         migrations.RunSQL(
             'ALTER TABLE extras_exporttemplate_content_types_id_seq RENAME TO extras_exporttemplate_object_types_id_seq'
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='savedfilter',
             name='object_types',
-            field=models.ManyToManyField(related_name='saved_filters', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='saved_filters', to='contenttypes.contenttype'),
         ),
         migrations.RunSQL(
             'ALTER TABLE extras_savedfilter_content_types_id_seq RENAME TO extras_savedfilter_object_types_id_seq'

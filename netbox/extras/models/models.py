@@ -49,7 +49,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     webhook or executing a custom script.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='event_rules',
         verbose_name=_('object types'),
         help_text=_("The object(s) to which this rule applies.")
@@ -298,7 +298,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     code to be rendered with an object as context.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='custom_links',
         help_text=_('The object type(s) to which this link applies.')
     )
@@ -394,7 +394,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
 class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderTemplateMixin):
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='export_templates',
         help_text=_('The object type(s) to which this template applies.')
     )
@@ -459,7 +459,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='saved_filters',
         help_text=_('The object type(s) to which this filter applies.')
     )
@@ -539,7 +539,7 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
     A saved configuration of columns and ordering which applies to a specific table.
     """
     object_type = models.ForeignKey(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='table_configs',
         help_text=_("The table's object type"),
