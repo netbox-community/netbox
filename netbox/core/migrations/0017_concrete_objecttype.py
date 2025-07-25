@@ -1,4 +1,5 @@
 import django.contrib.postgres.fields
+import django.contrib.postgres.indexes
 import django.db.models.deletion
 from django.db import migrations, models
 
@@ -48,6 +49,12 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'object type',
                 'verbose_name_plural': 'object types',
+                'indexes': [
+                    django.contrib.postgres.indexes.GinIndex(
+                        fields=['features'],
+                        name='core_object_feature_aec4de_gin'
+                    ),
+                ]
             },
             bases=('contenttypes.contenttype',),
             managers=[],
