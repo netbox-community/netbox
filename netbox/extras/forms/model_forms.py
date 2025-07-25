@@ -585,7 +585,7 @@ class TagForm(ChangeLoggingMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
+class ConfigContextForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
     regions = DynamicModelMultipleChoiceField(
         label=_('Regions'),
         queryset=Region.objects.all(),
@@ -697,7 +697,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
+class ConfigTemplateForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
     tags = DynamicModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
