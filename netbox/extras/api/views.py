@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.views.static import serve
 from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
@@ -32,6 +34,7 @@ class ExtrasRootView(APIRootView):
     """
     Extras API root view
     """
+
     def get_view_name(self):
         return 'Extras'
 
@@ -39,6 +42,7 @@ class ExtrasRootView(APIRootView):
 #
 # EventRules
 #
+
 
 class EventRuleViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -51,6 +55,7 @@ class EventRuleViewSet(NetBoxModelViewSet):
 # Webhooks
 #
 
+
 class WebhookViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Webhook.objects.all()
@@ -61,6 +66,7 @@ class WebhookViewSet(NetBoxModelViewSet):
 #
 # Custom fields
 #
+
 
 class CustomFieldViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -89,9 +95,7 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
 
         # Paginate data
         if page := self.paginate_queryset(choices):
-            data = [
-                {'id': c[0], 'display': c[1]} for c in page
-            ]
+            data = [{'id': c[0], 'display': c[1]} for c in page]
         else:
             data = []
 
@@ -101,6 +105,7 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
 #
 # Custom links
 #
+
 
 class CustomLinkViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -113,6 +118,7 @@ class CustomLinkViewSet(NetBoxModelViewSet):
 # Export templates
 #
 
+
 class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ExportTemplate.objects.all()
@@ -123,6 +129,7 @@ class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
 #
 # Saved filters
 #
+
 
 class SavedFilterViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -135,6 +142,7 @@ class SavedFilterViewSet(NetBoxModelViewSet):
 # Table Configs
 #
 
+
 class TableConfigViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = TableConfig.objects.all()
@@ -146,6 +154,7 @@ class TableConfigViewSet(NetBoxModelViewSet):
 # Bookmarks
 #
 
+
 class BookmarkViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Bookmark.objects.all()
@@ -156,6 +165,7 @@ class BookmarkViewSet(NetBoxModelViewSet):
 #
 # Notifications & subscriptions
 #
+
 
 class NotificationViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -178,6 +188,7 @@ class SubscriptionViewSet(NetBoxModelViewSet):
 # Tags
 #
 
+
 class TagViewSet(NetBoxModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
@@ -194,16 +205,29 @@ class TaggedItemViewSet(RetrieveModelMixin, ListModelMixin, BaseViewSet):
 # Image attachments
 #
 
+
 class ImageAttachmentViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     filterset_class = filtersets.ImageAttachmentFilterSet
 
+    @action(
+        methods=['GET'],
+        detail=True,
+        url_path='download',
+        url_name='download',
+    )
+    def download(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(self.queryset, pk=pk)
+        # Render and return the elevation as an SVG drawing with the correct content type
+        return serve(request, obj.image.path, document_root=settings.MEDIA_ROOT)
+
 
 #
 # Journal entries
 #
+
 
 class JournalEntryViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -216,6 +240,7 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
+
 class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = serializers.ConfigContextSerializer
@@ -225,6 +250,7 @@ class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
 #
 # Config templates
 #
+
 
 class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
     queryset = ConfigTemplate.objects.all()
@@ -246,6 +272,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 #
 # Scripts
 #
+
 
 @extend_schema_view(
     update=extend_schema(request=serializers.ScriptInputSerializer),
@@ -287,10 +314,7 @@ class ScriptViewSet(ModelViewSet):
             raise PermissionDenied("This user does not have permission to run scripts.")
 
         script = self._get_script(pk)
-        input_serializer = serializers.ScriptInputSerializer(
-            data=request.data,
-            context={'script': script}
-        )
+        input_serializer = serializers.ScriptInputSerializer(data=request.data, context={'script': script})
 
         # Check that at least one RQ worker is running
         if not Worker.count(get_connection('default')):
@@ -305,7 +329,7 @@ class ScriptViewSet(ModelViewSet):
                 commit=input_serializer.data['commit'],
                 job_timeout=script.python_class.job_timeout,
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
-                interval=input_serializer.validated_data.get('interval')
+                interval=input_serializer.validated_data.get('interval'),
             )
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
@@ -318,10 +342,12 @@ class ScriptViewSet(ModelViewSet):
 # Object types
 #
 
+
 class ObjectTypeViewSet(ReadOnlyModelViewSet):
     """
     Read-only list of ObjectTypes.
     """
+
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = ObjectType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ObjectTypeSerializer
@@ -331,6 +357,7 @@ class ObjectTypeViewSet(ReadOnlyModelViewSet):
 #
 # User dashboard
 #
+
 
 class DashboardView(RetrieveUpdateDestroyAPIView):
     queryset = Dashboard.objects.all()
