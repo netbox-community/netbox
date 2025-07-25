@@ -68,7 +68,6 @@ class ChangeLogMessageSerializer(serializers.Serializer):
 
         # Workaround to bypass requirement to include changelog_message in Meta.fields on every serializer
         if type(data) is dict and 'changelog_message' in data:
-            # TODO: Validation
             ret['changelog_message'] = data['changelog_message']
 
         return ret
