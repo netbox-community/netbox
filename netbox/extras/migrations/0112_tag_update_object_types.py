@@ -11,6 +11,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='tag',
             name='object_types',
-            field=models.ManyToManyField(blank=True, related_name='+', to='core.objecttype'),
+            field=models.ManyToManyField(blank=True, related_name='+', to='contenttypes.contenttype'),
         ),
     ]

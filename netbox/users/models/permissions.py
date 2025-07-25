@@ -29,7 +29,7 @@ class ObjectPermission(models.Model):
         default=True
     )
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='object_permissions'
     )
     actions = ArrayField(

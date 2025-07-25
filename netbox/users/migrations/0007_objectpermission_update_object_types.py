@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='objectpermission',
             name='object_types',
-            field=models.ManyToManyField(related_name='object_permissions', to='core.objecttype'),
+            field=models.ManyToManyField(related_name='object_permissions', to='contenttypes.contenttype'),
         ),
     ]
