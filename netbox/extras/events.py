@@ -11,7 +11,7 @@ from django_rq import get_queue
 from core.events import *
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
-from netbox.registry import registry
+from netbox.models.features import has_feature
 from users.models import User
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
@@ -55,11 +55,12 @@ def enqueue_event(queue, instance, user, request_id, event_type):
     Enqueue a serialized representation of a created/updated/deleted object for the processing of
     events once the request has completed.
     """
-    # Determine whether this type of object supports event rules
+    # Bail if this type of object does not support event rules
+    if not has_feature(instance, 'event_rules'):
+        return
+
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
-    if model_name not in registry['model_features']['event_rules'].get(app_label, []):
-        return
 
     assert instance.pk is not None
     key = f'{app_label}.{model_name}:{instance.pk}'

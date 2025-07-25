@@ -3,6 +3,7 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -32,12 +33,16 @@ __all__ = (
     'CustomValidationMixin',
     'EventRulesMixin',
     'ExportTemplatesMixin',
+    'FEATURES_MAP',
     'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
     'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'get_model_features',
+    'has_feature',
+    'model_is_public',
     'register_models',
 )
 
@@ -633,9 +638,36 @@ FEATURES_MAP = {
     'tags': TagsMixin,
 }
 
+# TODO: Remove in NetBox v4.5
 registry['model_features'].update({
     feature: defaultdict(set) for feature in FEATURES_MAP.keys()
 })
+
+
+def model_is_public(model):
+    return not getattr(model, '_netbox_private', False)
+
+
+def get_model_features(model):
+    return [
+        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+    ]
+
+
+def has_feature(model_or_ct, feature):
+    """
+    Returns True if the model supports the specified feature.
+    """
+    # If an ObjectType was passed, we can use it directly
+    if type(model_or_ct) is ObjectType:
+        ot = model_or_ct
+    # If a ContentType was passed, resolve its model class
+    elif type(model_or_ct) is ContentType:
+        ot = ObjectType.objects.get_for_model(model_or_ct.model_class())
+    # For anything else, look up the ObjectType
+    else:
+        ot = ObjectType.objects.get_for_model(model_or_ct)
+    return feature in ot.features
 
 
 def register_models(*models):
@@ -653,10 +685,12 @@ def register_models(*models):
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
+        # TODO: Remove in NetBox v4.5
         # Register public models
         if not getattr(model, '_netbox_private', False):
             registry['models'][app_label].add(model_name)
 
+        # TODO: Remove in NetBox v4.5
         # Record each applicable feature for the model in the registry
         features = {
             feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
