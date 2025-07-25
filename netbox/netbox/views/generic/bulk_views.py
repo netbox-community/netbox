@@ -452,7 +452,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                         record[field_name] = cf.default
 
             # Record changelog message (if any)
-            instance._changelog_message = form.cleaned_data.pop('changelog_message', '')
+            instance._changelog_message = form.cleaned_data.get('changelog_message', '')
 
             # Instantiate the model form for the object
             model_form_kwargs = {
