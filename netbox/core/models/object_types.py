@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext as _
@@ -126,6 +127,9 @@ class ObjectType(ContentType):
     class Meta:
         verbose_name = _('object type')
         verbose_name_plural = _('object types')
+        indexes = [
+            GinIndex(fields=['features']),
+        ]
 
     @property
     def app_labeled_name(self):
