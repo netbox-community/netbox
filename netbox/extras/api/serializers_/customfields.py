@@ -7,7 +7,7 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 
 __all__ = (
     'CustomFieldChoiceSetSerializer',
@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
+class CustomFieldChoiceSetSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
@@ -36,7 +36,7 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 
 
-class CustomFieldSerializer(ValidatedModelSerializer):
+class CustomFieldSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True

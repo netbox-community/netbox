@@ -3702,7 +3702,6 @@ class VirtualChassisView(generic.ObjectView):
 class VirtualChassisCreateView(generic.ObjectEditView):
     queryset = VirtualChassis.objects.all()
     form = forms.VirtualChassisCreateForm
-    template_name = 'dcim/virtualchassis_add.html'
 
 
 @register_model_view(VirtualChassis, 'edit')
@@ -3750,6 +3749,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         formset = VCMemberFormSet(request.POST, queryset=members_queryset)
 
         if vc_form.is_valid() and formset.is_valid():
+            virtual_chassis._changelog_message = vc_form.cleaned_data.pop('changelog_message', '')
 
             with transaction.atomic(using=router.db_for_write(Device)):
 

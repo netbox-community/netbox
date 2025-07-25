@@ -1,3 +1,4 @@
+import copy
 import inspect
 import json
 
@@ -15,10 +16,11 @@ from strawberry.types.union import StrawberryUnion
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from ipam.graphql.types import IPAddressFamilyType
+from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
-from .utils import disable_logging, disable_warnings
+from .utils import disable_logging, disable_warnings, get_random_string
 
 __all__ = (
     'APITestCase',
@@ -223,8 +225,14 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            data = copy.deepcopy(self.create_data[0])
+
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
+
             initial_count = self._get_queryset().count()
-            response = self.client.post(self._get_list_url(), self.create_data[0], format='json', **self.header)
+            response = self.client.post(self._get_list_url(), data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(self._get_queryset().count(), initial_count + 1)
             instance = self._get_queryset().get(pk=response.data['id'])
@@ -236,13 +244,13 @@ class APIViewTestCases:
             )
 
             # Verify ObjectChange creation
-            if hasattr(self.model, 'to_objectchange'):
-                objectchanges = ObjectChange.objects.filter(
+            if issubclass(self.model, ChangeLoggingMixin):
+                objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
-                self.assertEqual(len(objectchanges), 1)
-                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_CREATE)
+                self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_CREATE)
+                self.assertEqual(objectchange.message, data['changelog_message'])
 
         def test_bulk_create_objects(self):
             """
@@ -257,6 +265,12 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            # If supported, add a changelog message
+            changelog_message = get_random_string(10)
+            if issubclass(self.model, ChangeLoggingMixin):
+                for obj_data in self.create_data:
+                    obj_data['changelog_message'] = changelog_message
+
             initial_count = self._get_queryset().count()
             response = self.client.post(self._get_list_url(), self.create_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -264,6 +278,9 @@ class APIViewTestCases:
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
                 for field in self.create_data[i]:
+                    if field == 'changelog_message':
+                        # Write-only field
+                        continue
                     if field not in self.validation_excluded_fields:
                         self.assertIn(field, obj, f"Bulk create field '{field}' missing from object {i} in response")
             for i, obj in enumerate(response.data):
@@ -273,6 +290,20 @@ class APIViewTestCases:
                     exclude=self.validation_excluded_fields,
                     api=True
                 )
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                id_list = [
+                    obj['id'] for obj in response.data
+                ]
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=id_list
+                )
+                self.assertEqual(len(objectchanges), len(self.create_data))
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+                    self.assertEqual(oc.message, changelog_message)
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
@@ -308,24 +339,30 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            response = self.client.patch(url, update_data, format='json', **self.header)
+            data = copy.deepcopy(update_data)
+
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
+
+            response = self.client.patch(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             instance.refresh_from_db()
             self.assertInstanceEqual(
                 instance,
-                update_data,
+                data,
                 exclude=self.validation_excluded_fields,
                 api=True
             )
 
             # Verify ObjectChange creation
             if hasattr(self.model, 'to_objectchange'):
-                objectchanges = ObjectChange.objects.filter(
+                objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
-                self.assertEqual(len(objectchanges), 1)
-                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
+                self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_UPDATE)
+                self.assertEqual(objectchange.message, data['changelog_message'])
 
         def test_bulk_update_objects(self):
             """
@@ -349,13 +386,33 @@ class APIViewTestCases:
                 {'id': id, **self.bulk_update_data} for id in id_list
             ]
 
+            # If supported, add a changelog message
+            changelog_message = get_random_string(10)
+            if issubclass(self.model, ChangeLoggingMixin):
+                for obj_data in data:
+                    obj_data['changelog_message'] = changelog_message
+
             response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             for i, obj in enumerate(response.data):
                 for field in self.bulk_update_data:
+                    if field == 'changelog_data':
+                        # Write-only field
+                        continue
                     self.assertIn(field, obj, f"Bulk update field '{field}' missing from object {i} in response")
             for instance in self._get_queryset().filter(pk__in=id_list):
                 self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=id_list
+                )
+                self.assertEqual(len(objectchanges), len(data))
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
+                    self.assertEqual(oc.message, changelog_message)
 
     class DeleteObjectViewTestCase(APITestCase):
 
@@ -386,18 +443,24 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            response = self.client.delete(url, **self.header)
+            data = {}
+
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
+
+            response = self.client.delete(url, data, **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertFalse(self._get_queryset().filter(pk=instance.pk).exists())
 
             # Verify ObjectChange creation
             if hasattr(self.model, 'to_objectchange'):
-                objectchanges = ObjectChange.objects.filter(
+                objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
-                self.assertEqual(len(objectchanges), 1)
-                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_DELETE)
+                self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_DELETE)
+                self.assertEqual(objectchange.message, data['changelog_message'])
 
         def test_bulk_delete_objects(self):
             """
@@ -418,10 +481,27 @@ class APIViewTestCases:
             self.assertEqual(len(id_list), 3, "Insufficient number of objects to test bulk deletion")
             data = [{"id": id} for id in id_list]
 
+            # If supported, add a changelog message
+            changelog_message = get_random_string(10)
+            if issubclass(self.model, ChangeLoggingMixin):
+                for obj_data in data:
+                    obj_data['changelog_message'] = changelog_message
+
             initial_count = self._get_queryset().count()
             response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertEqual(self._get_queryset().count(), initial_count - 3)
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=id_list
+                )
+                self.assertEqual(len(objectchanges), len(data))
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
+                    self.assertEqual(oc.message, changelog_message)
 
     class GraphQLTestCase(APITestCase):
 

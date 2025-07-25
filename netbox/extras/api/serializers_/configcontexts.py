@@ -8,7 +8,7 @@ from dcim.api.serializers_.sites import LocationSerializer, RegionSerializer, Si
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, Tag
 from netbox.api.fields import SerializedPKRelatedField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer, TenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from virtualization.api.serializers_.clusters import ClusterSerializer, ClusterGroupSerializer, ClusterTypeSerializer
@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class ConfigContextSerializer(ValidatedModelSerializer):
+class ConfigContextSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     regions = SerializedPKRelatedField(
         queryset=Region.objects.all(),
         serializer=RegionSerializer,

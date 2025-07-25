@@ -41,6 +41,9 @@ class ObjectChangeTable(NetBoxTable):
         template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name=_('Request ID')
     )
+    message = tables.Column(
+        verbose_name=_('Message'),
+    )
     actions = columns.ActionsColumn(
         actions=()
     )
@@ -49,5 +52,8 @@ class ObjectChangeTable(NetBoxTable):
         model = ObjectChange
         fields = (
             'pk', 'time', 'user_name', 'full_name', 'action', 'changed_object_type', 'object_repr', 'request_id',
-            'actions',
+            'message', 'actions',
+        )
+        default_columns = (
+            'pk', 'time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'message', 'actions',
         )

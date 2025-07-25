@@ -66,6 +66,11 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        changelog_message = kwargs.pop('changelog_message', None)
+        super().__init__(*args, **kwargs)
+        self._changelog_message = changelog_message
+
     def serialize_object(self, exclude=None):
         """
         Return a JSON representation of the instance. Models can override this method to replace or extend the default
@@ -103,7 +108,8 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
-            action=action
+            action=action,
+            message=self._changelog_message or '',
         )
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot

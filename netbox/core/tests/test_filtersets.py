@@ -150,7 +150,7 @@ class DataFileTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectChange.objects.all()
     filterset = ObjectChangeFilterSet
-    ignore_fields = ('prechange_data', 'postchange_data')
+    ignore_fields = ('message', 'prechange_data', 'postchange_data')
 
     @classmethod
     def setUpTestData(cls):

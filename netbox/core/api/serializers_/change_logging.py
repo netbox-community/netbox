@@ -44,7 +44,8 @@ class ObjectChangeSerializer(BaseModelSerializer):
         model = ObjectChange
         fields = [
             'id', 'url', 'display_url', 'display', 'time', 'user', 'user_name', 'request_id', 'action',
-            'changed_object_type', 'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
+            'changed_object_type', 'changed_object_id', 'changed_object', 'message', 'prechange_data',
+            'postchange_data',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

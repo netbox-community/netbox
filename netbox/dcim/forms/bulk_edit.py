@@ -11,6 +11,7 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
+from netbox.forms.mixins import ChangeLoggingMixin
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
@@ -1037,7 +1038,11 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 # Device component templates
 #
 
-class ConsolePortTemplateBulkEditForm(BulkEditForm):
+class ComponentTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+    pass
+
+
+class ConsolePortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1056,7 +1061,7 @@ class ConsolePortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'description')
 
 
-class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
+class ConsoleServerPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1079,7 +1084,7 @@ class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'description')
 
 
-class PowerPortTemplateBulkEditForm(BulkEditForm):
+class PowerPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1114,7 +1119,7 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTemplateBulkEditForm(BulkEditForm):
+class PowerOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1165,7 +1170,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class InterfaceTemplateBulkEditForm(BulkEditForm):
+class InterfaceTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1216,7 +1221,7 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'description', 'poe_mode', 'poe_type', 'rf_role')
 
 
-class FrontPortTemplateBulkEditForm(BulkEditForm):
+class FrontPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1243,7 +1248,7 @@ class FrontPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('description',)
 
 
-class RearPortTemplateBulkEditForm(BulkEditForm):
+class RearPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1270,7 +1275,7 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('description',)
 
 
-class ModuleBayTemplateBulkEditForm(BulkEditForm):
+class ModuleBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ModuleBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1288,7 +1293,7 @@ class ModuleBayTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'position', 'description')
 
 
-class DeviceBayTemplateBulkEditForm(BulkEditForm):
+class DeviceBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1306,7 +1311,7 @@ class DeviceBayTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'description')
 
 
-class InventoryItemTemplateBulkEditForm(BulkEditForm):
+class InventoryItemTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItemTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()

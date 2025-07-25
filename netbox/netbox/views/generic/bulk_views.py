@@ -21,6 +21,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.forms.mixins import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
@@ -423,7 +424,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         } if prefetch_ids else {}
 
         for i, record in enumerate(records, start=1):
-            instance = None
             object_id = int(record.pop('id')) if record.get('id') else None
 
             # Determine whether this object is being created or updated
@@ -439,6 +439,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     instance.snapshot()
 
             else:
+                instance = self.queryset.model()
+
                 # For newly created objects, apply any default custom field values
                 custom_fields = CustomField.objects.filter(
                     object_types=ContentType.objects.get_for_model(self.queryset.model),
@@ -448,6 +450,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default
+
+            # Record changelog message (if any)
+            instance._changelog_message = form.cleaned_data.get('changelog_message', '')
 
             # Instantiate the model form for the object
             model_form_kwargs = {
@@ -621,6 +626,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
+
+            # Attach the changelog message (if any) to the object
+            obj._changelog_message = form.cleaned_data.get('changelog_message')
 
             # Update standard fields. If a field is listed in _nullify, delete its value.
             for name, model_field in model_fields.items():
@@ -892,7 +900,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         """
         Provide a standard bulk delete form if none has been specified for the view
         """
-        class BulkDeleteForm(BackgroundJobMixin, ConfirmationForm):
+        class BulkDeleteForm(BackgroundJobMixin, ChangeLoggingMixin, ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         return BulkDeleteForm
@@ -939,9 +947,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     with transaction.atomic(using=router.db_for_write(model)):
                         for obj in queryset:
+
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
                                 obj.snapshot()
+
+                            # Attach the changelog message (if any) to the object
+                            obj._changelog_message = form.cleaned_data.get('changelog_message')
+
+                            # Delete the object
                             obj.delete()
 
                 except (ProtectedError, RestrictedError) as e:

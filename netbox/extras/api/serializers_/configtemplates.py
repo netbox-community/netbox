@@ -1,6 +1,6 @@
 from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from extras.models import ConfigTemplate
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from netbox.api.serializers.features import TaggableModelSerializer
 
 __all__ = (
@@ -8,7 +8,7 @@ __all__ = (
 )
 
 
-class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
+class ConfigTemplateSerializer(ChangeLogMessageSerializer, TaggableModelSerializer, ValidatedModelSerializer):
     data_source = DataSourceSerializer(
         nested=True,
         required=False

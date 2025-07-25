@@ -19,7 +19,7 @@ from netbox.object_actions import (
 )
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.forms import DeleteForm, restrict_form_fields
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
@@ -288,6 +288,9 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            # Record changelog message (if any)
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
+
             try:
                 with transaction.atomic(using=router.db_for_write(model)):
                     object_created = form.instance.pk is None
@@ -422,7 +425,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             request: The current request
         """
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(initial=request.GET)
+        form = DeleteForm(initial=request.GET)
 
         try:
             dependent_objects = self._get_dependent_objects(obj)
@@ -461,23 +464,25 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(request.POST)
-
-        # Take a snapshot of change-logged models
-        if hasattr(obj, 'snapshot'):
-            obj.snapshot()
+        form = DeleteForm(request.POST)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            # Take a snapshot of change-logged models
+            if hasattr(obj, 'snapshot'):
+                obj.snapshot()
+
+            # Record changelog message (if any)
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
+
+            # Delete the object
             try:
                 obj.delete()
-
             except (ProtectedError, RestrictedError) as e:
                 logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
-
             except AbortRequest as e:
                 logger.debug(e.message)
                 messages.error(request, mark_safe(e.message))

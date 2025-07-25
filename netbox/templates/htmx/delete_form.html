@@ -2,10 +2,16 @@
 {% load i18n %}
 
 <form action="{{ form_url }}" method="post">
+  {# Render hidden fields #}
   {% csrf_token %}
+  {% for field in form.hidden_fields %}
+    {{ field }}
+  {% endfor %}
+
   <div class="modal-header">
     <h5 class="modal-title">{% trans "Confirm Deletion" %}</h5>
   </div>
+
   <div class="modal-body">
     <p>
       {% blocktrans trimmed %}
@@ -16,10 +22,10 @@
       <p>
         {% trans "The following objects will be deleted as a result of this action." %}
       </p>
-      <div class="accordion" id="deleteAccordion">
+      <div class="accordion mb-3" id="deleteAccordion">
         {% for model, instances in dependent_objects.items %}
           <div class="accordion-item">
-            <h2 class="accordion-header" id="deleteheading{{ forloop.counter }}">
+            <h2 class="accordion-header h4" id="deleteheading{{ forloop.counter }}">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
                 {% with object_count=instances|length %}
                   {{ object_count }}
@@ -46,8 +52,15 @@
         {% endfor %}
       </div>
     {% endif %}
-    {% render_form form %}
+
+    {# Meta fields #}
+    {% if form.changelog_message %}
+      <div class="bg-primary-subtle border border-primary rounded-1 pt-3 px-3">
+        {% render_field form.changelog_message %}
+      </div>
+    {% endif %}
   </div>
+
   <div class="modal-footer">
     {% if return_url %}
       <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>

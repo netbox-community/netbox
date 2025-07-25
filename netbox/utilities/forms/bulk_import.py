@@ -8,12 +8,13 @@ from django.utils.translation import gettext as _
 
 from core.forms.mixins import SyncedDataMixin
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
+from netbox.forms.mixins import ChangeLoggingMixin
 from utilities.constants import CSV_DELIMITERS
 from utilities.forms.mixins import BackgroundJobMixin
 from utilities.forms.utils import parse_csv
 
 
-class BulkImportForm(BackgroundJobMixin, SyncedDataMixin, forms.Form):
+class BulkImportForm(ChangeLoggingMixin, BackgroundJobMixin, SyncedDataMixin, forms.Form):
     import_method = forms.ChoiceField(
         choices=ImportMethodChoices,
         required=False

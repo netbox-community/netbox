@@ -426,6 +426,11 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         help_text=_('Position of the first member device. Increases by one for each additional member.')
     )
 
+    fieldsets = (
+        FieldSet('name', 'domain', 'description', 'tags', name=_('Virtual Chassis')),
+        FieldSet('region', 'site_group', 'site', 'rack', 'members', 'initial_position', name=_('Member Devices')),
+    )
+
     class Meta:
         model = VirtualChassis
         fields = [

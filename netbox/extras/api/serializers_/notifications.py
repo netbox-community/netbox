@@ -4,7 +4,7 @@ from rest_framework import serializers
 from core.models import ObjectType
 from extras.models import Notification, NotificationGroup, Subscription
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from users.api.serializers_.users import GroupSerializer, UserSerializer
 from users.models import Group, User
 from utilities.api import get_serializer_for_model
@@ -37,7 +37,7 @@ class NotificationSerializer(ValidatedModelSerializer):
         return serializer(instance.object, nested=True, context=context).data
 
 
-class NotificationGroupSerializer(ValidatedModelSerializer):
+class NotificationGroupSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     groups = SerializedPKRelatedField(
         queryset=Group.objects.all(),
         serializer=GroupSerializer,

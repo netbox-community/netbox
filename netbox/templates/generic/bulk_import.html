@@ -42,32 +42,31 @@ Context:
 
   {# Data Import Form #}
   <div class="tab-pane show active" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
-    <div class="row">
-      <div class="col col-md-12 col-lg-10 offset-lg-1">
-        <form action="" method="post" enctype="multipart/form-data" class="form">
-          {% csrf_token %}
-          <input type="hidden" name="import_method" value="direct" />
+    <div class="col col-md-12 col-lg-10 offset-lg-1">
+      <form action="" method="post" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        <input type="hidden" name="import_method" value="direct" />
 
-          {# Form fields #}
-          {% render_field form.data %}
-          {% render_field form.format %}
-          {% render_field form.csv_delimiter %}
+        {# Form fields #}
+        {% render_field form.data %}
+        {% render_field form.format %}
+        {% render_field form.csv_delimiter %}
 
-          {# Meta fields #}
-          <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
-            {% render_field form.background_job %}
+        {# Meta fields #}
+        <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.changelog_message %}
+          {% render_field form.background_job %}
+        </div>
+
+        <div class="form-group">
+          <div class="col col-md-12 text-end">
+            {% if return_url %}
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+            {% endif %}
+            <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
           </div>
-
-          <div class="form-group">
-            <div class="col col-md-12 text-end">
-              {% if return_url %}
-                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-              {% endif %}
-              <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -82,6 +81,11 @@ Context:
         {% render_field form.upload_file %}
         {% render_field form.format %}
         {% render_field form.csv_delimiter %}
+
+        {# Meta fields #}
+        <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.changelog_message %}
+        </div>
 
         <div class="form-group">
           <div class="col col-md-12 text-end">
@@ -110,6 +114,7 @@ Context:
 
         {# Meta fields #}
         <div class="bg-primary-subtle border border-primary rounded-1 pt-3 mb-3">
+          {% render_field form.changelog_message %}
           {% render_field form.background_job %}
         </div>
 

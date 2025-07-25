@@ -186,7 +186,8 @@ class ObjectChangeFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(user_name__icontains=value) |
-            Q(object_repr__icontains=value)
+            Q(object_repr__icontains=value) |
+            Q(message__icontains=value)
         )
 
 
