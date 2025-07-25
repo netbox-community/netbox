@@ -1,8 +1,11 @@
+from collections import defaultdict
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.plugins import PluginConfig
@@ -74,7 +77,50 @@ class ObjectTypeManager(models.Manager):
                 public=model_is_public(model),
                 features=get_model_features(model.__class__),
             )[0]
+
         return ot
+
+    def get_for_models(self, *models, for_concrete_models=True):
+        """
+        Retrieve or create the ObjectTypes for multiple models, returning a mapping {model: ObjectType}.
+
+        This method exists to provide parity with ContentTypeManager.
+        """
+        from netbox.models.features import get_model_features, model_is_public
+        results = {}
+
+        # Compile the model and options mappings
+        needed_models = defaultdict(set)
+        needed_opts = defaultdict(list)
+        for model in models:
+            opts = self._get_opts(model, for_concrete_models)
+            needed_models[opts.app_label].add(opts.model_name)
+            needed_opts[(opts.app_label, opts.model_name)].append(model)
+
+        # Fetch existing ObjectType from the database
+        condition = Q(
+            *(
+                Q(('app_label', app_label), ('model__in', model_names))
+                for app_label, model_names in needed_models.items()
+            ),
+            _connector=Q.OR,
+        )
+        for ot in self.filter(condition):
+            opts_models = needed_opts.pop((ot.app_label, ot.model), [])
+            for model in opts_models:
+                results[model] = ot
+
+        # Create any missing ObjectTypes
+        for (app_label, model_name), opts_models in needed_opts.items():
+            for model in opts_models:
+                results[model] = self.create(
+                    app_label=app_label,
+                    model=model_name,
+                    public=model_is_public(model),
+                    features=get_model_features(model.__class__),
+                )
+
+        return results
 
     def public(self):
         """
