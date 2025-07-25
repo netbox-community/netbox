@@ -12,3 +12,7 @@ class SerializerNotFound(Exception):
 
 class GraphQLTypeNotFound(Exception):
     pass
+
+
+class QuerySetNotOrdered(Exception):
+    pass
