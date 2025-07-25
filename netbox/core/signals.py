@@ -1,10 +1,12 @@
 import logging
+from threading import local
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
+from django.core.signals import request_finished
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
@@ -41,6 +43,10 @@ clear_events = Signal()
 #
 # Change logging & event handling
 #
+
+# Used to track received signals per object
+_signals_received = local()
+
 
 @receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
@@ -130,6 +136,16 @@ def handle_deleted_object(sender, instance, **kwargs):
     if request is None:
         return
 
+    # Check whether we've already processed a pre_delete signal for this object. (This can
+    # happen e.g. when both a parent object and its child are deleted simultaneously, due
+    # to cascading deletion.)
+    if not hasattr(_signals_received, 'pre_delete'):
+        _signals_received.pre_delete = set()
+    signature = (ContentType.objects.get_for_model(instance), instance.pk)
+    if signature in _signals_received.pre_delete:
+        return
+    _signals_received.pre_delete.add(signature)
+
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
         if hasattr(instance, 'snapshot') and not getattr(instance, '_prechange_snapshot', None):
@@ -177,6 +193,14 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
+
+
+@receiver(request_finished)
+def clear_signal_history(sender, **kwargs):
+    """
+    Clear out the signals history once the request is finished.
+    """
+    _signals_received.pre_delete = set()
 
 
 @receiver(clear_events)
