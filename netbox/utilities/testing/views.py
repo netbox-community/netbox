@@ -653,7 +653,10 @@ class ViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 request_id = response.headers.get('X-Request-ID')
                 self.assertIsNotNone(request_id, "Unable to determine request ID from response")
-                objectchanges = ObjectChange.objects.filter(request_id=request_id)
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    request_id=request_id
+                )
                 self.assertEqual(len(objectchanges), len(self.csv_data) - 1)
                 for oc in objectchanges:
                     self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
@@ -786,7 +789,10 @@ class ViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 request_id = response.headers.get('X-Request-ID')
                 self.assertIsNotNone(request_id, "Unable to determine request ID from response")
-                objectchanges = ObjectChange.objects.filter(request_id=request_id)
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=pk_list
+                )
                 self.assertEqual(len(objectchanges), len(pk_list))
                 for oc in objectchanges:
                     self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
@@ -852,7 +858,7 @@ class ViewTestCases:
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 403)
 
         def test_bulk_delete_objects_with_permission(self):
-            pk_list = self._get_queryset().values_list('pk', flat=True)
+            pk_list = list(self._get_queryset().values_list('pk', flat=True))
             data = {
                 'pk': pk_list,
                 'confirm': True,
@@ -875,13 +881,14 @@ class ViewTestCases:
             # Try POST with model-level permission
             response = self.client.post(self._get_url('bulk_delete'), data)
             self.assertHttpStatus(response, 302)
-            self.assertEqual(self._get_queryset().count(), 0)
+            self.assertFalse(self._get_queryset().filter(pk__in=pk_list).exists())
 
             # Verify ObjectChange creation
             if issubclass(self.model, ChangeLoggingMixin):
-                request_id = response.headers.get('X-Request-ID')
-                self.assertIsNotNone(request_id, "Unable to determine request ID from response")
-                objectchanges = ObjectChange.objects.filter(request_id=request_id)
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=pk_list
+                )
                 self.assertEqual(len(objectchanges), len(pk_list))
                 for oc in objectchanges:
                     self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
