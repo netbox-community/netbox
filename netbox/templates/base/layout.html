@@ -199,21 +199,19 @@ Blocks:
                   </li>
 
                 {# Community links #}
-                {% else %}
-                  {% if not settings.ISOLATED_DEPLOYMENT %}
-                    {# GitHub #}
-                    <li class="list-inline-item">
-                      <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
-                        <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                    {# NetDev Slack #}
-                    <li class="list-inline-item">
-                      <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
-                        <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                  {% endif %}
+                {% elif not settings.ISOLATED_DEPLOYMENT %}                  
+                  {# GitHub #}
+                  <li class="list-inline-item">
+                    <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
+                      <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                  {# NetDev Slack #}
+                  <li class="list-inline-item">
+                    <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
+                      <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>                  
                 {% endif %}
               {% endblock footer_links %}
             </ul>
