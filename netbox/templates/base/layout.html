@@ -199,7 +199,7 @@ Blocks:
                   </li>
 
                 {# Community links #}
-                {% elif not settings.ISOLATED_DEPLOYMENT %}                  
+                {% elif not settings.ISOLATED_DEPLOYMENT %}
                   {# GitHub #}
                   <li class="list-inline-item">
                     <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Source Code" %}">
@@ -211,7 +211,7 @@ Blocks:
                     <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener" aria-label="{% trans "Community" %}">
                       <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                     </a>
-                  </li>                  
+                  </li>
                 {% endif %}
               {% endblock footer_links %}
             </ul>
