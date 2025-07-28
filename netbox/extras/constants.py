@@ -21,6 +21,12 @@ WEBHOOK_EVENT_TYPES = {
     JOB_ERRORED: 'job_ended',
 }
 
+# Jinja environment parameters which support path imports
+JINJA_ENV_PARAMS_WITH_PATH_IMPORT = (
+    'undefined',
+    'finalize',
+)
+
 # Dashboard
 DEFAULT_DASHBOARD = [
     {
