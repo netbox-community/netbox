@@ -13,7 +13,7 @@ from django_prometheus import middleware
 from netbox.config import clear_config, get_config
 from netbox.metrics import Metrics
 from netbox.views import handler_500
-from utilities.api import is_api_request
+from utilities.api import is_api_request, is_graphql_request
 from utilities.error_handlers import handle_rest_api_exception
 from utilities.request import apply_request_processors
 
@@ -200,6 +200,10 @@ class PrometheusAfterMiddleware(middleware.PrometheusAfterMiddleware):
             name = self._get_view_name(request)
             self.label_metric(self.metrics.rest_api_requests, request, method=method).inc()
             self.label_metric(self.metrics.rest_api_requests_by_view_method, request, method=method, view=name).inc()
+
+        # Increment GraphQL API request counters
+        elif is_graphql_request(request):
+            self.metrics.graphql_api_requests.inc()
 
         return response
 

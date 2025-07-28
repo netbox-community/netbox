@@ -30,3 +30,11 @@ class Metrics(middleware.Metrics):
             ["view", "method"],
             namespace=NAMESPACE,
         )
+
+        # GraphQL API metrics
+        self.graphql_api_requests = self.register_metric(
+            Counter,
+            "graphql_api_requests_total",
+            "Count of total GraphQL API requests",
+            namespace=NAMESPACE,
+        )
