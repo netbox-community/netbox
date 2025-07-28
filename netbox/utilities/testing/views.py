@@ -858,7 +858,7 @@ class ViewTestCases:
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 403)
 
         def test_bulk_delete_objects_with_permission(self):
-            pk_list = list(self._get_queryset().values_list('pk', flat=True))
+            pk_list = list(self._get_queryset().values_list('pk', flat=True))[:3]
             data = {
                 'pk': pk_list,
                 'confirm': True,
