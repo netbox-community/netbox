@@ -229,7 +229,6 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
-
 class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = serializers.ConfigContextSerializer
@@ -336,7 +335,6 @@ class ObjectTypeViewSet(ReadOnlyModelViewSet):
     """
     Read-only list of ObjectTypes.
     """
-
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = ObjectType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ObjectTypeSerializer
@@ -346,7 +344,6 @@ class ObjectTypeViewSet(ReadOnlyModelViewSet):
 #
 # User dashboard
 #
-
 
 class DashboardView(RetrieveUpdateDestroyAPIView):
     queryset = Dashboard.objects.all()
