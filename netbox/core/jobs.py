@@ -21,6 +21,17 @@ class SyncDataSourceJob(JobRunner):
     class Meta:
         name = 'Synchronization'
 
+    @classmethod
+    def enqueue(cls, *args, **kwargs):
+        job = super().enqueue(*args, **kwargs)
+
+        # Update the DataSource's synchronization status to queued
+        if datasource := job.object:
+            datasource.status = DataSourceStatusChoices.QUEUED
+            DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
+
+        return job
+
     def run(self, *args, **kwargs):
         datasource = DataSource.objects.get(pk=self.job.object_id)
 

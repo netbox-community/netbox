@@ -1,29 +1,28 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
+from django_rq.queues import get_redis_connection
+from django_rq.settings import QUEUES_LIST
+from django_rq.utils import get_statistics
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from rq.job import Job as RQ_Job
+from rq.worker import Worker
 
 from core import filtersets
-from core.choices import DataSourceStatusChoices
 from core.jobs import SyncDataSourceJob
 from core.models import *
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
-from django_rq.queues import get_redis_connection
-from django_rq.utils import get_statistics
-from django_rq.settings import QUEUES_LIST
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
-from rq.job import Job as RQ_Job
-from rq.worker import Worker
 from . import serializers
 
 
@@ -50,10 +49,8 @@ class DataSourceViewSet(NetBoxModelViewSet):
         if not request.user.has_perm('core.sync_datasource', obj=datasource):
             raise PermissionDenied(_("This user does not have permission to synchronize this data source."))
 
-        # Enqueue the sync job & update the DataSource's status
+        # Enqueue the sync job
         SyncDataSourceJob.enqueue(instance=datasource, user=request.user)
-        datasource.status = DataSourceStatusChoices.QUEUED
-        DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
 
         serializer = serializers.DataSourceSerializer(datasource, context={'request': request})
 

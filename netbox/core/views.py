@@ -33,7 +33,6 @@ from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
-from .choices import DataSourceStatusChoices
 from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_catalog_plugins, get_local_plugins
@@ -78,12 +77,8 @@ class DataSourceSyncView(BaseObjectView):
 
     def post(self, request, pk):
         datasource = get_object_or_404(self.queryset, pk=pk)
-
-        # Enqueue the sync job & update the DataSource's status
+        # Enqueue the sync job
         job = SyncDataSourceJob.enqueue(instance=datasource, user=request.user)
-        datasource.status = DataSourceStatusChoices.QUEUED
-        DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
-
         messages.success(
             request,
             _("Queued job #{id} to sync {datasource}").format(id=job.pk, datasource=datasource)
