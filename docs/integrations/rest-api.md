@@ -620,7 +620,7 @@ For example, the following API request will create a new site and record a messa
 curl -s -X POST \
 -H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
-http://netbox/api/dcim/site/ \
+http://netbox/api/dcim/sites/ \
 --data '{
     "name": "Site A",
     "slug": "site-a",
