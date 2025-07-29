@@ -346,6 +346,38 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(changes[1].changed_object_type, ContentType.objects.get_for_model(Interface))
         self.assertEqual(changes[2].changed_object_type, ContentType.objects.get_for_model(Device))
 
+    def test_duplicate_deletions(self):
+        """
+        Check that a cascading deletion event does not generate multiple "deleted" ObjectChange records for
+        the same object.
+        """
+        role1 = DeviceRole(name='Role 1', slug='role-1')
+        role1.save()
+        role2 = DeviceRole(name='Role 2', slug='role-2', parent=role1)
+        role2.save()
+        pk_list = [role1.pk, role2.pk]
+
+        # Delete both objects simultaneously
+        form_data = {
+            'pk': pk_list,
+            'confirm': True,
+            '_confirm': True,
+        }
+        request = {
+            'path': reverse('dcim:devicerole_bulk_delete'),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.delete_devicerole')
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        # This should result in exactly one change record per object
+        objectchanges = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(DeviceRole),
+            changed_object_id__in=pk_list,
+            action=ObjectChangeActionChoices.ACTION_DELETE
+        )
+        self.assertEqual(objectchanges.count(), 2)
+
 
 class ChangeLogAPITest(APITestCase):
 

@@ -10,6 +10,7 @@ __all__ = (
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
+    'DeleteForm',
     'FilterForm',
     'TableConfigForm',
 )
@@ -27,6 +28,16 @@ class ConfirmationForm(forms.Form):
         required=True,
         widget=forms.HiddenInput(),
         initial=True
+    )
+
+
+class DeleteForm(ConfirmationForm):
+    """
+    Confirm the deletion of an object, optionally providing a changelog message.
+    """
+    changelog_message = forms.CharField(
+        required=False,
+        max_length=200
     )
 
 

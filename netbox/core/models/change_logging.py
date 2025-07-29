@@ -82,6 +82,12 @@ class ObjectChange(models.Model):
         max_length=200,
         editable=False
     )
+    message = models.CharField(
+        verbose_name=_('message'),
+        max_length=200,
+        editable=False,
+        blank=True
+    )
     prechange_data = models.JSONField(
         verbose_name=_('pre-change data'),
         editable=False,
