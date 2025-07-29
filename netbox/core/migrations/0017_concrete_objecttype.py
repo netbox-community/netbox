@@ -49,6 +49,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'object type',
                 'verbose_name_plural': 'object types',
+                'ordering': ('app_label', 'model'),
                 'indexes': [
                     django.contrib.postgres.indexes.GinIndex(
                         fields=['features'],

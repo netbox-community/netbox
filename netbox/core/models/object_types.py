@@ -173,6 +173,7 @@ class ObjectType(ContentType):
     class Meta:
         verbose_name = _('object type')
         verbose_name_plural = _('object types')
+        ordering = ('app_label', 'model')
         indexes = [
             GinIndex(fields=['features']),
         ]
