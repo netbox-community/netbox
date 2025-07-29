@@ -1,6 +1,15 @@
 {% extends base_template %}
+{% load i18n %}
 {% load render_table from django_tables2 %}
 {% load thumbnail %}
+
+{% block extra_controls %}
+  {% if perms.extras.add_imageattachment %}
+    <a href="{% url 'extras:imageattachment_add' %}?object_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Attach an Image" %}
+    </a>
+  {% endif %}
+{% endblock %}
 
 {% block content %}
   <div class="d-flex flex-wrap">
