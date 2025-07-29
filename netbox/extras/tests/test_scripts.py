@@ -1,8 +1,8 @@
 import logging
 import tempfile
 from datetime import date, datetime, timezone
-
 from decimal import Decimal
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from netaddr import IPAddress, IPNetwork
