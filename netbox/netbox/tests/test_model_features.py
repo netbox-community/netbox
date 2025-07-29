@@ -3,6 +3,8 @@ from django.test import TestCase
 from core.models import AutoSyncRecord, DataSource
 from extras.models import CustomLink
 from netbox.models.features import get_model_features, has_feature, model_is_public
+from netbox.tests.dummy_plugin.models import DummyModel
+from taggit.models import Tag
 
 
 class ModelFeaturesTestCase(TestCase):
@@ -18,6 +20,14 @@ class ModelFeaturesTestCase(TestCase):
         # Private model
         self.assertTrue(getattr(AutoSyncRecord, '_netbox_private'))
         self.assertFalse(model_is_public(AutoSyncRecord))
+
+        # Plugin model
+        self.assertFalse(hasattr(DummyModel, '_netbox_private'))
+        self.assertTrue(model_is_public(DummyModel))
+
+        # Non-core model
+        self.assertFalse(hasattr(Tag, '_netbox_private'))
+        self.assertFalse(model_is_public(Tag))
 
     def test_has_feature(self):
         """

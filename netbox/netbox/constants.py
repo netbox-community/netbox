@@ -1,3 +1,18 @@
+CORE_APPS = (
+    'account',
+    'circuits',
+    'core',
+    'dcim',
+    'extras',
+    'ipam',
+    'tenancy',
+    'users',
+    'utilities',
+    'virtualization',
+    'vpn',
+    'wireless',
+)
+
 # RQ queue names
 RQ_QUEUE_DEFAULT = 'default'
 RQ_QUEUE_HIGH = 'high'

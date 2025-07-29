@@ -17,7 +17,9 @@ from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.constants import CORE_APPS
 from netbox.models.deletion import DeleteMixin
+from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
@@ -651,6 +653,14 @@ registry['model_features'].update({
 
 
 def model_is_public(model):
+    """
+    Return True if the model is considered "public use;" otherwise return False.
+
+    All non-core and non-plugin models are excluded.
+    """
+    opts = model._meta
+    if opts.app_label not in CORE_APPS and not isinstance(opts.app_config, PluginConfig):
+        return False
     return not getattr(model, '_netbox_private', False)
 
 
