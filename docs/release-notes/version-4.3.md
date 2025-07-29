@@ -3,7 +3,6 @@
 ## v4.3.5 (2025-07-29)
 
 ### Enhancements
-* [#18399](https://github.com/netbox-community/netbox/issues/18399) - Data source synchronization jobs now properly show "queued" status when enqueued
 * [#18797](https://github.com/netbox-community/netbox/issues/18797) - Added jinja2.StrictUndefined option for config template rendering to catch undefined variables
 * [#18936](https://github.com/netbox-community/netbox/issues/18936) - Cable imports now accept color names (e.g. "red", "blue") in addition to hex color codes
 * [#19840](https://github.com/netbox-community/netbox/issues/19840) - Cable imports now support specifying site information for better organization
