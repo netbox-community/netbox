@@ -1,5 +1,22 @@
 # NetBox v4.3
 
+## v4.3.5 (2025-07-29)
+
+### Enhancements
+* [#18399](https://github.com/netbox-community/netbox/issues/18399) - Data source synchronization jobs now properly show "queued" status when enqueued
+* [#18797](https://github.com/netbox-community/netbox/issues/18797) - Added jinja2.StrictUndefined option for config template rendering to catch undefined variables
+* [#18936](https://github.com/netbox-community/netbox/issues/18936) - Cable imports now accept color names (e.g. "red", "blue") in addition to hex color codes
+* [#19840](https://github.com/netbox-community/netbox/issues/19840) - Cable imports now support specifying site information for better organization
+* [#19902](https://github.com/netbox-community/netbox/issues/19902) - Device names in rack elevation SVG exports are automatically truncated to prevent overflow beyond rack unit boundaries
+* [#19903](https://github.com/netbox-community/netbox/issues/19903) - String field filters now support `regex` and `iregex` lookups for advanced pattern matching
+* [#19910](https://github.com/netbox-community/netbox/issues/19910) - Internet-dependent links are no longer visible when running in air-gapped environments
+
+### Bug Fixes
+* [#18900](https://github.com/netbox-community/netbox/issues/18900) - REST API paginator now raises proper exceptions when attempting to paginate unordered querysets
+* [#19916](https://github.com/netbox-community/netbox/issues/19916) - Rack elevation image/label dropdown functionality restored
+* [#19934](https://github.com/netbox-community/netbox/issues/19934) - Added missing description field to tenant bulk edit form
+* [#19956](https://github.com/netbox-community/netbox/issues/19956) - Prevent duplicate deletion records in changelog from cascading deletions
+
 ## v4.3.4 (2025-07-15)
 
 ### Enhancements
