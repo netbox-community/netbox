@@ -102,7 +102,7 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
     base_template = None
     tab = ViewTab(
         label=_('Images'),
-        # badge=lambda obj: obj.imageattachments.count(),
+        badge=lambda obj: obj.images.count(),
         permission='extras.view_imageattachment',
         weight=6000
     )

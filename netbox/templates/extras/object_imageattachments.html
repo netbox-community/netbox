@@ -3,24 +3,24 @@
 {% load thumbnail %}
 
 {% block content %}
-  <div class="container">
-  <div class="row row-cards">
+  <div class="d-flex flex-wrap">
     {% for object in image_attachments %}
-      <div class="col">
-        <div class="card card-sm">
-          {% thumbnail object.image "200x200" crop="center" as tn %}
-            <a href="{{ object.get_absolute_url }}" class="d-block">
-              <img src="{{ tn.url }}" width="{{ tn.width }}" height="{{ tn.height }}" class="card-img-top" />
-            </a>
-          {% endthumbnail %}
-          <div class="card-body p-1">
-            <div class="text-center">
-              <small class="text-secondary">{{ object }}</small>
-            </div>
-          </div>
+      <div class="thumbnail m-2">
+        {% thumbnail object.image "200x200" crop="center" as tn %}
+          <a href="{{ object.get_absolute_url }}" class="d-block" title="{{ object.description }}">
+            <img
+              src="{{ tn.url }}"
+              width="{{ tn.width }}"
+              height="{{ tn.height }}"
+              class="rounded"
+              alt="{{ object.name }}"
+            />
+          </a>
+        {% endthumbnail %}
+        <div class="text-center text-secondary text-truncate fs-5">
+          {{ object }}
         </div>
       </div>
     {% endfor %}
-  </div>
   </div>
 {% endblock %}
