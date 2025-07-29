@@ -87,14 +87,7 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
 
 class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
     """
-    Render a list of all Job assigned to an object. For example:
-
-        path(
-            'data-sources/<int:pk>/jobs/',
-             ObjectJobsView.as_view(),
-             name='datasource_jobs',
-             kwargs={'model': DataSource}
-        )
+    Render all images attached to the object as linked thumbnails.
 
     Attributes:
         base_template: The name of the template to extend. If not provided, "{app}/{model}.html" will be used.
@@ -107,12 +100,8 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
         weight=6000
     )
 
-    def get_object(self, request, **kwargs):
-        return get_object_or_404(self.model.objects.restrict(request.user, 'view'), **kwargs)
-
     def get(self, request, model, **kwargs):
-        self.model = model
-        obj = self.get_object(request, **kwargs)
+        obj = get_object_or_404(model.objects.restrict(request.user, 'view'), **kwargs)
         image_attachments = ImageAttachment.objects.filter(
             object_type=ContentType.objects.get_for_model(obj),
             object_id=obj.pk,
