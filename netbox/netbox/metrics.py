@@ -25,7 +25,7 @@ class Metrics(middleware.Metrics):
         )
         self.rest_api_requests_by_view_method = self.register_metric(
             Counter,
-            "django_http_requests_total_by_view_method",
+            "rest_api_requests_total_by_view_method",
             "Count of REST API requests by view & method",
             ["view", "method"],
             namespace=NAMESPACE,
