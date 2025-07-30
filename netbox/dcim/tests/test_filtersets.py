@@ -3367,9 +3367,36 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         ConsoleServerPort.objects.bulk_create(console_server_ports)
 
         console_ports = (
-            ConsolePort(device=devices[0], module=modules[0], name='Console Port 1', label='A', description='First'),
-            ConsolePort(device=devices[1], module=modules[1], name='Console Port 2', label='B', description='Second'),
-            ConsolePort(device=devices[2], module=modules[2], name='Console Port 3', label='C', description='Third'),
+            ConsolePort(
+                device=devices[0],
+                module=modules[0],
+                name='Console Port 1',
+                label='A',
+                description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
+            ),
+            ConsolePort(
+                device=devices[1],
+                module=modules[1],
+                name='Console Port 2',
+                label='B',
+                description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
+            ),
+            ConsolePort(
+                device=devices[2],
+                module=modules[2],
+                name='Console Port 3',
+                label='C',
+                description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
+            ),
         )
         ConsolePort.objects.bulk_create(console_ports)
 
@@ -3581,13 +3608,34 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
 
         console_server_ports = (
             ConsoleServerPort(
-                device=devices[0], module=modules[0], name='Console Server Port 1', label='A', description='First'
+                device=devices[0],
+                module=modules[0],
+                name='Console Server Port 1',
+                label='A',
+                description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             ConsoleServerPort(
-                device=devices[1], module=modules[1], name='Console Server Port 2', label='B', description='Second'
+                device=devices[1],
+                module=modules[1],
+                name='Console Server Port 2',
+                label='B',
+                description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             ConsoleServerPort(
-                device=devices[2], module=modules[2], name='Console Server Port 3', label='C', description='Third'
+                device=devices[2],
+                module=modules[2],
+                name='Console Server Port 3',
+                label='C',
+                description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
         )
         ConsoleServerPort.objects.bulk_create(console_server_ports)
@@ -3807,6 +3855,9 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 maximum_draw=100,
                 allocated_draw=50,
                 description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             PowerPort(
                 device=devices[1],
@@ -3816,6 +3867,9 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 maximum_draw=200,
                 allocated_draw=100,
                 description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             PowerPort(
                 device=devices[2],
@@ -3825,6 +3879,9 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 maximum_draw=300,
                 allocated_draw=150,
                 description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
         )
         PowerPort.objects.bulk_create(power_ports)
@@ -4053,6 +4110,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 description='First',
                 color='ff0000',
                 status=PowerOutletStatusChoices.STATUS_ENABLED,
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             PowerOutlet(
                 device=devices[1],
@@ -4063,6 +4123,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 description='Second',
                 color='00ff00',
                 status=PowerOutletStatusChoices.STATUS_DISABLED,
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             PowerOutlet(
                 device=devices[2],
@@ -4073,6 +4136,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 description='Third',
                 color='0000ff',
                 status=PowerOutletStatusChoices.STATUS_FAULTY,
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
         )
         PowerOutlet.objects.bulk_create(power_outlets)
@@ -4381,13 +4447,19 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_mode=InterfacePoEModeChoices.MODE_PSE,
                 poe_type=InterfacePoETypeChoices.TYPE_1_8023AF,
                 vlan_translation_policy=vlan_translation_policies[0],
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             Interface(
                 device=devices[1],
                 module=modules[1],
                 name='VC Chassis Interface',
                 type=InterfaceTypeChoices.TYPE_1GE_SFP,
-                enabled=True
+                enabled=True,
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             Interface(
                 device=devices[2],
@@ -4406,6 +4478,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
                 poe_type=InterfacePoETypeChoices.TYPE_1_8023AF,
                 vlan_translation_policy=vlan_translation_policies[0],
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
             Interface(
                 device=devices[3],
@@ -4424,6 +4499,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_mode=InterfacePoEModeChoices.MODE_PSE,
                 poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
                 vlan_translation_policy=vlan_translation_policies[1],
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
             ),
             Interface(
                 device=devices[4],
@@ -4440,6 +4518,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mode=InterfaceModeChoices.MODE_Q_IN_Q,
                 qinq_svlan=vlans[0],
                 vlan_translation_policy=vlan_translation_policies[1],
+                _site=devices[4].site,
+                _location=devices[4].location,
+                _rack=devices[4].rack,
             ),
             Interface(
                 device=devices[4],
@@ -4450,7 +4531,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mgmt_only=True,
                 tx_power=40,
                 mode=InterfaceModeChoices.MODE_Q_IN_Q,
-                qinq_svlan=vlans[1]
+                qinq_svlan=vlans[1],
+                _site=devices[4].site,
+                _location=devices[4].location,
+                _rack=devices[4].rack,
             ),
             Interface(
                 device=devices[4],
@@ -4461,7 +4545,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 mgmt_only=False,
                 tx_power=40,
                 mode=InterfaceModeChoices.MODE_Q_IN_Q,
-                qinq_svlan=vlans[2]
+                qinq_svlan=vlans[2],
+                _site=devices[4].site,
+                _location=devices[4].location,
+                _rack=devices[4].rack,
             ),
             Interface(
                 device=devices[4],
@@ -4470,7 +4557,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rf_role=WirelessRoleChoices.ROLE_AP,
                 rf_channel=WirelessChannelChoices.CHANNEL_24G_1,
                 rf_channel_frequency=2412,
-                rf_channel_width=22
+                rf_channel_width=22,
+                _site=devices[4].site,
+                _location=devices[4].location,
+                _rack=devices[4].rack,
             ),
             Interface(
                 device=devices[4],
@@ -4479,7 +4569,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rf_role=WirelessRoleChoices.ROLE_STATION,
                 rf_channel=WirelessChannelChoices.CHANNEL_5G_32,
                 rf_channel_frequency=5160,
-                rf_channel_width=20
+                rf_channel_width=20,
+                _site=devices[4].site,
+                _location=devices[4].location,
+                _rack=devices[4].rack,
             ),
         )
         Interface.objects.bulk_create(interfaces)
@@ -4906,6 +4999,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rear_port=rear_ports[0],
                 rear_port_position=1,
                 description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             FrontPort(
                 device=devices[1],
@@ -4917,6 +5013,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rear_port=rear_ports[1],
                 rear_port_position=2,
                 description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             FrontPort(
                 device=devices[2],
@@ -4928,6 +5027,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rear_port=rear_ports[2],
                 rear_port_position=3,
                 description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
             FrontPort(
                 device=devices[3],
@@ -4936,6 +5038,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=PortTypeChoices.TYPE_FC,
                 rear_port=rear_ports[3],
                 rear_port_position=1,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
             ),
             FrontPort(
                 device=devices[3],
@@ -4944,6 +5049,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=PortTypeChoices.TYPE_FC,
                 rear_port=rear_ports[4],
                 rear_port_position=1,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
             ),
             FrontPort(
                 device=devices[3],
@@ -4952,6 +5060,9 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 type=PortTypeChoices.TYPE_FC,
                 rear_port=rear_ports[5],
                 rear_port_position=1,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
             ),
         )
         FrontPort.objects.bulk_create(front_ports)
@@ -5168,6 +5279,9 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
                 color=ColorChoices.COLOR_RED,
                 positions=1,
                 description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
             ),
             RearPort(
                 device=devices[1],
@@ -5178,6 +5292,9 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
                 color=ColorChoices.COLOR_GREEN,
                 positions=2,
                 description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
             ),
             RearPort(
                 device=devices[2],
@@ -5188,10 +5305,40 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
                 color=ColorChoices.COLOR_BLUE,
                 positions=3,
                 description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
             ),
-            RearPort(device=devices[3], name='Rear Port 4', label='D', type=PortTypeChoices.TYPE_FC, positions=4),
-            RearPort(device=devices[3], name='Rear Port 5', label='E', type=PortTypeChoices.TYPE_FC, positions=5),
-            RearPort(device=devices[3], name='Rear Port 6', label='F', type=PortTypeChoices.TYPE_FC, positions=6),
+            RearPort(
+                device=devices[3],
+                name='Rear Port 4',
+                label='D',
+                type=PortTypeChoices.TYPE_FC,
+                positions=4,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
+            ),
+            RearPort(
+                device=devices[3],
+                name='Rear Port 5',
+                label='E',
+                type=PortTypeChoices.TYPE_FC,
+                positions=5,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
+            ),
+            RearPort(
+                device=devices[3],
+                name='Rear Port 6',
+                label='F',
+                type=PortTypeChoices.TYPE_FC,
+                positions=6,
+                _site=devices[3].site,
+                _location=devices[3].location,
+                _rack=devices[3].rack,
+            ),
         )
         RearPort.objects.bulk_create(rear_ports)
 
@@ -5550,9 +5697,33 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Device.objects.bulk_create(devices)
 
         device_bays = (
-            DeviceBay(device=devices[0], name='Device Bay 1', label='A', description='First'),
-            DeviceBay(device=devices[1], name='Device Bay 2', label='B', description='Second'),
-            DeviceBay(device=devices[2], name='Device Bay 3', label='C', description='Third'),
+            DeviceBay(
+                device=devices[0],
+                name='Device Bay 1',
+                label='A',
+                description='First',
+                _site=devices[0].site,
+                _location=devices[0].location,
+                _rack=devices[0].rack,
+            ),
+            DeviceBay(
+                device=devices[1],
+                name='Device Bay 2',
+                label='B',
+                description='Second',
+                _site=devices[1].site,
+                _location=devices[1].location,
+                _rack=devices[1].rack,
+            ),
+            DeviceBay(
+                device=devices[2],
+                name='Device Bay 3',
+                label='C',
+                description='Third',
+                _site=devices[2].site,
+                _location=devices[2].location,
+                _rack=devices[2].rack,
+            ),
         )
         DeviceBay.objects.bulk_create(device_bays)
 
