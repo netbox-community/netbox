@@ -1515,34 +1515,34 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site',
+        field_name='_site',
         queryset=Site.objects.all(),
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__slug',
+        field_name='_site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     location_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__location',
+        field_name='_location',
         queryset=Location.objects.all(),
         label=_('Location (ID)'),
     )
     location = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__location__slug',
+        field_name='_location__slug',
         queryset=Location.objects.all(),
         to_field_name='slug',
         label=_('Location (slug)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__rack',
+        field_name='_rack',
         queryset=Rack.objects.all(),
         label=_('Rack (ID)'),
     )
     rack = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__rack__name',
+        field_name='_rack__name',
         queryset=Rack.objects.all(),
         to_field_name='name',
         label=_('Rack (name)'),

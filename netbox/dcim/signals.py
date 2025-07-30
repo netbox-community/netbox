@@ -3,12 +3,27 @@ import logging
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from .choices import CableEndChoices, LinkStatusChoices
+from dcim.choices import CableEndChoices, LinkStatusChoices
 from .models import (
-    Cable, CablePath, CableTermination, Device, FrontPort, PathEndpoint, PowerPanel, Rack, Location, VirtualChassis,
+    Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
+    InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
+    VirtualChassis,
 )
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
+
+COMPONENT_MODELS = (
+    ConsolePort,
+    ConsoleServerPort,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    ModuleBay,
+    PowerOutlet,
+    PowerPort,
+    RearPort,
+)
 
 
 #
@@ -37,6 +52,20 @@ def handle_rack_site_change(instance, created, **kwargs):
     """
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
+
+
+@receiver(post_save, sender=Device)
+def handle_device_site_change(instance, created, **kwargs):
+    """
+    Update child components to update the parent Site, Location, and Rack when a Device is saved.
+    """
+    if not created:
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device=instance).update(
+                _site=instance.site,
+                _location=instance.location,
+                _rack=instance.rack,
+            )
 
 
 #
