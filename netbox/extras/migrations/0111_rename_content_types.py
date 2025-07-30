@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             model_name='customfield',
             name='object_type',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype'
             ),
         ),
         migrations.RunSQL((

@@ -1,18 +1,16 @@
-import django_filters
 from datetime import datetime, timezone
 from itertools import chain
-from mptt.models import MPTTModel
 
+import django_filters
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel, OneToOneRel
 from django.utils.module_loading import import_string
+from mptt.models import MPTTModel
 from taggit.managers import TaggableManager
 
 from extras.filters import TagFilter
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
-
-from core.models import ObjectType
 
 __all__ = (
     'BaseFilterSetTests',
@@ -61,13 +59,6 @@ class BaseFilterSetTests:
             if field.related_model is ContentType:
                 return [(None, None)]
 
-            # ForeignKeys to ObjectType need two filters: 'app.model' & PK
-            if field.related_model is ObjectType:
-                return [
-                    (filter_name, ContentTypeFilter),
-                    (f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter),
-                ]
-
             # ForeignKey to an MPTT-enabled model
             if issubclass(field.related_model, MPTTModel) and field.model is not field.related_model:
                 return [(f'{filter_name}_id', TreeNodeMultipleChoiceFilter)]
@@ -79,8 +70,10 @@ class BaseFilterSetTests:
             filter_name = self.get_m2m_filter_name(field)
             filter_name = self.filter_name_map.get(filter_name, filter_name)
 
-            # ManyToManyFields to ObjectType need two filters: 'app.model' & PK
-            if field.related_model is ObjectType:
+            # ManyToManyFields to ContentType need two filters: 'app.model' & PK
+            if field.related_model is ContentType:
+                # Standardize on object_type for filter name even though it's technically a ContentType
+                filter_name = 'object_type'
                 return [
                     (filter_name, ContentTypeFilter),
                     (f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter),

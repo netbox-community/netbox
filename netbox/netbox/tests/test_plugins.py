@@ -6,6 +6,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from core.choices import JobIntervalChoices
+from core.models import ObjectType
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
@@ -23,8 +24,9 @@ class PluginTest(TestCase):
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
     def test_model_registration(self):
-        self.assertIn('dummy_plugin', registry['models'])
-        self.assertIn('dummymodel', registry['models']['dummy_plugin'])
+        self.assertTrue(
+            ObjectType.objects.filter(app_label='dummy_plugin', model='dummymodel').exists()
+        )
 
     def test_models(self):
         from netbox.tests.dummy_plugin.models import DummyModel
