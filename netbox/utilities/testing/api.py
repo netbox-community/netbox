@@ -470,6 +470,9 @@ class APIViewTestCases:
                 elif type(field.type) is StrawberryOptional and type(field.type.of_type) is LazyType:
                     fields_string += f'{field.name} {{ id }}\n'
                 elif hasattr(field, 'is_relation') and field.is_relation:
+                    # Ignore private fields
+                    if field.name.startswith('_'):
+                        continue
                     # Note: StrawberryField types do not have is_relation
                     fields_string += f'{field.name} {{ id }}\n'
                 elif inspect.isclass(field.type) and issubclass(field.type, IPAddressFamilyType):
