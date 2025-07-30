@@ -9,6 +9,8 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -727,6 +729,18 @@ class ImageAttachment(ChangeLoggedModel):
     @property
     def filename(self):
         return os.path.basename(self.image.name).split('_', 2)[2]
+
+    @property
+    def html_tag(self):
+        """
+        Returns a complete <img> tag suitable for embedding in an HTML document.
+        """
+        return mark_safe('<img src="{url}" height="{height}" width="{width}" alt="{alt_text}" />'.format(
+            url=self.image.url,
+            height=self.image_height,
+            width=self.image_width,
+            alt_text=escape(self.description or self.name),
+        ))
 
     @property
     def size(self):
