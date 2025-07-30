@@ -113,6 +113,9 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
         order_by=('_abs_length')
     )
     color = columns.ColorColumn()
+    color_name = tables.Column(
+        verbose_name=_('Color Name')
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:cable_list'
