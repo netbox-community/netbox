@@ -70,18 +70,21 @@ class ComponentModel(NetBoxModel):
         to='dcim.Site',
         on_delete=models.SET_NULL,
         related_name='+',
+        blank=True,
         null=True,
     )
     _location = models.ForeignKey(
         to='dcim.Location',
         on_delete=models.SET_NULL,
         related_name='+',
+        blank=True,
         null=True,
     )
     _rack = models.ForeignKey(
         to='dcim.Rack',
         on_delete=models.SET_NULL,
         related_name='+',
+        blank=True,
         null=True,
     )
 

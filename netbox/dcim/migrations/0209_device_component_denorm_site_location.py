@@ -37,210 +37,250 @@ class Migration(migrations.Migration):
             model_name='consoleport',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='consoleport',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='consoleport',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='consoleserverport',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='consoleserverport',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='consoleserverport',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='devicebay',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='devicebay',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='devicebay',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='frontport',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='frontport',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='frontport',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='interface',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='interface',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='interface',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='inventoryitem',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='modulebay',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='modulebay',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='modulebay',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='powerport',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='_location',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.location'
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='+',
+                to='dcim.location',
             ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='_rack',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.rack'
             ),
         ),
         migrations.AddField(
             model_name='rearport',
             name='_site',
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.site'
             ),
         ),
         migrations.RunPython(populate_denormalized_data),
