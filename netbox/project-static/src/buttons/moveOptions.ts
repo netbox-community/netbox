@@ -70,11 +70,8 @@ export function initMoveButtons(): void {
 
   // Move selected option(s) up in current list
   for (const button of getElements<HTMLButtonElement>('.move-option-up')) {
-    console.log(button);
     const target = button.getAttribute('data-target');
-    console.log(target);
     const target_select = document.getElementById(`id_${target}`) as HTMLSelectElement;
-    console.log(target_select);
     if (target_select !== null) {
       button.addEventListener('click', () => moveOptionUp(target_select));
     }
