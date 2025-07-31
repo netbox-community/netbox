@@ -1,0 +1,31 @@
+{% load i18n %}
+<div class="field-group">
+  <div class="row">
+    <div class="col-5 text-center">
+      <label class="form-label mb-1">{% trans "Available" %}</label>
+      {% include "django/forms/widgets/select.html" with widget=widget.subwidgets.0 %}
+    </div>
+    <div class="col-2 d-flex align-items-center">
+      <div>
+        <a tabindex="0" class="btn btn-success btn-sm w-100 my-2 move-option" data-source="{{ widget.name }}_0" data-target="{{ widget.name }}_1">
+          <i class="mdi mdi-arrow-right-bold"></i> {% trans "Add" %}
+        </a>
+        <a tabindex="0" class="btn btn-danger btn-sm w-100 my-2 move-option" data-source="{{ widget.name }}_1" data-target="{{ widget.name }}_0">
+          <i class="mdi mdi-arrow-left-bold"></i> {% trans "Remove" %}
+        </a>
+      </div>
+    </div>
+    <div class="col-5 text-center">
+      <label class="form-label mb-1">{% trans "Selected" %}</label>
+      {% include "django/forms/widgets/select.html" with widget=widget.subwidgets.1 %}
+      {% if widget.ordering %}
+        <a tabindex="0" class="btn btn-primary btn-sm mt-2 move-option-up" data-target="{{ widget.name }}_1">
+          <i class="mdi mdi-arrow-up-bold"></i> {% trans "Move Up" %}
+        </a>
+        <a tabindex="0" class="btn btn-primary btn-sm mt-2 move-option-down" data-target="{{ widget.name }}_1">
+          <i class="mdi mdi-arrow-down-bold"></i> {% trans "Move Down" %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>

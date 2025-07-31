@@ -8,6 +8,7 @@ __all__ = (
     'ColorSelect',
     'HTMXSelect',
     'SelectWithPK',
+    'SplitMultiSelectWidget',
 )
 
 
@@ -63,3 +64,79 @@ class SelectWithPK(forms.Select):
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
     option_template_name = 'widgets/select_option_with_pk.html'
+
+
+class AvailableOptions(forms.SelectMultiple):
+    """
+    Renders a <select multiple=true> including only choices that have been selected. (For unbound fields, this list
+    will be empty.) Employed by SplitMultiSelectWidget.
+    """
+    def optgroups(self, name, value, attrs=None):
+        self.choices = [
+            choice for choice in self.choices if str(choice[0]) not in value
+        ]
+        value = []  # Clear selected choices
+        return super().optgroups(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        # This widget should never require a selection
+        context['widget']['attrs']['required'] = False
+
+        return context
+
+
+class SelectedOptions(forms.SelectMultiple):
+    """
+    Renders a <select multiple=true> including only choices that have _not_ been selected. (For unbound fields, this
+    will include _all_ choices.) Employed by SplitMultiSelectWidget.
+    """
+    def optgroups(self, name, value, attrs=None):
+        self.choices = [
+            choice for choice in self.choices if str(choice[0]) in value
+        ]
+        value = []  # Clear selected choices
+        return super().optgroups(name, value, attrs)
+
+
+class SplitMultiSelectWidget(forms.MultiWidget):
+    """
+    Renders two <select multiple=true> widgets side-by-side: one listing available choices, the other listing selected
+    choices. Options are selected by moving them from the left column to the right.
+
+    Args:
+        ordering: If true, the selected choices list will include controls to reorder items within the list. This should
+                  be enabled only if the order of the selected choices is significant.
+    """
+    template_name = 'widgets/splitmultiselect.html'
+
+    def __init__(self, choices, attrs=None, ordering=False):
+        widgets = [
+            AvailableOptions(
+                attrs={'size': 8},
+                choices=choices
+            ),
+            SelectedOptions(
+                attrs={'size': 8, 'class': 'select-all'},
+                choices=choices
+            ),
+        ]
+
+        super().__init__(widgets, attrs)
+
+        self.ordering = ordering
+
+    def get_context(self, name, value, attrs):
+        # Replicate value for each multi-select widget
+        # Django bug? See django/forms/widgets.py L985
+        value = [value, value]
+
+        # Include ordering boolean in widget context
+        context = super().get_context(name, value, attrs)
+        context['widget']['ordering'] = self.ordering
+        return context
+
+    def value_from_datadict(self, data, files, name):
+        # Return only the choices from the SelectedOptions widget
+        return super().value_from_datadict(data, files, name)[1]
