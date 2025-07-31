@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0209_interface_tx_power_negative'),
+        ('dcim', '0207_remove_redundant_indexes'),
         ('extras', '0129_fix_script_paths'),
     ]
 
