@@ -11,7 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
-from netbox.forms.mixins import ChangeLoggingMixin
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
@@ -974,7 +974,7 @@ class VCMemberSelectForm(forms.Form):
 # Device component templates
 #
 
-class ComponentTemplateForm(ChangeLoggingMixin, forms.ModelForm):
+class ComponentTemplateForm(ChangelogMessageMixin, forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),

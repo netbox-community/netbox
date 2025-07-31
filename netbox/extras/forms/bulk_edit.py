@@ -5,7 +5,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelBulkEditForm
-from netbox.forms.mixins import ChangeLoggingMixin
+from netbox.forms.mixins import ChangelogMessageMixin
 from utilities.forms import BulkEditForm, add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
@@ -28,7 +28,7 @@ __all__ = (
 )
 
 
-class CustomFieldBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class CustomFieldBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -96,7 +96,7 @@ class CustomFieldBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('group_name', 'description', 'choice_set')
 
 
-class CustomFieldChoiceSetBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class CustomFieldChoiceSetBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomFieldChoiceSet.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -116,7 +116,7 @@ class CustomFieldChoiceSetBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('base_choices', 'description')
 
 
-class CustomLinkBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class CustomLinkBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -142,7 +142,7 @@ class CustomLinkBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     )
 
 
-class ExportTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class ExportTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ExportTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -175,7 +175,7 @@ class ExportTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
-class SavedFilterBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class SavedFilterBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -295,7 +295,7 @@ class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description', 'conditions')
 
 
-class TagBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class TagBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -317,7 +317,7 @@ class TagBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('description',)
 
 
-class ConfigContextBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class ConfigContextBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConfigContext.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -341,7 +341,7 @@ class ConfigContextBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('description',)
 
 
-class ConfigTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class ConfigTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -374,7 +374,7 @@ class ConfigTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
 
 
-class JournalEntryBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class JournalEntryBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -387,7 +387,7 @@ class JournalEntryBulkEditForm(ChangeLoggingMixin, BulkEditForm):
     comments = CommentField()
 
 
-class NotificationGroupBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class NotificationGroupBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=NotificationGroup.objects.all(),
         widget=forms.MultipleHiddenInput
