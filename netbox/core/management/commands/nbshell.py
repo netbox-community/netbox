@@ -2,28 +2,24 @@ import code
 import platform
 import sys
 
+from colorama import Fore, Style
 from django import get_version
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from core.models import ObjectType
-from users.models import User
+from netbox.constants import CORE_APPS
+from netbox.plugins.utils import get_installed_plugins
 
-APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
-EXCLUDE_MODELS = (
-    'extras.branch',
-    'extras.stagedchange',
-)
+EXCLUDE_MODELS = ()
 
-BANNER_TEXT = """### NetBox interactive shell ({node})
-### Python {python} | Django {django} | NetBox {netbox}
-### lsmodels() will show available models. Use help(<model>) for more info.""".format(
-    node=platform.node(),
-    python=platform.python_version(),
-    django=get_version(),
-    netbox=settings.RELEASE.name
-)
+
+def color(color: str, text: str):
+    return getattr(Fore, color.upper()) + text + Style.RESET_ALL
+
+
+def bright(text: str):
+    return Style.BRIGHT + text + Style.RESET_ALL
 
 
 class Command(BaseCommand):
@@ -47,7 +43,7 @@ class Command(BaseCommand):
         namespace = {}
 
         # Gather Django models and constants from each app
-        for app in APPS:
+        for app in CORE_APPS:
             models = []
 
             # Load models from each app
@@ -67,16 +63,43 @@ class Command(BaseCommand):
             except KeyError:
                 pass
 
-        # Additional objects to include
-        namespace['ObjectType'] = ObjectType
-        namespace['User'] = User
-
         # Load convenience commands
         namespace.update({
             'lsmodels': self._lsmodels,
         })
 
         return namespace
+
+    def get_banner_text(self):
+        lines = [
+            '{title} ({hostname})'.format(
+                title=bright('NetBox interactive shell'),
+                hostname=platform.node(),
+            ),
+            '{python} | {django} | {netbox}'.format(
+                python=color('green', f'Python v{platform.python_version()}'),
+                django=color('green', f'Django v{get_version()}'),
+                netbox=color('green', settings.RELEASE.name),
+            ),
+        ]
+
+        if installed_plugins := get_installed_plugins():
+            plugin_list = ', '.join([
+                color('cyan', f'{name} v{version}') for name, version in installed_plugins.items()
+            ])
+            lines.append(
+                'Plugins: {plugin_list}'.format(
+                    plugin_list=plugin_list
+                )
+            )
+
+        lines.append(
+            'lsmodels() will show available models. Use help(<model>) for more info.'
+        )
+
+        return '\n'.join([
+            f'### {line}' for line in lines
+        ])
 
     def handle(self, **options):
         namespace = self.get_namespace()
@@ -97,5 +120,5 @@ class Command(BaseCommand):
             readline.parse_and_bind('tab: complete')
 
         # Run interactive shell
-        shell = code.interact(banner=BANNER_TEXT, local=namespace)
+        shell = code.interact(banner=self.get_banner_text(), local=namespace)
         return shell

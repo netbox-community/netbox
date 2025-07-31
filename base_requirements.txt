@@ -1,3 +1,7 @@
+# Shell text coloring
+# https://github.com/tartley/colorama/blob/master/CHANGELOG.rst
+colorama
+
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
 Django==5.2.*
