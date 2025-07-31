@@ -472,9 +472,9 @@ if DEBUG:
 if METRICS_ENABLED:
     # If metrics are enabled, add the before & after Prometheus middleware
     MIDDLEWARE = [
-        'django_prometheus.middleware.PrometheusBeforeMiddleware',
+        'netbox.middleware.PrometheusBeforeMiddleware',
         *MIDDLEWARE,
-        'django_prometheus.middleware.PrometheusAfterMiddleware',
+        'netbox.middleware.PrometheusAfterMiddleware',
     ]
 
 # URLs
