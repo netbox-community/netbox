@@ -425,7 +425,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             request: The current request
         """
         obj = self.get_object(**kwargs)
-        form = DeleteForm(initial=request.GET)
+        form = DeleteForm(instance=obj, initial=request.GET)
 
         try:
             dependent_objects = self._get_dependent_objects(obj)
@@ -464,7 +464,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
-        form = DeleteForm(request.POST)
+        form = DeleteForm(request.POST, instance=obj)
 
         if form.is_valid():
             logger.debug("Form validation was successful")

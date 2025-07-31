@@ -13,7 +13,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm
-from netbox.forms.mixins import ChangeLoggingMixin
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import get_field_value
@@ -46,7 +46,7 @@ __all__ = (
 )
 
 
-class CustomFieldForm(ChangeLoggingMixin, forms.ModelForm):
+class CustomFieldForm(ChangelogMessageMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -165,7 +165,7 @@ class CustomFieldForm(ChangeLoggingMixin, forms.ModelForm):
             del self.fields['choice_set']
 
 
-class CustomFieldChoiceSetForm(ChangeLoggingMixin, forms.ModelForm):
+class CustomFieldChoiceSetForm(ChangelogMessageMixin, forms.ModelForm):
     # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
@@ -218,7 +218,7 @@ class CustomFieldChoiceSetForm(ChangeLoggingMixin, forms.ModelForm):
         return data
 
 
-class CustomLinkForm(ChangeLoggingMixin, forms.ModelForm):
+class CustomLinkForm(ChangelogMessageMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
@@ -250,7 +250,7 @@ class CustomLinkForm(ChangeLoggingMixin, forms.ModelForm):
         }
 
 
-class ExportTemplateForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
+class ExportTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('export_templates')
@@ -292,7 +292,7 @@ class ExportTemplateForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class SavedFilterForm(ChangeLoggingMixin, forms.ModelForm):
+class SavedFilterForm(ChangelogMessageMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -389,7 +389,7 @@ class BookmarkForm(forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
-class NotificationGroupForm(ChangeLoggingMixin, forms.ModelForm):
+class NotificationGroupForm(ChangelogMessageMixin, forms.ModelForm):
     groups = DynamicModelMultipleChoiceField(
         label=_('Groups'),
         required=False,
@@ -562,7 +562,7 @@ class EventRuleForm(NetBoxModelForm):
         return self.cleaned_data
 
 
-class TagForm(ChangeLoggingMixin, forms.ModelForm):
+class TagForm(ChangelogMessageMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -585,7 +585,7 @@ class TagForm(ChangeLoggingMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
     regions = DynamicModelMultipleChoiceField(
         label=_('Regions'),
         queryset=Region.objects.all(),
@@ -697,7 +697,7 @@ class ConfigContextForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class ConfigTemplateForm(ChangeLoggingMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
     tags = DynamicModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),

@@ -21,14 +21,12 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
-from netbox.forms.mixins import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.export import TableExport
-from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
+from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
-from utilities.forms.mixins import BackgroundJobMixin
 from utilities.htmx import htmx_partial
 from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
@@ -896,15 +894,6 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
 
-    def get_form(self):
-        """
-        Provide a standard bulk delete form if none has been specified for the view
-        """
-        class BulkDeleteForm(BackgroundJobMixin, ChangeLoggingMixin, ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-
-        return BulkDeleteForm
-
     #
     # Request handlers
     #
@@ -925,10 +914,8 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
-        form_cls = self.get_form()
-
         if '_confirm' in request.POST:
-            form = form_cls(request.POST)
+            form = BulkDeleteForm(model, request.POST)
             if form.is_valid():
                 logger.debug("Form validation was successful")
 
@@ -990,7 +977,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = form_cls(initial={
+            form = BulkDeleteForm(model, initial={
                 'pk': pk_list,
                 'return_url': self.get_return_url(request),
             })

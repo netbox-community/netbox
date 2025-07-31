@@ -11,7 +11,7 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
-from netbox.forms.mixins import ChangeLoggingMixin
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
@@ -1038,7 +1038,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 # Device component templates
 #
 
-class ComponentTemplateBulkEditForm(ChangeLoggingMixin, BulkEditForm):
+class ComponentTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pass
 
 
