@@ -272,15 +272,19 @@ class GroupForm(forms.ModelForm):
         return instance
 
 
+def get_object_types_choices():
+    return [
+        (ot.pk, str(ot))
+        for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model')
+    ]
+
+
 class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.all(),
         widget=SplitMultiSelectWidget(
-            choices=[
-                (ot.pk, str(ot))
-                for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model')
-            ]
+            choices=get_object_types_choices
         ),
         help_text=_('Select the types of objects to which the permission will appy.')
     )
