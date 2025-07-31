@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, ProtectedError
+from django.db.models import F, ProtectedError, prefetch_related_objects
 from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.urls import reverse
@@ -28,6 +28,7 @@ from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
+from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
@@ -924,7 +925,10 @@ class Device(
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
                     component.custom_field_data = cf_defaults
-            model.objects.bulk_create(components)
+            components = model.objects.bulk_create(components)
+            # Prefetch related objects to minimize queries needed during post_save
+            prefetch_fields = get_prefetchable_fields(model)
+            prefetch_related_objects(components, *prefetch_fields)
             # Manually send the post_save signal for each of the newly created components
             for component in components:
                 post_save.send(
