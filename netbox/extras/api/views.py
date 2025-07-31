@@ -211,7 +211,7 @@ class ImageAttachmentViewSet(NetBoxModelViewSet):
     def download(self, request, pk, *args, **kwargs):
         obj = get_object_or_404(self.queryset, pk=pk)
         # Render and return the elevation as an SVG drawing with the correct content type
-        return serve(request, obj.image.path, document_root=settings.MEDIA_ROOT)
+        return serve(request, obj.image.name, document_root=settings.MEDIA_ROOT)
 
 
 #
