@@ -26,6 +26,14 @@ Jinja2 template code for rendering the exported data.
 
 A dictionary of any additional parameters to pass when instantiating the [Jinja2 environment](https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment). Jinja2 supports various optional parameters which can be used to modify its default behavior.
 
+The `undefined` and `finalize` Jinja environment parameters, which must reference a Python class or function, can define a dotted path to the desired resource. For example:
+
+```json
+{
+    "undefined": "jinja2.StrictUndefined"
+}
+```
+
 ### MIME Type
 
 The MIME type to indicate in the response when rendering the export template (optional). Defaults to `text/plain`.

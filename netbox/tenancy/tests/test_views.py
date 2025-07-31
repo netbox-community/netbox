@@ -98,6 +98,7 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'group': tenant_groups[1].pk,
+            'description': 'Bulk edit description',
         }
 
 

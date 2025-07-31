@@ -180,6 +180,10 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['charfield__niew'].exclude, True)
         self.assertEqual(self.filters['charfield__empty'].lookup_expr, 'empty')
         self.assertEqual(self.filters['charfield__empty'].exclude, False)
+        self.assertEqual(self.filters['charfield__regex'].lookup_expr, 'regex')
+        self.assertEqual(self.filters['charfield__regex'].exclude, False)
+        self.assertEqual(self.filters['charfield__iregex'].lookup_expr, 'iregex')
+        self.assertEqual(self.filters['charfield__iregex'].exclude, False)
 
     def test_number_filter(self):
         self.assertIsInstance(self.filters['numberfield'], django_filters.NumberFilter)
@@ -220,6 +224,10 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['macaddressfield__iew'].exclude, False)
         self.assertEqual(self.filters['macaddressfield__niew'].lookup_expr, 'iendswith')
         self.assertEqual(self.filters['macaddressfield__niew'].exclude, True)
+        self.assertEqual(self.filters['macaddressfield__regex'].lookup_expr, 'regex')
+        self.assertEqual(self.filters['macaddressfield__regex'].exclude, False)
+        self.assertEqual(self.filters['macaddressfield__iregex'].lookup_expr, 'iregex')
+        self.assertEqual(self.filters['macaddressfield__iregex'].exclude, False)
 
     def test_model_choice_filter(self):
         self.assertIsInstance(self.filters['modelchoicefield'], django_filters.ModelChoiceFilter)
@@ -257,6 +265,10 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['multivaluecharfield__iew'].exclude, False)
         self.assertEqual(self.filters['multivaluecharfield__niew'].lookup_expr, 'iendswith')
         self.assertEqual(self.filters['multivaluecharfield__niew'].exclude, True)
+        self.assertEqual(self.filters['multivaluecharfield__regex'].lookup_expr, 'regex')
+        self.assertEqual(self.filters['multivaluecharfield__regex'].exclude, False)
+        self.assertEqual(self.filters['multivaluecharfield__iregex'].lookup_expr, 'iregex')
+        self.assertEqual(self.filters['multivaluecharfield__iregex'].exclude, False)
 
     def test_multi_value_date_filter(self):
         self.assertIsInstance(self.filters['datefield'], MultiValueDateFilter)
@@ -340,6 +352,10 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['multiplechoicefield__iew'].exclude, False)
         self.assertEqual(self.filters['multiplechoicefield__niew'].lookup_expr, 'iendswith')
         self.assertEqual(self.filters['multiplechoicefield__niew'].exclude, True)
+        self.assertEqual(self.filters['multiplechoicefield__regex'].lookup_expr, 'regex')
+        self.assertEqual(self.filters['multiplechoicefield__regex'].exclude, False)
+        self.assertEqual(self.filters['multiplechoicefield__iregex'].lookup_expr, 'iregex')
+        self.assertEqual(self.filters['multiplechoicefield__iregex'].exclude, False)
 
     def test_tag_filter(self):
         self.assertIsInstance(self.filters['tagfield'], TagFilter)
@@ -534,6 +550,14 @@ class DynamicFilterLookupExpressionTest(TestCase):
         params = {'slug__niew': ['-1']}
         self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
 
+    def test_site_slug_regex(self):
+        params = {'slug__regex': ['^def-[a-z]*-2$']}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
+
+    def test_site_slug_iregex(self):
+        params = {'slug__iregex': ['^DEF-[a-z]*-2$']}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 1)
+
     def test_provider_asn_lt(self):
         params = {'asn__lt': [65101]}
         self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 1)
@@ -616,6 +640,14 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+
+    def test_device_mac_address_regex(self):
+        params = {'mac_address__regex': ['^cc.*:03$']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+
+    def test_device_mac_address_iregex(self):
+        params = {'mac_address__iregex': ['^CC.*:03$']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
 
     def test_interface_rf_role_empty(self):

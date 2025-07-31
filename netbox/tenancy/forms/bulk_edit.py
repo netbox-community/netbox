@@ -45,12 +45,17 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
         queryset=TenantGroup.objects.all(),
         required=False
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
 
     model = Tenant
     fieldsets = (
-        FieldSet('group'),
+        FieldSet('group', 'description'),
     )
-    nullable_fields = ('group',)
+    nullable_fields = ('group', 'description')
 
 
 #

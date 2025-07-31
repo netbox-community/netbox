@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('users', '0009_update_group_perms'),
+        ('users', '0010_add_token_meta_ordering'),
     ]
 
     operations = [

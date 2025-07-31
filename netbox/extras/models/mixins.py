@@ -2,15 +2,16 @@ import importlib.abc
 import importlib.util
 import os
 import sys
+
 from django.core.files.storage import storages
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponse
+from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 
-from extras.constants import DEFAULT_MIME_TYPE
+from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_WITH_PATH_IMPORT
 from extras.utils import filename_from_model, filename_from_object
 from utilities.jinja2 import render_jinja2
-
 
 __all__ = (
     'PythonModuleMixin',
@@ -125,12 +126,22 @@ class RenderTemplateMixin(models.Model):
             class_name=self.__class__
         ))
 
+    def get_environment_params(self):
+        """
+        Pre-processing of any defined Jinja environment parameters (e.g. to support path resolution).
+        """
+        params = self.environment_params or {}
+        for name, value in params.items():
+            if name in JINJA_ENV_PARAMS_WITH_PATH_IMPORT and type(value) is str:
+                params[name] = import_string(value)
+        return params
+
     def render(self, context=None, queryset=None):
         """
         Render the template with the provided context. The context is passed to the Jinja2 environment as a dictionary.
         """
         context = self.get_context(context=context, queryset=queryset)
-        env_params = self.environment_params or {}
+        env_params = self.get_environment_params()
         output = render_jinja2(self.template_code, context, env_params, getattr(self, 'data_file', None))
 
         # Replace CRLF-style line terminators

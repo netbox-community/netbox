@@ -74,6 +74,7 @@ class Token(models.Model):
     class Meta:
         verbose_name = _('token')
         verbose_name_plural = _('tokens')
+        ordering = ('-created',)
 
     def __str__(self):
         return self.key if settings.ALLOW_TOKEN_RETRIEVAL else self.partial
