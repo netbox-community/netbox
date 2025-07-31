@@ -56,8 +56,8 @@
       <div class="card">
         <h2 class="card-header">{% trans "Image" %}</h2>
         <div class="card-body">
-          <a href="{{ object.image.url }}">
-            <img src="{{ object.image.url }}" height="{{ image.height }}" width="{{ image.width }}" alt="{{ object }}" />
+          <a href="{{ object.image.url }}" title="{{ object.name }}">
+            {{ object.html_tag }}
           </a>
         </div>
       </div>

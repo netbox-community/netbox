@@ -736,6 +736,10 @@ def register_models(*models):
             register_model_view(model, 'jobs', kwargs={'model': model})(
                 'netbox.views.generic.ObjectJobsView'
             )
+        if issubclass(model, ImageAttachmentsMixin):
+            register_model_view(model, 'image-attachments', kwargs={'model': model})(
+                'netbox.views.generic.ObjectImageAttachmentsView'
+            )
         if issubclass(model, SyncedDataMixin):
             register_model_view(model, 'sync', kwargs={'model': model})(
                 'netbox.views.generic.ObjectSyncDataView'
