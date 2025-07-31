@@ -26,7 +26,7 @@
                 width="{{ tn.width }}"
                 height="{{ tn.height }}"
                 class="rounded"
-                alt="{{ object.description or object.name }}"
+                alt="{{ object.description|default:object.name }}"
               />
             </a>
           {% endthumbnail %}
