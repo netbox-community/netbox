@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.serializers import Serializer
 from rest_framework.views import get_view_name as drf_get_view_name
 
-from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
 from .query import count_related, dict_to_filter_params
@@ -56,8 +55,7 @@ def is_api_request(request):
     """
     Return True of the request is being made via the REST API.
     """
-    api_path = reverse('api-root')
-    return request.path_info.startswith(api_path) and request.content_type == HTTP_CONTENT_TYPE_JSON
+    return request.path_info.startswith(reverse('api-root'))
 
 
 def get_view_name(view):
