@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.views.static import serve
 from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
@@ -201,6 +203,17 @@ class ImageAttachmentViewSet(NetBoxModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     filterset_class = filtersets.ImageAttachmentFilterSet
+
+    @action(
+        methods=['GET'],
+        detail=True,
+        url_path='download',
+        url_name='download',
+    )
+    def download(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(self.queryset, pk=pk)
+        # Render and return the elevation as an SVG drawing with the correct content type
+        return serve(request, obj.image.name, document_root=settings.MEDIA_ROOT)
 
 
 #
