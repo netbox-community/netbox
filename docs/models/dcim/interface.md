@@ -126,8 +126,6 @@ The tagged VLANs which are configured to be carried by this interface. Valid onl
 
 ### Q-in-Q SVLAN
 
-!!! info "This field was introduced in NetBox v4.2."
-
 The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 
 ### Wireless Role
@@ -154,7 +152,5 @@ The configured channel width of a wireless interface, in MHz. This is typically 
 The [wireless LANs](../wireless/wirelesslan.md) for which this interface carries traffic. (Valid for wireless interfaces only.)
 
 ### VLAN Translation Policy
-
-!!! info "This field was introduced in NetBox v4.2."
 
 The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

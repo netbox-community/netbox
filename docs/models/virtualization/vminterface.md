@@ -59,8 +59,6 @@ The tagged VLANs which are configured to be carried by this interface. Valid onl
 
 ### Q-in-Q SVLAN
 
-!!! info "This field was introduced in NetBox v4.2."
-
 The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 
 ### VRF
@@ -68,7 +66,5 @@ The assigned service VLAN (for Q-in-Q/802.1ad interfaces).
 The [virtual routing and forwarding](../ipam/vrf.md) instance to which this interface is assigned.
 
 ### VLAN Translation Policy
-
-!!! info "This field was introduced in NetBox v4.2."
 
 The [VLAN translation policy](../ipam/vlantranslationpolicy.md) that applies to this interface (optional).

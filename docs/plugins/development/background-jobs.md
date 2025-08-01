@@ -89,8 +89,6 @@ class MyModel(NetBoxModel):
 
 ### System Jobs
 
-!!! info "This feature was introduced in NetBox v4.2."
-
 Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
 
 #### Example
