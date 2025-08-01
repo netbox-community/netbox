@@ -1,17 +1,17 @@
 import code
 import platform
-import sys
+from collections import defaultdict
+from types import SimpleNamespace
 
 from colorama import Fore, Style
 from django import get_version
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils.module_loading import import_string
 
 from netbox.constants import CORE_APPS
 from netbox.plugins.utils import get_installed_plugins
-
-EXCLUDE_MODELS = ()
 
 
 def color(color: str, text: str):
@@ -20,6 +20,29 @@ def color(color: str, text: str):
 
 def bright(text: str):
     return Style.BRIGHT + text + Style.RESET_ALL
+
+
+def get_models(app_config):
+    """
+    Return a list of all non-private models within an app.
+    """
+    return [
+        model for model in app_config.get_models()
+        if not getattr(model, '_netbox_private', False)
+    ]
+
+
+def get_constants(app_config):
+    """
+    Return a dictionary mapping of all constants defined within an app.
+    """
+    try:
+        constants = import_string(f'{app_config.name}.constants')
+    except ImportError:
+        return {}
+    return {
+        name: value for name, value in vars(constants).items()
+    }
 
 
 class Command(BaseCommand):
@@ -40,37 +63,31 @@ class Command(BaseCommand):
                 print(f'  {m}')
 
     def get_namespace(self):
-        namespace = {}
+        namespace = defaultdict(SimpleNamespace)
 
-        # Gather Django models and constants from each app
-        for app in CORE_APPS:
-            models = []
+        # Iterate through all core apps & plugins to compile namespace of models and constants
+        for app_name in [*CORE_APPS, *get_installed_plugins().keys()]:
+            app_config = apps.get_app_config(app_name)
 
-            # Load models from each app
-            for model in apps.get_app_config(app).get_models():
-                app_label = model._meta.app_label
-                model_name = model._meta.model_name
-                if f'{app_label}.{model_name}' not in EXCLUDE_MODELS:
-                    namespace[model.__name__] = model
-                    models.append(model.__name__)
-            self.django_models[app] = sorted(models)
+            # Populate models
+            if models := get_models(app_config):
+                for model in models:
+                    setattr(namespace[app_name], model.__name__, model)
+                self.django_models[app_name] = sorted([
+                    model.__name__ for model in models
+                ])
 
-            # Constants
-            try:
-                app_constants = sys.modules[f'{app}.constants']
-                for name in dir(app_constants):
-                    namespace[name] = getattr(app_constants, name)
-            except KeyError:
-                pass
+            # Populate constants
+            for const_name, const_value in get_constants(app_config).items():
+                setattr(namespace[app_name], const_name, const_value)
 
-        # Load convenience commands
-        namespace.update({
+        return {
+            **namespace,
             'lsmodels': self._lsmodels,
-        })
+        }
 
-        return namespace
-
-    def get_banner_text(self):
+    @staticmethod
+    def get_banner_text():
         lines = [
             '{title} ({hostname})'.format(
                 title=bright('NetBox interactive shell'),
@@ -120,5 +137,4 @@ class Command(BaseCommand):
             readline.parse_and_bind('tab: complete')
 
         # Run interactive shell
-        shell = code.interact(banner=self.get_banner_text(), local=namespace)
-        return shell
+        return code.interact(banner=self.get_banner_text(), local=namespace)
