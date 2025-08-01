@@ -38,7 +38,9 @@ function handleQuickSearchParams(event: Event): void {
 
   if (quickSearchParameters != null) {
     const link = document.getElementById('export_current_view') as HTMLLinkElement;
-    const search_parameter = `q=${quickSearchParameters.value}`;
+    const params = new URLSearchParams();
+    params.set('q', quickSearchParameters.value);
+    const search_parameter = params.toString();
     const linkUpdated = link?.href + '&' + search_parameter;
     link.setAttribute('href', linkUpdated);
   }
