@@ -309,6 +309,7 @@ class RSSFeedWidget(DashboardWidget):
     default_config = {
         'max_entries': 10,
         'cache_timeout': 3600,  # seconds
+        'request_timeout': 3,  # seconds
         'requires_internet': True,
     }
     description = _('Embed an RSS feed from an external website.')
@@ -334,6 +335,12 @@ class RSSFeedWidget(DashboardWidget):
             min_value=600,  # 10 minutes
             max_value=86400,  # 24 hours
             help_text=_('How long to stored the cached content (in seconds)')
+        )
+        request_timeout = forms.IntegerField(
+            min_value=1,
+            max_value=60,
+            required=False,
+            help_text=_('Timeout value for fetching the feed (in seconds)')
         )
 
     def render(self, request):
@@ -366,7 +373,7 @@ class RSSFeedWidget(DashboardWidget):
                 url=self.config['feed_url'],
                 headers={'User-Agent': f'NetBox/{settings.RELEASE.version}'},
                 proxies=resolve_proxies(url=self.config['feed_url'], context={'client': self}),
-                timeout=3
+                timeout=self.config.get('request_timeout', 3),
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
