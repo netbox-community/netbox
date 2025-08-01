@@ -55,11 +55,30 @@ class Command(BaseCommand):
             help='Python code to execute (instead of starting an interactive shell)',
         )
 
-    def _lsmodels(self):
-        for app, models in self.django_models.items():
-            app_name = apps.get_app_config(app).verbose_name
+    def _lsapps(self):
+        for app_label in self.django_models.keys():
+            app_name = apps.get_app_config(app_label).verbose_name
+            print(f'{app_label} - {app_name}')
+
+    def _lsmodels(self, app_label=None):
+        """
+        Return a list of all models within each app.
+
+        Args:
+            app_label: The name of a specific app
+        """
+        if app_label:
+            if app_label not in self.django_models:
+                print(f"No models listed for {app_label}")
+                return
+            app_labels = [app_label]
+        else:
+            app_labels = self.django_models.keys()  # All apps
+
+        for app_label in app_labels:
+            app_name = apps.get_app_config(app_label).verbose_name
             print(f'{app_name}:')
-            for m in models:
+            for m in self.django_models[app_label]:
                 print(f'  {m}')
 
     def get_namespace(self):
@@ -83,6 +102,7 @@ class Command(BaseCommand):
 
         return {
             **namespace,
+            'lsapps': self._lsapps,
             'lsmodels': self._lsmodels,
         }
 
@@ -111,7 +131,7 @@ class Command(BaseCommand):
             )
 
         lines.append(
-            'lsmodels() will show available models. Use help(<model>) for more info.'
+            'lsapps() & lsmodels() will show available models. Use help(<model>) for more info.'
         )
 
         return '\n'.join([
