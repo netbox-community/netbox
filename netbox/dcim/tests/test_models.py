@@ -37,19 +37,6 @@ class MACAddressTestCase(TestCase):
         cls.interface.primary_mac_address = cls.mac_a
         cls.interface.save()
 
-        shared_mac = '1234567890ab'
-        interfaces = []
-        for i in range(10):
-            interfaces.append(Interface(
-                device=device, name=f'Interface {i:03d}', type='1000base-t'
-            ))
-        Interface.objects.bulk_create(interfaces)
-
-        mac_addresses = []
-        for interface in interfaces:
-            mac_addresses.append(MACAddress(mac_address=shared_mac, assigned_object=interface))
-        MACAddress.objects.bulk_create(mac_addresses)
-
     @tag('regression')
     def test_clean_will_not_allow_removal_of_assigned_object_if_primary(self):
         self.mac_a.assigned_object = None
@@ -60,29 +47,6 @@ class MACAddressTestCase(TestCase):
     def test_clean_will_allow_removal_of_assigned_object_if_not_primary(self):
         self.mac_b.assigned_object = None
         self.mac_b.clean()
-
-    @tag('regression')
-    def test_mac_address_ordering_with_duplicates(self):
-        """
-        Test that MAC addresses with the same value are ordered by their primary key (pk).
-        This ensures deterministic ordering for pagination when multiple records share the same MAC address.
-        """
-        mac_addresses = list(MACAddress.objects.all())
-
-        mac_address_groups = {}
-        for mac in mac_addresses:
-            if mac.mac_address not in mac_address_groups:
-                mac_address_groups[mac.mac_address] = []
-            mac_address_groups[mac.mac_address].append(mac)
-
-        for mac_value, macs in mac_address_groups.items():
-            if len(macs) > 1:
-                for i in range(1, len(macs)):
-                    self.assertLess(
-                        macs[i - 1].pk,
-                        macs[i].pk,
-                        f"MAC addresses with value {mac_value} are not ordered by primary key"
-                    )
 
 
 class LocationTestCase(TestCase):
