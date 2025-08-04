@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0208_devicerole_uniqueness'),
+        ('dcim', '0209_device_component_denorm_site_location'),
     ]
 
     operations = [
