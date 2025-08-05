@@ -36,8 +36,9 @@ class NumericRangeArrayField(forms.CharField):
     """
     def __init__(self, *args, help_text='', **kwargs):
         if not help_text:
+            example = "<code>1-5,10,20-30</code>"
             help_text = mark_safe(
-                _("Specify one or more numeric ranges separated by commas. Example: " + "<code>1-5,20-30</code>")
+                _("Specify one or more individual values or numeric ranges separated by commas. Example: " + example)
             )
         super().__init__(*args, help_text=help_text, **kwargs)
 
