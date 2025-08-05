@@ -358,7 +358,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return {**required_fields, **optional_fields}
 
+    def _compile_form_errors(self, errors, index, prefix=None):
+        error_messages = []
+        for field_name, errors in errors.items():
+            prefix = f'{prefix}.' if prefix else ''
+            if field_name == '__all__':
+                field_name = ''
+            for err in errors:
+                error_messages.append(f"Record {index} {prefix}{field_name}: {err}")
+        return error_messages
+
     def _save_object(self, model_form, request):
+        _action = 'Updated' if model_form.instance.pk else 'Created'
 
         # Save the primary object
         obj = self.save_object(model_form, request)
@@ -384,14 +395,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     related_obj_pks.append(related_obj.pk)
                 else:
                     # Replicate errors on the related object form to the import form for display and abort
-                    for subfield_name, errors in f.errors.items():
-                        error_messages = []
-                        for err in errors:
-                            if subfield_name == '__all__':
-                                error_messages.append(f"{field_name}[{i}]: {err}")
-                            else:
-                                error_messages.append(f"{field_name}[{i}] {subfield_name}: {err}")
-                    raise ValidationError(f.errors)
+                    raise ValidationError(
+                        self._compile_form_errors(f.errors, index=i, prefix=f'{field_name}[{i}]')
+                    )
 
             # Enforce object-level permissions on related objects
             model = related_object_form.Meta.model
@@ -399,7 +405,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 raise ObjectDoesNotExist
 
         if is_background_request(request):
-            request.job.logger.info(f"Imported {obj}")
+            request.job.logger.info(f'{_action} {obj}')
 
         return obj
 
@@ -479,14 +485,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 saved_objects.append(obj)
             else:
                 # Raise model form errors
-                err_messages = []
-                for field, errors in model_form.errors.items():
-                    for err in errors:
-                        if field == '__all__':
-                            err_messages.append(f'Record {i}: {err}')
-                        else:
-                            err_messages.append(f'Record {i} {field}: {err}')
-                raise ValidationError(err_messages)
+                raise ValidationError(
+                    self._compile_form_errors(model_form.errors, index=i)
+                )
 
         return saved_objects
 
@@ -513,7 +514,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         if form.is_valid():
             logger.debug("Import form validation was successful")
             redirect_url = reverse(get_viewname(model, action='list'))
-            new_objects = []
 
             # If indicated, defer this request to a background job & redirect the user
             if form.cleaned_data['background_job']:
@@ -553,7 +553,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     logger.debug(msg)
                     form.add_error(None, msg)
                     if is_background_request(request):
-                        request.job.logger.warning(msg)
+                        request.job.logger.error(msg)
+                        request.job.logger.warning("Bulk import aborted")
                 clear_events.send(sender=self)
                 if is_background_request(request):
                     raise JobFailed
@@ -758,7 +759,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         logger.debug(msg)
                         form.add_error(None, msg)
                         if is_background_request(request):
-                            request.job.logger.warning(msg)
+                            request.job.logger.error(msg)
                     clear_events.send(sender=self)
                     if is_background_request(request):
                         raise JobFailed
@@ -968,7 +969,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 except (ProtectedError, RestrictedError) as e:
                     logger.warning(f"Caught {type(e)} while attempting to delete objects")
                     if is_background_request(request):
-                        request.job.logger.warning(
+                        request.job.logger.error(
                             _("Deletion failed due to the presence of one or more dependent objects.")
                         )
                         raise JobFailed
@@ -976,9 +977,10 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except AbortRequest as e:
                     logger.debug(e.message)
-                    messages.error(request, mark_safe(e.message))
                     if is_background_request(request):
+                        request.job.logger.error(e.message)
                         raise JobFailed
+                    messages.error(request, mark_safe(e.message))
 
                 return redirect(self.get_return_url(request))
 

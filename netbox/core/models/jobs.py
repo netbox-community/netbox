@@ -148,12 +148,11 @@ class Job(models.Model):
         return JobStatusChoices.colors.get(self.status)
 
     def get_event_type(self):
-        if self.status == JobStatusChoices.STATUS_FAILED:
-            return JOB_FAILED
-        if self.status == JobStatusChoices.STATUS_ERRORED:
-            return JOB_ERRORED
-        if self.status == JobStatusChoices.STATUS_COMPLETED:
-            return JOB_COMPLETED
+        return {
+            JobStatusChoices.STATUS_COMPLETED: JOB_COMPLETED,
+            JobStatusChoices.STATUS_FAILED: JOB_FAILED,
+            JobStatusChoices.STATUS_ERRORED: JOB_ERRORED,
+        }.get(self.status)
 
     def clean(self):
         super().clean()
