@@ -76,7 +76,8 @@ def handle_changed_object(sender, instance, **kwargs):
     elif kwargs.get('action') == 'post_clear':
         # Handle clearing of an M2M field
         if isinstance(Tag, kwargs.get('model')) and getattr(instance, '_prechange_snapshot', {}).get('tags'):
-            # Handle tags as it is a Generic M2M
+            # Handle generation of M2M changes for Tags which have a previous value (ignoring changes where the
+            # prechange snapshot is empty)
             m2m_changed = True
             event_type = OBJECT_UPDATED
         else:
