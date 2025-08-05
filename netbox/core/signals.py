@@ -13,6 +13,7 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
 from extras.events import enqueue_event
+from extras.models import Tag
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
@@ -72,6 +73,15 @@ def handle_changed_object(sender, instance, **kwargs):
         # m2m_changed with objects added or removed
         m2m_changed = True
         event_type = OBJECT_UPDATED
+    elif kwargs.get('action') == 'post_clear':
+        # Handle clearing of an M2M field
+        if isinstance(Tag, kwargs.get('model')) and getattr(instance, '_prechange_snapshot', {}).get('tags'):
+            # Handle tags as it is a Generic M2M
+            m2m_changed = True
+            event_type = OBJECT_UPDATED
+        else:
+            # Other M2M models are unsupported
+            return
     else:
         return
 
