@@ -1,6 +1,8 @@
 import datetime
 
+from PIL import Image
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import File
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -615,6 +617,38 @@ class ImageAttachmentTest(
             )
         )
         ImageAttachment.objects.bulk_create(image_attachments)
+
+    def test_image_download(self):
+        self.add_permissions('extras.view_imageattachment')
+        ct = ContentType.objects.get_for_model(Site)
+        site = Site.objects.get(name='Site 1', slug='site-1')
+
+        image = Image.new('RGB', size=(1, 1), color=(255, 0, 0))
+        image.save('test_image_download.png', format='PNG')
+        image_file = File(open('test_image_download.png', 'rb'))
+        content = image_file.read()
+
+        attachment = ImageAttachment(
+            object_type=ct,
+            object_id=site.pk,
+            name='Image Attachment 4',
+            image_height=1,
+            image_width=1
+        )
+        attachment.image.save('test_image_download.png', image_file, save=True)
+        attachment.save()
+
+        image = ImageAttachment.objects.get(name='Image Attachment 4')
+        url = reverse('extras-api:imageattachment-download', kwargs={'pk': image.pk})
+        response = self.client.get(url, **self.header)
+        downloaded_content = b''.join(response.streaming_content)
+
+        self.assertEqual(response.headers.get('Content-Type'), 'image/png')
+        self.assertEqual(response.headers.get('Content-Length'), '69')
+        self.assertEqual(
+            response.headers.get('Content-Disposition'), f'inline; filename="site_{site.pk}_Image_Attachment_4.png"'
+        )
+        self.assertEqual(content, downloaded_content)
 
 
 class JournalEntryTest(APIViewTestCases.APIViewTestCase):
