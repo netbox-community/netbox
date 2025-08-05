@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from utilities.querydict import prepare_cloned_fields
+from utilities.views import get_viewname
 
 __all__ = (
     'AddObject',
@@ -42,7 +43,7 @@ class ObjectAction:
 
     @classmethod
     def get_url(cls, obj):
-        viewname = f'{obj._meta.app_label}:{obj._meta.model_name}_{cls.name}'
+        viewname = get_viewname(obj, action=cls.name)
         kwargs = {
             kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs
         }
