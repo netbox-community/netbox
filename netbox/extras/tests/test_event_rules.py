@@ -3,6 +3,7 @@ import uuid
 from unittest.mock import patch
 
 import django_rq
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.urls import reverse
@@ -135,7 +136,7 @@ class EventRuleTest(APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 1'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
-        self.assertEqual(job.kwargs['model_name'], 'site')
+        self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
         self.assertEqual(job.kwargs['data']['foo'], 1)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -186,7 +187,7 @@ class EventRuleTest(APITestCase):
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 1'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
-            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
             self.assertEqual(job.kwargs['data']['foo'], 1)
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -218,7 +219,7 @@ class EventRuleTest(APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 2'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
-        self.assertEqual(job.kwargs['model_name'], 'site')
+        self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['data']['foo'], 2)
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
@@ -275,7 +276,7 @@ class EventRuleTest(APITestCase):
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 2'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
-            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
             self.assertEqual(job.kwargs['data']['foo'], 2)
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
@@ -302,7 +303,7 @@ class EventRuleTest(APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 3'))
         self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
-        self.assertEqual(job.kwargs['model_name'], 'site')
+        self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['data']['foo'], 3)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
@@ -336,7 +337,7 @@ class EventRuleTest(APITestCase):
         for i, job in enumerate(self.queue.jobs):
             self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(name='Event Rule 3'))
             self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
-            self.assertEqual(job.kwargs['model_name'], 'site')
+            self.assertEqual(job.kwargs['object_type'], ContentType.objects.get_for_model(Site))
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
             self.assertEqual(job.kwargs['data']['foo'], 3)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
@@ -368,8 +369,14 @@ class EventRuleTest(APITestCase):
             self.assertEqual(body['request_id'], str(request_id))
             self.assertEqual(body['data']['name'], 'Site 1')
             self.assertEqual(body['data']['foo'], 1)
+            self.assertEqual(body['context']['foo'], 123)  # From netbox.tests.dummy_plugin
 
             return HttpResponse()
+
+        # Create a dummy request
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = request_id
+        request.user = self.user
 
         # Enqueue a webhook for processing
         webhooks_queue = {}
@@ -377,9 +384,8 @@ class EventRuleTest(APITestCase):
         enqueue_event(
             webhooks_queue,
             instance=site,
-            user=self.user,
-            request_id=request_id,
-            event_type=OBJECT_CREATED
+            request=request,
+            event_type=OBJECT_CREATED,
         )
         flush_events(list(webhooks_queue.values()))
 

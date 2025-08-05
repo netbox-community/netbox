@@ -136,7 +136,7 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request.user, request.id, event_type)
+    enqueue_event(queue, instance, request, event_type)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -220,7 +220,7 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request.user, request.id, OBJECT_DELETED)
+    enqueue_event(queue, instance, request, OBJECT_DELETED)
     events_queue.set(queue)
 
     # Increment metric counters

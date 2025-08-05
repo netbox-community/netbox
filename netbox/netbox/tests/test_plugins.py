@@ -10,6 +10,7 @@ from core.models import ObjectType
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
+from netbox.tests.dummy_plugin.webhook_callbacks import set_context
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -220,3 +221,9 @@ class PluginTest(TestCase):
         Check that events pipeline is registered.
         """
         self.assertIn('netbox.tests.dummy_plugin.events.process_events_queue', settings.EVENTS_PIPELINE)
+
+    def test_webhook_callbacks(self):
+        """
+        Test the registration of webhook callbacks.
+        """
+        self.assertIn(set_context, registry['webhook_callbacks'])
