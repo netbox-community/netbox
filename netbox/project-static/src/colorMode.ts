@@ -43,6 +43,11 @@ function updateElements(targetMode: ColorMode): void {
 export function setColorMode(mode: ColorMode): void {
   storeColorMode(mode);
   updateElements(mode);
+  window.dispatchEvent(
+    new CustomEvent<ColorModeData>('netbox.colorModeChanged', {
+      detail: { netboxColorMode: mode },
+    }),
+  );
 }
 
 /**
