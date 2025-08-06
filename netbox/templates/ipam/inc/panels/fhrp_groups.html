@@ -40,12 +40,12 @@
           <td>{{ assignment.priority }}</td>
           <td class="text-end d-print-none">
             {% if perms.ipam.change_fhrpgroupassignment %}
-              <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning lh-1" title="{% trans "Edit" %}">
+              <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-warning" title="{% trans "Edit" %}">
                 <i class="mdi mdi-pencil" aria-hidden="true"></i>
               </a>
             {% endif %}
             {% if perms.ipam.delete_fhrpgroupassignment %}
-              <a href="{% url 'ipam:fhrpgroupassignment_delete' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger lh-1" title="{% trans "Delete" %}">
+              <a href="{% url 'ipam:fhrpgroupassignment_delete' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-danger" title="{% trans "Delete" %}">
                 <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
               </a>
             {% endif %}
