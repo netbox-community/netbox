@@ -1888,12 +1888,12 @@ class InterfaceFilterSet(
     virtual_chassis_member_or_master = MultiValueCharFilter(
         method='filter_virtual_chassis_member_or_master',
         field_name='name',
-        label=_('Virtual Chassis Interfaces for Device')
+        label=_('Virtual Chassis Interfaces for Device when device is master')
     )
     virtual_chassis_member_or_master_id = MultiValueNumberFilter(
         method='filter_virtual_chassis_member_or_master',
         field_name='pk',
-        label=_('Virtual Chassis Interfaces for Device (ID)')
+        label=_('Virtual Chassis Interfaces for Device when device is master (ID)')
     )
     virtual_chassis_member = MultiValueCharFilter(
         method='filter_virtual_chassis_member',
