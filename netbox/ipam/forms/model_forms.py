@@ -21,7 +21,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, T
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VMInterface
+from virtualization.models import VMInterface, VirtualMachine
 
 __all__ = (
     'AggregateForm',
@@ -783,10 +783,6 @@ class ServiceForm(NetBoxModelForm):
         queryset=IPAddress.objects.all(),
         required=False,
         label=_('IP Addresses'),
-        query_params={
-            'device_id': '$device',
-            'virtual_machine_id': '$virtual_machine',
-        }
     )
     comments = CommentField()
 
@@ -818,13 +814,28 @@ class ServiceForm(NetBoxModelForm):
         if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
             try:
                 parent_type = ContentType.objects.get(pk=parent_object_type_id)
+                if parent_type.model_class() == Device:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'device_id': '$parent',
+                    })
+                elif parent_type.model_class() == VirtualMachine:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'virtual_machine_id': '$parent',
+                    })
+                elif parent_type.model_class() == FHRPGroup:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'fhrpgroup_id': '$parent',
+                    })
                 model = parent_type.model_class()
                 self.fields['parent'].queryset = model.objects.all()
                 self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['parent'].disabled = False
                 self.fields['parent'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
+                print('Except')
                 pass
+        else:
+            print('No obj_type')
 
             if self.instance and self.instance.pk and parent_object_type_id != self.instance.parent_object_type_id:
                 self.initial['parent'] = None
