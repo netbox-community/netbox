@@ -82,6 +82,7 @@ def handle_changed_object(sender, instance, **kwargs):
             event_type = OBJECT_UPDATED
         else:
             # Other endpoints are unimpacted as they send post_add and post_remove
+            # This will impact changes that utilize clear() however so we may want to give consideration for this branch
             return
     else:
         return
