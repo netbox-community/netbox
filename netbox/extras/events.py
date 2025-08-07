@@ -2,13 +2,13 @@ import logging
 from collections import defaultdict
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.events import *
+from core.models import ObjectType
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
@@ -73,7 +73,7 @@ def enqueue_event(queue, instance, request, event_type):
             queue[key]['event_type'] = event_type
     else:
         queue[key] = {
-            'object_type': ContentType.objects.get_for_model(instance),
+            'object_type': ObjectType.objects.get_for_model(instance),
             'object_id': instance.pk,
             'event_type': event_type,
             'data': serialize_for_event(instance),
