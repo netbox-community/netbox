@@ -18,8 +18,10 @@ from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
 from core.dataclasses import JobLogEntry
+from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from extras.models import Notification
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
@@ -145,6 +147,13 @@ class Job(models.Model):
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
 
+    def get_event_type(self):
+        return {
+            JobStatusChoices.STATUS_COMPLETED: JOB_COMPLETED,
+            JobStatusChoices.STATUS_FAILED: JOB_FAILED,
+            JobStatusChoices.STATUS_ERRORED: JOB_ERRORED,
+        }.get(self.status)
+
     def clean(self):
         super().clean()
 
@@ -215,6 +224,14 @@ class Job(models.Model):
             self.error = error
         self.completed = timezone.now()
         self.save()
+
+        # Notify the user (if any) of completion
+        if self.user:
+            Notification(
+                user=self.user,
+                object=self,
+                event_type=self.get_event_type(),
+            ).save()
 
         # Send signal
         job_end.send(self)

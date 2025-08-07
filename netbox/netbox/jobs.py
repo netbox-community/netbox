@@ -8,10 +8,8 @@ from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
-from core.events import JOB_COMPLETED, JOB_FAILED
 from core.exceptions import JobFailed
 from core.models import Job, ObjectType
-from extras.models import Notification
 from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.registry import registry
 from utilities.request import apply_request_processors
@@ -194,23 +192,11 @@ class AsyncViewJob(JobRunner):
 
     def run(self, view_cls, request, **kwargs):
         view = view_cls.as_view()
+        request.job = self
 
         # Apply all registered request processors (e.g. event_tracking)
         with apply_request_processors(request):
-            data = view(request)
+            view(request)
 
-        self.job.data = {
-            'log': data.log,
-            'errors': data.errors,
-        }
-
-        # Notify the user
-        notification = Notification(
-            user=request.user,
-            object=self.job,
-            event_type=JOB_COMPLETED if not data.errors else JOB_FAILED,
-        )
-        notification.save()
-
-        if data.errors:
+        if self.job.error:
             raise JobFailed()

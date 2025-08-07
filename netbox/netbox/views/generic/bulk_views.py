@@ -17,18 +17,19 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from mptt.models import MPTTModel
 
+from core.exceptions import JobFailed
 from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
+from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.export import TableExport
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
-from utilities.jobs import AsyncJobData, is_background_request, process_request_as_job
+from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
@@ -357,7 +358,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return {**required_fields, **optional_fields}
 
-    def _save_object(self, import_form, model_form, request):
+    def _compile_form_errors(self, errors, index, prefix=None):
+        error_messages = []
+        for field_name, errors in errors.items():
+            prefix = f'{prefix}.' if prefix else ''
+            if field_name == '__all__':
+                field_name = ''
+            for err in errors:
+                error_messages.append(f"Record {index} {prefix}{field_name}: {err}")
+        return error_messages
+
+    def _save_object(self, model_form, request):
+        _action = 'Updated' if model_form.instance.pk else 'Created'
 
         # Save the primary object
         obj = self.save_object(model_form, request)
@@ -383,19 +395,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     related_obj_pks.append(related_obj.pk)
                 else:
                     # Replicate errors on the related object form to the import form for display and abort
-                    for subfield_name, errors in f.errors.items():
-                        for err in errors:
-                            if subfield_name == '__all__':
-                                err_msg = f"{field_name}[{i}]: {err}"
-                            else:
-                                err_msg = f"{field_name}[{i}] {subfield_name}: {err}"
-                            import_form.add_error(None, err_msg)
-                    raise AbortTransaction()
+                    raise ValidationError(
+                        self._compile_form_errors(f.errors, index=i, prefix=f'{field_name}[{i}]')
+                    )
 
             # Enforce object-level permissions on related objects
             model = related_object_form.Meta.model
             if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
                 raise ObjectDoesNotExist
+
+        if is_background_request(request):
+            request.job.logger.info(f'{_action} {obj}')
 
         return obj
 
@@ -471,18 +481,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(form, model_form, request)
+                obj = self._save_object(model_form, request)
                 saved_objects.append(obj)
             else:
-                # Replicate model form errors for display
-                for field, errors in model_form.errors.items():
-                    for err in errors:
-                        if field == '__all__':
-                            form.add_error(None, f'Record {i}: {err}')
-                        else:
-                            form.add_error(None, f'Record {i} {field}: {err}')
-
-                raise ValidationError("")
+                # Raise model form errors
+                raise ValidationError(
+                    self._compile_form_errors(model_form.errors, index=i)
+                )
 
         return saved_objects
 
@@ -509,7 +514,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         if form.is_valid():
             logger.debug("Import form validation was successful")
             redirect_url = reverse(get_viewname(model, action='list'))
-            new_objects = []
 
             # If indicated, defer this request to a background job & redirect the user
             if form.cleaned_data['background_job']:
@@ -529,32 +533,31 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     if self.queryset.filter(pk__in=[obj.pk for obj in new_objects]).count() != len(new_objects):
                         raise PermissionsViolation
 
-            except (AbortTransaction, ValidationError):
-                clear_events.send(sender=self)
-
-            except (AbortRequest, PermissionsViolation) as e:
-                logger.debug(e.message)
-                form.add_error(None, e.message)
-                clear_events.send(sender=self)
-
-            # If this request was executed via a background job, return the raw data for logging
-            if is_background_request(request):
-                return AsyncJobData(
-                    log=[
-                        _('Created {object}').format(object=str(obj))
-                        for obj in new_objects
-                    ],
-                    errors=form.errors
-                )
-
-            if new_objects:
-                msg = _("Imported {count} {object_type}").format(
+                msg = _('Imported {count} {object_type}').format(
                     count=len(new_objects),
                     object_type=model._meta.verbose_name_plural
                 )
                 logger.info(msg)
+
+                # Handle background job
+                if is_background_request(request):
+                    request.job.logger.info(msg)
+                    return
+
                 messages.success(request, msg)
                 return redirect(f"{redirect_url}?modified_by_request={request.id}")
+
+            except (AbortRequest, PermissionsViolation, ValidationError) as e:
+                err_messages = e.messages if type(e) is ValidationError else [e.message]
+                for msg in err_messages:
+                    logger.debug(msg)
+                    form.add_error(None, msg)
+                    if is_background_request(request):
+                        request.job.logger.error(msg)
+                        request.job.logger.warning("Bulk import aborted")
+                clear_events.send(sender=self)
+                if is_background_request(request):
+                    raise JobFailed
 
         else:
             logger.debug("Form validation failed")
@@ -670,6 +673,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             self.post_save_operations(form, obj)
 
+            if is_background_request(request):
+                request.job.logger.info(f"Updated {obj}")
+
         # Rebuild the tree for MPTT models
         if issubclass(self.queryset.model, MPTTModel):
             self.queryset.model.objects.rebuild()
@@ -733,31 +739,30 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         if object_count != len(updated_objects):
                             raise PermissionsViolation
 
-                    # If this request was executed via a background job, return the raw data for logging
+                    msg = _('Updated {count} {object_type}').format(
+                        count=len(updated_objects),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    logger.info(msg)
+
+                    # Handle background job
                     if is_background_request(request):
-                        return AsyncJobData(
-                            log=[
-                                _('Updated {object}').format(object=str(obj))
-                                for obj in updated_objects
-                            ],
-                            errors=form.errors
-                        )
+                        request.job.logger.info(msg)
+                        return
 
-                    if updated_objects:
-                        msg = f'Updated {len(updated_objects)} {model._meta.verbose_name_plural}'
-                        logger.info(msg)
-                        messages.success(self.request, msg)
-
+                    messages.success(self.request, msg)
                     return redirect(self.get_return_url(request))
 
-                except ValidationError as e:
-                    messages.error(self.request, ", ".join(e.messages))
+                except (AbortRequest, PermissionsViolation, ValidationError) as e:
+                    err_messages = e.messages if type(e) is ValidationError else [e.message]
+                    for msg in err_messages:
+                        logger.debug(msg)
+                        form.add_error(None, msg)
+                        if is_background_request(request):
+                            request.job.logger.error(msg)
                     clear_events.send(sender=self)
-
-                except (AbortRequest, PermissionsViolation) as e:
-                    logger.debug(e.message)
-                    form.add_error(None, e.message)
-                    clear_events.send(sender=self)
+                    if is_background_request(request):
+                        raise JobFailed
 
             else:
                 logger.debug("Form validation failed")
@@ -945,32 +950,38 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                             # Delete the object
                             obj.delete()
 
+                            if is_background_request(request):
+                                request.job.logger.info(f"Deleted {obj}")
+
+                    msg = _('Deleted {count} {object_type}').format(
+                        count=deleted_count,
+                        object_type=model._meta.verbose_name_plural
+                    )
+                    logger.info(msg)
+
+                    # Handle background job
+                    if is_background_request(request):
+                        request.job.logger.info(msg)
+                        return
+
+                    messages.success(request, msg)
+
                 except (ProtectedError, RestrictedError) as e:
-                    logger.info(f"Caught {type(e)} while attempting to delete objects")
+                    logger.warning(f"Caught {type(e)} while attempting to delete objects")
+                    if is_background_request(request):
+                        request.job.logger.error(
+                            _("Deletion failed due to the presence of one or more dependent objects.")
+                        )
+                        raise JobFailed
                     handle_protectederror(queryset, request, e)
-                    return redirect(self.get_return_url(request))
 
                 except AbortRequest as e:
                     logger.debug(e.message)
+                    if is_background_request(request):
+                        request.job.logger.error(e.message)
+                        raise JobFailed
                     messages.error(request, mark_safe(e.message))
-                    return redirect(self.get_return_url(request))
 
-                # If this request was executed via a background job, return the raw data for logging
-                if is_background_request(request):
-                    return AsyncJobData(
-                        log=[
-                            _('Deleted {object}').format(object=str(obj))
-                            for obj in queryset
-                        ],
-                        errors=form.errors
-                    )
-
-                msg = _("Deleted {count} {object_type}").format(
-                    count=deleted_count,
-                    object_type=model._meta.verbose_name_plural
-                )
-                logger.info(msg)
-                messages.success(request, msg)
                 return redirect(self.get_return_url(request))
 
             else:
