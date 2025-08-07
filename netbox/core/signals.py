@@ -81,7 +81,7 @@ def handle_changed_object(sender, instance, **kwargs):
             m2m_changed = True
             event_type = OBJECT_UPDATED
         else:
-            # Other M2M models are unsupported
+            # Other endpoints are unimpacted as they send post_add and post_remove
             return
     else:
         return
