@@ -282,6 +282,21 @@ def get_viewname(model, action=None, rest_api=False):
     return viewname
 
 
+def get_action_url(model, action=None, rest_api=False, kwargs=None):
+    """
+    Return the url for the given model and action, if valid.
+
+    :param model: The model or instance to which the view applies
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API view
+    :param kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional).
+    """
+    if hasattr(model, '_get_action_url'):
+        return model._get_action_url(action, rest_api, kwargs)
+
+    return reverse(get_viewname(model, action, rest_api), kwargs=kwargs)
+
+
 def register_model_view(model, name='', path=None, detail=True, kwargs=None):
     """
     This decorator can be used to "attach" a view to any model in NetBox. This is typically used to inject
