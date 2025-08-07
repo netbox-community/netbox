@@ -144,6 +144,7 @@ nav:
             - Search: 'plugins/development/search.md'
             - Event Types: 'plugins/development/event-types.md'
             - Data Backends: 'plugins/development/data-backends.md'
+            - Webhooks: 'plugins/development/webhooks.md'
             - User Interface: 'plugins/development/user-interface.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
