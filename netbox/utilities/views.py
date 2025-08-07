@@ -150,7 +150,7 @@ class GetReturnURLMixin:
         # Attempt to dynamically resolve the list view for the object
         if hasattr(self, 'queryset'):
             try:
-                return reverse(get_viewname(self.queryset.model, 'list'))
+                return get_action_url(self.queryset.model, action='list')
             except NoReverseMatch:
                 pass
 
