@@ -504,6 +504,16 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
 class PlatformImportForm(NetBoxModelImportForm):
     slug = SlugField()
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent platform'),
+        error_messages={
+            'invalid_choice': _('Platform not found.'),
+        }
+    )
     manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -522,7 +532,7 @@ class PlatformImportForm(NetBoxModelImportForm):
     class Meta:
         model = Platform
         fields = (
-            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'tags',
         )
 
 

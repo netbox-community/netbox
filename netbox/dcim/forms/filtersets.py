@@ -714,6 +714,11 @@ class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
 class PlatformFilterForm(NetBoxModelFilterSetForm):
     model = Platform
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        label=_('Parent')
+    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
