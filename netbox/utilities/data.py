@@ -162,17 +162,15 @@ def string_to_ranges(value):
     values = []
     for data in value.split(','):
         dash_range = data.strip().split('-')
-        lower, upper = '', ''
         if len(dash_range) == 1 and str(dash_range[0]).isdigit():
-            # Range is only a single value, which is a valid number
+            # Single integer value; expand to a range
             lower = dash_range[0]
             upper = dash_range[0]
         elif len(dash_range) == 2 and str(dash_range[0]).isdigit() and str(dash_range[1]).isdigit():
-            # The range has 2 values and both are valid number
+            # The range has two values and both are valid integers
             lower = dash_range[0]
             upper = dash_range[1]
         else:
             return None
-
         values.append(NumericRange(int(lower), int(upper), bounds='[]'))
     return values

@@ -78,5 +78,5 @@ class RangeFunctionsTestCase(TestCase):
 
         self.assertEqual(
             string_to_ranges('2-10, a-b'),
-            None    # Fails to convert
+            None  # Fails to convert
         )
