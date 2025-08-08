@@ -1282,11 +1282,18 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
             'data_source', 'data_file', 'jobs'
         )
-
-        return render(request, 'extras/script_list.html', {
+        context = {
             'model': ScriptModule,
             'script_modules': script_modules,
-        })
+        }
+
+        # Use partial template for dashboard widgets
+        template_name = 'extras/script_list.html'
+        if request.GET.get('embedded'):
+            template_name = 'extras/inc/script_list_content.html'
+            context['embedded'] = True
+
+        return render(request, template_name, context)
 
 
 class BaseScriptView(generic.ObjectView):

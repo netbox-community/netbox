@@ -66,3 +66,17 @@ class RangeFunctionsTestCase(TestCase):
                 NumericRange(100, 199, bounds='[]'),  # 100-199
             ]
         )
+
+        self.assertEqual(
+            string_to_ranges('1-2, 5, 10-12'),
+            [
+                NumericRange(1, 2, bounds='[]'),    # 1-2
+                NumericRange(5, 5, bounds='[]'),    # 5-5
+                NumericRange(10, 12, bounds='[]'),  # 10-12
+            ]
+        )
+
+        self.assertEqual(
+            string_to_ranges('2-10, a-b'),
+            None  # Fails to convert
+        )

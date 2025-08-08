@@ -24,7 +24,7 @@
             <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
             {{ term|linkify }}
             {% with trace_url=term|viewname:"trace" %}
-              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
               </a>
             {% endwith %}
@@ -48,7 +48,7 @@
           {% for term in terminations %}
             {{ term|linkify }}
             {% with trace_url=term|viewname:"trace" %}
-              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
               </a>
             {% endwith %}
@@ -68,7 +68,7 @@
           {% for term in terminations %}
             {{ term.circuit|linkify }} ({{ term }})
             {% with trace_url=term|viewname:"trace" %}
-              <a href="{% url trace_url pk=term.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+              <a href="{% url trace_url pk=term.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
                 <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
               </a>
             {% endwith %}

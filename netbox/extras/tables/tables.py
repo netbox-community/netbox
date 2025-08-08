@@ -317,11 +317,12 @@ class TableConfigTable(NetBoxTable):
 
 class BookmarkTable(NetBoxTable):
     object_type = columns.ContentTypeColumn(
-        verbose_name=_('Object Types'),
+        verbose_name=_('Object Type'),
     )
     object = tables.Column(
         verbose_name=_('Object'),
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     actions = columns.ActionsColumn(
         actions=('delete',)

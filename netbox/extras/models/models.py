@@ -849,6 +849,9 @@ class Bookmark(models.Model):
             return str(self.object)
         return super().__str__()
 
+    def get_absolute_url(self):
+        return reverse('account:bookmarks')
+
     def clean(self):
         super().clean()
 

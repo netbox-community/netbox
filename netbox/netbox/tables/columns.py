@@ -237,7 +237,11 @@ class ActionsColumn(tables.Column):
     :param split_actions: When True, converts the actions dropdown menu into a split button with first action as the
         direct button link and icon (default: True)
     """
-    attrs = {'td': {'class': 'text-end text-nowrap noprint'}}
+    attrs = {
+        'td': {
+            'class': 'text-end text-nowrap noprint p-1'
+        }
+    }
     empty_values = ()
     actions = {
         'edit': ActionsItem('Edit', 'pencil', 'change', 'warning'),
