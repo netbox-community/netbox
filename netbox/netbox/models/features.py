@@ -679,10 +679,14 @@ def has_feature(model_or_ct, feature):
         ot = model_or_ct
     # If a ContentType was passed, resolve its model class
     elif type(model_or_ct) is ContentType:
-        ot = ObjectType.objects.get_for_model(model_or_ct.model_class())
+        model_class = model_or_ct.model_class()
+        ot = ObjectType.objects.get_for_model(model_class) if model_class else None
     # For anything else, look up the ObjectType
     else:
         ot = ObjectType.objects.get_for_model(model_or_ct)
+    # ObjectType is invalid/deleted
+    if ot is None:
+        return False
     return feature in ot.features
 
 
