@@ -811,31 +811,28 @@ class ServiceForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
+        if parent_object_type_id := get_field_value(self, 'parent_object_type'):
             try:
                 parent_type = ContentType.objects.get(pk=parent_object_type_id)
-                if parent_type.model_class() == Device:
+                model = parent_type.model_class()
+                if model == Device:
                     self.fields['ipaddresses'].widget.add_query_params({
                         'device_id': '$parent',
                     })
-                elif parent_type.model_class() == VirtualMachine:
+                elif model == VirtualMachine:
                     self.fields['ipaddresses'].widget.add_query_params({
                         'virtual_machine_id': '$parent',
                     })
-                elif parent_type.model_class() == FHRPGroup:
+                elif model == FHRPGroup:
                     self.fields['ipaddresses'].widget.add_query_params({
                         'fhrpgroup_id': '$parent',
                     })
-                model = parent_type.model_class()
                 self.fields['parent'].queryset = model.objects.all()
                 self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['parent'].disabled = False
                 self.fields['parent'].label = _(bettertitle(model._meta.verbose_name))
             except ObjectDoesNotExist:
-                print('Except')
                 pass
-        else:
-            print('No obj_type')
 
             if self.instance and self.instance.pk and parent_object_type_id != self.instance.parent_object_type_id:
                 self.initial['parent'] = None
