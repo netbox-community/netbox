@@ -2,7 +2,10 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
+from core.models import ObjectType
 from dcim import models
+from extras.choices import CustomFieldUIVisibleChoices
+from extras.models import CustomField
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import *
@@ -331,6 +334,25 @@ class DeviceComponentTable(NetBoxTable):
         verbose_name=_('Device Type'),
         linkify=True,
     )
+
+    def __init__(self, *args, extra_columns=None, **kwargs):
+        if extra_columns is None:
+            extra_columns = []
+
+        # Add columns for each Device custom field
+        device_object_type = ObjectType.objects.get_for_model(models.Device)
+        device_custom_fields = CustomField.objects.filter(
+            object_types=device_object_type
+        ).exclude(ui_visible=CustomFieldUIVisibleChoices.HIDDEN)
+
+        for cf in device_custom_fields:
+            # override accessor for device relationship
+            column = columns.CustomFieldColumn(cf)
+            column.accessor = tables.A(f'device__custom_field_data__{cf.name}')
+            column.verbose_name = f'Device {cf.label or cf.name}'
+            extra_columns.append((f'device_cf_{cf.name}', column))
+
+        super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
     class Meta(NetBoxTable.Meta):
         order_by = ('device', 'name')
