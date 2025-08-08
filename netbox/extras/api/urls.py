@@ -25,6 +25,7 @@ router.register('tagged-objects', views.TaggedItemViewSet)
 router.register('image-attachments', views.ImageAttachmentViewSet)
 router.register('journal-entries', views.JournalEntryViewSet)
 router.register('config-contexts', views.ConfigContextViewSet)
+router.register('config-context-profiles', views.ConfigContextProfileViewSet)
 router.register('config-templates', views.ConfigTemplateViewSet)
 router.register('scripts', views.ScriptViewSet, basename='script')
 

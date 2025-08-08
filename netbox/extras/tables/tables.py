@@ -15,6 +15,7 @@ from .columns import NotificationActionsColumn
 
 __all__ = (
     'BookmarkTable',
+    'ConfigContextProfileTable',
     'ConfigContextTable',
     'ConfigTemplateTable',
     'CustomFieldChoiceSetTable',
@@ -546,7 +547,28 @@ class TaggedItemTable(NetBoxTable):
         fields = ('id', 'content_type', 'content_object')
 
 
+class ConfigContextProfileTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    tags = columns.TagColumn(
+        url_name='extras:configcontextprofile_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigContextProfile
+        fields = (
+            'pk', 'id', 'name', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'description')
+
+
 class ConfigContextTable(NetBoxTable):
+    profile = tables.Column(
+        linkify=True,
+        verbose_name=_('Profile'),
+    )
     data_source = tables.Column(
         verbose_name=_('Data Source'),
         linkify=True
@@ -573,11 +595,11 @@ class ConfigContextTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
-            'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
-            'data_source', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'weight', 'profile', 'is_active', 'is_synced', 'description', 'regions', 'sites',
+            'locations', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
+            'tenants', 'data_source', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
+        default_columns = ('pk', 'name', 'weight', 'profile', 'is_active', 'is_synced', 'description')
 
 
 class ConfigTemplateTable(NetBoxTable):

@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'ConfigContextFilter',
+    'ConfigContextProfileFilter',
     'ConfigTemplateFilter',
     'CustomFieldFilter',
     'CustomFieldChoiceSetFilter',
@@ -95,6 +96,13 @@ class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Chan
     data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+
+
+@strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
+class ConfigContextProfileFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
+    name: FilterLookup[str] = strawberry_django.filter_field()
+    description: FilterLookup[str] = strawberry_django.filter_field()
+    tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ConfigTemplate, lookups=True)

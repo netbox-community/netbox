@@ -18,6 +18,10 @@
             <td>{{ object.weight }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Profile" %}</th>
+            <td>{{ object.profile|linkify|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
