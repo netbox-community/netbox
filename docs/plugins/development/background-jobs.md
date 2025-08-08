@@ -15,7 +15,6 @@ A background job implements a basic [Job](../../models/core/job.md) executor for
 ```python title="jobs.py"
 from netbox.jobs import JobRunner
 
-
 class MyTestJob(JobRunner):
     class Meta:
         name = "My Test Job"
@@ -24,6 +23,8 @@ class MyTestJob(JobRunner):
         obj = self.job.object
         # your logic goes here
 ```
+
+Completed jobs will have their status updated to "completed" by default, or "errored" if an unhandled exception was raised by the `run()` method. To intentionally mark a job as failed, raise the `core.exceptions.JobFailed` exception. (Note that "failed" differs from "errored" in that a failure may be expected under certain conditions, whereas an error is not.)
 
 You can schedule the background job from within your code (e.g. from a model's `save()` method or a view) by calling `MyTestJob.enqueue()`. This method passes through all arguments to `Job.enqueue()`. However, no `name` argument must be passed, as the background job name will be used instead.
 
@@ -37,6 +38,27 @@ You can schedule the background job from within your code (e.g. from a model's `
 #### `name`
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
+
+### Logging
+
+!!! info "This feature was introduced in NetBox v4.4."
+
+A Python logger is instantiated by the runner for each job. It can be utilized within a job's `run()` method as needed:
+
+```python
+def run(self, *args, **kwargs):
+    obj = MyModel.objects.get(pk=kwargs.get('pk'))
+    self.logger.info("Retrieved object {obj}")
+```
+
+Four of the standard Python logging levels are supported:
+
+* `debug()`
+* `info()`
+* `warning()`
+* `error()`
+
+Log entries recorded using the runner's logger will be saved in the job's log in the database in addition to being processed by other [system logging handlers](../../configuration/system.md#logging).
 
 ### Scheduled Jobs
 
@@ -66,8 +88,6 @@ class MyModel(NetBoxModel):
 
 
 ### System Jobs
-
-!!! info "This feature was introduced in NetBox v4.2."
 
 Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
 

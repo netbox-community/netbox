@@ -1,5 +1,43 @@
 # NetBox v4.3
 
+## v4.3.5 (2025-07-29)
+
+### Enhancements
+* [#18797](https://github.com/netbox-community/netbox/issues/18797) - Added jinja2.StrictUndefined option for config template rendering to catch undefined variables
+* [#18936](https://github.com/netbox-community/netbox/issues/18936) - Cable imports now accept color names (e.g. "red", "blue") in addition to hex color codes
+* [#19840](https://github.com/netbox-community/netbox/issues/19840) - Cable imports now support specifying site information for better organization
+* [#19902](https://github.com/netbox-community/netbox/issues/19902) - Device names in rack elevation SVG exports are automatically truncated to prevent overflow beyond rack unit boundaries
+* [#19903](https://github.com/netbox-community/netbox/issues/19903) - String field filters now support `regex` and `iregex` lookups for advanced pattern matching
+* [#19910](https://github.com/netbox-community/netbox/issues/19910) - Internet-dependent links are no longer visible when running in air-gapped environments
+
+### Bug Fixes
+* [#18900](https://github.com/netbox-community/netbox/issues/18900) - REST API paginator now raises proper exceptions when attempting to paginate unordered querysets
+* [#19916](https://github.com/netbox-community/netbox/issues/19916) - Rack elevation image/label dropdown functionality restored
+* [#19934](https://github.com/netbox-community/netbox/issues/19934) - Added missing description field to tenant bulk edit form
+* [#19956](https://github.com/netbox-community/netbox/issues/19956) - Prevent duplicate deletion records in changelog from cascading deletions
+
+## v4.3.4 (2025-07-15)
+
+### Enhancements
+
+* [#18811](https://github.com/netbox-community/netbox/issues/18811) - Match expanded form IPv6 addresses in global search
+* [#19550](https://github.com/netbox-community/netbox/issues/19550) - Enable lazy loading for rack elevations
+* [#19571](https://github.com/netbox-community/netbox/issues/19571) - Add a default module type profile for expansion cards
+* [#19793](https://github.com/netbox-community/netbox/issues/19793) - Support custom dynamic navigation menu links
+* [#19828](https://github.com/netbox-community/netbox/issues/19828) - Expose L2VPN termination in interface GraphQL response
+
+### Bug Fixes
+
+* [#19413](https://github.com/netbox-community/netbox/issues/19413) - Custom fields should be grouped in filter forms
+* [#19633](https://github.com/netbox-community/netbox/issues/19633) - Introduce InvalidCondition exception and log all evaluations of invalid event rule conditions
+* [#19800](https://github.com/netbox-community/netbox/issues/19800) - Module type bulk import should support profile assignment
+* [#19806](https://github.com/netbox-community/netbox/issues/19806) - Introduce JobFailed exception to allow marking background jobs as failed
+* [#19827](https://github.com/netbox-community/netbox/issues/19827) - Enforce uniqueness for device role names & slugs
+* [#19839](https://github.com/netbox-community/netbox/issues/19839) - Enable export of parent assignment for recursively nested objects
+* [#19876](https://github.com/netbox-community/netbox/issues/19876) - Remove Markdown rendering from CustomFieldChoiceSet description field
+
+---
+
 ## v4.3.3 (2025-06-26)
 
 ### Enhancements

@@ -1,20 +1,23 @@
 import logging
+from threading import local
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
-from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
+from django.core.signals import request_finished
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
+from core.models import ObjectType
 from extras.events import enqueue_event
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
 from utilities.exceptions import AbortRequest
 from .models import ConfigRevision, DataSource, ObjectChange
 
@@ -39,8 +42,43 @@ clear_events = Signal()
 
 
 #
+# Object types
+#
+
+@receiver(post_migrate)
+def update_object_types(sender, **kwargs):
+    """
+    Create or update the corresponding ObjectType for each model within the migrated app.
+    """
+    for model in sender.get_models():
+        app_label, model_name = model._meta.label_lower.split('.')
+
+        # Determine whether model is public and its supported features
+        is_public = model_is_public(model)
+        features = get_model_features(model)
+
+        # Create/update the ObjectType for the model
+        try:
+            ot = ObjectType.objects.get_by_natural_key(app_label=app_label, model=model_name)
+            ot.public = is_public
+            ot.features = features
+            ot.save()
+        except ObjectDoesNotExist:
+            ObjectType.objects.create(
+                app_label=app_label,
+                model=model_name,
+                public=is_public,
+                features=features,
+            )
+
+
+#
 # Change logging & event handling
 #
+
+# Used to track received signals per object
+_signals_received = local()
+
 
 @receiver((post_save, m2m_changed))
 def handle_changed_object(sender, instance, **kwargs):
@@ -98,7 +136,7 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request.user, request.id, event_type)
+    enqueue_event(queue, instance, request, event_type)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -129,6 +167,16 @@ def handle_deleted_object(sender, instance, **kwargs):
     request = current_request.get()
     if request is None:
         return
+
+    # Check whether we've already processed a pre_delete signal for this object. (This can
+    # happen e.g. when both a parent object and its child are deleted simultaneously, due
+    # to cascading deletion.)
+    if not hasattr(_signals_received, 'pre_delete'):
+        _signals_received.pre_delete = set()
+    signature = (ContentType.objects.get_for_model(instance), instance.pk)
+    if signature in _signals_received.pre_delete:
+        return
+    _signals_received.pre_delete.add(signature)
 
     # Record an ObjectChange if applicable
     if hasattr(instance, 'to_objectchange'):
@@ -172,11 +220,19 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request.user, request.id, OBJECT_DELETED)
+    enqueue_event(queue, instance, request, OBJECT_DELETED)
     events_queue.set(queue)
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
+
+
+@receiver(request_finished)
+def clear_signal_history(sender, **kwargs):
+    """
+    Clear out the signals history once the request is finished.
+    """
+    _signals_received.pre_delete = set()
 
 
 @receiver(clear_events)

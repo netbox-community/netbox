@@ -8,11 +8,14 @@ from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
+from core.exceptions import JobFailed
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.registry import registry
+from utilities.request import apply_request_processors
 
 __all__ = (
+    'AsyncViewJob',
     'JobRunner',
     'system_job',
 )
@@ -34,6 +37,19 @@ def system_job(interval):
     return _wrapper
 
 
+class JobLogHandler(logging.Handler):
+    """
+    A logging handler which records entries on a Job.
+    """
+    def __init__(self, job, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.job = job
+
+    def emit(self, record):
+        # Enter the record in the log of the associated Job
+        self.job.log(record)
+
+
 class JobRunner(ABC):
     """
     Background Job helper class.
@@ -51,6 +67,11 @@ class JobRunner(ABC):
             job: The specific `Job` this `JobRunner` is executing.
         """
         self.job = job
+
+        # Initiate the system logger
+        self.logger = logging.getLogger(f"netbox.jobs.{self.__class__.__name__}")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(JobLogHandler(job))
 
     @classproperty
     def name(cls):
@@ -73,15 +94,21 @@ class JobRunner(ABC):
         This method is called by the Job Scheduler to handle the execution of all job commands. It will maintain the
         job's metadata and handle errors. For periodic jobs, a new job is automatically scheduled using its `interval`.
         """
+        logger = logging.getLogger('netbox.jobs')
+
         try:
             job.start()
             cls(job).run(*args, **kwargs)
             job.terminate()
 
+        except JobFailed:
+            logger.warning(f"Job {job} failed")
+            job.terminate(status=JobStatusChoices.STATUS_FAILED)
+
         except Exception as e:
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if type(e) is JobTimeoutException:
-                logging.error(e)
+                logger.error(e)
 
         # If the executed job is a periodic job, schedule its next execution at the specified interval.
         finally:
@@ -154,3 +181,22 @@ class JobRunner(ABC):
             job.delete()
 
         return cls.enqueue(instance=instance, schedule_at=schedule_at, interval=interval, *args, **kwargs)
+
+
+class AsyncViewJob(JobRunner):
+    """
+    Execute a view as a background job.
+    """
+    class Meta:
+        name = 'Async View'
+
+    def run(self, view_cls, request, **kwargs):
+        view = view_cls.as_view()
+        request.job = self
+
+        # Apply all registered request processors (e.g. event_tracking)
+        with apply_request_processors(request):
+            view(request)
+
+        if self.job.error:
+            raise JobFailed()

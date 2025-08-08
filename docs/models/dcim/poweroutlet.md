@@ -40,11 +40,7 @@ The operational status of the power outlet. By default, the following statuses a
 !!! tip "Custom power outlet statuses"
     Additional power outlet statuses may be defined by setting `PowerOutlet.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
-!!! info "This field was introduced in NetBox v4.3."
-
 ### Color
-
-!!! info "This field was introduced in NetBox v4.2."
 
 The power outlet's color (optional).
 

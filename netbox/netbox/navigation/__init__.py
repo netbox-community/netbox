@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Sequence, Optional
 
+from django.urls import reverse_lazy
+
 
 __all__ = (
     'get_model_item',
@@ -22,8 +24,21 @@ class MenuItemButton:
     link: str
     title: str
     icon_class: str
+    _url: Optional[str] = None
     permissions: Optional[Sequence[str]] = ()
     color: Optional[str] = None
+
+    def __post_init__(self):
+        if self.link:
+            self._url = reverse_lazy(self.link)
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        self._url = value
 
 
 @dataclass
@@ -31,10 +46,23 @@ class MenuItem:
 
     link: str
     link_text: str
+    _url: Optional[str] = None
     permissions: Optional[Sequence[str]] = ()
     auth_required: Optional[bool] = False
     staff_only: Optional[bool] = False
     buttons: Optional[Sequence[MenuItemButton]] = ()
+
+    def __post_init__(self):
+        if self.link:
+            self._url = reverse_lazy(self.link)
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        self._url = value
 
 
 @dataclass

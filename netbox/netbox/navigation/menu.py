@@ -209,8 +209,8 @@ IPAM_MENU = Menu(
             label=_('Other'),
             items=(
                 get_model_item('ipam', 'fhrpgroup', _('FHRP Groups')),
-                get_model_item('ipam', 'servicetemplate', _('Service Templates')),
-                get_model_item('ipam', 'service', _('Services')),
+                get_model_item('ipam', 'servicetemplate', _('Application Service Templates')),
+                get_model_item('ipam', 'service', _('Application Services')),
             ),
         ),
     ),

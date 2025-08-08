@@ -24,26 +24,25 @@ Jinja2 template code, if being defined locally rather than replicated from a dat
 
 A dictionary of any additional parameters to pass when instantiating the [Jinja2 environment](https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment). Jinja2 supports various optional parameters which can be used to modify its default behavior.
 
-### MIME Type
+The `undefined` and `finalize` Jinja environment parameters, which must reference a Python class or function, can define a dotted path to the desired resource. For example:
 
-!!! info "This field was introduced in NetBox v4.3."
+```json
+{
+    "undefined": "jinja2.StrictUndefined"
+}
+```
+
+### MIME Type
 
 The MIME type to indicate in the response when rendering the configuration template (optional). Defaults to `text/plain`.
 
 ### File Name
 
-!!! info "This field was introduced in NetBox v4.3."
-
 The file name to give to the rendered export file (optional).
 
 ### File Extension
 
-!!! info "This field was introduced in NetBox v4.3."
-
 The file extension to append to the file name in the response (optional).
 
 ### As Attachment
-
-!!! info "This field was introduced in NetBox v4.3."
-
 If selected, the rendered content will be returned as a file attachment, rather than displayed directly in-browser (where supported).

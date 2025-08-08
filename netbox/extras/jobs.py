@@ -90,7 +90,10 @@ class ScriptJob(JobRunner):
             request: The WSGI request associated with this execution (if any)
             commit: Passed through to Script.run()
         """
-        script = ScriptModel.objects.get(pk=self.job.object_id).python_class()
+        script_model = ScriptModel.objects.get(pk=self.job.object_id)
+        self.logger.debug(f"Found ScriptModel ID {script_model.pk}")
+        script = script_model.python_class()
+        self.logger.debug(f"Loaded script {script.full_name}")
 
         # Add files to form data
         if request:
@@ -100,6 +103,7 @@ class ScriptJob(JobRunner):
 
         # Add the current request as a property of the script
         script.request = request
+        self.logger.debug(f"Request ID: {request.id}")
 
         # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
         # change logging, event rules, etc.

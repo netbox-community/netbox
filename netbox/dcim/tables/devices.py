@@ -63,6 +63,10 @@ class DeviceRoleTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'role_id': 'pk'},
@@ -88,8 +92,8 @@ class DeviceRoleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceRole
         fields = (
-            'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'config_template', 'description',
-            'slug', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'device_count', 'vm_count', 'color', 'vm_role', 'config_template',
+            'description', 'slug', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 

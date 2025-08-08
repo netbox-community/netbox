@@ -264,18 +264,6 @@ cd /opt/netbox/netbox
 python3 manage.py createsuperuser
 ```
 
-## Schedule the Housekeeping Task
-
-NetBox includes a `housekeeping` management command that handles some recurring cleanup tasks, such as clearing out old sessions and expired change records. Although this command may be run manually, it is recommended to configure a scheduled job using the system's `cron` daemon or a similar utility.
-
-A shell script which invokes this command is included at `contrib/netbox-housekeeping.sh`. It can be copied to or linked from your system's daily cron task directory, or included within the crontab directly. (If installing NetBox into a nonstandard path, be sure to update the system paths within this script first.)
-
-```shell
-sudo ln -s /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/netbox-housekeeping
-```
-
-See the [housekeeping documentation](../administration/housekeeping.md) for further details.
-
 ## Test the Application
 
 At this point, we should be able to run NetBox's development server for testing. We can check by starting a development instance locally.
@@ -301,13 +289,6 @@ Quit the server with CONTROL-C.
 ```
 
 Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Try logging in using the username and password specified when creating a superuser.
-
-!!! note
-    By default RHEL based distros will likely block your testing attempts with firewalld. The development server port can be opened with `firewall-cmd` (add `--permanent` if you want the rule to survive server restarts):
-
-    ```no-highlight
-    firewall-cmd --zone=public --add-port=8000/tcp
-    ```
 
 !!! danger "Not for production use"
     The development server is for development and testing purposes only. It is neither performant nor secure enough for production use. **Do not use it in production.**

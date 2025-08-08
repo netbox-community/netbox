@@ -1,8 +1,5 @@
-from contextlib import ExitStack
-
 import logging
 import uuid
-import warnings
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -11,16 +8,20 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import connection, ProgrammingError
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
+from django_prometheus import middleware
 
 from netbox.config import clear_config, get_config
-from netbox.registry import registry
+from netbox.metrics import Metrics
 from netbox.views import handler_500
-from utilities.api import is_api_request
+from utilities.api import is_api_request, is_graphql_request
 from utilities.error_handlers import handle_rest_api_exception
+from utilities.request import apply_request_processors
 
 __all__ = (
     'CoreMiddleware',
     'MaintenanceModeMiddleware',
+    'PrometheusAfterMiddleware',
+    'PrometheusBeforeMiddleware',
     'RemoteUserMiddleware',
 )
 
@@ -36,12 +37,7 @@ class CoreMiddleware:
         request.id = uuid.uuid4()
 
         # Apply all registered request processors
-        with ExitStack() as stack:
-            for request_processor in registry['request_processors']:
-                try:
-                    stack.enter_context(request_processor(request))
-                except Exception as e:
-                    warnings.warn(f'Failed to initialize request processor {request_processor}: {e}')
+        with apply_request_processors(request):
             response = self.get_response(request)
 
         # Check if language cookie should be renewed
@@ -186,6 +182,30 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             groups = []
         logger.debug(f"Groups are {groups}")
         return groups
+
+
+class PrometheusBeforeMiddleware(middleware.PrometheusBeforeMiddleware):
+    metrics_cls = Metrics
+
+
+class PrometheusAfterMiddleware(middleware.PrometheusAfterMiddleware):
+    metrics_cls = Metrics
+
+    def process_response(self, request, response):
+        response = super().process_response(request, response)
+
+        # Increment REST API request counters
+        if is_api_request(request):
+            method = self._method(request)
+            name = self._get_view_name(request)
+            self.label_metric(self.metrics.rest_api_requests, request, method=method).inc()
+            self.label_metric(self.metrics.rest_api_requests_by_view_method, request, method=method, view=name).inc()
+
+        # Increment GraphQL API request counters
+        elif is_graphql_request(request):
+            self.metrics.graphql_api_requests.inc()
+
+        return response
 
 
 class MaintenanceModeMiddleware:

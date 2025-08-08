@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
@@ -1000,18 +1000,7 @@ inventory-items:
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
 
-# TODO: Change base class to PrimaryObjectViewTestCase
-# Blocked by absence of bulk import view for ModuleTypes
-class ModuleTypeTestCase(
-    ViewTestCases.GetObjectViewTestCase,
-    ViewTestCases.GetObjectChangelogViewTestCase,
-    ViewTestCases.CreateObjectViewTestCase,
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
-    ViewTestCases.BulkEditObjectsViewTestCase,
-    ViewTestCases.BulkDeleteObjectsViewTestCase
-):
+class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ModuleType
 
     @classmethod
@@ -1023,13 +1012,15 @@ class ModuleTypeTestCase(
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        ModuleType.objects.bulk_create([
+        module_types = ModuleType.objects.bulk_create([
             ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1043,6 +1034,70 @@ class ModuleTypeTestCase(
             'manufacturer': manufacturers[1].pk,
             'part_number': '456DEF',
         }
+
+        cls.csv_data = (
+            "manufacturer,model,part_number,comments,profile",
+            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+        )
+
+        cls.csv_update_data = (
+            "id,model",
+            f"{module_types[0].id},test model",
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_update_objects_with_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_update_objects_with_permission()
+
+    @tag('regression')
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_import_objects_with_permission()
+
+        # TODO: remove extra regression asserts once parent test supports testing all import fields
+        fan_module_type = ModuleType.objects.get(part_number='generic-fan')
+        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
+
+        assert fan_module_type.profile == fan_module_type_profile
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_constrained_permission(self):
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        super().test_bulk_import_objects_with_constrained_permission()
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_moduletype_consoleports(self):
@@ -1804,9 +1859,9 @@ class DeviceRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.csv_data = (
             "name,slug,color",
-            "Device Role 4,device-role-4,ff0000",
-            "Device Role 5,device-role-5,00ff00",
-            "Device Role 6,device-role-6,0000ff",
+            "Device Role 6,device-role-6,ff0000",
+            "Device Role 7,device-role-7,00ff00",
+            "Device Role 8,device-role-8,0000ff",
         )
 
         cls.csv_update_data = (
@@ -3211,17 +3266,27 @@ class CableTestCase(
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         vc = VirtualChassis.objects.create(name='Virtual Chassis')
 
+        # NOTE: By design, NetBox now allows for the creation of devices with the same name if they belong to
+        # different sites.
+        # The CSV test below demonstrates that devices with identical names on different sites can be created
+        # and referenced successfully.
         devices = (
-            Device(name='Device 1', site=site, device_type=devicetype, role=role),
-            Device(name='Device 2', site=site, device_type=devicetype, role=role),
-            Device(name='Device 3', site=site, device_type=devicetype, role=role),
-            Device(name='Device 4', site=site, device_type=devicetype, role=role),
+            # Create 'Device 1' assigned to 'Site 1'
+            Device(name='Device 1', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 2', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 3', site=sites[0], device_type=devicetype, role=role),
+            # Create 'Device 1' assigned to 'Site 2' (allowed since the site is different)
+            Device(name='Device 1', site=sites[1], device_type=devicetype, role=role),
         )
         Device.objects.bulk_create(devices)
 
@@ -3272,13 +3337,15 @@ class CableTestCase(
             'tags': [t.pk for t in tags],
         }
 
+        # Ensure that CSV bulk import supports assigning terminations from parent devices that share
+        # the same device name, provided those devices belong to different sites.
         cls.csv_data = (
-            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
-            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
-            "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
-            "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
-            "Device 1,dcim.interface,Device 2 Interface,Device 4,dcim.interface,Interface 4",
-            "Device 1,dcim.interface,Device 3 Interface,Device 4,dcim.interface,Interface 5",
+            "side_a_site,side_a_device,side_a_type,side_a_name,side_b_site,side_b_device,side_b_type,side_b_name",
+            "Site 1,Device 3,dcim.interface,Interface 1,Site 2,Device 1,dcim.interface,Interface 1",
+            "Site 1,Device 3,dcim.interface,Interface 2,Site 2,Device 1,dcim.interface,Interface 2",
+            "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
+            "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
+            "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
         )
 
         cls.csv_update_data = (

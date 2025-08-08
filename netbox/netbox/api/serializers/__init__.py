@@ -10,7 +10,12 @@ from .nested import *
 # Base model serializers
 #
 
-class NetBoxModelSerializer(TaggableModelSerializer, CustomFieldModelSerializer, ValidatedModelSerializer):
+class NetBoxModelSerializer(
+    ChangeLogMessageSerializer,
+    TaggableModelSerializer,
+    CustomFieldModelSerializer,
+    ValidatedModelSerializer
+):
     """
     Adds support for custom fields and tags.
     """
@@ -24,5 +29,5 @@ class NestedGroupModelSerializer(NetBoxModelSerializer):
     _depth = serializers.IntegerField(source='level', read_only=True)
 
 
-class BulkOperationSerializer(serializers.Serializer):
+class BulkOperationSerializer(ChangeLogMessageSerializer):
     id = serializers.IntegerField()

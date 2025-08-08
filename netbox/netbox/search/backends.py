@@ -115,11 +115,13 @@ class CachedValueSearchBackend(SearchBackend):
         if lookup in (LookupTypes.STARTSWITH, LookupTypes.ENDSWITH):
             # "Starts/ends with" matches are valid only on string values
             query_filter &= Q(type=FieldTypes.STRING)
-        elif lookup == LookupTypes.PARTIAL:
+        elif lookup in (LookupTypes.PARTIAL, LookupTypes.EXACT):
             try:
-                # If the value looks like an IP address, add an extra match for CIDR values
+                # If the value looks like an IP address, add extra filters for CIDR/INET values
                 address = str(netaddr.IPNetwork(value.strip()).cidr)
-                query_filter |= Q(type=FieldTypes.CIDR) & Q(value__net_contains_or_equals=address)
+                query_filter |= Q(type=FieldTypes.INET) & Q(value__net_host=address)
+                if lookup == LookupTypes.PARTIAL:
+                    query_filter |= Q(type=FieldTypes.CIDR) & Q(value__net_contains_or_equals=address)
             except (AddrFormatError, ValueError):
                 pass
 

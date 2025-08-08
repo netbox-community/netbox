@@ -1,8 +1,7 @@
+import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
-
-import django_filters
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from netbox.utils import get_data_backend_choices
@@ -17,6 +16,7 @@ __all__ = (
     'DataSourceFilterSet',
     'JobFilterSet',
     'ObjectChangeFilterSet',
+    'ObjectTypeFilterSet',
 )
 
 
@@ -134,6 +134,25 @@ class JobFilterSet(BaseFilterSet):
         )
 
 
+class ObjectTypeFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ObjectType
+        fields = ('id', 'app_label', 'model')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(app_label__icontains=value) |
+            Q(model__icontains=value)
+        )
+
+
 class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -167,7 +186,8 @@ class ObjectChangeFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(user_name__icontains=value) |
-            Q(object_repr__icontains=value)
+            Q(object_repr__icontains=value) |
+            Q(message__icontains=value)
         )
 
 

@@ -35,7 +35,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         blank=True,
     )
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='+',
         blank=True,
         help_text=_("The object type(s) to which this tag can be applied.")
@@ -83,3 +83,6 @@ class TaggedItem(GenericTaggedItemBase):
         indexes = [models.Index(fields=["content_type", "object_id"])]
         verbose_name = _('tagged item')
         verbose_name_plural = _('tagged items')
+        # Note: while there is no ordering applied here (because it would basically be done on fields
+        # of the related `tag`), there is an ordering applied to extras.api.views.TaggedItemViewSet
+        # to allow for proper pagination.

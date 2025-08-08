@@ -1,5 +1,6 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -8,7 +9,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from netaddr.ip import IPNetwork
 
-from core.models import ObjectType
 from dcim.models.mixins import CachedScopeMixin
 from ipam.choices import *
 from ipam.constants import *
@@ -162,6 +162,11 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
         if self.prefix:
             return self.prefix.version
         return None
+
+    @property
+    def ipv6_full(self):
+        if self.prefix and self.prefix.version == 6:
+            return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
 
     def get_child_prefixes(self):
         """
@@ -367,6 +372,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     @property
     def mask_length(self):
         return self.prefix.prefixlen if self.prefix else None
+    
+    @property
+    def ipv6_full(self):
+        if self.prefix and self.prefix.version == 6:
+            return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
 
     @property
     def depth_count(self):
@@ -906,6 +916,11 @@ class IPAddress(ContactsMixin, PrimaryModel):
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
 
+    @property
+    def ipv6_full(self):
+        if self.address and self.address.version == 6:
+            return netaddr.IPAddress(self.address).format(netaddr.ipv6_full)
+
     def get_duplicates(self):
         return IPAddress.objects.filter(
             vrf=self.vrf,
@@ -1010,7 +1025,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 

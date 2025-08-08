@@ -29,7 +29,6 @@ __all__ = (
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'NotificationGroupFilterSet',
-    'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
     'TableConfigFilterSet',
@@ -452,12 +451,16 @@ class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ImageAttachment
-        fields = ('id', 'object_type_id', 'object_id', 'name', 'image_width', 'image_height')
+        fields = ('id', 'object_type_id', 'object_id', 'name', 'description', 'image_width', 'image_height')
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(name__icontains=value)
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(image__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class JournalEntryFilterSet(NetBoxModelFilterSet):
@@ -788,26 +791,3 @@ class LocalConfigContextFilterSet(django_filters.FilterSet):
 
     def _local_context_data(self, queryset, name, value):
         return queryset.exclude(local_context_data__isnull=value)
-
-
-#
-# ContentTypes
-#
-
-class ObjectTypeFilterSet(django_filters.FilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
-
-    class Meta:
-        model = ObjectType
-        fields = ('id', 'app_label', 'model')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(app_label__icontains=value) |
-            Q(model__icontains=value)
-        )

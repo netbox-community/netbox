@@ -34,8 +34,6 @@ See the [`DATABASES`](#databases) configuration below for usage.
 
 ## DATABASES
 
-!!! info "This parameter was introduced in NetBox v4.3."
-
 NetBox requires access to a PostgreSQL 14 or later database service to store data. This service can run locally on the NetBox server or on a remote system. Databases are defined as named dictionaries:
 
 ```python
