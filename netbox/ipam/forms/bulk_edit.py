@@ -207,7 +207,11 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
-    # TODO: Alter for parent prefix
+    parent = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Parent Prefix')
+    )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -267,7 +271,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     model = Prefix
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
-        FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('parent', 'vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
         FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
@@ -277,7 +281,11 @@ class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
 
 
 class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
-    # TODO: Alter for prefix
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -325,7 +333,11 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
-    # TODO: Alter for prefix
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     prefix = DynamicModelChoiceField(
         queryset=Prefix.objects.all(),
         required=False,

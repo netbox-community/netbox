@@ -155,7 +155,10 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 
 class PrefixTable(TenancyColumnsMixin, NetBoxTable):
-    # TODO: Alter for parent prefix
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True
+    )
     prefix = columns.TemplateColumn(
         verbose_name=_('Prefix'),
         template_code=PREFIX_LINK_WITH_DEPTH,
@@ -237,9 +240,9 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'prefix', 'status', 'parent', 'parent_flat', 'children', 'vrf', 'utilization',
+            'tenant', 'tenant_group', 'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',
@@ -254,7 +257,10 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
 # IP ranges
 #
 class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
-    # TODO: Alter for prefix
+    prefix = tables.Column(
+        verbose_name=_('Prefix'),
+        linkify=True
+    )
     start_address = tables.Column(
         verbose_name=_('Start address'),
         linkify=True
@@ -294,9 +300,9 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'mark_populated', 'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created',
-            'last_updated',
+            'pk', 'id', 'start_address', 'end_address', 'prefix', 'size', 'vrf', 'status', 'role', 'tenant',
+            'tenant_group', 'mark_populated', 'mark_utilized', 'utilization', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -311,7 +317,10 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
-    # TODO: Alter for prefix
+    prefix = tables.Column(
+        verbose_name=_('Prefix'),
+        linkify=True
+    )
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')
@@ -371,8 +380,8 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside',
-            'assigned', 'dns_name', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'address', 'vrf', 'prefix', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside',
+            'nat_outside', 'assigned', 'dns_name', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',

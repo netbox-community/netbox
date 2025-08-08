@@ -372,7 +372,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     @property
     def mask_length(self):
         return self.prefix.prefixlen if self.prefix else None
-    
+
     @property
     def ipv6_full(self):
         if self.prefix and self.prefix.version == 6:
