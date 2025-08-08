@@ -4,12 +4,11 @@
 <div class="card">
   <h2 class="card-header">{% trans "Tags" %}</h2>
   <div class="card-body">
-    {% with url=object|validated_viewname:"list" %}
-      {% for tag in object.tags.all %}
-        {% tag tag url %}
-      {% empty %}
-        <span class="text-muted">{% trans "No tags assigned" %}</span>
-      {% endfor %}
-    {% endwith %}
+    {% action_url object 'list' as url %}
+    {% for tag in object.tags.all %}
+      {% tag tag url %}
+    {% empty %}
+      <span class="text-muted">{% trans "No tags assigned" %}</span>
+    {% endfor %}
   </div>
 </div>
