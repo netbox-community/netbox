@@ -3,13 +3,13 @@ from typing import Annotated, List, TYPE_CHECKING
 import strawberry
 import strawberry_django
 
+from core.graphql.mixins import SyncedDataMixin
 from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, ContentTypeType, ObjectType, OrganizationalObjectType
+from netbox.graphql.types import BaseObjectType, ContentTypeType, NetBoxObjectType, ObjectType, OrganizationalObjectType
 from .filters import *
 
 if TYPE_CHECKING:
-    from core.graphql.types import DataFileType, DataSourceType
     from dcim.graphql.types import (
         DeviceRoleType,
         DeviceType,
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from virtualization.graphql.types import ClusterGroupType, ClusterType, ClusterTypeType, VirtualMachineType
 
 __all__ = (
+    'ConfigContextProfileType',
     'ConfigContextType',
     'ConfigTemplateType',
     'CustomFieldChoiceSetType',
@@ -45,14 +46,23 @@ __all__ = (
 
 
 @strawberry_django.type(
+    models.ConfigContextProfile,
+    fields='__all__',
+    filters=ConfigContextProfileFilter,
+    pagination=True
+)
+class ConfigContextProfileType(SyncedDataMixin, NetBoxObjectType):
+    pass
+
+
+@strawberry_django.type(
     models.ConfigContext,
     fields='__all__',
     filters=ConfigContextFilter,
     pagination=True
 )
-class ConfigContextType(ObjectType):
-    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
-    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
+class ConfigContextType(SyncedDataMixin, ObjectType):
+    profile: ConfigContextProfileType | None
     roles: List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
     device_types: List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
     tags: List[Annotated["TagType", strawberry.lazy('extras.graphql.types')]]
@@ -74,10 +84,7 @@ class ConfigContextType(ObjectType):
     filters=ConfigTemplateFilter,
     pagination=True
 )
-class ConfigTemplateType(TagsMixin, ObjectType):
-    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
-    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
-
+class ConfigTemplateType(SyncedDataMixin, TagsMixin, ObjectType):
     virtualmachines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
@@ -123,9 +130,8 @@ class CustomLinkType(ObjectType):
     filters=ExportTemplateFilter,
     pagination=True
 )
-class ExportTemplateType(ObjectType):
-    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
-    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
+class ExportTemplateType(SyncedDataMixin, ObjectType):
+    pass
 
 
 @strawberry_django.type(

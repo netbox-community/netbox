@@ -18,6 +18,7 @@ from utilities.forms.fields import (
 )
 
 __all__ = (
+    'ConfigContextProfileImportForm',
     'ConfigTemplateImportForm',
     'CustomFieldChoiceSetImportForm',
     'CustomFieldImportForm',
@@ -147,6 +148,15 @@ class ExportTemplateImportForm(CSVModelForm):
             'name', 'object_types', 'description', 'environment_params', 'mime_type', 'file_name', 'file_extension',
             'as_attachment', 'template_code',
         )
+
+
+class ConfigContextProfileImportForm(NetBoxModelImportForm):
+
+    class Meta:
+        model = ConfigContextProfile
+        fields = [
+            'name', 'description', 'schema', 'comments', 'tags',
+        ]
 
 
 class ConfigTemplateImportForm(CSVModelForm):

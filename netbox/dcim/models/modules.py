@@ -36,7 +36,8 @@ class ModuleTypeProfile(PrimaryModel):
     schema = models.JSONField(
         blank=True,
         null=True,
-        verbose_name=_('schema')
+        validators=[validate_schema],
+        verbose_name=_('schema'),
     )
 
     clone_fields = ('schema',)
@@ -48,18 +49,6 @@ class ModuleTypeProfile(PrimaryModel):
 
     def __str__(self):
         return self.name
-
-    def clean(self):
-        super().clean()
-
-        # Validate the schema definition
-        if self.schema is not None:
-            try:
-                validate_schema(self.schema)
-            except ValidationError as e:
-                raise ValidationError({
-                    'schema': e.message,
-                })
 
 
 class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):

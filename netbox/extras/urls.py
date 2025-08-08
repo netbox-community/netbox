@@ -47,6 +47,9 @@ urlpatterns = [
     path('tags/', include(get_model_urls('extras', 'tag', detail=False))),
     path('tags/<int:pk>/', include(get_model_urls('extras', 'tag'))),
 
+    path('config-context-profiles/', include(get_model_urls('extras', 'configcontextprofile', detail=False))),
+    path('config-context-profiles/<int:pk>/', include(get_model_urls('extras', 'configcontextprofile'))),
+
     path('config-contexts/', include(get_model_urls('extras', 'configcontext', detail=False))),
     path('config-contexts/<int:pk>/', include(get_model_urls('extras', 'configcontext'))),
 

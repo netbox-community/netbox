@@ -154,8 +154,11 @@ def validate_schema(schema):
     """
     Check that a minimum JSON schema definition is defined.
     """
+    # Pass on empty values
+    if schema in (None, ''):
+        return
     # Provide some basic sanity checking (not provided by jsonschema)
-    if not schema or type(schema) is not dict:
+    if type(schema) is not dict:
         raise ValidationError(_("Invalid JSON schema definition"))
     if not schema.get('properties'):
         raise ValidationError(_("JSON schema must define properties"))

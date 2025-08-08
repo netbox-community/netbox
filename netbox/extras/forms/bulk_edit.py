@@ -13,6 +13,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ConfigContextBulkEditForm',
+    'ConfigContextProfileBulkEditForm',
     'ConfigTemplateBulkEditForm',
     'CustomFieldBulkEditForm',
     'CustomFieldChoiceSetBulkEditForm',
@@ -317,6 +318,25 @@ class TagBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     nullable_fields = ('description',)
 
 
+class ConfigContextProfileBulkEditForm(NetBoxModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConfigContextProfile.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        required=False,
+        max_length=100
+    )
+    comments = CommentField()
+
+    model = ConfigContextProfile
+    fieldsets = (
+        FieldSet('description',),
+    )
+    nullable_fields = ('description',)
+
+
 class ConfigContextBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConfigContext.objects.all(),
@@ -326,6 +346,10 @@ class ConfigContextBulkEditForm(ChangelogMessageMixin, BulkEditForm):
         label=_('Weight'),
         required=False,
         min_value=0
+    )
+    profile = DynamicModelChoiceField(
+        queryset=ConfigContextProfile.objects.all(),
+        required=False
     )
     is_active = forms.NullBooleanField(
         label=_('Is active'),
@@ -338,7 +362,10 @@ class ConfigContextBulkEditForm(ChangelogMessageMixin, BulkEditForm):
         max_length=100
     )
 
-    nullable_fields = ('description',)
+    fieldsets = (
+        FieldSet('weight', 'profile', 'is_active', 'description'),
+    )
+    nullable_fields = ('profile', 'description')
 
 
 class ConfigTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):

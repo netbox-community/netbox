@@ -19,6 +19,7 @@ from .models import *
 __all__ = (
     'BookmarkFilterSet',
     'ConfigContextFilterSet',
+    'ConfigContextProfileFilterSet',
     'ConfigTemplateFilterSet',
     'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
@@ -588,10 +589,50 @@ class TaggedItemFilterSet(BaseFilterSet):
         )
 
 
+class ConfigContextProfileFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    data_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data source (ID)'),
+    )
+    data_file_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=DataSource.objects.all(),
+        label=_('Data file (ID)'),
+    )
+
+    class Meta:
+        model = ConfigContextProfile
+        fields = (
+            'id', 'name', 'description', 'auto_sync_enabled', 'data_synced',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
 class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
+    )
+    profile_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigContextProfile.objects.all(),
+        label=_('Profile (ID)'),
+    )
+    profile = django_filters.ModelMultipleChoiceFilter(
+        field_name='profile__name',
+        queryset=ConfigContextProfile.objects.all(),
+        to_field_name='name',
+        label=_('Profile (name)'),
     )
     region_id = django_filters.ModelMultipleChoiceFilter(
         field_name='regions',

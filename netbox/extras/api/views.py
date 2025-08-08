@@ -217,6 +217,12 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
+class ConfigContextProfileViewSet(SyncedDataMixin, NetBoxModelViewSet):
+    queryset = ConfigContextProfile.objects.all()
+    serializer_class = serializers.ConfigContextProfileSerializer
+    filterset_class = filtersets.ConfigContextProfileFilterSet
+
+
 class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = serializers.ConfigContextSerializer

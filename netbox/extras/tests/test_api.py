@@ -666,6 +666,70 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
+    model = ConfigContextProfile
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Config Context Profile 4',
+        },
+        {
+            'name': 'Config Context Profile 5',
+        },
+        {
+            'name': 'Config Context Profile 6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        profiles = (
+            ConfigContextProfile(
+                name='Config Context Profile 1',
+                schema={
+                    "properties": {
+                        "foo": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "foo"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 2',
+                schema={
+                    "properties": {
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "bar"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 3',
+                schema={
+                    "properties": {
+                        "baz": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "baz"
+                    ]
+                }
+            ),
+        )
+        ConfigContextProfile.objects.bulk_create(profiles)
+
+
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
     brief_fields = ['description', 'display', 'id', 'name', 'url']

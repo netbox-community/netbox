@@ -331,6 +331,7 @@ PROVISIONING_MENU = Menu(
             label=_('Configurations'),
             items=(
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configcontextprofile', _('Config Context Profiles')),
                 get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),

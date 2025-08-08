@@ -14,6 +14,10 @@ A unique human-friendly name.
 
 A numeric value which influences the order in which context data is merged. Contexts with a lower weight are merged before those with a higher weight.
 
+### Profile
+
+The [profile](./configcontextprofile.md) to which the config context is assigned (optional). Profiles can be used to enforce structure in their data.
+
 ### Data
 
 The context data expressed in JSON format.

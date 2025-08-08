@@ -3,6 +3,7 @@ import taggit.managers
 from django.db import migrations, models
 
 import utilities.json
+import utilities.jsonschema
 
 
 class Migration(migrations.Migration):
@@ -25,7 +26,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
-                ('schema', models.JSONField(blank=True, null=True)),
+                ('schema', models.JSONField(blank=True, null=True, validators=[utilities.jsonschema.validate_schema])),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
