@@ -16,6 +16,9 @@
 * [#19934](https://github.com/netbox-community/netbox/issues/19934) - Added missing description field to tenant bulk edit form
 * [#19956](https://github.com/netbox-community/netbox/issues/19956) - Prevent duplicate deletion records in changelog from cascading deletions
 
+!!! note "Plugin Developer Advisory"
+    The fix for bug [#18900](https://github.com/netbox-community/netbox/issues/18900) now raises explicit exceptions when API endpoints attempt to paginate unordered querysets. Plugin maintainers should review their API viewsets to ensure proper queryset ordering is applied before pagination, either by using `.order_by()` on querysets or by setting `ordering` in model Meta classes. Previously silent pagination issues in plugin code will now raise `QuerySetNotOrdered` exceptions and may require updates to maintain compatibility.
+
 ## v4.3.4 (2025-07-15)
 
 ### Enhancements
