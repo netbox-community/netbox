@@ -1247,7 +1247,9 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
     model = Platform
-    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = [
+        '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count',
+    ]
     create_data = [
         {
             'name': 'Platform 4',
@@ -1274,7 +1276,8 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):

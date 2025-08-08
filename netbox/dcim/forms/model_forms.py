@@ -536,6 +536,11 @@ class DeviceRoleForm(NetBoxModelForm):
 
 
 class PlatformForm(NetBoxModelForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -551,15 +556,18 @@ class PlatformForm(NetBoxModelForm):
         label=_('Slug'),
         max_length=64
     )
+    comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags', name=_('Platform')),
+        FieldSet(
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'tags', name=_('Platform'),
+        ),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'comments', 'tags',
         ]
 
 

@@ -183,13 +183,16 @@ class VirtualMachineFilterSet(
         to_field_name='slug',
         label=_('Role (slug)'),
     )
-    platform_id = django_filters.ModelMultipleChoiceFilter(
+    platform_id = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='platform',
+        lookup_expr='in',
         label=_('Platform (ID)'),
     )
-    platform = django_filters.ModelMultipleChoiceFilter(
-        field_name='platform__slug',
+    platform = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='platform',
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Platform (slug)'),
     )

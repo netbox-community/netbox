@@ -415,7 +415,8 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         regions = (
             Region(name='Region 1', slug='region-1'),

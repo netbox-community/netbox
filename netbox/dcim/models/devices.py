@@ -424,7 +424,7 @@ class DeviceRole(NestedGroupModel):
         verbose_name_plural = _('device roles')
 
 
-class Platform(OrganizationalModel):
+class Platform(NestedGroupModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
@@ -453,6 +453,8 @@ class Platform(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ('parent', 'description')
 
     class Meta:
         ordering = ('name',)

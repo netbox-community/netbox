@@ -619,7 +619,8 @@ class DeviceTypeTestCase(
             Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
             Platform(name='Platform 2', slug='platform-3', manufacturer=manufacturers[1]),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         DeviceType.objects.bulk_create([
             DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
@@ -1891,7 +1892,8 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturer),
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -1912,9 +1914,9 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.csv_update_data = (
             "id,name,description",
-            f"{platforms[0].pk},Platform 7,Fourth platform7",
-            f"{platforms[1].pk},Platform 8,Fifth platform8",
-            f"{platforms[2].pk},Platform 9,Sixth platform9",
+            f"{platforms[0].pk},Foo,New description",
+            f"{platforms[1].pk},Bar,New description",
+            f"{platforms[2].pk},Baz,New description",
         )
 
         cls.bulk_edit_data = {
@@ -1962,7 +1964,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Platform(name='Platform 1', slug='platform-1'),
             Platform(name='Platform 2', slug='platform-2'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         devices = (
             Device(

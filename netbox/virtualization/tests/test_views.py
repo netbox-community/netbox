@@ -210,7 +210,8 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Platform(name='Platform 1', slug='platform-1'),
             Platform(name='Platform 2', slug='platform-2'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         sites = (
             Site(name='Site 1', slug='site-1'),

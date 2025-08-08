@@ -6,11 +6,13 @@ from dcim import models
 
 __all__ = (
     'NestedDeviceBaySerializer',
+    'NestedDeviceRoleSerializer',
     'NestedDeviceSerializer',
     'NestedInterfaceSerializer',
     'NestedInterfaceTemplateSerializer',
     'NestedLocationSerializer',
     'NestedModuleBaySerializer',
+    'NestedPlatformSerializer',
     'NestedRegionSerializer',
     'NestedSiteGroupSerializer',
 )
@@ -101,4 +103,11 @@ class NestedModuleBaySerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.ModuleBay
+        fields = ['id', 'url', 'display_url', 'display', 'name']
+
+
+class NestedPlatformSerializer(WritableNestedSerializer):
+
+    class Meta:
+        model = models.Platform
         fields = ['id', 'url', 'display_url', 'display', 'name']

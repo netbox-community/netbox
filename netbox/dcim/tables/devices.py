@@ -103,7 +103,7 @@ class DeviceRoleTable(NetBoxTable):
 #
 
 class PlatformTable(NetBoxTable):
-    name = tables.Column(
+    name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True
     )

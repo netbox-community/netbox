@@ -1256,7 +1256,8 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1]),
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2]),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         device_types = (
             DeviceType(
@@ -2435,7 +2436,37 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], description='foobar3'),
             Platform(name='Platform 4', slug='platform-4'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
+        child_platforms = (
+            Platform(parent=platforms[0], name='Platform 1A', slug='platform-1a', manufacturer=manufacturers[0]),
+            Platform(parent=platforms[1], name='Platform 2A', slug='platform-2a', manufacturer=manufacturers[1]),
+            Platform(parent=platforms[2], name='Platform 3A', slug='platform-3a', manufacturer=manufacturers[2]),
+        )
+        for platform in child_platforms:
+            platform.save()
+        grandchild_platforms = (
+            Platform(
+                parent=child_platforms[0],
+                name='Platform 1A1',
+                slug='platform-1a1',
+                manufacturer=manufacturers[0],
+            ),
+            Platform(
+                parent=child_platforms[1],
+                name='Platform 2A1',
+                slug='platform-2a1',
+                manufacturer=manufacturers[1],
+            ),
+            Platform(
+                parent=child_platforms[2],
+                name='Platform 3A1',
+                slug='platform-3a1',
+                manufacturer=manufacturers[2],
+            ),
+        )
+        for platform in grandchild_platforms:
+            platform.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -2453,12 +2484,26 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_parent(self):
+        platforms = Platform.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [platforms[0].pk, platforms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': [platforms[0].slug, platforms[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ancestor(self):
+        platforms = Platform.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [platforms[0].pk, platforms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'ancestor': [platforms[0].slug, platforms[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_manufacturer(self):
         manufacturers = Manufacturer.objects.all()[:2]
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_available_for_device_type(self):
         manufacturers = Manufacturer.objects.all()[:2]
@@ -2469,7 +2514,7 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
             u_height=1
         )
         params = {'available_for_device_type': device_type.pk}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -2507,7 +2552,8 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         regions = (
             Region(name='Region 1', slug='region-1'),
@@ -2763,7 +2809,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type': [device_types[0].slug, device_types[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_devicerole(self):
+    def test_role(self):
         roles = DeviceRole.objects.all()[:2]
         params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
