@@ -20,6 +20,7 @@ __all__ = (
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
     'ViewTab',
+    'get_action_url',
     'get_viewname',
     'register_model_view',
 )
@@ -284,12 +285,13 @@ def get_viewname(model, action=None, rest_api=False):
 
 def get_action_url(model, action=None, rest_api=False, kwargs=None):
     """
-    Return the url for the given model and action, if valid.
+    Return the URL for the given model and action, if valid; otherwise raise NoReverseMatch.
+    Will defer to _get_action_url() on the model if it exists.
 
-    :param model: The model or instance to which the view applies
+    :param model: The model or instance to which the URL belongs
     :param action: A string indicating the desired action (if any); e.g. "add" or "list"
-    :param rest_api: A boolean indicating whether this is a REST API view
-    :param kwargs: A dictionary of keyword arguments for the view to include when registering its URL path (optional).
+    :param rest_api: A boolean indicating whether this is a REST API action
+    :param kwargs: A dictionary of keyword arguments for the view to include when resolving its URL path (optional)
     """
     if hasattr(model, '_get_action_url'):
         return model._get_action_url(action, rest_api, kwargs)

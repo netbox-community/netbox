@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Model
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch, resolve, reverse
+from django.urls import NoReverseMatch, resolve
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
@@ -53,9 +53,9 @@ def object_list_widget_supports_model(model: Model) -> bool:
     """
     def can_resolve_model_list_view(model: Model) -> bool:
         try:
-            reverse(get_action_url(model, action='list'))
+            get_action_url(model, action='list')
             return True
-        except Exception:
+        except NoReverseMatch:
             return False
 
     tests = [
