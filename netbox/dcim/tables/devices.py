@@ -303,10 +303,33 @@ class DeviceComponentTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True,
     )
+    device_description = tables.Column(
+        accessor=tables.A('device__description'),
+        verbose_name=_('Device Description'),
+    )
+    device_location = tables.Column(
+        accessor=tables.A('device__location'),
+        verbose_name=_('Device Location'),
+        linkify=True,
+    )
+    device_serial = tables.Column(
+        accessor=tables.A('device__serial'),
+        verbose_name=_('Device Serial'),
+    )
+    device_site = tables.Column(
+        accessor=tables.A('device__site'),
+        verbose_name=_('Device Site'),
+        linkify=True,
+    )
     device_status = columns.ChoiceFieldColumn(
         accessor=tables.A('device__status'),
         verbose_name=_('Device Status'),
         color=lambda x: x.device.get_status_color(),
+    )
+    device_type = tables.Column(
+        accessor=tables.A('device__device_type'),
+        verbose_name=_('Device Type'),
+        linkify=True,
     )
 
     class Meta(NetBoxTable.Meta):
