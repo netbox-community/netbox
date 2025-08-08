@@ -21,7 +21,7 @@ from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, T
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VMInterface
+from virtualization.models import VMInterface, VirtualMachine
 
 __all__ = (
     'AggregateForm',
@@ -783,10 +783,6 @@ class ServiceForm(NetBoxModelForm):
         queryset=IPAddress.objects.all(),
         required=False,
         label=_('IP Addresses'),
-        query_params={
-            'device_id': '$device',
-            'virtual_machine_id': '$virtual_machine',
-        }
     )
     comments = CommentField()
 
@@ -815,10 +811,22 @@ class ServiceForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
+        if parent_object_type_id := get_field_value(self, 'parent_object_type'):
             try:
                 parent_type = ContentType.objects.get(pk=parent_object_type_id)
                 model = parent_type.model_class()
+                if model == Device:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'device_id': '$parent',
+                    })
+                elif model == VirtualMachine:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'virtual_machine_id': '$parent',
+                    })
+                elif model == FHRPGroup:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'fhrpgroup_id': '$parent',
+                    })
                 self.fields['parent'].queryset = model.objects.all()
                 self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['parent'].disabled = False
