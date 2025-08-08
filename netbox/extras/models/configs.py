@@ -60,13 +60,6 @@ class ConfigContextProfile(SyncedDataMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('extras:configcontextprofile', kwargs={'pk': self.pk})
-
-    @property
-    def docs_url(self):
-        return f'{settings.STATIC_URL}docs/models/extras/configcontextprofile/'
-
 
 class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, ChangeLoggedModel):
     """

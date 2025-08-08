@@ -559,7 +559,7 @@ class ConfigContextProfileTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigContextProfile
         fields = (
-            'pk', 'id', 'name', 'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'description')
 
