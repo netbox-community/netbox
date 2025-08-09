@@ -19,6 +19,11 @@ def get_cable_form(a_type, b_type):
                 # Device component
                 if hasattr(term_cls, 'device'):
 
+                    # Dynamically change the param field for interfaces to use virtual_chassis filter
+                    query_param_device_field = 'device_id'
+                    if term_cls == Interface:
+                        query_param_device_field = 'virtual_chassis_member_or_master_id'
+
                     attrs[f'termination_{cable_end}_device'] = DynamicModelMultipleChoiceField(
                         queryset=Device.objects.all(),
                         label=_('Device'),
@@ -36,7 +41,7 @@ def get_cable_form(a_type, b_type):
                             'parent': 'device',
                         },
                         query_params={
-                            'device_id': f'$termination_{cable_end}_device',
+                            query_param_device_field: f'$termination_{cable_end}_device',
                             'kind': 'physical',  # Exclude virtual interfaces
                         }
                     )

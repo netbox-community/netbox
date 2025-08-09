@@ -1885,6 +1885,16 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
+    virtual_chassis_member_or_master = MultiValueCharFilter(
+        method='filter_virtual_chassis_member_or_master',
+        field_name='name',
+        label=_('Virtual Chassis Interfaces for Device when device is master')
+    )
+    virtual_chassis_member_or_master_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member_or_master',
+        field_name='pk',
+        label=_('Virtual Chassis Interfaces for Device when device is master (ID)')
+    )
     virtual_chassis_member = MultiValueCharFilter(
         method='filter_virtual_chassis_member',
         field_name='name',
@@ -1995,11 +2005,14 @@ class InterfaceFilterSet(
             'cable_id', 'cable_end',
         )
 
-    def filter_virtual_chassis_member(self, queryset, name, value):
+    def filter_virtual_chassis_member_or_master(self, queryset, name, value):
+        return self.filter_virtual_chassis_member(queryset, name, value, if_master=True)
+
+    def filter_virtual_chassis_member(self, queryset, name, value, if_master=False):
         try:
             vc_interface_ids = []
             for device in Device.objects.filter(**{f'{name}__in': value}):
-                vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
+                vc_interface_ids.extend(device.vc_interfaces(if_master=if_master).values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
