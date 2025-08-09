@@ -12,7 +12,6 @@ from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from mptt.models import MPTTModel
@@ -34,7 +33,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
-from utilities.views import GetReturnURLMixin, get_viewname
+from utilities.views import GetReturnURLMixin, get_action_url
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -130,7 +129,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             redirect_url = f'{request.path}?{query_params.urlencode()}'
             if safe_for_redirect(redirect_url):
                 return redirect(redirect_url)
-            return redirect(get_viewname(self.queryset.model, 'list'))
+            return redirect(get_action_url(self.queryset.model, action='list'))
 
     #
     # Request handlers
@@ -513,7 +512,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
-            redirect_url = reverse(get_viewname(model, action='list'))
+            redirect_url = get_action_url(model, action='list')
 
             # If indicated, defer this request to a background job & redirect the user
             if form.cleaned_data['background_job']:

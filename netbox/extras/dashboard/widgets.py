@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Model
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch, resolve, reverse
+from django.urls import NoReverseMatch, resolve
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
@@ -21,7 +21,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.proxy import resolve_proxies
 from utilities.querydict import dict_to_querydict
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 from .utils import register_widget
 
 __all__ = (
@@ -53,9 +53,9 @@ def object_list_widget_supports_model(model: Model) -> bool:
     """
     def can_resolve_model_list_view(model: Model) -> bool:
         try:
-            reverse(get_viewname(model, action='list'))
+            get_action_url(model, action='list')
             return True
-        except Exception:
+        except NoReverseMatch:
             return False
 
     tests = [
@@ -206,7 +206,7 @@ class ObjectCountsWidget(DashboardWidget):
             permission = get_permission_for_model(model, 'view')
             if request.user.has_perm(permission):
                 try:
-                    url = reverse(get_viewname(model, 'list'))
+                    url = get_action_url(model, action='list')
                 except NoReverseMatch:
                     url = None
                 qs = model.objects.restrict(request.user, 'view')
@@ -275,15 +275,13 @@ class ObjectListWidget(DashboardWidget):
             logger.debug(f"Dashboard Widget model_class not found: {app_label}:{model_name}")
             return
 
-        viewname = get_viewname(model, action='list')
-
         # Evaluate user's permission. Note that this controls only whether the HTMX element is
         # embedded on the page: The view itself will also evaluate permissions separately.
         permission = get_permission_for_model(model, 'view')
         has_permission = request.user.has_perm(permission)
 
         try:
-            htmx_url = reverse(viewname)
+            htmx_url = get_action_url(model, action='list')
         except NoReverseMatch:
             htmx_url = None
         parameters = self.config.get('url_params') or {}
@@ -297,7 +295,7 @@ class ObjectListWidget(DashboardWidget):
             except ValueError:
                 pass
         return render_to_string(self.template_name, {
-            'viewname': viewname,
+            'model_name': model_name,
             'has_permission': has_permission,
             'htmx_url': htmx_url,
         })

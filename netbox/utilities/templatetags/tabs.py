@@ -1,10 +1,9 @@
 from django import template
-from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.module_loading import import_string
 
 from netbox.registry import registry
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
     'model_view_tabs',
@@ -39,10 +38,9 @@ def model_view_tabs(context, instance):
                 continue
 
             if attrs := tab.render(instance):
-                viewname = get_viewname(instance, action=config['name'])
                 active_tab = context.get('tab')
                 try:
-                    url = reverse(viewname, args=[instance.pk])
+                    url = get_action_url(instance, action=config['name'], kwargs={'pk': instance.pk})
                 except NoReverseMatch:
                     # No URL has been registered for this view; skip
                     continue

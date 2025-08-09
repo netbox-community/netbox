@@ -31,7 +31,7 @@ from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, get_action_url, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
@@ -1103,8 +1103,7 @@ class JournalEntryEditView(generic.ObjectEditView):
         if not instance.assigned_object:
             return reverse('extras:journalentry_list')
         obj = instance.assigned_object
-        viewname = get_viewname(obj, 'journal')
-        return reverse(viewname, kwargs={'pk': obj.pk})
+        return get_action_url(obj, action='journal', kwargs={'pk': obj.pk})
 
 
 @register_model_view(JournalEntry, 'delete')
@@ -1113,8 +1112,7 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
     def get_return_url(self, request, instance):
         obj = instance.assigned_object
-        viewname = get_viewname(obj, 'journal')
-        return reverse(viewname, kwargs={'pk': obj.pk})
+        return get_action_url(obj, action='journal', kwargs={'pk': obj.pk})
 
 
 @register_model_view(JournalEntry, 'bulk_import', path='import', detail=False)

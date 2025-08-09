@@ -21,7 +21,7 @@ from extras.choices import CustomFieldTypeChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
     'ActionsColumn',
@@ -285,7 +285,7 @@ class ActionsColumn(tables.Column):
         for idx, (action, attrs) in enumerate(self.actions.items()):
             permission = get_permission_for_model(model, attrs.permission)
             if attrs.permission is None or user.has_perm(permission):
-                url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
+                url = get_action_url(model, action=action, kwargs={'pk': record.pk})
 
                 # Render a separate button if a) only one action exists, or b) if split_actions is True
                 if len(self.actions) == 1 or (self.split_actions and idx == 0):

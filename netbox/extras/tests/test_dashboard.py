@@ -45,4 +45,4 @@ class ObjectListWidgetTests(TestCase):
         mock_request = Request()
         widget = ObjectListWidget(id='2829fd9b-5dee-4c9a-81f2-5bd84c350a27', **config)
         rendered = widget.render(mock_request)
-        self.assertTrue('Unable to load content. Invalid view name:' in rendered)
+        self.assertTrue('Unable to load content. Could not resolve list URL for:' in rendered)

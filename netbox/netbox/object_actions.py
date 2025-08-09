@@ -1,12 +1,11 @@
 from django.template import loader
-from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from utilities.querydict import prepare_cloned_fields
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
     'AddObject',
@@ -43,12 +42,11 @@ class ObjectAction:
 
     @classmethod
     def get_url(cls, obj):
-        viewname = get_viewname(obj, action=cls.name)
         kwargs = {
             kwarg: getattr(obj, kwarg) for kwarg in cls.url_kwargs
         }
         try:
-            return reverse(viewname, kwargs=kwargs)
+            return get_action_url(obj, action=cls.name, kwargs=kwargs)
         except NoReverseMatch:
             return
 
