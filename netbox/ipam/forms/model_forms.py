@@ -251,6 +251,11 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
 
 
 class IPRangeForm(TenancyForm, NetBoxModelForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -266,8 +271,8 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         FieldSet(
-            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized', 'description',
-            'tags', name=_('IP Range')
+            'prefix', 'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized',
+            'description', 'tags', name=_('IP Range')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -275,12 +280,21 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
-            'mark_utilized', 'description', 'comments', 'tags',
+            'prefix', 'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant',
+            'mark_populated', 'mark_utilized', 'description', 'comments', 'tags',
         ]
 
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        context={
+            'vrf': 'vrf',
+        },
+        selector=True,
+        label=_('Prefix'),
+    )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -327,7 +341,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
+        FieldSet('prefix', 'address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
             TabbedGroups(
@@ -343,8 +357,8 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent', 'nat_inside',
-            'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'prefix', 'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent',
+            'nat_inside', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -469,6 +483,15 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
 
 
 class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        context={
+            'vrf': 'vrf',
+        },
+        selector=True,
+        label=_('Prefix'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -478,7 +501,7 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
+            'address', 'prefix', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
         ]
 
 
