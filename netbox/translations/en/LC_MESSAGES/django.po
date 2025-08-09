@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-08 05:08+0000\n"
+"POT-Creation-Date: 2025-08-09 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1465,8 +1465,8 @@ msgstr ""
 #: netbox/dcim/models/devices.py:556 netbox/dcim/models/devices.py:1164
 #: netbox/dcim/models/modules.py:221 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/sites.py:154
-#: netbox/dcim/models/sites.py:270 netbox/ipam/models/ip.py:242
-#: netbox/ipam/models/ip.py:521 netbox/ipam/models/ip.py:750
+#: netbox/dcim/models/sites.py:270 netbox/ipam/models/ip.py:243
+#: netbox/ipam/models/ip.py:529 netbox/ipam/models/ip.py:758
 #: netbox/ipam/models/vlans.py:217 netbox/virtualization/models/clusters.py:70
 #: netbox/virtualization/models/virtualmachines.py:79
 #: netbox/vpn/models/l2vpn.py:36 netbox/vpn/models/tunnels.py:38
@@ -1684,8 +1684,8 @@ msgstr ""
 msgid "virtual circuits"
 msgstr ""
 
-#: netbox/circuits/models/virtual_circuits.py:133 netbox/ipam/models/ip.py:199
-#: netbox/ipam/models/ip.py:757 netbox/vpn/models/tunnels.py:109
+#: netbox/circuits/models/virtual_circuits.py:133 netbox/ipam/models/ip.py:200
+#: netbox/ipam/models/ip.py:765 netbox/vpn/models/tunnels.py:109
 msgid "role"
 msgstr ""
 
@@ -2638,7 +2638,7 @@ msgstr ""
 msgid "File path relative to the data source's root"
 msgstr ""
 
-#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:502
+#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:510
 msgid "size"
 msgstr ""
 
@@ -2750,7 +2750,7 @@ msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
 msgstr ""
 
-#: netbox/core/signals.py:131
+#: netbox/core/signals.py:143
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
@@ -3813,8 +3813,8 @@ msgstr ""
 #: netbox/ipam/forms/model_forms.py:208 netbox/ipam/forms/model_forms.py:256
 #: netbox/ipam/forms/model_forms.py:310 netbox/ipam/forms/model_forms.py:474
 #: netbox/ipam/forms/model_forms.py:488 netbox/ipam/forms/model_forms.py:502
-#: netbox/ipam/models/ip.py:222 netbox/ipam/models/ip.py:511
-#: netbox/ipam/models/ip.py:740 netbox/ipam/models/vrfs.py:61
+#: netbox/ipam/models/ip.py:223 netbox/ipam/models/ip.py:519
+#: netbox/ipam/models/ip.py:748 netbox/ipam/models/vrfs.py:61
 #: netbox/ipam/tables/ip.py:189 netbox/ipam/tables/ip.py:262
 #: netbox/ipam/tables/ip.py:318 netbox/ipam/tables/ip.py:418
 #: netbox/templates/dcim/interface.html:152
@@ -8708,7 +8708,7 @@ msgstr ""
 #: netbox/extras/models/configs.py:38 netbox/extras/models/models.py:323
 #: netbox/extras/models/models.py:488 netbox/extras/models/models.py:567
 #: netbox/extras/models/search.py:48 netbox/extras/models/tags.py:44
-#: netbox/ipam/models/ip.py:193 netbox/netbox/models/mixins.py:16
+#: netbox/ipam/models/ip.py:194 netbox/netbox/models/mixins.py:16
 msgid "weight"
 msgstr ""
 
@@ -9779,8 +9779,8 @@ msgstr ""
 msgid "Plaintext"
 msgstr ""
 
-#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:797
-#: netbox/ipam/forms/model_forms.py:851 netbox/templates/ipam/service.html:23
+#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:793
+#: netbox/ipam/forms/model_forms.py:859 netbox/templates/ipam/service.html:23
 msgid "Service"
 msgstr ""
 
@@ -9954,7 +9954,7 @@ msgstr ""
 msgid "IP address (ID)"
 msgstr ""
 
-#: netbox/ipam/filtersets.py:1205 netbox/ipam/models/ip.py:808
+#: netbox/ipam/filtersets.py:1205 netbox/ipam/models/ip.py:816
 msgid "IP address"
 msgstr ""
 
@@ -10018,8 +10018,8 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:151 netbox/ipam/forms/model_forms.py:99
 #: netbox/ipam/forms/model_forms.py:112 netbox/ipam/forms/model_forms.py:135
 #: netbox/ipam/forms/model_forms.py:154 netbox/ipam/models/asns.py:31
-#: netbox/ipam/models/asns.py:100 netbox/ipam/models/ip.py:71
-#: netbox/ipam/models/ip.py:87 netbox/ipam/tables/asn.py:20
+#: netbox/ipam/models/asns.py:100 netbox/ipam/models/ip.py:72
+#: netbox/ipam/models/ip.py:88 netbox/ipam/tables/asn.py:20
 #: netbox/ipam/tables/asn.py:45 netbox/templates/ipam/aggregate.html:18
 #: netbox/templates/ipam/asn.html:27 netbox/templates/ipam/asnrange.html:19
 #: netbox/templates/ipam/rir.html:19
@@ -10063,7 +10063,7 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:257 netbox/ipam/forms/bulk_edit.py:307
 #: netbox/ipam/forms/filtersets.py:258 netbox/ipam/forms/filtersets.py:316
-#: netbox/ipam/models/ip.py:261
+#: netbox/ipam/models/ip.py:262
 msgid "Treat as fully utilized"
 msgstr ""
 
@@ -10076,7 +10076,7 @@ msgstr ""
 msgid "Treat as populated"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:355 netbox/ipam/models/ip.py:792
+#: netbox/ipam/forms/bulk_edit.py:355 netbox/ipam/models/ip.py:800
 msgid "DNS name"
 msgstr ""
 
@@ -10455,23 +10455,23 @@ msgstr ""
 msgid "Parent type"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:796
+#: netbox/ipam/forms/model_forms.py:792
 msgid "Port(s)"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:839
+#: netbox/ipam/forms/model_forms.py:847
 msgid "Service template"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:848
+#: netbox/ipam/forms/model_forms.py:856
 msgid "From Template"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:849
+#: netbox/ipam/forms/model_forms.py:857
 msgid "Custom"
 msgstr ""
 
-#: netbox/ipam/forms/model_forms.py:880
+#: netbox/ipam/forms/model_forms.py:888
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
@@ -10533,235 +10533,235 @@ msgstr ""
 msgid "FHRP group assignments"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:65
+#: netbox/ipam/models/ip.py:66
 msgid "private"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:66
+#: netbox/ipam/models/ip.py:67
 msgid "IP space managed by this RIR is considered private"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:72 netbox/netbox/navigation/menu.py:189
+#: netbox/ipam/models/ip.py:73 netbox/netbox/navigation/menu.py:189
 msgid "RIRs"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:81
+#: netbox/ipam/models/ip.py:82
 msgid "IPv4 or IPv6 network"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:88
+#: netbox/ipam/models/ip.py:89
 msgid "Regional Internet Registry responsible for this IP space"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:98
+#: netbox/ipam/models/ip.py:99
 msgid "date added"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:112
+#: netbox/ipam/models/ip.py:113
 msgid "aggregate"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:113
+#: netbox/ipam/models/ip.py:114
 msgid "aggregates"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:126
+#: netbox/ipam/models/ip.py:127
 msgid "Cannot create aggregate with /0 mask."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:138
+#: netbox/ipam/models/ip.py:139
 #, python-brace-format
 msgid ""
 "Aggregates cannot overlap. {prefix} is already covered by an existing "
 "aggregate ({aggregate})."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:152
+#: netbox/ipam/models/ip.py:153
 #, python-brace-format
 msgid ""
 "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate "
 "({aggregate})."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:200
+#: netbox/ipam/models/ip.py:201
 msgid "roles"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:213 netbox/ipam/models/ip.py:282
+#: netbox/ipam/models/ip.py:214 netbox/ipam/models/ip.py:283
 msgid "prefix"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:214
+#: netbox/ipam/models/ip.py:215
 msgid "IPv4 or IPv6 network with mask"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:243
+#: netbox/ipam/models/ip.py:244
 msgid "Operational status of this prefix"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:251
+#: netbox/ipam/models/ip.py:252
 msgid "The primary function of this prefix"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:254
+#: netbox/ipam/models/ip.py:255
 msgid "is a pool"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:256
+#: netbox/ipam/models/ip.py:257
 msgid "All IP addresses within this prefix are considered usable"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:259 netbox/ipam/models/ip.py:541
+#: netbox/ipam/models/ip.py:260 netbox/ipam/models/ip.py:549
 msgid "mark utilized"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:283
+#: netbox/ipam/models/ip.py:284
 msgid "prefixes"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:303
+#: netbox/ipam/models/ip.py:311
 msgid "Cannot create prefix with /0 mask."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:310 netbox/ipam/models/ip.py:896
+#: netbox/ipam/models/ip.py:318 netbox/ipam/models/ip.py:904
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:310 netbox/ipam/models/ip.py:896
+#: netbox/ipam/models/ip.py:318 netbox/ipam/models/ip.py:904
 msgid "global table"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:312
+#: netbox/ipam/models/ip.py:320
 #, python-brace-format
 msgid "Duplicate prefix found in {table}: {prefix}"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:494
+#: netbox/ipam/models/ip.py:502
 msgid "start address"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:495 netbox/ipam/models/ip.py:499
-#: netbox/ipam/models/ip.py:732
+#: netbox/ipam/models/ip.py:503 netbox/ipam/models/ip.py:507
+#: netbox/ipam/models/ip.py:740
 msgid "IPv4 or IPv6 address (with mask)"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:498
+#: netbox/ipam/models/ip.py:506
 msgid "end address"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:525
+#: netbox/ipam/models/ip.py:533
 msgid "Operational status of this range"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:533
+#: netbox/ipam/models/ip.py:541
 msgid "The primary function of this range"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:536
+#: netbox/ipam/models/ip.py:544
 msgid "mark populated"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:538
+#: netbox/ipam/models/ip.py:546
 msgid "Prevent the creation of IP addresses within this range"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:543
+#: netbox/ipam/models/ip.py:551
 #, python-format
 msgid "Report space as 100% utilized"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:552
+#: netbox/ipam/models/ip.py:560
 msgid "IP range"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:553
+#: netbox/ipam/models/ip.py:561
 msgid "IP ranges"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:566
+#: netbox/ipam/models/ip.py:574
 msgid "Starting and ending IP address versions must match"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:572
+#: netbox/ipam/models/ip.py:580
 msgid "Starting and ending IP address masks must match"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:579
+#: netbox/ipam/models/ip.py:587
 #, python-brace-format
 msgid ""
 "Ending address must be greater than the starting address ({start_address})"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:607
+#: netbox/ipam/models/ip.py:615
 #, python-brace-format
 msgid "Defined addresses overlap with range {overlapping_range} in VRF {vrf}"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:616
+#: netbox/ipam/models/ip.py:624
 #, python-brace-format
 msgid "Defined range exceeds maximum supported size ({max_size})"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:731 netbox/tenancy/models/contacts.py:76
+#: netbox/ipam/models/ip.py:739 netbox/tenancy/models/contacts.py:76
 msgid "address"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:754
+#: netbox/ipam/models/ip.py:762
 msgid "The operational status of this IP"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:762
+#: netbox/ipam/models/ip.py:770
 msgid "The functional role of this IP"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:785 netbox/templates/ipam/ipaddress.html:72
+#: netbox/ipam/models/ip.py:793 netbox/templates/ipam/ipaddress.html:72
 msgid "NAT (inside)"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:786
+#: netbox/ipam/models/ip.py:794
 msgid "The IP for which this address is the \"outside\" IP"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:793
+#: netbox/ipam/models/ip.py:801
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:809 netbox/ipam/models/services.py:86
+#: netbox/ipam/models/ip.py:817 netbox/ipam/models/services.py:86
 msgid "IP addresses"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:867
+#: netbox/ipam/models/ip.py:875
 msgid "Cannot create IP address with /0 mask."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:873
+#: netbox/ipam/models/ip.py:881
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:884
+#: netbox/ipam/models/ip.py:892
 #, python-brace-format
 msgid "{ip} is a broadcast address, which may not be assigned to an interface."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:898
+#: netbox/ipam/models/ip.py:906
 #, python-brace-format
 msgid "Duplicate IP address found in {table}: {ipaddress}"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:914
+#: netbox/ipam/models/ip.py:922
 #, python-brace-format
 msgid "Cannot create IP address {ip} inside range {range}."
 msgstr ""
 
-#: netbox/ipam/models/ip.py:935
+#: netbox/ipam/models/ip.py:943
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:941
+#: netbox/ipam/models/ip.py:949
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr ""
 
