@@ -6,7 +6,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
-from rest_framework.exceptions import AuthenticationFailed
 
 from netbox.api.authentication import TokenAuthentication
 from netbox.plugins import PluginConfig
@@ -47,12 +46,9 @@ class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
         # Attempt to authenticate the user using a DRF token, if provided
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             authenticator = TokenAuthentication()
-            try:
-                auth_info = authenticator.authenticate(request)
-                if auth_info is not None:
-                    request.user = auth_info[0]  # User object
-            except AuthenticationFailed:
-                pass
+            auth_info = authenticator.authenticate(request)
+            if auth_info is not None:
+                request.user = auth_info[0]  # User object
 
         return super().dispatch(request, *args, **kwargs)
 
