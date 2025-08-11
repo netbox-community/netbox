@@ -37,7 +37,7 @@ class JSONEmpty(Lookup):
         if value not in (True, False):
             raise ValueError("The 'empty' lookup only accepts True or False.")
 
-        condition = 'NOT ' if value else ''
+        condition = '' if value else 'NOT '
         sql = f"(NULLIF({lhs_sql}, '') IS {condition}NULL)"
 
         return sql, lhs_params
