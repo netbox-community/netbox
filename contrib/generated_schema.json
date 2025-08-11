@@ -474,6 +474,13 @@
                         "passive-48v-2pair",
                         "passive-48v-4pair"
                     ]
+                },
+                "rf_role": {
+                    "type": "string",
+                    "enum": [
+                        "ap",
+                        "station"
+                    ]
                 }
             }
         },
