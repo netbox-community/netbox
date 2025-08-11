@@ -603,8 +603,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if lookup_expr is not None:
             kwargs['lookup_expr'] = lookup_expr
 
+        # 'Empty' lookup is always a boolean
+        if lookup_expr == 'empty':
+            filter_class = django_filters.BooleanFilter
+
         # Text/URL
-        if self.type in (
+        elif self.type in (
                 CustomFieldTypeChoices.TYPE_TEXT,
                 CustomFieldTypeChoices.TYPE_LONGTEXT,
                 CustomFieldTypeChoices.TYPE_URL,
