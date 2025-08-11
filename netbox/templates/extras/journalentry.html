@@ -5,7 +5,7 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url object.assigned_object|viewname:'journal' pk=object.assigned_object.pk %}">{{ object.assigned_object }}</a></li>
+  <li class="breadcrumb-item"><a href="{% action_url object.assigned_object 'journal' pk=object.assigned_object.pk %}">{{ object.assigned_object }}</a></li>
 {% endblock %}
 
 {% block content %}

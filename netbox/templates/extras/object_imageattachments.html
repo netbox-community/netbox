@@ -6,11 +6,9 @@
 
 {% block extra_controls %}
   {% if perms.extras.add_imageattachment %}
-    {% with viewname=object|viewname:"image-attachments" %}
-      <a href="{% url 'extras:imageattachment_add' %}?object_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={% url viewname pk=object.pk %}" class="btn btn-primary">
-        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Attach an Image" %}
-      </a>
-    {% endwith %}
+    <a href="{% url 'extras:imageattachment_add' %}?object_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={% action_url object 'image-attachments' pk=object.pk %}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Attach an Image" %}
+    </a>
   {% endif %}
 {% endblock %}
 
