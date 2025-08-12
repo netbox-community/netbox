@@ -687,6 +687,7 @@ class VirtualCircuitTypeBulkDeleteView(generic.BulkDeleteView):
 # Virtual circuits
 #
 
+@register_model_view(VirtualCircuit, 'list', path='', detail=False)
 class VirtualCircuitListView(generic.ObjectListView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -701,6 +702,7 @@ class VirtualCircuitView(generic.ObjectView):
     queryset = VirtualCircuit.objects.all()
 
 
+@register_model_view(VirtualCircuit, 'add', detail=False)
 @register_model_view(VirtualCircuit, 'edit')
 class VirtualCircuitEditView(generic.ObjectEditView):
     queryset = VirtualCircuit.objects.all()
@@ -712,6 +714,7 @@ class VirtualCircuitDeleteView(generic.ObjectDeleteView):
     queryset = VirtualCircuit.objects.all()
 
 
+@register_model_view(VirtualCircuit, 'bulk_import', path='import', detail=False)
 class VirtualCircuitBulkImportView(generic.BulkImportView):
     queryset = VirtualCircuit.objects.all()
     model_form = forms.VirtualCircuitImportForm
@@ -727,6 +730,7 @@ class VirtualCircuitBulkImportView(generic.BulkImportView):
         return data
 
 
+@register_model_view(VirtualCircuit, 'bulk_edit', path='edit', detail=False)
 class VirtualCircuitBulkEditView(generic.BulkEditView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -737,11 +741,12 @@ class VirtualCircuitBulkEditView(generic.BulkEditView):
 
 
 @register_model_view(VirtualCircuit, 'bulk_rename', path='rename', detail=False)
-class VirtualCircuitulkRenameView(generic.BulkRenameView):
+class VirtualCircuitBulkRenameView(generic.BulkRenameView):
     queryset = VirtualCircuit.objects.all()
     field_name = 'cid'
 
 
+@register_model_view(VirtualCircuit, 'bulk_delete', path='delete', detail=False)
 class VirtualCircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
