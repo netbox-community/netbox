@@ -107,6 +107,10 @@ class PlatformTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
     manufacturer = tables.Column(
         verbose_name=_('Manufacturer'),
         linkify=True
@@ -132,8 +136,8 @@ class PlatformTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Platform
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template', 'description',
-            'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template',
+            'description', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'description',
