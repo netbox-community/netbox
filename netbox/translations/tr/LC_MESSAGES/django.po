@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-29 05:09+0000\n"
+"POT-Creation-Date: 2025-08-12 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
@@ -35,7 +35,7 @@ msgstr "Yazma Etkin"
 
 #: netbox/account/tables.py:35 netbox/core/choices.py:102
 #: netbox/core/tables/jobs.py:29 netbox/core/tables/tasks.py:79
-#: netbox/extras/tables/tables.py:379 netbox/extras/tables/tables.py:627
+#: netbox/extras/tables/tables.py:380 netbox/extras/tables/tables.py:628
 #: netbox/templates/account/token.html:43
 #: netbox/templates/core/configrevision.html:26
 #: netbox/templates/core/configrevision_restore.html:12
@@ -91,9 +91,9 @@ msgstr "Şifreniz başarıyla değiştirildi."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:186
-#: netbox/dcim/choices.py:239 netbox/dcim/choices.py:1549
-#: netbox/dcim/choices.py:1607 netbox/dcim/choices.py:1674
-#: netbox/dcim/choices.py:1696 netbox/virtualization/choices.py:20
+#: netbox/dcim/choices.py:239 netbox/dcim/choices.py:1553
+#: netbox/dcim/choices.py:1611 netbox/dcim/choices.py:1678
+#: netbox/dcim/choices.py:1700 netbox/virtualization/choices.py:20
 #: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 #: netbox/vpn/choices.py:281
 msgid "Planned"
@@ -106,9 +106,9 @@ msgstr "Tedarik"
 #: netbox/circuits/choices.py:23 netbox/core/tables/plugins.py:64
 #: netbox/core/tables/tasks.py:22 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:103 netbox/dcim/choices.py:185
-#: netbox/dcim/choices.py:238 netbox/dcim/choices.py:1606
-#: netbox/dcim/choices.py:1673 netbox/dcim/choices.py:1695
-#: netbox/extras/tables/tables.py:539 netbox/ipam/choices.py:31
+#: netbox/dcim/choices.py:238 netbox/dcim/choices.py:1610
+#: netbox/dcim/choices.py:1677 netbox/dcim/choices.py:1699
+#: netbox/extras/tables/tables.py:540 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
 #: netbox/ipam/choices.py:154 netbox/templates/extras/configcontext.html:25
 #: netbox/templates/users/user.html:35 netbox/users/forms/bulk_edit.py:38
@@ -119,8 +119,8 @@ msgid "Active"
 msgstr "Aktif"
 
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:184
-#: netbox/dcim/choices.py:237 netbox/dcim/choices.py:1605
-#: netbox/dcim/choices.py:1675 netbox/dcim/choices.py:1694
+#: netbox/dcim/choices.py:237 netbox/dcim/choices.py:1609
+#: netbox/dcim/choices.py:1679 netbox/dcim/choices.py:1698
 #: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr "Çevrim dışı"
@@ -133,7 +133,7 @@ msgstr "Hazırlıktan Kaldırma"
 msgid "Decommissioned"
 msgstr "Hizmet dışı bırakıldı"
 
-#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1618
+#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1622
 #: netbox/templates/dcim/interface.html:135
 #: netbox/templates/virtualization/vminterface.html:83
 #: netbox/tenancy/choices.py:17
@@ -553,9 +553,9 @@ msgstr "ASN'ler"
 #: netbox/templates/extras/dashboard/widget_add.html:14
 #: netbox/templates/extras/eventrule.html:21
 #: netbox/templates/extras/exporttemplate.html:19
+#: netbox/templates/extras/inc/script_list_content.html:33
 #: netbox/templates/extras/notificationgroup.html:20
 #: netbox/templates/extras/savedfilter.html:17
-#: netbox/templates/extras/script_list.html:46
 #: netbox/templates/extras/tableconfig.html:17
 #: netbox/templates/extras/tag.html:20 netbox/templates/extras/webhook.html:17
 #: netbox/templates/generic/bulk_import.html:120
@@ -673,7 +673,7 @@ msgstr "Servis ID"
 #: netbox/dcim/tables/devices.py:748 netbox/dcim/tables/devices.py:804
 #: netbox/dcim/tables/devices.py:1045 netbox/dcim/tables/devicetypes.py:256
 #: netbox/dcim/tables/devicetypes.py:271 netbox/dcim/tables/racks.py:33
-#: netbox/extras/forms/bulk_edit.py:303 netbox/extras/tables/tables.py:487
+#: netbox/extras/forms/bulk_edit.py:303 netbox/extras/tables/tables.py:488
 #: netbox/templates/circuits/circuittype.html:30
 #: netbox/templates/circuits/virtualcircuittype.html:30
 #: netbox/templates/dcim/cable.html:40
@@ -718,7 +718,7 @@ msgstr "Renk"
 #: netbox/dcim/forms/object_import.py:146 netbox/dcim/tables/devices.py:192
 #: netbox/dcim/tables/devices.py:856 netbox/dcim/tables/power.py:77
 #: netbox/dcim/tables/racks.py:141 netbox/extras/forms/bulk_import.py:42
-#: netbox/extras/tables/tables.py:449 netbox/extras/tables/tables.py:509
+#: netbox/extras/tables/tables.py:450 netbox/extras/tables/tables.py:510
 #: netbox/netbox/tables/tables.py:274
 #: netbox/templates/circuits/circuit.html:30
 #: netbox/templates/circuits/virtualcircuit.html:39
@@ -811,7 +811,7 @@ msgstr "Sağlayıcı hesabı"
 #: netbox/templates/dcim/powerfeed.html:36
 #: netbox/templates/dcim/poweroutlet.html:40
 #: netbox/templates/dcim/rack.html:41 netbox/templates/dcim/site.html:43
-#: netbox/templates/extras/script_list.html:48
+#: netbox/templates/extras/inc/script_list_content.html:35
 #: netbox/templates/ipam/ipaddress.html:37
 #: netbox/templates/ipam/iprange.html:61 netbox/templates/ipam/prefix.html:69
 #: netbox/templates/ipam/vlan.html:48
@@ -1390,7 +1390,7 @@ msgstr "Dönem Tarafı"
 #: netbox/templates/extras/configcontext.html:60
 #: netbox/templates/ipam/ipaddress.html:59
 #: netbox/templates/ipam/vlan_edit.html:42
-#: netbox/tenancy/forms/filtersets.py:87 netbox/users/forms/model_forms.py:315
+#: netbox/tenancy/forms/filtersets.py:87 netbox/users/forms/model_forms.py:324
 msgid "Assignment"
 msgstr "Ödev"
 
@@ -1447,14 +1447,14 @@ msgstr "Devre tipi"
 msgid "Group Assignment"
 msgstr "Grup Ödevi"
 
-#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:67
+#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:68
 #: netbox/dcim/models/device_component_templates.py:531
 #: netbox/dcim/models/device_component_templates.py:631
-#: netbox/dcim/models/device_components.py:485
-#: netbox/dcim/models/device_components.py:1038
-#: netbox/dcim/models/device_components.py:1109
-#: netbox/dcim/models/device_components.py:1255
-#: netbox/dcim/models/devices.py:381 netbox/dcim/models/racks.py:227
+#: netbox/dcim/models/device_components.py:516
+#: netbox/dcim/models/device_components.py:1069
+#: netbox/dcim/models/device_components.py:1140
+#: netbox/dcim/models/device_components.py:1286
+#: netbox/dcim/models/devices.py:382 netbox/dcim/models/racks.py:227
 #: netbox/extras/models/tags.py:29
 msgid "color"
 msgstr "renk"
@@ -1479,14 +1479,14 @@ msgstr "Benzersiz devre ID"
 
 #: netbox/circuits/models/circuits.py:67
 #: netbox/circuits/models/virtual_circuits.py:59 netbox/core/models/data.py:52
-#: netbox/core/models/jobs.py:87 netbox/dcim/models/cables.py:49
-#: netbox/dcim/models/device_components.py:456
-#: netbox/dcim/models/device_components.py:1294
-#: netbox/dcim/models/devices.py:555 netbox/dcim/models/devices.py:1160
+#: netbox/core/models/jobs.py:87 netbox/dcim/models/cables.py:50
+#: netbox/dcim/models/device_components.py:487
+#: netbox/dcim/models/device_components.py:1325
+#: netbox/dcim/models/devices.py:556 netbox/dcim/models/devices.py:1164
 #: netbox/dcim/models/modules.py:221 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/sites.py:154
-#: netbox/dcim/models/sites.py:270 netbox/ipam/models/ip.py:242
-#: netbox/ipam/models/ip.py:521 netbox/ipam/models/ip.py:750
+#: netbox/dcim/models/sites.py:270 netbox/ipam/models/ip.py:243
+#: netbox/ipam/models/ip.py:529 netbox/ipam/models/ip.py:758
 #: netbox/ipam/models/vlans.py:217 netbox/virtualization/models/clusters.py:70
 #: netbox/virtualization/models/virtualmachines.py:79
 #: netbox/vpn/models/l2vpn.py:36 netbox/vpn/models/tunnels.py:38
@@ -1614,8 +1614,8 @@ msgstr "Bir devre sonlandırma, sonlandırma nesnesine bağlanmalıdır."
 #: netbox/core/models/jobs.py:48
 #: netbox/dcim/models/device_component_templates.py:43
 #: netbox/dcim/models/device_components.py:52
-#: netbox/dcim/models/devices.py:499 netbox/dcim/models/devices.py:1092
-#: netbox/dcim/models/devices.py:1155 netbox/dcim/models/modules.py:32
+#: netbox/dcim/models/devices.py:500 netbox/dcim/models/devices.py:1096
+#: netbox/dcim/models/devices.py:1159 netbox/dcim/models/modules.py:32
 #: netbox/dcim/models/power.py:38 netbox/dcim/models/power.py:89
 #: netbox/dcim/models/racks.py:263 netbox/dcim/models/sites.py:142
 #: netbox/extras/models/configs.py:33 netbox/extras/models/configs.py:214
@@ -1647,7 +1647,7 @@ msgstr "ad"
 msgid "Full name of the provider"
 msgstr "Sağlayıcının tam adı"
 
-#: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:88
+#: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
 #: netbox/dcim/models/racks.py:143 netbox/dcim/models/sites.py:149
 #: netbox/extras/models/models.py:472 netbox/ipam/models/asns.py:23
 #: netbox/ipam/models/vlans.py:43 netbox/netbox/models/__init__.py:146
@@ -1705,8 +1705,8 @@ msgstr "sanal devre"
 msgid "virtual circuits"
 msgstr "sanal devreler"
 
-#: netbox/circuits/models/virtual_circuits.py:133 netbox/ipam/models/ip.py:199
-#: netbox/ipam/models/ip.py:757 netbox/vpn/models/tunnels.py:109
+#: netbox/circuits/models/virtual_circuits.py:133 netbox/ipam/models/ip.py:200
+#: netbox/ipam/models/ip.py:765 netbox/vpn/models/tunnels.py:109
 msgid "role"
 msgstr "rol"
 
@@ -1745,9 +1745,9 @@ msgstr "sanal devre sonlandırmaları"
 #: netbox/extras/tables/tables.py:62 netbox/extras/tables/tables.py:126
 #: netbox/extras/tables/tables.py:159 netbox/extras/tables/tables.py:184
 #: netbox/extras/tables/tables.py:260 netbox/extras/tables/tables.py:290
-#: netbox/extras/tables/tables.py:405 netbox/extras/tables/tables.py:422
-#: netbox/extras/tables/tables.py:445 netbox/extras/tables/tables.py:483
-#: netbox/extras/tables/tables.py:535 netbox/extras/tables/tables.py:561
+#: netbox/extras/tables/tables.py:406 netbox/extras/tables/tables.py:423
+#: netbox/extras/tables/tables.py:446 netbox/extras/tables/tables.py:484
+#: netbox/extras/tables/tables.py:536 netbox/extras/tables/tables.py:562
 #: netbox/ipam/forms/bulk_edit.py:396 netbox/ipam/forms/filtersets.py:410
 #: netbox/ipam/forms/filtersets.py:496 netbox/ipam/tables/asn.py:16
 #: netbox/ipam/tables/ip.py:32 netbox/ipam/tables/ip.py:107
@@ -1791,9 +1791,9 @@ msgstr "sanal devre sonlandırmaları"
 #: netbox/templates/extras/customlink.html:13
 #: netbox/templates/extras/eventrule.html:13
 #: netbox/templates/extras/exporttemplate.html:15
+#: netbox/templates/extras/inc/script_list_content.html:32
 #: netbox/templates/extras/notificationgroup.html:14
 #: netbox/templates/extras/savedfilter.html:13
-#: netbox/templates/extras/script_list.html:45
 #: netbox/templates/extras/tableconfig.html:13
 #: netbox/templates/extras/tag.html:14 netbox/templates/extras/webhook.html:13
 #: netbox/templates/ipam/asnrange.html:15
@@ -1894,7 +1894,7 @@ msgstr "Taahhüt Oranı"
 #: netbox/dcim/tables/racks.py:148 netbox/dcim/tables/racks.py:233
 #: netbox/dcim/tables/sites.py:40 netbox/dcim/tables/sites.py:74
 #: netbox/dcim/tables/sites.py:121 netbox/dcim/tables/sites.py:179
-#: netbox/extras/tables/tables.py:643 netbox/ipam/tables/asn.py:69
+#: netbox/extras/tables/tables.py:644 netbox/ipam/tables/asn.py:69
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:83
 #: netbox/ipam/tables/ip.py:227 netbox/ipam/tables/ip.py:286
 #: netbox/ipam/tables/ip.py:355 netbox/ipam/tables/services.py:24
@@ -2100,7 +2100,7 @@ msgstr "Tamamlandı"
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:20 netbox/core/tables/tasks.py:34
 #: netbox/dcim/choices.py:188 netbox/dcim/choices.py:241
-#: netbox/dcim/choices.py:1608 netbox/dcim/choices.py:1698
+#: netbox/dcim/choices.py:1612 netbox/dcim/choices.py:1702
 #: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr "Başarısız"
@@ -2251,7 +2251,7 @@ msgid "User name"
 msgstr "Kullanıcı adı"
 
 #: netbox/core/forms/bulk_edit.py:26 netbox/core/forms/filtersets.py:43
-#: netbox/core/tables/data.py:26 netbox/dcim/choices.py:1656
+#: netbox/core/tables/data.py:26 netbox/dcim/choices.py:1660
 #: netbox/dcim/forms/bulk_edit.py:1184 netbox/dcim/forms/bulk_edit.py:1465
 #: netbox/dcim/forms/filtersets.py:1448 netbox/dcim/tables/devices.py:577
 #: netbox/dcim/tables/devicetypes.py:231 netbox/extras/forms/bulk_edit.py:124
@@ -2260,7 +2260,7 @@ msgstr "Kullanıcı adı"
 #: netbox/extras/forms/filtersets.py:240 netbox/extras/forms/filtersets.py:270
 #: netbox/extras/forms/filtersets.py:335 netbox/extras/tables/tables.py:166
 #: netbox/extras/tables/tables.py:267 netbox/extras/tables/tables.py:300
-#: netbox/extras/tables/tables.py:459 netbox/netbox/preferences.py:22
+#: netbox/extras/tables/tables.py:460 netbox/netbox/preferences.py:22
 #: netbox/netbox/preferences.py:61 netbox/templates/core/datasource.html:42
 #: netbox/templates/dcim/interface.html:61
 #: netbox/templates/extras/customlink.html:17
@@ -2298,7 +2298,7 @@ msgstr "Kuralları yok sayın"
 #: netbox/extras/forms/model_forms.py:265
 #: netbox/extras/forms/model_forms.py:660
 #: netbox/extras/forms/model_forms.py:713 netbox/extras/tables/tables.py:204
-#: netbox/extras/tables/tables.py:527 netbox/extras/tables/tables.py:565
+#: netbox/extras/tables/tables.py:528 netbox/extras/tables/tables.py:566
 #: netbox/templates/core/datasource.html:31
 #: netbox/templates/extras/configcontext.html:29
 #: netbox/templates/extras/configtemplate.html:37
@@ -2323,9 +2323,9 @@ msgstr "Oluşturma"
 
 #: netbox/core/forms/filtersets.py:80 netbox/core/forms/filtersets.py:166
 #: netbox/extras/forms/filtersets.py:524 netbox/extras/tables/tables.py:234
-#: netbox/extras/tables/tables.py:294 netbox/extras/tables/tables.py:338
-#: netbox/extras/tables/tables.py:370 netbox/extras/tables/tables.py:632
-#: netbox/templates/core/job.html:38
+#: netbox/extras/tables/tables.py:294 netbox/extras/tables/tables.py:320
+#: netbox/extras/tables/tables.py:339 netbox/extras/tables/tables.py:371
+#: netbox/extras/tables/tables.py:633 netbox/templates/core/job.html:38
 #: netbox/templates/core/objectchange.html:52
 #: netbox/templates/extras/tableconfig.html:21
 #: netbox/tenancy/tables/contacts.py:98 netbox/vpn/tables/l2vpn.py:62
@@ -2368,7 +2368,7 @@ msgstr "Daha önce tamamlandı"
 #: netbox/dcim/forms/bulk_edit.py:479 netbox/dcim/forms/filtersets.py:420
 #: netbox/dcim/forms/filtersets.py:464 netbox/dcim/forms/model_forms.py:332
 #: netbox/extras/forms/filtersets.py:519 netbox/extras/forms/filtersets.py:539
-#: netbox/extras/tables/tables.py:346 netbox/extras/tables/tables.py:386
+#: netbox/extras/tables/tables.py:347 netbox/extras/tables/tables.py:387
 #: netbox/templates/core/objectchange.html:36
 #: netbox/templates/dcim/rackreservation.html:58
 #: netbox/templates/extras/savedfilter.html:21
@@ -2383,7 +2383,7 @@ msgid "User"
 msgstr "Kullanıcı"
 
 #: netbox/core/forms/filtersets.py:140 netbox/core/tables/change_logging.py:15
-#: netbox/extras/tables/tables.py:670 netbox/extras/tables/tables.py:724
+#: netbox/extras/tables/tables.py:671 netbox/extras/tables/tables.py:725
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr "Zaman"
@@ -2440,7 +2440,7 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr "Raf Yükseltmeleri"
 
-#: netbox/core/forms/model_forms.py:160 netbox/dcim/choices.py:1537
+#: netbox/core/forms/model_forms.py:160 netbox/dcim/choices.py:1541
 #: netbox/dcim/forms/bulk_edit.py:1031 netbox/dcim/forms/bulk_edit.py:1419
 #: netbox/dcim/forms/bulk_edit.py:1440 netbox/dcim/tables/racks.py:161
 #: netbox/netbox/navigation/menu.py:313 netbox/netbox/navigation/menu.py:317
@@ -2578,7 +2578,7 @@ msgstr "Geçerli yapılandırma"
 msgid "Config revision #{id}"
 msgstr "Yapılandırma revizyonu #{id}"
 
-#: netbox/core/models/data.py:44 netbox/dcim/models/cables.py:42
+#: netbox/core/models/data.py:44 netbox/dcim/models/cables.py:43
 #: netbox/dcim/models/device_component_templates.py:199
 #: netbox/dcim/models/device_component_templates.py:234
 #: netbox/dcim/models/device_component_templates.py:270
@@ -2586,13 +2586,13 @@ msgstr "Yapılandırma revizyonu #{id}"
 #: netbox/dcim/models/device_component_templates.py:420
 #: netbox/dcim/models/device_component_templates.py:526
 #: netbox/dcim/models/device_component_templates.py:626
-#: netbox/dcim/models/device_components.py:282
-#: netbox/dcim/models/device_components.py:309
+#: netbox/dcim/models/device_components.py:313
 #: netbox/dcim/models/device_components.py:340
-#: netbox/dcim/models/device_components.py:462
-#: netbox/dcim/models/device_components.py:665
-#: netbox/dcim/models/device_components.py:1033
-#: netbox/dcim/models/device_components.py:1104
+#: netbox/dcim/models/device_components.py:371
+#: netbox/dcim/models/device_components.py:493
+#: netbox/dcim/models/device_components.py:696
+#: netbox/dcim/models/device_components.py:1064
+#: netbox/dcim/models/device_components.py:1135
 #: netbox/dcim/models/power.py:100 netbox/extras/models/customfields.py:80
 #: netbox/extras/models/search.py:41
 #: netbox/virtualization/models/clusters.py:57 netbox/vpn/models/l2vpn.py:31
@@ -2600,7 +2600,7 @@ msgid "type"
 msgstr "türü"
 
 #: netbox/core/models/data.py:49 netbox/extras/choices.py:37
-#: netbox/extras/models/models.py:174 netbox/extras/tables/tables.py:734
+#: netbox/extras/models/models.py:174 netbox/extras/tables/tables.py:735
 #: netbox/templates/core/datasource.html:62
 #: netbox/templates/core/plugin.html:66
 msgid "URL"
@@ -2608,7 +2608,7 @@ msgstr "URL"
 
 #: netbox/core/models/data.py:59
 #: netbox/dcim/models/device_component_templates.py:425
-#: netbox/dcim/models/device_components.py:517
+#: netbox/dcim/models/device_components.py:548
 #: netbox/extras/models/models.py:72 netbox/extras/models/models.py:311
 #: netbox/extras/models/models.py:492 netbox/extras/models/models.py:571
 #: netbox/users/models/permissions.py:28
@@ -2667,7 +2667,7 @@ msgstr ""
 msgid "last updated"
 msgstr "son güncellendi"
 
-#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:440
+#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:450
 msgid "path"
 msgstr "yol"
 
@@ -2675,7 +2675,7 @@ msgstr "yol"
 msgid "File path relative to the data source's root"
 msgstr "Veri kaynağının köküne göre dosya yolu"
 
-#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:502
+#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:510
 msgid "size"
 msgstr "boyut"
 
@@ -2788,7 +2788,7 @@ msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
 msgstr "enqueue () hem schedule_at hem de imediat değerleriyle çağrılamaz."
 
-#: netbox/core/signals.py:131
+#: netbox/core/signals.py:143
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr "Silme işlemi bir koruma kuralı tarafından engellenir: {message}"
@@ -2801,10 +2801,10 @@ msgstr "Ad Soyad"
 
 #: netbox/core/tables/change_logging.py:37 netbox/core/tables/jobs.py:21
 #: netbox/extras/choices.py:41 netbox/extras/tables/tables.py:323
-#: netbox/extras/tables/tables.py:341 netbox/extras/tables/tables.py:373
-#: netbox/extras/tables/tables.py:453 netbox/extras/tables/tables.py:514
-#: netbox/extras/tables/tables.py:637 netbox/extras/tables/tables.py:677
-#: netbox/extras/tables/tables.py:731 netbox/netbox/tables/tables.py:278
+#: netbox/extras/tables/tables.py:342 netbox/extras/tables/tables.py:374
+#: netbox/extras/tables/tables.py:454 netbox/extras/tables/tables.py:515
+#: netbox/extras/tables/tables.py:638 netbox/extras/tables/tables.py:678
+#: netbox/extras/tables/tables.py:732 netbox/netbox/tables/tables.py:278
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
 #: netbox/templates/extras/journalentry.html:18
@@ -2841,7 +2841,7 @@ msgstr "Son Güncelleme"
 
 #: netbox/core/tables/jobs.py:10 netbox/core/tables/tasks.py:76
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:230
-#: netbox/extras/tables/tables.py:504 netbox/extras/tables/tables.py:702
+#: netbox/extras/tables/tables.py:505 netbox/extras/tables/tables.py:703
 #: netbox/netbox/tables/tables.py:223
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:73
@@ -3042,8 +3042,8 @@ msgid "Staging"
 msgstr "Sahneleme"
 
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:190
-#: netbox/dcim/choices.py:242 netbox/dcim/choices.py:1550
-#: netbox/dcim/choices.py:1699 netbox/virtualization/choices.py:23
+#: netbox/dcim/choices.py:242 netbox/dcim/choices.py:1554
+#: netbox/dcim/choices.py:1703 netbox/virtualization/choices.py:23
 #: netbox/virtualization/choices.py:49 netbox/vpn/choices.py:282
 msgid "Decommissioning"
 msgstr "Hizmetten çıkarma"
@@ -3093,6 +3093,7 @@ msgid "Reserved"
 msgstr "Rezerve edilmiş"
 
 #: netbox/dcim/choices.py:101 netbox/templates/dcim/device.html:265
+#: netbox/utilities/templates/widgets/splitmultiselect.html:5
 msgid "Available"
 msgstr "Mevcut"
 
@@ -3107,7 +3108,7 @@ msgstr "Kullanımdan kaldırıldı"
 msgid "Millimeters"
 msgstr "Milimetre"
 
-#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1572
+#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1576
 msgid "Inches"
 msgstr "İnç"
 
@@ -3184,7 +3185,7 @@ msgid "Rear"
 msgstr "Arka"
 
 #: netbox/dcim/choices.py:187 netbox/dcim/choices.py:240
-#: netbox/dcim/choices.py:1697 netbox/virtualization/choices.py:47
+#: netbox/dcim/choices.py:1701 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr "Sahnelenmiş"
 
@@ -3217,7 +3218,7 @@ msgid "Top to bottom"
 msgstr "Yukarıdan aşağıya"
 
 #: netbox/dcim/choices.py:217 netbox/dcim/choices.py:262
-#: netbox/dcim/choices.py:1316
+#: netbox/dcim/choices.py:1320
 msgid "Passive"
 msgstr "Pasif"
 
@@ -3225,46 +3226,46 @@ msgstr "Pasif"
 msgid "Mixed"
 msgstr "Karışık"
 
-#: netbox/dcim/choices.py:487 netbox/dcim/choices.py:736
+#: netbox/dcim/choices.py:489 netbox/dcim/choices.py:740
 msgid "NEMA (Non-locking)"
 msgstr "NEMA (Kilitsiz)"
 
-#: netbox/dcim/choices.py:509 netbox/dcim/choices.py:758
+#: netbox/dcim/choices.py:511 netbox/dcim/choices.py:762
 msgid "NEMA (Locking)"
 msgstr "NEMA (Kilitleme)"
 
-#: netbox/dcim/choices.py:533 netbox/dcim/choices.py:782
+#: netbox/dcim/choices.py:535 netbox/dcim/choices.py:786
 msgid "California Style"
 msgstr "Kaliforniya Tarzı"
 
-#: netbox/dcim/choices.py:541
+#: netbox/dcim/choices.py:543
 msgid "International/ITA"
 msgstr "Uluslararası/ITA"
 
-#: netbox/dcim/choices.py:576 netbox/dcim/choices.py:817
+#: netbox/dcim/choices.py:578 netbox/dcim/choices.py:821
 msgid "Proprietary"
 msgstr "Tescilli"
 
-#: netbox/dcim/choices.py:584 netbox/dcim/choices.py:827
-#: netbox/dcim/choices.py:1228 netbox/dcim/choices.py:1230
-#: netbox/dcim/choices.py:1466 netbox/dcim/choices.py:1468
+#: netbox/dcim/choices.py:586 netbox/dcim/choices.py:831
+#: netbox/dcim/choices.py:1232 netbox/dcim/choices.py:1234
+#: netbox/dcim/choices.py:1470 netbox/dcim/choices.py:1472
 #: netbox/netbox/navigation/menu.py:209
 msgid "Other"
 msgstr "Diğer"
 
-#: netbox/dcim/choices.py:790
+#: netbox/dcim/choices.py:794
 msgid "ITA/International"
 msgstr "ITA/Uluslararası"
 
-#: netbox/dcim/choices.py:857
+#: netbox/dcim/choices.py:861
 msgid "Physical"
 msgstr "Fiziksel"
 
-#: netbox/dcim/choices.py:858 netbox/dcim/choices.py:1029
+#: netbox/dcim/choices.py:862 netbox/dcim/choices.py:1033
 msgid "Virtual"
 msgstr "Sanal"
 
-#: netbox/dcim/choices.py:859 netbox/dcim/choices.py:1105
+#: netbox/dcim/choices.py:863 netbox/dcim/choices.py:1109
 #: netbox/dcim/forms/bulk_edit.py:1625 netbox/dcim/forms/filtersets.py:1408
 #: netbox/dcim/forms/model_forms.py:1117 netbox/dcim/forms/model_forms.py:1570
 #: netbox/netbox/navigation/menu.py:147 netbox/netbox/navigation/menu.py:151
@@ -3272,11 +3273,11 @@ msgstr "Sanal"
 msgid "Wireless"
 msgstr "Kablosuz"
 
-#: netbox/dcim/choices.py:1027
+#: netbox/dcim/choices.py:1031
 msgid "Virtual interfaces"
 msgstr "Sanal arayüzler"
 
-#: netbox/dcim/choices.py:1030 netbox/dcim/forms/bulk_edit.py:1478
+#: netbox/dcim/choices.py:1034 netbox/dcim/forms/bulk_edit.py:1478
 #: netbox/dcim/forms/bulk_import.py:901 netbox/dcim/forms/model_forms.py:1099
 #: netbox/dcim/tables/devices.py:704 netbox/templates/dcim/interface.html:112
 #: netbox/templates/virtualization/vminterface.html:43
@@ -3286,27 +3287,27 @@ msgstr "Sanal arayüzler"
 msgid "Bridge"
 msgstr "Köprü"
 
-#: netbox/dcim/choices.py:1031
+#: netbox/dcim/choices.py:1035
 msgid "Link Aggregation Group (LAG)"
 msgstr "Bağlantı Toplama Grubu (LAG)"
 
-#: netbox/dcim/choices.py:1035
+#: netbox/dcim/choices.py:1039
 msgid "Ethernet (fixed)"
 msgstr "Ethernet (sabit)"
 
-#: netbox/dcim/choices.py:1052
+#: netbox/dcim/choices.py:1056
 msgid "Ethernet (modular)"
 msgstr "Ethernet (modüler)"
 
-#: netbox/dcim/choices.py:1089
+#: netbox/dcim/choices.py:1093
 msgid "Ethernet (backplane)"
 msgstr "Ethernet (arka panel)"
 
-#: netbox/dcim/choices.py:1121
+#: netbox/dcim/choices.py:1125
 msgid "Cellular"
 msgstr "Hücresel"
 
-#: netbox/dcim/choices.py:1173 netbox/dcim/forms/filtersets.py:385
+#: netbox/dcim/choices.py:1177 netbox/dcim/forms/filtersets.py:385
 #: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/filtersets.py:1031
 #: netbox/dcim/forms/filtersets.py:1630
 #: netbox/templates/dcim/inventoryitem.html:56
@@ -3314,127 +3315,127 @@ msgstr "Hücresel"
 msgid "Serial"
 msgstr "Seri"
 
-#: netbox/dcim/choices.py:1188
+#: netbox/dcim/choices.py:1192
 msgid "Coaxial"
 msgstr "Koaksiyel"
 
-#: netbox/dcim/choices.py:1209
+#: netbox/dcim/choices.py:1213
 msgid "Stacking"
 msgstr "İstifleme"
 
-#: netbox/dcim/choices.py:1261
+#: netbox/dcim/choices.py:1265
 msgid "Half"
 msgstr "Yarım"
 
-#: netbox/dcim/choices.py:1262
+#: netbox/dcim/choices.py:1266
 msgid "Full"
 msgstr "Dolu"
 
-#: netbox/dcim/choices.py:1263 netbox/netbox/preferences.py:31
+#: netbox/dcim/choices.py:1267 netbox/netbox/preferences.py:31
 #: netbox/wireless/choices.py:480
 msgid "Auto"
 msgstr "Oto"
 
-#: netbox/dcim/choices.py:1275
+#: netbox/dcim/choices.py:1279
 msgid "Access"
 msgstr "Erişim"
 
-#: netbox/dcim/choices.py:1276 netbox/ipam/tables/vlans.py:150
+#: netbox/dcim/choices.py:1280 netbox/ipam/tables/vlans.py:150
 #: netbox/ipam/tables/vlans.py:195
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "Etiketlenmiş"
 
-#: netbox/dcim/choices.py:1277
+#: netbox/dcim/choices.py:1281
 msgid "Tagged (All)"
 msgstr "Etiketlenmiş (Tümü)"
 
-#: netbox/dcim/choices.py:1278 netbox/templates/ipam/vlan_edit.html:26
+#: netbox/dcim/choices.py:1282 netbox/templates/ipam/vlan_edit.html:26
 msgid "Q-in-Q (802.1ad)"
 msgstr "Q-in-Q (802.1ad)"
 
-#: netbox/dcim/choices.py:1307
+#: netbox/dcim/choices.py:1311
 msgid "IEEE Standard"
 msgstr "IEEE Standardı"
 
-#: netbox/dcim/choices.py:1318
+#: netbox/dcim/choices.py:1322
 msgid "Passive 24V (2-pair)"
 msgstr "Pasif 24V (2 çift)"
 
-#: netbox/dcim/choices.py:1319
+#: netbox/dcim/choices.py:1323
 msgid "Passive 24V (4-pair)"
 msgstr "Pasif 24V (4 çift)"
 
-#: netbox/dcim/choices.py:1320
+#: netbox/dcim/choices.py:1324
 msgid "Passive 48V (2-pair)"
 msgstr "Pasif 48V (2 çift)"
 
-#: netbox/dcim/choices.py:1321
+#: netbox/dcim/choices.py:1325
 msgid "Passive 48V (4-pair)"
 msgstr "Pasif 48V (4 çift)"
 
-#: netbox/dcim/choices.py:1394 netbox/dcim/choices.py:1507
+#: netbox/dcim/choices.py:1398 netbox/dcim/choices.py:1511
 msgid "Copper"
 msgstr "Bakır"
 
-#: netbox/dcim/choices.py:1417
+#: netbox/dcim/choices.py:1421
 msgid "Fiber Optic"
 msgstr "Fiber Optik"
 
-#: netbox/dcim/choices.py:1453 netbox/dcim/choices.py:1536
+#: netbox/dcim/choices.py:1457 netbox/dcim/choices.py:1540
 msgid "USB"
 msgstr "USB"
 
-#: netbox/dcim/choices.py:1523
+#: netbox/dcim/choices.py:1527
 msgid "Fiber"
 msgstr "Fiber"
 
-#: netbox/dcim/choices.py:1548 netbox/dcim/forms/filtersets.py:1295
+#: netbox/dcim/choices.py:1552 netbox/dcim/forms/filtersets.py:1295
 msgid "Connected"
 msgstr "Bağlı"
 
-#: netbox/dcim/choices.py:1567 netbox/netbox/choices.py:175
+#: netbox/dcim/choices.py:1571 netbox/netbox/choices.py:175
 msgid "Kilometers"
 msgstr "Kilometre"
 
-#: netbox/dcim/choices.py:1568 netbox/netbox/choices.py:176
+#: netbox/dcim/choices.py:1572 netbox/netbox/choices.py:176
 #: netbox/templates/dcim/cable_trace.html:65
 msgid "Meters"
 msgstr "Sayaçlar"
 
-#: netbox/dcim/choices.py:1569
+#: netbox/dcim/choices.py:1573
 msgid "Centimeters"
 msgstr "Santimetre"
 
-#: netbox/dcim/choices.py:1570 netbox/netbox/choices.py:177
+#: netbox/dcim/choices.py:1574 netbox/netbox/choices.py:177
 msgid "Miles"
 msgstr "Mil"
 
-#: netbox/dcim/choices.py:1571 netbox/netbox/choices.py:178
+#: netbox/dcim/choices.py:1575 netbox/netbox/choices.py:178
 #: netbox/templates/dcim/cable_trace.html:66
 msgid "Feet"
 msgstr "Feet"
 
-#: netbox/dcim/choices.py:1619
+#: netbox/dcim/choices.py:1623
 msgid "Redundant"
 msgstr "Yedekli"
 
-#: netbox/dcim/choices.py:1640
+#: netbox/dcim/choices.py:1644
 msgid "Single phase"
 msgstr "Tek fazlı"
 
-#: netbox/dcim/choices.py:1641
+#: netbox/dcim/choices.py:1645
 msgid "Three-phase"
 msgstr "Üç fazlı"
 
-#: netbox/dcim/choices.py:1657 netbox/extras/choices.py:53
+#: netbox/dcim/choices.py:1661 netbox/extras/choices.py:53
 #: netbox/netbox/preferences.py:21 netbox/netbox/preferences.py:60
 #: netbox/templates/extras/customfield.html:78 netbox/vpn/choices.py:20
 #: netbox/wireless/choices.py:27
 msgid "Disabled"
 msgstr "Engelli"
 
-#: netbox/dcim/choices.py:1658
+#: netbox/dcim/choices.py:1662
 msgid "Faulty"
 msgstr "Arızalı"
 
@@ -3692,7 +3693,7 @@ msgstr "Tam derinlik mi"
 #: netbox/dcim/filtersets.py:1164 netbox/dcim/forms/filtersets.py:838
 #: netbox/dcim/forms/filtersets.py:1463 netbox/dcim/forms/filtersets.py:1669
 #: netbox/dcim/forms/filtersets.py:1674 netbox/dcim/forms/model_forms.py:1887
-#: netbox/dcim/models/devices.py:1256 netbox/dcim/models/devices.py:1276
+#: netbox/dcim/models/devices.py:1260 netbox/dcim/models/devices.py:1280
 #: netbox/virtualization/filtersets.py:198
 #: netbox/virtualization/filtersets.py:270
 #: netbox/virtualization/forms/filtersets.py:178
@@ -3841,7 +3842,7 @@ msgstr "Atanmış VID"
 #: netbox/dcim/filtersets.py:1829 netbox/dcim/forms/bulk_edit.py:1591
 #: netbox/dcim/forms/bulk_import.py:952 netbox/dcim/forms/filtersets.py:1516
 #: netbox/dcim/forms/model_forms.py:1536
-#: netbox/dcim/models/device_components.py:761
+#: netbox/dcim/models/device_components.py:792
 #: netbox/dcim/tables/devices.py:658 netbox/ipam/filtersets.py:335
 #: netbox/ipam/filtersets.py:346 netbox/ipam/filtersets.py:478
 #: netbox/ipam/filtersets.py:579 netbox/ipam/filtersets.py:590
@@ -3853,8 +3854,8 @@ msgstr "Atanmış VID"
 #: netbox/ipam/forms/model_forms.py:208 netbox/ipam/forms/model_forms.py:256
 #: netbox/ipam/forms/model_forms.py:310 netbox/ipam/forms/model_forms.py:474
 #: netbox/ipam/forms/model_forms.py:488 netbox/ipam/forms/model_forms.py:502
-#: netbox/ipam/models/ip.py:222 netbox/ipam/models/ip.py:511
-#: netbox/ipam/models/ip.py:740 netbox/ipam/models/vrfs.py:61
+#: netbox/ipam/models/ip.py:223 netbox/ipam/models/ip.py:519
+#: netbox/ipam/models/ip.py:748 netbox/ipam/models/vrfs.py:61
 #: netbox/ipam/tables/ip.py:189 netbox/ipam/tables/ip.py:262
 #: netbox/ipam/tables/ip.py:318 netbox/ipam/tables/ip.py:418
 #: netbox/templates/dcim/interface.html:152
@@ -3900,7 +3901,7 @@ msgstr "VLAN Çeviri Politikası (ID)"
 
 #: netbox/dcim/filtersets.py:1857 netbox/dcim/forms/filtersets.py:1487
 #: netbox/dcim/forms/model_forms.py:1553
-#: netbox/dcim/models/device_components.py:580
+#: netbox/dcim/models/device_components.py:611
 #: netbox/ipam/forms/filtersets.py:511 netbox/ipam/forms/model_forms.py:712
 #: netbox/templates/ipam/vlantranslationpolicy.html:11
 #: netbox/virtualization/forms/bulk_edit.py:248
@@ -4019,7 +4020,7 @@ msgstr "Güç paneli (ID)"
 #: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:443
 #: netbox/extras/forms/model_forms.py:649
 #: netbox/extras/forms/model_forms.py:701 netbox/netbox/forms/base.py:86
-#: netbox/netbox/forms/mixins.py:91 netbox/netbox/tables/columns.py:486
+#: netbox/netbox/forms/mixins.py:91 netbox/netbox/tables/columns.py:490
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
 #: netbox/templates/inc/panels/tags.html:5
@@ -4334,7 +4335,7 @@ msgstr "Modül Türü"
 msgid "Chassis"
 msgstr "Şasi"
 
-#: netbox/dcim/forms/bulk_edit.py:662 netbox/dcim/models/devices.py:386
+#: netbox/dcim/forms/bulk_edit.py:662 netbox/dcim/models/devices.py:387
 #: netbox/dcim/tables/devices.py:82
 msgid "VM role"
 msgstr "VM rolü"
@@ -4493,7 +4494,7 @@ msgstr "Maksimum çekiliş"
 
 #: netbox/dcim/forms/bulk_edit.py:1101
 #: netbox/dcim/models/device_component_templates.py:281
-#: netbox/dcim/models/device_components.py:352
+#: netbox/dcim/models/device_components.py:383
 msgid "Maximum power draw (watts)"
 msgstr "Maksimum güç çekimi (watt)"
 
@@ -4503,7 +4504,7 @@ msgstr "Tahsis edilen çekiliş"
 
 #: netbox/dcim/forms/bulk_edit.py:1107
 #: netbox/dcim/models/device_component_templates.py:288
-#: netbox/dcim/models/device_components.py:359
+#: netbox/dcim/models/device_components.py:390
 msgid "Allocated power draw (watts)"
 msgstr "Tahsis edilen güç çekimi (watt)"
 
@@ -4525,7 +4526,7 @@ msgstr "Yalnızca yönetim"
 #: netbox/dcim/forms/bulk_import.py:937 netbox/dcim/forms/filtersets.py:1472
 #: netbox/dcim/forms/object_import.py:90
 #: netbox/dcim/models/device_component_templates.py:445
-#: netbox/dcim/models/device_components.py:733
+#: netbox/dcim/models/device_components.py:764
 msgid "PoE mode"
 msgstr "PoE modu"
 
@@ -4533,7 +4534,7 @@ msgstr "PoE modu"
 #: netbox/dcim/forms/bulk_import.py:943 netbox/dcim/forms/filtersets.py:1477
 #: netbox/dcim/forms/object_import.py:95
 #: netbox/dcim/models/device_component_templates.py:452
-#: netbox/dcim/models/device_components.py:740
+#: netbox/dcim/models/device_components.py:771
 msgid "PoE type"
 msgstr "PoE tipi"
 
@@ -5235,7 +5236,7 @@ msgstr "Birincil IPv6"
 msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
 msgstr "Önek uzunluğuna sahip IPv6 adresi, örn. 2001:db8: :1/64"
 
-#: netbox/dcim/forms/common.py:19 netbox/dcim/models/device_components.py:527
+#: netbox/dcim/forms/common.py:19 netbox/dcim/models/device_components.py:558
 #: netbox/templates/dcim/interface.html:57
 #: netbox/templates/virtualization/vminterface.html:51
 #: netbox/virtualization/forms/bulk_edit.py:207
@@ -5382,7 +5383,7 @@ msgstr "Bağlantı"
 #: netbox/dcim/forms/filtersets.py:1426 netbox/extras/forms/bulk_edit.py:382
 #: netbox/extras/forms/bulk_import.py:261
 #: netbox/extras/forms/filtersets.py:527
-#: netbox/extras/forms/model_forms.py:759 netbox/extras/tables/tables.py:640
+#: netbox/extras/forms/model_forms.py:759 netbox/extras/tables/tables.py:641
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr "Tür"
@@ -5392,7 +5393,7 @@ msgid "Mgmt only"
 msgstr "Sadece Mgmt"
 
 #: netbox/dcim/forms/filtersets.py:1467 netbox/dcim/forms/model_forms.py:1548
-#: netbox/dcim/models/device_components.py:689
+#: netbox/dcim/models/device_components.py:720
 #: netbox/templates/dcim/interface.html:142
 msgid "WWN"
 msgstr "WWN"
@@ -5526,7 +5527,7 @@ msgstr "Profil ve Nitelikler"
 msgid "Device Role"
 msgstr "Cİhaz Rolü"
 
-#: netbox/dcim/forms/model_forms.py:594 netbox/dcim/models/devices.py:545
+#: netbox/dcim/forms/model_forms.py:594 netbox/dcim/models/devices.py:546
 msgid "The lowest-numbered unit occupied by the device"
 msgstr "Cihazın kullandığı en düşük numaralı birim"
 
@@ -5789,63 +5790,63 @@ msgstr "İlk üye cihazın konumu. Her ek üye için bir artar."
 msgid "A position must be specified for the first VC member."
 msgstr "İlk VC üyesi için bir pozisyon belirtilmelidir."
 
-#: netbox/dcim/models/cables.py:62
+#: netbox/dcim/models/cables.py:63
 #: netbox/dcim/models/device_component_templates.py:51
 #: netbox/dcim/models/device_components.py:57
 #: netbox/extras/models/customfields.py:113
 msgid "label"
 msgstr "etiketlemek"
 
-#: netbox/dcim/models/cables.py:71
+#: netbox/dcim/models/cables.py:72
 msgid "length"
 msgstr "uzunluk"
 
-#: netbox/dcim/models/cables.py:78
+#: netbox/dcim/models/cables.py:79
 msgid "length unit"
 msgstr "uzunluk birimi"
 
-#: netbox/dcim/models/cables.py:96
+#: netbox/dcim/models/cables.py:97
 msgid "cable"
 msgstr "kablo"
 
-#: netbox/dcim/models/cables.py:97
+#: netbox/dcim/models/cables.py:98
 msgid "cables"
 msgstr "kablolar"
 
-#: netbox/dcim/models/cables.py:163
+#: netbox/dcim/models/cables.py:173
 msgid "Must specify a unit when setting a cable length"
 msgstr "Kablo uzunluğu ayarlarken bir birim belirtmeniz gerekir"
 
-#: netbox/dcim/models/cables.py:166
+#: netbox/dcim/models/cables.py:176
 msgid "Must define A and B terminations when creating a new cable."
 msgstr "Yeni bir kablo oluştururken A ve B sonlandırmalarını tanımlamalıdır."
 
-#: netbox/dcim/models/cables.py:173
+#: netbox/dcim/models/cables.py:183
 msgid "Cannot connect different termination types to same end of cable."
 msgstr "Farklı sonlandırma türleri kablonun aynı ucuna bağlanamaz."
 
-#: netbox/dcim/models/cables.py:181
+#: netbox/dcim/models/cables.py:191
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "Uyumsuz sonlandırma türleri: {type_a} ve {type_b}"
 
-#: netbox/dcim/models/cables.py:191
+#: netbox/dcim/models/cables.py:201
 msgid "A and B terminations cannot connect to the same object."
 msgstr "A ve B sonlandırmaları aynı nesneye bağlanamaz."
 
-#: netbox/dcim/models/cables.py:260 netbox/ipam/models/asns.py:37
+#: netbox/dcim/models/cables.py:270 netbox/ipam/models/asns.py:37
 msgid "end"
 msgstr "son"
 
-#: netbox/dcim/models/cables.py:309
+#: netbox/dcim/models/cables.py:319
 msgid "cable termination"
 msgstr "kablo sonlandırma"
 
-#: netbox/dcim/models/cables.py:310
+#: netbox/dcim/models/cables.py:320
 msgid "cable terminations"
 msgstr "kablo sonlandırmaları"
 
-#: netbox/dcim/models/cables.py:329
+#: netbox/dcim/models/cables.py:339
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -5854,63 +5855,63 @@ msgstr ""
 "Yinelenen sonlandırma bulundu {app_label}.{model} {termination_id}: kablo "
 "{cable_pk}"
 
-#: netbox/dcim/models/cables.py:339
+#: netbox/dcim/models/cables.py:349
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Kablolar sonlandırılamaz {type_display} arayüzleri"
 
-#: netbox/dcim/models/cables.py:346
+#: netbox/dcim/models/cables.py:356
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr "Bir sağlayıcı ağına bağlı devre sonlandırmaları kablolanmayabilir."
 
-#: netbox/dcim/models/cables.py:444 netbox/extras/models/configs.py:47
+#: netbox/dcim/models/cables.py:454 netbox/extras/models/configs.py:47
 msgid "is active"
 msgstr "aktiftir"
 
-#: netbox/dcim/models/cables.py:448
+#: netbox/dcim/models/cables.py:458
 msgid "is complete"
 msgstr "tamamlandı"
 
-#: netbox/dcim/models/cables.py:452
+#: netbox/dcim/models/cables.py:462
 msgid "is split"
 msgstr "bölünmüş"
 
-#: netbox/dcim/models/cables.py:460
+#: netbox/dcim/models/cables.py:470
 msgid "cable path"
 msgstr "kablo yolu"
 
-#: netbox/dcim/models/cables.py:461
+#: netbox/dcim/models/cables.py:471
 msgid "cable paths"
 msgstr "kablo yolları"
 
-#: netbox/dcim/models/cables.py:536
+#: netbox/dcim/models/cables.py:546
 msgid "All originating terminations must be attached to the same link"
 msgstr "Tüm kaynak sonlandırmalar aynı bağlantıya eklenmelidir"
 
-#: netbox/dcim/models/cables.py:548
+#: netbox/dcim/models/cables.py:558
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 "Tüm orta açıklıklı sonlandırmalar aynı sonlandırma türüne sahip olmalıdır"
 
-#: netbox/dcim/models/cables.py:553
+#: netbox/dcim/models/cables.py:563
 msgid "All mid-span terminations must have the same parent object"
 msgstr "Tüm orta açıklıklı sonlandırmalar aynı ana nesneye sahip olmalıdır"
 
-#: netbox/dcim/models/cables.py:577
+#: netbox/dcim/models/cables.py:587
 msgid "All links must be cable or wireless"
 msgstr "Tüm bağlantılar kablo veya kablosuz olmalıdır"
 
-#: netbox/dcim/models/cables.py:579
+#: netbox/dcim/models/cables.py:589
 msgid "All links must match first link type"
 msgstr "Tüm bağlantılar ilk bağlantı türüyle eşleşmelidir"
 
-#: netbox/dcim/models/cables.py:662
+#: netbox/dcim/models/cables.py:672
 msgid ""
 "All positions counts within the path on opposite ends of links must match"
 msgstr ""
 "Bağlantıların zıt uçlarındaki yol içindeki tüm pozisyonlar eşleşmelidir"
 
-#: netbox/dcim/models/cables.py:671
+#: netbox/dcim/models/cables.py:681
 msgid "Remote termination position filter is missing"
 msgstr "Uzaktan sonlandırma konum filtresi eksik"
 
@@ -5964,12 +5965,12 @@ msgid "console server port templates"
 msgstr "konsol sunucusu bağlantı noktası şablonları"
 
 #: netbox/dcim/models/device_component_templates.py:277
-#: netbox/dcim/models/device_components.py:348
+#: netbox/dcim/models/device_components.py:379
 msgid "maximum draw"
 msgstr "maksimum çekiliş"
 
 #: netbox/dcim/models/device_component_templates.py:284
-#: netbox/dcim/models/device_components.py:355
+#: netbox/dcim/models/device_components.py:386
 msgid "allocated draw"
 msgstr "tahsis edilen çekiliş"
 
@@ -5982,18 +5983,18 @@ msgid "power port templates"
 msgstr "güç bağlantı noktası şablonları"
 
 #: netbox/dcim/models/device_component_templates.py:315
-#: netbox/dcim/models/device_components.py:375
+#: netbox/dcim/models/device_components.py:406
 #, python-brace-format
 msgid "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
 msgstr "Tahsis edilen çekiliş maksimum çekilişi aşamaz ({maximum_draw}W)."
 
 #: netbox/dcim/models/device_component_templates.py:349
-#: netbox/dcim/models/device_components.py:477
+#: netbox/dcim/models/device_components.py:508
 msgid "feed leg"
 msgstr "besleme bacağı"
 
 #: netbox/dcim/models/device_component_templates.py:354
-#: netbox/dcim/models/device_components.py:482
+#: netbox/dcim/models/device_components.py:513
 msgid "Phase (for three-phase feeds)"
 msgstr "Faz (üç fazlı beslemeler için)"
 
@@ -6018,17 +6019,17 @@ msgstr ""
 "Ana güç bağlantı noktası ({power_port}) aynı modül türüne ait olmalıdır"
 
 #: netbox/dcim/models/device_component_templates.py:430
-#: netbox/dcim/models/device_components.py:671
+#: netbox/dcim/models/device_components.py:702
 msgid "management only"
 msgstr "sadece yönetim"
 
 #: netbox/dcim/models/device_component_templates.py:438
-#: netbox/dcim/models/device_components.py:551
+#: netbox/dcim/models/device_components.py:582
 msgid "bridge interface"
 msgstr "köprü arayüzü"
 
 #: netbox/dcim/models/device_component_templates.py:459
-#: netbox/dcim/models/device_components.py:697
+#: netbox/dcim/models/device_components.py:728
 msgid "wireless role"
 msgstr "kablosuz rolü"
 
@@ -6041,7 +6042,7 @@ msgid "interface templates"
 msgstr "arayüz şablonları"
 
 #: netbox/dcim/models/device_component_templates.py:473
-#: netbox/dcim/models/device_components.py:857
+#: netbox/dcim/models/device_components.py:888
 #: netbox/virtualization/models/virtualmachines.py:390
 msgid "An interface cannot be bridged to itself."
 msgstr "Bir arayüz kendi başına köprülenemez."
@@ -6057,7 +6058,7 @@ msgid "Bridge interface ({bridge}) must belong to the same module type"
 msgstr "Köprü arayüzü ({bridge}) aynı modül türüne ait olmalıdır"
 
 #: netbox/dcim/models/device_component_templates.py:540
-#: netbox/dcim/models/device_components.py:1047
+#: netbox/dcim/models/device_components.py:1078
 msgid "rear port position"
 msgstr "arka port konumu"
 
@@ -6084,7 +6085,7 @@ msgstr ""
 "{name} sadece var {count} pozisyonlar"
 
 #: netbox/dcim/models/device_component_templates.py:635
-#: netbox/dcim/models/device_components.py:1113
+#: netbox/dcim/models/device_components.py:1144
 msgid "positions"
 msgstr "pozisyonlar"
 
@@ -6097,12 +6098,12 @@ msgid "rear port templates"
 msgstr "arka bağlantı noktası şablonları"
 
 #: netbox/dcim/models/device_component_templates.py:676
-#: netbox/dcim/models/device_components.py:1160
+#: netbox/dcim/models/device_components.py:1191
 msgid "position"
 msgstr "pozisyon"
 
 #: netbox/dcim/models/device_component_templates.py:679
-#: netbox/dcim/models/device_components.py:1163
+#: netbox/dcim/models/device_components.py:1194
 msgid "Identifier to reference when renaming installed components"
 msgstr "Yüklü bileşenleri yeniden adlandırırken başvurulacak tanımlayıcı"
 
@@ -6132,12 +6133,12 @@ msgstr ""
 "için “ebeveyn” olarak ayarlanmalıdır."
 
 #: netbox/dcim/models/device_component_templates.py:783
-#: netbox/dcim/models/device_components.py:1315
+#: netbox/dcim/models/device_components.py:1346
 msgid "part ID"
 msgstr "parça kimliği"
 
 #: netbox/dcim/models/device_component_templates.py:785
-#: netbox/dcim/models/device_components.py:1317
+#: netbox/dcim/models/device_components.py:1348
 msgid "Manufacturer-assigned part identifier"
 msgstr "Üretici tarafından atanan parça tanımlayıcısı"
 
@@ -6149,115 +6150,115 @@ msgstr "envanter öğesi şablonu"
 msgid "inventory item templates"
 msgstr "envanter öğe şablonları"
 
-#: netbox/dcim/models/device_components.py:100
+#: netbox/dcim/models/device_components.py:123
 msgid "Components cannot be moved to a different device."
 msgstr "Bileşenler farklı bir cihaza taşınamaz."
 
-#: netbox/dcim/models/device_components.py:139
+#: netbox/dcim/models/device_components.py:170
 msgid "cable end"
 msgstr "kablo ucu"
 
-#: netbox/dcim/models/device_components.py:146
+#: netbox/dcim/models/device_components.py:177
 msgid "mark connected"
 msgstr "bağlı olarak işaretle"
 
-#: netbox/dcim/models/device_components.py:148
+#: netbox/dcim/models/device_components.py:179
 msgid "Treat as if a cable is connected"
 msgstr "Bir kablo bağlıymış gibi davranın"
 
-#: netbox/dcim/models/device_components.py:166
+#: netbox/dcim/models/device_components.py:197
 msgid "Must specify cable end (A or B) when attaching a cable."
 msgstr "Kablo takarken kablo ucunu (A veya B) belirtmelisiniz."
 
-#: netbox/dcim/models/device_components.py:170
+#: netbox/dcim/models/device_components.py:201
 msgid "Cable end must not be set without a cable."
 msgstr "Kablo ucu kablo olmadan ayarlanmamalıdır."
 
-#: netbox/dcim/models/device_components.py:174
+#: netbox/dcim/models/device_components.py:205
 msgid "Cannot mark as connected with a cable attached."
 msgstr "Takılı bir kabloyla bağlı olarak işaretlenemiyor."
 
-#: netbox/dcim/models/device_components.py:201
+#: netbox/dcim/models/device_components.py:232
 #, python-brace-format
 msgid "{class_name} models must declare a parent_object property"
 msgstr "{class_name} modeller bir parent_object özelliği bildirmelidir"
 
-#: netbox/dcim/models/device_components.py:287
-#: netbox/dcim/models/device_components.py:314
+#: netbox/dcim/models/device_components.py:318
 #: netbox/dcim/models/device_components.py:345
-#: netbox/dcim/models/device_components.py:467
+#: netbox/dcim/models/device_components.py:376
+#: netbox/dcim/models/device_components.py:498
 msgid "Physical port type"
 msgstr "Fiziksel bağlantı noktası tipi"
 
-#: netbox/dcim/models/device_components.py:290
-#: netbox/dcim/models/device_components.py:317
+#: netbox/dcim/models/device_components.py:321
+#: netbox/dcim/models/device_components.py:348
 msgid "speed"
 msgstr "sürat"
 
-#: netbox/dcim/models/device_components.py:294
-#: netbox/dcim/models/device_components.py:321
+#: netbox/dcim/models/device_components.py:325
+#: netbox/dcim/models/device_components.py:352
 msgid "Port speed in bits per second"
 msgstr "Saniyede bit cinsinden port hızı"
 
-#: netbox/dcim/models/device_components.py:300
+#: netbox/dcim/models/device_components.py:331
 msgid "console port"
 msgstr "konsol bağlantı noktası"
 
-#: netbox/dcim/models/device_components.py:301
+#: netbox/dcim/models/device_components.py:332
 msgid "console ports"
 msgstr "konsol bağlantı noktaları"
 
-#: netbox/dcim/models/device_components.py:327
+#: netbox/dcim/models/device_components.py:358
 msgid "console server port"
 msgstr "konsol sunucusu bağlantı noktası"
 
-#: netbox/dcim/models/device_components.py:328
+#: netbox/dcim/models/device_components.py:359
 msgid "console server ports"
 msgstr "konsol sunucusu bağlantı noktaları"
 
-#: netbox/dcim/models/device_components.py:365
+#: netbox/dcim/models/device_components.py:396
 msgid "power port"
 msgstr "güç bağlantı noktası"
 
-#: netbox/dcim/models/device_components.py:366
+#: netbox/dcim/models/device_components.py:397
 msgid "power ports"
 msgstr "güç bağlantı noktaları"
 
-#: netbox/dcim/models/device_components.py:492
+#: netbox/dcim/models/device_components.py:523
 msgid "power outlet"
 msgstr "elektrik prizi"
 
-#: netbox/dcim/models/device_components.py:493
+#: netbox/dcim/models/device_components.py:524
 msgid "power outlets"
 msgstr "elektrik prizleri"
 
-#: netbox/dcim/models/device_components.py:501
+#: netbox/dcim/models/device_components.py:532
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same device"
 msgstr "Ana güç bağlantı noktası ({power_port}) aynı cihaza ait olmalıdır"
 
-#: netbox/dcim/models/device_components.py:530 netbox/vpn/models/crypto.py:80
+#: netbox/dcim/models/device_components.py:561 netbox/vpn/models/crypto.py:80
 #: netbox/vpn/models/crypto.py:222
 msgid "mode"
 msgstr "mod"
 
-#: netbox/dcim/models/device_components.py:535
+#: netbox/dcim/models/device_components.py:566
 msgid "IEEE 802.1Q tagging strategy"
 msgstr "IEEE 802.1Q etiketleme stratejisi"
 
-#: netbox/dcim/models/device_components.py:543
+#: netbox/dcim/models/device_components.py:574
 msgid "parent interface"
 msgstr "ebeveyn arabirimi"
 
-#: netbox/dcim/models/device_components.py:559
+#: netbox/dcim/models/device_components.py:590
 msgid "untagged VLAN"
 msgstr "etiketsiz VLAN"
 
-#: netbox/dcim/models/device_components.py:565
+#: netbox/dcim/models/device_components.py:596
 msgid "tagged VLANs"
 msgstr "etiketli VLAN'lar"
 
-#: netbox/dcim/models/device_components.py:573
+#: netbox/dcim/models/device_components.py:604
 #: netbox/dcim/tables/devices.py:612 netbox/ipam/forms/bulk_edit.py:521
 #: netbox/ipam/forms/bulk_import.py:514 netbox/ipam/forms/filtersets.py:587
 #: netbox/ipam/forms/model_forms.py:692 netbox/ipam/tables/vlans.py:108
@@ -6266,90 +6267,90 @@ msgstr "etiketli VLAN'lar"
 msgid "Q-in-Q SVLAN"
 msgstr "Q-in-Q SVLAN"
 
-#: netbox/dcim/models/device_components.py:588
+#: netbox/dcim/models/device_components.py:619
 msgid "primary MAC address"
 msgstr "birincil MAC adresi"
 
-#: netbox/dcim/models/device_components.py:600
+#: netbox/dcim/models/device_components.py:631
 msgid "Only Q-in-Q interfaces may specify a service VLAN."
 msgstr "Yalnızca Q-in-Q arayüzleri bir hizmet VLAN'ı belirtebilir."
 
-#: netbox/dcim/models/device_components.py:606
+#: netbox/dcim/models/device_components.py:637
 #, python-brace-format
 msgid "MAC address {mac_address} is not assigned to this interface."
 msgstr "MAC adresi {mac_address} bu arayüze atanmamıştır."
 
-#: netbox/dcim/models/device_components.py:662
+#: netbox/dcim/models/device_components.py:693
 msgid "parent LAG"
 msgstr "ebeveyn LAG"
 
-#: netbox/dcim/models/device_components.py:672
+#: netbox/dcim/models/device_components.py:703
 msgid "This interface is used only for out-of-band management"
 msgstr "Bu arayüz yalnızca bant dışı yönetim için kullanılır"
 
-#: netbox/dcim/models/device_components.py:677
+#: netbox/dcim/models/device_components.py:708
 msgid "speed (Kbps)"
 msgstr "hız (Kbps)"
 
-#: netbox/dcim/models/device_components.py:680
+#: netbox/dcim/models/device_components.py:711
 msgid "duplex"
 msgstr "dubleks"
 
-#: netbox/dcim/models/device_components.py:690
+#: netbox/dcim/models/device_components.py:721
 msgid "64-bit World Wide Name"
 msgstr "64 bit Dünya Çapında Adı"
 
-#: netbox/dcim/models/device_components.py:704
+#: netbox/dcim/models/device_components.py:735
 msgid "wireless channel"
 msgstr "kablosuz kanal"
 
-#: netbox/dcim/models/device_components.py:711
+#: netbox/dcim/models/device_components.py:742
 msgid "channel frequency (MHz)"
 msgstr "kanal frekansı (MHz)"
 
-#: netbox/dcim/models/device_components.py:712
-#: netbox/dcim/models/device_components.py:720
+#: netbox/dcim/models/device_components.py:743
+#: netbox/dcim/models/device_components.py:751
 msgid "Populated by selected channel (if set)"
 msgstr "Seçilen kanala göre doldurulur (ayarlanmışsa)"
 
-#: netbox/dcim/models/device_components.py:726
+#: netbox/dcim/models/device_components.py:757
 msgid "transmit power (dBm)"
 msgstr "iletim gücü (dBm)"
 
-#: netbox/dcim/models/device_components.py:753 netbox/wireless/models.py:117
+#: netbox/dcim/models/device_components.py:784 netbox/wireless/models.py:117
 msgid "wireless LANs"
 msgstr "kablosuz LAN'lar"
 
-#: netbox/dcim/models/device_components.py:801
+#: netbox/dcim/models/device_components.py:832
 #: netbox/virtualization/models/virtualmachines.py:364
 msgid "interface"
 msgstr "arayüz"
 
-#: netbox/dcim/models/device_components.py:802
+#: netbox/dcim/models/device_components.py:833
 #: netbox/virtualization/models/virtualmachines.py:365
 msgid "interfaces"
 msgstr "arayüzleri"
 
-#: netbox/dcim/models/device_components.py:810
+#: netbox/dcim/models/device_components.py:841
 #, python-brace-format
 msgid "{display_type} interfaces cannot have a cable attached."
 msgstr "{display_type} arabirimlerde kablo takılı olamaz."
 
-#: netbox/dcim/models/device_components.py:818
+#: netbox/dcim/models/device_components.py:849
 #, python-brace-format
 msgid "{display_type} interfaces cannot be marked as connected."
 msgstr "{display_type} arayüzler bağlı olarak işaretlenemez."
 
-#: netbox/dcim/models/device_components.py:827
+#: netbox/dcim/models/device_components.py:858
 #: netbox/virtualization/models/virtualmachines.py:375
 msgid "An interface cannot be its own parent."
 msgstr "Bir arayüz kendi ebeveyni olamaz."
 
-#: netbox/dcim/models/device_components.py:831
+#: netbox/dcim/models/device_components.py:862
 msgid "Only virtual interfaces may be assigned to a parent interface."
 msgstr "Bir üst arabirime yalnızca sanal arabirimler atanabilir."
 
-#: netbox/dcim/models/device_components.py:838
+#: netbox/dcim/models/device_components.py:869
 #, python-brace-format
 msgid ""
 "The selected parent interface ({interface}) belongs to a different device "
@@ -6357,7 +6358,7 @@ msgid ""
 msgstr ""
 "Seçilen üst arabirim ({interface}) farklı bir cihaza aittir ({device})"
 
-#: netbox/dcim/models/device_components.py:844
+#: netbox/dcim/models/device_components.py:875
 #, python-brace-format
 msgid ""
 "The selected parent interface ({interface}) belongs to {device}, which is "
@@ -6366,14 +6367,14 @@ msgstr ""
 "Seçilen üst arabirim ({interface}) aittir {device}, sanal kasanın bir "
 "parçası olmayan {virtual_chassis}."
 
-#: netbox/dcim/models/device_components.py:864
+#: netbox/dcim/models/device_components.py:895
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({bridge}) belongs to a different device "
 "({device})."
 msgstr "Seçilen köprü arayüzü ({bridge}) farklı bir cihaza aittir ({device})."
 
-#: netbox/dcim/models/device_components.py:870
+#: netbox/dcim/models/device_components.py:901
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({interface}) belongs to {device}, which is "
@@ -6382,21 +6383,21 @@ msgstr ""
 "Seçilen köprü arayüzü ({interface}) aittir {device}, sanal kasanın bir "
 "parçası olmayan {virtual_chassis}."
 
-#: netbox/dcim/models/device_components.py:881
+#: netbox/dcim/models/device_components.py:912
 msgid "Virtual interfaces cannot have a parent LAG interface."
 msgstr "Sanal arabirimlerin üst LAG arabirimi olamaz."
 
-#: netbox/dcim/models/device_components.py:885
+#: netbox/dcim/models/device_components.py:916
 msgid "A LAG interface cannot be its own parent."
 msgstr "Bir LAG arabirimi kendi ana arabirimi olamaz."
 
-#: netbox/dcim/models/device_components.py:892
+#: netbox/dcim/models/device_components.py:923
 #, python-brace-format
 msgid ""
 "The selected LAG interface ({lag}) belongs to a different device ({device})."
 msgstr "Seçilen LAG arayüzü ({lag}) farklı bir cihaza aittir ({device})."
 
-#: netbox/dcim/models/device_components.py:898
+#: netbox/dcim/models/device_components.py:929
 #, python-brace-format
 msgid ""
 "The selected LAG interface ({lag}) belongs to {device}, which is not part of"
@@ -6405,47 +6406,47 @@ msgstr ""
 "Seçilen LAG arayüzü ({lag}) aittir {device}, sanal kasanın bir parçası "
 "olmayan {virtual_chassis}."
 
-#: netbox/dcim/models/device_components.py:909
+#: netbox/dcim/models/device_components.py:940
 msgid "Virtual interfaces cannot have a PoE mode."
 msgstr "Sanal arabirimler PoE moduna sahip olamaz."
 
-#: netbox/dcim/models/device_components.py:913
+#: netbox/dcim/models/device_components.py:944
 msgid "Virtual interfaces cannot have a PoE type."
 msgstr "Sanal arabirimler PoE tipine sahip olamaz."
 
-#: netbox/dcim/models/device_components.py:919
+#: netbox/dcim/models/device_components.py:950
 msgid "Must specify PoE mode when designating a PoE type."
 msgstr "Bir PoE türü belirlerken PoE modunu belirtmelisiniz."
 
-#: netbox/dcim/models/device_components.py:926
+#: netbox/dcim/models/device_components.py:957
 msgid "Wireless role may be set only on wireless interfaces."
 msgstr "Kablosuz rolü yalnızca kablosuz arayüzlerde ayarlanabilir."
 
-#: netbox/dcim/models/device_components.py:928
+#: netbox/dcim/models/device_components.py:959
 msgid "Channel may be set only on wireless interfaces."
 msgstr "Kanal sadece kablosuz arayüzlerde ayarlanabilir."
 
-#: netbox/dcim/models/device_components.py:934
+#: netbox/dcim/models/device_components.py:965
 msgid "Channel frequency may be set only on wireless interfaces."
 msgstr "Kanal frekansı yalnızca kablosuz arayüzlerde ayarlanabilir."
 
-#: netbox/dcim/models/device_components.py:938
+#: netbox/dcim/models/device_components.py:969
 msgid "Cannot specify custom frequency with channel selected."
 msgstr "Seçili kanal ile özel frekans belirlenemiyor."
 
-#: netbox/dcim/models/device_components.py:944
+#: netbox/dcim/models/device_components.py:975
 msgid "Channel width may be set only on wireless interfaces."
 msgstr "Kanal genişliği yalnızca kablosuz arayüzlerde ayarlanabilir."
 
-#: netbox/dcim/models/device_components.py:946
+#: netbox/dcim/models/device_components.py:977
 msgid "Cannot specify custom width with channel selected."
 msgstr "Seçili kanal ile özel genişlik belirlenemiyor."
 
-#: netbox/dcim/models/device_components.py:950
+#: netbox/dcim/models/device_components.py:981
 msgid "Interface mode does not support an untagged vlan."
 msgstr "Arayüz modu etiketsiz bir vlan'ı desteklemez."
 
-#: netbox/dcim/models/device_components.py:956
+#: netbox/dcim/models/device_components.py:987
 #, python-brace-format
 msgid ""
 "The untagged VLAN ({untagged_vlan}) must belong to the same site as the "
@@ -6454,24 +6455,24 @@ msgstr ""
 "Etiketlenmemiş VLAN ({untagged_vlan}) arayüzün ana cihazıyla aynı siteye ait"
 " olmalı veya global olmalıdır."
 
-#: netbox/dcim/models/device_components.py:1053
+#: netbox/dcim/models/device_components.py:1084
 msgid "Mapped position on corresponding rear port"
 msgstr "İlgili arka bağlantı noktasında eşlenmiş konum"
 
-#: netbox/dcim/models/device_components.py:1069
+#: netbox/dcim/models/device_components.py:1100
 msgid "front port"
 msgstr "ön bağlantı noktası"
 
-#: netbox/dcim/models/device_components.py:1070
+#: netbox/dcim/models/device_components.py:1101
 msgid "front ports"
 msgstr "ön bağlantı noktaları"
 
-#: netbox/dcim/models/device_components.py:1081
+#: netbox/dcim/models/device_components.py:1112
 #, python-brace-format
 msgid "Rear port ({rear_port}) must belong to the same device"
 msgstr "Arka bağlantı noktası ({rear_port}) aynı cihaza ait olmalıdır"
 
-#: netbox/dcim/models/device_components.py:1089
+#: netbox/dcim/models/device_components.py:1120
 #, python-brace-format
 msgid ""
 "Invalid rear port position ({rear_port_position}): Rear port {name} has only"
@@ -6480,19 +6481,19 @@ msgstr ""
 "Geçersiz arka bağlantı noktası konumu ({rear_port_position}): Arka bağlantı "
 "noktası {name} sadece var {positions} pozisyonları."
 
-#: netbox/dcim/models/device_components.py:1119
+#: netbox/dcim/models/device_components.py:1150
 msgid "Number of front ports which may be mapped"
 msgstr "Eşlenebilecek ön bağlantı noktalarının sayısı"
 
-#: netbox/dcim/models/device_components.py:1124
+#: netbox/dcim/models/device_components.py:1155
 msgid "rear port"
 msgstr "arka bağlantı noktası"
 
-#: netbox/dcim/models/device_components.py:1125
+#: netbox/dcim/models/device_components.py:1156
 msgid "rear ports"
 msgstr "arka bağlantı noktaları"
 
-#: netbox/dcim/models/device_components.py:1136
+#: netbox/dcim/models/device_components.py:1167
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped front ports"
@@ -6501,149 +6502,149 @@ msgstr ""
 "Konum sayısı, eşlenen ön bağlantı noktalarının sayısından az olamaz "
 "({frontport_count})"
 
-#: netbox/dcim/models/device_components.py:1177
+#: netbox/dcim/models/device_components.py:1208
 msgid "module bay"
 msgstr "modül yuvası"
 
-#: netbox/dcim/models/device_components.py:1178
+#: netbox/dcim/models/device_components.py:1209
 msgid "module bays"
 msgstr "modül bölmeleri"
 
-#: netbox/dcim/models/device_components.py:1192
+#: netbox/dcim/models/device_components.py:1223
 #: netbox/dcim/models/modules.py:269
 msgid "A module bay cannot belong to a module installed within it."
 msgstr "Bir modül yuvası, içinde kurulu bir modüle ait olamaz."
 
-#: netbox/dcim/models/device_components.py:1218
+#: netbox/dcim/models/device_components.py:1249
 msgid "device bay"
 msgstr "cihaz yuvası"
 
-#: netbox/dcim/models/device_components.py:1219
+#: netbox/dcim/models/device_components.py:1250
 msgid "device bays"
 msgstr "cihaz yuvaları"
 
-#: netbox/dcim/models/device_components.py:1226
+#: netbox/dcim/models/device_components.py:1257
 #, python-brace-format
 msgid "This type of device ({device_type}) does not support device bays."
 msgstr "Bu tür bir cihaz ({device_type}) cihaz bölmelerini desteklemez."
 
-#: netbox/dcim/models/device_components.py:1232
+#: netbox/dcim/models/device_components.py:1263
 msgid "Cannot install a device into itself."
 msgstr "Bir cihaz kendi içine yüklenemiyor."
 
-#: netbox/dcim/models/device_components.py:1240
+#: netbox/dcim/models/device_components.py:1271
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
 msgstr "Belirtilen cihaz yüklenemiyor; cihaz zaten yüklü {bay}."
 
-#: netbox/dcim/models/device_components.py:1261
+#: netbox/dcim/models/device_components.py:1292
 msgid "inventory item role"
 msgstr "envanter kalemi rolü"
 
-#: netbox/dcim/models/device_components.py:1262
+#: netbox/dcim/models/device_components.py:1293
 msgid "inventory item roles"
 msgstr "envanter kalemi rolleri"
 
-#: netbox/dcim/models/device_components.py:1321
-#: netbox/dcim/models/devices.py:508 netbox/dcim/models/modules.py:229
+#: netbox/dcim/models/device_components.py:1352
+#: netbox/dcim/models/devices.py:509 netbox/dcim/models/modules.py:229
 #: netbox/dcim/models/racks.py:310
 #: netbox/virtualization/models/virtualmachines.py:125
 msgid "serial number"
 msgstr "seri numarası"
 
-#: netbox/dcim/models/device_components.py:1329
-#: netbox/dcim/models/devices.py:516 netbox/dcim/models/modules.py:236
+#: netbox/dcim/models/device_components.py:1360
+#: netbox/dcim/models/devices.py:517 netbox/dcim/models/modules.py:236
 #: netbox/dcim/models/racks.py:317
 msgid "asset tag"
 msgstr "varlık etiketi"
 
-#: netbox/dcim/models/device_components.py:1330
+#: netbox/dcim/models/device_components.py:1361
 msgid "A unique tag used to identify this item"
 msgstr "Bu öğeyi tanımlamak için kullanılan benzersiz bir etiket"
 
-#: netbox/dcim/models/device_components.py:1333
+#: netbox/dcim/models/device_components.py:1364
 msgid "discovered"
 msgstr "keşfedilen"
 
-#: netbox/dcim/models/device_components.py:1335
+#: netbox/dcim/models/device_components.py:1366
 msgid "This item was automatically discovered"
 msgstr "Bu öğe otomatik olarak keşfedildi"
 
-#: netbox/dcim/models/device_components.py:1353
+#: netbox/dcim/models/device_components.py:1384
 msgid "inventory item"
 msgstr "envanter kalemi"
 
-#: netbox/dcim/models/device_components.py:1354
+#: netbox/dcim/models/device_components.py:1385
 msgid "inventory items"
 msgstr "envanter kalemleri"
 
-#: netbox/dcim/models/device_components.py:1362
+#: netbox/dcim/models/device_components.py:1393
 msgid "Cannot assign self as parent."
 msgstr "Kendisi ebeveyn olarak atanamıyor."
 
-#: netbox/dcim/models/device_components.py:1370
+#: netbox/dcim/models/device_components.py:1401
 msgid "Parent inventory item does not belong to the same device."
 msgstr "Ana envanter kalemi aynı cihaza ait değildir."
 
-#: netbox/dcim/models/device_components.py:1376
+#: netbox/dcim/models/device_components.py:1407
 msgid "Cannot move an inventory item with dependent children"
 msgstr "Bağımlı çocuklarla bir envanter öğesi taşınamıyor"
 
-#: netbox/dcim/models/device_components.py:1384
+#: netbox/dcim/models/device_components.py:1415
 msgid "Cannot assign inventory item to component on another device"
 msgstr "Başka bir cihazdaki bileşene envanter öğesi atanamıyor"
 
-#: netbox/dcim/models/devices.py:59
+#: netbox/dcim/models/devices.py:60
 msgid "manufacturer"
 msgstr "üretici firma"
 
-#: netbox/dcim/models/devices.py:60
+#: netbox/dcim/models/devices.py:61
 msgid "manufacturers"
 msgstr "üreticiler"
 
-#: netbox/dcim/models/devices.py:84 netbox/dcim/models/modules.py:85
+#: netbox/dcim/models/devices.py:85 netbox/dcim/models/modules.py:85
 #: netbox/dcim/models/racks.py:139
 msgid "model"
 msgstr "model"
 
-#: netbox/dcim/models/devices.py:97
+#: netbox/dcim/models/devices.py:98
 msgid "default platform"
 msgstr "varsayılan platform"
 
-#: netbox/dcim/models/devices.py:100 netbox/dcim/models/modules.py:89
+#: netbox/dcim/models/devices.py:101 netbox/dcim/models/modules.py:89
 msgid "part number"
 msgstr "parça numarası"
 
-#: netbox/dcim/models/devices.py:103 netbox/dcim/models/modules.py:92
+#: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:92
 msgid "Discrete part number (optional)"
 msgstr "Ayrık parça numarası (isteğe bağlı)"
 
-#: netbox/dcim/models/devices.py:109 netbox/dcim/models/racks.py:53
+#: netbox/dcim/models/devices.py:110 netbox/dcim/models/racks.py:53
 msgid "height (U)"
 msgstr "yükseklik (U)"
 
-#: netbox/dcim/models/devices.py:113
+#: netbox/dcim/models/devices.py:114
 msgid "exclude from utilization"
 msgstr "kullanımdan hariç tut"
 
-#: netbox/dcim/models/devices.py:114
+#: netbox/dcim/models/devices.py:115
 msgid "Devices of this type are excluded when calculating rack utilization."
 msgstr "Raf kullanımı hesaplanırken bu tip cihazlar hariç tutulur."
 
-#: netbox/dcim/models/devices.py:118
+#: netbox/dcim/models/devices.py:119
 msgid "is full depth"
 msgstr "tam derinliktir"
 
-#: netbox/dcim/models/devices.py:119
+#: netbox/dcim/models/devices.py:120
 msgid "Device consumes both front and rear rack faces."
 msgstr "Cihaz hem ön hem de arka kabin yüzlerini tüketir."
 
-#: netbox/dcim/models/devices.py:126
+#: netbox/dcim/models/devices.py:127
 msgid "parent/child status"
 msgstr "ebeveyn/çocuk durumu"
 
-#: netbox/dcim/models/devices.py:127
+#: netbox/dcim/models/devices.py:128
 msgid ""
 "Parent devices house child devices in device bays. Leave blank if this "
 "device type is neither a parent nor a child."
@@ -6651,24 +6652,24 @@ msgstr ""
 "Ana cihazlar, alt cihazarı cihaz yuvalarında barındırır. Bu cihaz türü ana "
 "veya alt cihaz değilse boş bırakın."
 
-#: netbox/dcim/models/devices.py:131 netbox/dcim/models/devices.py:561
+#: netbox/dcim/models/devices.py:132 netbox/dcim/models/devices.py:562
 #: netbox/dcim/models/modules.py:95 netbox/dcim/models/racks.py:321
 msgid "airflow"
 msgstr "hava akımı"
 
-#: netbox/dcim/models/devices.py:208
+#: netbox/dcim/models/devices.py:209
 msgid "device type"
 msgstr "cihaz tipi"
 
-#: netbox/dcim/models/devices.py:209
+#: netbox/dcim/models/devices.py:210
 msgid "device types"
 msgstr "cihaz türleri"
 
-#: netbox/dcim/models/devices.py:291
+#: netbox/dcim/models/devices.py:292
 msgid "U height must be in increments of 0.5 rack units."
 msgstr "U yüksekliği 0,5 raf ünitesi artışlarla olmalıdır."
 
-#: netbox/dcim/models/devices.py:308
+#: netbox/dcim/models/devices.py:309
 #, python-brace-format
 msgid ""
 "Device {device} in rack {rack} does not have sufficient space to accommodate"
@@ -6677,7 +6678,7 @@ msgstr ""
 "{rack} kabininde {device} cihazını {height}U yüksekliğinde barındırmak için "
 "yeterli alan bulunmamaktadır"
 
-#: netbox/dcim/models/devices.py:323
+#: netbox/dcim/models/devices.py:324
 #, python-brace-format
 msgid ""
 "Unable to set 0U height: Found <a href=\"{url}\">{racked_instance_count} "
@@ -6687,7 +6688,7 @@ msgstr ""
 "href=\"{url}\">{racked_instance_count} örnekler</a> zaten raflara monte "
 "edilmiştir."
 
-#: netbox/dcim/models/devices.py:332
+#: netbox/dcim/models/devices.py:333
 msgid ""
 "Must delete all device bay templates associated with this device before "
 "declassifying it as a parent device."
@@ -6695,164 +6696,164 @@ msgstr ""
 "Ana cihaz olarak sınıflandırmadan önce bu cihazla ilişkili tüm cihaz yuvası "
 "şablonlarını silmeniz gerekir."
 
-#: netbox/dcim/models/devices.py:338
+#: netbox/dcim/models/devices.py:339
 msgid "Child device types must be 0U."
 msgstr "Çocuk cihaz türleri 0U olmalıdır."
 
-#: netbox/dcim/models/devices.py:387
+#: netbox/dcim/models/devices.py:388
 msgid "Virtual machines may be assigned to this role"
 msgstr "Sanal makineler bu role atanabilir"
 
-#: netbox/dcim/models/devices.py:410
+#: netbox/dcim/models/devices.py:411
 msgid "A top-level device role with this name already exists."
 msgstr "Bu ada sahip üst düzey bir cihaz rolü zaten var."
 
-#: netbox/dcim/models/devices.py:420
+#: netbox/dcim/models/devices.py:421
 msgid "A top-level device role with this slug already exists."
 msgstr "Bu slug ile üst düzey bir cihaz rolü zaten var."
 
-#: netbox/dcim/models/devices.py:423
+#: netbox/dcim/models/devices.py:424
 msgid "device role"
 msgstr "cihaz rolü"
 
-#: netbox/dcim/models/devices.py:424
+#: netbox/dcim/models/devices.py:425
 msgid "device roles"
 msgstr "cihaz rolleri"
 
-#: netbox/dcim/models/devices.py:438
+#: netbox/dcim/models/devices.py:439
 msgid "Optionally limit this platform to devices of a certain manufacturer"
 msgstr ""
 "İsteğe bağlı olarak bu platformu belirli bir üreticinin cihazlarıyla "
 "sınırlayın"
 
-#: netbox/dcim/models/devices.py:450
+#: netbox/dcim/models/devices.py:451
 msgid "platform"
 msgstr "platform"
 
-#: netbox/dcim/models/devices.py:451
+#: netbox/dcim/models/devices.py:452
 msgid "platforms"
 msgstr "platformlar"
 
-#: netbox/dcim/models/devices.py:482
+#: netbox/dcim/models/devices.py:483
 msgid "The function this device serves"
 msgstr "Bu cihazın hizmet ettiği işlev"
 
-#: netbox/dcim/models/devices.py:509
+#: netbox/dcim/models/devices.py:510
 msgid "Chassis serial number, assigned by the manufacturer"
 msgstr "Üretici tarafından atanan şasi seri numarası"
 
-#: netbox/dcim/models/devices.py:517 netbox/dcim/models/modules.py:237
+#: netbox/dcim/models/devices.py:518 netbox/dcim/models/modules.py:237
 msgid "A unique tag used to identify this device"
 msgstr "Bu cihazı tanımlamak için kullanılan benzersiz bir etiket"
 
-#: netbox/dcim/models/devices.py:544
+#: netbox/dcim/models/devices.py:545
 msgid "position (U)"
 msgstr "pozisyon (U)"
 
-#: netbox/dcim/models/devices.py:552
+#: netbox/dcim/models/devices.py:553
 msgid "rack face"
 msgstr "raf yüzü"
 
-#: netbox/dcim/models/devices.py:573 netbox/dcim/models/devices.py:1176
+#: netbox/dcim/models/devices.py:574 netbox/dcim/models/devices.py:1180
 #: netbox/virtualization/models/virtualmachines.py:94
 msgid "primary IPv4"
 msgstr "birincil IPv4"
 
-#: netbox/dcim/models/devices.py:581 netbox/dcim/models/devices.py:1184
+#: netbox/dcim/models/devices.py:582 netbox/dcim/models/devices.py:1188
 #: netbox/virtualization/models/virtualmachines.py:102
 msgid "primary IPv6"
 msgstr "birincil IPv6"
 
-#: netbox/dcim/models/devices.py:589
+#: netbox/dcim/models/devices.py:590
 msgid "out-of-band IP"
 msgstr "bant dışı IP"
 
-#: netbox/dcim/models/devices.py:606
+#: netbox/dcim/models/devices.py:607
 msgid "VC position"
 msgstr "VC pozisyonu"
 
-#: netbox/dcim/models/devices.py:609
+#: netbox/dcim/models/devices.py:610
 msgid "Virtual chassis position"
 msgstr "Sanal şasi konumu"
 
-#: netbox/dcim/models/devices.py:612
+#: netbox/dcim/models/devices.py:613
 msgid "VC priority"
 msgstr "VC önceliği"
 
-#: netbox/dcim/models/devices.py:616
+#: netbox/dcim/models/devices.py:617
 msgid "Virtual chassis master election priority"
 msgstr "Sanal şasi ana seçim önceliği"
 
-#: netbox/dcim/models/devices.py:619 netbox/dcim/models/sites.py:208
+#: netbox/dcim/models/devices.py:620 netbox/dcim/models/sites.py:208
 msgid "latitude"
 msgstr "enlem"
 
-#: netbox/dcim/models/devices.py:624 netbox/dcim/models/devices.py:632
+#: netbox/dcim/models/devices.py:625 netbox/dcim/models/devices.py:633
 #: netbox/dcim/models/sites.py:213 netbox/dcim/models/sites.py:221
 msgid "GPS coordinate in decimal format (xx.yyyyyy)"
 msgstr "Ondalık formatta GPS koordinatı (xx.yyyyyy)"
 
-#: netbox/dcim/models/devices.py:627 netbox/dcim/models/sites.py:216
+#: netbox/dcim/models/devices.py:628 netbox/dcim/models/sites.py:216
 msgid "longitude"
 msgstr "boylam"
 
-#: netbox/dcim/models/devices.py:706
+#: netbox/dcim/models/devices.py:707
 msgid "Device name must be unique per site."
 msgstr "Aygıt adı site başına benzersiz olmalıdır."
 
-#: netbox/dcim/models/devices.py:717
+#: netbox/dcim/models/devices.py:718
 msgid "device"
 msgstr "cihaz"
 
-#: netbox/dcim/models/devices.py:718
+#: netbox/dcim/models/devices.py:719
 msgid "devices"
 msgstr "cihazlar"
 
-#: netbox/dcim/models/devices.py:737
+#: netbox/dcim/models/devices.py:738
 #, python-brace-format
 msgid "Rack {rack} does not belong to site {site}."
 msgstr "Raf {rack} siteye ait değil {site}."
 
-#: netbox/dcim/models/devices.py:742
+#: netbox/dcim/models/devices.py:743
 #, python-brace-format
 msgid "Location {location} does not belong to site {site}."
 msgstr "{location} Konum {site} adlı siteye ait değil."
 
-#: netbox/dcim/models/devices.py:748
+#: netbox/dcim/models/devices.py:749
 #, python-brace-format
 msgid "Rack {rack} does not belong to location {location}."
 msgstr "{rack} rafı {location} adlı konuma ait değil."
 
-#: netbox/dcim/models/devices.py:755
+#: netbox/dcim/models/devices.py:756
 msgid "Cannot select a rack face without assigning a rack."
 msgstr "Bir raf atamadan raf yüzü seçilemez."
 
-#: netbox/dcim/models/devices.py:759
+#: netbox/dcim/models/devices.py:760
 msgid "Cannot select a rack position without assigning a rack."
 msgstr "Bir raf atamadan raf konumu seçilemez."
 
-#: netbox/dcim/models/devices.py:765
+#: netbox/dcim/models/devices.py:766
 msgid "Position must be in increments of 0.5 rack units."
 msgstr "Konum 0,5 raf ünitesinin artışlarında olmalıdır."
 
-#: netbox/dcim/models/devices.py:769
+#: netbox/dcim/models/devices.py:770
 msgid "Must specify rack face when defining rack position."
 msgstr "Raf konumunu tanımlarken raf yüzü belirtilmelidir."
 
-#: netbox/dcim/models/devices.py:777
+#: netbox/dcim/models/devices.py:778
 #, python-brace-format
 msgid ""
 "A 0U device type ({device_type}) cannot be assigned to a rack position."
 msgstr "Bir 0U cihaz tipi ({device_type}) bir raf konumuna atanamaz."
 
-#: netbox/dcim/models/devices.py:788
+#: netbox/dcim/models/devices.py:789
 msgid ""
 "Child device types cannot be assigned to a rack face. This is an attribute "
 "of the parent device."
 msgstr ""
 "Alt aygıt türleri bir raf yüzüne atanamaz. Bu, ana cihazın bir özelliğidir."
 
-#: netbox/dcim/models/devices.py:795
+#: netbox/dcim/models/devices.py:796
 msgid ""
 "Child device types cannot be assigned to a rack position. This is an "
 "attribute of the parent device."
@@ -6860,7 +6861,7 @@ msgstr ""
 "Alt aygıt türleri bir raf konumuna atanamaz. Bu, ana aygıtın bir "
 "özelliğidir."
 
-#: netbox/dcim/models/devices.py:809
+#: netbox/dcim/models/devices.py:810
 #, python-brace-format
 msgid ""
 "U{position} is already occupied or does not have sufficient space to "
@@ -6869,22 +6870,22 @@ msgstr ""
 "U{position} zaten işgal edilmiş veya bu cihaz tipini barındırmak için "
 "yeterli alana sahip değil: {device_type} ({u_height}U)"
 
-#: netbox/dcim/models/devices.py:824
+#: netbox/dcim/models/devices.py:825
 #, python-brace-format
 msgid "{ip} is not an IPv4 address."
 msgstr "{ip} Bu bir IPv4 adresi değildir."
 
-#: netbox/dcim/models/devices.py:836 netbox/dcim/models/devices.py:854
+#: netbox/dcim/models/devices.py:837 netbox/dcim/models/devices.py:855
 #, python-brace-format
 msgid "The specified IP address ({ip}) is not assigned to this device."
 msgstr "Belirtilen IP adresi ({ip}) bu cihaza atanmamıştır."
 
-#: netbox/dcim/models/devices.py:842
+#: netbox/dcim/models/devices.py:843
 #, python-brace-format
 msgid "{ip} is not an IPv6 address."
 msgstr "{ip} Bu bir IPv6 adresi değildir."
 
-#: netbox/dcim/models/devices.py:872
+#: netbox/dcim/models/devices.py:873
 #, python-brace-format
 msgid ""
 "The assigned platform is limited to {platform_manufacturer} device types, "
@@ -6893,21 +6894,21 @@ msgstr ""
 "Atanan platform aşağıdakilerle sınırlıdır {platform_manufacturer} cihaz "
 "türleri, ancak bu cihazın türü şunlara aittir {devicetype_manufacturer}."
 
-#: netbox/dcim/models/devices.py:883
+#: netbox/dcim/models/devices.py:884
 #, python-brace-format
 msgid "The assigned cluster belongs to a different site ({site})"
 msgstr "Atanan küme farklı bir siteye aittir ({site})"
 
-#: netbox/dcim/models/devices.py:890
+#: netbox/dcim/models/devices.py:891
 #, python-brace-format
 msgid "The assigned cluster belongs to a different location ({location})"
 msgstr "Atanan küme farklı bir konuma aittir ({location})"
 
-#: netbox/dcim/models/devices.py:898
+#: netbox/dcim/models/devices.py:899
 msgid "A device assigned to a virtual chassis must have its position defined."
 msgstr "Sanal bir kasaya atanan bir aygıtın konumu tanımlanmış olmalıdır."
 
-#: netbox/dcim/models/devices.py:904
+#: netbox/dcim/models/devices.py:905
 #, python-brace-format
 msgid ""
 "Device cannot be removed from virtual chassis {virtual_chassis} because it "
@@ -6916,21 +6917,21 @@ msgstr ""
 "Cihaz sanal kasadan kaldırılamıyor {virtual_chassis} çünkü şu anda efendisi "
 "olarak belirlenmiştir."
 
-#: netbox/dcim/models/devices.py:1097
+#: netbox/dcim/models/devices.py:1101
 msgid "domain"
 msgstr "domain"
 
-#: netbox/dcim/models/devices.py:1110 netbox/dcim/models/devices.py:1111
+#: netbox/dcim/models/devices.py:1114 netbox/dcim/models/devices.py:1115
 msgid "virtual chassis"
 msgstr "sanal kasa"
 
-#: netbox/dcim/models/devices.py:1123
+#: netbox/dcim/models/devices.py:1127
 #, python-brace-format
 msgid ""
 "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr "Seçilen usta ({master}) bu sanal kasaya atanmamıştır."
 
-#: netbox/dcim/models/devices.py:1139
+#: netbox/dcim/models/devices.py:1143
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
@@ -6939,42 +6940,42 @@ msgstr ""
 "Sanal kasa silinemiyor {self}. Çapraz şasi LAG arabirimleri oluşturan üye "
 "arayüzleri vardır."
 
-#: netbox/dcim/models/devices.py:1165 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1169 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr "belirlemek"
 
-#: netbox/dcim/models/devices.py:1166
+#: netbox/dcim/models/devices.py:1170
 msgid "Numeric identifier unique to the parent device"
 msgstr "Ana aygıta benzersiz sayısal tanımlayıcı"
 
-#: netbox/dcim/models/devices.py:1194 netbox/extras/models/customfields.py:227
+#: netbox/dcim/models/devices.py:1198 netbox/extras/models/customfields.py:227
 #: netbox/extras/models/models.py:109 netbox/extras/models/models.py:775
 #: netbox/netbox/models/__init__.py:120 netbox/netbox/models/__init__.py:155
 msgid "comments"
 msgstr "yorumlar"
 
-#: netbox/dcim/models/devices.py:1210
+#: netbox/dcim/models/devices.py:1214
 msgid "virtual device context"
 msgstr "sanal cihaz bağlamı"
 
-#: netbox/dcim/models/devices.py:1211
+#: netbox/dcim/models/devices.py:1215
 msgid "virtual device contexts"
 msgstr "sanal cihaz bağlamları"
 
-#: netbox/dcim/models/devices.py:1240
+#: netbox/dcim/models/devices.py:1244
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr "{ip} IPV değil{family} adres."
 
-#: netbox/dcim/models/devices.py:1246
+#: netbox/dcim/models/devices.py:1250
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr "Birincil IP adresi, atanan cihazdaki bir arayüze ait olmalıdır."
 
-#: netbox/dcim/models/devices.py:1277
+#: netbox/dcim/models/devices.py:1281
 msgid "MAC addresses"
 msgstr "MAC adresleri"
 
-#: netbox/dcim/models/devices.py:1309
+#: netbox/dcim/models/devices.py:1313
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an"
 " object"
@@ -6982,7 +6983,7 @@ msgstr ""
 "Bir nesne için birincil MAC olarak belirlenmişken MAC Adresi atanması "
 "kaldırılamıyor"
 
-#: netbox/dcim/models/devices.py:1313
+#: netbox/dcim/models/devices.py:1317
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an"
 " object"
@@ -7414,6 +7415,10 @@ msgstr "Site A"
 msgid "Site B"
 msgstr "Site B"
 
+#: netbox/dcim/tables/cables.py:117
+msgid "Color Name"
+msgstr "Renk Adı"
+
 #: netbox/dcim/tables/connections.py:31 netbox/dcim/tables/connections.py:50
 #: netbox/dcim/tables/connections.py:71
 #: netbox/templates/dcim/inc/connection_endpoints.html:16
@@ -7422,7 +7427,7 @@ msgstr "Ulaşılabilir"
 
 #: netbox/dcim/tables/devices.py:73 netbox/dcim/tables/devices.py:121
 #: netbox/dcim/tables/racks.py:153 netbox/dcim/tables/sites.py:118
-#: netbox/dcim/tables/sites.py:165 netbox/extras/tables/tables.py:605
+#: netbox/dcim/tables/sites.py:165 netbox/extras/tables/tables.py:606
 #: netbox/netbox/navigation/menu.py:69 netbox/netbox/navigation/menu.py:73
 #: netbox/netbox/navigation/menu.py:75
 #: netbox/virtualization/forms/model_forms.py:122
@@ -7654,7 +7659,7 @@ msgid "Module Types"
 msgstr "Modül Çeşitleri"
 
 #: netbox/dcim/tables/devicetypes.py:57 netbox/extras/forms/filtersets.py:413
-#: netbox/extras/forms/model_forms.py:619 netbox/extras/tables/tables.py:600
+#: netbox/extras/forms/model_forms.py:619 netbox/extras/tables/tables.py:601
 #: netbox/netbox/navigation/menu.py:78
 msgid "Platforms"
 msgstr "Platformlar"
@@ -7851,7 +7856,7 @@ msgstr "Yapılandırma Bağlamı"
 msgid "Render Config"
 msgstr "Oluştur Yapılandırması"
 
-#: netbox/dcim/views.py:2360 netbox/extras/tables/tables.py:610
+#: netbox/dcim/views.py:2360 netbox/extras/tables/tables.py:611
 #: netbox/netbox/navigation/menu.py:256 netbox/netbox/navigation/menu.py:258
 #: netbox/virtualization/views.py:208
 msgid "Virtual Machines"
@@ -8193,35 +8198,39 @@ msgstr "Geçersiz model seçimi: {self['model'].data} desteklenmiyor."
 msgid "RSS Feed"
 msgstr "RSS Beslemesi"
 
-#: netbox/extras/dashboard/widgets.py:314
+#: netbox/extras/dashboard/widgets.py:315
 msgid "Embed an RSS feed from an external website."
 msgstr "Harici bir web sitesinden bir RSS beslemesi ekleyin."
 
-#: netbox/extras/dashboard/widgets.py:321
+#: netbox/extras/dashboard/widgets.py:322
 msgid "Feed URL"
 msgstr "Akış URL'si"
 
-#: netbox/extras/dashboard/widgets.py:325
+#: netbox/extras/dashboard/widgets.py:326
 msgid "Requires external connection"
 msgstr "Harici bağlantı gerektirir"
 
-#: netbox/extras/dashboard/widgets.py:331
+#: netbox/extras/dashboard/widgets.py:332
 msgid "The maximum number of objects to display"
 msgstr "Görüntülenecek maksimum nesne sayısı"
 
-#: netbox/extras/dashboard/widgets.py:336
+#: netbox/extras/dashboard/widgets.py:337
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 "Önbelleğe alınan içeriğin ne kadar süre saklanacağı (saniye cinsinden)"
 
-#: netbox/extras/dashboard/widgets.py:393
+#: netbox/extras/dashboard/widgets.py:343
+msgid "Timeout value for fetching the feed (in seconds)"
+msgstr "Beslemeyi almak için zaman aşımı değeri (saniye cinsinden)"
+
+#: netbox/extras/dashboard/widgets.py:400
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:43
 msgid "Bookmarks"
 msgstr "Yer İşaretleri"
 
-#: netbox/extras/dashboard/widgets.py:397
+#: netbox/extras/dashboard/widgets.py:404
 msgid "Show your personal bookmarks"
 msgstr "Kişisel yer imlerinizi gösterin"
 
@@ -8341,7 +8350,7 @@ msgstr "Düğme sınıfı"
 
 #: netbox/extras/forms/bulk_edit.py:155 netbox/extras/forms/bulk_edit.py:354
 #: netbox/extras/forms/filtersets.py:192 netbox/extras/forms/filtersets.py:470
-#: netbox/extras/models/mixins.py:100
+#: netbox/extras/models/mixins.py:101
 msgid "MIME type"
 msgstr "MIME türü"
 
@@ -8413,7 +8422,7 @@ msgstr "Aktif"
 #: netbox/extras/forms/model_forms.py:297
 #: netbox/extras/forms/model_forms.py:450
 #: netbox/extras/forms/model_forms.py:567
-#: netbox/users/forms/model_forms.py:277
+#: netbox/users/forms/model_forms.py:284
 msgid "Object types"
 msgstr "Nesne türleri"
 
@@ -8517,7 +8526,7 @@ msgstr "Girişin sınıflandırılması"
 #: netbox/extras/forms/model_forms.py:398 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/extras/notificationgroup.html:41
 #: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:237
-#: netbox/users/forms/model_forms.py:249 netbox/users/forms/model_forms.py:301
+#: netbox/users/forms/model_forms.py:249 netbox/users/forms/model_forms.py:310
 #: netbox/users/tables.py:102
 msgid "Users"
 msgstr "Kullanıcılar"
@@ -8535,7 +8544,7 @@ msgstr ""
 #: netbox/tenancy/forms/bulk_edit.py:144 netbox/tenancy/forms/filtersets.py:78
 #: netbox/tenancy/forms/model_forms.py:99 netbox/tenancy/tables/contacts.py:68
 #: netbox/users/forms/model_forms.py:182 netbox/users/forms/model_forms.py:194
-#: netbox/users/forms/model_forms.py:306 netbox/users/tables.py:35
+#: netbox/users/forms/model_forms.py:315 netbox/users/tables.py:35
 #: netbox/users/tables.py:106
 msgid "Groups"
 msgstr "Gruplar"
@@ -8900,7 +8909,7 @@ msgstr "Dizinleyici bulunamadı!"
 #: netbox/extras/models/configs.py:38 netbox/extras/models/models.py:323
 #: netbox/extras/models/models.py:488 netbox/extras/models/models.py:567
 #: netbox/extras/models/search.py:48 netbox/extras/models/tags.py:44
-#: netbox/ipam/models/ip.py:193 netbox/netbox/models/mixins.py:16
+#: netbox/ipam/models/ip.py:194 netbox/netbox/models/mixins.py:16
 msgid "weight"
 msgstr "ağırlık"
 
@@ -9286,19 +9295,19 @@ msgstr "gösterge paneli"
 msgid "dashboards"
 msgstr "gösterge tabloları"
 
-#: netbox/extras/models/mixins.py:85
+#: netbox/extras/models/mixins.py:86
 msgid "template code"
 msgstr "şablon kodu"
 
-#: netbox/extras/models/mixins.py:86
+#: netbox/extras/models/mixins.py:87
 msgid "Jinja template code."
 msgstr "Jinja şablon kodu."
 
-#: netbox/extras/models/mixins.py:89
+#: netbox/extras/models/mixins.py:90
 msgid "environment parameters"
 msgstr "çevre parametreleri"
 
-#: netbox/extras/models/mixins.py:94
+#: netbox/extras/models/mixins.py:95
 #, python-brace-format
 msgid ""
 "Any <a href=\"{url}\">additional parameters</a> to pass when constructing "
@@ -9307,32 +9316,32 @@ msgstr ""
 "Herhangi bir <a href=\"{url}\">ek parametreler</a> Jinja ortamını inşa "
 "ederken geçmek"
 
-#: netbox/extras/models/mixins.py:101
+#: netbox/extras/models/mixins.py:102
 #, python-brace-format
 msgid "Defaults to <code>{default}</code>"
 msgstr "Varsayılan olarak <code>{default}</code>"
 
-#: netbox/extras/models/mixins.py:106
+#: netbox/extras/models/mixins.py:107
 msgid "Filename to give to the rendered export file"
 msgstr "Oluşturulan dışa aktarma dosyasına verilecek dosya adı"
 
-#: netbox/extras/models/mixins.py:109
+#: netbox/extras/models/mixins.py:110
 msgid "file extension"
 msgstr "dosya uzantısı"
 
-#: netbox/extras/models/mixins.py:112
+#: netbox/extras/models/mixins.py:113
 msgid "Extension to append to the rendered filename"
 msgstr "Oluşturulan dosya adına eklenecek uzantı"
 
-#: netbox/extras/models/mixins.py:115
+#: netbox/extras/models/mixins.py:116
 msgid "as attachment"
 msgstr "ek olarak"
 
-#: netbox/extras/models/mixins.py:117
+#: netbox/extras/models/mixins.py:118
 msgid "Download file as attachment"
 msgstr "Dosya ek olarak indir"
 
-#: netbox/extras/models/mixins.py:124
+#: netbox/extras/models/mixins.py:125
 #, python-brace-format
 msgid "{class_name} must implement a get_context() method."
 msgstr "{class_name} bir get_context () yöntemi uygulamalıdır."
@@ -9623,7 +9632,7 @@ msgstr "yer imi"
 msgid "bookmarks"
 msgstr "yer imleri"
 
-#: netbox/extras/models/models.py:858
+#: netbox/extras/models/models.py:861
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr "Yer imleri bu nesne türüne atanamaz ({type})."
@@ -9758,8 +9767,7 @@ msgstr "Görevden alma"
 
 #: netbox/extras/tables/tables.py:66 netbox/extras/tables/tables.py:163
 #: netbox/extras/tables/tables.py:188 netbox/extras/tables/tables.py:264
-#: netbox/extras/tables/tables.py:320 netbox/extras/tables/tables.py:456
-#: netbox/extras/tables/tables.py:490
+#: netbox/extras/tables/tables.py:457 netbox/extras/tables/tables.py:491
 #: netbox/templates/extras/customfield.html:105
 #: netbox/templates/extras/eventrule.html:27
 #: netbox/templates/users/objectpermission.html:64 netbox/users/tables.py:80
@@ -9818,30 +9826,30 @@ msgstr "Alfabetik olarak sıralayın"
 msgid "New Window"
 msgstr "Yeni Pencere"
 
-#: netbox/extras/tables/tables.py:191 netbox/extras/tables/tables.py:577
+#: netbox/extras/tables/tables.py:191 netbox/extras/tables/tables.py:578
 #: netbox/templates/extras/configtemplate.html:21
 #: netbox/templates/extras/exporttemplate.html:23
 msgid "MIME Type"
 msgstr "MIME Türü"
 
-#: netbox/extras/tables/tables.py:194 netbox/extras/tables/tables.py:580
+#: netbox/extras/tables/tables.py:194 netbox/extras/tables/tables.py:581
 #: netbox/templates/extras/configtemplate.html:25
 #: netbox/templates/extras/exporttemplate.html:27
 msgid "File Name"
 msgstr "Dosya Adı"
 
-#: netbox/extras/tables/tables.py:197 netbox/extras/tables/tables.py:583
+#: netbox/extras/tables/tables.py:197 netbox/extras/tables/tables.py:584
 #: netbox/templates/extras/configtemplate.html:29
 #: netbox/templates/extras/exporttemplate.html:31
 msgid "File Extension"
 msgstr "Dosya uzantısı"
 
-#: netbox/extras/tables/tables.py:200 netbox/extras/tables/tables.py:586
+#: netbox/extras/tables/tables.py:200 netbox/extras/tables/tables.py:587
 msgid "As Attachment"
 msgstr "Ek Olarak"
 
-#: netbox/extras/tables/tables.py:208 netbox/extras/tables/tables.py:531
-#: netbox/extras/tables/tables.py:569 netbox/templates/core/datafile.html:24
+#: netbox/extras/tables/tables.py:208 netbox/extras/tables/tables.py:532
+#: netbox/extras/tables/tables.py:570 netbox/templates/core/datafile.html:24
 #: netbox/templates/extras/configcontext.html:39
 #: netbox/templates/extras/configtemplate.html:47
 #: netbox/templates/extras/exporttemplate.html:49
@@ -9850,8 +9858,8 @@ msgstr "Ek Olarak"
 msgid "Data File"
 msgstr "Veri Dosyası"
 
-#: netbox/extras/tables/tables.py:213 netbox/extras/tables/tables.py:543
-#: netbox/extras/tables/tables.py:574
+#: netbox/extras/tables/tables.py:213 netbox/extras/tables/tables.py:544
+#: netbox/extras/tables/tables.py:575
 msgid "Synced"
 msgstr "Senkronize"
 
@@ -9867,41 +9875,41 @@ msgstr "Boyut (Bayt)"
 msgid "Table Name"
 msgstr "Tablo Adı"
 
-#: netbox/extras/tables/tables.py:383
+#: netbox/extras/tables/tables.py:384
 msgid "Read"
 msgstr "Okumak"
 
-#: netbox/extras/tables/tables.py:426
+#: netbox/extras/tables/tables.py:427
 msgid "SSL Validation"
 msgstr "SSL Doğrulama"
 
-#: netbox/extras/tables/tables.py:462
+#: netbox/extras/tables/tables.py:463
 #: netbox/templates/extras/eventrule.html:37
 msgid "Event Types"
 msgstr "Etkinlik Türleri"
 
-#: netbox/extras/tables/tables.py:595 netbox/netbox/navigation/menu.py:77
+#: netbox/extras/tables/tables.py:596 netbox/netbox/navigation/menu.py:77
 #: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
 msgstr "Cihaz Rolleri"
 
-#: netbox/extras/tables/tables.py:648
+#: netbox/extras/tables/tables.py:649
 msgid "Comments (Short)"
 msgstr "Yorumlar (Kısa)"
 
-#: netbox/extras/tables/tables.py:667 netbox/extras/tables/tables.py:718
+#: netbox/extras/tables/tables.py:668 netbox/extras/tables/tables.py:719
 msgid "Line"
 msgstr "Çizgi"
 
-#: netbox/extras/tables/tables.py:674 netbox/extras/tables/tables.py:728
+#: netbox/extras/tables/tables.py:675 netbox/extras/tables/tables.py:729
 msgid "Level"
 msgstr "Seviye"
 
-#: netbox/extras/tables/tables.py:680 netbox/extras/tables/tables.py:737
+#: netbox/extras/tables/tables.py:681 netbox/extras/tables/tables.py:738
 msgid "Message"
 msgstr "Mesaj"
 
-#: netbox/extras/tables/tables.py:721
+#: netbox/extras/tables/tables.py:722
 msgid "Method"
 msgstr "Yöntemi"
 
@@ -9967,7 +9975,7 @@ msgstr "Silinen widget: "
 msgid "Error deleting widget: "
 msgstr "Widget silinirken hata oluştu: "
 
-#: netbox/extras/views.py:1349
+#: netbox/extras/views.py:1356
 msgid "Unable to run script: RQ worker process not running."
 msgstr "Komut dosyası çalıştırılamıyor: RQ işçi işlemi çalışmıyor."
 
@@ -10030,8 +10038,8 @@ msgstr "Cisco"
 msgid "Plaintext"
 msgstr "Düz metin"
 
-#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:797
-#: netbox/ipam/forms/model_forms.py:851 netbox/templates/ipam/service.html:23
+#: netbox/ipam/choices.py:166 netbox/ipam/forms/model_forms.py:793
+#: netbox/ipam/forms/model_forms.py:859 netbox/templates/ipam/service.html:23
 msgid "Service"
 msgstr "Hizmet"
 
@@ -10205,7 +10213,7 @@ msgstr "FHRP Grubu (ID)"
 msgid "IP address (ID)"
 msgstr "IP adresi (ID)"
 
-#: netbox/ipam/filtersets.py:1205 netbox/ipam/models/ip.py:808
+#: netbox/ipam/filtersets.py:1205 netbox/ipam/models/ip.py:816
 msgid "IP address"
 msgstr "IP adresi"
 
@@ -10269,8 +10277,8 @@ msgstr "Özeldir"
 #: netbox/ipam/forms/filtersets.py:151 netbox/ipam/forms/model_forms.py:99
 #: netbox/ipam/forms/model_forms.py:112 netbox/ipam/forms/model_forms.py:135
 #: netbox/ipam/forms/model_forms.py:154 netbox/ipam/models/asns.py:31
-#: netbox/ipam/models/asns.py:100 netbox/ipam/models/ip.py:71
-#: netbox/ipam/models/ip.py:87 netbox/ipam/tables/asn.py:20
+#: netbox/ipam/models/asns.py:100 netbox/ipam/models/ip.py:72
+#: netbox/ipam/models/ip.py:88 netbox/ipam/tables/asn.py:20
 #: netbox/ipam/tables/asn.py:45 netbox/templates/ipam/aggregate.html:18
 #: netbox/templates/ipam/asn.html:27 netbox/templates/ipam/asnrange.html:19
 #: netbox/templates/ipam/rir.html:19
@@ -10314,7 +10322,7 @@ msgstr "Havuz mu"
 
 #: netbox/ipam/forms/bulk_edit.py:257 netbox/ipam/forms/bulk_edit.py:307
 #: netbox/ipam/forms/filtersets.py:258 netbox/ipam/forms/filtersets.py:316
-#: netbox/ipam/models/ip.py:261
+#: netbox/ipam/models/ip.py:262
 msgid "Treat as fully utilized"
 msgstr "Tamamen kullanılmış gibi davran"
 
@@ -10327,7 +10335,7 @@ msgstr "VLAN Ataması"
 msgid "Treat as populated"
 msgstr "Dolu gibi davranın"
 
-#: netbox/ipam/forms/bulk_edit.py:355 netbox/ipam/models/ip.py:792
+#: netbox/ipam/forms/bulk_edit.py:355 netbox/ipam/models/ip.py:800
 msgid "DNS name"
 msgstr "DNS adı"
 
@@ -10719,23 +10727,23 @@ msgstr "Hizmet Şablonu"
 msgid "Parent type"
 msgstr "Ebeveyn türü"
 
-#: netbox/ipam/forms/model_forms.py:796
+#: netbox/ipam/forms/model_forms.py:792
 msgid "Port(s)"
 msgstr "Liman (lar)"
 
-#: netbox/ipam/forms/model_forms.py:839
+#: netbox/ipam/forms/model_forms.py:847
 msgid "Service template"
 msgstr "Hizmet şablonu"
 
-#: netbox/ipam/forms/model_forms.py:848
+#: netbox/ipam/forms/model_forms.py:856
 msgid "From Template"
 msgstr "Şablondan"
 
-#: netbox/ipam/forms/model_forms.py:849
+#: netbox/ipam/forms/model_forms.py:857
 msgid "Custom"
 msgstr "Özel"
 
-#: netbox/ipam/forms/model_forms.py:880
+#: netbox/ipam/forms/model_forms.py:888
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
@@ -10799,43 +10807,43 @@ msgstr "FHRP grup ataması"
 msgid "FHRP group assignments"
 msgstr "FHRP grup ödevleri"
 
-#: netbox/ipam/models/ip.py:65
+#: netbox/ipam/models/ip.py:66
 msgid "private"
 msgstr "özel"
 
-#: netbox/ipam/models/ip.py:66
+#: netbox/ipam/models/ip.py:67
 msgid "IP space managed by this RIR is considered private"
 msgstr "Bu RIR tarafından yönetilen IP alanı özel olarak kabul edilir"
 
-#: netbox/ipam/models/ip.py:72 netbox/netbox/navigation/menu.py:189
+#: netbox/ipam/models/ip.py:73 netbox/netbox/navigation/menu.py:189
 msgid "RIRs"
 msgstr "RIR'ler"
 
-#: netbox/ipam/models/ip.py:81
+#: netbox/ipam/models/ip.py:82
 msgid "IPv4 or IPv6 network"
 msgstr "IPv4 veya IPv6 ağı"
 
-#: netbox/ipam/models/ip.py:88
+#: netbox/ipam/models/ip.py:89
 msgid "Regional Internet Registry responsible for this IP space"
 msgstr "Bu IP alanından sorumlu Bölgesel İnternet Kaydı"
 
-#: netbox/ipam/models/ip.py:98
+#: netbox/ipam/models/ip.py:99
 msgid "date added"
 msgstr "tarih eklendi"
 
-#: netbox/ipam/models/ip.py:112
+#: netbox/ipam/models/ip.py:113
 msgid "aggregate"
 msgstr "toplamak"
 
-#: netbox/ipam/models/ip.py:113
+#: netbox/ipam/models/ip.py:114
 msgid "aggregates"
 msgstr "toplar"
 
-#: netbox/ipam/models/ip.py:126
+#: netbox/ipam/models/ip.py:127
 msgid "Cannot create aggregate with /0 mask."
 msgstr "/0 maskesi ile toplama oluşturulamıyor."
 
-#: netbox/ipam/models/ip.py:138
+#: netbox/ipam/models/ip.py:139
 #, python-brace-format
 msgid ""
 "Aggregates cannot overlap. {prefix} is already covered by an existing "
@@ -10844,7 +10852,7 @@ msgstr ""
 "Agremalar üst üste gelemez. {prefix} zaten mevcut bir toplama tarafından "
 "kapsanmıştır ({aggregate})."
 
-#: netbox/ipam/models/ip.py:152
+#: netbox/ipam/models/ip.py:153
 #, python-brace-format
 msgid ""
 "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate "
@@ -10853,189 +10861,189 @@ msgstr ""
 "Önekler toplamalarla örtüşemez. {prefix} mevcut bir toplamı kapsar "
 "({aggregate})."
 
-#: netbox/ipam/models/ip.py:200
+#: netbox/ipam/models/ip.py:201
 msgid "roles"
 msgstr "rolleri"
 
-#: netbox/ipam/models/ip.py:213 netbox/ipam/models/ip.py:282
+#: netbox/ipam/models/ip.py:214 netbox/ipam/models/ip.py:283
 msgid "prefix"
 msgstr "önek"
 
-#: netbox/ipam/models/ip.py:214
+#: netbox/ipam/models/ip.py:215
 msgid "IPv4 or IPv6 network with mask"
 msgstr "Maskeli IPv4 veya IPv6 ağı"
 
-#: netbox/ipam/models/ip.py:243
+#: netbox/ipam/models/ip.py:244
 msgid "Operational status of this prefix"
 msgstr "Bu önekin operasyonel durumu"
 
-#: netbox/ipam/models/ip.py:251
+#: netbox/ipam/models/ip.py:252
 msgid "The primary function of this prefix"
 msgstr "Bu önekin birincil işlevi"
 
-#: netbox/ipam/models/ip.py:254
+#: netbox/ipam/models/ip.py:255
 msgid "is a pool"
 msgstr "bir havuz"
 
-#: netbox/ipam/models/ip.py:256
+#: netbox/ipam/models/ip.py:257
 msgid "All IP addresses within this prefix are considered usable"
 msgstr "Bu önek içindeki tüm IP adresleri kullanılabilir kabul edilir"
 
-#: netbox/ipam/models/ip.py:259 netbox/ipam/models/ip.py:541
+#: netbox/ipam/models/ip.py:260 netbox/ipam/models/ip.py:549
 msgid "mark utilized"
 msgstr "kullanılan işaret"
 
-#: netbox/ipam/models/ip.py:283
+#: netbox/ipam/models/ip.py:284
 msgid "prefixes"
 msgstr "önekleri"
 
-#: netbox/ipam/models/ip.py:303
+#: netbox/ipam/models/ip.py:311
 msgid "Cannot create prefix with /0 mask."
 msgstr "/0 maskesi ile önek oluşturulamıyor."
 
-#: netbox/ipam/models/ip.py:310 netbox/ipam/models/ip.py:896
+#: netbox/ipam/models/ip.py:318 netbox/ipam/models/ip.py:904
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr "VRF {vrf}"
 
-#: netbox/ipam/models/ip.py:310 netbox/ipam/models/ip.py:896
+#: netbox/ipam/models/ip.py:318 netbox/ipam/models/ip.py:904
 msgid "global table"
 msgstr "küresel tablo"
 
-#: netbox/ipam/models/ip.py:312
+#: netbox/ipam/models/ip.py:320
 #, python-brace-format
 msgid "Duplicate prefix found in {table}: {prefix}"
 msgstr "Yinelenen önek şurada bulundu {table}: {prefix}"
 
-#: netbox/ipam/models/ip.py:494
+#: netbox/ipam/models/ip.py:502
 msgid "start address"
 msgstr "başlangıç adresi"
 
-#: netbox/ipam/models/ip.py:495 netbox/ipam/models/ip.py:499
-#: netbox/ipam/models/ip.py:732
+#: netbox/ipam/models/ip.py:503 netbox/ipam/models/ip.py:507
+#: netbox/ipam/models/ip.py:740
 msgid "IPv4 or IPv6 address (with mask)"
 msgstr "IPv4 veya IPv6 adresi (maske ile)"
 
-#: netbox/ipam/models/ip.py:498
+#: netbox/ipam/models/ip.py:506
 msgid "end address"
 msgstr "bitiş adresi"
 
-#: netbox/ipam/models/ip.py:525
+#: netbox/ipam/models/ip.py:533
 msgid "Operational status of this range"
 msgstr "Bu aralığın çalışma durumu"
 
-#: netbox/ipam/models/ip.py:533
+#: netbox/ipam/models/ip.py:541
 msgid "The primary function of this range"
 msgstr "Bu aralığın birincil işlevi"
 
-#: netbox/ipam/models/ip.py:536
+#: netbox/ipam/models/ip.py:544
 msgid "mark populated"
 msgstr "işareti doldurulmuş"
 
-#: netbox/ipam/models/ip.py:538
+#: netbox/ipam/models/ip.py:546
 msgid "Prevent the creation of IP addresses within this range"
 msgstr "Bu aralıkta IP adreslerinin oluşturulmasını önleyin"
 
-#: netbox/ipam/models/ip.py:543
+#: netbox/ipam/models/ip.py:551
 #, python-format
 msgid "Report space as 100% utilized"
 msgstr "Alanı %100 kullanıldığı şekilde rapor edin"
 
-#: netbox/ipam/models/ip.py:552
+#: netbox/ipam/models/ip.py:560
 msgid "IP range"
 msgstr "IP aralığı"
 
-#: netbox/ipam/models/ip.py:553
+#: netbox/ipam/models/ip.py:561
 msgid "IP ranges"
 msgstr "IP aralıkları"
 
-#: netbox/ipam/models/ip.py:566
+#: netbox/ipam/models/ip.py:574
 msgid "Starting and ending IP address versions must match"
 msgstr "Başlangıç ve bitiş IP adresi sürümleri eşleşmelidir"
 
-#: netbox/ipam/models/ip.py:572
+#: netbox/ipam/models/ip.py:580
 msgid "Starting and ending IP address masks must match"
 msgstr "Başlangıç ve bitiş IP adresi maskeleri eşleşmelidir"
 
-#: netbox/ipam/models/ip.py:579
+#: netbox/ipam/models/ip.py:587
 #, python-brace-format
 msgid ""
 "Ending address must be greater than the starting address ({start_address})"
 msgstr ""
 "Bitiş adresi başlangıç adresinden daha büyük olmalıdır ({start_address})"
 
-#: netbox/ipam/models/ip.py:607
+#: netbox/ipam/models/ip.py:615
 #, python-brace-format
 msgid "Defined addresses overlap with range {overlapping_range} in VRF {vrf}"
 msgstr ""
 "Tanımlanan adresler aralık ile örtüşüyor {overlapping_range} VRF'de {vrf}"
 
-#: netbox/ipam/models/ip.py:616
+#: netbox/ipam/models/ip.py:624
 #, python-brace-format
 msgid "Defined range exceeds maximum supported size ({max_size})"
 msgstr "Tanımlanan aralık maksimum desteklenen boyutu aşıyor ({max_size})"
 
-#: netbox/ipam/models/ip.py:731 netbox/tenancy/models/contacts.py:76
+#: netbox/ipam/models/ip.py:739 netbox/tenancy/models/contacts.py:76
 msgid "address"
 msgstr "adres"
 
-#: netbox/ipam/models/ip.py:754
+#: netbox/ipam/models/ip.py:762
 msgid "The operational status of this IP"
 msgstr "Bu IP'nin operasyonel durumu"
 
-#: netbox/ipam/models/ip.py:762
+#: netbox/ipam/models/ip.py:770
 msgid "The functional role of this IP"
 msgstr "Bu IP'nin işlevsel rolü"
 
-#: netbox/ipam/models/ip.py:785 netbox/templates/ipam/ipaddress.html:72
+#: netbox/ipam/models/ip.py:793 netbox/templates/ipam/ipaddress.html:72
 msgid "NAT (inside)"
 msgstr "NAT (iç)"
 
-#: netbox/ipam/models/ip.py:786
+#: netbox/ipam/models/ip.py:794
 msgid "The IP for which this address is the \"outside\" IP"
 msgstr "Bu adresin “dış” IP olduğu IP"
 
-#: netbox/ipam/models/ip.py:793
+#: netbox/ipam/models/ip.py:801
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr "Ana bilgisayar adı veya FQDN (büyük/küçük harfe duyarlı değil)"
 
-#: netbox/ipam/models/ip.py:809 netbox/ipam/models/services.py:86
+#: netbox/ipam/models/ip.py:817 netbox/ipam/models/services.py:86
 msgid "IP addresses"
 msgstr "IP adresleri"
 
-#: netbox/ipam/models/ip.py:867
+#: netbox/ipam/models/ip.py:875
 msgid "Cannot create IP address with /0 mask."
 msgstr "/0 maskesi ile IP adresi oluşturulamıyor."
 
-#: netbox/ipam/models/ip.py:873
+#: netbox/ipam/models/ip.py:881
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr "{ip} bir arayüze atanamayacak bir ağ kimliğidir."
 
-#: netbox/ipam/models/ip.py:884
+#: netbox/ipam/models/ip.py:892
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
 msgstr "{ip} bir arayüze atanamayacak bir yayın adresidir."
 
-#: netbox/ipam/models/ip.py:898
+#: netbox/ipam/models/ip.py:906
 #, python-brace-format
 msgid "Duplicate IP address found in {table}: {ipaddress}"
 msgstr "Yinelenen IP adresi şurada bulundu {table}: {ipaddress}"
 
-#: netbox/ipam/models/ip.py:914
+#: netbox/ipam/models/ip.py:922
 #, python-brace-format
 msgid "Cannot create IP address {ip} inside range {range}."
 msgstr "IP adresi oluşturulamıyor {ip} iç menzil {range}."
 
-#: netbox/ipam/models/ip.py:935
+#: netbox/ipam/models/ip.py:943
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
 msgstr ""
 "Üst nesne için birincil IP olarak belirlenirken IP adresi yeniden atanamıyor"
 
-#: netbox/ipam/models/ip.py:941
+#: netbox/ipam/models/ip.py:949
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr "Yalnızca IPv6 adreslerine SLAAC durumu atanabilir"
 
@@ -12410,12 +12418,12 @@ msgstr "Tümünü seç"
 msgid "Toggle all"
 msgstr "Tümünü değiştir"
 
-#: netbox/netbox/tables/columns.py:307
+#: netbox/netbox/tables/columns.py:311
 #: netbox/templates/inc/table_controls_htmx.html:35
 msgid "Toggle Dropdown"
 msgstr "Açılır menüyü Aç/Kapat"
 
-#: netbox/netbox/tables/columns.py:580 netbox/templates/core/job.html:53
+#: netbox/netbox/tables/columns.py:584 netbox/templates/core/job.html:53
 msgid "Error"
 msgstr "Hata"
 
@@ -12841,6 +12849,7 @@ msgstr "Devre Tipi"
 #: netbox/templates/users/objectpermission.html:38
 #: netbox/utilities/templates/buttons/add.html:4
 #: netbox/utilities/templates/helpers/table_config_form.html:20
+#: netbox/utilities/templates/widgets/splitmultiselect.html:11
 msgid "Add"
 msgstr "Ekle"
 
@@ -12848,7 +12857,7 @@ msgstr "Ekle"
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:37
 #: netbox/templates/dcim/inc/panels/inventory_items.html:32
 #: netbox/templates/dcim/powerpanel.html:56
-#: netbox/templates/extras/script_list.html:30
+#: netbox/templates/extras/inc/script_list_content.html:16
 #: netbox/templates/generic/object_edit.html:47
 #: netbox/templates/ipam/inc/ipaddress_edit_header.html:7
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:43
@@ -12863,7 +12872,7 @@ msgstr "Takas"
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
-#: netbox/templates/extras/script_list.html:35
+#: netbox/templates/extras/inc/script_list_content.html:21
 #: netbox/templates/generic/bulk_delete.html:20
 #: netbox/templates/generic/bulk_delete.html:66
 #: netbox/templates/generic/object_delete.html:19
@@ -13622,6 +13631,7 @@ msgstr "Yeniden kısa ad oluştur"
 #: netbox/templates/extras/tableconfig_edit.html:32
 #: netbox/templates/generic/bulk_remove.html:21
 #: netbox/utilities/templates/helpers/table_config_form.html:23
+#: netbox/utilities/templates/widgets/splitmultiselect.html:14
 msgid "Remove"
 msgstr "Kaldır"
 
@@ -14101,7 +14111,7 @@ msgstr "Yeni Üye Ekle"
 #: netbox/templates/dcim/virtualchassis_add_member.html:27
 #: netbox/templates/generic/object_edit.html:78
 #: netbox/templates/users/objectpermission.html:31
-#: netbox/users/forms/filtersets.py:67 netbox/users/forms/model_forms.py:313
+#: netbox/users/forms/filtersets.py:67 netbox/users/forms/model_forms.py:322
 msgid "Actions"
 msgstr "Eylemler"
 
@@ -14432,7 +14442,7 @@ msgid "Output"
 msgstr "Çıktı"
 
 #: netbox/templates/extras/htmx/script_result.html:61
-#: netbox/templates/extras/object_render_config.html:60
+#: netbox/templates/extras/object_render_config.html:59
 msgid "Download"
 msgstr "İndir"
 
@@ -14443,6 +14453,46 @@ msgstr "Yükleniyor"
 #: netbox/templates/extras/inc/result_pending.html:6
 msgid "Results pending"
 msgstr "Sonuçlar beklemede"
+
+#: netbox/templates/extras/inc/script_list_content.html:34
+msgid "Last Run"
+msgstr "Son Koşu"
+
+#: netbox/templates/extras/inc/script_list_content.html:49
+msgid "Script is no longer present in the source file"
+msgstr "Komut dosyası artık kaynak dosyada mevcut değil"
+
+#: netbox/templates/extras/inc/script_list_content.html:62
+msgid "Never"
+msgstr "Asla"
+
+#: netbox/templates/extras/inc/script_list_content.html:75
+msgid "Run Again"
+msgstr "Tekrar koş"
+
+#: netbox/templates/extras/inc/script_list_content.html:77
+#: netbox/templates/extras/script.html:41
+#: netbox/templates/extras/script.html:45
+msgid "Run Script"
+msgstr "Komut Dosyasını Çalıştır"
+
+#: netbox/templates/extras/inc/script_list_content.html:123
+#, python-format
+msgid "Could not load scripts from module %(module)s"
+msgstr "Modülden komut dosyaları yüklenemedi %(module)s"
+
+#: netbox/templates/extras/inc/script_list_content.html:131
+msgid "No Scripts Found"
+msgstr "Komut Dosyası Bulunamadı"
+
+#: netbox/templates/extras/inc/script_list_content.html:134
+#, python-format
+msgid ""
+"Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
+"an uploaded file or data source."
+msgstr ""
+"Şuradan başlayın <a href=\"%(create_script_url)s\">bir komut dosyası "
+"oluşturma</a> yüklenen bir dosyadan veya veri kaynağından."
 
 #: netbox/templates/extras/journalentry.html:15
 msgid "Journal Entry"
@@ -14502,12 +14552,6 @@ msgstr "Rapor"
 msgid "You do not have permission to run scripts"
 msgstr "Komut dosyalarını çalıştırma izniniz yok"
 
-#: netbox/templates/extras/script.html:41
-#: netbox/templates/extras/script.html:45
-#: netbox/templates/extras/script_list.html:90
-msgid "Run Script"
-msgstr "Komut Dosyasını Çalıştır"
-
 #: netbox/templates/extras/script.html:51
 #: netbox/templates/extras/script/source.html:10
 msgid "Error loading script"
@@ -14516,40 +14560,6 @@ msgstr "Komut dosyası yüklenirken hata oluştu"
 #: netbox/templates/extras/script/jobs.html:16
 msgid "Script no longer exists in the source file."
 msgstr "Kaynak dosyada komut dosyası artık mevcut değil."
-
-#: netbox/templates/extras/script_list.html:47
-msgid "Last Run"
-msgstr "Son Koşu"
-
-#: netbox/templates/extras/script_list.html:62
-msgid "Script is no longer present in the source file"
-msgstr "Komut dosyası artık kaynak dosyada mevcut değil"
-
-#: netbox/templates/extras/script_list.html:75
-msgid "Never"
-msgstr "Asla"
-
-#: netbox/templates/extras/script_list.html:88
-msgid "Run Again"
-msgstr "Tekrar koş"
-
-#: netbox/templates/extras/script_list.html:136
-#, python-format
-msgid "Could not load scripts from module %(module)s"
-msgstr "Modülden komut dosyaları yüklenemedi %(module)s"
-
-#: netbox/templates/extras/script_list.html:144
-msgid "No Scripts Found"
-msgstr "Komut Dosyası Bulunamadı"
-
-#: netbox/templates/extras/script_list.html:147
-#, python-format
-msgid ""
-"Get started by <a href=\"%(create_script_url)s\">creating a script</a> from "
-"an uploaded file or data source."
-msgstr ""
-"Şuradan başlayın <a href=\"%(create_script_url)s\">bir komut dosyası "
-"oluşturma</a> yüklenen bir dosyadan veya veri kaynağından."
 
 #: netbox/templates/extras/script_result.html:35
 #: netbox/templates/generic/object_list.html:50
@@ -14580,11 +14590,13 @@ msgstr "Tablo Yapılandırması"
 
 #: netbox/templates/extras/tableconfig_edit.html:40
 #: netbox/utilities/templates/helpers/table_config_form.html:31
+#: netbox/utilities/templates/widgets/splitmultiselect.html:23
 msgid "Move Up"
 msgstr "Yukarı hareket et"
 
 #: netbox/templates/extras/tableconfig_edit.html:43
 #: netbox/utilities/templates/helpers/table_config_form.html:34
+#: netbox/utilities/templates/widgets/splitmultiselect.html:26
 msgid "Move Down"
 msgstr "Aşağı hareket et"
 
@@ -15323,7 +15335,7 @@ msgid "View"
 msgstr "Görünüm"
 
 #: netbox/templates/users/objectpermission.html:52
-#: netbox/users/forms/model_forms.py:316
+#: netbox/users/forms/model_forms.py:325
 msgid "Constraints"
 msgstr "Kısıtlamalar"
 
@@ -15847,19 +15859,23 @@ msgid "Passwords do not match! Please check your input and try again."
 msgstr ""
 "Şifreler eşleşmiyor! Lütfen girdilerinizi kontrol edin ve tekrar deneyin."
 
-#: netbox/users/forms/model_forms.py:295
+#: netbox/users/forms/model_forms.py:289
+msgid "Select the types of objects to which the permission will appy."
+msgstr "İznin uygulanacağı nesne türlerini seçin."
+
+#: netbox/users/forms/model_forms.py:304
 msgid "Additional actions"
 msgstr "Ek eylemler"
 
-#: netbox/users/forms/model_forms.py:298
+#: netbox/users/forms/model_forms.py:307
 msgid "Actions granted in addition to those listed above"
 msgstr "Yukarıda listelenenlere ek olarak verilen eylemler"
 
-#: netbox/users/forms/model_forms.py:314
+#: netbox/users/forms/model_forms.py:323
 msgid "Objects"
 msgstr "Nesneler"
 
-#: netbox/users/forms/model_forms.py:326
+#: netbox/users/forms/model_forms.py:335
 msgid ""
 "JSON expression of a queryset filter that will return only permitted "
 "objects. Leave null to match all objects of this type. A list of multiple "
@@ -15869,11 +15885,11 @@ msgstr ""
 "ifadesi. Bu türdeki tüm nesneleri eşleştirmek için null bırakın. Birden çok "
 "nesnenin listesi mantıksal bir OR işlemi ile sonuçlanır."
 
-#: netbox/users/forms/model_forms.py:365
+#: netbox/users/forms/model_forms.py:374
 msgid "At least one action must be selected."
 msgstr "En az bir eylem seçilmelidir."
 
-#: netbox/users/forms/model_forms.py:383
+#: netbox/users/forms/model_forms.py:392
 #, python-brace-format
 msgid "Invalid filter for {model}: {error}"
 msgstr "Geçersiz filtre {model}: {error}"
@@ -15971,17 +15987,17 @@ msgstr "Bu kullanıcı adına sahip bir kullanıcı zaten var."
 msgid "Custom Actions"
 msgstr "Özel Eylemler"
 
-#: netbox/utilities/api.py:153
+#: netbox/utilities/api.py:151
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr "Sağlanan öznitelikler kullanılarak ilgili nesne bulunamadı: {params}"
 
-#: netbox/utilities/api.py:156
+#: netbox/utilities/api.py:154
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr "Birden çok nesne sağlanan özniteliklerle eşleşir: {params}"
 
-#: netbox/utilities/api.py:168
+#: netbox/utilities/api.py:166
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
@@ -15990,7 +16006,7 @@ msgstr ""
 "İlgili nesnelere sayısal kimlik veya öznitelikler sözlüğü ile "
 "başvurulmalıdır. Tanınmayan bir değer alındı: {value}"
 
-#: netbox/utilities/api.py:177
+#: netbox/utilities/api.py:175
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr "Sağlanan sayısal kimlik kullanılarak ilgili nesne bulunamadı: {id}"
@@ -16105,15 +16121,16 @@ msgstr ""
 "Geçersiz liste ({value}). Sayısal olmalı ve aralıklar artan sırada "
 "olmalıdır."
 
-#: netbox/utilities/forms/fields/array.py:40
+#: netbox/utilities/forms/fields/array.py:41
+#, python-brace-format
 msgid ""
-"Specify one or more numeric ranges separated by commas. Example: "
-"<code>1-5,20-30</code>"
+"Specify one or more individual numbers or numeric ranges separated by "
+"commas. Example: {example}"
 msgstr ""
-"Virgülle ayrılmış bir veya daha fazla sayısal aralık belirtin. Örnek: "
-"<code>1-5,20-30</code>"
+"Virgülle ayrılmış bir veya daha fazla ayrı sayı veya sayısal aralık "
+"belirtin. Örnek: {example}"
 
-#: netbox/utilities/forms/fields/array.py:47
+#: netbox/utilities/forms/fields/array.py:49
 #, python-brace-format
 msgid ""
 "Invalid ranges ({value}). Must be a range of integers in ascending order."
@@ -16409,6 +16426,10 @@ msgstr "Hızlı ekleme"
 #: netbox/utilities/templates/widgets/markdown_input.html:6
 msgid "Write"
 msgstr "Yazmak"
+
+#: netbox/utilities/templates/widgets/splitmultiselect.html:19
+msgid "Selected"
+msgstr "Seçilmiş"
 
 #: netbox/utilities/testing/views.py:632
 msgid "The test must define csv_update_data."

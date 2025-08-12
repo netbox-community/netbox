@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0210_interface_tx_power_negative'),
+        ('dcim', '0212_interface_tx_power_negative'),
     ]
 
     operations = [

@@ -180,7 +180,7 @@ class ObjectPermissionTestCase(
         cls.form_data = {
             'name': 'Permission X',
             'description': 'A new permission',
-            'object_types': [object_type.pk],
+            'object_types_1': [object_type.pk],  # SplitMultiSelectWidget requires _1 suffix on field name
             'actions': 'view,edit,delete',
         }
 

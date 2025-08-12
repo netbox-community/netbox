@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0209_platform_manufacturer_uniqueness'),
+        ('dcim', '0211_platform_manufacturer_uniqueness'),
     ]
 
     operations = [

@@ -15,7 +15,7 @@ from users.models import *
 from utilities.data import flatten_dict
 from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import DateTimePicker
+from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
 
 __all__ = (
@@ -272,12 +272,21 @@ class GroupForm(forms.ModelForm):
         return instance
 
 
+def get_object_types_choices():
+    return [
+        (ot.pk, str(ot))
+        for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model')
+    ]
+
+
 class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.all(),
-        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
-        widget=forms.SelectMultiple(attrs={'size': 6})
+        widget=SplitMultiSelectWidget(
+            choices=get_object_types_choices
+        ),
+        help_text=_('Select the types of objects to which the permission will appy.')
     )
     can_view = forms.BooleanField(
         required=False

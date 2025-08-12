@@ -8,6 +8,8 @@ pre.change-data {
     display: block;
     padding-right: $spacer;
     padding-left: $spacer;
+    width: 100%;
+    min-width: fit-content;
 
     &.added {
       background-color: $green;

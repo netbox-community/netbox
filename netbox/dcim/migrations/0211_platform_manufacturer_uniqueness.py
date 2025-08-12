@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0208_devicerole_uniqueness'),
+        ('dcim', '0210_macaddress_ordering'),
         ('extras', '0129_fix_script_paths'),
     ]
 

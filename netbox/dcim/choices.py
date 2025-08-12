@@ -362,6 +362,7 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_C8 = 'iec-60320-c8'
     TYPE_IEC_C14 = 'iec-60320-c14'
     TYPE_IEC_C16 = 'iec-60320-c16'
+    TYPE_IEC_C18 = 'iec-60320-c18'
     TYPE_IEC_C20 = 'iec-60320-c20'
     TYPE_IEC_C22 = 'iec-60320-c22'
     # IEC 60309
@@ -480,6 +481,7 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_C8, 'C8'),
             (TYPE_IEC_C14, 'C14'),
             (TYPE_IEC_C16, 'C16'),
+            (TYPE_IEC_C18, 'C18'),
             (TYPE_IEC_C20, 'C20'),
             (TYPE_IEC_C22, 'C22'),
         )),
@@ -617,6 +619,7 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_C7 = 'iec-60320-c7'
     TYPE_IEC_C13 = 'iec-60320-c13'
     TYPE_IEC_C15 = 'iec-60320-c15'
+    TYPE_IEC_C17 = 'iec-60320-c17'
     TYPE_IEC_C19 = 'iec-60320-c19'
     TYPE_IEC_C21 = 'iec-60320-c21'
     # IEC 60309
@@ -729,6 +732,7 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_C7, 'C7'),
             (TYPE_IEC_C13, 'C13'),
             (TYPE_IEC_C15, 'C15'),
+            (TYPE_IEC_C17, 'C17'),
             (TYPE_IEC_C19, 'C19'),
             (TYPE_IEC_C21, 'C21'),
         )),

@@ -1,6 +1,21 @@
 import { getElements } from '../util';
 
 /**
+ * Move selected options from one select element to another.
+ *
+ * @param source Select Element
+ * @param target Select Element
+ */
+function moveOption(source: HTMLSelectElement, target: HTMLSelectElement): void {
+  for (const option of Array.from(source.options)) {
+    if (option.selected) {
+      target.appendChild(option.cloneNode(true));
+      option.remove();
+    }
+  }
+}
+
+/**
  * Move selected options of a select element up in order.
  *
  * Adapted from:
@@ -39,23 +54,35 @@ function moveOptionDown(element: HTMLSelectElement): void {
 }
 
 /**
- * Initialize move up/down buttons.
+ * Initialize select/move buttons.
  */
 export function initMoveButtons(): void {
-  for (const button of getElements<HTMLButtonElement>('#move-option-up')) {
+  // Move selected option(s) between lists
+  for (const button of getElements<HTMLButtonElement>('.move-option')) {
+    const source = button.getAttribute('data-source');
     const target = button.getAttribute('data-target');
-    if (target !== null) {
-      for (const select of getElements<HTMLSelectElement>(`#${target}`)) {
-        button.addEventListener('click', () => moveOptionUp(select));
-      }
+    const source_select = document.getElementById(`id_${source}`) as HTMLSelectElement;
+    const target_select = document.getElementById(`id_${target}`) as HTMLSelectElement;
+    if (source_select !== null && target_select !== null) {
+      button.addEventListener('click', () => moveOption(source_select, target_select));
     }
   }
-  for (const button of getElements<HTMLButtonElement>('#move-option-down')) {
+
+  // Move selected option(s) up in current list
+  for (const button of getElements<HTMLButtonElement>('.move-option-up')) {
     const target = button.getAttribute('data-target');
-    if (target !== null) {
-      for (const select of getElements<HTMLSelectElement>(`#${target}`)) {
-        button.addEventListener('click', () => moveOptionDown(select));
-      }
+    const target_select = document.getElementById(`id_${target}`) as HTMLSelectElement;
+    if (target_select !== null) {
+      button.addEventListener('click', () => moveOptionUp(target_select));
+    }
+  }
+
+  // Move selected option(s) down in current list
+  for (const button of getElements<HTMLButtonElement>('.move-option-down')) {
+    const target = button.getAttribute('data-target');
+    const target_select = document.getElementById(`id_${target}`) as HTMLSelectElement;
+    if (target_select !== null) {
+      button.addEventListener('click', () => moveOptionDown(target_select));
     }
   }
 }

@@ -807,3 +807,21 @@ class NotificationTestCase(
 
     def test_list_objects_with_constrained_permission(self):
         return
+
+
+class ScriptListViewTest(TestCase):
+    user_permissions = ['extras.view_script']
+
+    def test_script_list_embedded_parameter(self):
+        """Test that ScriptListView accepts embedded parameter without error"""
+        url = reverse('extras:script_list')
+
+        # Test normal request
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'extras/script_list.html')
+
+        # Test embedded request
+        response = self.client.get(url, {'embedded': 'true'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')

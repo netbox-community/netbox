@@ -65,6 +65,29 @@ class ComponentModel(NetBoxModel):
         blank=True
     )
 
+    # Denormalized references replicated from the parent Device
+    _site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+    _location = models.ForeignKey(
+        to='dcim.Location',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+    _rack = models.ForeignKey(
+        to='dcim.Rack',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         abstract = True
         ordering = ('device', 'name')
@@ -99,6 +122,14 @@ class ComponentModel(NetBoxModel):
             raise ValidationError({
                 "device": _("Components cannot be moved to a different device.")
             })
+
+    def save(self, *args, **kwargs):
+        # Save denormalized references
+        self._site = self.device.site
+        self._location = self.device.location
+        self._rack = self.device.rack
+
+        super().save(*args, **kwargs)
 
     @property
     def parent_object(self):

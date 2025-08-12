@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0212_platform_rebuild'),
+        ('dcim', '0214_platform_rebuild'),
     ]
 
     operations = [

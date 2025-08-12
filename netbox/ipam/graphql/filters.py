@@ -222,6 +222,19 @@ class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMi
                 return Q()
         return q
 
+    @strawberry_django.filter_field()
+    def contains(self, value: list[str], prefix) -> Q:
+        if not value:
+            return Q()
+        q = Q()
+        for subnet in value:
+            net = netaddr.IPNetwork(subnet.strip())
+            q |= Q(
+                start_address__host__inet__lte=str(netaddr.IPAddress(net.first)),
+                end_address__host__inet__gte=str(netaddr.IPAddress(net.last)),
+            )
+        return q
+
 
 @strawberry_django.filter_type(models.Prefix, lookups=True)
 class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
@@ -237,6 +250,16 @@ class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, Pr
     role_id: ID | None = strawberry_django.filter_field()
     is_pool: FilterLookup[bool] | None = strawberry_django.filter_field()
     mark_utilized: FilterLookup[bool] | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field()
+    def contains(self, value: list[str], prefix) -> Q:
+        if not value:
+            return Q()
+        q = Q()
+        for subnet in value:
+            query = str(netaddr.IPNetwork(subnet.strip()).cidr)
+            q |= Q(prefix__net_contains=query)
+        return q
 
 
 @strawberry_django.filter_type(models.RIR, lookups=True)

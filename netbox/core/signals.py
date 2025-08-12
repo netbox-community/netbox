@@ -14,6 +14,7 @@ from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
 from core.models import ObjectType
 from extras.events import enqueue_event
+from extras.models import Tag
 from extras.utils import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
@@ -104,6 +105,17 @@ def handle_changed_object(sender, instance, **kwargs):
         # m2m_changed with objects added or removed
         m2m_changed = True
         event_type = OBJECT_UPDATED
+    elif kwargs.get('action') == 'post_clear':
+        # Handle clearing of an M2M field
+        if kwargs.get('model') == Tag and getattr(instance, '_prechange_snapshot', {}).get('tags'):
+            # Handle generation of M2M changes for Tags which have a previous value (ignoring changes where the
+            # prechange snapshot is empty)
+            m2m_changed = True
+            event_type = OBJECT_UPDATED
+        else:
+            # Other endpoints are unimpacted as they send post_add and post_remove
+            # This will impact changes that utilize clear() however so we may want to give consideration for this branch
+            return
     else:
         return
 
