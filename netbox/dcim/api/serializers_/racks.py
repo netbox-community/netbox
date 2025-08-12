@@ -137,17 +137,29 @@ class RackSerializer(RackBaseSerializer):
 
 
 class RackReservationSerializer(NetBoxModelSerializer):
-    rack = RackSerializer(nested=True)
-    user = UserSerializer(nested=True)
-    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    rack = RackSerializer(
+        nested=True,
+    )
+    status = ChoiceField(
+        choices=RackReservationStatusChoices,
+        required=False,
+    )
+    user = UserSerializer(
+        nested=True,
+    )
+    tenant = TenantSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = RackReservation
         fields = [
-            'id', 'url', 'display_url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant',
-            'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'rack', 'units', 'status', 'created', 'last_updated', 'user',
+            'tenant', 'description', 'comments', 'tags', 'custom_fields',
         ]
-        brief_fields = ('id', 'url', 'display', 'user', 'description', 'units')
+        brief_fields = ('id', 'url', 'display', 'status', 'user', 'description', 'units')
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):

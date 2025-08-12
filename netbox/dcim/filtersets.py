@@ -499,6 +499,10 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=RackReservationStatusChoices,
+        null_value=None
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
