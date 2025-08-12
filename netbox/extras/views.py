@@ -1098,7 +1098,7 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset = filtersets.ImageAttachmentFilterSet
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
-    actions = (BulkRename, BulkExport)
+    actions = (BulkExport, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ImageAttachment)
@@ -1126,14 +1126,29 @@ class ImageAttachmentEditView(generic.ObjectEditView):
         }
 
 
+@register_model_view(ImageAttachment, 'delete')
+class ImageAttachmentDeleteView(generic.ObjectDeleteView):
+    queryset = ImageAttachment.objects.all()
+
+
+@register_model_view(ImageAttachment, 'bulk_edit', path='edit', detail=False)
+class ImageAttachmentBulkEditView(generic.BulkEditView):
+    queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    table = tables.ImageAttachmentTable
+    form = forms.ImageAttachmentBulkEditForm
+
+
 @register_model_view(ImageAttachment, 'bulk_rename', path='rename', detail=False)
 class ImageAttachmentBulkRenameView(generic.BulkRenameView):
     queryset = ImageAttachment.objects.all()
 
 
-@register_model_view(ImageAttachment, 'delete')
-class ImageAttachmentDeleteView(generic.ObjectDeleteView):
+@register_model_view(ImageAttachment, 'bulk_delete', path='delete', detail=False)
+class ImageAttachmentBulkDeleteView(generic.BulkDeleteView):
     queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    table = tables.ImageAttachmentTable
 
 
 #
