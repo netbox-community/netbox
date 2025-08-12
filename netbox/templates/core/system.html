@@ -8,82 +8,141 @@
 
 {% block controls %}
   <a href="?export=true" class="btn btn-purple">
-    <i class="mdi mdi-download"></i> {% trans "Export" %}
+    <i class="mdi mdi-download"></i> {% trans "Export All" %}
   </a>
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" role="tab">{% trans "Status" %}</a>
+      <a class="nav-link active" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-panel" type="button" role="tab" aria-selected="true">
+        {% trans "Status" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config-panel" type="button" role="tab">
+        {% trans "Config" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins-panel" type="button" role="tab">
+        {% trans "Plugins" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="objects-tab" data-bs-toggle="tab" data-bs-target="#objects-panel" type="button" role="tab">
+        {% trans "Object Counts" %}
+      </a>
     </li>
   </ul>
 {% endblock tabs %}
 
 {% block content %}
-  {# System status #}
-  <div class="row mb-3">
-    <div class="col">
-      <div class="card">
-        <h2 class="card-header">{% trans "System Status" %}</h2>
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "NetBox release" %}</th>
-            <td>
-              {{ stats.netbox_release.name }}
-              {% if stats.netbox_release.published %}
-               ({{ stats.netbox_release.published|isodate }})
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Python version" %}</th>
-            <td>{{ stats.python_version }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Django version" %}</th>
-            <td>{{ stats.django_version }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "PostgreSQL version" %}</th>
-            <td>{{ stats.postgresql_version }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Database name" %}</th>
-            <td>{{ stats.database_name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Database size" %}</th>
-            <td>
-              {% if stats.database_size %}
-                {{ stats.database_size }}
-              {% else %}
-                <span class="text-muted">{% trans "Unavailable" %}</span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "RQ workers" %}</th>
-            <td>
-              <a href="{% url 'core:background_queue_list' %}">{{ stats.rq_worker_count }}</a>
-              ({% trans "default queue" %})
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "System time" %}</th>
-            <td>{% now 'Y-m-d H:i:s T' %}</td>
-          </tr>
-        </table>
+  {# Status panel #}
+  <div class="tab-pane show active" id="status-panel" role="tabpanel" aria-labelledby="status-tab">
+    <div class="row mb-3">
+      <div class="col">
+        <div class="card">
+          <h2 class="card-header">{% trans "System Status" %}</h2>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "NetBox release" %}</th>
+              <td>
+                {{ stats.netbox_release.name }}
+                {% if stats.netbox_release.published %}
+                 ({{ stats.netbox_release.published|isodate }})
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Python version" %}</th>
+              <td>{{ stats.python_version }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Django version" %}</th>
+              <td>{{ stats.django_version }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "PostgreSQL version" %}</th>
+              <td>{{ stats.postgresql_version }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Database name" %}</th>
+              <td>{{ stats.database_name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Database size" %}</th>
+              <td>
+                {% if stats.database_size %}
+                  {{ stats.database_size }}
+                {% else %}
+                  <span class="text-muted">{% trans "Unavailable" %}</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "RQ workers" %}</th>
+              <td>
+                <a href="{% url 'core:background_queue_list' %}">{{ stats.rq_worker_count }}</a>
+                ({% trans "default queue" %})
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "System time" %}</th>
+              <td>{% now 'Y-m-d H:i:s T' %}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
-  {# Configuration #}
-  <div class="row mb-3">
-    <div class="col col-md-12">
-      <div class="card">
-        <h2 class="card-header">{% trans "Current Configuration" %}</h2>
-        {% include 'core/inc/config_data.html' %}
+  {# Config panel #}
+  <div class="tab-pane" id="config-panel" role="tabpanel" aria-labelledby="config-tab">
+    <div class="row mb-3">
+      <div class="col">
+        <div class="card">
+          <h2 class="card-header">{% trans "Current Configuration" %}</h2>
+          {% include 'core/inc/config_data.html' %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Plugins panel #}
+  <div class="tab-pane" id="plugins-panel" role="tabpanel" aria-labelledby="plugins-tab">
+    <div class="row mb-3">
+      <div class="col">
+        <div class="card">
+          <h2 class="card-header">{% trans "Installed Plugins" %}</h2>
+          <table class="table table-hover attr-table">
+            {% for plugin, version in plugins.items %}
+              <tr>
+                <td>{{ plugin }}</td>
+                <td>{{ version }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Objects panel #}
+  <div class="tab-pane" id="objects-panel" role="tabpanel" aria-labelledby="objects-tab">
+    <div class="row mb-3">
+      <div class="col col-md-12">
+        <div class="card">
+          <h2 class="card-header">{% trans "Object Counts" %}</h2>
+          <table class="table table-hover attr-table">
+            {% for object_type, count in objects.items %}
+              <tr{% if not count %} class="text-muted"{% endif %}>
+                <td>{{ object_type }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
       </div>
     </div>
   </div>
