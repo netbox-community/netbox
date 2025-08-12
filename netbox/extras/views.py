@@ -794,6 +794,67 @@ class TagBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Config context profiles
+#
+
+@register_model_view(ConfigContextProfile, 'list', path='', detail=False)
+class ConfigContextProfileListView(generic.ObjectListView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    filterset_form = forms.ConfigContextProfileFilterForm
+    table = tables.ConfigContextProfileTable
+    actions = (AddObject, BulkSync, BulkEdit, BulkRename, BulkDelete)
+
+
+@register_model_view(ConfigContextProfile)
+class ConfigContextProfileView(generic.ObjectView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'add', detail=False)
+@register_model_view(ConfigContextProfile, 'edit')
+class ConfigContextProfileEditView(generic.ObjectEditView):
+    queryset = ConfigContextProfile.objects.all()
+    form = forms.ConfigContextProfileForm
+
+
+@register_model_view(ConfigContextProfile, 'delete')
+class ConfigContextProfileDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'bulk_import', path='import', detail=False)
+class ConfigContextProfileBulkImportView(generic.BulkImportView):
+    queryset = ConfigContextProfile.objects.all()
+    model_form = forms.ConfigContextProfileImportForm
+
+
+@register_model_view(ConfigContextProfile, 'bulk_edit', path='edit', detail=False)
+class ConfigContextProfileBulkEditView(generic.BulkEditView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    table = tables.ConfigContextProfileTable
+    form = forms.ConfigContextProfileBulkEditForm
+
+
+@register_model_view(ConfigContextProfile, 'bulk_rename', path='rename', detail=False)
+class ConfigContextProfileBulkRenameView(generic.BulkRenameView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'bulk_delete', path='delete', detail=False)
+class ConfigContextProfileBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    table = tables.ConfigContextProfileTable
+
+
+@register_model_view(ConfigContextProfile, 'bulk_sync', path='sync', detail=False)
+class ConfigContextProfileBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+#
 # Config contexts
 #
 

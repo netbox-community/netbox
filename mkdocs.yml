@@ -226,6 +226,7 @@ nav:
         - Extras:
             - Bookmark: 'models/extras/bookmark.md'
             - ConfigContext: 'models/extras/configcontext.md'
+            - ConfigContextProfile: 'models/extras/configcontextprofile.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
             - CustomFieldChoiceSet: 'models/extras/customfieldchoiceset.md'
