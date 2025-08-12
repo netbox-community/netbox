@@ -1,5 +1,34 @@
 # NetBox v4.3
 
+## v4.3.6 (2025-08-12)
+
+### Enhancements
+
+* [#17222](https://github.com/netbox-community/netbox/issues/17222) - Made unread notifications more visible with improved styling and positioning
+* [#18843](https://github.com/netbox-community/netbox/issues/18843) - Include color name when exporting cables
+* [#18873](https://github.com/netbox-community/netbox/issues/18873) - Add a request timeout parameter to the RSS feed dashboard widget
+* [#19622](https://github.com/netbox-community/netbox/issues/19622) - Allow sharing GraphQL queries as links
+* [#19728](https://github.com/netbox-community/netbox/issues/19728) - Added C18 power port type for audio devices
+* [#19968](https://github.com/netbox-community/netbox/issues/19968) - Improve object type selection form field when editing permissions
+* [#19977](https://github.com/netbox-community/netbox/issues/19977) - Improve performance when filtering device components by site, location, or rack
+
+### Bug Fixes
+
+* [#19321](https://github.com/netbox-community/netbox/issues/19321) - Reduce redundant database queries when bulk importing devices
+* [#19379](https://github.com/netbox-community/netbox/issues/19379) - Support singular VLAN IDs in list when editing a VLAN group
+* [#19812](https://github.com/netbox-community/netbox/issues/19812) - Implement `contains` GraphQL filter for IPAM prefixes and IP ranges
+* [#19917](https://github.com/netbox-community/netbox/issues/19917) - Ensure deterministic ordering of duplicate MAC addresses
+* [#19996](https://github.com/netbox-community/netbox/issues/19996) - Correct dynamic query parameters for IP Address field in Add/Edit Service form
+* [#19998](https://github.com/netbox-community/netbox/issues/19998) - Fix missing changelog records for deleted tags
+* [#19999](https://github.com/netbox-community/netbox/issues/19999) - Corrected excessive whitespace in script list dashboard widget
+* [#20001](https://github.com/netbox-community/netbox/issues/20001) - `is_api_request()` should not evaluate a request's content type
+* [#20009](https://github.com/netbox-community/netbox/issues/20009) - Ensure search parameter is escaped for export links under object list views
+* [#20017](https://github.com/netbox-community/netbox/issues/20017) - Fix highlighting of changed lines in changelog data
+* [#20023](https://github.com/netbox-community/netbox/issues/20023) - Add GiST index on prefixes table to vastly improve bulk deletion time
+* [#20030](https://github.com/netbox-community/netbox/issues/20030) - Fix height of object list action buttons & others
+* [#20033](https://github.com/netbox-community/netbox/issues/20033) - Fix `TypeError` exception when bulk deleting bookmarks
+* [#20056](https://github.com/netbox-community/netbox/issues/20056) - Fixed missing RF role options in device type schema validation
+
 ## v4.3.5 (2025-07-29)
 
 ### Enhancements
