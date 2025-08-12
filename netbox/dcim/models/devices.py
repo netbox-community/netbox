@@ -438,15 +438,6 @@ class Platform(NestedGroupModel):
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
-    # Override name & slug from OrganizationalModel to not enforce uniqueness
-    name = models.CharField(
-        verbose_name=_('name'),
-        max_length=100
-    )
-    slug = models.SlugField(
-        verbose_name=_('slug'),
-        max_length=100
-    )
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',
         on_delete=models.PROTECT,
