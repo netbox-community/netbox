@@ -586,7 +586,7 @@ class TagForm(ChangelogMessageMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextProfileForm(NetBoxModelForm):
+class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
     schema = JSONField(
         label=_('Schema'),
         required=False,
@@ -606,7 +606,7 @@ class ConfigContextProfileForm(NetBoxModelForm):
     class Meta:
         model = ConfigContextProfile
         fields = (
-            'name', 'description', 'schema', 'data_source', 'data_file', 'comments', 'tags',
+            'name', 'description', 'schema', 'data_source', 'data_file', 'auto_sync_enabled', 'comments', 'tags',
         )
 
 

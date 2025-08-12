@@ -60,6 +60,13 @@ class ConfigContextProfile(SyncedDataMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
+    def sync_data(self):
+        """
+        Synchronize schema from the designated DataFile (if any).
+        """
+        self.schema = self.data_file.get_data()
+    sync_data.alters_data = True
+
 
 class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, ChangeLoggedModel):
     """
