@@ -40,9 +40,8 @@ __all__ = (
 
 IMAGEATTACHMENT_IMAGE = """
 {% if record.image %}
-  <a class="image-preview" href="{{ record.image.url }}" target="_blank">
-    <i class="mdi mdi-image"></i>
-  </a>
+  <a href="{{ record.image.url }}" target="_blank" class="image-preview" data-bs-placement="top">
+    <i class="mdi mdi-image"></i></a>
 {% endif %}
 <a href="{{ record.get_absolute_url }}">{{ record }}</a>
 """
@@ -236,6 +235,7 @@ class ImageAttachmentTable(NetBoxTable):
     image = columns.TemplateColumn(
         verbose_name=_('Image'),
         template_code=IMAGEATTACHMENT_IMAGE,
+        attrs={'td': {'class': 'text-nowrap'}}
     )
     name = tables.Column(
         verbose_name=_('Name'),
@@ -255,7 +255,7 @@ class ImageAttachmentTable(NetBoxTable):
         verbose_name=_('Object Type'),
     )
     parent = tables.Column(
-        verbose_name=_('Parent'),
+        verbose_name=_('Object'),
         linkify=True,
         orderable=False,
     )
