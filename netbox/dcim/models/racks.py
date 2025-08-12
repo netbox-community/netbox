@@ -673,6 +673,12 @@ class RackReservation(PrimaryModel):
         verbose_name=_('units'),
         base_field=models.PositiveSmallIntegerField()
     )
+    status = models.CharField(
+        verbose_name=_('status'),
+        max_length=50,
+        choices=RackReservationStatusChoices,
+        default=RackReservationStatusChoices.STATUS_ACTIVE
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -732,6 +738,9 @@ class RackReservation(PrimaryModel):
     @property
     def unit_list(self):
         return array_to_string(self.units)
+
+    def get_status_color(self):
+        return RackReservationStatusChoices.colors.get(self.status)
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

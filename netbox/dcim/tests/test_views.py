@@ -337,6 +337,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'rack': rack.pk,
             'units': "10,11,12",
+            'status': RackReservationStatusChoices.STATUS_PENDING,
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',
@@ -344,10 +345,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'site,location,rack,units,description',
-            'Site 1,Location 1,Rack 1,"10,11,12",Reservation 1',
-            'Site 1,Location 1,Rack 1,"13,14,15",Reservation 2',
-            'Site 1,Location 1,Rack 1,"16,17,18",Reservation 3',
+            'site,location,rack,units,status,description',
+            'Site 1,Location 1,Rack 1,"10,11,12",active,Reservation 1',
+            'Site 1,Location 1,Rack 1,"13,14,15",pending,Reservation 2',
+            'Site 1,Location 1,Rack 1,"16,17,18",stale,Reservation 3',
         )
 
         cls.csv_update_data = (
@@ -358,6 +359,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
+            'status': RackReservationStatusChoices.STATUS_STALE,
             'user': user3.pk,
             'tenant': None,
             'description': 'New description',

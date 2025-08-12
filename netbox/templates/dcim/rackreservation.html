@@ -13,83 +13,87 @@
 {% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-	<div class="col col-12 col-xl-5">
-        <div class="card">
-            <h2 class="card-header">{% trans "Rack" %}</h2>
-            <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Region" %}</th>
-                    <td>
-                        {% nested_tree object.rack.site.region %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Site" %}</th>
-                    <td>{{ object.rack.site|linkify }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Location" %}</th>
-                    <td>{{ object.rack.location|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Rack" %}</th>
-                    <td>{{ object.rack|linkify }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="card">
-            <h2 class="card-header">{% trans "Reservation Details" %}</h2>
-            <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Units" %}</th>
-                    <td>{{ object.unit_list }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Tenant" %}</th>
-                    <td>
-                        {% if object.tenant.group %}
-                            {{ object.tenant.group|linkify }} /
-                        {% endif %}
-                        {{ object.tenant|linkify|placeholder }}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "User" %}</th>
-                    <td>{{ object.user }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Description" %}</th>
-                    <td>{{ object.description }}</td>
-                </tr>
-            </table>
-        </div>
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% include 'inc/panels/comments.html' %}
-        {% plugin_left_page object %}
-	</div>
-    <div class="col col-12 col-xl-7">
+  <div class="row mb-3">
+    <div class="col col-12 col-xl-5">
+      <div class="card">
+        <h2 class="card-header">{% trans "Rack" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Region" %}</th>
+            <td>
+              {% nested_tree object.rack.site.region %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Site" %}</th>
+            <td>{{ object.rack.site|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Location" %}</th>
+            <td>{{ object.rack.location|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Rack" %}</th>
+            <td>{{ object.rack|linkify }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Reservation Details" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Units" %}</th>
+            <td>{{ object.unit_list }}</td>
+          </tr>
+           <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "User" %}</th>
+            <td>{{ object.user }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_left_page object %}
+    </div>
+      <div class="col col-12 col-xl-7">
         <div class="row" style="margin-bottom: 20px">
-            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
-                <div style="margin-left: 30px">
-                    <h2 class="h4">{% trans "Front" %}</h2>
-                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' %}
-                </div>
+          <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+            <div style="margin-left: 30px">
+              <h2 class="h4">{% trans "Front" %}</h2>
+              {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='front' %}
             </div>
-            <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
-                <div style="margin-left: -30px">
-                    <h2 class="h4">{% trans "Rear" %}</h2>
-                    {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' %}
-                </div>
+          </div>
+          <div class="col col-md-6 col-sm-6 col-xs-12 text-center">
+            <div style="margin-left: -30px">
+              <h2 class="h4">{% trans "Rear" %}</h2>
+              {% include 'dcim/inc/rack_elevation.html' with object=object.rack face='rear' %}
             </div>
+          </div>
         </div>
         {% plugin_right_page object %}
-    </div>
-</div>
-<div class="row">
+      </div>
+  </div>
+  <div class="row">
     <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+      {% plugin_full_width_page object %}
     </div>
-</div>
+  </div>
 {% endblock %}

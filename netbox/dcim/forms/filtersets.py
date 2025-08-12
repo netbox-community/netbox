@@ -417,7 +417,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RackReservation
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('user_id', name=_('User')),
+        FieldSet('status', 'user_id', name=_('Reservation')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Rack')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -457,6 +457,11 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             'location_id': '$location_id',
         },
         label=_('Rack')
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        required=False
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),

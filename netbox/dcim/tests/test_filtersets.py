@@ -1141,9 +1141,30 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         reservations = (
-            RackReservation(rack=racks[0], units=[1, 2, 3], user=users[0], tenant=tenants[0], description='foobar1'),
-            RackReservation(rack=racks[1], units=[4, 5, 6], user=users[1], tenant=tenants[1], description='foobar2'),
-            RackReservation(rack=racks[2], units=[7, 8, 9], user=users[2], tenant=tenants[2], description='foobar3'),
+            RackReservation(
+                rack=racks[0],
+                units=[1, 2, 3],
+                status=RackReservationStatusChoices.STATUS_ACTIVE,
+                user=users[0],
+                tenant=tenants[0],
+                description='foobar1',
+            ),
+            RackReservation(
+                rack=racks[1],
+                units=[4, 5, 6],
+                status=RackReservationStatusChoices.STATUS_PENDING,
+                user=users[1],
+                tenant=tenants[1],
+                description='foobar2',
+            ),
+            RackReservation(
+                rack=racks[2],
+                units=[7, 8, 9],
+                status=RackReservationStatusChoices.STATUS_STALE,
+                user=users[2],
+                tenant=tenants[2],
+                description='foobar3',
+            ),
         )
         RackReservation.objects.bulk_create(reservations)
 
@@ -1177,6 +1198,10 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_status(self):
+        params = {'status': [RackReservationStatusChoices.STATUS_ACTIVE, RackReservationStatusChoices.STATUS_PENDING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):

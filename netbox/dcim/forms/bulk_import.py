@@ -358,6 +358,11 @@ class RackReservationImportForm(NetBoxModelImportForm):
         required=True,
         help_text=_('Comma-separated list of individual unit numbers')
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        help_text=_('Operational status')
+    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -368,7 +373,7 @@ class RackReservationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description', 'comments', 'tags')
+        fields = ('site', 'location', 'rack', 'units', 'status', 'tenant', 'description', 'comments', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)

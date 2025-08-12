@@ -476,6 +476,12 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(RackReservationStatusChoices),
+        required=False,
+        initial=''
+    )
     user = forms.ModelChoiceField(
         label=_('User'),
         queryset=User.objects.order_by('username'),
@@ -495,7 +501,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackReservation
     fieldsets = (
-        FieldSet('user', 'tenant', 'description'),
+        FieldSet('status', 'user', 'tenant', 'description'),
     )
     nullable_fields = ('comments',)
 

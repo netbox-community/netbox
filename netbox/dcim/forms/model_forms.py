@@ -336,14 +336,14 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('rack', 'units', 'user', 'description', 'tags', name=_('Reservation')),
+        FieldSet('rack', 'units', 'status', 'user', 'description', 'tags', name=_('Reservation')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
 
