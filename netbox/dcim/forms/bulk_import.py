@@ -691,6 +691,12 @@ class DeviceImportForm(BaseDeviceImportForm):
                 })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
+            # Limit platform queryset by manufacturer
+            params = {f"manufacturer__{self.fields['manufacturer'].to_field_name}": data.get('manufacturer')}
+            self.fields['platform'].queryset = self.fields['platform'].queryset.filter(
+                Q(**params) | Q(manufacturer=None)
+            )
+
             # Limit device bay queryset by parent device
             if parent := data.get('parent'):
                 params = {f"device__{self.fields['parent'].to_field_name}": parent}
