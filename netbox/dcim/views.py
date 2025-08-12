@@ -2109,9 +2109,18 @@ class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Platform, 'list', path='', detail=False)
 class PlatformListView(generic.ObjectListView):
-    queryset = Platform.objects.annotate(
-        device_count=count_related(Device, 'platform'),
-        vm_count=count_related(VirtualMachine, 'platform')
+    queryset = Platform.objects.add_related_count(
+        Platform.objects.add_related_count(
+            Platform.objects.all(),
+            VirtualMachine,
+            'platform',
+            'vm_count',
+            cumulative=True
+        ),
+        Device,
+        'platform',
+        'device_count',
+        cumulative=True
     )
     table = tables.PlatformTable
     filterset = filtersets.PlatformFilterSet
