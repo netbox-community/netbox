@@ -20,6 +20,7 @@ __all__ = (
     'CustomLinkBulkEditForm',
     'EventRuleBulkEditForm',
     'ExportTemplateBulkEditForm',
+    'ImageAttachmentBulkEditForm',
     'JournalEntryBulkEditForm',
     'NotificationGroupBulkEditForm',
     'SavedFilterBulkEditForm',
@@ -399,6 +400,18 @@ class ConfigTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     )
 
     nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
+
+
+class ImageAttachmentBulkEditForm(ChangelogMessageMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ImageAttachment.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
 
 
 class JournalEntryBulkEditForm(ChangelogMessageMixin, BulkEditForm):
