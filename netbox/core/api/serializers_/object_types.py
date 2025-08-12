@@ -15,7 +15,7 @@ __all__ = (
 
 
 class ObjectTypeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:objecttype-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='core-api:objecttype-detail')
     app_name = serializers.CharField(source='app_verbose_name', read_only=True)
     model_name = serializers.CharField(source='model_verbose_name', read_only=True)
     model_name_plural = serializers.CharField(source='model_verbose_name_plural', read_only=True)
