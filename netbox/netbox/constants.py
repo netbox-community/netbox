@@ -38,6 +38,7 @@ ADVISORY_LOCK_KEYS = {
     'wirelesslangroup': 105600,
     'inventoryitem': 105700,
     'inventoryitemtemplate': 105800,
+    'platform': 105900,
 
     # Jobs
     'job-schedules': 110100,
