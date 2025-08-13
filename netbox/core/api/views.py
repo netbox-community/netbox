@@ -78,9 +78,11 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     Retrieve a list of recent changes.
     """
     metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.valid_models()
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
+
+    def get_queryset(self):
+        return ObjectChange.objects.valid_models()
 
 
 class ObjectTypeViewSet(ReadOnlyModelViewSet):

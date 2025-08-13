@@ -216,17 +216,23 @@ class JobBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(ObjectChange, 'list', path='', detail=False)
 class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.valid_models()
+    queryset = None
     filterset = filtersets.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'core/objectchange_list.html'
     actions = (BulkExport,)
 
+    def get_queryset(self, request):
+        return ObjectChange.objects.valid_models()
+
 
 @register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.valid_models()
+    queryset = None
+
+    def get_queryset(self, request):
+        return ObjectChange.objects.valid_models()
 
     def get_extra_context(self, request, instance):
         related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
