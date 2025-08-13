@@ -20,10 +20,7 @@ class BulkAddComponents(ObjectAction):
     @classmethod
     def get_context(cls, context, obj):
         return {
-            'perms': context.get('perms'),
-            'request': context.get('request'),
             'formaction': context.get('formaction'),
-            'label': cls.label,
         }
 
 
