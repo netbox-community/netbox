@@ -46,6 +46,10 @@
           <h2 class="card-header">{% trans "System Status" %}</h2>
           <table class="table table-hover attr-table">
             <tr>
+              <th scope="row">{% trans "System hostname" %}</th>
+              <td>{{ settings.HOSTNAME }}</td>
+            </tr>
+            <tr>
               <th scope="row">{% trans "NetBox release" %}</th>
               <td>
                 {{ stats.netbox_release.name }}
@@ -93,6 +97,23 @@
             </tr>
           </table>
         </div>
+        <div class="card">
+          <h2 class="card-header">{% trans "Django Apps" %}</h2>
+          {% if django_apps %}
+            <table class="table table-hover attr-table">
+              {% for app_name, version in django_apps.items %}
+                <tr>
+                  <td>{{ app_name }}</td>
+                  <td>{{ version }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% else %}
+            <div class="card-body text-muted">
+              {% trans "None found" %}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
@@ -115,14 +136,20 @@
       <div class="col">
         <div class="card">
           <h2 class="card-header">{% trans "Installed Plugins" %}</h2>
-          <table class="table table-hover attr-table">
-            {% for plugin, version in plugins.items %}
-              <tr>
-                <td>{{ plugin }}</td>
-                <td>{{ version }}</td>
-              </tr>
-            {% endfor %}
-          </table>
+          {% if plugins %}
+            <table class="table table-hover attr-table">
+              {% for plugin, version in plugins.items %}
+                <tr>
+                  <td>{{ plugin }}</td>
+                  <td>{{ version }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% else %}
+            <div class="card-body text-muted">
+              {% trans "No plugins are installed." %}
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
