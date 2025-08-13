@@ -27,6 +27,7 @@ from netbox.plugins.utils import get_installed_plugins
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
+from utilities.apps import get_installed_apps
 from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
@@ -575,6 +576,9 @@ class SystemView(UserPassesTestMixin, View):
             'rq_worker_count': Worker.count(get_connection('default')),
         }
 
+        # Django apps
+        django_apps = get_installed_apps()
+
         # Configuration
         config = get_config()
 
@@ -593,6 +597,7 @@ class SystemView(UserPassesTestMixin, View):
             params = [param.name for param in PARAMS]
             data = {
                 **stats,
+                'django_apps': django_apps,
                 'plugins': plugins,
                 'config': {
                     k: getattr(config, k) for k in sorted(params)
@@ -612,6 +617,7 @@ class SystemView(UserPassesTestMixin, View):
 
         return render(request, 'core/system.html', {
             'stats': stats,
+            'django_apps': django_apps,
             'config': config,
             'plugins': plugins,
             'objects': objects,
