@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from netbox.constants import CSV_DELIMITERS
 from netbox.registry import registry
 from users.preferences import UserPreference
+from utilities.constants import CSV_DELIMITERS
 from utilities.paginator import EnhancedPaginator
 
 
