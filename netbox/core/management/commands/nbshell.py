@@ -78,8 +78,8 @@ class Command(BaseCommand):
         for app_label in app_labels:
             app_name = apps.get_app_config(app_label).verbose_name
             print(f'{app_name}:')
-            for m in self.django_models[app_label]:
-                print(f'  {m}')
+            for model in self.django_models[app_label]:
+                print(f'  {app_label}.{model}')
 
     def get_namespace(self):
         namespace = defaultdict(SimpleNamespace)
