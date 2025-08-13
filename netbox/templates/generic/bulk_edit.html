@@ -93,7 +93,8 @@ Context:
 
           {# Render all fields #}
           {% for field in form.visible_fields %}
-            {% if field.name in form.nullable_fields %}
+            {% if field.name in form.meta_fields %}
+            {% elif field.name in form.nullable_fields %}
               {% render_field field bulk_nullable=True %}
             {% else %}
               {% render_field field %}
