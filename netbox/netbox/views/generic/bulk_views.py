@@ -21,6 +21,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -495,10 +496,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     #
 
     def get(self, request):
+        model = self.model_form._meta.model
         form = BulkImportForm()
+        if not issubclass(model, ChangeLoggingMixin):
+            form.fields.pop('changelog_message')
 
         return render(request, self.template_name, {
-            'model': self.model_form._meta.model,
+            'model': model,
             'form': form,
             'fields': self._get_form_fields(),
             'return_url': self.get_return_url(request),
@@ -509,6 +513,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         logger = logging.getLogger('netbox.views.BulkImportView')
         model = self.model_form._meta.model
         form = BulkImportForm(request.POST, request.FILES)
+        if not issubclass(model, ChangeLoggingMixin):
+            form.fields.pop('changelog_message')
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
