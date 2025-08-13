@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from django_tables2.export import TableExport as TableExport_
 
-from netbox.constants import CSV_DELIMITERS
+from utilities.constants import CSV_DELIMITERS
 
 __all__ = (
     'TableExport',

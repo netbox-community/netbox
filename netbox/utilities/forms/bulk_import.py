@@ -115,7 +115,7 @@ class BulkImportForm(ChangelogMessageMixin, BackgroundJobMixin, SyncedDataMixin,
                 dialect = csv.Sniffer().sniff(data.strip(), delimiters=delimiters)
             except csv.Error:
                 dialect = csv.excel
-        elif delimiter in (CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON):
+        elif delimiter in (CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON, CSVDelimiterChoices.PIPE):
             dialect = csv.excel
             dialect.delimiter = delimiter
         elif delimiter == CSVDelimiterChoices.TAB:
