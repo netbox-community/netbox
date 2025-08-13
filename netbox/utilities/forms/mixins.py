@@ -19,6 +19,15 @@ class BackgroundJobMixin(forms.Form):
         required=False,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Declare background_job a meta field
+        if hasattr(self, 'meta_fields'):
+            self.meta_fields.append('background_job')
+        else:
+            self.meta_fields = ['background_job']
+
 
 class CheckLastUpdatedMixin(forms.Form):
     """
