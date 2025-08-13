@@ -28,10 +28,11 @@ __all__ = (
 register = template.Library()
 
 
-@register.simple_tag
-def action_buttons(actions, obj, multi=False, **kwargs):
+@register.simple_tag(takes_context=True)
+def action_buttons(context, actions, obj, multi=False, **kwargs):
     buttons = [
-        action.render(obj, **kwargs) for action in actions if action.multi == multi
+        action.render(context, obj, **kwargs)
+        for action in actions if action.multi == multi
     ]
     return mark_safe(''.join(buttons))
 

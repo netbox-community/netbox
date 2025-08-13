@@ -51,13 +51,23 @@ class ObjectAction:
             return
 
     @classmethod
-    def render(cls, obj, **kwargs):
-        context = {
+    def get_context(cls, context, obj):
+        """
+        Return any additional context data needed to render the button.
+        """
+        return {}
+
+    @classmethod
+    def render(cls, context, obj, **kwargs):
+        ctx = {
+            'perms': context['perms'],
+            'request': context['request'],
             'url': cls.get_url(obj),
             'label': cls.label,
+            **cls.get_context(context, obj),
             **kwargs,
         }
-        return loader.render_to_string(cls.template_name, context)
+        return loader.render_to_string(cls.template_name, ctx)
 
 
 class AddObject(ObjectAction):
@@ -80,13 +90,10 @@ class CloneObject(ObjectAction):
     template_name = 'buttons/clone.html'
 
     @classmethod
-    def get_context(cls, context, obj):
+    def get_url(cls, obj):
+        url = super().get_url(obj)
         param_string = prepare_cloned_fields(obj).urlencode()
-        url = f'{cls.get_url(obj)}?{param_string}' if param_string else None
-        return {
-            'url': url,
-            'label': cls.label,
-        }
+        return f'{url}?{param_string}' if param_string else None
 
 
 class EditObject(ObjectAction):
@@ -142,8 +149,6 @@ class BulkExport(ObjectAction):
         export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
 
         return {
-            'label': cls.label,
-            'perms': context['perms'],
             'object_type': object_type,
             'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
             'export_templates': export_templates,
