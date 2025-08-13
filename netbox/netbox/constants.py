@@ -66,4 +66,5 @@ CSV_DELIMITERS = {
     'comma': ',',
     'semicolon': ';',
     'pipe': '|',
+    'tab': '\t',
 }
