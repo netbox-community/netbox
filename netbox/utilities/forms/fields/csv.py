@@ -120,4 +120,6 @@ class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
                 app_label, model = name.split('.')
                 ct_filter |= Q(app_label=app_label, model=model)
             return list(ContentType.objects.filter(ct_filter).values_list('pk', flat=True))
-        return object_type_identifier(value)
+        if value:
+            return object_type_identifier(value)
+        return None
