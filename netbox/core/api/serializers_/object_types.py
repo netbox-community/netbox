@@ -26,9 +26,10 @@ class ObjectTypeSerializer(BaseModelSerializer):
     class Meta:
         model = ObjectType
         fields = [
-            'id', 'url', 'display', 'app_label', 'app_name', 'model', 'model_name', 'model_name_plural',
-            'is_plugin_model', 'rest_api_endpoint', 'description',
+            'id', 'url', 'display', 'app_label', 'app_name', 'model', 'model_name', 'model_name_plural', 'public',
+            'features', 'is_plugin_model', 'rest_api_endpoint', 'description',
         ]
+        read_only_fields = ['public', 'features']
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_rest_api_endpoint(self, obj):
