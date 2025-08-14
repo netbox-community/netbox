@@ -588,9 +588,9 @@ class BaseScript:
         """
         Return data from a YAML file
         """
-        # TODO: DEPRECATED: Remove this method in v4.4
+        # TODO: DEPRECATED: Remove this method in v4.5
         self._log(
-            _("load_yaml is deprecated and will be removed in v4.4"),
+            _("load_yaml is deprecated and will be removed in v4.5"),
             level=LogLevelChoices.LOG_WARNING
         )
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
@@ -603,9 +603,9 @@ class BaseScript:
         """
         Return data from a JSON file
         """
-        # TODO: DEPRECATED: Remove this method in v4.4
+        # TODO: DEPRECATED: Remove this method in v4.5
         self._log(
-            _("load_json is deprecated and will be removed in v4.4"),
+            _("load_json is deprecated and will be removed in v4.5"),
             level=LogLevelChoices.LOG_WARNING
         )
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)

@@ -107,7 +107,7 @@ def subscribe_button(context, instance):
 # Legacy object buttons
 #
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/clone.html')
 def clone_button(instance):
     # Resolve URL path
@@ -125,7 +125,7 @@ def clone_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/edit.html')
 def edit_button(instance):
     url = get_action_url(instance, action='edit', kwargs={'pk': instance.pk})
@@ -136,7 +136,7 @@ def edit_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/delete.html')
 def delete_button(instance):
     url = get_action_url(instance, action='delete', kwargs={'pk': instance.pk})
@@ -147,7 +147,7 @@ def delete_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/sync.html')
 def sync_button(instance):
     url = get_action_url(instance, action='sync', kwargs={'pk': instance.pk})
@@ -162,7 +162,7 @@ def sync_button(instance):
 # Legacy list buttons
 #
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/add.html')
 def add_button(model, action='add'):
     try:
@@ -176,7 +176,7 @@ def add_button(model, action='add'):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/import.html')
 def import_button(model, action='bulk_import'):
     try:
@@ -190,7 +190,7 @@ def import_button(model, action='bulk_import'):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, model):
     object_type = ObjectType.objects.get_for_model(model)
@@ -212,7 +212,7 @@ def export_button(context, model):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_edit.html', takes_context=True)
 def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     try:
@@ -229,7 +229,7 @@ def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_delete.html', takes_context=True)
 def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     try:
