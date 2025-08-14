@@ -44,7 +44,7 @@ ADVISORY_LOCK_KEYS = {
     'job-schedules': 110100,
 }
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.5
 # Legacy default view action permission mapping
 DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
