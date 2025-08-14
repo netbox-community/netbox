@@ -49,10 +49,7 @@ class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
             auth_info = authenticator.authenticate(request)
             if auth_info is not None:
                 request.user = auth_info[0]  # User object
-                try:
-                    request.auth = auth_info[1]
-                except IndexError:
-                    pass
+                request.auth = auth_info[1]
 
         return super().dispatch(request, *args, **kwargs)
 
