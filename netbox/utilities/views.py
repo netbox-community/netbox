@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 
+from netbox.api.authentication import TokenAuthentication
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.relations import get_related_models
@@ -19,6 +20,7 @@ __all__ = (
     'GetRelatedModelsMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
+    'TokenConditionalLoginRequiredMixin',
     'ViewTab',
     'get_viewname',
     'register_model_view',
@@ -36,6 +38,19 @@ class ConditionalLoginRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        # Attempt to authenticate the user using a DRF token, if provided
+        if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
+            authenticator = TokenAuthentication()
+            auth_info = authenticator.authenticate(request)
+            if auth_info is not None:
+                request.user = auth_info[0]  # User object
+                request.auth = auth_info[1]
+
         return super().dispatch(request, *args, **kwargs)
 
 
