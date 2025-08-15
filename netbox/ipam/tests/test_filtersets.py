@@ -901,6 +901,10 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    # TODO: Test for parent prefix
+    # TODO: Test for children?
+    # TODO: Test for aggregate
+
 
 class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPRange.objects.all()
@@ -1079,6 +1083,7 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
+        # TODO: Alter for prefix
         params = {'parent': ['10.0.1.0/24', '10.0.2.0/24']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'parent': ['10.0.1.0/25']}  # Range 10.0.1.100-199 is not fully contained by 10.0.1.0/25
@@ -1318,6 +1323,7 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
+        # TODO: Alter for prefix
         params = {'parent': ['10.0.0.0/30', '2001:db8::/126']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
