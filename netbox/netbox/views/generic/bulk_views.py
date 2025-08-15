@@ -9,7 +9,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, Valida
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -328,6 +328,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
+    def prep_related_object_list(self, field_name, enumerated_list):
+        """
+        Hook to modify the enumerated list of related objects before it's passed to the related object form (for
+        example, to change the order).
+        """
+        pass  # TODO keep in-place only, or return modified list?
+
     def prep_related_object_data(self, parent, data):
         """
         Hook to modify the data for related objects before it's passed to the related object form (for example, to
@@ -363,8 +370,25 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         # Iterate through the related object forms (if any), validating and saving each instance.
         for field_name, related_object_form in self.related_object_forms.items():
 
+            related_objects = model_form.data.get(field_name, list())
+            if not isinstance(related_objects, list):  # TODO isinstance(Sequence)?
+                import_form.add_error(None, f"{field_name}: {_('Must be a list.')}")
+                raise AbortTransaction()
+            related_objects = list(enumerate(related_objects))
+
+            try:
+                self.prep_related_object_list(field_name, related_objects)
+            except ValidationError as e:
+                for message in e.messages:
+                    import_form.add_error(None, f"{field_name}: {message}")
+                raise AbortTransaction()
+
             related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
+            for i, rel_obj_data in related_objects:
+                if not isinstance(rel_obj_data, dict):  # TODO isinstance(MutableMapping)?
+                    import_form.add_error(None, f"{field_name}[{i}]: {_('Must be a dictionary.')}")
+                    raise AbortTransaction()
+
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
