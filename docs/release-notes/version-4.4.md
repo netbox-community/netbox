@@ -56,7 +56,7 @@ A new ConfigContextProfile model has been introduced to support JSON schema vali
 * [#18588](https://github.com/netbox-community/netbox/issues/18588) - The "Service" model has been renamed to "Application Service" for clarity (UI change only)
 * [#19829](https://github.com/netbox-community/netbox/issues/19829) - The REST API endpoint for object types is now available under `/api/core/`
 * [#19924](https://github.com/netbox-community/netbox/issues/19924) - ObjectTypes are now tracked as concrete objects in the database (alongside ContentTypes)
-* [#19973](https://github.com/netbox-community/netbox/issues/19973) - Miscellaneous improvements to the `nbhshell` management command
+* [#19973](https://github.com/netbox-community/netbox/issues/19973) - Miscellaneous improvements to the `nbshell` management command
 
 ### REST API Changes
 
