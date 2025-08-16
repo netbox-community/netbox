@@ -117,7 +117,7 @@ eval $COMMAND || exit 1
 # Delete any stale content types
 COMMAND="python3 netbox/manage.py remove_stale_contenttypes --no-input"
 echo "Removing stale content types ($COMMAND)..."
-eval $COMMAND || exit 1
+eval $COMMAND
 
 # Rebuild the search cache (lazily)
 COMMAND="python3 netbox/manage.py reindex --lazy"
