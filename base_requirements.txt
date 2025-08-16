@@ -121,6 +121,10 @@ Pillow
 # https://github.com/psycopg/psycopg/blob/master/docs/news.rst
 psycopg[c,pool]
 
+# Pygments syntax highlighting
+# https://github.com/pygments/pygments/blob/master/CHANGES
+Pygments
+
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
