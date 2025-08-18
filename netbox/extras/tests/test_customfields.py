@@ -1691,8 +1691,8 @@ class CustomFieldModelFilterTest(TestCase):
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 1)  # Same as above
+        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)  # Contains a literal null
+        self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
