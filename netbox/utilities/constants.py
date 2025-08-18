@@ -23,7 +23,7 @@ FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
     lt='lt',
     gte='gte',
     gt='gt',
-    empty='empty',
+    empty='isnull',
 )
 
 FILTER_NEGATION_LOOKUP_MAP = dict(
