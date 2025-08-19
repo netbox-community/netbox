@@ -135,9 +135,9 @@ class ObjectTypeManager(models.Manager):
         """
         Return ObjectTypes only for models which support the given feature.
 
-        Only ObjectTypes which list the specified feature will be included. Supported features are declared in
-        netbox.models.features.FEATURES_MAP. For example, we can find all ObjectTypes for models which support event
-        rules with:
+        Only ObjectTypes which list the specified feature will be included. Supported features are declared in the
+        application registry under `registry["model_features"]`. For example, we can find all ObjectTypes for models
+        which support event rules with:
 
             ObjectType.objects.with_feature('event_rules')
         """
