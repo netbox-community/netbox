@@ -146,7 +146,7 @@ def sync_button(instance):
 #
 
 @register.inclusion_tag('buttons/add.html')
-def add_button(model, action='add'):
+def add_button(model, return_url=None, action='add'):
     try:
         url = reverse(get_viewname(model, action))
     except NoReverseMatch:
@@ -154,6 +154,7 @@ def add_button(model, action='add'):
 
     return {
         'url': url,
+        'return_url': return_url,
     }
 
 
