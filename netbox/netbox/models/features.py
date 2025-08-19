@@ -22,6 +22,7 @@ from netbox.models.deletion import DeleteMixin
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from netbox.signals import post_clean
+from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
 
@@ -35,7 +36,6 @@ __all__ = (
     'CustomValidationMixin',
     'EventRulesMixin',
     'ExportTemplatesMixin',
-    'FEATURES_MAP',
     'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
@@ -628,28 +628,21 @@ class SyncedDataMixin(models.Model):
 # Feature registration
 #
 
-FEATURES_MAP = {
-    'bookmarks': BookmarksMixin,
-    'change_logging': ChangeLoggingMixin,
-    'cloning': CloningMixin,
-    'contacts': ContactsMixin,
-    'custom_fields': CustomFieldsMixin,
-    'custom_links': CustomLinksMixin,
-    'custom_validation': CustomValidationMixin,
-    'event_rules': EventRulesMixin,
-    'export_templates': ExportTemplatesMixin,
-    'image_attachments': ImageAttachmentsMixin,
-    'jobs': JobsMixin,
-    'journaling': JournalingMixin,
-    'notifications': NotificationsMixin,
-    'synced_data': SyncedDataMixin,
-    'tags': TagsMixin,
-}
-
-# TODO: Remove in NetBox v4.5
-registry['model_features'].update({
-    feature: defaultdict(set) for feature in FEATURES_MAP.keys()
-})
+register_model_feature('bookmarks', lambda model: issubclass(model, BookmarksMixin))
+register_model_feature('change_logging', lambda model: issubclass(model, ChangeLoggingMixin))
+register_model_feature('cloning', lambda model: issubclass(model, CloningMixin))
+register_model_feature('contacts', lambda model: issubclass(model, ContactsMixin))
+register_model_feature('custom_fields', lambda model: issubclass(model, CustomFieldsMixin))
+register_model_feature('custom_links', lambda model: issubclass(model, CustomLinksMixin))
+register_model_feature('custom_validation', lambda model: issubclass(model, CustomValidationMixin))
+register_model_feature('event_rules', lambda model: issubclass(model, EventRulesMixin))
+register_model_feature('export_templates', lambda model: issubclass(model, ExportTemplatesMixin))
+register_model_feature('image_attachments', lambda model: issubclass(model, ImageAttachmentsMixin))
+register_model_feature('jobs', lambda model: issubclass(model, JobsMixin))
+register_model_feature('journaling', lambda model: issubclass(model, JournalingMixin))
+register_model_feature('notifications', lambda model: issubclass(model, NotificationsMixin))
+register_model_feature('synced_data', lambda model: issubclass(model, SyncedDataMixin))
+register_model_feature('tags', lambda model: issubclass(model, TagsMixin))
 
 
 def model_is_public(model):
@@ -665,8 +658,11 @@ def model_is_public(model):
 
 
 def get_model_features(model):
+    """
+    Return all features supported by the given model.
+    """
     return [
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+        feature for feature, test_func in registry['model_features'].items() if test_func(model)
     ]
 
 
@@ -709,19 +705,6 @@ def register_models(*models):
         # Register public models
         if not getattr(model, '_netbox_private', False):
             registry['models'][app_label].add(model_name)
-
-        # TODO: Remove in NetBox v4.5
-        # Record each applicable feature for the model in the registry
-        features = {
-            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
-        }
-        for feature in features:
-            try:
-                registry['model_features'][feature][app_label].add(model_name)
-            except KeyError:
-                raise KeyError(
-                    f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
-                )
 
         # Register applicable feature views for the model
         if issubclass(model, ContactsMixin):

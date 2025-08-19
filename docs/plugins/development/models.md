@@ -24,20 +24,7 @@ Every model includes by default a numeric primary key. This value is generated a
 
 ## Enabling NetBox Features
 
-Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable features unique to NetBox, including:
-
-* Bookmarks
-* Change logging
-* Cloning
-* Custom fields
-* Custom links
-* Custom validation
-* Export templates
-* Journaling
-* Tags
-* Webhooks
-
-This class performs two crucial functions:
+Plugin models can leverage certain [model features](../development/models.md#features-matrix) (such as tags, custom fields, event rules, etc.) by inheriting from NetBox's `NetBoxModel` class. This class performs two crucial functions:
 
 1. Apply any fields, methods, and/or attributes necessary to the operation of these features
 2. Register the model with NetBox as utilizing these features
@@ -134,6 +121,27 @@ For more information about database migrations, see the [Django documentation](h
 ::: netbox.models.features.JournalingMixin
 
 ::: netbox.models.features.TagsMixin
+
+## Custom Model Features
+
+In addition to utilizing the model features provided natively by NetBox (listed above), plugins can register their own model features. This is done using the `register_model_feature()` function from `netbox.utils`. This function takes two arguments: a feature name, and a callable which accepts a model class. The callable must return a boolean value indicting whether the given model supports the named feature.
+
+This function can be used as a decorator:
+
+```python
+@register_model_feature('foo')
+def supports_foo(model):
+    # Your logic here
+```
+
+Or it can be called directly:
+
+```python
+register_model_feature('foo', supports_foo)
+```
+
+!!! tip
+    Consider performing feature registration inside your PluginConfig's `ready()` method.
 
 ## Choice Sets
 
