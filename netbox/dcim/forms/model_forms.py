@@ -1890,6 +1890,7 @@ class MACAddressForm(NetBoxModelForm):
         label=_('Interface'),
         queryset=Interface.objects.all(),
         required=False,
+        selector=True,
         context={
             'parent': 'device',
         },
@@ -1898,6 +1899,7 @@ class MACAddressForm(NetBoxModelForm):
         label=_('VM Interface'),
         queryset=VMInterface.objects.all(),
         required=False,
+        selector=True,
         context={
             'parent': 'virtual_machine',
         },
