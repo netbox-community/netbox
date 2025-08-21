@@ -600,6 +600,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
+        # Native numeric filters will use `isnull` by default for empty lookups, but
+        # JSON fields require `empty` (see bug #20012).
+        if lookup_expr == 'isnull':
+            lookup_expr = 'empty'
         if lookup_expr is not None:
             kwargs['lookup_expr'] = lookup_expr
 
