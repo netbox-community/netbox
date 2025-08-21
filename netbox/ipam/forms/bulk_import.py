@@ -156,6 +156,18 @@ class RoleImportForm(NetBoxModelImportForm):
 
 
 class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
+    aggregate = CSVModelChoiceField(
+        label=_('Aggregate'),
+        queryset=Aggregate.objects.all(),
+        to_field_name='prefix',
+        required=False
+    )
+    parent = CSVModelChoiceField(
+        label=_('Prefix'),
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        required=False
+    )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -243,8 +255,26 @@ class PrefixImportForm(ScopedImportForm, NetBoxModelImportForm):
         queryset = self.fields['vlan'].queryset.filter(query)
         self.fields['vlan'].queryset = queryset
 
+        # Limit Prefix queryset by assigned vrf
+        vrf = data.get('vrf')
+        query = Q()
+        if vrf:
+            query &= Q(**{
+                f"vrf__{self.fields['vrf'].to_field_name}": vrf
+            })
+
+        queryset = self.fields['parent'].queryset.filter(query)
+        self.fields['parent'].queryset = queryset
+
 
 class IPRangeImportForm(NetBoxModelImportForm):
+    prefix = CSVModelChoiceField(
+        label=_('Prefix'),
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        required=True,
+        help_text=_('Assigned prefix')
+    )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -279,8 +309,29 @@ class IPRangeImportForm(NetBoxModelImportForm):
             'description', 'comments', 'tags',
         )
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        # Limit Prefix queryset by assigned vrf
+        vrf = data.get('vrf')
+        query = Q()
+        if vrf:
+            query &= Q(**{
+                f"vrf__{self.fields['vrf'].to_field_name}": vrf
+            })
+
+        queryset = self.fields['prefix'].queryset.filter(query)
+        self.fields['prefix'].queryset = queryset
+
 
 class IPAddressImportForm(NetBoxModelImportForm):
+    prefix = CSVModelChoiceField(
+        label=_('Prefix'),
+        queryset=Prefix.objects.all(),
+        required=False,
+        to_field_name='prefix',
+        help_text=_('Assigned prefix')
+    )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -348,14 +399,23 @@ class IPAddressImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'fhrp_group',
-            'is_primary', 'is_oob', 'dns_name', 'description', 'comments', 'tags',
+            'prefix', 'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface',
+            'fhrp_group', 'is_primary', 'is_oob', 'dns_name', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
         if data:
+
+            # Limit Prefix queryset by assigned vrf
+            vrf = data.get('vrf')
+            query = Q()
+            if vrf:
+                query &= Q(**{f"vrf__{self.fields['vrf'].to_field_name}": vrf})
+
+            queryset = self.fields['prefix'].queryset.filter(query)
+            self.fields['prefix'].queryset = queryset
 
             # Limit interface queryset by assigned device
             if data.get('device'):
