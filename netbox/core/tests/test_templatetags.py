@@ -17,6 +17,14 @@ FAKE_PYTHON_RESULT = """\
 <div class="highlight"><pre><span></span><span class="linenos">1</span><span class="pygments-k">def</span><span class="pygments-w"> </span><span class="pygments-nf">fake_function</span><span class="pygments-p">():</span>\n<span class="linenos">2</span>    <span class="pygments-nb">print</span><span class="pygments-p">(</span><span class="pygments-s2">&quot;This is a fake Python function.&quot;</span><span class="pygments-p">)</span>\n</pre></div>
 """
 
+FAKE_BAD_NAME = 'bad.hello'
+FAKE_BAD_CONTENT = """\
+<script> alert('Hello'); </script>
+"""
+FAKE_BAD_RESULT = """\
+<pre>&lt;script&gt; alert(&#x27;Hello&#x27;); &lt;/script&gt;\n</pre>\
+"""
+
 
 class HighlightCodeTestCase(TestCase):
     def test_python_highlighting(self):
@@ -32,18 +40,18 @@ class HighlightCodeTestCase(TestCase):
 
     def test_empty_content(self):
         result = highlight_code('', 'FAKE_PLAIN_TEXT_NAME')
-        self.assertTrue(result.startswith('<pre></pre>'))
-        self.assertTrue(len(result) == 11)
+        self.assertTrue(result == '<pre></pre>')
 
         result = highlight_code(None, 'FAKE_PLAIN_TEXT_NAME')
-        self.assertTrue(result.startswith('<pre></pre>'))
-        self.assertTrue(len(result) == 11)
+        self.assertTrue(result == '<pre></pre>')
 
     def test_empty_filename(self):
         result = highlight_code(' ', '')
-        self.assertTrue(result.startswith('<pre> </pre>'))
-        self.assertTrue(len(result) == 12)
+        self.assertTrue(result == '<pre> </pre>')
 
         result = highlight_code(' ', None)
-        self.assertTrue(result.startswith('<pre> </pre>'))
-        self.assertTrue(len(result) == 12)
+        self.assertTrue(result == '<pre> </pre>')
+
+    def test_fallback_is_safe(self):
+        result = highlight_code(FAKE_BAD_CONTENT, FAKE_BAD_NAME)
+        self.assertTrue(result == FAKE_BAD_RESULT)
