@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-16 05:01+0000\n"
+"POT-Creation-Date: 2025-08-21 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1960,7 +1960,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1713 netbox/dcim/forms/filtersets.py:1737
 #: netbox/dcim/forms/filtersets.py:1761 netbox/dcim/forms/model_forms.py:738
 #: netbox/dcim/forms/model_forms.py:955 netbox/dcim/forms/model_forms.py:1356
-#: netbox/dcim/forms/model_forms.py:1841 netbox/dcim/forms/model_forms.py:1912
+#: netbox/dcim/forms/model_forms.py:1841 netbox/dcim/forms/model_forms.py:1914
 #: netbox/dcim/forms/object_create.py:260 netbox/dcim/tables/connections.py:22
 #: netbox/dcim/tables/connections.py:41 netbox/dcim/tables/connections.py:60
 #: netbox/dcim/tables/devices.py:299 netbox/dcim/tables/devices.py:384
@@ -5622,11 +5622,11 @@ msgstr ""
 msgid "Inventory Item Role"
 msgstr ""
 
-#: netbox/dcim/forms/model_forms.py:1898
+#: netbox/dcim/forms/model_forms.py:1899
 msgid "VM Interface"
 msgstr ""
 
-#: netbox/dcim/forms/model_forms.py:1913 netbox/ipam/forms/filtersets.py:631
+#: netbox/dcim/forms/model_forms.py:1915 netbox/ipam/forms/filtersets.py:631
 #: netbox/ipam/forms/model_forms.py:334 netbox/ipam/tables/vlans.py:173
 #: netbox/templates/virtualization/virtualdisk.html:21
 #: netbox/templates/virtualization/virtualmachine.html:12
@@ -5643,7 +5643,7 @@ msgstr ""
 msgid "Virtual Machine"
 msgstr ""
 
-#: netbox/dcim/forms/model_forms.py:1952
+#: netbox/dcim/forms/model_forms.py:1954
 msgid "A MAC address can only be assigned to a single object."
 msgstr ""
 
