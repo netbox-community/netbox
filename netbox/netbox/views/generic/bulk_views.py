@@ -328,6 +328,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
+    def prep_related_object_list(self, field_name, enumerated_list):
+        """
+        Hook to modify the enumerated list of related objects before it's passed to the related object form (for
+        example, to change the order).
+        """
+        pass  # TODO keep in-place only, or return modified list?
+
     def prep_related_object_data(self, parent, data):
         """
         Hook to modify the data for related objects before it's passed to the related object form (for example, to
@@ -368,6 +375,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 import_form.add_error(None, f"{field_name}: {_('Must be a list.')}")
                 raise AbortTransaction()
             related_objects = list(enumerate(related_objects))
+
+            try:
+                self.prep_related_object_list(field_name, related_objects)
+            except ValidationError as e:
+                for message in e.messages:
+                    import_form.add_error(None, f"{field_name}: {message}")
+                raise AbortTransaction()
 
             related_obj_pks = []
             for i, rel_obj_data in related_objects:
