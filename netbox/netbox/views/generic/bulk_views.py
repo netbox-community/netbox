@@ -363,8 +363,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         # Iterate through the related object forms (if any), validating and saving each instance.
         for field_name, related_object_form in self.related_object_forms.items():
 
+            related_objects = model_form.data.get(field_name, list())
+            if not isinstance(related_objects, list):  # TODO isinstance(Sequence)?
+                import_form.add_error(None, f"{field_name}: {_('Must be a list.')}")
+                raise AbortTransaction()
+            related_objects = list(enumerate(related_objects))
+
             related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
+            for i, rel_obj_data in related_objects:
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
