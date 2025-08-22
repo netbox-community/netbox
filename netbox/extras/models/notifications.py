@@ -173,14 +173,17 @@ class NotificationGroup(ChangeLoggedModel):
             User.objects.filter(groups__in=self.groups.all())
         ).order_by('username')
 
-    def notify(self, **kwargs):
+    def notify(self, object_type, object_id, **kwargs):
         """
         Bulk-create Notifications for all members of this group.
         """
-        Notification.objects.bulk_create([
-            Notification(user=member, **kwargs)
-            for member in self.members
-        ])
+        for user in self.members:
+            Notification.objects.update_or_create(
+                object_type=object_type,
+                object_id=object_id,
+                user=user,
+                defaults=kwargs
+            )
     notify.alters_data = True
 
 
