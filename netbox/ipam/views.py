@@ -53,8 +53,26 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
         )
         export_targets_table.configure(request)
 
+        related_models = self.get_related_models(
+            request,
+            instance,
+            omit=(Interface, VMInterface),
+            extra=(
+                (
+                    Interface.objects.restrict(request.user, 'view').filter(vrf=instance),
+                    'vrf_id',
+                    _('Device Interfaces')
+                ),
+                (
+                    VMInterface.objects.restrict(request.user, 'view').filter(vrf=instance),
+                    'vrf_id',
+                    _('VM Interfaces')
+                ),
+            ),
+        )
+
         return {
-            'related_models': self.get_related_models(request, instance, omit=[Interface, VMInterface]),
+            'related_models': related_models,
             'import_targets_table': import_targets_table,
             'export_targets_table': export_targets_table,
         }
