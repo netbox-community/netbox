@@ -12,12 +12,12 @@ pre.change-data {
     min-width: fit-content;
 
     &.added {
-    color: var(--tblr-dark);
+      color: var(--tblr-dark);
       background-color: $green-300;
     }
 
     &.removed {
-    color: var(--tblr-dark);
+      color: var(--tblr-dark);
       background-color: $red-300;
     }
   }
