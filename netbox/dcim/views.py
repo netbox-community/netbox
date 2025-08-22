@@ -1,9 +1,11 @@
+from collections import deque
+
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import router, transaction
 from django.db.models import Prefetch
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, ValidationError, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -1282,6 +1284,79 @@ class DeviceTypeImportView(generic.BulkImportView):
         'device-bays': forms.DeviceBayTemplateImportForm,
         'inventory-items': forms.InventoryItemTemplateImportForm,
     }
+
+    def _sort_interfaces(self, interfaces):
+        """Sort the given enumerated interface list to satisfy any dependencies."""
+        if not interfaces:
+            return
+
+        # build the dependency graph
+        all_interface_names = set()
+        sorting_required = False
+        required_by = dict()  # ifname to list of dependant subinterfaces  # TODO replace list with ordered set
+        requires = dict()  # ifname to set of depended-on superinterfaces
+        for idx, interface in interfaces:
+            if not isinstance(interface, dict):  # TODO isinstance(MutableMapping)?
+                # not a dict, will fail validation anyway
+                # but still sort if required, to prevent false "bridge is invalid" errors on any other valid interfaces
+                continue
+            if not interface.get('name'):
+                # no interface name, will fail validation anyway
+                continue
+
+            ifname = interface['name']
+            all_interface_names.add(ifname)
+
+            requirements = set()
+            if bridge := interface.get('bridge'):
+                requirements.add(bridge)
+
+            requires[ifname] = requirements
+            for requirement in list(requirements):
+                required_by.setdefault(requirement, list()).append(ifname)
+
+            # if we haven't seen all requirements yet, sorting is needed
+            sorting_required |= not requirements.issubset(all_interface_names)
+
+        if not sorting_required:
+            return
+
+        # use Kahn's algorithm to build a topological sorting
+        workqueue = deque(ifname for ifname, requirements in requires.items() if not requirements)
+        ifname_ordering = list()
+        while workqueue:
+            ifname = workqueue.popleft()
+            ifname_ordering.append(ifname)
+
+            for dependant in list(required_by.get(ifname, list())):
+                requires[dependant].remove(ifname)
+                if not requires[dependant]:
+                    workqueue.append(dependant)
+
+        if len(ifname_ordering) != len(set(ifname_ordering)):
+            # should never happen
+            raise ValueError("Interface ordering contains duplicates")
+
+        unsatisfied_requirements = list(ifname for ifname, deps in requires.items() if deps)
+        if unsatisfied_requirements:
+            raise ValidationError(
+                _("Dependency cycle detected in subset [%(interfaces)s]"),
+                params={"interfaces": ", ".join(unsatisfied_requirements)},
+            )
+
+        # apply the topological sorting to the actual list
+        def get_sort_key(interface):
+            try:
+                return ifname_ordering.index(interface['name'])
+            except Exception:
+                # Everything broken/invalid goes to the beginning, so validation fails fast
+                return -1
+
+        interfaces.sort(key=lambda entry_tuple: get_sort_key(entry_tuple[1]))
+
+    def prep_related_object_list(self, field_name, enumerated_list):
+        if field_name == 'interfaces':
+            self._sort_interfaces(enumerated_list)
 
     def prep_related_object_data(self, parent, data):
         data.update({'device_type': parent})
