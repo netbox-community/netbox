@@ -371,6 +371,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             related_obj_pks = []
             for i, rel_obj_data in related_objects:
+                if not isinstance(rel_obj_data, dict):  # TODO isinstance(MutableMapping)?
+                    import_form.add_error(None, f"{field_name}[{i}]: {_('Must be a dictionary.')}")
+                    raise AbortTransaction()
+
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
