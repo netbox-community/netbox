@@ -1149,15 +1149,24 @@ model: TEST-5000
 slug: test-5000
 u_height: 1
 interfaces:
-  - name: Interface 1
+  - name: Cycle Interface 1
     type: 1000base-t
-    bridge: Interface 2
-  - name: Interface 2
+    bridge: Cycle Interface 2
+  - name: Cycle Interface 2
     type: 1000base-t
-    bridge: Interface 3
-  - name: Interface 3
+    bridge: Cycle Interface 3
+  - name: Cycle Interface 3
     type: 1000base-t
-    bridge: Interface 1
+    bridge: Cycle Interface 1
+
+  - name: Unrelated Interface 1
+    type: 1000base-t
+  - name: Unrelated Interface 2
+    type: 1000base-t
+    bridge: Cycle Interface 1
+  - name: Unrelated Interface 3
+    type: 1000base-t
+    bridge: Cycle Interface 3
     """
 
         # Add all required permissions to the test user
@@ -1183,8 +1192,51 @@ interfaces:
 
         response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
-        self.assertContains(response, "interfaces: Dependency cycle detected in subset "
-                                      "[Interface 1, Interface 2, Interface 3]")
+        self.assertContains(response, "interfaces: Dependency cycle [Cycle Interface 1, Cycle Interface 2, "
+                                      "Cycle Interface 3, Cycle Interface 1] detected")
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_interfacebridge_invalid(self):
+        IMPORT_DATA = """
+manufacturer: Manufacturer 1
+model: TEST-6000
+slug: test-6000
+u_height: 1
+interfaces:
+  - name: Interface 1
+    type: 1000base-t
+  - name: Interface 2
+    type: 1000base-t
+    bridge: Non-existent Bridge
+  - name: Interface 3
+    type: 1000base-t
+    """
+
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+            'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+
+        response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "interfaces[1] bridge: Select a valid choice. "
+                                      "That choice is not one of the available choices.")
 
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')

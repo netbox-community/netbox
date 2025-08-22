@@ -1339,10 +1339,30 @@ class DeviceTypeImportView(generic.BulkImportView):
 
         unsatisfied_requirements = list(ifname for ifname, deps in requires.items() if deps)
         if unsatisfied_requirements:
-            raise ValidationError(
-                _("Dependency cycle detected in subset [%(interfaces)s]"),
-                params={"interfaces": ", ".join(unsatisfied_requirements)},
-            )
+            def find_cycle(visited_interfaces):
+                """Recursive depth-first search to identify cycles."""
+                for ifname in list(required_by.get(visited_interfaces[-1], list())):
+                    if ifname in visited_interfaces:
+                        # found a cycle and its start
+                        start_index = visited_interfaces.index(ifname)
+                        visited_interfaces.append(ifname)
+                        return list(reversed(visited_interfaces[start_index:]))
+                    result = find_cycle(visited_interfaces + [ifname])
+                    if result:
+                        return result
+                return None
+
+            # Check if there is a cycle
+            for ifname in unsatisfied_requirements:
+                cycle = find_cycle([ifname])
+                if cycle:
+                    # stop at the first one, finding all while avoiding duplicates would be hard
+                    raise ValidationError(
+                        _("Dependency cycle [%(interfaces)s] detected"),
+                        params={"interfaces": ", ".join(cycle)},
+                    )
+            # no cycle, so the unsatisfied requirements must be due to requirements on non-existent interfaces,
+            # which will cause a validation error later when checking the individual interface objects.
 
         # apply the topological sorting to the actual list
         def get_sort_key(interface):
