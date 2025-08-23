@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 05:02+0000\n"
+"POT-Creation-Date: 2025-08-23 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -453,7 +453,7 @@ msgstr ""
 #: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:137
 #: netbox/dcim/forms/filtersets.py:197 netbox/dcim/forms/model_forms.py:132
 #: netbox/dcim/tables/sites.py:108 netbox/ipam/models/asns.py:123
-#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:232
+#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:250
 #: netbox/netbox/navigation/menu.py:179 netbox/netbox/navigation/menu.py:182
 #: netbox/templates/circuits/provider.html:23
 msgid "ASNs"
@@ -2512,7 +2512,7 @@ msgstr ""
 #: netbox/core/models/config.py:18 netbox/core/models/data.py:269
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:52
 #: netbox/extras/models/models.py:814 netbox/extras/models/notifications.py:39
-#: netbox/extras/models/notifications.py:192
+#: netbox/extras/models/notifications.py:195
 #: netbox/netbox/models/features.py:54 netbox/users/models/tokens.py:32
 msgid "created"
 msgstr ""
@@ -7428,8 +7428,8 @@ msgid "Allocated draw (W)"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:582 netbox/ipam/forms/model_forms.py:785
-#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:632
-#: netbox/ipam/views.py:733 netbox/netbox/navigation/menu.py:165
+#: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:650
+#: netbox/ipam/views.py:751 netbox/netbox/navigation/menu.py:165
 #: netbox/netbox/navigation/menu.py:167
 #: netbox/templates/dcim/interface.html:396
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
@@ -9404,7 +9404,7 @@ msgid "notifications"
 msgstr ""
 
 #: netbox/extras/models/notifications.py:99
-#: netbox/extras/models/notifications.py:240
+#: netbox/extras/models/notifications.py:243
 #, python-brace-format
 msgid "Objects of this type ({type}) do not support notifications."
 msgstr ""
@@ -9426,11 +9426,11 @@ msgstr ""
 msgid "notification groups"
 msgstr ""
 
-#: netbox/extras/models/notifications.py:223
+#: netbox/extras/models/notifications.py:226
 msgid "subscription"
 msgstr ""
 
-#: netbox/extras/models/notifications.py:224
+#: netbox/extras/models/notifications.py:227
 msgid "subscriptions"
 msgstr ""
 
@@ -10348,7 +10348,7 @@ msgstr ""
 
 #: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:280
 #: netbox/ipam/tables/ip.py:123 netbox/ipam/tables/vlans.py:51
-#: netbox/ipam/views.py:1024 netbox/netbox/navigation/menu.py:200
+#: netbox/ipam/views.py:1042 netbox/netbox/navigation/menu.py:200
 #: netbox/netbox/navigation/menu.py:202
 msgid "VLANs"
 msgstr ""
@@ -10945,7 +10945,7 @@ msgid "Added"
 msgstr ""
 
 #: netbox/ipam/tables/ip.py:75 netbox/ipam/tables/ip.py:113
-#: netbox/ipam/tables/vlans.py:120 netbox/ipam/views.py:375
+#: netbox/ipam/tables/vlans.py:120 netbox/ipam/views.py:393
 #: netbox/netbox/navigation/menu.py:172 netbox/netbox/navigation/menu.py:174
 #: netbox/templates/ipam/vlan.html:100
 msgid "Prefixes"
@@ -11085,24 +11085,24 @@ msgid ""
 "are allowed in DNS names"
 msgstr ""
 
-#: netbox/ipam/views.py:569
-msgid "Child Prefixes"
-msgstr ""
-
-#: netbox/ipam/views.py:605
-msgid "Child Ranges"
-msgstr ""
-
-#: netbox/ipam/views.py:951
-msgid "Related IPs"
-msgstr ""
-
-#: netbox/ipam/views.py:1319
+#: netbox/ipam/views.py:64 netbox/ipam/views.py:1337
 msgid "Device Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:1337
+#: netbox/ipam/views.py:69 netbox/ipam/views.py:1355
 msgid "VM Interfaces"
+msgstr ""
+
+#: netbox/ipam/views.py:587
+msgid "Child Prefixes"
+msgstr ""
+
+#: netbox/ipam/views.py:623
+msgid "Child Ranges"
+msgstr ""
+
+#: netbox/ipam/views.py:969
+msgid "Related IPs"
 msgstr ""
 
 #: netbox/netbox/api/fields.py:66
@@ -16005,17 +16005,17 @@ msgstr ""
 msgid "{value} is not a valid regular expression."
 msgstr ""
 
-#: netbox/utilities/views.py:72
+#: netbox/utilities/views.py:75
 #, python-brace-format
 msgid "{self.__class__.__name__} must implement get_required_permission()"
 msgstr ""
 
-#: netbox/utilities/views.py:108
+#: netbox/utilities/views.py:111
 #, python-brace-format
 msgid "{class_name} must implement get_required_permission()"
 msgstr ""
 
-#: netbox/utilities/views.py:132
+#: netbox/utilities/views.py:135
 #, python-brace-format
 msgid ""
 "{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only "
