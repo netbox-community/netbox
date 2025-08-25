@@ -69,11 +69,14 @@ class PowerPortBulkCreateForm(
 
 
 class PowerOutletBulkCreateForm(
-    form_from_model(PowerOutlet, ['type', 'color', 'feed_leg', 'mark_connected']),
+    form_from_model(PowerOutlet, ['type', 'status', 'color', 'feed_leg', 'mark_connected']),
     DeviceBulkAddComponentForm
 ):
     model = PowerOutlet
-    field_order = ('name', 'label', 'type', 'feed_leg', 'description', 'tags')
+    field_order = (
+        'name', 'label', 'type', 'status', 'color', 'feed_leg', 'mark_connected',
+        'description', 'tags',
+    )
 
 
 class InterfaceBulkCreateForm(
