@@ -18,8 +18,8 @@ class BackgroundTaskSerializer(serializers.Serializer):
     description = serializers.CharField()
     origin = serializers.CharField()
     func_name = serializers.CharField()
-    args = serializers.ListField(child=serializers.CharField())
-    kwargs = serializers.DictField()
+    args = serializers.SerializerMethodField()
+    kwargs = serializers.SerializerMethodField()
     result = serializers.CharField()
     timeout = serializers.IntegerField()
     result_ttl = serializers.IntegerField()
@@ -41,6 +41,16 @@ class BackgroundTaskSerializer(serializers.Serializer):
     is_canceled = serializers.BooleanField()
     is_scheduled = serializers.BooleanField()
     is_stopped = serializers.BooleanField()
+
+    def get_args(self, obj) -> list:
+        return [
+            str(arg) for arg in obj.args
+        ]
+
+    def get_kwargs(self, obj) -> dict:
+        return {
+            key: str(value) for key, value in obj.kwargs.items()
+        }
 
     def get_position(self, obj) -> int:
         return obj.get_position()
