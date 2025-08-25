@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from dcim.models import DeviceRole, InventoryItemRole
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from netbox.api.fields import RelatedObjectCountField
@@ -13,10 +15,8 @@ __all__ = (
 class DeviceRoleSerializer(NestedGroupModelSerializer):
     parent = NestedDeviceRoleSerializer(required=False, allow_null=True, default=None)
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
-
-    # Related object counts
-    device_count = RelatedObjectCountField('devices')
-    virtualmachine_count = RelatedObjectCountField('virtual_machines')
+    device_count = serializers.IntegerField(read_only=True, default=0)
+    virtualmachine_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = DeviceRole
