@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-23 05:02+0000\n"
+"POT-Creation-Date: 2025-08-26 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3994,7 +3994,7 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_create.py:112 netbox/dcim/forms/filtersets.py:1586
+#: netbox/dcim/forms/bulk_create.py:115 netbox/dcim/forms/filtersets.py:1586
 #: netbox/dcim/forms/model_forms.py:592 netbox/dcim/forms/model_forms.py:651
 #: netbox/dcim/forms/object_create.py:208
 #: netbox/dcim/forms/object_create.py:357 netbox/dcim/tables/devices.py:179
@@ -4006,7 +4006,7 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_create.py:114
+#: netbox/dcim/forms/bulk_create.py:117
 msgid ""
 "Alphanumeric ranges are supported. (Must match the number of names being "
 "created.)"
@@ -7359,7 +7359,7 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:260 netbox/dcim/tables/devices.py:1122
 #: netbox/dcim/tables/devicetypes.py:133 netbox/dcim/views.py:1173
-#: netbox/dcim/views.py:1473 netbox/dcim/views.py:2226
+#: netbox/dcim/views.py:1473 netbox/dcim/views.py:2235
 #: netbox/netbox/navigation/menu.py:95 netbox/netbox/navigation/menu.py:259
 #: netbox/templates/dcim/device/base.html:37
 #: netbox/templates/dcim/device_list.html:43
@@ -7398,7 +7398,7 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:331 netbox/dcim/tables/devicetypes.py:52
 #: netbox/dcim/tables/devicetypes.py:148 netbox/dcim/views.py:1248
-#: netbox/dcim/views.py:2324 netbox/netbox/navigation/menu.py:104
+#: netbox/dcim/views.py:2333 netbox/netbox/navigation/menu.py:104
 #: netbox/templates/dcim/device/base.html:52
 #: netbox/templates/dcim/device_list.html:71
 #: netbox/templates/dcim/devicetype/base.html:49
@@ -7534,7 +7534,7 @@ msgid "Instances"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:121 netbox/dcim/views.py:1113
-#: netbox/dcim/views.py:1413 netbox/dcim/views.py:2162
+#: netbox/dcim/views.py:1413 netbox/dcim/views.py:2171
 #: netbox/netbox/navigation/menu.py:98
 #: netbox/templates/dcim/device/base.html:25
 #: netbox/templates/dcim/device_list.html:15
@@ -7545,7 +7545,7 @@ msgid "Console Ports"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:124 netbox/dcim/views.py:1128
-#: netbox/dcim/views.py:1428 netbox/dcim/views.py:2178
+#: netbox/dcim/views.py:1428 netbox/dcim/views.py:2187
 #: netbox/netbox/navigation/menu.py:99
 #: netbox/templates/dcim/device/base.html:28
 #: netbox/templates/dcim/device_list.html:22
@@ -7556,7 +7556,7 @@ msgid "Console Server Ports"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:127 netbox/dcim/views.py:1143
-#: netbox/dcim/views.py:1443 netbox/dcim/views.py:2194
+#: netbox/dcim/views.py:1443 netbox/dcim/views.py:2203
 #: netbox/netbox/navigation/menu.py:100
 #: netbox/templates/dcim/device/base.html:31
 #: netbox/templates/dcim/device_list.html:29
@@ -7567,7 +7567,7 @@ msgid "Power Ports"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:130 netbox/dcim/views.py:1158
-#: netbox/dcim/views.py:1458 netbox/dcim/views.py:2210
+#: netbox/dcim/views.py:1458 netbox/dcim/views.py:2219
 #: netbox/netbox/navigation/menu.py:101
 #: netbox/templates/dcim/device/base.html:34
 #: netbox/templates/dcim/device_list.html:36
@@ -7578,7 +7578,7 @@ msgid "Power Outlets"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:136 netbox/dcim/views.py:1188
-#: netbox/dcim/views.py:1488 netbox/dcim/views.py:2248
+#: netbox/dcim/views.py:1488 netbox/dcim/views.py:2257
 #: netbox/netbox/navigation/menu.py:96
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -7588,7 +7588,7 @@ msgid "Front Ports"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:139 netbox/dcim/views.py:1203
-#: netbox/dcim/views.py:1503 netbox/dcim/views.py:2264
+#: netbox/dcim/views.py:1503 netbox/dcim/views.py:2273
 #: netbox/netbox/navigation/menu.py:97
 #: netbox/templates/dcim/device/base.html:43
 #: netbox/templates/dcim/device_list.html:50
@@ -7599,7 +7599,7 @@ msgid "Rear Ports"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:142 netbox/dcim/views.py:1233
-#: netbox/dcim/views.py:2304 netbox/netbox/navigation/menu.py:103
+#: netbox/dcim/views.py:2313 netbox/netbox/navigation/menu.py:103
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/device_list.html:57
 #: netbox/templates/dcim/devicetype/base.html:46
@@ -7607,7 +7607,7 @@ msgid "Device Bays"
 msgstr ""
 
 #: netbox/dcim/tables/devicetypes.py:145 netbox/dcim/views.py:1218
-#: netbox/dcim/views.py:1518 netbox/dcim/views.py:2284
+#: netbox/dcim/views.py:1518 netbox/dcim/views.py:2293
 #: netbox/netbox/navigation/menu.py:102
 #: netbox/templates/dcim/device/base.html:46
 #: netbox/templates/dcim/device_list.html:64
@@ -7695,48 +7695,48 @@ msgstr ""
 msgid "Non-Racked Devices"
 msgstr ""
 
-#: netbox/dcim/views.py:2337 netbox/extras/forms/model_forms.py:659
+#: netbox/dcim/views.py:2346 netbox/extras/forms/model_forms.py:659
 #: netbox/templates/extras/configcontext.html:10
 #: netbox/virtualization/forms/model_forms.py:232
 #: netbox/virtualization/views.py:436
 msgid "Config Context"
 msgstr ""
 
-#: netbox/dcim/views.py:2347 netbox/virtualization/views.py:446
+#: netbox/dcim/views.py:2356 netbox/virtualization/views.py:446
 msgid "Render Config"
 msgstr ""
 
-#: netbox/dcim/views.py:2360 netbox/extras/tables/tables.py:611
+#: netbox/dcim/views.py:2369 netbox/extras/tables/tables.py:611
 #: netbox/netbox/navigation/menu.py:256 netbox/netbox/navigation/menu.py:258
 #: netbox/virtualization/views.py:208
 msgid "Virtual Machines"
 msgstr ""
 
-#: netbox/dcim/views.py:3193
+#: netbox/dcim/views.py:3202
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3234
+#: netbox/dcim/views.py:3243
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3350 netbox/ipam/tables/ip.py:181
+#: netbox/dcim/views.py:3359 netbox/ipam/tables/ip.py:181
 msgid "Children"
 msgstr ""
 
-#: netbox/dcim/views.py:3817
+#: netbox/dcim/views.py:3826
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
-#: netbox/dcim/views.py:3866
+#: netbox/dcim/views.py:3875
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
 
-#: netbox/dcim/views.py:3879
+#: netbox/dcim/views.py:3888
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
