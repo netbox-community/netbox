@@ -1,5 +1,29 @@
 # NetBox v4.3
 
+## v4.3.7 (2025-08-26)
+
+### Enhancements
+
+* [#18147](https://github.com/netbox-community/netbox/issues/18147) - Add device & VM interface counts under related objects for VRFs
+* [#19990](https://github.com/netbox-community/netbox/issues/19990) - Button to add a missing prerequisite now includes a return URL
+* [#20122](https://github.com/netbox-community/netbox/issues/20122) - Improve color contrast of highlighted data under changelog diff view
+* [#20131](https://github.com/netbox-community/netbox/issues/20131) - Add object selector for interface to the MAC address edit form
+
+### Bug Fixes
+
+* [#18916](https://github.com/netbox-community/netbox/issues/18916) - Fix dynamic dropdown selection styling for required fields when no selection is made
+* [#19645](https://github.com/netbox-community/netbox/issues/19645) - Fix interface selection when adding a cable for a virtual chassis master
+* [#19669](https://github.com/netbox-community/netbox/issues/19669) - Restore token authentication support for fetching media assets
+* [#19970](https://github.com/netbox-community/netbox/issues/19970) - Device role child device counts should be cumulative
+* [#20012](https://github.com/netbox-community/netbox/issues/20012) - Fix support for `empty` filter lookup on custom fields
+* [#20043](https://github.com/netbox-community/netbox/issues/20043) - Fix page styling when rack elevations are embedded
+* [#20098](https://github.com/netbox-community/netbox/issues/20098) - Fix `AttributeError` exception when assigning tags during bulk import
+* [#20120](https://github.com/netbox-community/netbox/issues/20120) - Fix REST API serialization of jobs under `/api/core/background-tasks/`
+* [#20157](https://github.com/netbox-community/netbox/issues/20157) - Fix `IntegrityError` exception when a duplicate notification is triggered
+* [#20164](https://github.com/netbox-community/netbox/issues/20164) - Fix `ValueError` exception when attempting to add power outlets to devices in bulk
+
+---
+
 ## v4.3.6 (2025-08-12)
 
 ### Enhancements
@@ -29,6 +53,8 @@
 * [#20033](https://github.com/netbox-community/netbox/issues/20033) - Fix `TypeError` exception when bulk deleting bookmarks
 * [#20056](https://github.com/netbox-community/netbox/issues/20056) - Fixed missing RF role options in device type schema validation
 
+---
+
 ## v4.3.5 (2025-07-29)
 
 ### Enhancements
@@ -47,6 +73,8 @@
 
 !!! note "Plugin Developer Advisory"
     The fix for bug [#18900](https://github.com/netbox-community/netbox/issues/18900) now raises explicit exceptions when API endpoints attempt to paginate unordered querysets. Plugin maintainers should review their API viewsets to ensure proper queryset ordering is applied before pagination, either by using `.order_by()` on querysets or by setting `ordering` in model Meta classes. Previously silent pagination issues in plugin code will now raise `QuerySetNotOrdered` exceptions and may require updates to maintain compatibility.
+
+---
 
 ## v4.3.4 (2025-07-15)
 

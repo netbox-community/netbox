@@ -6,3 +6,9 @@
     }
   }
 }
+
+// Replicate styling of tom-selected <select> fields tagged with .is-invalid to
+// their corresponding TomSelect dropdowns
+select.tomselected.is-invalid + div.ts-wrapper {
+  @extend .is-invalid;
+}

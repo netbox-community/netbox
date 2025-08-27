@@ -352,7 +352,19 @@ class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 #
 
 class DeviceRoleViewSet(NetBoxModelViewSet):
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.add_related_count(
+        DeviceRole.objects.add_related_count(
+            DeviceRole.objects.all(),
+            VirtualMachine,
+            'role',
+            'virtualmachine_count',
+            cumulative=True
+        ),
+        Device,
+        'role',
+        'device_count',
+        cumulative=True
+    )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filtersets.DeviceRoleFilterSet
 
