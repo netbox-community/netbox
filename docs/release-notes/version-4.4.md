@@ -39,6 +39,7 @@ A new ConfigContextProfile model has been introduced to support JSON schema vali
 * [#19945](https://github.com/netbox-community/netbox/issues/19945) - Introduce a new custom script variable to represent decimal values
 * [#19965](https://github.com/netbox-community/netbox/issues/19965) - Add REST & GraphQL API request counters to the Prometheus metrics exporter
 * [#20029](https://github.com/netbox-community/netbox/issues/20029) - Include complete representation of object type in webhook payload data
+* [#20115](https://github.com/netbox-community/netbox/issues/20115) - Support the use of ArrayColumn for plugin tables
 
 ### Plugins
 
