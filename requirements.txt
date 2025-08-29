@@ -24,7 +24,8 @@ Jinja2==3.1.6
 jsonschema==4.25.0
 Markdown==3.8.2
 mkdocs-material==9.6.16
-mkdocstrings[python]==0.30.0
+mkdocstrings==0.30.0
+mkdocstrings-python==1.18.2
 netaddr==1.3.0
 nh3==0.3.0
 Pillow==11.3.0

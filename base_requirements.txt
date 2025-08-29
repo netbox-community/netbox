@@ -106,7 +106,11 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-mkdocstrings[python]
+mkdocstrings
+
+# Python handler for mkdocstrings
+# https://github.com/mkdocstrings/python/blob/main/CHANGELOG.md
+mkdocstrings-python
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst
