@@ -24,7 +24,7 @@ Every model includes by default a numeric primary key. This value is generated a
 
 ## Enabling NetBox Features
 
-Plugin models can leverage certain [model features](../development/models.md#features-matrix) (such as tags, custom fields, event rules, etc.) by inheriting from NetBox's `NetBoxModel` class. This class performs two crucial functions:
+Plugin models can leverage certain [model features](../../development/models.md#features-matrix) (such as tags, custom fields, event rules, etc.) by inheriting from NetBox's `NetBoxModel` class. This class performs two crucial functions:
 
 1. Apply any fields, methods, and/or attributes necessary to the operation of these features
 2. Register the model with NetBox as utilizing these features
