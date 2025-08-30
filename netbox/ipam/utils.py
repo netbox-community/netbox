@@ -164,11 +164,11 @@ def available_vlans_from_range(vlans, vlan_group, vid_range):
         prev_vid = vlan.vid
 
     # Annotate any remaining available VLANs
-    if prev_vid < max_vid:
+    if prev_vid < max_vid and (available := max_vid - prev_vid - 1) > 0:
         new_vlans.append({
             'vid': prev_vid + 1,
             'vlan_group': vlan_group,
-            'available': max_vid - prev_vid - 1,
+            'available': available,
         })
 
     return new_vlans
