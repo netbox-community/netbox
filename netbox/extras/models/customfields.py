@@ -600,11 +600,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
+        # Native numeric filters will use `isnull` by default for empty lookups, but
+        # JSON fields require `empty` (see bug #20012).
+        if lookup_expr == 'isnull':
+            lookup_expr = 'empty'
         if lookup_expr is not None:
             kwargs['lookup_expr'] = lookup_expr
 
+        # 'Empty' lookup is always a boolean
+        if lookup_expr == 'empty':
+            filter_class = django_filters.BooleanFilter
+
         # Text/URL
-        if self.type in (
+        elif self.type in (
                 CustomFieldTypeChoices.TYPE_TEXT,
                 CustomFieldTypeChoices.TYPE_LONGTEXT,
                 CustomFieldTypeChoices.TYPE_URL,

@@ -4373,6 +4373,9 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Device.objects.bulk_create(devices)
 
+        virtual_chassis.master = devices[0]
+        virtual_chassis.save()
+
         module_bays = (
             ModuleBay(device=devices[0], name='Module Bay 1'),
             ModuleBay(device=devices[1], name='Module Bay 2'),
@@ -4758,6 +4761,19 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_chassis_member_or_master(self):
+        vc = VirtualChassis.objects.first()
+        master = vc.master
+        member = vc.members.exclude(pk=master.pk).first()
+        params = {'virtual_chassis_member_or_master_id': [master.pk,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_chassis_member_or_master_id': [member.pk,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'virtual_chassis_member_or_master': [master.name,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_chassis_member_or_master': [member.name,]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_virtual_chassis_member(self):
         # Device 1A & 3 have 1 management interface, Device 1B has 1 interfaces
