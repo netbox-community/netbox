@@ -909,6 +909,10 @@ class DeviceBayTable(DeviceComponentTable):
         verbose_name=_('Installed device'),
         linkify=True
     )
+    device_description = tables.Column(
+        accessor=Accessor('installed_device__description'),
+        verbose_name=_('Device Description'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:devicebay_list'
     )
