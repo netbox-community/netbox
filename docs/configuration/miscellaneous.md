@@ -108,8 +108,6 @@ By default, NetBox will prevent the creation of duplicate prefixes and IP addres
 
 ## EVENTS_PIPELINE
 
-!!! info "This parameter was introduced in NetBox v4.2."
-
 Default: `['extras.events.process_event_queue',]`
 
 NetBox will call dotted paths to the functions listed here for events (create, update, delete) on models as well as when custom EventRules are fired.

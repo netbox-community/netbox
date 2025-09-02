@@ -1,9 +1,12 @@
+import logging
 import uuid
+from dataclasses import asdict
 from functools import partial
 
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
@@ -14,8 +17,13 @@ from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
+from core.dataclasses import JobLogEntry
+from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
+from extras.models import Notification
+from netbox.models.features import has_feature
+from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
 
@@ -104,6 +112,15 @@ class Job(models.Model):
         verbose_name=_('job ID'),
         unique=True
     )
+    log_entries = ArrayField(
+        verbose_name=_('log entries'),
+        base_field=models.JSONField(
+            encoder=DjangoJSONEncoder,
+            decoder=JobLogDecoder,
+        ),
+        blank=True,
+        default=list,
+    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -116,7 +133,7 @@ class Job(models.Model):
         verbose_name_plural = _('jobs')
 
     def __str__(self):
-        return str(self.job_id)
+        return self.name
 
     def get_absolute_url(self):
         # TODO: Employ dynamic registration
@@ -130,11 +147,18 @@ class Job(models.Model):
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
 
+    def get_event_type(self):
+        return {
+            JobStatusChoices.STATUS_COMPLETED: JOB_COMPLETED,
+            JobStatusChoices.STATUS_FAILED: JOB_FAILED,
+            JobStatusChoices.STATUS_ERRORED: JOB_ERRORED,
+        }.get(self.status)
+
     def clean(self):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type and self.object_type not in ObjectType.objects.with_feature('jobs'):
+        if self.object_type and not has_feature(self.object_type, 'jobs'):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -201,8 +225,23 @@ class Job(models.Model):
         self.completed = timezone.now()
         self.save()
 
+        # Notify the user (if any) of completion
+        if self.user:
+            Notification(
+                user=self.user,
+                object=self,
+                event_type=self.get_event_type(),
+            ).save()
+
         # Send signal
         job_end.send(self)
+
+    def log(self, record: logging.LogRecord):
+        """
+        Record a LogRecord from Python's native logging in the job's log.
+        """
+        entry = JobLogEntry.from_logrecord(record)
+        self.log_entries.append(asdict(entry))
 
     @classmethod
     def enqueue(

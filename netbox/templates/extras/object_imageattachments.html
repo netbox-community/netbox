@@ -1,0 +1,44 @@
+{% extends base_template %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+{% load thumbnail %}
+
+{% block extra_controls %}
+  {% if perms.extras.add_imageattachment %}
+    <a href="{% url 'extras:imageattachment_add' %}?object_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={% action_url object 'image-attachments' pk=object.pk %}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Attach an Image" %}
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if image_attachments %}
+    <div class="d-flex flex-wrap">
+      {% for object in image_attachments %}
+        <div class="thumbnail m-2">
+          {% thumbnail object.image "200x200" crop="center" as tn %}
+            <a href="{{ object.get_absolute_url }}" class="d-block" title="{{ object.name }}">
+              <img
+                src="{{ tn.url }}"
+                width="{{ tn.width }}"
+                height="{{ tn.height }}"
+                class="rounded"
+                alt="{{ object.description|default:object.name }}"
+              />
+            </a>
+          {% endthumbnail %}
+          <div class="text-center text-secondary text-truncate fs-5">
+            {{ object }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      {% blocktrans with object_type=object|meta:"verbose_name" %}
+        No images have been attached to this {{ object_type }}.
+      {% endblocktrans %}
+    </div>
+  {% endif %}
+{% endblock %}

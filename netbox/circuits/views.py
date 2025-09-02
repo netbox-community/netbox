@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
 from ipam.models import ASN
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.query import count_related
@@ -79,6 +80,11 @@ class ProviderBulkEditView(generic.BulkEditView):
     form = forms.ProviderBulkEditForm
 
 
+@register_model_view(Provider, 'bulk_rename', path='rename', detail=False)
+class ProviderBulkRenameView(generic.BulkRenameView):
+    queryset = Provider.objects.all()
+
+
 @register_model_view(Provider, 'bulk_delete', path='delete', detail=False)
 class ProviderBulkDeleteView(generic.BulkDeleteView):
     queryset = Provider.objects.annotate(
@@ -139,6 +145,11 @@ class ProviderAccountBulkEditView(generic.BulkEditView):
     filterset = filtersets.ProviderAccountFilterSet
     table = tables.ProviderAccountTable
     form = forms.ProviderAccountBulkEditForm
+
+
+@register_model_view(ProviderAccount, 'bulk_rename', path='rename', detail=False)
+class ProviderAccountBulkRenameView(generic.BulkRenameView):
+    queryset = ProviderAccount.objects.all()
 
 
 @register_model_view(ProviderAccount, 'bulk_delete', path='delete', detail=False)
@@ -212,6 +223,11 @@ class ProviderNetworkBulkEditView(generic.BulkEditView):
     form = forms.ProviderNetworkBulkEditForm
 
 
+@register_model_view(ProviderNetwork, 'bulk_rename', path='rename', detail=False)
+class ProviderNetworkBulkRenameView(generic.BulkRenameView):
+    queryset = ProviderNetwork.objects.all()
+
+
 @register_model_view(ProviderNetwork, 'bulk_delete', path='delete', detail=False)
 class ProviderNetworkBulkDeleteView(generic.BulkDeleteView):
     queryset = ProviderNetwork.objects.all()
@@ -269,6 +285,11 @@ class CircuitTypeBulkEditView(generic.BulkEditView):
     filterset = filtersets.CircuitTypeFilterSet
     table = tables.CircuitTypeTable
     form = forms.CircuitTypeBulkEditForm
+
+
+@register_model_view(CircuitType, 'bulk_rename', path='rename', detail=False)
+class CircuitTypeBulkRenameView(generic.BulkRenameView):
+    queryset = CircuitType.objects.all()
 
 
 @register_model_view(CircuitType, 'bulk_delete', path='delete', detail=False)
@@ -335,6 +356,12 @@ class CircuitBulkEditView(generic.BulkEditView):
     filterset = filtersets.CircuitFilterSet
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
+
+
+@register_model_view(Circuit, 'bulk_rename', path='rename', detail=False)
+class CircuitBulkRenameView(generic.BulkRenameView):
+    queryset = Circuit.objects.all()
+    field_name = 'cid'
 
 
 @register_model_view(Circuit, 'bulk_delete', path='delete', detail=False)
@@ -432,6 +459,7 @@ class CircuitTerminationListView(generic.ObjectListView):
     filterset = filtersets.CircuitTerminationFilterSet
     filterset_form = forms.CircuitTerminationFilterForm
     table = tables.CircuitTerminationTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(CircuitTermination)
@@ -526,6 +554,11 @@ class CircuitGroupBulkEditView(generic.BulkEditView):
     form = forms.CircuitGroupBulkEditForm
 
 
+@register_model_view(CircuitGroup, 'bulk_rename', path='rename', detail=False)
+class CircuitGroupBulkRenameView(generic.BulkRenameView):
+    queryset = CircuitGroup.objects.all()
+
+
 @register_model_view(CircuitGroup, 'bulk_delete', path='delete', detail=False)
 class CircuitGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = CircuitGroup.objects.all()
@@ -543,6 +576,7 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
     filterset = filtersets.CircuitGroupAssignmentFilterSet
     filterset_form = forms.CircuitGroupAssignmentFilterForm
     table = tables.CircuitGroupAssignmentTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(CircuitGroupAssignment)
@@ -635,6 +669,11 @@ class VirtualCircuitTypeBulkEditView(generic.BulkEditView):
     form = forms.VirtualCircuitTypeBulkEditForm
 
 
+@register_model_view(VirtualCircuitType, 'bulk_rename', path='rename', detail=False)
+class VirtualCircuitTypeBulkRenameView(generic.BulkRenameView):
+    queryset = VirtualCircuitType.objects.all()
+
+
 @register_model_view(VirtualCircuitType, 'bulk_delete', path='delete', detail=False)
 class VirtualCircuitTypeBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualCircuitType.objects.annotate(
@@ -648,6 +687,7 @@ class VirtualCircuitTypeBulkDeleteView(generic.BulkDeleteView):
 # Virtual circuits
 #
 
+@register_model_view(VirtualCircuit, 'list', path='', detail=False)
 class VirtualCircuitListView(generic.ObjectListView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -662,6 +702,7 @@ class VirtualCircuitView(generic.ObjectView):
     queryset = VirtualCircuit.objects.all()
 
 
+@register_model_view(VirtualCircuit, 'add', detail=False)
 @register_model_view(VirtualCircuit, 'edit')
 class VirtualCircuitEditView(generic.ObjectEditView):
     queryset = VirtualCircuit.objects.all()
@@ -673,6 +714,7 @@ class VirtualCircuitDeleteView(generic.ObjectDeleteView):
     queryset = VirtualCircuit.objects.all()
 
 
+@register_model_view(VirtualCircuit, 'bulk_import', path='import', detail=False)
 class VirtualCircuitBulkImportView(generic.BulkImportView):
     queryset = VirtualCircuit.objects.all()
     model_form = forms.VirtualCircuitImportForm
@@ -688,6 +730,7 @@ class VirtualCircuitBulkImportView(generic.BulkImportView):
         return data
 
 
+@register_model_view(VirtualCircuit, 'bulk_edit', path='edit', detail=False)
 class VirtualCircuitBulkEditView(generic.BulkEditView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -697,6 +740,13 @@ class VirtualCircuitBulkEditView(generic.BulkEditView):
     form = forms.VirtualCircuitBulkEditForm
 
 
+@register_model_view(VirtualCircuit, 'bulk_rename', path='rename', detail=False)
+class VirtualCircuitBulkRenameView(generic.BulkRenameView):
+    queryset = VirtualCircuit.objects.all()
+    field_name = 'cid'
+
+
+@register_model_view(VirtualCircuit, 'bulk_delete', path='delete', detail=False)
 class VirtualCircuitBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualCircuit.objects.annotate(
         termination_count=count_related(VirtualCircuitTermination, 'virtual_circuit')
@@ -714,6 +764,7 @@ class VirtualCircuitTerminationListView(generic.ObjectListView):
     filterset = filtersets.VirtualCircuitTerminationFilterSet
     filterset_form = forms.VirtualCircuitTerminationFilterForm
     table = tables.VirtualCircuitTerminationTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
 
 
 @register_model_view(VirtualCircuitTermination)

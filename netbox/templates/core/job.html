@@ -1,32 +1,5 @@
-{% extends 'generic/object.html' %}
-{% load buttons %}
-{% load helpers %}
-{% load perms %}
+{% extends 'core/job/base.html' %}
 {% load i18n %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% if object.object %}
-    <li class="breadcrumb-item">
-      <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
-    </li>
-    {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
-      <li class="breadcrumb-item">
-        <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
-      </li>
-    {% endwith %}
-  {% else %}
-    <li class="breadcrumb-item">
-      <a href="{% url 'core:job_list' %}?name={{ object.name|urlencode }}">{{ object.name }}</a>
-    </li>
-  {% endif %}
-{% endblock breadcrumbs %}
-
-{% block control-buttons %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock control-buttons %}
 
 {% block content %}
   <div class="row mb-3">
@@ -94,9 +67,7 @@
     <div class="col col-12">
       <div class="card">
         <h2 class="card-header">{% trans "Data" %}</h2>
-        <div class="card-body">
-          <pre>{{ object.data|json }}</pre>
-        </div>
+        <pre class="card-body m-0">{{ object.data|json }}</pre>
       </div>
     </div>
   </div>

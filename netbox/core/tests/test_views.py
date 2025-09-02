@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 import uuid
 from datetime import datetime
@@ -366,6 +367,11 @@ class SystemTestCase(TestCase):
         # Test export
         response = self.client.get(f"{reverse('core:system')}?export=true")
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertIn('netbox_release', data)
+        self.assertIn('plugins', data)
+        self.assertIn('config', data)
+        self.assertIn('objects', data)
 
     def test_system_view_with_config_revision(self):
         ConfigRevision.objects.create()

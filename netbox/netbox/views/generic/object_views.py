@@ -14,15 +14,18 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from netbox.object_actions import (
+    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, CloneObject, DeleteObject, EditObject,
+)
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.forms import DeleteForm, restrict_form_fields
 from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
-from utilities.views import GetReturnURLMixin, get_viewname
+from utilities.views import GetReturnURLMixin, get_action_url
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -36,7 +39,7 @@ __all__ = (
 )
 
 
-class ObjectView(BaseObjectView):
+class ObjectView(ActionsMixin, BaseObjectView):
     """
     Retrieve a single object for display.
 
@@ -44,8 +47,10 @@ class ObjectView(BaseObjectView):
 
     Attributes:
         tab: A ViewTab instance for the view
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     tab = None
+    actions = (CloneObject, EditObject, DeleteObject)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -72,9 +77,11 @@ class ObjectView(BaseObjectView):
             request: The current request
         """
         instance = self.get_object(**kwargs)
+        actions = self.get_permitted_actions(request.user, model=instance)
 
         return render(request, self.get_template_name(), {
             'object': instance,
+            'actions': actions,
             'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
@@ -90,13 +97,13 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     child_model = None
     table = None
     filterset = None
     filterset_form = None
+    actions = (AddObject, BulkImport, BulkEdit, BulkExport, BulkDelete)
     template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
@@ -138,10 +145,10 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
-        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        has_table_actions = any(action.multi for action in actions)
 
         table_data = self.prep_table_data(request, child_objects, instance)
-        table = self.get_table(table_data, request, has_bulk_actions)
+        table = self.get_table(table_data, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
@@ -281,6 +288,9 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            # Record changelog message (if any)
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
+
             try:
                 with transaction.atomic(using=router.db_for_write(model)):
                     object_created = form.instance.pk is None
@@ -415,7 +425,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             request: The current request
         """
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(initial=request.GET)
+        form = DeleteForm(instance=obj, initial=request.GET)
 
         try:
             dependent_objects = self._get_dependent_objects(obj)
@@ -426,8 +436,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if htmx_partial(request):
-            viewname = get_viewname(self.queryset.model, action='delete')
-            form_url = reverse(viewname, kwargs={'pk': obj.pk})
+            form_url = get_action_url(self.queryset.model, action='delete', kwargs={'pk': obj.pk})
             return render(request, 'htmx/delete_form.html', {
                 'object': obj,
                 'object_type': self.queryset.model._meta.verbose_name,
@@ -454,23 +463,25 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         logger = logging.getLogger('netbox.views.ObjectDeleteView')
         obj = self.get_object(**kwargs)
-        form = ConfirmationForm(request.POST)
-
-        # Take a snapshot of change-logged models
-        if hasattr(obj, 'snapshot'):
-            obj.snapshot()
+        form = DeleteForm(request.POST, instance=obj)
 
         if form.is_valid():
             logger.debug("Form validation was successful")
 
+            # Take a snapshot of change-logged models
+            if hasattr(obj, 'snapshot'):
+                obj.snapshot()
+
+            # Record changelog message (if any)
+            obj._changelog_message = form.cleaned_data.pop('changelog_message', '')
+
+            # Delete the object
             try:
                 obj.delete()
-
             except (ProtectedError, RestrictedError) as e:
                 logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
-
             except AbortRequest as e:
                 logger.debug(e.message)
                 messages.error(request, mark_safe(e.message))

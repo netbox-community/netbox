@@ -1,14 +1,14 @@
 from core.models import ObjectType
 from extras.models import CustomLink
 from netbox.api.fields import ContentTypeField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 
 __all__ = (
     'CustomLinkSerializer',
 )
 
 
-class CustomLinkSerializer(ValidatedModelSerializer):
+class CustomLinkSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_links'),
         many=True

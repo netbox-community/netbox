@@ -22,6 +22,7 @@ __all__ = (
     'content_type',
     'content_type_id',
     'fgcolor',
+    'getattr_',
     'isodate',
     'isodatetime',
     'isotime',
@@ -86,6 +87,14 @@ def fgcolor(value, dark='000000', light='ffffff'):
     if not re.match('^[0-9a-f]{6}$', value):
         return ''
     return f'#{foreground_color(value, dark, light)}'
+
+
+@register.filter('getattr')
+def getattr_(instance, name):
+    """
+    Call getattr() on the object for the specified attribute.
+    """
+    return getattr(instance, name, None)
 
 
 @register.filter()

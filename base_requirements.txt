@@ -1,3 +1,7 @@
+# Shell text coloring
+# https://github.com/tartley/colorama/blob/master/CHANGELOG.rst
+colorama
+
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
 Django==5.2.*
@@ -102,7 +106,11 @@ mkdocs-material
 
 # Introspection for embedded code
 # https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
-mkdocstrings[python]
+mkdocstrings
+
+# Python handler for mkdocstrings
+# https://github.com/mkdocstrings/python/blob/main/CHANGELOG.md
+mkdocstrings-python
 
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst
@@ -131,7 +139,8 @@ requests
 
 # rq
 # https://github.com/rq/rq/blob/master/CHANGES.md
-rq
+# RQ v2.5 drops support for Redis < 5.0
+rq==2.4.1
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
@@ -140,6 +149,10 @@ social-auth-app-django
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
 social-auth-core
+
+# Image thumbnail generation
+# https://github.com/jazzband/sorl-thumbnail/blob/master/CHANGES.rst
+sorl-thumbnail
 
 # Strawberry GraphQL
 # https://github.com/strawberry-graphql/strawberry/blob/main/CHANGELOG.md

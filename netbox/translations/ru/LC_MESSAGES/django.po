@@ -14,8 +14,9 @@
 # Michail Tatarinov, 2025
 # dropclient, 2025
 # Artem Kotik, 2025
-# Elena Mishina, 2025
 # Jeremy Stretch, 2025
+# Alevtina Karashokova, 2025
+# Elena Mishina, 2025
 # 
 #, fuzzy
 msgid ""
@@ -24,7 +25,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-26 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: Elena Mishina, 2025\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3062,7 +3063,7 @@ msgstr "Вывод из эксплуатации"
 
 #: netbox/dcim/choices.py:24
 msgid "Retired"
-msgstr " Вывод из эксплуатации"
+msgstr "Работа полностью прекращена"
 
 #: netbox/dcim/choices.py:65
 msgid "2-post frame"
@@ -11487,7 +11488,7 @@ msgstr "Дочерние префиксы"
 
 #: netbox/ipam/views.py:623
 msgid "Child Ranges"
-msgstr "Детские диапазоны"
+msgstr "Дочерние диапазоны"
 
 #: netbox/ipam/views.py:969
 msgid "Related IPs"
@@ -11702,7 +11703,7 @@ msgstr "Предпочитать IPv4"
 
 #: netbox/netbox/config/parameters.py:77
 msgid "Prefer IPv4 addresses over IPv6"
-msgstr "Предпочитайте адреса IPv4, а не IPv6"
+msgstr "Предпочитать адреса IPv4, а не IPv6"
 
 #: netbox/netbox/config/parameters.py:84
 msgid "Rack unit height"
@@ -12930,7 +12931,7 @@ msgstr ""
 
 #: netbox/templates/circuits/circuit_terminations_swap.html:14
 msgid "A side"
-msgstr "Сторона"
+msgstr "Сторона A"
 
 #: netbox/templates/circuits/circuit_terminations_swap.html:22
 msgid "Z side"
@@ -14962,7 +14963,7 @@ msgstr "Инструкции по обновлению"
 
 #: netbox/templates/home.html:40
 msgid "Unlock Dashboard"
-msgstr "Разблокируйте панель управления"
+msgstr "Разблокировать панель управления"
 
 #: netbox/templates/home.html:49
 msgid "Lock Dashboard"
@@ -15235,7 +15236,7 @@ msgstr "Обратная маска"
 
 #: netbox/templates/ipam/prefix.html:193
 msgid "Broadcast Address"
-msgstr "Адрес вещания"
+msgstr "Широковещательный адрес"
 
 #: netbox/templates/ipam/prefix/ip_ranges.html:7
 msgid "Add IP Range"
@@ -15654,7 +15655,7 @@ msgstr "Туннельная группа"
 
 #: netbox/templates/vpn/tunneltermination.html:10
 msgid "Tunnel Termination"
-msgstr "Окончание Туннеля"
+msgstr "Завершение туннеля"
 
 #: netbox/templates/vpn/tunneltermination.html:35
 #: netbox/vpn/forms/bulk_import.py:107 netbox/vpn/forms/model_forms.py:103
@@ -16253,13 +16254,13 @@ msgstr ""
 msgid ""
 "Invalid ranges ({value}). Must be a range of integers in ascending order."
 msgstr ""
-"Неверные диапазоны ({value}). Должен быть диапазон целых чисел в порядке "
-"возрастания."
+"Недопустимые диапазоны ({value}). Должен быть указан диапазон целых чисел в "
+"порядке возрастания."
 
 #: netbox/utilities/forms/fields/csv.py:44
 #, python-brace-format
 msgid "Invalid value for a multiple choice field: {value}"
-msgstr "Неверное значение для поля с несколькими вариантами ответов: {value}"
+msgstr "Недопустимое значение для поля с множественным выбором: {value} "
 
 #: netbox/utilities/forms/fields/csv.py:57
 #: netbox/utilities/forms/fields/csv.py:78
@@ -16273,7 +16274,7 @@ msgid ""
 "\"{value}\" is not a unique value for this field; multiple objects were "
 "found"
 msgstr ""
-"«{value}\"не является уникальным значением для этого поля; найдено несколько"
+"«{value}» не является уникальным значением для этого поля; найдено несколько"
 " объектов"
 
 #: netbox/utilities/forms/fields/csv.py:69
@@ -16283,7 +16284,7 @@ msgstr "\"{field_name}\" — неправильное имя поля досту
 
 #: netbox/utilities/forms/fields/csv.py:102
 msgid "Object type must be specified as \"<app>.<model>\""
-msgstr "Тип объекта должен быть указан как»<app>.<model>»"
+msgstr "Тип объекта должен быть указан как «<app>.<model>»"
 
 #: netbox/utilities/forms/fields/csv.py:106
 msgid "Invalid object type"
@@ -16295,9 +16296,9 @@ msgid ""
 "within a single range are not supported (example: "
 "<code>[ge,xe]-0/0/[0-9]</code>)."
 msgstr ""
-"Для массового создания поддерживаются алфавитно-цифровые диапазоны. "
-"Смешанные регистр и типы в одном диапазоне не поддерживаются (например: "
-"<code>[возраст, пол] -0/0/ [0-9]</code>)."
+"Для массового создания поддерживаются буквенно-цифровые диапазоны. Смешение "
+"регистров и типов внутри одного диапазона не поддерживается (например: "
+"<code>[ge,xe] -0/0/ [0-9]</code>)."
 
 #: netbox/utilities/forms/fields/expandable.py:46
 msgid ""

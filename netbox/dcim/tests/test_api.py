@@ -465,7 +465,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
 class RackReservationTest(APIViewTestCases.APIViewTestCase):
     model = RackReservation
-    brief_fields = ['description', 'display', 'id', 'units', 'url', 'user']
+    brief_fields = ['description', 'display', 'id', 'status', 'units', 'url', 'user']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -483,9 +483,24 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
         Rack.objects.bulk_create(racks)
 
         rack_reservations = (
-            RackReservation(rack=racks[0], units=[1, 2, 3], user=user, description='Reservation #1'),
-            RackReservation(rack=racks[0], units=[4, 5, 6], user=user, description='Reservation #2'),
-            RackReservation(rack=racks[0], units=[7, 8, 9], user=user, description='Reservation #3'),
+            RackReservation(
+                rack=racks[0],
+                units=[1, 2, 3],
+                user=user,
+                description='Reservation #1',
+            ),
+            RackReservation(
+                rack=racks[0],
+                units=[4, 5, 6],
+                user=user,
+                description='Reservation #2'
+            ),
+            RackReservation(
+                rack=racks[0],
+                units=[7, 8, 9],
+                user=user,
+                description='Reservation #3',
+            ),
         )
         RackReservation.objects.bulk_create(rack_reservations)
 
@@ -493,18 +508,21 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
             {
                 'rack': racks[1].pk,
                 'units': [10, 11, 12],
+                'status': RackReservationStatusChoices.STATUS_ACTIVE,
                 'user': user.pk,
                 'description': 'Reservation #4',
             },
             {
                 'rack': racks[1].pk,
                 'units': [13, 14, 15],
+                'status': RackReservationStatusChoices.STATUS_PENDING,
                 'user': user.pk,
                 'description': 'Reservation #5',
             },
             {
                 'rack': racks[1].pk,
                 'units': [16, 17, 18],
+                'status': RackReservationStatusChoices.STATUS_STALE,
                 'user': user.pk,
                 'description': 'Reservation #6',
             },
@@ -1247,7 +1265,9 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
     model = Platform
-    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
+    brief_fields = [
+        '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count',
+    ]
     create_data = [
         {
             'name': 'Platform 4',
@@ -1274,7 +1294,8 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):

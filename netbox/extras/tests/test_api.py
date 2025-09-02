@@ -3,7 +3,6 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
-from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -580,7 +579,7 @@ class ImageAttachmentTest(
     APIViewTestCases.GraphQLTestCase
 ):
     model = ImageAttachment
-    brief_fields = ['display', 'id', 'image', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'image', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -665,6 +664,70 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
                 'comments': 'Third entry',
             },
         ]
+
+
+class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
+    model = ConfigContextProfile
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Config Context Profile 4',
+        },
+        {
+            'name': 'Config Context Profile 5',
+        },
+        {
+            'name': 'Config Context Profile 6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        profiles = (
+            ConfigContextProfile(
+                name='Config Context Profile 1',
+                schema={
+                    "properties": {
+                        "foo": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "foo"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 2',
+                schema={
+                    "properties": {
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "bar"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 3',
+                schema={
+                    "properties": {
+                        "baz": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "baz"
+                    ]
+                }
+            ),
+        )
+        ConfigContextProfile.objects.bulk_create(profiles)
 
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
@@ -919,22 +982,6 @@ class CreatedUpdatedFilterTest(APITestCase):
 
         self.assertEqual(response.data['count'], 1)
         self.assertEqual(response.data['results'][0]['id'], rack2.pk)
-
-
-class ObjectTypeTest(APITestCase):
-
-    def test_list_objects(self):
-        object_type_count = ObjectType.objects.count()
-
-        response = self.client.get(reverse('extras-api:objecttype-list'), **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], object_type_count)
-
-    def test_get_object(self):
-        object_type = ObjectType.objects.first()
-
-        url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
-        self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
 
 
 class SubscriptionTest(APIViewTestCases.APIViewTestCase):

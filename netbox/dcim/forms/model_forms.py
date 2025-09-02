@@ -11,6 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
@@ -335,14 +336,14 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('rack', 'units', 'user', 'description', 'tags', name=_('Reservation')),
+        FieldSet('rack', 'units', 'status', 'user', 'description', 'tags', name=_('Reservation')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
 
@@ -535,6 +536,11 @@ class DeviceRoleForm(NetBoxModelForm):
 
 
 class PlatformForm(NetBoxModelForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -550,15 +556,18 @@ class PlatformForm(NetBoxModelForm):
         label=_('Slug'),
         max_length=64
     )
+    comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags', name=_('Platform')),
+        FieldSet(
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'tags', name=_('Platform'),
+        ),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'comments', 'tags',
         ]
 
 
@@ -973,7 +982,7 @@ class VCMemberSelectForm(forms.Form):
 # Device component templates
 #
 
-class ComponentTemplateForm(forms.ModelForm):
+class ComponentTemplateForm(ChangelogMessageMixin, forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),

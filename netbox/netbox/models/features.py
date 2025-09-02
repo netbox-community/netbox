@@ -3,6 +3,7 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -16,9 +17,12 @@ from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.constants import CORE_APPS
 from netbox.models.deletion import DeleteMixin
+from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from netbox.signals import post_clean
+from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
 
@@ -38,6 +42,9 @@ __all__ = (
     'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'get_model_features',
+    'has_feature',
+    'model_is_public',
     'register_models',
 )
 
@@ -65,6 +72,11 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
 
     class Meta:
         abstract = True
+
+    def __init__(self, *args, **kwargs):
+        changelog_message = kwargs.pop('changelog_message', None)
+        super().__init__(*args, **kwargs)
+        self._changelog_message = changelog_message
 
     def serialize_object(self, exclude=None):
         """
@@ -103,7 +115,8 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
-            action=action
+            action=action,
+            message=self._changelog_message or '',
         )
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
@@ -615,27 +628,62 @@ class SyncedDataMixin(models.Model):
 # Feature registration
 #
 
-FEATURES_MAP = {
-    'bookmarks': BookmarksMixin,
-    'change_logging': ChangeLoggingMixin,
-    'cloning': CloningMixin,
-    'contacts': ContactsMixin,
-    'custom_fields': CustomFieldsMixin,
-    'custom_links': CustomLinksMixin,
-    'custom_validation': CustomValidationMixin,
-    'event_rules': EventRulesMixin,
-    'export_templates': ExportTemplatesMixin,
-    'image_attachments': ImageAttachmentsMixin,
-    'jobs': JobsMixin,
-    'journaling': JournalingMixin,
-    'notifications': NotificationsMixin,
-    'synced_data': SyncedDataMixin,
-    'tags': TagsMixin,
-}
+register_model_feature('bookmarks', lambda model: issubclass(model, BookmarksMixin))
+register_model_feature('change_logging', lambda model: issubclass(model, ChangeLoggingMixin))
+register_model_feature('cloning', lambda model: issubclass(model, CloningMixin))
+register_model_feature('contacts', lambda model: issubclass(model, ContactsMixin))
+register_model_feature('custom_fields', lambda model: issubclass(model, CustomFieldsMixin))
+register_model_feature('custom_links', lambda model: issubclass(model, CustomLinksMixin))
+register_model_feature('custom_validation', lambda model: issubclass(model, CustomValidationMixin))
+register_model_feature('event_rules', lambda model: issubclass(model, EventRulesMixin))
+register_model_feature('export_templates', lambda model: issubclass(model, ExportTemplatesMixin))
+register_model_feature('image_attachments', lambda model: issubclass(model, ImageAttachmentsMixin))
+register_model_feature('jobs', lambda model: issubclass(model, JobsMixin))
+register_model_feature('journaling', lambda model: issubclass(model, JournalingMixin))
+register_model_feature('notifications', lambda model: issubclass(model, NotificationsMixin))
+register_model_feature('synced_data', lambda model: issubclass(model, SyncedDataMixin))
+register_model_feature('tags', lambda model: issubclass(model, TagsMixin))
 
-registry['model_features'].update({
-    feature: defaultdict(set) for feature in FEATURES_MAP.keys()
-})
+
+def model_is_public(model):
+    """
+    Return True if the model is considered "public use;" otherwise return False.
+
+    All non-core and non-plugin models are excluded.
+    """
+    opts = model._meta
+    if opts.app_label not in CORE_APPS and not isinstance(opts.app_config, PluginConfig):
+        return False
+    return not getattr(model, '_netbox_private', False)
+
+
+def get_model_features(model):
+    """
+    Return all features supported by the given model.
+    """
+    return [
+        feature for feature, test_func in registry['model_features'].items() if test_func(model)
+    ]
+
+
+def has_feature(model_or_ct, feature):
+    """
+    Returns True if the model supports the specified feature.
+    """
+    # If an ObjectType was passed, we can use it directly
+    if type(model_or_ct) is ObjectType:
+        ot = model_or_ct
+    # If a ContentType was passed, resolve its model class
+    elif type(model_or_ct) is ContentType:
+        model_class = model_or_ct.model_class()
+        ot = ObjectType.objects.get_for_model(model_class) if model_class else None
+    # For anything else, look up the ObjectType
+    else:
+        ot = ObjectType.objects.get_for_model(model_or_ct)
+    # ObjectType is invalid/deleted
+    if ot is None:
+        return False
+    return feature in ot.features
 
 
 def register_models(*models):
@@ -653,21 +701,10 @@ def register_models(*models):
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
+        # TODO: Remove in NetBox v4.5
         # Register public models
         if not getattr(model, '_netbox_private', False):
             registry['models'][app_label].add(model_name)
-
-        # Record each applicable feature for the model in the registry
-        features = {
-            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
-        }
-        for feature in features:
-            try:
-                registry['model_features'][feature][app_label].add(model_name)
-            except KeyError:
-                raise KeyError(
-                    f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
-                )
 
         # Register applicable feature views for the model
         if issubclass(model, ContactsMixin):
@@ -685,6 +722,10 @@ def register_models(*models):
         if issubclass(model, JobsMixin):
             register_model_view(model, 'jobs', kwargs={'model': model})(
                 'netbox.views.generic.ObjectJobsView'
+            )
+        if issubclass(model, ImageAttachmentsMixin):
+            register_model_view(model, 'image-attachments', kwargs={'model': model})(
+                'netbox.views.generic.ObjectImageAttachmentsView'
             )
         if issubclass(model, SyncedDataMixin):
             register_model_view(model, 'sync', kwargs={'model': model})(

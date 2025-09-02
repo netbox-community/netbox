@@ -1,14 +1,17 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.urls import NoReverseMatch, reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
 from netbox.models.features import NotificationsMixin
 from utilities.querydict import prepare_cloned_fields
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
+    'action_buttons',
     'add_button',
     'bookmark_button',
     'bulk_delete_button',
@@ -25,9 +28,14 @@ __all__ = (
 register = template.Library()
 
 
-#
-# Instance buttons
-#
+@register.simple_tag(takes_context=True)
+def action_buttons(context, actions, obj, multi=False, **kwargs):
+    buttons = [
+        action.render(context, obj, **kwargs)
+        for action in actions if action.multi == multi
+    ]
+    return mark_safe(''.join(buttons))
+
 
 @register.inclusion_tag('buttons/bookmark.html', takes_context=True)
 def bookmark_button(context, instance):
@@ -57,42 +65,6 @@ def bookmark_button(context, instance):
         'form_url': form_url,
         'form_data': form_data,
         'return_url': instance.get_absolute_url(),
-    }
-
-
-@register.inclusion_tag('buttons/clone.html')
-def clone_button(instance):
-    url = reverse(get_viewname(instance, 'add'))
-
-    # Populate cloned field values
-    param_string = prepare_cloned_fields(instance).urlencode()
-    if param_string:
-        url = f'{url}?{param_string}'
-    else:
-        url = None
-
-    return {
-        'url': url,
-    }
-
-
-@register.inclusion_tag('buttons/edit.html')
-def edit_button(instance):
-    viewname = get_viewname(instance, 'edit')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
-
-    return {
-        'url': url,
-    }
-
-
-@register.inclusion_tag('buttons/delete.html')
-def delete_button(instance):
-    viewname = get_viewname(instance, 'delete')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
-
-    return {
-        'url': url,
     }
 
 
@@ -131,45 +103,95 @@ def subscribe_button(context, instance):
     }
 
 
-@register.inclusion_tag('buttons/sync.html')
-def sync_button(instance):
-    viewname = get_viewname(instance, 'sync')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
+#
+# Legacy object buttons
+#
+
+# TODO: Remove in NetBox v4.7
+@register.inclusion_tag('buttons/clone.html')
+def clone_button(instance):
+    # Resolve URL path
+    try:
+        url = get_action_url(instance, action='add')
+    except NoReverseMatch:
+        return {
+            'url': None,
+        }
+
+    # Populate cloned field values and return full URL
+    param_string = prepare_cloned_fields(instance).urlencode()
+    return {
+        'url': f'{url}?{param_string}' if param_string else None,
+    }
+
+
+# TODO: Remove in NetBox v4.7
+@register.inclusion_tag('buttons/edit.html')
+def edit_button(instance):
+    url = get_action_url(instance, action='edit', kwargs={'pk': instance.pk})
 
     return {
+        'url': url,
+        'label': _('Edit'),
+    }
+
+
+# TODO: Remove in NetBox v4.7
+@register.inclusion_tag('buttons/delete.html')
+def delete_button(instance):
+    url = get_action_url(instance, action='delete', kwargs={'pk': instance.pk})
+
+    return {
+        'url': url,
+        'label': _('Delete'),
+    }
+
+
+# TODO: Remove in NetBox v4.7
+@register.inclusion_tag('buttons/sync.html')
+def sync_button(instance):
+    url = get_action_url(instance, action='sync', kwargs={'pk': instance.pk})
+
+    return {
+        'label': _('Sync'),
         'url': url,
     }
 
 
 #
-# List buttons
+# Legacy list buttons
 #
 
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/add.html')
-def add_button(model, return_url=None, action='add'):
+def add_button(model, action='add', return_url=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
     except NoReverseMatch:
         url = None
 
     return {
         'url': url,
+        'label': _('Add'),
         'return_url': return_url,
     }
 
 
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/import.html')
 def import_button(model, action='bulk_import'):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
     except NoReverseMatch:
         url = None
 
     return {
         'url': url,
+        'label': _('Import'),
     }
 
 
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, model):
     object_type = ObjectType.objects.get_for_model(model)
@@ -182,6 +204,7 @@ def export_button(context, model):
     export_templates = ExportTemplate.objects.restrict(user, 'view').filter(object_types=object_type)
 
     return {
+        'label': _('Export'),
         'perms': context['perms'],
         'object_type': object_type,
         'url_params': context['request'].GET.urlencode() if context['request'].GET else '',
@@ -190,31 +213,35 @@ def export_button(context, model):
     }
 
 
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_edit.html', takes_context=True)
 def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
         if query_params:
             url = f'{url}?{query_params.urlencode()}'
     except NoReverseMatch:
         url = None
 
     return {
-        'htmx_navigation': context.get('htmx_navigation'),
+        'label': _('Edit Selected'),
         'url': url,
+        'htmx_navigation': context.get('htmx_navigation'),
     }
 
 
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_delete.html', takes_context=True)
 def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
         if query_params:
             url = f'{url}?{query_params.urlencode()}'
     except NoReverseMatch:
         url = None
 
     return {
-        'htmx_navigation': context.get('htmx_navigation'),
+        'label': _('Delete Selected'),
         'url': url,
+        'htmx_navigation': context.get('htmx_navigation'),
     }
