@@ -1,6 +1,6 @@
 # NetBox v4.4
 
-## v4.4.0 (FUTURE)
+## v4.4.0 (2025-09-02)
 
 ### New Features
 
@@ -39,13 +39,14 @@ A new ConfigContextProfile model has been introduced to support JSON schema vali
 * [#19945](https://github.com/netbox-community/netbox/issues/19945) - Introduce a new custom script variable to represent decimal values
 * [#19965](https://github.com/netbox-community/netbox/issues/19965) - Add REST & GraphQL API request counters to the Prometheus metrics exporter
 * [#20029](https://github.com/netbox-community/netbox/issues/20029) - Include complete representation of object type in webhook payload data
-* [#20115](https://github.com/netbox-community/netbox/issues/20115) - Support the use of ArrayColumn for plugin tables
 
 ### Plugins
 
 * [#18006](https://github.com/netbox-community/netbox/issues/18006) - A Javascript is now triggered when UI is toggled between light and dark mode
 * [#19735](https://github.com/netbox-community/netbox/issues/19735) - Custom individual and bulk operations can now be registered under individual views using `ObjectAction`
 * [#20003](https://github.com/netbox-community/netbox/issues/20003) - Enable registration of callbacks to provide supplementary webhook payload data
+* [#20115](https://github.com/netbox-community/netbox/issues/20115) - Support the use of ArrayColumn for plugin tables
+* [#20129](https://github.com/netbox-community/netbox/issues/20129) - Enable plugins to register custom model features
 
 ### Deprecations
 
