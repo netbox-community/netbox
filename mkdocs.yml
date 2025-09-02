@@ -30,6 +30,8 @@ plugins:
         python:
           paths: ["netbox"]
           options:
+            docstring_options:
+              warn_missing_types: false
             heading_level: 3
             members_order: source
             show_root_heading: true
