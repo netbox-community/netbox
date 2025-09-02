@@ -12,11 +12,13 @@ pre.change-data {
     min-width: fit-content;
 
     &.added {
-      background-color: $green;
+      color: var(--tblr-dark);
+      background-color: $green-300;
     }
 
     &.removed {
-      background-color: $red;
+      color: var(--tblr-dark);
+      background-color: $red-300;
     }
   }
 }
@@ -26,11 +28,13 @@ pre.change-diff {
   border-color: transparent;
 
   &.change-added {
-    background-color: $green;
+    color: var(--tblr-dark);
+    background-color: $green-300;
   }
 
   &.change-removed {
-    background-color: $red;
+    color: var(--tblr-dark);
+    background-color: $red-300;
   }
 }
 
