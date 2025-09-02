@@ -31,9 +31,9 @@ VERSION = RELEASE.full_version  # Retained for backward compatibility
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if sys.version_info < (3, 10):
+if sys.version_info < (3, 12):
     raise RuntimeError(
-        f"NetBox requires Python 3.10 or later. (Currently installed: Python {platform.python_version()})"
+        f"NetBox requires Python 3.12 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 #
