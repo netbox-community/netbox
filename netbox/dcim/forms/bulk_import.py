@@ -1181,7 +1181,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         help_text=_('Component Type')
     )
     component_name = forms.CharField(
-        label=_('Compnent name'),
+        label=_('Component name'),
         required=False,
         help_text=_('Component Name')
     )
