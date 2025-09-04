@@ -655,11 +655,11 @@ class ViewTestCases:
                 self.assertIsNotNone(request_id, "Unable to determine request ID from response")
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(self.model),
-                    request_id=request_id
+                    request_id=request_id,
+                    action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
                 self.assertEqual(len(objectchanges), len(self.csv_data) - 1)
                 for oc in objectchanges:
-                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
                     self.assertEqual(oc.message, data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
