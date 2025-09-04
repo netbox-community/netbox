@@ -2,14 +2,14 @@ from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.fields import ContentTypeField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 
 __all__ = (
     'ExportTemplateSerializer',
 )
 
 
-class ExportTemplateSerializer(ValidatedModelSerializer):
+class ExportTemplateSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         many=True

@@ -81,6 +81,14 @@ img.plugin-icon {
   height: auto;
 }
 
+// Image attachment thumbnails
+.thumbnail {
+  max-width: 200px;
+  img {
+    border: 1px solid #606060;
+  }
+}
+
 body[data-bs-theme=dark] {
   // Assuming icon is black/white line art, invert it and tone down brightness
   img.plugin-icon {

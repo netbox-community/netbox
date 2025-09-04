@@ -20,6 +20,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'ConfigContextFilterForm',
+    'ConfigContextProfileFilterForm',
     'ConfigTemplateFilterForm',
     'CustomFieldChoiceSetFilterForm',
     'CustomFieldFilterForm',
@@ -354,15 +355,42 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
+class ConfigContextProfileFilterForm(SavedFiltersMixin, FilterForm):
+    model = ConfigContextProfile
+    fieldsets = (
+        FieldSet('q', 'filter_id'),
+        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+    )
+    data_source_id = DynamicModelMultipleChoiceField(
+        queryset=DataSource.objects.all(),
+        required=False,
+        label=_('Data source')
+    )
+    data_file_id = DynamicModelMultipleChoiceField(
+        queryset=DataFile.objects.all(),
+        required=False,
+        label=_('Data file'),
+        query_params={
+            'source_id': '$data_source_id'
+        }
+    )
+
+
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag_id'),
+        FieldSet('profile', name=_('Config Context')),
         FieldSet('data_source_id', 'data_file_id', name=_('Data')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('device_type_id', 'platform_id', 'device_role_id', name=_('Device')),
         FieldSet('cluster_type_id', 'cluster_group_id', 'cluster_id', name=_('Cluster')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant'))
+    )
+    profile_id = DynamicModelMultipleChoiceField(
+        queryset=ConfigContextProfile.objects.all(),
+        required=False,
+        label=_('Profile')
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),

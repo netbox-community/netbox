@@ -24,10 +24,10 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
     class Meta:
         model = ImageAttachment
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image',
+            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image', 'description',
             'image_height', 'image_width', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'image')
+        brief_fields = ('id', 'url', 'display', 'name', 'image', 'description')
 
     def validate(self, data):
 

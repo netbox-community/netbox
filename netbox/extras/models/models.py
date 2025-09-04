@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.parse
 
 from django.conf import settings
@@ -8,20 +9,21 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
-from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet, InvalidCondition
 from extras.constants import *
-from extras.utils import image_upload
 from extras.models.mixins import RenderTemplateMixin
+from extras.utils import image_upload
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, has_feature
 )
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
@@ -49,7 +51,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     webhook or executing a custom script.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='event_rules',
         verbose_name=_('object types'),
         help_text=_("The object(s) to which this rule applies.")
@@ -298,7 +300,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     code to be rendered with an object as context.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='custom_links',
         help_text=_('The object type(s) to which this link applies.')
     )
@@ -394,7 +396,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
 class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderTemplateMixin):
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='export_templates',
         help_text=_('The object type(s) to which this template applies.')
     )
@@ -459,7 +461,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='saved_filters',
         help_text=_('The object type(s) to which this filter applies.')
     )
@@ -539,7 +541,7 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
     A saved configuration of columns and ordering which applies to a specific table.
     """
     object_type = models.ForeignKey(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='table_configs',
         help_text=_("The table's object type"),
@@ -678,6 +680,11 @@ class ImageAttachment(ChangeLoggedModel):
         max_length=50,
         blank=True
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
 
     objects = RestrictedQuerySet.as_manager()
 
@@ -692,16 +699,16 @@ class ImageAttachment(ChangeLoggedModel):
         verbose_name_plural = _('image attachments')
 
     def __str__(self):
-        if self.name:
-            return self.name
-        filename = self.image.name.rsplit('/', 1)[-1]
-        return filename.split('_', 2)[2]
+        return self.name or self.filename
+
+    def get_absolute_url(self):
+        return reverse('extras:imageattachment', args=[self.pk])
 
     def clean(self):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('image_attachments'):
+        if not has_feature(self.object_type, 'image_attachments'):
             raise ValidationError(
                 _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -718,6 +725,22 @@ class ImageAttachment(ChangeLoggedModel):
         # Deleting the file erases its name. We restore the image's filename here in case we still need to reference it
         # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
         self.image.name = _name
+
+    @property
+    def filename(self):
+        return os.path.basename(self.image.name).split('_', 2)[2]
+
+    @property
+    def html_tag(self):
+        """
+        Returns a complete <img> tag suitable for embedding in an HTML document.
+        """
+        return mark_safe('<img src="{url}" height="{height}" width="{width}" alt="{alt_text}" />'.format(
+            url=self.image.url,
+            height=self.image_height,
+            width=self.image_width,
+            alt_text=escape(self.description or self.name),
+        ))
 
     @property
     def size(self):
@@ -797,7 +820,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         super().clean()
 
         # Validate the assigned object type
-        if self.assigned_object_type not in ObjectType.objects.with_feature('journaling'):
+        if not has_feature(self.assigned_object_type, 'journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -856,7 +879,7 @@ class Bookmark(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ObjectType.objects.with_feature('bookmarks'):
+        if not has_feature(self.object_type, 'bookmarks'):
             raise ValidationError(
                 _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )

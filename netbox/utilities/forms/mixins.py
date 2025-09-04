@@ -6,9 +6,27 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 __all__ = (
+    'BackgroundJobMixin',
     'CheckLastUpdatedMixin',
     'DistanceValidationMixin',
 )
+
+
+class BackgroundJobMixin(forms.Form):
+    background_job = forms.BooleanField(
+        label=_('Background job'),
+        help_text=_("Execute this task via a background job"),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Declare background_job a meta field
+        if hasattr(self, 'meta_fields'):
+            self.meta_fields.append('background_job')
+        else:
+            self.meta_fields = ['background_job']
 
 
 class CheckLastUpdatedMixin(forms.Form):

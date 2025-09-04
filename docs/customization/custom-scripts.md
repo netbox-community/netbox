@@ -275,6 +275,15 @@ Stores a numeric integer. Options include:
 * `min_value` - Minimum value
 * `max_value` - Maximum value
 
+### DecimalVar
+
+Stores a numeric decimal. Options include:
+
+* `min_value` - Minimum value
+* `max_value` - Maximum value
+* `max_digits` - Maximum number of digits, including decimal places
+* `decimal_places` - Number of decimal places
+
 ### BooleanVar
 
 A true/false flag. This field has no options beyond the defaults listed above.

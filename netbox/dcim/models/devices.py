@@ -4,6 +4,7 @@ import yaml
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -15,7 +16,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
@@ -425,7 +425,7 @@ class DeviceRole(NestedGroupModel):
         verbose_name_plural = _('device roles')
 
 
-class Platform(OrganizationalModel):
+class Platform(NestedGroupModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
@@ -446,10 +446,34 @@ class Platform(OrganizationalModel):
         null=True
     )
 
+    clone_fields = ('parent', 'description')
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'name'),
+                name='%(app_label)s_%(class)s_manufacturer_name',
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(manufacturer__isnull=True),
+                violation_error_message=_("Platform name must be unique.")
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_manufacturer_slug',
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='%(app_label)s_%(class)s_slug',
+                condition=Q(manufacturer__isnull=True),
+                violation_error_message=_("Platform slug must be unique.")
+            ),
+        )
 
 
 class Device(
@@ -1301,7 +1325,7 @@ class MACAddress(PrimaryModel):
         super().clean()
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             assigned_object = self.assigned_object
-            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
 
             if (

@@ -6,7 +6,7 @@ from django.test import tag, TestCase
 
 from core.models import DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigTemplate, Tag
+from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, Tag
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -158,6 +158,32 @@ class ConfigContextTest(TestCase):
             "c": 789
         }
         self.assertEqual(device.get_config_context(), expected_data)
+
+    def test_schema_validation(self):
+        """
+        Check that the JSON schema defined by the assigned profile is enforced.
+        """
+        profile = ConfigContextProfile.objects.create(
+            name="Config context profile 1",
+            schema={
+                "properties": {
+                    "foo": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "foo"
+                ]
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            # Missing required attribute
+            ConfigContext(name="CC1", profile=profile, data={}).clean()
+        with self.assertRaises(ValidationError):
+            # Invalid attribute type
+            ConfigContext(name="CC1", profile=profile, data={"foo": 123}).clean()
+        ConfigContext(name="CC1", profile=profile, data={"foo": "bar"}).clean()
 
     def test_annotation_same_as_get_for_object(self):
         """

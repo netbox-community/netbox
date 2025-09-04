@@ -1,6 +1,3 @@
-{% if url %}
-    {% load i18n %}
-    <a href="{{ url }}{% if return_url %}?return_url={{ return_url }}{% endif %}" type="button" class="btn btn-primary">
-        <i class="mdi mdi-plus-thick"></i> {% trans "Add" %}
-    </a>
-{% endif %}
+<a href="{{ url }}{% if return_url %}?return_url={{ return_url }}{% endif %}" class="btn btn-primary" role="button">
+  <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {{  label }}
+</a>

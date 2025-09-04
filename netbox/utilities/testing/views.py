@@ -14,7 +14,7 @@ from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 from .base import ModelTestCase
-from .utils import add_custom_field_data, disable_warnings, post_data
+from .utils import add_custom_field_data, disable_warnings, get_random_string, post_data
 
 __all__ = (
     'ModelViewTestCase',
@@ -169,6 +169,11 @@ class ViewTestCases:
             if issubclass(self.model, CustomFieldsMixin):
                 add_custom_field_data(self.form_data, self.model)
 
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                if 'changelog_message' not in self.form_data:
+                    self.form_data['changelog_message'] = get_random_string(10)
+
             # Try POST with model-level permission
             initial_count = self._get_queryset().count()
             request = {
@@ -181,13 +186,14 @@ class ViewTestCases:
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
 
             # Verify ObjectChange creation
-            if issubclass(instance.__class__, ChangeLoggingMixin):
+            if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
                 self.assertEqual(len(objectchanges), 1)
                 self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_CREATE)
+                self.assertEqual(objectchanges[0].message, self.form_data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_create_object_with_constrained_permission(self):
@@ -272,6 +278,11 @@ class ViewTestCases:
             if issubclass(self.model, CustomFieldsMixin):
                 add_custom_field_data(self.form_data, self.model)
 
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                if 'changelog_message' not in self.form_data:
+                    self.form_data['changelog_message'] = get_random_string(10)
+
             # Try POST with model-level permission
             request = {
                 'path': self._get_url('edit', instance),
@@ -282,13 +293,14 @@ class ViewTestCases:
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
 
             # Verify ObjectChange creation
-            if issubclass(instance.__class__, ChangeLoggingMixin):
+            if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
                 self.assertEqual(len(objectchanges), 1)
                 self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
+                self.assertEqual(objectchanges[0].message, self.form_data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_edit_object_with_constrained_permission(self):
@@ -348,6 +360,7 @@ class ViewTestCases:
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_delete_object_with_permission(self):
             instance = self._get_queryset().first()
+            form_data = {'confirm': True}
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
@@ -361,23 +374,28 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('delete', instance)), 200)
 
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                form_data['changelog_message'] = get_random_string(10)
+
             # Try POST with model-level permission
             request = {
                 'path': self._get_url('delete', instance),
-                'data': post_data({'confirm': True}),
+                'data': post_data(form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
             with self.assertRaises(ObjectDoesNotExist):
                 self._get_queryset().get(pk=instance.pk)
 
             # Verify ObjectChange creation
-            if issubclass(instance.__class__, ChangeLoggingMixin):
+            if issubclass(self.model, ChangeLoggingMixin):
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(instance),
                     changed_object_id=instance.pk
                 )
                 self.assertEqual(len(objectchanges), 1)
                 self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_DELETE)
+                self.assertEqual(objectchanges[0].message, form_data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_delete_object_with_constrained_permission(self):
@@ -610,6 +628,10 @@ class ViewTestCases:
                 'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
+
             # Assign model-level permission
             obj_perm = ObjectPermission(
                 name='Test permission',
@@ -623,8 +645,22 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
+            response = self.client.post(self._get_url('bulk_import'), data)
+            self.assertHttpStatus(response, 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                request_id = response.headers.get('X-Request-ID')
+                self.assertIsNotNone(request_id, "Unable to determine request ID from response")
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    request_id=request_id
+                )
+                self.assertEqual(len(objectchanges), len(self.csv_data) - 1)
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
+                    self.assertEqual(oc.message, data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_update_objects_with_permission(self):
@@ -727,6 +763,10 @@ class ViewTestCases:
                 '_apply': True,  # Form button
             }
 
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
+
             # Append the form data to the request
             data.update(post_data(self.bulk_edit_data))
 
@@ -740,9 +780,23 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try POST with model-level permission
-            self.assertHttpStatus(self.client.post(self._get_url('bulk_edit'), data), 302)
+            response = self.client.post(self._get_url('bulk_edit'), data)
+            self.assertHttpStatus(response, 302)
             for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                request_id = response.headers.get('X-Request-ID')
+                self.assertIsNotNone(request_id, "Unable to determine request ID from response")
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=pk_list
+                )
+                self.assertEqual(len(objectchanges), len(pk_list))
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_UPDATE)
+                    self.assertEqual(oc.message, data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_bulk_edit_objects_with_constrained_permission(self):
@@ -804,12 +858,16 @@ class ViewTestCases:
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 403)
 
         def test_bulk_delete_objects_with_permission(self):
-            pk_list = self._get_queryset().values_list('pk', flat=True)
+            pk_list = list(self._get_queryset().values_list('pk', flat=True))[:3]
             data = {
                 'pk': pk_list,
                 'confirm': True,
                 '_confirm': True,  # Form button
             }
+
+            # If supported, add a changelog message
+            if issubclass(self.model, ChangeLoggingMixin):
+                data['changelog_message'] = get_random_string(10)
 
             # Assign unconstrained permission
             obj_perm = ObjectPermission(
@@ -821,8 +879,20 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try POST with model-level permission
-            self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 302)
-            self.assertEqual(self._get_queryset().count(), 0)
+            response = self.client.post(self._get_url('bulk_delete'), data)
+            self.assertHttpStatus(response, 302)
+            self.assertFalse(self._get_queryset().filter(pk__in=pk_list).exists())
+
+            # Verify ObjectChange creation
+            if issubclass(self.model, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(self.model),
+                    changed_object_id__in=pk_list
+                )
+                self.assertEqual(len(objectchanges), len(pk_list))
+                for oc in objectchanges:
+                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
+                    self.assertEqual(oc.message, data['changelog_message'])
 
         def test_bulk_delete_objects_with_constrained_permission(self):
             pk_list = self._get_queryset().values_list('pk', flat=True)

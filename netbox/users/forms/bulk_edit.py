@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class UserBulkEditForm(forms.Form):
+class UserBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -55,7 +55,7 @@ class UserBulkEditForm(forms.Form):
     nullable_fields = ('first_name', 'last_name')
 
 
-class GroupBulkEditForm(forms.Form):
+class GroupBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -73,7 +73,7 @@ class GroupBulkEditForm(forms.Form):
     nullable_fields = ('description',)
 
 
-class ObjectPermissionBulkEditForm(forms.Form):
+class ObjectPermissionBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ObjectPermission.objects.all(),
         widget=forms.MultipleHiddenInput

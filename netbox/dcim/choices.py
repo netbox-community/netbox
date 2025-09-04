@@ -140,6 +140,24 @@ class RackAirflowChoices(ChoiceSet):
 
 
 #
+# Rack reservations
+#
+
+class RackReservationStatusChoices(ChoiceSet):
+    key = 'RackReservation.status'
+
+    STATUS_PENDING = 'pending'
+    STATUS_ACTIVE = 'active'
+    STATUS_STALE = 'stale'
+
+    CHOICES = [
+        (STATUS_PENDING, _('Pending'), 'cyan'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_STALE, _('Stale'), 'orange'),
+    ]
+
+
+#
 # DeviceTypes
 #
 

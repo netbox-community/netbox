@@ -1,0 +1,21 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.object %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% action_url object.object 'jobs' pk=object.object.pk %}">{{ object.object }}</a>
+    </li>
+  {% else %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'core:job_list' %}?name={{ object.name|urlencode }}">{{ object.name }}</a>
+    </li>
+  {% endif %}
+{% endblock breadcrumbs %}

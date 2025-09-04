@@ -64,6 +64,7 @@ Generic view classes (documented below) facilitate common operations, such as cr
 | `ObjectListView`     | View a list of objects                                 |
 | `BulkImportView`     | Import a set of new objects                            |
 | `BulkEditView`       | Edit multiple objects                                  |
+| `BulkRenameView`     | Rename multiple objects                                |
 | `BulkDeleteView`     | Delete multiple objects                                |
 
 !!! warning
@@ -168,6 +169,10 @@ Below are the class definitions for NetBox's multi-object views. These views han
         - save_object
 
 ::: netbox.views.generic.BulkEditView
+    options:
+      members: false
+
+::: netbox.views.generic.BulkRenameView
     options:
       members: false
 

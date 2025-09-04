@@ -8,7 +8,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
 from django.db.models.fields.reverse_related import ManyToOneRel
-from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -23,7 +22,7 @@ from netbox.tables import columns
 from utilities.html import highlight
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.string import title
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 from .template_code import *
 
 __all__ = (
@@ -261,9 +260,8 @@ class NetBoxTable(BaseTable):
         Return the base HTML request URL for embedded tables.
         """
         if self.embedded:
-            viewname = get_viewname(self._meta.model, action='list')
             try:
-                return reverse(viewname)
+                return get_action_url(self._meta.model, action='list')
             except NoReverseMatch:
                 pass
         return ''

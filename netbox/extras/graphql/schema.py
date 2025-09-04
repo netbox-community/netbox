@@ -11,6 +11,9 @@ class ExtrasQuery:
     config_context: ConfigContextType = strawberry_django.field()
     config_context_list: List[ConfigContextType] = strawberry_django.field()
 
+    config_context_profile: ConfigContextProfileType = strawberry_django.field()
+    config_context_profile_list: List[ConfigContextProfileType] = strawberry_django.field()
+
     config_template: ConfigTemplateType = strawberry_django.field()
     config_template_list: List[ConfigTemplateType] = strawberry_django.field()
 

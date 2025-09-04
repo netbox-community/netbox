@@ -16,6 +16,10 @@ class TestJobRunner(JobRunner):
     def run(self, *args, **kwargs):
         if kwargs.get('make_fail', False):
             raise JobFailed()
+        self.logger.debug("Debug message")
+        self.logger.info("Info message")
+        self.logger.warning("Warning message")
+        self.logger.error("Error message")
 
 
 class JobRunnerTestCase(TestCase):
@@ -51,7 +55,15 @@ class JobRunnerTest(JobRunnerTestCase):
     def test_handle(self):
         job = TestJobRunner.enqueue(immediate=True)
 
+        # Check job status
         self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+
+        # Check logging
+        self.assertEqual(len(job.log_entries), 4)
+        self.assertEqual(job.log_entries[0]['message'], "Debug message")
+        self.assertEqual(job.log_entries[1]['message'], "Info message")
+        self.assertEqual(job.log_entries[2]['message'], "Warning message")
+        self.assertEqual(job.log_entries[3]['message'], "Error message")
 
     def test_handle_failed(self):
         with disable_warnings('netbox.jobs'):

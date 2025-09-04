@@ -44,8 +44,6 @@ The operational status of the L2VPN. By default, the following statuses are avai
 !!! tip "Custom L2VPN statuses"
     Additional L2VPN statuses may be defined by setting `L2VPN.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
-!!! info "This field was introduced in NetBox v4.3."
-
 ### Identifier
 
 An optional numeric identifier. This can be used to track a pseudowire ID, for example.

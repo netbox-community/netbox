@@ -9,7 +9,7 @@ from dcim.models import (
     InventoryItemTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
@@ -31,7 +31,11 @@ __all__ = (
 )
 
 
-class ConsolePortTemplateSerializer(ValidatedModelSerializer):
+class ComponentTemplateSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+    pass
+
+
+class ConsolePortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -59,7 +63,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
+class ConsoleServerPortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -87,7 +91,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class PowerPortTemplateSerializer(ValidatedModelSerializer):
+class PowerPortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -116,7 +120,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class PowerOutletTemplateSerializer(ValidatedModelSerializer):
+class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -156,7 +160,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class InterfaceTemplateSerializer(ValidatedModelSerializer):
+class InterfaceTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -202,7 +206,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class RearPortTemplateSerializer(ValidatedModelSerializer):
+class RearPortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -226,7 +230,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class FrontPortTemplateSerializer(ValidatedModelSerializer):
+class FrontPortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -251,7 +255,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ModuleBayTemplateSerializer(ValidatedModelSerializer):
+class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -274,7 +278,7 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class DeviceBayTemplateSerializer(ValidatedModelSerializer):
+class DeviceBayTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True
     )
@@ -288,7 +292,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class InventoryItemTemplateSerializer(ValidatedModelSerializer):
+class InventoryItemTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True
     )

@@ -3,6 +3,17 @@ from . import models
 
 
 @register_search
+class ConfigContextProfileIndex(SearchIndex):
+    model = models.ConfigContextProfile
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class CustomFieldIndex(SearchIndex):
     model = models.CustomField
     fields = (
@@ -10,6 +21,17 @@ class CustomFieldIndex(SearchIndex):
         ('label', 100),
         ('description', 500),
         ('comments', 5000),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
+class ImageAttachmentIndex(SearchIndex):
+    model = models.ImageAttachment
+    fields = (
+        ('name', 100),
+        ('filename', 110),
+        ('description', 500),
     )
     display_attrs = ('description',)
 

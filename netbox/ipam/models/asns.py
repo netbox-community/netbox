@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from ipam.fields import ASNField
 from ipam.querysets import ASNRangeQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'ASN',
@@ -88,7 +89,7 @@ class ASNRange(OrganizationalModel):
         return available_asns
 
 
-class ASN(PrimaryModel):
+class ASN(ContactsMixin, PrimaryModel):
     """
     An autonomous system (AS) number is typically used to represent an independent routing domain. A site can have
     one or more ASNs assigned to it.

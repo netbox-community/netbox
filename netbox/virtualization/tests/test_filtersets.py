@@ -287,7 +287,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),

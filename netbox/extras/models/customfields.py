@@ -72,7 +72,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='custom_fields',
         help_text=_('The object(s) to which this field applies.')
     )
@@ -84,7 +84,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     related_object_type = models.ForeignKey(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,

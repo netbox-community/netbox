@@ -1,7 +1,5 @@
 # Module Type Profiles
 
-!!! info "This model was introduced in NetBox v4.3."
-
 Each [module type](./moduletype.md) may optionally be assigned a profile according to its classification. A profile can extend module types with user-configured attributes. For example, you might want to specify the input current and voltage of a power supply, or the clock speed and number of cores for a processor.
 
 Module type attributes are managed via the configuration of a [JSON schema](https://json-schema.org/) on the profile. For example, the following schema introduces three module type attributes, two of which are designated as required attributes.

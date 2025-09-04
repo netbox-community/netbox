@@ -6,10 +6,26 @@ import requests
 from django_rq import job
 from jinja2.exceptions import TemplateError
 
+from netbox.registry import registry
 from utilities.proxy import resolve_proxies
 from .constants import WEBHOOK_EVENT_TYPES
 
+__all__ = (
+    'generate_signature',
+    'register_webhook_callback',
+    'send_webhook',
+)
+
 logger = logging.getLogger('netbox.webhooks')
+
+
+def register_webhook_callback(func):
+    """
+    Register a function as a webhook callback.
+    """
+    registry['webhook_callbacks'].append(func)
+    logger.debug(f'Registered webhook callback {func.__module__}.{func.__name__}')
+    return func
 
 
 def generate_signature(request_body, secret):
@@ -25,7 +41,7 @@ def generate_signature(request_body, secret):
 
 
 @job('default')
-def send_webhook(event_rule, model_name, event_type, data, timestamp, username, request_id=None, snapshots=None):
+def send_webhook(event_rule, object_type, event_type, data, timestamp, username, request=None, snapshots=None):
     """
     Make a POST request to the defined Webhook
     """
@@ -35,15 +51,28 @@ def send_webhook(event_rule, model_name, event_type, data, timestamp, username, 
     context = {
         'event': WEBHOOK_EVENT_TYPES.get(event_type, event_type),
         'timestamp': timestamp,
-        'model': model_name,
+        'object_type': '.'.join(object_type.natural_key()),
+        'model': object_type.model,
         'username': username,
-        'request_id': request_id,
+        'request_id': request.id if request else None,
         'data': data,
     }
     if snapshots:
         context.update({
             'snapshots': snapshots
         })
+
+    # Add any additional context from plugins
+    callback_data = {}
+    for callback in registry['webhook_callbacks']:
+        try:
+            if ret := callback(object_type, event_type, data, request):
+                callback_data.update(**ret)
+        except Exception as e:
+            logger.warning(f"Caught exception when processing callback {callback}: {e}")
+            pass
+    if callback_data:
+        context['context'] = callback_data
 
     # Build the headers for the HTTP request
     headers = {

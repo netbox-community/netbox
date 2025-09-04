@@ -417,7 +417,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RackReservation
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('user_id', name=_('User')),
+        FieldSet('status', 'user_id', name=_('Reservation')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Rack')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -457,6 +457,11 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             'location_id': '$location_id',
         },
         label=_('Rack')
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        required=False
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
@@ -714,6 +719,11 @@ class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
 class PlatformFilterForm(NetBoxModelFilterSetForm):
     model = Platform
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        label=_('Parent')
+    )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
@@ -1507,7 +1517,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tx_power = forms.IntegerField(
         required=False,
         label=_('Transmit power (dBm)'),
-        min_value=0,
+        min_value=-40,
         max_value=127
     )
     vrf_id = DynamicModelMultipleChoiceField(

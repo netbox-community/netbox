@@ -373,8 +373,20 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(NetBoxModelViewSet):
-    queryset = Platform.objects.all()
+class PlatformViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+    queryset = Platform.objects.add_related_count(
+        Platform.objects.add_related_count(
+            Platform.objects.all(),
+            VirtualMachine,
+            'platform',
+            'virtualmachine_count',
+            cumulative=True
+        ),
+        Device,
+        'platform',
+        'device_count',
+        cumulative=True
+    )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filtersets.PlatformFilterSet
 

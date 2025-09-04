@@ -608,6 +608,28 @@ http://netbox/api/dcim/sites/ \
 !!! note
     The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.
 
+## Changelog Messages
+
+!!! info "This feature was introduced in NetBox v4.4."
+
+Most objects in NetBox support [change logging](../features/change-logging.md), which generates a detailed record each time an object is created, modified, or deleted. Beginning in NetBox v4.4, users can attach a message to the change record as well. This is accomplished via the REST API by including a `changelog_message` field in the object representation.
+
+For example, the following API request will create a new site and record a message in the resulting changelog entry:
+
+```no-highlight
+curl -s -X POST \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/ \
+--data '{
+    "name": "Site A",
+    "slug": "site-a",
+    "changelog_message": "Adding a site for ticket #4137"
+}'
+```
+
+This approach works when creating, modifying, or deleting objects, either individually or in bulk.
+
 ## Uploading Files
 
 As JSON does not support the inclusion of binary data, files cannot be uploaded using JSON-formatted API requests. Instead, we can use form data encoding to attach a local file.

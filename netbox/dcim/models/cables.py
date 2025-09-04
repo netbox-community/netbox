@@ -1,6 +1,7 @@
 import itertools
 
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.dispatch import Signal
@@ -489,13 +490,13 @@ class CablePath(models.Model):
     def origin_type(self):
         if self.path:
             ct_id, _ = decompile_path_node(self.path[0][0])
-            return ObjectType.objects.get_for_id(ct_id)
+            return ContentType.objects.get_for_id(ct_id)
 
     @property
     def destination_type(self):
         if self.is_complete:
             ct_id, _ = decompile_path_node(self.path[-1][0])
-            return ObjectType.objects.get_for_id(ct_id)
+            return ContentType.objects.get_for_id(ct_id)
 
     @property
     def _path_decompiled(self):
