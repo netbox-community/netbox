@@ -15,6 +15,17 @@ class TunnelIndex(SearchIndex):
 
 
 @register_search
+class TunnelGroupIndex(SearchIndex):
+    model = models.TunnelGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class IKEProposalIndex(SearchIndex):
     model = models.IKEProposal
     fields = (
