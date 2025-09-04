@@ -8,7 +8,7 @@ from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
 from netbox.models.features import NotificationsMixin
 from utilities.querydict import prepare_cloned_fields
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
     'action_buttons',
@@ -28,10 +28,11 @@ __all__ = (
 register = template.Library()
 
 
-@register.simple_tag
-def action_buttons(actions, obj, multi=False, **kwargs):
+@register.simple_tag(takes_context=True)
+def action_buttons(context, actions, obj, multi=False, **kwargs):
     buttons = [
-        action.render(obj, **kwargs) for action in actions if action.multi == multi
+        action.render(context, obj, **kwargs)
+        for action in actions if action.multi == multi
     ]
     return mark_safe(''.join(buttons))
 
@@ -106,13 +107,12 @@ def subscribe_button(context, instance):
 # Legacy object buttons
 #
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/clone.html')
 def clone_button(instance):
     # Resolve URL path
-    viewname = get_viewname(instance, 'add')
     try:
-        url = reverse(viewname)
+        url = get_action_url(instance, action='add')
     except NoReverseMatch:
         return {
             'url': None,
@@ -125,11 +125,10 @@ def clone_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/edit.html')
 def edit_button(instance):
-    viewname = get_viewname(instance, 'edit')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
+    url = get_action_url(instance, action='edit', kwargs={'pk': instance.pk})
 
     return {
         'url': url,
@@ -137,11 +136,10 @@ def edit_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/delete.html')
 def delete_button(instance):
-    viewname = get_viewname(instance, 'delete')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
+    url = get_action_url(instance, action='delete', kwargs={'pk': instance.pk})
 
     return {
         'url': url,
@@ -149,11 +147,10 @@ def delete_button(instance):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/sync.html')
 def sync_button(instance):
-    viewname = get_viewname(instance, 'sync')
-    url = reverse(viewname, kwargs={'pk': instance.pk})
+    url = get_action_url(instance, action='sync', kwargs={'pk': instance.pk})
 
     return {
         'label': _('Sync'),
@@ -165,25 +162,26 @@ def sync_button(instance):
 # Legacy list buttons
 #
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/add.html')
-def add_button(model, action='add'):
+def add_button(model, action='add', return_url=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
     except NoReverseMatch:
         url = None
 
     return {
         'url': url,
         'label': _('Add'),
+        'return_url': return_url,
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/import.html')
 def import_button(model, action='bulk_import'):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
     except NoReverseMatch:
         url = None
 
@@ -193,7 +191,7 @@ def import_button(model, action='bulk_import'):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/export.html', takes_context=True)
 def export_button(context, model):
     object_type = ObjectType.objects.get_for_model(model)
@@ -215,11 +213,11 @@ def export_button(context, model):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_edit.html', takes_context=True)
 def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
         if query_params:
             url = f'{url}?{query_params.urlencode()}'
     except NoReverseMatch:
@@ -232,11 +230,11 @@ def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     }
 
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/bulk_delete.html', takes_context=True)
 def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     try:
-        url = reverse(get_viewname(model, action))
+        url = get_action_url(model, action=action)
         if query_params:
             url = f'{url}?{query_params.urlencode()}'
     except NoReverseMatch:

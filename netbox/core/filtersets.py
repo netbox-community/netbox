@@ -134,15 +134,18 @@ class JobFilterSet(BaseFilterSet):
         )
 
 
-class ObjectTypeFilterSet(django_filters.FilterSet):
+class ObjectTypeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
+    features = django_filters.CharFilter(
+        method='filter_features'
+    )
 
     class Meta:
         model = ObjectType
-        fields = ('id', 'app_label', 'model')
+        fields = ('id', 'app_label', 'model', 'public')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -151,6 +154,9 @@ class ObjectTypeFilterSet(django_filters.FilterSet):
             Q(app_label__icontains=value) |
             Q(model__icontains=value)
         )
+
+    def filter_features(self, queryset, name, value):
+        return queryset.filter(features__icontains=value)
 
 
 class ObjectChangeFilterSet(BaseFilterSet):

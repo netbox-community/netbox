@@ -10,7 +10,7 @@
 </div>
 <div class="modal-body row">
   <form
-      hx-post="{% url model|viewname:"add" %}?_quickadd=True&target={{ request.GET.target }}"
+      hx-post="{% action_url model 'add' %}?_quickadd=True&target={{ request.GET.target }}"
       hx-target="#htmx-modal-content"
       enctype="multipart/form-data"
   >

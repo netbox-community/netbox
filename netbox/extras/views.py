@@ -31,7 +31,7 @@ from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, get_action_url, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
@@ -794,6 +794,67 @@ class TagBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Config context profiles
+#
+
+@register_model_view(ConfigContextProfile, 'list', path='', detail=False)
+class ConfigContextProfileListView(generic.ObjectListView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    filterset_form = forms.ConfigContextProfileFilterForm
+    table = tables.ConfigContextProfileTable
+    actions = (AddObject, BulkSync, BulkEdit, BulkRename, BulkDelete)
+
+
+@register_model_view(ConfigContextProfile)
+class ConfigContextProfileView(generic.ObjectView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'add', detail=False)
+@register_model_view(ConfigContextProfile, 'edit')
+class ConfigContextProfileEditView(generic.ObjectEditView):
+    queryset = ConfigContextProfile.objects.all()
+    form = forms.ConfigContextProfileForm
+
+
+@register_model_view(ConfigContextProfile, 'delete')
+class ConfigContextProfileDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'bulk_import', path='import', detail=False)
+class ConfigContextProfileBulkImportView(generic.BulkImportView):
+    queryset = ConfigContextProfile.objects.all()
+    model_form = forms.ConfigContextProfileImportForm
+
+
+@register_model_view(ConfigContextProfile, 'bulk_edit', path='edit', detail=False)
+class ConfigContextProfileBulkEditView(generic.BulkEditView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    table = tables.ConfigContextProfileTable
+    form = forms.ConfigContextProfileBulkEditForm
+
+
+@register_model_view(ConfigContextProfile, 'bulk_rename', path='rename', detail=False)
+class ConfigContextProfileBulkRenameView(generic.BulkRenameView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+@register_model_view(ConfigContextProfile, 'bulk_delete', path='delete', detail=False)
+class ConfigContextProfileBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
+    table = tables.ConfigContextProfileTable
+
+
+@register_model_view(ConfigContextProfile, 'bulk_sync', path='sync', detail=False)
+class ConfigContextProfileBulkSyncDataView(generic.BulkSyncDataView):
+    queryset = ConfigContextProfile.objects.all()
+
+
+#
 # Config contexts
 #
 
@@ -1037,7 +1098,7 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset = filtersets.ImageAttachmentFilterSet
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
-    actions = (BulkExport,)
+    actions = (BulkExport, BulkEdit, BulkRename, BulkDelete)
 
 
 @register_model_view(ImageAttachment)
@@ -1068,6 +1129,26 @@ class ImageAttachmentEditView(generic.ObjectEditView):
 @register_model_view(ImageAttachment, 'delete')
 class ImageAttachmentDeleteView(generic.ObjectDeleteView):
     queryset = ImageAttachment.objects.all()
+
+
+@register_model_view(ImageAttachment, 'bulk_edit', path='edit', detail=False)
+class ImageAttachmentBulkEditView(generic.BulkEditView):
+    queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    table = tables.ImageAttachmentTable
+    form = forms.ImageAttachmentBulkEditForm
+
+
+@register_model_view(ImageAttachment, 'bulk_rename', path='rename', detail=False)
+class ImageAttachmentBulkRenameView(generic.BulkRenameView):
+    queryset = ImageAttachment.objects.all()
+
+
+@register_model_view(ImageAttachment, 'bulk_delete', path='delete', detail=False)
+class ImageAttachmentBulkDeleteView(generic.BulkDeleteView):
+    queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    table = tables.ImageAttachmentTable
 
 
 #
@@ -1103,8 +1184,7 @@ class JournalEntryEditView(generic.ObjectEditView):
         if not instance.assigned_object:
             return reverse('extras:journalentry_list')
         obj = instance.assigned_object
-        viewname = get_viewname(obj, 'journal')
-        return reverse(viewname, kwargs={'pk': obj.pk})
+        return get_action_url(obj, action='journal', kwargs={'pk': obj.pk})
 
 
 @register_model_view(JournalEntry, 'delete')
@@ -1113,8 +1193,7 @@ class JournalEntryDeleteView(generic.ObjectDeleteView):
 
     def get_return_url(self, request, instance):
         obj = instance.assigned_object
-        viewname = get_viewname(obj, 'journal')
-        return reverse(viewname, kwargs={'pk': obj.pk})
+        return get_action_url(obj, action='journal', kwargs={'pk': obj.pk})
 
 
 @register_model_view(JournalEntry, 'bulk_import', path='import', detail=False)
@@ -1319,11 +1398,18 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
             'data_source', 'data_file', 'jobs'
         )
-
-        return render(request, 'extras/script_list.html', {
+        context = {
             'model': ScriptModule,
             'script_modules': script_modules,
-        })
+        }
+
+        # Use partial template for dashboard widgets
+        template_name = 'extras/script_list.html'
+        if request.GET.get('embedded'):
+            template_name = 'extras/inc/script_list_content.html'
+            context['embedded'] = True
+
+        return render(request, template_name, context)
 
 
 class BaseScriptView(generic.ObjectView):

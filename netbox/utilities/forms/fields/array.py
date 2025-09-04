@@ -32,12 +32,14 @@ class NumericArrayField(SimpleArrayField):
 class NumericRangeArrayField(forms.CharField):
     """
     A field which allows for array of numeric ranges:
-      Example: 1-5,7-20,30-50
+      Example: 1-5,10,20-30
     """
     def __init__(self, *args, help_text='', **kwargs):
         if not help_text:
             help_text = mark_safe(
-                _("Specify one or more numeric ranges separated by commas. Example: " + "<code>1-5,20-30</code>")
+                _(
+                    "Specify one or more individual numbers or numeric ranges separated by commas. Example: {example}"
+                ).format(example="<code>1-5,10,20-30</code>")
             )
         super().__init__(*args, help_text=help_text, **kwargs)
 

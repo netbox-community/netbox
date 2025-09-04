@@ -476,6 +476,12 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(RackReservationStatusChoices),
+        required=False,
+        initial=''
+    )
     user = forms.ModelChoiceField(
         label=_('User'),
         queryset=User.objects.order_by('username'),
@@ -495,7 +501,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackReservation
     fieldsets = (
-        FieldSet('user', 'tenant', 'description'),
+        FieldSet('status', 'user', 'tenant', 'description'),
     )
     nullable_fields = ('comments',)
 
@@ -682,6 +688,11 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -697,12 +708,13 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = Platform
     fieldsets = (
-        FieldSet('manufacturer', 'config_template', 'description'),
+        FieldSet('parent', 'manufacturer', 'config_template', 'description'),
     )
-    nullable_fields = ('manufacturer', 'config_template', 'description')
+    nullable_fields = ('parent', 'manufacturer', 'config_template', 'description', 'comments')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):

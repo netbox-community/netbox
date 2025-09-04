@@ -95,6 +95,7 @@
                         "iec-60320-c8",
                         "iec-60320-c14",
                         "iec-60320-c16",
+                        "iec-60320-c18",
                         "iec-60320-c20",
                         "iec-60320-c22",
                         "iec-60309-p-n-e-4h",
@@ -209,6 +210,7 @@
                         "iec-60320-c7",
                         "iec-60320-c13",
                         "iec-60320-c15",
+                        "iec-60320-c17",
                         "iec-60320-c19",
                         "iec-60320-c21",
                         "iec-60309-p-n-e-4h",
@@ -473,6 +475,13 @@
                         "passive-24v-4pair",
                         "passive-48v-2pair",
                         "passive-48v-4pair"
+                    ]
+                },
+                "rf_role": {
+                    "type": "string",
+                    "enum": [
+                        "ap",
+                        "station"
                     ]
                 }
             }

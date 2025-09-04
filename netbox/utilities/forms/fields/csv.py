@@ -114,6 +114,8 @@ class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):
 
     # TODO: Improve validation of selected ContentTypes
     def prepare_value(self, value):
+        if not value:
+            return None
         if type(value) is str:
             ct_filter = Q()
             for name in value.split(','):

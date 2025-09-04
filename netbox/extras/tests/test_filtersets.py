@@ -871,6 +871,39 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ConfigContextProfile.objects.all()
+    filterset = ConfigContextProfileFilterSet
+    ignore_fields = ('schema', 'data_path')
+
+    @classmethod
+    def setUpTestData(cls):
+        profiles = (
+            ConfigContextProfile(
+                name='Config Context Profile 1',
+                description='foo',
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 2',
+                description='bar',
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 3',
+                description='baz',
+            ),
+        )
+        ConfigContextProfile.objects.bulk_create(profiles)
+
+    def test_q(self):
+        params = {'q': 'foo'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        profiles = self.queryset.all()[:2]
+        params = {'name': [profiles[0].name, profiles[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
@@ -878,6 +911,12 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
+        profiles = (
+            ConfigContextProfile(name='Config Context Profile 1'),
+            ConfigContextProfile(name='Config Context Profile 2'),
+            ConfigContextProfile(name='Config Context Profile 3'),
+        )
+        ConfigContextProfile.objects.bulk_create(profiles)
 
         regions = (
             Region(name='Region 1', slug='region-1'),
@@ -931,7 +970,8 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         cluster_types = (
             ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
@@ -975,6 +1015,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             is_active = bool(i % 2)
             c = ConfigContext.objects.create(
                 name=f"Config Context {i + 1}",
+                profile=profiles[i],
                 is_active=is_active,
                 data='{"foo": 123}',
                 description=f"foobar{i + 1}"
@@ -1009,6 +1050,13 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_profile(self):
+        profiles = ConfigContextProfile.objects.all()[:2]
+        params = {'profile_id': [profiles[0].pk, profiles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'profile': [profiles[0].name, profiles[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -1184,6 +1232,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'cluster',
         'clustergroup',
         'clustertype',
+        'configcontextprofile',
         'configtemplate',
         'consoleport',
         'consoleserverport',

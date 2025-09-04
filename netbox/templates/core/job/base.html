@@ -10,11 +10,9 @@
     <li class="breadcrumb-item">
       <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object|meta:"verbose_name_plural"|bettertitle }}</a>
     </li>
-    {% with parent_jobs_viewname=object.object|viewname:"jobs" %}
-      <li class="breadcrumb-item">
-        <a href="{% url parent_jobs_viewname pk=object.object.pk %}">{{ object.object }}</a>
-      </li>
-    {% endwith %}
+    <li class="breadcrumb-item">
+      <a href="{% action_url object.object 'jobs' pk=object.object.pk %}">{{ object.object }}</a>
+    </li>
   {% else %}
     <li class="breadcrumb-item">
       <a href="{% url 'core:job_list' %}?name={{ object.name|urlencode }}">{{ object.name }}</a>

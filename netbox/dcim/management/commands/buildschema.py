@@ -7,6 +7,7 @@ from jinja2 import FileSystemLoader, Environment
 
 from dcim.choices import *
 from netbox.choices import WeightUnitChoices
+from wireless.choices import WirelessRoleChoices
 
 TEMPLATE_FILENAME = 'devicetype_schema.jinja2'
 OUTPUT_FILENAME = 'contrib/generated_schema.json'
@@ -23,6 +24,7 @@ CHOICES_MAP = {
     'interface_type_choices': InterfaceTypeChoices,
     'interface_poe_mode_choices': InterfacePoEModeChoices,
     'interface_poe_type_choices': InterfacePoETypeChoices,
+    'interface_rf_role_choices': WirelessRoleChoices,
     'front_port_type_choices': PortTypeChoices,
     'rear_port_type_choices': PortTypeChoices,
 }

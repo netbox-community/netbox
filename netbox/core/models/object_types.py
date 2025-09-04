@@ -1,3 +1,4 @@
+import inspect
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
@@ -64,6 +65,9 @@ class ObjectTypeManager(models.Manager):
         Retrieve or create and return the ObjectType for a model.
         """
         from netbox.models.features import get_model_features, model_is_public
+
+        if not inspect.isclass(model):
+            model = model.__class__
         opts = self._get_opts(model, for_concrete_model)
 
         try:
@@ -75,7 +79,7 @@ class ObjectTypeManager(models.Manager):
                 app_label=opts.app_label,
                 model=opts.model_name,
                 public=model_is_public(model),
-                features=get_model_features(model.__class__),
+                features=get_model_features(model),
             )[0]
 
         return ot
@@ -93,6 +97,8 @@ class ObjectTypeManager(models.Manager):
         needed_models = defaultdict(set)
         needed_opts = defaultdict(list)
         for model in models:
+            if not inspect.isclass(model):
+                model = model.__class__
             opts = self._get_opts(model, for_concrete_models)
             needed_models[opts.app_label].add(opts.model_name)
             needed_opts[(opts.app_label, opts.model_name)].append(model)
@@ -117,7 +123,7 @@ class ObjectTypeManager(models.Manager):
                     app_label=app_label,
                     model=model_name,
                     public=model_is_public(model),
-                    features=get_model_features(model.__class__),
+                    features=get_model_features(model),
                 )
 
         return results
@@ -135,9 +141,9 @@ class ObjectTypeManager(models.Manager):
         """
         Return ObjectTypes only for models which support the given feature.
 
-        Only ObjectTypes which list the specified feature will be included. Supported features are declared in
-        netbox.models.features.FEATURES_MAP. For example, we can find all ObjectTypes for models which support event
-        rules with:
+        Only ObjectTypes which list the specified feature will be included. Supported features are declared in the
+        application registry under `registry["model_features"]`. For example, we can find all ObjectTypes for models
+        which support event rules with:
 
             ObjectType.objects.with_feature('event_rules')
         """

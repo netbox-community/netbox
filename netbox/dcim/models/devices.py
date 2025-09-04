@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, ProtectedError
+from django.db.models import F, ProtectedError, prefetch_related_objects
 from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.urls import reverse
@@ -28,6 +28,7 @@ from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
+from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
@@ -424,7 +425,7 @@ class DeviceRole(NestedGroupModel):
         verbose_name_plural = _('device roles')
 
 
-class Platform(OrganizationalModel):
+class Platform(NestedGroupModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
@@ -437,15 +438,6 @@ class Platform(OrganizationalModel):
         null=True,
         help_text=_('Optionally limit this platform to devices of a certain manufacturer')
     )
-    # Override name & slug from OrganizationalModel to not enforce uniqueness
-    name = models.CharField(
-        verbose_name=_('name'),
-        max_length=100
-    )
-    slug = models.SlugField(
-        verbose_name=_('slug'),
-        max_length=100
-    )
     config_template = models.ForeignKey(
         to='extras.ConfigTemplate',
         on_delete=models.PROTECT,
@@ -453,6 +445,8 @@ class Platform(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    clone_fields = ('parent', 'description')
 
     class Meta:
         ordering = ('name',)
@@ -955,7 +949,10 @@ class Device(
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
                     component.custom_field_data = cf_defaults
-            model.objects.bulk_create(components)
+            components = model.objects.bulk_create(components)
+            # Prefetch related objects to minimize queries needed during post_save
+            prefetch_fields = get_prefetchable_fields(model)
+            prefetch_related_objects(components, *prefetch_fields)
             # Manually send the post_save signal for each of the newly created components
             for component in components:
                 post_save.send(
@@ -1303,7 +1300,7 @@ class MACAddress(PrimaryModel):
     )
 
     class Meta:
-        ordering = ('mac_address',)
+        ordering = ('mac_address', 'pk',)
         verbose_name = _('MAC address')
         verbose_name_plural = _('MAC addresses')
 

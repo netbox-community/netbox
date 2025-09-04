@@ -12,9 +12,9 @@
   {# Notifications #}
   {% with notifications=request.user.notifications.unread.exists %}
     <div class="dropdown">
-      <a href="#" class="nav-link px-1" data-bs-toggle="dropdown" hx-get="{% url 'extras:notifications' %}" hx-target="next .notifications" aria-label="{% trans "Notifications" %}">
+      <button class="nav-link fs-2 p-0" data-bs-toggle="dropdown" hx-get="{% url 'extras:notifications' %}" hx-target="next .notifications" aria-label="{% trans "Notifications" %}">
         {% include 'inc/notification_bell.html' %}
-      </a>
+      </button>
       <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications"></div>
     </div>
   {% endwith %}

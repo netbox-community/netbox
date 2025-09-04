@@ -2040,9 +2040,18 @@ class InventoryItemTemplateBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(DeviceRole, 'list', path='', detail=False)
 class DeviceRoleListView(generic.ObjectListView):
-    queryset = DeviceRole.objects.annotate(
-        device_count=count_related(Device, 'role'),
-        vm_count=count_related(VirtualMachine, 'role')
+    queryset = DeviceRole.objects.add_related_count(
+        DeviceRole.objects.add_related_count(
+            DeviceRole.objects.all(),
+            VirtualMachine,
+            'role',
+            'vm_count',
+            cumulative=True
+        ),
+        Device,
+        'role',
+        'device_count',
+        cumulative=True
     )
     filterset = filtersets.DeviceRoleFilterSet
     filterset_form = forms.DeviceRoleFilterForm
@@ -2109,9 +2118,18 @@ class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(Platform, 'list', path='', detail=False)
 class PlatformListView(generic.ObjectListView):
-    queryset = Platform.objects.annotate(
-        device_count=count_related(Device, 'platform'),
-        vm_count=count_related(VirtualMachine, 'platform')
+    queryset = Platform.objects.add_related_count(
+        Platform.objects.add_related_count(
+            Platform.objects.all(),
+            VirtualMachine,
+            'platform',
+            'vm_count',
+            cumulative=True
+        ),
+        Device,
+        'platform',
+        'device_count',
+        cumulative=True
     )
     table = tables.PlatformTable
     filterset = filtersets.PlatformFilterSet

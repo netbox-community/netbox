@@ -29,6 +29,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 __all__ = (
     'BookmarkForm',
     'ConfigContextForm',
+    'ConfigContextProfileForm',
     'ConfigTemplateForm',
     'CustomFieldChoiceSetForm',
     'CustomFieldForm',
@@ -585,7 +586,36 @@ class TagForm(ChangelogMessageMixin, forms.ModelForm):
         ]
 
 
+class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
+    schema = JSONField(
+        label=_('Schema'),
+        required=False,
+        help_text=_("Enter a valid JSON schema to define supported attributes.")
+    )
+    tags = DynamicModelMultipleChoiceField(
+        label=_('Tags'),
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    fieldsets = (
+        FieldSet('name', 'description', 'schema', 'tags', name=_('Config Context Profile')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+    )
+
+    class Meta:
+        model = ConfigContextProfile
+        fields = (
+            'name', 'description', 'schema', 'data_source', 'data_file', 'auto_sync_enabled', 'comments', 'tags',
+        )
+
+
 class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
+    profile = DynamicModelChoiceField(
+        label=_('Profile'),
+        queryset=ConfigContextProfile.objects.all(),
+        required=False
+    )
     regions = DynamicModelMultipleChoiceField(
         label=_('Regions'),
         queryset=Region.objects.all(),
@@ -657,7 +687,7 @@ class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm)
     )
 
     fieldsets = (
-        FieldSet('name', 'weight', 'description', 'data', 'is_active', name=_('Config Context')),
+        FieldSet('name', 'weight', 'profile', 'description', 'data', 'is_active', name=_('Config Context')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
         FieldSet(
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
@@ -669,9 +699,9 @@ class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm)
     class Meta:
         model = ConfigContext
         fields = (
-            'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
-            'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
+            'name', 'weight', 'profile', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites',
+            'locations', 'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
+            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
         )
 
     def __init__(self, *args, initial=None, **kwargs):

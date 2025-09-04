@@ -38,12 +38,13 @@ ADVISORY_LOCK_KEYS = {
     'wirelesslangroup': 105600,
     'inventoryitem': 105700,
     'inventoryitemtemplate': 105800,
+    'platform': 105900,
 
     # Jobs
     'job-schedules': 110100,
 }
 
-# TODO: Remove in NetBox v4.6
+# TODO: Remove in NetBox v4.5
 # Legacy default view action permission mapping
 DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
@@ -59,10 +60,3 @@ CENSOR_TOKEN_CHANGED = '***CHANGED***'
 
 # Placeholder text for empty tables
 EMPTY_TABLE_TEXT = 'No results found'
-
-# CSV delimiters
-CSV_DELIMITERS = {
-    'comma': ',',
-    'semicolon': ';',
-    'pipe': '|',
-}

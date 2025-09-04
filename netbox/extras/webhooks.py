@@ -51,6 +51,7 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
     context = {
         'event': WEBHOOK_EVENT_TYPES.get(event_type, event_type),
         'timestamp': timestamp,
+        'object_type': '.'.join(object_type.natural_key()),
         'model': object_type.model,
         'username': username,
         'request_id': request.id if request else None,

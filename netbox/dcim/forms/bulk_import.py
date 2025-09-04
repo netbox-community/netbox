@@ -358,6 +358,11 @@ class RackReservationImportForm(NetBoxModelImportForm):
         required=True,
         help_text=_('Comma-separated list of individual unit numbers')
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        help_text=_('Operational status')
+    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -368,7 +373,7 @@ class RackReservationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = RackReservation
-        fields = ('site', 'location', 'rack', 'units', 'tenant', 'description', 'comments', 'tags')
+        fields = ('site', 'location', 'rack', 'units', 'status', 'tenant', 'description', 'comments', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -504,6 +509,16 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
 class PlatformImportForm(NetBoxModelImportForm):
     slug = SlugField()
+    parent = CSVModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent platform'),
+        error_messages={
+            'invalid_choice': _('Platform not found.'),
+        }
+    )
     manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -522,7 +537,7 @@ class PlatformImportForm(NetBoxModelImportForm):
     class Meta:
         model = Platform
         fields = (
-            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'tags',
         )
 
 
@@ -675,6 +690,12 @@ class DeviceImportForm(BaseDeviceImportForm):
                     f"location__{self.fields['location'].to_field_name}": location,
                 })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+            # Limit platform queryset by manufacturer
+            params = {f"manufacturer__{self.fields['manufacturer'].to_field_name}": data.get('manufacturer')}
+            self.fields['platform'].queryset = self.fields['platform'].queryset.filter(
+                Q(**params) | Q(manufacturer=None)
+            )
 
             # Limit device bay queryset by parent device
             if parent := data.get('parent'):

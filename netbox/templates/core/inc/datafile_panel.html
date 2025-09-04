@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<div class="card">
+  <h2 class="card-header">{% trans "Data File" %}</h2>
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Data Source" %}</th>
+      <td>
+        {% if object.data_source %}
+          <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Data File" %}</th>
+      <td>
+        {% if object.data_file %}
+          <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+        {% elif object.data_path %}
+          <div class="float-end text-warning">
+            <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
+          </div>
+          {{ object.data_path }}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Data Synced" %}</th>
+      <td>{{ object.data_synced|placeholder }}</td>
+    </tr>
+  </table>
+</div>

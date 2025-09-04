@@ -499,6 +499,10 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=RackReservationStatusChoices,
+        null_value=None
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
@@ -547,14 +551,17 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
-    default_platform_id = django_filters.ModelMultipleChoiceFilter(
+    default_platform_id = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='default_platform',
+        lookup_expr='in',
         label=_('Default platform (ID)'),
     )
-    default_platform = django_filters.ModelMultipleChoiceFilter(
-        field_name='default_platform__slug',
+    default_platform = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='default_platform',
         to_field_name='slug',
+        lookup_expr='in',
         label=_('Default platform (slug)'),
     )
     has_front_image = django_filters.BooleanFilter(
@@ -979,6 +986,29 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class PlatformFilterSet(OrganizationalModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        label=_('Immediate parent platform (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=Platform.objects.all(),
+        to_field_name='slug',
+        label=_('Immediate parent platform (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Parent platform (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Parent platform (slug)'),
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -1058,14 +1088,17 @@ class DeviceFilterSet(
         queryset=Device.objects.all(),
         label=_('Parent Device (ID)'),
     )
-    platform_id = django_filters.ModelMultipleChoiceFilter(
+    platform_id = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='platform',
+        lookup_expr='in',
         label=_('Platform (ID)'),
     )
-    platform = django_filters.ModelMultipleChoiceFilter(
-        field_name='platform__slug',
+    platform = TreeNodeMultipleChoiceFilter(
+        field_name='platform',
         queryset=Platform.objects.all(),
         to_field_name='slug',
+        lookup_expr='in',
         label=_('Platform (slug)'),
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -1515,34 +1548,34 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         label=_('Site group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site',
+        field_name='_site',
         queryset=Site.objects.all(),
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__site__slug',
+        field_name='_site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     location_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__location',
+        field_name='_location',
         queryset=Location.objects.all(),
         label=_('Location (ID)'),
     )
     location = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__location__slug',
+        field_name='_location__slug',
         queryset=Location.objects.all(),
         to_field_name='slug',
         label=_('Location (slug)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__rack',
+        field_name='_rack',
         queryset=Rack.objects.all(),
         label=_('Rack (ID)'),
     )
     rack = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__rack__name',
+        field_name='_rack__name',
         queryset=Rack.objects.all(),
         to_field_name='name',
         label=_('Rack (name)'),
@@ -1885,6 +1918,16 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
+    virtual_chassis_member_or_master = MultiValueCharFilter(
+        method='filter_virtual_chassis_member_or_master',
+        field_name='name',
+        label=_('Virtual Chassis Interfaces for Device when device is master')
+    )
+    virtual_chassis_member_or_master_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member_or_master',
+        field_name='pk',
+        label=_('Virtual Chassis Interfaces for Device when device is master (ID)')
+    )
     virtual_chassis_member = MultiValueCharFilter(
         method='filter_virtual_chassis_member',
         field_name='name',
@@ -1995,11 +2038,14 @@ class InterfaceFilterSet(
             'cable_id', 'cable_end',
         )
 
-    def filter_virtual_chassis_member(self, queryset, name, value):
+    def filter_virtual_chassis_member_or_master(self, queryset, name, value):
+        return self.filter_virtual_chassis_member(queryset, name, value, if_master=True)
+
+    def filter_virtual_chassis_member(self, queryset, name, value, if_master=False):
         try:
             vc_interface_ids = []
             for device in Device.objects.filter(**{f'{name}__in': value}):
-                vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
+                vc_interface_ids.extend(device.vc_interfaces(if_master=if_master).values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
