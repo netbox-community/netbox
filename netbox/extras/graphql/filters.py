@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     )
     from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
     from netbox.graphql.enums import ColorEnum
-    from netbox.graphql.filter_lookups import IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
+    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
     from users.graphql.filters import GroupFilter, UserFilter
     from virtualization.graphql.filters import ClusterFilter, ClusterGroupFilter, ClusterTypeFilter
     from .enums import *
@@ -151,10 +151,10 @@ class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    validation_minimum: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    validation_minimum: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    validation_maximum: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    validation_maximum: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     validation_regex: FilterLookup[str] | None = strawberry_django.filter_field()

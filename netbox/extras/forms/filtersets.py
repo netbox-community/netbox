@@ -103,11 +103,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    validation_minimum = forms.IntegerField(
+    validation_minimum = forms.DecimalField(
         label=_('Minimum value'),
         required=False
     )
-    validation_maximum = forms.IntegerField(
+    validation_maximum = forms.DecimalField(
         label=_('Maximum value'),
         required=False
     )
