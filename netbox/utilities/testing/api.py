@@ -247,9 +247,9 @@ class APIViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
-                    changed_object_id=instance.pk
+                    changed_object_id=instance.pk,
+                    action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
-                self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_CREATE)
                 self.assertEqual(objectchange.message, data['changelog_message'])
 
         def test_bulk_create_objects(self):
@@ -298,11 +298,11 @@ class APIViewTestCases:
                 ]
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(self.model),
-                    changed_object_id__in=id_list
+                    changed_object_id__in=id_list,
+                    action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
                 self.assertEqual(len(objectchanges), len(self.create_data))
                 for oc in objectchanges:
-                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
                     self.assertEqual(oc.message, changelog_message)
 
     class UpdateObjectViewTestCase(APITestCase):
