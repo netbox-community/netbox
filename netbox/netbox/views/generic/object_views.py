@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 
 from core.signals import clear_events
 from netbox.object_actions import (
-    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, CloneObject, DeleteObject, EditObject,
+    BulkDelete, BulkEdit, BulkExport, BulkImport, CloneObject, DeleteObject, EditObject,
 )
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -103,7 +103,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     table = None
     filterset = None
     filterset_form = None
-    actions = (AddObject, BulkImport, BulkEdit, BulkExport, BulkDelete)
+    actions = (BulkImport, BulkEdit, BulkExport, BulkDelete)
     template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
