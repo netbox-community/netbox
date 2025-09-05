@@ -6,8 +6,8 @@ This section of the documentation discusses installing and configuring the NetBo
 
 Begin by installing all system packages required by NetBox and its dependencies.
 
-!!! warning "Python 3.10 or later required"
-    NetBox supports Python 3.10, 3.11, and 3.12.
+!!! warning "Python 3.12 or later required"
+    NetBox supports only Python 3.12 or later.
 
 ```no-highlight
 sudo apt install -y python3 python3-pip python3-venv python3-dev \
@@ -15,7 +15,7 @@ build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev \
 libssl-dev zlib1g-dev
 ```
 
-Before continuing, check that your installed Python version is at least 3.10:
+Before continuing, check that your installed Python version is at least 3.12:
 
 ```no-highlight
 python3 -V
@@ -235,7 +235,7 @@ Once NetBox has been configured, we're ready to proceed with the actual installa
 sudo /opt/netbox/upgrade.sh
 ```
 
-Note that **Python 3.10 or later is required** for NetBox v4.0 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
+Note that **Python 3.12 or later is required** for NetBox v4.5 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
 
 ```no-highlight
 sudo PYTHON=/usr/bin/python3.10 /opt/netbox/upgrade.sh
