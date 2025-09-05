@@ -43,12 +43,12 @@ __all__ = (
 
 @strawberry_django.filter_type(models.ConfigContext, lookups=True)
 class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
-    name: FilterLookup[str] = strawberry_django.filter_field()
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    description: FilterLookup[str] = strawberry_django.filter_field()
-    is_active: FilterLookup[bool] = strawberry_django.filter_field()
+    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    is_active: FilterLookup[bool] | None = strawberry_django.filter_field()
     regions: Annotated['RegionFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
