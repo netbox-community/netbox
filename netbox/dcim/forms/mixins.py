@@ -52,7 +52,7 @@ class ScopedForm(forms.Form):
         scope_type = self.cleaned_data.get('scope_type')
         if scope_type and not scope:
             raise ValidationError({
-                'scope_id': _(
+                'scope': _(
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type.model_class()._meta.model_name)
             })
