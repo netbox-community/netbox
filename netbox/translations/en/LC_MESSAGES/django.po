@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-03 05:02+0000\n"
+"POT-Creation-Date: 2025-09-05 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6944,7 +6944,7 @@ msgstr ""
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1222 netbox/extras/models/customfields.py:227
+#: netbox/dcim/models/devices.py:1222 netbox/extras/models/customfields.py:231
 #: netbox/extras/models/models.py:111 netbox/extras/models/models.py:798
 #: netbox/netbox/models/__init__.py:120 netbox/netbox/models/__init__.py:155
 msgid "comments"
@@ -8288,13 +8288,13 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:65 netbox/extras/forms/bulk_import.py:61
 #: netbox/extras/forms/filtersets.py:92
-#: netbox/extras/models/customfields.py:211
+#: netbox/extras/models/customfields.py:215
 msgid "UI visible"
 msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:70 netbox/extras/forms/bulk_import.py:67
 #: netbox/extras/forms/filtersets.py:97
-#: netbox/extras/models/customfields.py:218
+#: netbox/extras/models/customfields.py:222
 msgid "UI editable"
 msgstr ""
 
@@ -9009,27 +9009,27 @@ msgstr ""
 msgid "Fields with higher weights appear lower in a form."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:180
+#: netbox/extras/models/customfields.py:182
 msgid "minimum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:181
+#: netbox/extras/models/customfields.py:183
 msgid "Minimum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:186
+#: netbox/extras/models/customfields.py:190
 msgid "maximum value"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:187
+#: netbox/extras/models/customfields.py:191
 msgid "Maximum allowed value (for numeric fields)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:193
+#: netbox/extras/models/customfields.py:197
 msgid "validation regex"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:195
+#: netbox/extras/models/customfields.py:199
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -9037,184 +9037,184 @@ msgid ""
 "values to exactly three uppercase letters."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:203
+#: netbox/extras/models/customfields.py:207
 msgid "choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:212
+#: netbox/extras/models/customfields.py:216
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:219
+#: netbox/extras/models/customfields.py:223
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:223
+#: netbox/extras/models/customfields.py:227
 msgid "is cloneable"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:224
+#: netbox/extras/models/customfields.py:228
 msgid "Replicate this value when cloning objects"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:241
+#: netbox/extras/models/customfields.py:245
 msgid "custom field"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:242
+#: netbox/extras/models/customfields.py:246
 msgid "custom fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:344
+#: netbox/extras/models/customfields.py:348
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:351
+#: netbox/extras/models/customfields.py:355
 msgid "A minimum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:353
+#: netbox/extras/models/customfields.py:357
 msgid "A maximum value may be set only for numeric fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:363
+#: netbox/extras/models/customfields.py:367
 msgid "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:369
+#: netbox/extras/models/customfields.py:373
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:379
+#: netbox/extras/models/customfields.py:383
 msgid "Selection fields must specify a set of choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:383
+#: netbox/extras/models/customfields.py:387
 msgid "Choices may be set only on selection fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:390
+#: netbox/extras/models/customfields.py:394
 msgid "Object fields must define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:394
+#: netbox/extras/models/customfields.py:398
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:401
+#: netbox/extras/models/customfields.py:405
 msgid "A related object filter can be defined only for object fields."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:405
+#: netbox/extras/models/customfields.py:409
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:484
+#: netbox/extras/models/customfields.py:488
 msgid "True"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:485
+#: netbox/extras/models/customfields.py:489
 msgid "False"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:577
+#: netbox/extras/models/customfields.py:581
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:679
+#: netbox/extras/models/customfields.py:683
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:681
+#: netbox/extras/models/customfields.py:685
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:686
+#: netbox/extras/models/customfields.py:690
 msgid "Value must be an integer."
-msgstr ""
-
-#: netbox/extras/models/customfields.py:689
-#: netbox/extras/models/customfields.py:704
-#, python-brace-format
-msgid "Value must be at least {minimum}"
 msgstr ""
 
 #: netbox/extras/models/customfields.py:693
 #: netbox/extras/models/customfields.py:708
 #, python-brace-format
+msgid "Value must be at least {minimum}"
+msgstr ""
+
+#: netbox/extras/models/customfields.py:697
+#: netbox/extras/models/customfields.py:712
+#, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:701
+#: netbox/extras/models/customfields.py:705
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:713
+#: netbox/extras/models/customfields.py:717
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:721
+#: netbox/extras/models/customfields.py:725
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:730
+#: netbox/extras/models/customfields.py:734
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:737
+#: netbox/extras/models/customfields.py:741
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:747
+#: netbox/extras/models/customfields.py:751
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:756
+#: netbox/extras/models/customfields.py:760
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:762
+#: netbox/extras/models/customfields.py:766
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:766
+#: netbox/extras/models/customfields.py:770
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:769
+#: netbox/extras/models/customfields.py:773
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:789
+#: netbox/extras/models/customfields.py:793
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:801
+#: netbox/extras/models/customfields.py:805
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:808
+#: netbox/extras/models/customfields.py:812
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:809
+#: netbox/extras/models/customfields.py:813
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:851
+#: netbox/extras/models/customfields.py:855
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:875
+#: netbox/extras/models/customfields.py:879
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
