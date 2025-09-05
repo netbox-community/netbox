@@ -538,7 +538,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
-            field = JSONField(required=required, initial=json.dumps(initial) if initial else None)
+            field = JSONField(required=required, initial=json.dumps(initial) if initial is not None else None)
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
