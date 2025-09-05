@@ -18,7 +18,7 @@ from utilities.conversion import to_meters
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
-from utilities.serialization import serialize_object
+from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort, PathEndpoint
 
@@ -108,6 +108,8 @@ class Cable(PrimaryModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.__dict__.get('status')
 
+        self._a_terminations = []
+        self._b_terminations = []
         self._terminations_modified = False
 
         # Assign or retrieve A/B terminations
@@ -250,6 +252,24 @@ class Cable(PrimaryModel):
         data['b_terminations'] = sorted([ct.pk for ct in b_terminations.values()])
 
         return data
+
+    @classmethod
+    def deserialize_object(cls, data, pk=None):
+        a_terminations = data.pop('a_terminations', [])
+        b_terminations = data.pop('b_terminations', [])
+
+        instance = deserialize_object(cls, data, pk=pk)
+
+        # Assign A & B termination objects to the Cable instance
+        queryset = CableTermination.objects.prefetch_related('termination')
+        instance.a_terminations = [
+            ct.termination for ct in queryset.filter(pk__in=a_terminations)
+        ]
+        instance.b_terminations = [
+            ct.termination for ct in queryset.filter(pk__in=b_terminations)
+        ]
+
+        return instance
 
     def get_terminations(self):
         """
