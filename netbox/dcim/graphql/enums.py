@@ -12,6 +12,7 @@ __all__ = (
     'DeviceFaceEnum',
     'DeviceStatusEnum',
     'InterfaceDuplexEnum',
+    'InterfaceKindEnum',
     'InterfaceModeEnum',
     'InterfacePoEModeEnum',
     'InterfacePoETypeEnum',
@@ -48,6 +49,7 @@ DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
+InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
 InterfaceModeEnum = strawberry.enum(InterfaceModeChoices.as_enum(prefix='mode'))
 InterfacePoEModeEnum = strawberry.enum(InterfacePoEModeChoices.as_enum(prefix='mode'))
 InterfacePoETypeEnum = strawberry.enum(InterfacePoETypeChoices.as_enum())
